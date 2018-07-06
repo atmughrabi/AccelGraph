@@ -1,4 +1,4 @@
-# CAPI-Graph-Processing-Framework
+# CAPI Graph Processing Framework
 
 AFU framework for Graph Processing algorithms with CAPI connected FGPAs.
 
