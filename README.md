@@ -1,12 +1,11 @@
-# capi-streaming-framework
+# CAPI-Graph-Processing-Framework
 
-AFU framework for streaming applications with CAPI connected FGPAs.
+AFU framework for Graph Processing algorithms with CAPI connected FGPAs.
 
 More info
-* ~~Webinar: [https://ieee-isto.webex.com/ieee-isto/lsr.php?RCID=4eb9bafd1a3f4ebfa1fb8ee1835eab39](https://ieee-isto.webex.com/ieee-isto/lsr.php?RCID=4eb9bafd1a3f4ebfa1fb8ee1835eab39)~~  
-**Unfortunately, the webinar was automatically removed. I'm not sure if it can be recovered.**
+* ~~Webinar: TO BE ADDED ~~  
 
-* Slides: [http://slides.com/mbrobbel/capi-streaming-framework](http://slides.com/mbrobbel/capi-streaming-framework)
+* Slides: [ TO BE ADDED ]( TO BE ADDED )
 
 **Please note the following;**
 
@@ -14,7 +13,7 @@ More info
 
 * **For now there is very limited instructions and documentation, but this will all be added later. An example project file for the Nallatech P385-A7 card with the Altera Stratix V GX A7 FPGA will also be added later. The current Computing Unit (CU) implements a simple memcpy function.**
 
-* **This framework runs in dedicated mode and was developed to be used with Linux.**
+* **This framework runs in dedicated mode and was developed to be used with Ubuntu-Linux.**
 
 ## Overview
 
@@ -23,20 +22,20 @@ This will be added later.
 ## Organization
 
 * `accelerator`
-  * `lib` - VHDL global packages
-    * `functions.vhd` - Helper functions
-    * `psl.vhd` - PSL constants and interface records
-    * `wed.vhd` - WED record and parse procedure
-  * `pkg` - VHDL packages
-  * `rtl` - VHDL architectures
-    * `afu.vhd` - PSL to AFU wrapper
-    * `control.vhd` - Framework control
-    * `cu.vhd` - Computing Unit - implements the actual AFU functionality
-    * `dma.vhd` - Direct Memory Access
-    * `fifo.vhd` - First-In-First-Out
-    * `frame.vhd` - AFU top level
-    * `mmio.vhd` - Memory-Mapped-Input-Output
-    * `ram.vhd` - Random-Access-Memory
+  * `lib` - System Verilog global packages
+    * `functions.sv` - Helper functions
+    * `psl.sv` - PSL constants and interface records
+    * `wed.sv` - WED record and parse procedure
+  * `pkg` - System Verilog packages
+  * `rtl` - System Verilog architectures
+    * `afu.sv` - PSL to AFU wrapper
+    * `control.sv` - Framework control
+    * `cu.sv` - Computing Unit - implements the actual AFU functionality
+    * `dma.sv` - Direct Memory Access
+    * `fifo.sv` - First-In-First-Out
+    * `frame.sv` - AFU top level
+    * `mmio.sv` - Memory-Mapped-Input-Output
+    * `ram.sv` - Random-Access-Memory
 * `host`
 	* `app` - Host application sources
 * `sim`
@@ -88,8 +87,8 @@ Please note that all listed `make` commands should be executed from the root of 
 
 1. Clone the repository. enter the directory and initialize the submodules
   ```bash
-  git clone https://github.com/mbrobbel/capi-streaming-framework.git
-  cd capi-streaming-framework
+  git clone https://github.ncsu.edu/atmughra/CAPI-Graph.git
+  cd CAPI-Graph
   git submodule update --init
   ```
 
@@ -113,7 +112,7 @@ Please note that all listed `make` commands should be executed from the root of 
 
 1. Start the simulator:
   ```bash
-  make vsim-run
+  make vsim-run 
   ```
 
   This will start vsim and execute the `vsim.tcl` script, which will automatically compile the sources.
@@ -132,7 +131,7 @@ Please note that all listed `make` commands should be executed from the root of 
 
 4. Open a new terminal and run your host application. This will run your host application from the `sim` directory:
   ```bash
-  make sim-run ARGS="<number-of-cachelines-to-copy>"
+  make sim-run ARGS="<Algorithm>"
   ```
 
 5. Wait for your host application to terminate then switch to the PSLSE terminal and kill (`CTRL+C`) the running PSLSE process to inspect the wave.
