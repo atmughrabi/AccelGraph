@@ -1,5 +1,3 @@
-
-
 package CU_PKG;
 	
 import CAPI_PKG::*;

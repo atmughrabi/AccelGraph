@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include "libcxl.h"
 
+#include "adjlist.h"
+
 /* libcxl
 extern "C" {
   #include "libcxl.h"

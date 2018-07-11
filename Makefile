@@ -1,5 +1,6 @@
 # globals
-APP               = test_afu
+APP                = test_afu
+GAPP               = test_afu
 
 # dirs
 PSLSE_DIR         = sim/pslse
@@ -32,3 +33,8 @@ sim-run:
 
 vsim-run:
 	cd sim && vsim -do vsim.tcl
+
+graph-build:
+	mkdir -p $(APP_DIR)/graph-build
+	$(CC) $(APP_DIR)/$(SRC_DIR)/$(APP).c -o $(APP_DIR)/graph-build/$(APP) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CFLAGS) -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -lrt -lpthread -D SIM
+

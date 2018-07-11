@@ -19,7 +19,6 @@ proc r  {} {
   vlog -quiet ../accelerator/rtl/shift_register.sv
   vlog -quiet ../accelerator/rtl/cu.sv
   vlog -quiet ../accelerator/rtl/job.sv
-  # vlog -quiet ../accelerator/rtl/parity_workelement.sv
   vlog -quiet ../accelerator/rtl/control.sv
   vlog -quiet ../accelerator/rtl/mmio.sv
   vlog -quiet ../accelerator/rtl/afu.sv
