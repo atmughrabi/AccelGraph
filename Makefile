@@ -14,7 +14,7 @@ CPP               = c++
 CC				  =gcc
 
 # flags
-CFLAGS            = -O3 -Wall -m64
+CFLAGS            = -O3 -Wall -m64 -Iinclude
 
 pslse-build:
 	cd $(PSLSE_DIR)/afu_driver/src && make clean && BIT32=y make

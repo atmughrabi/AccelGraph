@@ -2,11 +2,12 @@
 #include <stdlib.h>
 
 #include "adjlist.h"
+#include "capienv.h"
 
 // A utility function to create a new adjacency list node
 struct AdjListNode* newAdjListNode(int dest){
 
-struct AdjListNode* newNode = (struct AdjListNode*) aligned_alloc(alignment, sizeof(struct AdjListNode));
+struct AdjListNode* newNode = (struct AdjListNode*) aligned_alloc(CACHELINE_BYTES, sizeof(struct AdjListNode));
 newNode->dest = dest;
 newNode->next = NULL;
 
@@ -16,10 +17,10 @@ return newNode;
 // A utility function that creates a graph of V vertices
 struct Graph* createGraph(int V){
 
-struct Graph* graph = (struct Graph*) aligned_alloc(alignment, sizeof(struct Graph));
+struct Graph* graph = (struct Graph*) aligned_alloc(CACHELINE_BYTES, sizeof(struct Graph));
 
 graph->V = V;
-graph->array = (struct AdjList*) aligned_alloc(alignment, V * sizeof(struct AdjList));
+graph->array = (struct AdjList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjList));
 
 int i;
 for(i = 0; i < V; i++){
