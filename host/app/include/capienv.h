@@ -17,11 +17,11 @@
 
 typedef struct
 {
-	__u64 size;
+	int size;
 	void *stripe1;
 	void *stripe2;
 	void *parity;
-	__u64 done;
+	int done;
 } parity_request;
 
 
