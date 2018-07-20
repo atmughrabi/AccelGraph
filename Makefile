@@ -42,6 +42,9 @@ vsim-run:
 $(APP_DIR)/$(OBJ_DIR)/adjlist.o: $(APP_DIR)/$(SRC_DIR)/adjlist.c $(APP_DIR)/$(INC_DIR)/adjlist.h
 	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjlist.o $(APP_DIR)/$(SRC_DIR)/adjlist.c
 
+$(APP_DIR)/$(OBJ_DIR)/queue.o: $(APP_DIR)/$(SRC_DIR)/queue.c $(APP_DIR)/$(INC_DIR)/queue.h
+	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/queue.o $(APP_DIR)/$(SRC_DIR)/queue.c
+
 $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	$(CC) $(CFLAGS) -c -o $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
 	$(APP_DIR)/$(SRC_DIR)/$(GAPP).c \
@@ -54,10 +57,13 @@ graph: $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o
 
 adjlist: $(APP_DIR)/$(OBJ_DIR)/adjlist.o
 
-graph-build: adjlist graph 
+queue: $(APP_DIR)/$(OBJ_DIR)/queue.o
+
+graph-build: adjlist graph queue
 	mkdir -p $(APP_DIR)/graph-build
 	$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
 	$(APP_DIR)/$(OBJ_DIR)/adjlist.o \
+	$(APP_DIR)/$(OBJ_DIR)/queue.o \
 	$(PSLSE_LIBCXL_DIR)/libcxl.a \
 	 -o $(APP_DIR)/graph-build/$(GAPP)\
 	 -I$(PSLSE_COMMON_DIR) \
