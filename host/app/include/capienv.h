@@ -1,7 +1,7 @@
 #ifndef CAPIENV_H
 #define CAPIENV_H
 
-
+#include <linux/types.h>
 
 #define APP_NAME              "test_afu"
 
@@ -17,11 +17,11 @@
 
 typedef struct
 {
-	int size;
+	__u64 size;
 	void *stripe1;
 	void *stripe2;
 	void *parity;
-	int done;
+	__u64 done;
 } parity_request;
 
 

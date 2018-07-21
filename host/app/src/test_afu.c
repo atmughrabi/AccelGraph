@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include "libcxl.h"
 
-#include "adjlist.h"
+// #include "adjlist.h"
 #include "capienv.h"
 
 /* libcxl

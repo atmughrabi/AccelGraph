@@ -31,7 +31,7 @@ pslse-run:
 
 sim-build:
 	mkdir -p $(APP_DIR)/sim-build
-	$(CC) $(APP_DIR)/$(SRC_DIR)/$(APP).c -o $(APP_DIR)/sim-build/$(APP) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CFLAGS) -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -lrt -lpthread -D SIM
+	$(CC) $(APP_DIR)/$(SRC_DIR)/$(APP).c  -o $(APP_DIR)/sim-build/$(APP) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CFLAGS) $(INC) -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -lrt -lpthread -D SIM
 
 sim-run:
 	cd sim && ../$(APP_DIR)/sim-build/$(APP) $(ARGS)
@@ -45,13 +45,19 @@ $(APP_DIR)/$(OBJ_DIR)/adjlist.o: $(APP_DIR)/$(SRC_DIR)/adjlist.c $(APP_DIR)/$(IN
 $(APP_DIR)/$(OBJ_DIR)/queue.o: $(APP_DIR)/$(SRC_DIR)/queue.c $(APP_DIR)/$(INC_DIR)/queue.h
 	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/queue.o $(APP_DIR)/$(SRC_DIR)/queue.c
 
+$(APP_DIR)/$(OBJ_DIR)/edgelist.o: $(APP_DIR)/$(SRC_DIR)/edgelist.c $(APP_DIR)/$(INC_DIR)/edgelist.h
+	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgelist.o $(APP_DIR)/$(SRC_DIR)/edgelist.c
+
 $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	$(CC) $(CFLAGS) -c -o $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
 	$(APP_DIR)/$(SRC_DIR)/$(GAPP).c \
 	-I$(PSLSE_LIBCXL_DIR) \
 	-I$(APP_DIR)/include \
 	-I$(PSLSE_COMMON_DIR) 
-	 
+
+
+
+edgelist: $(APP_DIR)/$(OBJ_DIR)/edgelist.o
 
 graph: $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o
 
@@ -59,11 +65,12 @@ adjlist: $(APP_DIR)/$(OBJ_DIR)/adjlist.o
 
 queue: $(APP_DIR)/$(OBJ_DIR)/queue.o
 
-graph-build: adjlist graph queue
+graph-build: adjlist graph queue edgelist
 	mkdir -p $(APP_DIR)/graph-build
 	$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
 	$(APP_DIR)/$(OBJ_DIR)/adjlist.o \
 	$(APP_DIR)/$(OBJ_DIR)/queue.o \
+	$(APP_DIR)/$(OBJ_DIR)/edgelist.o \
 	$(PSLSE_LIBCXL_DIR)/libcxl.a \
 	 -o $(APP_DIR)/graph-build/$(GAPP)\
 	 -I$(PSLSE_COMMON_DIR) \

@@ -6,6 +6,7 @@
 #include "capienv.h"
 #include "adjlist.h" 
 #include "queue.h"
+#include "edgelist.h"
 
 int main()
 {
