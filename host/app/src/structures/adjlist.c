@@ -19,7 +19,7 @@ struct AdjListNode* newAdjListNode(int src, int dest, int weight){
 // A utility function that creates a graph of V vertices
 struct Graph* adjListCreateGraph(int V){
 
-    printf("\n Create Graph #Vertecies: %d\n ", V);
+    // printf("\n Create Graph #Vertecies: %d\n ", V);
 
 	struct Graph* graph = (struct Graph*) aligned_alloc(CACHELINE_BYTES, sizeof(struct Graph));
 
@@ -35,7 +35,7 @@ struct Graph* adjListCreateGraph(int V){
         graph->parent_array[i].visited = 0;
 	}
 
-    printf("\n Success!!! V: %d\n ", V);
+    // printf("\n Success!!! V: %d\n ", V);
 
     return graph;
 

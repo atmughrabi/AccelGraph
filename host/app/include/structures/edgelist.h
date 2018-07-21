@@ -13,7 +13,7 @@ struct Edge {
 
 struct EdgeList {
 
-	__u32 num_edges;
+	int num_edges;
 	struct Edge* edges_array;
 	// struct Edge* edges_sorted;
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -8,15 +9,19 @@
 #include <err.h>
 
 #include "edgelist.h"
+#include "capienv.h"
 
 // read edge file to edge_array in memory
 
-struct EdgeList* newEdgeList( int size){
+struct EdgeList* newEdgeList( int num_edges){
 
+        struct EdgeList* newEdgeList = (struct EdgeList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct EdgeList));
 
+        newEdgeList->num_edges = num_edges;
 
-
-
+        newEdgeList->edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));;
+       
+        return newEdgeList;
 
 }
 
