@@ -37,14 +37,14 @@ struct Graph
 // A utility function to create a new adjacency list node
 struct AdjListNode* newAdjListNode(int src, int dest, int weight);
 // A utility function that creates a graph of V vertices
-struct Graph* adjlist_createGraph(int V);
+struct Graph* adjListCreateGraph(int V);
 // Adds an edge to an undirected graph
-void adjlist_addEdge_undirected(struct Graph* graph, int src, int dest, int weight);
+void adjListAddEdgeUndirected(struct Graph* graph, int src, int dest, int weight);
 // Adds an edge to a directed graph
-void adjlist_addEdge_directed(struct Graph* graph, int src, int dest, int weight);
+void adjListAddEdgeDirected(struct Graph* graph, int src, int dest, int weight);
 // A utility function to print the adjacency list 
 // representation of graph
-void adjlist_printGraph(struct Graph* graph);
+void adjListPrintGraph(struct Graph* graph);
 
 
 #endif

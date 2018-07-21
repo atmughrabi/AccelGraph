@@ -4,8 +4,8 @@
 // A structure to represent an edge
 struct Edge {
 
-	__u32 dest;
-	__u32 src;
+	int dest;
+	int src;
 	int weight;
 
 };
@@ -19,8 +19,12 @@ struct EdgeList {
 
 };
 
-void edgelist_print(struct EdgeList* edgeList);
+void edgeListPrint(struct EdgeList* edgeList);
 
-struct EdgeList* read_edgelists(const char * fname);
+struct EdgeList* readEdgeListstxt(const char * fname);
+
+struct EdgeList* readEdgeListsbin(const char * fname);
+
+struct EdgeList* newEdgeList( int size);
 
 #endif

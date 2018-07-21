@@ -17,7 +17,7 @@ struct AdjListNode* newAdjListNode(int src, int dest, int weight){
 
 }
 // A utility function that creates a graph of V vertices
-struct Graph* adjlist_createGraph(int V){
+struct Graph* adjListCreateGraph(int V){
 
     printf("\n Create Graph #Vertecies: %d\n ", V);
 
@@ -41,7 +41,7 @@ struct Graph* adjlist_createGraph(int V){
 
 }
 // Adds an edge to an undirected graph
-void adjlist_addEdge_undirected(struct Graph* graph, int src, int dest, int weight){
+void adjListAddEdgeUndirected(struct Graph* graph, int src, int dest, int weight){
 
 	// Add an edge from src to dest.  A new node is 
     // added to the adjacency list of src.  The node
@@ -65,7 +65,7 @@ void adjlist_addEdge_undirected(struct Graph* graph, int src, int dest, int weig
 
 }
 // Adds an edge to a directed graph
-void adjlist_addEdge_directed(struct Graph* graph, int src, int dest, int weight){
+void adjListAddEdgeDirected(struct Graph* graph, int src, int dest, int weight){
 
     // Add an edge from src to dest.  A new node is 
     // added to the adjacency list of src.  The node
@@ -81,7 +81,7 @@ void adjlist_addEdge_directed(struct Graph* graph, int src, int dest, int weight
 }
 // A utility function to print the adjacency list 
 // representation of graph
-void adjlist_printGraph(struct Graph* graph){
+void adjListPrintGraph(struct Graph* graph){
 
 	int v;
     for (v = 0; v < graph->V; ++v)

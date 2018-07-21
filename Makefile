@@ -10,12 +10,15 @@ APP_DIR           = host/app
 SRC_DIR           = src
 OBJ_DIR			  = obj
 INC_DIR			  = include
+STRUCT_DIR		  = structures
+ALGO_DIR		  = graphalgorithms
+TEST_DIR		  = tests
 
 # compilers
 CPP               = c++
 CC				  =gcc
 
-INC = -I$(APP_DIR)/include
+INC = -I$(APP_DIR)/include/$(STRUCT_DIR)/ -I$(APP_DIR)/include/$(ALGO_DIR)/ -I$(APP_DIR)/include/$(TEST_DIR)/
 # flags
 CFLAGS            = -O3 -Wall -m64 -g
 
@@ -39,20 +42,20 @@ sim-run:
 vsim-run:
 	cd sim && vsim -do vsim.tcl
 
-$(APP_DIR)/$(OBJ_DIR)/adjlist.o: $(APP_DIR)/$(SRC_DIR)/adjlist.c $(APP_DIR)/$(INC_DIR)/adjlist.h
-	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjlist.o $(APP_DIR)/$(SRC_DIR)/adjlist.c
+$(APP_DIR)/$(OBJ_DIR)/adjlist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/adjlist.h
+	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjlist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c
 
-$(APP_DIR)/$(OBJ_DIR)/queue.o: $(APP_DIR)/$(SRC_DIR)/queue.c $(APP_DIR)/$(INC_DIR)/queue.h
-	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/queue.o $(APP_DIR)/$(SRC_DIR)/queue.c
+$(APP_DIR)/$(OBJ_DIR)/queue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/queue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/queue.h
+	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/queue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/queue.c
 
-$(APP_DIR)/$(OBJ_DIR)/edgelist.o: $(APP_DIR)/$(SRC_DIR)/edgelist.c $(APP_DIR)/$(INC_DIR)/edgelist.h
-	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgelist.o $(APP_DIR)/$(SRC_DIR)/edgelist.c
+$(APP_DIR)/$(OBJ_DIR)/edgelist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/edgelist.h
+	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgelist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c
 
 $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	$(CC) $(CFLAGS) -c -o $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
-	$(APP_DIR)/$(SRC_DIR)/$(GAPP).c \
+	$(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).c \
 	-I$(PSLSE_LIBCXL_DIR) \
-	-I$(APP_DIR)/include \
+	$(INC) \
 	-I$(PSLSE_COMMON_DIR) 
 
 
