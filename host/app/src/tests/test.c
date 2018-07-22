@@ -12,19 +12,23 @@ int main()
 {
     // create the graph given in above fugure
     int V = 5;
+    // const char * fname = "../../app/datasets/wiki-vote/wiki-Vote.txt";
+    const char * fname = "../../app/datasets/facebook/facebook_combined.txt";
     struct Graph* graph = adjListCreateGraph(V);
+    struct EdgeList* edgeList = readEdgeListstxt(fname);
+    // edgeListPrint(edgeList);
     int weight = 1;
 
-    adjListAddEdgeUndirected(graph, 0, 1,weight);
-    adjListAddEdgeUndirected(graph, 0, 4,weight);
-    adjListAddEdgeUndirected(graph, 1, 2,weight);
-    adjListAddEdgeUndirected(graph, 1, 3,weight);
-    adjListAddEdgeUndirected(graph, 1, 4,weight);
-    adjListAddEdgeUndirected(graph, 2, 3,weight);
-    adjListAddEdgeUndirected(graph, 3, 4,weight);
+    adjListAddEdgeDirected(graph, 0, 1,weight);
+    adjListAddEdgeDirected(graph, 0, 4,weight);
+    adjListAddEdgeDirected(graph, 1, 2,weight);
+    adjListAddEdgeDirected(graph, 1, 3,weight);
+    adjListAddEdgeDirected(graph, 1, 4,weight);
+    adjListAddEdgeDirected(graph, 2, 3,weight);
+    adjListAddEdgeDirected(graph, 3, 4,weight);
 
 
-    // Driver Program to test anove functions
+    // Driver Program to test queue functions
     struct Queue *q = createQueue();
     
     enQueue(q, 10);

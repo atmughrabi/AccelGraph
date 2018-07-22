@@ -25,6 +25,6 @@ struct EdgeList* readEdgeListstxt(const char * fname);
 
 struct EdgeList* readEdgeListsbin(const char * fname);
 
-struct EdgeList* newEdgeList( int size);
+struct EdgeList* newEdgeList(int num_edges);
 
 #endif

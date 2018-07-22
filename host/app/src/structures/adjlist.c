@@ -87,7 +87,7 @@ void adjListPrintGraph(struct Graph* graph){
     for (v = 0; v < graph->V; ++v)
     {
         struct AdjListNode* pCrawl = graph->parent_array[v].head;
-        printf("\n Adjacency list of vertex %d\n head %d neighbours ", v, graph->parent_array[v].out_degree);
+        printf("\n Adjacency list of vertex %d\n  out_degree: %d  in_degree: %d \n", v, graph->parent_array[v].out_degree, graph->parent_array[v].in_degree);
         while (pCrawl)
         {
             printf("-> %d", pCrawl->dest);

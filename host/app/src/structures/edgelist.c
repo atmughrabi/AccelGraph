@@ -7,6 +7,7 @@
 #include <sys/mman.h>
 #include <errno.h>
 #include <err.h>
+#include <string.h>
 
 #include "edgelist.h"
 #include "capienv.h"
@@ -19,7 +20,17 @@ struct EdgeList* newEdgeList( int num_edges){
 
         newEdgeList->num_edges = num_edges;
 
-        newEdgeList->edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));;
+        newEdgeList->edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));
+
+        int i;
+        for(i = 0; i < newEdgeList->num_edges; i++){
+
+                newEdgeList->edges_array[i].dest = i;
+                newEdgeList->edges_array[i].src = i;  
+                newEdgeList->edges_array[i].weight = i;
+       
+        }
+
        
         return newEdgeList;
 
@@ -28,10 +39,67 @@ struct EdgeList* newEdgeList( int num_edges){
 struct EdgeList* readEdgeListstxt(const char * fname)
 {
 
+        FILE *pText, *pBinary;
+        int size = 0, i;
+        int src = 0, dest = 0, weight = 1;
+
+        char * fname_txt = (char *) malloc(strlen(fname)*sizeof(char));
+        char * fname_bin;
+
+        
+
+        fname_txt = strcpy (fname_txt, fname);
+        fname_bin = strcat (fname_txt, ".bin");
+
+        printf("Filename : %s \n",fname);
+        printf("Filename : %s \n",fname_bin);
+
+        pText = fopen(fname, "r");
+        pBinary = fopen(fname_bin, "wb");
+
+        if (pText == NULL) {
+                err(1, "open: %s", fname);
+                return 0;
+        }
+         if (pBinary == NULL) {
+                err(1, "open: %s", fname_bin);
+                return 0;
+        }
+
+
+        while (1)
+        {
+        size++;
+        i = fscanf(pText, "%d\t%d\n", &src, &dest);
+
+        // printf(" %d -> %d \n", src,dest);
+
+        fwrite(&src, sizeof (src), 1, pBinary);
+        fwrite(&dest, sizeof (dest), 1, pBinary);
+        fwrite(&weight, sizeof (weight), 1, pBinary);
+
+        if( i == EOF ) 
+           break;
+        }
+
+      
+        fclose(pText);
+        fclose(pBinary);
+
+        struct EdgeList* edgeList = readEdgeListsbin(fname_bin);
+
+        return edgeList;
+
+}
+
+struct EdgeList* readEdgeListsbin(const char * fname )
+{
+        
 
         int fd = open(fname, O_RDONLY);
         struct stat fs;
-        char *buf_addr, *buf_addr_end;
+        char *buf_addr;
+        int  *buf_pointer;
         char *begin, *end, c;
  
         if (fd == -1) {
@@ -45,32 +113,51 @@ struct EdgeList* readEdgeListstxt(const char * fname)
         }
  
         /* fs.st_size could have been 0 actually */
-        buf_addr = mmap(0, fs.st_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
-
-        printf("#Size: %llu\n", (__u64)fs.st_size);
+        buf_addr = mmap(0, fs.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
         if (buf_addr == (void*) -1) {
                 err(1, "mmap: %s", fname);
                 close(fd);
                 return 0;
         }
- 
-        buf_addr_end = buf_addr + fs.st_size;
- 
-        begin = end = buf_addr;
-        
- 
+
+        // printf("#Size: %llu\n", (__u64)fs.st_size/(3*sizeof(int)));
+        buf_pointer = (int *) buf_addr;
+        int num_edges = (__u32)fs.st_size/(3*sizeof(int));
+
+        // printf("%d -> %d w: %d \n", buf_pointer[0], buf_pointer[1], buf_pointer[2]);   
+
+        struct EdgeList* edgeList = newEdgeList(num_edges-1);
+
+
+        int i;
+        for(i = 0; i < edgeList->num_edges; i++){
+
+                printf("%d -> %d w: %d \n", buf_pointer[(3*i)+0], buf_pointer[(3*i)+1], buf_pointer[(3*i)+2]);
+                
+                edgeList->edges_array[i].src = buf_pointer[(3*i)+0];
+                edgeList->edges_array[i].dest = buf_pointer[(3*i)+1];
+                edgeList->edges_array[i].weight = buf_pointer[(3*i)+2];
+             
+        }
+
+
+     
         munmap(buf_addr, fs.st_size);
         close(fd);
-        return 1;
+
+        return edgeList;
 }
 
 void edgeListPrint(struct EdgeList* edgeList){
 
+        int i;
+        for(i = 0; i < edgeList->num_edges; i++){
 
+                 printf("%d -> %d w: %d \n", edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);
+             
 
-
-
+        }
 
 
 }
