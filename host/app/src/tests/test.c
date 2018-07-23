@@ -12,8 +12,10 @@ int main()
 {
     // create the graph given in above fugure
     int V = 5;
-    // const char * fname = "/app/datasets/wiki-vote/wiki-Vote.txt";
-    const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
+    const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
+    // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
+
+     // struct Queue *q = createQueue();
     struct Graph* graph = adjListCreateGraph(V);
     struct EdgeList* edgeList = readEdgeListstxt(fname);
     edgeListPrint(edgeList);
@@ -30,23 +32,23 @@ int main()
 
 
     // Driver Program to test queue functions
-    struct Queue *q = createQueue();
+   
     
-    enQueue(q, 10);
-    enQueue(q, 20);
-    deQueue(q);
-    deQueue(q);
-    enQueue(q, 30);
-    enQueue(q, 40);
-    enQueue(q, 50);
-    struct QNode *n = deQueue(q);
-    if (n != NULL)
-      printf("Dequeued item is %d", n->key);
+    // enQueue(q, 10);
+    // enQueue(q, 20);
+    // deQueue(q);
+    // deQueue(q);
+    // enQueue(q, 30);
+    // enQueue(q, 40);
+    // enQueue(q, 50);
+    // struct QNode *n = deQueue(q);
+    // if (n != NULL)
+    //   printf("Dequeued item is %d", n->key);
    
 
  
     // print the adjacency list representation of the above graph
-    adjListPrintGraph(graph);
+    // adjListPrintGraph(graph);
  
     return 0;
 }

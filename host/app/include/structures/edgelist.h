@@ -14,10 +14,13 @@ struct Edge {
 struct EdgeList {
 
 	int num_edges;
+	int num_vertices;
 	struct Edge* edges_array;
 	// struct Edge* edges_sorted;
 
 };
+
+int maxTwoIntegers(int num1, int num2);
 
 void edgeListPrint(struct EdgeList* edgeList);
 

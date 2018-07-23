@@ -3,6 +3,7 @@ accelerator/fpga
 host/app/sim-build
 host/app/build
 host/app/build-graph
+host/app/test
 host/app/obj
 host/libcxl
 

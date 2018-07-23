@@ -47,6 +47,9 @@ sim-run:
 vsim-run:
 	cd sim && vsim -do vsim.tcl
 
+$(APP_DIR)/$(OBJ_DIR)/countsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c $(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)/countsort.h
+	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/countsort.o $(PREPRO_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c
+
 $(APP_DIR)/$(OBJ_DIR)/adjlist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/adjlist.h
 	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjlist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c
 
@@ -63,7 +66,7 @@ $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	$(INC) \
 	-I$(PSLSE_COMMON_DIR) 
 
-
+countsort: $(APP_DIR)/$(OBJ_DIR)/countsort.o
 
 edgelist: $(APP_DIR)/$(OBJ_DIR)/edgelist.o
 
