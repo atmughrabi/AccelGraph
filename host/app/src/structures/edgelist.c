@@ -100,7 +100,6 @@ struct EdgeList* readEdgeListsbin(const char * fname )
         struct stat fs;
         char *buf_addr;
         int  *buf_pointer;
-        char *begin, *end, c;
  
         if (fd == -1) {
                 err(1, "open: %s", fname);
@@ -132,8 +131,6 @@ struct EdgeList* readEdgeListsbin(const char * fname )
 
         int i;
         for(i = 0; i < edgeList->num_edges; i++){
-
-                printf("%d -> %d w: %d \n", buf_pointer[(3*i)+0], buf_pointer[(3*i)+1], buf_pointer[(3*i)+2]);
                 
                 edgeList->edges_array[i].src = buf_pointer[(3*i)+0];
                 edgeList->edges_array[i].dest = buf_pointer[(3*i)+1];
@@ -142,7 +139,6 @@ struct EdgeList* readEdgeListsbin(const char * fname )
         }
 
 
-     
         munmap(buf_addr, fs.st_size);
         close(fd);
 

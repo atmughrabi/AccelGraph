@@ -1,6 +1,7 @@
 # globals
 APP                = test_afu
 GAPP               = test
+TEST               = test
 
 # dirs
 PSLSE_DIR         = sim/pslse
@@ -11,6 +12,7 @@ SRC_DIR           = src
 OBJ_DIR			  = obj
 INC_DIR			  = include
 STRUCT_DIR		  = structures
+PREPRO_DIR		  = preprocessing
 ALGO_DIR		  = graphalgorithms
 TEST_DIR		  = tests
 
@@ -18,11 +20,14 @@ TEST_DIR		  = tests
 CPP               = c++
 CC				  =gcc
 
-INC = -I$(APP_DIR)/include/$(STRUCT_DIR)/ -I$(APP_DIR)/include/$(ALGO_DIR)/ -I$(APP_DIR)/include/$(TEST_DIR)/
+INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
+		-I$(APP_DIR)/include/$(ALGO_DIR)/ 	\
+		-I$(APP_DIR)/include/$(TEST_DIR)/ 	\
+		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 # flags
 CFLAGS            = -O3 -Wall -m64 -g
 
-all: graph-build
+all: test
 
 pslse-build:
 	cd $(PSLSE_DIR)/afu_driver/src && make clean && BIT32=y make
@@ -68,20 +73,21 @@ adjlist: $(APP_DIR)/$(OBJ_DIR)/adjlist.o
 
 queue: $(APP_DIR)/$(OBJ_DIR)/queue.o
 
-graph-build: adjlist graph queue edgelist
-	mkdir -p $(APP_DIR)/graph-build
+test: adjlist graph queue edgelist
+	mkdir -p $(APP_DIR)/test
 	$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
 	$(APP_DIR)/$(OBJ_DIR)/adjlist.o \
 	$(APP_DIR)/$(OBJ_DIR)/queue.o \
 	$(APP_DIR)/$(OBJ_DIR)/edgelist.o \
 	$(PSLSE_LIBCXL_DIR)/libcxl.a \
-	 -o $(APP_DIR)/graph-build/$(GAPP)\
+	 -o $(APP_DIR)/test/$(GAPP)\
 	 -I$(PSLSE_COMMON_DIR) \
 	 -I$(PSLSE_LIBCXL_DIR) \
 	 -lrt -lpthread -D SIM 
 
 clean:
 	@rm -fr $(APP_DIR)/graph-build
+	@rm -fr $(APP_DIR)/test
 	@rm -fr $(APP_DIR)/sim-build
 	@rm -f $(APP_DIR)/$(OBJ_DIR)/*
 	@rm -f sim/modelsim.ini

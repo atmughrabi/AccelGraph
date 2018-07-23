@@ -12,11 +12,12 @@ int main()
 {
     // create the graph given in above fugure
     int V = 5;
-    // const char * fname = "../../app/datasets/wiki-vote/wiki-Vote.txt";
-    const char * fname = "../../app/datasets/facebook/facebook_combined.txt";
+    // const char * fname = "/app/datasets/wiki-vote/wiki-Vote.txt";
+    const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
     struct Graph* graph = adjListCreateGraph(V);
     struct EdgeList* edgeList = readEdgeListstxt(fname);
-    // edgeListPrint(edgeList);
+    edgeListPrint(edgeList);
+    
     int weight = 1;
 
     adjListAddEdgeDirected(graph, 0, 1,weight);
