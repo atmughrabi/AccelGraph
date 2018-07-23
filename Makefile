@@ -48,7 +48,7 @@ vsim-run:
 	cd sim && vsim -do vsim.tcl
 
 $(APP_DIR)/$(OBJ_DIR)/countsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c $(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)/countsort.h
-	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/countsort.o $(PREPRO_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c
+	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/countsort.o $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c
 
 $(APP_DIR)/$(OBJ_DIR)/adjlist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/adjlist.h
 	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjlist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c
@@ -76,9 +76,10 @@ adjlist: $(APP_DIR)/$(OBJ_DIR)/adjlist.o
 
 queue: $(APP_DIR)/$(OBJ_DIR)/queue.o
 
-test: adjlist graph queue edgelist
+test: adjlist graph queue edgelist countsort
 	mkdir -p $(APP_DIR)/test
 	$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
+	$(APP_DIR)/$(OBJ_DIR)/countsort.o \
 	$(APP_DIR)/$(OBJ_DIR)/adjlist.o \
 	$(APP_DIR)/$(OBJ_DIR)/queue.o \
 	$(APP_DIR)/$(OBJ_DIR)/edgelist.o \

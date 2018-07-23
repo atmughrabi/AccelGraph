@@ -131,11 +131,11 @@ struct EdgeList* readEdgeListsbin(const char * fname )
                 return 0;
         }
 
-        // printf("#Size: %llu\n", (__u64)fs.st_size/(3*sizeof(int)));
+
         buf_pointer = (int *) buf_addr;
         int num_edges = (__u32)fs.st_size/(3*sizeof(int));
 
-        // printf("%d -> %d w: %d \n", buf_pointer[0], buf_pointer[1], buf_pointer[2]);   
+       
 
         struct EdgeList* edgeList = newEdgeList(num_edges-1);
 
@@ -158,10 +158,11 @@ struct EdgeList* readEdgeListsbin(const char * fname )
 
 void edgeListPrint(struct EdgeList* edgeList){
 
-        int i;
+        
         printf("number of vertices (V) : %d \n", edgeList->num_vertices);
         printf("number of edges    (E) : %d \n", edgeList->num_edges);   
 
+        // int i;
         // for(i = 0; i < edgeList->num_edges; i++){
 
         //          printf("%d -> %d w: %d \n", edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);   

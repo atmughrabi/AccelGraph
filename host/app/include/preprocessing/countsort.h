@@ -21,6 +21,16 @@
 
 // };
 
+struct GraphCountSorted{
+
+	int num_edges;
+	int num_vertices;
+	int* vertex_count; // needed for counting sort
+	struct Edge* sorted_edges_array; // sorted edge array
+
+
+}
+
 struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList);
 struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
 
