@@ -24,6 +24,8 @@ int maxTwoIntegers(int num1, int num2);
 
 void edgeListPrint(struct EdgeList* edgeList);
 
+struct Edge* newEdgeArray(int num_edges);
+
 struct EdgeList* readEdgeListstxt(const char * fname);
 
 struct EdgeList* readEdgeListsbin(const char * fname);

@@ -16,8 +16,8 @@
 // struct EdgeList {
 
 // 	int num_edges;
-// 	struct Edge* edges_array;
-// 	// struct Edge* edges_sorted;
+	// int num_vertices;
+	// struct Edge* edges_array;
 
 // };
 
@@ -29,8 +29,12 @@ struct GraphCountSorted{
 	struct Edge* sorted_edges_array; // sorted edge array
 
 
-}
+};
 
+
+void CountSortedGraphPrint(struct GraphCountSorted* graph);
+
+struct GraphCountSorted* GraphCountSortedCreateGraph(int V, int E);
 struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList);
 struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
 

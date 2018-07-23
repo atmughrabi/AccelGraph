@@ -7,28 +7,32 @@
 #include "adjlist.h" 
 #include "queue.h"
 #include "edgelist.h"
+#include "countsort.h"
 
 int main()
 {
     // create the graph given in above fugure
-    int V = 5;
-    const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
-    // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
+    // int V = 5;
+    // const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
+    const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
      // struct Queue *q = createQueue();
-    struct Graph* graph = adjListCreateGraph(V);
+    // struct Graph* graph = adjListCreateGraph(V);
     struct EdgeList* edgeList = readEdgeListstxt(fname);
-    edgeListPrint(edgeList);
-    
-    int weight = 1;
+    struct GraphCountSorted* graph = countSortEdgesBySource(edgeList);
 
-    adjListAddEdgeDirected(graph, 0, 1,weight);
-    adjListAddEdgeDirected(graph, 0, 4,weight);
-    adjListAddEdgeDirected(graph, 1, 2,weight);
-    adjListAddEdgeDirected(graph, 1, 3,weight);
-    adjListAddEdgeDirected(graph, 1, 4,weight);
-    adjListAddEdgeDirected(graph, 2, 3,weight);
-    adjListAddEdgeDirected(graph, 3, 4,weight);
+    edgeListPrint(edgeList);
+    CountSortedGraphPrint(graph);
+    
+    // int weight = 1;
+
+    // adjListAddEdgeDirected(graph, 0, 1,weight);
+    // adjListAddEdgeDirected(graph, 0, 4,weight);
+    // adjListAddEdgeDirected(graph, 1, 2,weight);
+    // adjListAddEdgeDirected(graph, 1, 3,weight);
+    // adjListAddEdgeDirected(graph, 1, 4,weight);
+    // adjListAddEdgeDirected(graph, 2, 3,weight);
+    // adjListAddEdgeDirected(graph, 3, 4,weight);
 
 
     // Driver Program to test queue functions

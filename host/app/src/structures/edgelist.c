@@ -29,26 +29,33 @@ struct EdgeList* newEdgeList( int num_edges){
 
         newEdgeList->num_edges = num_edges;
         newEdgeList->num_vertices = 0;
+        newEdgeList->edges_array = newEdgeArray(num_edges);
 
-        newEdgeList->edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));
-
-        int i;
-
-        for(i = 0; i < newEdgeList->num_edges; i++){
-
-                newEdgeList->edges_array[i].dest = 0;
-                newEdgeList->edges_array[i].src = 0;  
-                newEdgeList->edges_array[i].weight = 0;
-       
-        }
-
-       
         return newEdgeList;
 
 }
 
-struct EdgeList* readEdgeListstxt(const char * fname)
-{
+
+struct Edge* newEdgeArray(int num_edges){
+
+        struct Edge* edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));
+
+        int i;
+
+        for(i = 0; i < num_edges; i++){
+
+                edges_array[i].dest = 0;
+                edges_array[i].src = 0;  
+                edges_array[i].weight = 0;
+
+        }
+
+        return edges_array;
+
+}
+
+
+struct EdgeList* readEdgeListstxt(const char * fname){
 
         FILE *pText, *pBinary;
         int size = 0, i;
@@ -103,8 +110,7 @@ struct EdgeList* readEdgeListstxt(const char * fname)
 
 }
 
-struct EdgeList* readEdgeListsbin(const char * fname )
-{
+struct EdgeList* readEdgeListsbin(const char * fname ){
         
 
         int fd = open(fname, O_RDONLY);
