@@ -37,10 +37,32 @@ struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList){
 		graph->vertex_count[key]--;
 	}
 
+	graph = countSortMapVertices (graph);
 
 	return graph;
 
 }
+
+
+struct GraphCountSorted* countSortMapVertices (struct GraphCountSorted* graph){
+
+	int i;
+	int vertex_id;
+
+	vertex_id = graph->sorted_edges_array[0].src;
+	graph->vertices[vertex_id].edges_idx = 0;
+
+	for(i =1; i < graph->num_edges; i++){
+		if(graph->sorted_edges_array[i].src != graph->sorted_edges_array[i-1].src){			
+			vertex_id = graph->sorted_edges_array[i].src;
+			graph->vertices[vertex_id].edges_idx = 1;
+		}
+	}
+
+return graph;
+
+}
+
 struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
 
 	struct GraphCountSorted* graph = GraphCountSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);

@@ -36,6 +36,7 @@ struct GraphCountSorted{
 
 void CountSortedGraphPrint(struct GraphCountSorted* graph);
 
+struct GraphCountSorted* countSortMapVertices (struct GraphCountSorted* graph);
 struct GraphCountSorted* GraphCountSortedCreateGraph(int V, int E);
 struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList);
 struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
