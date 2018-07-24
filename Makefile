@@ -25,7 +25,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(TEST_DIR)/ 	\
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 # flags
-CFLAGS            = -O3 -Wall -m64 -g
+CFLAGS            = -O2 -Wall -m64 -g
 
 all: test
 
@@ -48,6 +48,9 @@ vsim-run:
 	cd sim && vsim -do vsim.tcl
 
 
+$(APP_DIR)/$(OBJ_DIR)/radixsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/radixsort.c $(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)/radixsort.h
+	@echo 'making $(GAPP) <- radixsort.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/radixsort.o $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/radixsort.c
 
 $(APP_DIR)/$(OBJ_DIR)/countsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c $(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)/countsort.h
 	@echo 'making $(GAPP) <- countsort.o'
@@ -83,6 +86,8 @@ vertex: $(APP_DIR)/$(OBJ_DIR)/vertex.o
 
 countsort: $(APP_DIR)/$(OBJ_DIR)/countsort.o
 
+radixsort: $(APP_DIR)/$(OBJ_DIR)/radixsort.o
+
 edgelist: $(APP_DIR)/$(OBJ_DIR)/edgelist.o
 
 graph: $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o
@@ -91,12 +96,15 @@ adjlist: $(APP_DIR)/$(OBJ_DIR)/adjlist.o
 
 queue: $(APP_DIR)/$(OBJ_DIR)/queue.o
 
-test: adjlist graph queue edgelist countsort vertex graph
-	@echo 'linking $(GAPP) <- adjlist.o graph.o queue.o edgelist.o countsort.o vertex.o'
+
+
+test: adjlist graph queue edgelist countsort radixsort vertex graph
+	@echo 'linking $(GAPP) <- adjlist.o graph.o queue.o edgelist.o countsort.o radixsort.o vertex.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/adjlist.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/queue.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/edgelist.o 		\

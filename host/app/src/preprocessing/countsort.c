@@ -43,7 +43,6 @@ struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList){
 
 }
 
-
 struct GraphCountSorted* countSortMapVertices (struct GraphCountSorted* graph){
 
 	int i;
