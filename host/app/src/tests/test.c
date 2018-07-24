@@ -21,8 +21,8 @@ int main()
     struct EdgeList* edgeList = readEdgeListstxt(fname);
     struct GraphCountSorted* graph = countSortEdgesBySource(edgeList);
 
-    edgeListPrint(edgeList);
-    CountSortedGraphPrint(graph);
+    // edgeListPrint(edgeList);
+    // CountSortedGraphPrint(graph);
     
     // int weight = 1;
 

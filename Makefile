@@ -47,24 +47,39 @@ sim-run:
 vsim-run:
 	cd sim && vsim -do vsim.tcl
 
+
+
 $(APP_DIR)/$(OBJ_DIR)/countsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c $(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)/countsort.h
-	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/countsort.o $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c
+	@echo 'making $(GAPP) <- countsort.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/countsort.o $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c
+
+$(APP_DIR)/$(OBJ_DIR)/vertex.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/vertex.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/vertex.h
+	@echo 'making $(GAPP) <- vertex.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/vertex.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/vertex.c
 
 $(APP_DIR)/$(OBJ_DIR)/adjlist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/adjlist.h
-	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjlist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c
+	@echo 'making $(GAPP) <- adjlist.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjlist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c
 
 $(APP_DIR)/$(OBJ_DIR)/queue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/queue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/queue.h
-	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/queue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/queue.c
+	@echo 'making $(GAPP) <- queue.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/queue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/queue.c
 
 $(APP_DIR)/$(OBJ_DIR)/edgelist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/edgelist.h
-	$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgelist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c
+	@echo 'making $(GAPP) <- edgelist.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgelist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c
 
 $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
-	$(CC) $(CFLAGS) -c -o $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
+	@echo 'making $(GAPP) <- $(GAPP).o'
+	@$(CC) $(CFLAGS) -c -o $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
 	$(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).c \
 	-I$(PSLSE_LIBCXL_DIR) \
 	$(INC) \
 	-I$(PSLSE_COMMON_DIR) 
+
+graph: $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o
+
+vertex: $(APP_DIR)/$(OBJ_DIR)/vertex.o
 
 countsort: $(APP_DIR)/$(OBJ_DIR)/countsort.o
 
@@ -76,17 +91,19 @@ adjlist: $(APP_DIR)/$(OBJ_DIR)/adjlist.o
 
 queue: $(APP_DIR)/$(OBJ_DIR)/queue.o
 
-test: adjlist graph queue edgelist countsort
-	mkdir -p $(APP_DIR)/test
-	$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
-	$(APP_DIR)/$(OBJ_DIR)/countsort.o \
-	$(APP_DIR)/$(OBJ_DIR)/adjlist.o \
-	$(APP_DIR)/$(OBJ_DIR)/queue.o \
-	$(APP_DIR)/$(OBJ_DIR)/edgelist.o \
-	$(PSLSE_LIBCXL_DIR)/libcxl.a \
-	 -o $(APP_DIR)/test/$(GAPP)\
-	 -I$(PSLSE_COMMON_DIR) \
-	 -I$(PSLSE_LIBCXL_DIR) \
+test: adjlist graph queue edgelist countsort vertex graph
+	@echo 'linking $(GAPP) <- adjlist.o graph.o queue.o edgelist.o countsort.o vertex.o'
+	@mkdir -p $(APP_DIR)/test
+	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
+	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/adjlist.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/queue.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/edgelist.o 		\
+	$(PSLSE_LIBCXL_DIR)/libcxl.a 			\
+	 -o $(APP_DIR)/test/$(GAPP)				\
+	 -I$(PSLSE_COMMON_DIR) 					\
+	 -I$(PSLSE_LIBCXL_DIR) 					\
 	 -lrt -lpthread -D SIM 
 
 clean:

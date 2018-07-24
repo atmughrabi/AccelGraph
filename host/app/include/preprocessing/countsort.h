@@ -2,6 +2,7 @@
 #define COUNTSORT_H
 
 #include "edgelist.h"
+#include "vertex.h"
 
 // A structure to represent an edge
 // struct Edge {
@@ -26,6 +27,7 @@ struct GraphCountSorted{
 	int num_edges;
 	int num_vertices;
 	int* vertex_count; // needed for counting sort
+	struct Vertex* vertices;
 	struct Edge* sorted_edges_array; // sorted edge array
 
 

@@ -1,6 +1,6 @@
 #ifndef EDGELIST_H
 #define EDGELIST_H
-#include <linux/types.h>
+// #include <linux/types.h>
 // A structure to represent an edge
 struct Edge {
 

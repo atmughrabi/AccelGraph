@@ -5,6 +5,7 @@
 #include "capienv.h"
 #include "countsort.h"
 #include "edgelist.h"
+#include "vertex.h"
 
 
 struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList){
@@ -56,6 +57,7 @@ struct GraphCountSorted* GraphCountSortedCreateGraph(int V, int E){
 
 	graph->num_vertices = V;
 	graph->num_edges = E;
+	graph->vertices = newVertexArray(V);
 	graph->vertex_count = (int*) aligned_alloc(CACHELINE_BYTES, V * sizeof(int));
 	graph->sorted_edges_array = newEdgeArray(E);
 
