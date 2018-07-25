@@ -16,8 +16,8 @@ int main()
 {
     // create the graph given in above fugure
     // int V = 5;
-    const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
-    // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
+    // const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
+    const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
      // struct Queue *q = createQueue();
     // struct Graph* graph = adjListCreateGraph(V);

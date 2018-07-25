@@ -22,10 +22,8 @@ struct GraphRadixSorted* CountSortedgesBySource (struct GraphRadixSorted* graph,
 		graph->vertex_count[(key/exp)%10]++;
 	}
 
-
-	// transfrom the cumulative sum
-	for(i = 1; i < graph->num_vertices; i++){
-		graph->vertex_count[i] += graph->vertex_count[i-1];
+	for (i = 1; i < 10; i++) {
+        graph->vertex_count[i] += graph->vertex_count[i - 1];
 	}
 
 	// fill-in the sorted array of edges
@@ -34,6 +32,14 @@ struct GraphRadixSorted* CountSortedgesBySource (struct GraphRadixSorted* graph,
 		pos = graph->vertex_count[(key/exp)%10]-1;
 		graph->sorted_edges_array[pos] = edgeList->edges_array[i];
 		graph->vertex_count[(key/exp)%10]--;
+	}
+
+	for (i = 0; i < graph->num_edges; i++){
+        edgeList->edges_array[i] = graph->sorted_edges_array[i];
+	}
+
+	for (i = 1; i < 10; i++) {
+        graph->vertex_count[i] = 0;
 	}
 
 	return graph;
@@ -52,7 +58,6 @@ struct GraphRadixSorted* RadixSortedgesBySource (struct EdgeList* edgeList){
 	 	graph = CountSortedgesBySource (graph, edgeList, exp);
 	 }
 		
-
 	graph = radixSortMapVertices (graph);
 
 	return graph;
