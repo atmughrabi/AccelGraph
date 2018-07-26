@@ -8,25 +8,42 @@
 #include "queue.h"
 #include "edgelist.h"
 
-
 #include "countsort.h"
 #include "radixsort.h"
+
+#include "timer.h"
 
 int main()
 {
     // create the graph given in above fugure
     // int V = 5;
-    // const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
-    const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
+    const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
+    // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
-     // struct Queue *q = createQueue();
-    // struct Graph* graph = adjListCreateGraph(V);
+    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+
+    Start(timer);
     struct EdgeList* edgeList = readEdgeListstxt(fname);
-    // struct GraphCountSorted* graph = countSortEdgesBySource(edgeList);
+    Stop(timer);
+    printf("Read Edge List From File : %f Seconds \n",Seconds(timer));
+    
+    Start(timer);
+    struct Graph* graph = adjListCreateGraphEdgeList(edgeList);
+    Stop(timer);
+    printf("adjacency Linked List Edges By Source : %f Seconds \n",Seconds(timer));
 
-    struct GraphRadixSorted* graph = RadixSortedgesBySource(edgeList);
+    Start(timer);
+    struct GraphCountSorted* graph1 = countSortEdgesBySource(edgeList);
+    Stop(timer);
+    printf("Count Sort Edges By Source : %f Seconds \n",Seconds(timer));
+
+    Start(timer);
+    struct GraphRadixSorted* graph2 = radixSortEdgesBySource(edgeList);
+    Stop(timer);
+    printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
+
     // edgeListPrint(edgeList);
-    RadixSortedGraphPrint(graph);
+    // RadixSortedGraphPrint(graph);
     
     // int weight = 1;
 

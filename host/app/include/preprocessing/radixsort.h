@@ -34,12 +34,12 @@ struct GraphRadixSorted{
 };
 
 
-void RadixSortedGraphPrint(struct GraphRadixSorted* graph);
-struct GraphRadixSorted* CountSortedgesBySource (struct GraphRadixSorted* graph,struct EdgeList* edgeList, int exp);
+void radixSortedGraphPrint(struct GraphRadixSorted* graph);
+struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorted* graph,struct EdgeList* edgeList, int exp);
 struct GraphRadixSorted* radixSortMapVertices (struct GraphRadixSorted* graph);
-struct GraphRadixSorted* GraphRadixSortedCreateGraph(int V, int E);
-struct GraphRadixSorted* RadixSortedgesBySource (struct EdgeList* edgeList);
-struct GraphRadixSorted* RadixSortedgesBySourceAndDestination (struct EdgeList* edgeList);
+struct GraphRadixSorted* graphRadixSortedCreateGraph(int V, int E);
+struct GraphRadixSorted* radixSortEdgesBySource (struct EdgeList* edgeList);
+struct GraphRadixSorted* radixSortedgesBySourceAndDestination (struct EdgeList* edgeList);
 
 
 #endif

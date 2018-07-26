@@ -1,6 +1,7 @@
 #ifndef ADJLIST_H
 #define ADJLIST_H
 
+#include "edgelist.h"
 
 // A structure to represent an adjacency list node
 struct AdjListNode {
@@ -29,6 +30,7 @@ struct AdjList {
 struct Graph
 {
 	int V;
+	int num_edges;
 	struct AdjList* parent_array;
 	
 };
@@ -38,6 +40,8 @@ struct Graph
 struct AdjListNode* newAdjListNode(int src, int dest, int weight);
 // A utility function that creates a graph of V vertices
 struct Graph* adjListCreateGraph(int V);
+
+struct Graph* adjListCreateGraphEdgeList(struct EdgeList* edgeList);
 // Adds an edge to an undirected graph
 void adjListAddEdgeUndirected(struct Graph* graph, int src, int dest, int weight);
 // Adds an edge to a directed graph

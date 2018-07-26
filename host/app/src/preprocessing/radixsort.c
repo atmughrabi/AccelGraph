@@ -10,11 +10,13 @@
 
 // A function to do counting sort of edgeList according to
 // the digit represented by exp
-struct GraphRadixSorted* CountSortedgesBySource (struct GraphRadixSorted* graph, struct EdgeList* edgeList, int exp){
+struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorted* graph, struct EdgeList* edgeList, int exp){
 
 	int i;
 	int key;
 	int pos;
+
+	
 
 	// count occurrence of key: id of the source vertex
 	for(i = 0; i < graph->num_edges; i++){
@@ -46,16 +48,18 @@ struct GraphRadixSorted* CountSortedgesBySource (struct GraphRadixSorted* graph,
 
 }
 
-struct GraphRadixSorted* RadixSortedgesBySource (struct EdgeList* edgeList){
+
+
+struct GraphRadixSorted* radixSortEdgesBySource (struct EdgeList* edgeList){
 
 	int exp;
-	struct GraphRadixSorted* graph = GraphRadixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+	struct GraphRadixSorted* graph = graphRadixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
 
     // Do counting sort for every digit. Note that instead
     // of passing digit number, exp is passed. exp is 10^i
     // where i is current digit number
 	 for (exp = 1; (edgeList->num_vertices/exp) > 0; exp *= 10){
-	 	graph = CountSortedgesBySource (graph, edgeList, exp);
+	 	graph = radixSortCountSortEdgesBySource (graph, edgeList, exp);
 	 }
 		
 	graph = radixSortMapVertices (graph);
@@ -83,9 +87,9 @@ return graph;
 
 }
 
-struct GraphRadixSorted* RadixSortedgesBySourceAndDestination (struct EdgeList* edgeList){
+struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
 
-	struct GraphRadixSorted* graph = GraphRadixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+	struct GraphRadixSorted* graph = graphRadixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
 
 
 	return graph;
@@ -93,7 +97,7 @@ struct GraphRadixSorted* RadixSortedgesBySourceAndDestination (struct EdgeList* 
 
 
 
-struct GraphRadixSorted* GraphRadixSortedCreateGraph(int V, int E){
+struct GraphRadixSorted* graphRadixSortedCreateGraph(int V, int E){
 
 	struct GraphRadixSorted* graph = (struct GraphRadixSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphRadixSorted));
 
@@ -111,7 +115,7 @@ struct GraphRadixSorted* GraphRadixSortedCreateGraph(int V, int E){
     return graph;
 }
 
-void RadixSortedGraphPrint(struct GraphRadixSorted* graph){
+void radixSortedGraphPrint(struct GraphRadixSorted* graph){
 
 	 
     printf("number of vertices (V) : %d \n", graph->num_vertices);
@@ -126,3 +130,5 @@ void RadixSortedGraphPrint(struct GraphRadixSorted* graph){
 
    
 }
+
+

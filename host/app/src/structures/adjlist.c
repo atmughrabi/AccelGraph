@@ -4,6 +4,7 @@
 #include "adjlist.h"
 #include "capienv.h"
 
+
 // A utility function to create a new adjacency list node
 struct AdjListNode* newAdjListNode(int src, int dest, int weight){
 
@@ -36,6 +37,33 @@ struct Graph* adjListCreateGraph(int V){
 	}
 
     // printf("\n Success!!! V: %d\n ", V);
+
+    return graph;
+
+}
+
+struct Graph* adjListCreateGraphEdgeList(struct EdgeList* edgeList){
+
+    struct Graph* graph = (struct Graph*) aligned_alloc(CACHELINE_BYTES, sizeof(struct Graph));
+
+    graph->V = edgeList->num_vertices;
+    graph->num_edges = edgeList->num_edges;
+    graph->parent_array = (struct AdjList*) aligned_alloc(CACHELINE_BYTES, graph->V * sizeof(struct AdjList));
+
+    int i;
+    for(i = 0; i < graph->V; i++){
+
+        graph->parent_array[i].head = NULL;
+        graph->parent_array[i].out_degree = 0;  
+        graph->parent_array[i].in_degree = 0;
+        graph->parent_array[i].visited = 0;
+    }
+   
+    for(i = 0; i < edgeList->num_edges; i++){
+            adjListAddEdgeUndirected(graph, edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);
+        }
+
+
 
     return graph;
 

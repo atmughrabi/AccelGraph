@@ -69,6 +69,10 @@ $(APP_DIR)/$(OBJ_DIR)/queue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/queue.c $(APP
 	@echo 'making $(GAPP) <- queue.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/queue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/queue.c
 
+$(APP_DIR)/$(OBJ_DIR)/timer.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/timer.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/timer.h
+	@echo 'making $(GAPP) <- timer.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/timer.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/timer.c
+
 $(APP_DIR)/$(OBJ_DIR)/edgelist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/edgelist.h
 	@echo 'making $(GAPP) <- edgelist.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgelist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c
@@ -80,6 +84,8 @@ $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	-I$(PSLSE_LIBCXL_DIR) \
 	$(INC) \
 	-I$(PSLSE_COMMON_DIR) 
+
+timer: $(APP_DIR)/$(OBJ_DIR)/timer.o
 
 graph: $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o
 
@@ -99,8 +105,8 @@ queue: $(APP_DIR)/$(OBJ_DIR)/queue.o
 
 
 
-test: adjlist graph queue edgelist countsort radixsort vertex graph
-	@echo 'linking $(GAPP) <- adjlist.o graph.o queue.o edgelist.o countsort.o radixsort.o vertex.o'
+test: adjlist graph queue edgelist countsort radixsort vertex graph timer
+	@echo 'linking $(GAPP) <- adjlist.o graph.o queue.o edgelist.o countsort.o radixsort.o vertex.o timer.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
@@ -108,6 +114,7 @@ test: adjlist graph queue edgelist countsort radixsort vertex graph
 	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/adjlist.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/queue.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/edgelist.o 		\
 	$(PSLSE_LIBCXL_DIR)/libcxl.a 			\
 	 -o $(APP_DIR)/test/$(GAPP)				\

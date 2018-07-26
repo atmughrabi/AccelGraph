@@ -1,5 +1,6 @@
 accelerator/fpga
 
+host/app/datasets
 host/app/sim-build
 host/app/build
 host/app/build-graph
