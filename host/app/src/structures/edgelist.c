@@ -11,6 +11,7 @@
 
 #include "edgelist.h"
 #include "capienv.h"
+#include "progressbar.h"
 
 
 int maxTwoIntegers(int num1, int num2){
@@ -55,7 +56,7 @@ struct Edge* newEdgeArray(int num_edges){
 }
 
 
-struct EdgeList* readEdgeListstxt(const char * fname){
+struct EdgeList* readEdgeListstxt(const char * fname, struct EdgeListAttributes* attr){
 
         FILE *pText, *pBinary;
         int size = 0, i;
@@ -94,7 +95,9 @@ struct EdgeList* readEdgeListstxt(const char * fname){
 
         fwrite(&src, sizeof (src), 1, pBinary);
         fwrite(&dest, sizeof (dest), 1, pBinary);
-        fwrite(&weight, sizeof (weight), 1, pBinary);
+
+        if(attr->WEIGHTED)
+                fwrite(&weight, sizeof (weight), 1, pBinary);
 
         if( i == EOF ) 
            break;
@@ -104,14 +107,14 @@ struct EdgeList* readEdgeListstxt(const char * fname){
         fclose(pText);
         fclose(pBinary);
 
-        struct EdgeList* edgeList = readEdgeListsbin(fname_bin);
+        struct EdgeList* edgeList = readEdgeListsbin(fname_bin, attr);
 
         return edgeList;
 
 }
 
-struct EdgeList* readEdgeListsbin(const char * fname ){
-        
+struct EdgeList* readEdgeListsbin(const char * fname, struct EdgeListAttributes* attr){
+
 
         int fd = open(fname, O_RDONLY);
         struct stat fs;
@@ -139,7 +142,8 @@ struct EdgeList* readEdgeListsbin(const char * fname ){
 
 
         buf_pointer = (int *) buf_addr;
-        int num_edges = (__u32)fs.st_size/(3*sizeof(int));
+        int offset = (2+attr->WEIGHTED);
+        int num_edges = (__u32)fs.st_size/((offset)*sizeof(int));
 
        
 
@@ -148,10 +152,12 @@ struct EdgeList* readEdgeListsbin(const char * fname ){
         int i;
         for(i = 0; i < edgeList->num_edges; i++){
                 
-                edgeList->edges_array[i].src = buf_pointer[(3*i)+0];
-                edgeList->edges_array[i].dest = buf_pointer[(3*i)+1];
+                edgeList->edges_array[i].src = buf_pointer[((offset)*i)+0];
+                edgeList->edges_array[i].dest = buf_pointer[((offset)*i)+1];
                 edgeList->num_vertices = maxTwoIntegers(edgeList->num_vertices,maxTwoIntegers(edgeList->edges_array[i].src, edgeList->edges_array[i].dest));
-                edgeList->edges_array[i].weight = buf_pointer[(3*i)+2];
+               
+                if(attr->WEIGHTED)
+                        edgeList->edges_array[i].weight = buf_pointer[((offset)*i)+2];
              
         }
 

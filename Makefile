@@ -15,6 +15,7 @@ STRUCT_DIR		  = structures
 PREPRO_DIR		  = preprocessing
 ALGO_DIR		  = graphalgorithms
 TEST_DIR		  = tests
+UTIL_DIR		  = utils
 
 
 # compilers
@@ -25,6 +26,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(ALGO_DIR)/ 	\
 		-I$(APP_DIR)/include/$(TEST_DIR)/ 	\
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
+		-I$(APP_DIR)/include/$(UTIL_DIR)/ \
 # flags
 CFLAGS            = -O2 -Wall -m64 -g
 
@@ -48,6 +50,9 @@ sim-run:
 vsim-run:
 	cd sim && vsim -do vsim.tcl
 
+$(APP_DIR)/$(OBJ_DIR)/progressbar.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/progressbar.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/progressbar.h
+	@echo 'making $(GAPP) <- progressbar.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/progressbar.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/progressbar.c
 
 $(APP_DIR)/$(OBJ_DIR)/radixsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/radixsort.c $(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)/radixsort.h
 	@echo 'making $(GAPP) <- radixsort.o'
@@ -85,6 +90,8 @@ $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	$(INC) \
 	-I$(PSLSE_COMMON_DIR) 
 
+progressbar: $(APP_DIR)/$(OBJ_DIR)/progressbar.o
+
 timer: $(APP_DIR)/$(OBJ_DIR)/timer.o
 
 graph: $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o
@@ -105,8 +112,8 @@ queue: $(APP_DIR)/$(OBJ_DIR)/queue.o
 
 
 
-test: adjlist graph queue edgelist countsort radixsort vertex graph timer
-	@echo 'linking $(GAPP) <- adjlist.o graph.o queue.o edgelist.o countsort.o radixsort.o vertex.o timer.o'
+test: adjlist graph queue edgelist countsort radixsort vertex graph timer progressbar
+	@echo 'linking $(GAPP) <- adjlist.o graph.o queue.o edgelist.o countsort.o radixsort.o vertex.o timer.o progressbar.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\

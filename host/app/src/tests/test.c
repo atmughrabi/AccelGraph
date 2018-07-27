@@ -17,33 +17,39 @@ int main()
 {
     // create the graph given in above fugure
     // int V = 5;
-    const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
+    // const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
+    const char * fname = "host/app/datasets/twitter/twitter_rv.net";
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
+    struct EdgeListAttributes* graphAttr = (struct EdgeListAttributes*)malloc(sizeof(struct EdgeListAttributes));
+    graphAttr->WEIGHTED = 0;
+    graphAttr->DIRECTED = 0;
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
     Start(timer);
-    struct EdgeList* edgeList = readEdgeListstxt(fname);
+    struct EdgeList* edgeList = readEdgeListstxt(fname, graphAttr);
     Stop(timer);
     printf("Read Edge List From File : %f Seconds \n",Seconds(timer));
+
     
-    Start(timer);
-    struct Graph* graph = adjListCreateGraphEdgeList(edgeList);
-    Stop(timer);
-    printf("adjacency Linked List Edges By Source : %f Seconds \n",Seconds(timer));
+    
+    // Start(timer);
+    // struct Graph* graph = adjListCreateGraphEdgeList(edgeList);
+    // Stop(timer);
+    // printf("adjacency Linked List Edges By Source : %f Seconds \n",Seconds(timer));
 
-    Start(timer);
-    struct GraphCountSorted* graph1 = countSortEdgesBySource(edgeList);
-    Stop(timer);
-    printf("Count Sort Edges By Source : %f Seconds \n",Seconds(timer));
+    // Start(timer);
+    // struct GraphCountSorted* graph1 = countSortEdgesBySource(edgeList);
+    // Stop(timer);
+    // printf("Count Sort Edges By Source : %f Seconds \n",Seconds(timer));
 
-    Start(timer);
-    struct GraphRadixSorted* graph2 = radixSortEdgesBySource(edgeList);
-    Stop(timer);
-    printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
+    // Start(timer);
+    // struct GraphRadixSorted* graph2 = radixSortEdgesBySource(edgeList);
+    // Stop(timer);
+    // printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
 
     // edgeListPrint(edgeList);
-    // RadixSortedGraphPrint(graph);
+    // radixSortedGraphPrint(graph2);
     
     // int weight = 1;
 
