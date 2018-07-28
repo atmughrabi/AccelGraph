@@ -1,20 +1,21 @@
 #ifndef EDGELIST_H
 #define EDGELIST_H
-// #include <linux/types.h>
+#include <linux/types.h>
+
 // A structure to represent an edge
 struct Edge {
 
-	int dest;
-	int src;
-	int weight;
+	__u32 dest;
+	__u32 src;
+	__u32 weight;
 
 };
 
 
 struct EdgeList {
 
-	int num_edges;
-	int num_vertices;
+	__u32 num_edges;
+	__u32 num_vertices;
 	struct Edge* edges_array;
 	// struct Edge* edges_sorted;
 
@@ -23,21 +24,21 @@ struct EdgeList {
 
 struct EdgeListAttributes {
 
-	int WEIGHTED;
-	int DIRECTED;
+	__u8 WEIGHTED;
+	__u8 DIRECTED;
 
 };
 
-int maxTwoIntegers(int num1, int num2);
+__u32 maxTwoIntegers(__u32 num1, __u32 num2);
 
 void edgeListPrint(struct EdgeList* edgeList);
 
-struct Edge* newEdgeArray(int num_edges);
+struct Edge* newEdgeArray(__u32 num_edges);
 
 struct EdgeList* readEdgeListstxt(const char * fname,  struct EdgeListAttributes* attr);
 
 struct EdgeList* readEdgeListsbin(const char * fname,  struct EdgeListAttributes* attr);
 
-struct EdgeList* newEdgeList(int num_edges);
+struct EdgeList* newEdgeList(__u32 num_edges);
 
 #endif

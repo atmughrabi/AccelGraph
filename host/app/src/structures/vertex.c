@@ -10,11 +10,11 @@
 #include "vertex.h"
 
 
-struct Vertex* newVertexArray(int num_vertices){
+struct Vertex* newVertexArray(__u32 num_vertices){
 
         struct Vertex* vertex_array = (struct Vertex*) aligned_alloc(CACHELINE_BYTES, num_vertices * sizeof(struct Vertex));
 
-        int i;
+        __u32 i;
 
         for(i = 0; i < num_vertices; i++){
 

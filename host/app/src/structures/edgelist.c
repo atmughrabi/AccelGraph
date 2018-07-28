@@ -14,7 +14,7 @@
 #include "progressbar.h"
 
 
-int maxTwoIntegers(int num1, int num2){
+__u32 maxTwoIntegers(__u32 num1, __u32 num2){
 
         if(num1 >= num2)
                 return num1;
@@ -24,7 +24,7 @@ int maxTwoIntegers(int num1, int num2){
 }
 
 // read edge file to edge_array in memory
-struct EdgeList* newEdgeList( int num_edges){
+struct EdgeList* newEdgeList( __u32 num_edges){
 
         struct EdgeList* newEdgeList = (struct EdgeList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct EdgeList));
 
@@ -37,11 +37,11 @@ struct EdgeList* newEdgeList( int num_edges){
 }
 
 
-struct Edge* newEdgeArray(int num_edges){
+struct Edge* newEdgeArray(__u32 num_edges){
 
         struct Edge* edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));
 
-        int i;
+        __u32 i;
 
         for(i = 0; i < num_edges; i++){
 
@@ -59,11 +59,11 @@ struct Edge* newEdgeArray(int num_edges){
 struct EdgeList* readEdgeListstxt(const char * fname, struct EdgeListAttributes* attr){
 
         FILE *pText, *pBinary;
-        int size = 0, i;
-        int src = 0, dest = 0, weight = 1;
+        __u32 size = 0, i;
+        __u32 src = 0, dest = 0, weight = 1;
 
-        char * fname_txt = (char *) malloc(strlen(fname)*sizeof(char));
-        char * fname_bin;
+        char * fname_txt = (char *) malloc((strlen(fname)+5)*sizeof(char));
+        char * fname_bin = (char *) malloc((strlen(fname)+5)*sizeof(char));
 
         
 
@@ -73,8 +73,11 @@ struct EdgeList* readEdgeListstxt(const char * fname, struct EdgeListAttributes*
         printf("Filename : %s \n",fname);
         printf("Filename : %s \n",fname_bin);
 
+
         pText = fopen(fname, "r");
         pBinary = fopen(fname_bin, "wb");
+
+
 
         if (pText == NULL) {
                 err(1, "open: %s", fname);
@@ -85,19 +88,26 @@ struct EdgeList* readEdgeListstxt(const char * fname, struct EdgeListAttributes*
                 return 0;
         }
 
+        // int offset = (2+attr->WEIGHTED);
+        // double percentage_sum = 0.0;
+        // double percentage = 0.0;
+
+
+        
 
         while (1)
         {
         size++;
-        i = fscanf(pText, "%d\t%d\n", &src, &dest);
+        i = fscanf(pText, "%u\t%u\n", &src, &dest);
 
-        // printf(" %d -> %d \n", src,dest);
+        // printf(" %lu -> %lu \n", src,dest);
 
         fwrite(&src, sizeof (src), 1, pBinary);
         fwrite(&dest, sizeof (dest), 1, pBinary);
 
         if(attr->WEIGHTED)
                 fwrite(&weight, sizeof (weight), 1, pBinary);
+
 
         if( i == EOF ) 
            break;
@@ -107,7 +117,9 @@ struct EdgeList* readEdgeListstxt(const char * fname, struct EdgeListAttributes*
         fclose(pText);
         fclose(pBinary);
 
-        struct EdgeList* edgeList = readEdgeListsbin(fname_bin, attr);
+        // struct EdgeList* edgeList = readEdgeListsbin(fname_bin, attr);
+
+        struct EdgeList* edgeList = NULL;
 
         return edgeList;
 
@@ -119,7 +131,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, struct EdgeListAttributes*
         int fd = open(fname, O_RDONLY);
         struct stat fs;
         char *buf_addr;
-        int  *buf_pointer;
+        __u32  *buf_pointer;
  
         if (fd == -1) {
                 err(1, "open: %s", fname);
@@ -141,16 +153,23 @@ struct EdgeList* readEdgeListsbin(const char * fname, struct EdgeListAttributes*
         }
 
 
-        buf_pointer = (int *) buf_addr;
-        int offset = (2+attr->WEIGHTED);
-        int num_edges = (__u32)fs.st_size/((offset)*sizeof(int));
+        buf_pointer = (__u32 *) buf_addr;
+        __u32 offset = (2+attr->WEIGHTED);
+        __u32 num_edges = (__u64)fs.st_size/((offset)*sizeof(__u32));
+        // double percentage = 0.0;
+        // double percentage_sum = 0.0;
 
-       
+        printf("START Reading EdgeList from file %s \n",fname);
+
 
         struct EdgeList* edgeList = newEdgeList(num_edges-1);
 
-        int i;
+        __u32 i;
         for(i = 0; i < edgeList->num_edges; i++){
+
+                // percentage_sum += (double)offset;
+                // percentage = percentage_sum / (double)num_edges;
+                // printProgress (percentage);
                 
                 edgeList->edges_array[i].src = buf_pointer[((offset)*i)+0];
                 edgeList->edges_array[i].dest = buf_pointer[((offset)*i)+1];
@@ -161,6 +180,8 @@ struct EdgeList* readEdgeListsbin(const char * fname, struct EdgeListAttributes*
              
         }
 
+        printf("DONE Reading EdgeList from file %s \n", fname);
+        edgeListPrint(edgeList);
 
         munmap(buf_addr, fs.st_size);
         close(fd);
@@ -171,8 +192,8 @@ struct EdgeList* readEdgeListsbin(const char * fname, struct EdgeListAttributes*
 void edgeListPrint(struct EdgeList* edgeList){
 
         
-        printf("number of vertices (V) : %d \n", edgeList->num_vertices);
-        printf("number of edges    (E) : %d \n", edgeList->num_edges);   
+        printf("number of vertices (V) : %u \n", edgeList->num_vertices);
+        printf("number of edges    (E) : %u \n", edgeList->num_edges);   
 
         // int i;
         // for(i = 0; i < edgeList->num_edges; i++){

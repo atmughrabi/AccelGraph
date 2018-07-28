@@ -24,9 +24,9 @@
 
 struct GraphRadixSorted{
 
-	int num_edges;
-	int num_vertices;
-	int* vertex_count; // needed for counting sort
+	__u32 num_edges;
+	__u32 num_vertices;
+	__u32* vertex_count; // needed for counting sort
 	struct Vertex* vertices;
 	struct Edge* sorted_edges_array; // sorted edge array
 
@@ -37,7 +37,7 @@ struct GraphRadixSorted{
 void radixSortedGraphPrint(struct GraphRadixSorted* graph);
 struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorted* graph,struct EdgeList* edgeList, int exp);
 struct GraphRadixSorted* radixSortMapVertices (struct GraphRadixSorted* graph);
-struct GraphRadixSorted* graphRadixSortedCreateGraph(int V, int E);
+struct GraphRadixSorted* graphRadixSortedCreateGraph(__u32 V, __u32 E);
 struct GraphRadixSorted* radixSortEdgesBySource (struct EdgeList* edgeList);
 struct GraphRadixSorted* radixSortedgesBySourceAndDestination (struct EdgeList* edgeList);
 

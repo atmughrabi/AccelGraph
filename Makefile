@@ -116,6 +116,7 @@ test: adjlist graph queue edgelist countsort radixsort vertex graph timer progre
 	@echo 'linking $(GAPP) <- adjlist.o graph.o queue.o edgelist.o countsort.o radixsort.o vertex.o timer.o progressbar.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
+	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\

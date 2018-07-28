@@ -10,11 +10,13 @@
 
 struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList){
 
+	 printf("START Count Sort Edges By Source \n");
+
 	struct GraphCountSorted* graph = GraphCountSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
 
-	int i;
-	int key;
-	int pos;
+	__u32 i;
+	__u32 key;
+	__u32 pos;
 
 
 	// count occurrence of key: id of the source vertex
@@ -39,14 +41,16 @@ struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList){
 
 	graph = countSortMapVertices (graph);
 
+	printf("DONE Count Sort Edges By Source \n");
+	CountSortedGraphPrint(graph);
 	return graph;
 
 }
 
 struct GraphCountSorted* countSortMapVertices (struct GraphCountSorted* graph){
 
-	int i;
-	int vertex_id;
+	__u32 i;
+	__u32 vertex_id;
 
 	vertex_id = graph->sorted_edges_array[0].src;
 	graph->vertices[vertex_id].edges_idx = 0;
@@ -72,17 +76,17 @@ struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* 
 
 
 
-struct GraphCountSorted* GraphCountSortedCreateGraph(int V, int E){
+struct GraphCountSorted* GraphCountSortedCreateGraph(__u32 V, __u32 E){
 
 	struct GraphCountSorted* graph = (struct GraphCountSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphCountSorted));
 
 	graph->num_vertices = V;
 	graph->num_edges = E;
 	graph->vertices = newVertexArray(V);
-	graph->vertex_count = (int*) aligned_alloc(CACHELINE_BYTES, V * sizeof(int));
+	graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
 	graph->sorted_edges_array = newEdgeArray(E);
 
-	int i;
+	__u32 i;
 	for(i = 0; i < V; i++){
         graph->vertex_count[i] = 0;  
 	}
@@ -96,12 +100,12 @@ void CountSortedGraphPrint(struct GraphCountSorted* graph){
     printf("number of vertices (V) : %d \n", graph->num_vertices);
     printf("number of edges    (E) : %d \n", graph->num_edges);   
 
-	int i;
-    for(i = 0; i < graph->num_edges; i++){
+	// int i;
+    // for(i = 0; i < graph->num_edges; i++){
 
-        printf("%d -> %d w: %d \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest, graph->sorted_edges_array[i].weight);   
+    //     printf("%d -> %d w: %d \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest, graph->sorted_edges_array[i].weight);   
 
-     }
+    //  }
 
    
 }

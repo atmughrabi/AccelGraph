@@ -17,7 +17,7 @@ struct Vertex {
 };
 
 
-struct Vertex* newVertexArray(int num_vertices);
+struct Vertex* newVertexArray(__u32 num_vertices);
 
 
 #endif

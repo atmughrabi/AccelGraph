@@ -6,7 +6,7 @@
 
 
 // A utility function to create a new adjacency list node
-struct AdjListNode* newAdjListNode(int src, int dest, int weight){
+struct AdjListNode* newAdjListNode(__u32 src, __u32 dest, __u32 weight){
 
 	struct AdjListNode* newNode = (struct AdjListNode*) aligned_alloc(CACHELINE_BYTES, sizeof(struct AdjListNode));
 	newNode->dest = dest;
@@ -18,7 +18,7 @@ struct AdjListNode* newAdjListNode(int src, int dest, int weight){
 
 }
 // A utility function that creates a graph of V vertices
-struct Graph* adjListCreateGraph(int V){
+struct Graph* adjListCreateGraph(__u32 V){
 
     // printf("\n Create Graph #Vertecies: %d\n ", V);
 
@@ -27,7 +27,7 @@ struct Graph* adjListCreateGraph(int V){
 	graph->V = V;
 	graph->parent_array = (struct AdjList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjList));
 
-	int i;
+	__u32 i;
 	for(i = 0; i < V; i++){
 
 		graph->parent_array[i].head = NULL;
@@ -50,7 +50,7 @@ struct Graph* adjListCreateGraphEdgeList(struct EdgeList* edgeList){
     graph->num_edges = edgeList->num_edges;
     graph->parent_array = (struct AdjList*) aligned_alloc(CACHELINE_BYTES, graph->V * sizeof(struct AdjList));
 
-    int i;
+    __u32 i;
     for(i = 0; i < graph->V; i++){
 
         graph->parent_array[i].head = NULL;
@@ -72,7 +72,7 @@ struct Graph* adjListCreateGraphEdgeList(struct EdgeList* edgeList){
 
 
 // Adds an edge to an undirected graph
-void adjListAddEdgeUndirected(struct Graph* graph, int src, int dest, int weight){
+void adjListAddEdgeUndirected(struct Graph* graph, __u32 src, __u32 dest, __u32 weight){
 
 	// Add an edge from src to dest.  A new node is 
     // added to the adjacency list of src.  The node
@@ -96,7 +96,7 @@ void adjListAddEdgeUndirected(struct Graph* graph, int src, int dest, int weight
 
 }
 // Adds an edge to a directed graph
-void adjListAddEdgeDirected(struct Graph* graph, int src, int dest, int weight){
+void adjListAddEdgeDirected(struct Graph* graph, __u32 src, __u32 dest, __u32 weight){
 
     // Add an edge from src to dest.  A new node is 
     // added to the adjacency list of src.  The node
@@ -114,7 +114,7 @@ void adjListAddEdgeDirected(struct Graph* graph, int src, int dest, int weight){
 // representation of graph
 void adjListPrintGraph(struct Graph* graph){
 
-	int v;
+	__u32 v;
     for (v = 0; v < graph->V; ++v)
     {
         struct AdjListNode* pCrawl = graph->parent_array[v].head;
