@@ -8,11 +8,12 @@
 // #include "edgelist.h"
 
 #include "vertex.h"
-
+#include "mymalloc.h"
 
 struct Vertex* newVertexArray(__u32 num_vertices){
 
-        struct Vertex* vertex_array = (struct Vertex*) aligned_alloc(CACHELINE_BYTES, num_vertices * sizeof(struct Vertex));
+        // struct Vertex* vertex_array = (struct Vertex*) aligned_alloc(CACHELINE_BYTES, num_vertices * sizeof(struct Vertex));
+        struct Vertex* vertex_array = (struct Vertex*) my_aligned_alloc( num_vertices * sizeof(struct Vertex));
 
         __u32 i;
 

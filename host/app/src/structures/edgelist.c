@@ -12,6 +12,7 @@
 #include "edgelist.h"
 #include "capienv.h"
 #include "progressbar.h"
+#include "mymalloc.h"
 
 
 __u32 maxTwoIntegers(__u32 num1, __u32 num2){
@@ -26,7 +27,8 @@ __u32 maxTwoIntegers(__u32 num1, __u32 num2){
 // read edge file to edge_array in memory
 struct EdgeList* newEdgeList( __u32 num_edges){
 
-        struct EdgeList* newEdgeList = (struct EdgeList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct EdgeList));
+        // struct EdgeList* newEdgeList = (struct EdgeList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct EdgeList));
+        struct EdgeList* newEdgeList = (struct EdgeList*) my_aligned_alloc(sizeof(struct EdgeList));
 
         newEdgeList->num_edges = num_edges;
         newEdgeList->num_vertices = 0;
@@ -39,7 +41,8 @@ struct EdgeList* newEdgeList( __u32 num_edges){
 
 struct Edge* newEdgeArray(__u32 num_edges){
 
-        struct Edge* edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));
+        // struct Edge* edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));
+        struct Edge* edges_array = (struct Edge*) my_aligned_alloc( num_edges * sizeof(struct Edge));
 
         __u32 i;
 

@@ -50,6 +50,10 @@ sim-run:
 vsim-run:
 	cd sim && vsim -do vsim.tcl
 
+$(APP_DIR)/$(OBJ_DIR)/mymalloc.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/mymalloc.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/mymalloc.h
+	@echo 'making $(GAPP) <- mymalloc.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/mymalloc.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/mymalloc.c
+
 $(APP_DIR)/$(OBJ_DIR)/progressbar.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/progressbar.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/progressbar.h
 	@echo 'making $(GAPP) <- progressbar.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/progressbar.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/progressbar.c
@@ -90,6 +94,8 @@ $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	$(INC) \
 	-I$(PSLSE_COMMON_DIR) 
 
+mymalloc: $(APP_DIR)/$(OBJ_DIR)/mymalloc.o
+
 progressbar: $(APP_DIR)/$(OBJ_DIR)/progressbar.o
 
 timer: $(APP_DIR)/$(OBJ_DIR)/timer.o
@@ -112,11 +118,12 @@ queue: $(APP_DIR)/$(OBJ_DIR)/queue.o
 
 
 
-test: adjlist graph queue edgelist countsort radixsort vertex graph timer progressbar
+test: adjlist graph queue edgelist countsort radixsort vertex graph timer progressbar mymalloc
 	@echo 'linking $(GAPP) <- adjlist.o graph.o queue.o edgelist.o countsort.o radixsort.o vertex.o timer.o progressbar.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/mymalloc.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\
