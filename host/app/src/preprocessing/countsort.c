@@ -13,13 +13,13 @@ struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList){
 
 	 printf("START Count Sort Edges By Source \n");
 
-	struct GraphCountSorted* graph = GraphCountSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+	struct GraphCountSorted* graph = countSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
 
-	__u32 i;
+	long i;
 	__u32 key;
 	__u32 pos;
 
-
+	
 	// count occurrence of key: id of the source vertex
 	for(i = 0; i < graph->num_edges; i++){
 		key = edgeList->edges_array[i].src;
@@ -28,22 +28,31 @@ struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList){
 
 
 	// transfrom the cumulative sum
+	
 	for(i = 1; i < graph->num_vertices; i++){
 		graph->vertex_count[i] += graph->vertex_count[i-1];
 	}
 
 	// fill-in the sorted array of edges
-	for(i = graph->num_edges-1; i >= 0; i--){
+	
+	for(i = graph->num_edges-1; i >= 0; i--){	
+			
 		key = edgeList->edges_array[i].src;
+		
 		pos = graph->vertex_count[key]-1;
+		
 		graph->sorted_edges_array[pos] = edgeList->edges_array[i];
+		
+
 		graph->vertex_count[key]--;
+		
 	}
+
 
 	graph = countSortMapVertices (graph);
 
 	printf("DONE Count Sort Edges By Source \n");
-	CountSortedGraphPrint(graph);
+	countSortedGraphPrint(graph);
 	return graph;
 
 }
@@ -69,7 +78,7 @@ return graph;
 
 struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
 
-	struct GraphCountSorted* graph = GraphCountSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+	struct GraphCountSorted* graph = countSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
 
 
 	return graph;
@@ -77,7 +86,7 @@ struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* 
 
 
 
-struct GraphCountSorted* GraphCountSortedCreateGraph(__u32 V, __u32 E){
+struct GraphCountSorted* countSortedCreateGraph(__u32 V, __u32 E){
 
 	// struct GraphCountSorted* graph = (struct GraphCountSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphCountSorted));
 	struct GraphCountSorted* graph = (struct GraphCountSorted*) my_aligned_alloc( sizeof(struct GraphCountSorted));
@@ -98,7 +107,17 @@ struct GraphCountSorted* GraphCountSortedCreateGraph(__u32 V, __u32 E){
     return graph;
 }
 
-void CountSortedGraphPrint(struct GraphCountSorted* graph){
+
+void countSortedFreeGraph (struct GraphCountSorted* graph){
+
+	freeVertexArray(graph->vertices);
+	free(graph->vertex_count);
+	freeEdgeArray(graph->sorted_edges_array);
+	free(graph);
+
+}
+
+void countSortedGraphPrint(struct GraphCountSorted* graph){
 
 	 
     printf("number of vertices (V) : %d \n", graph->num_vertices);

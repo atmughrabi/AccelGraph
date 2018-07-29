@@ -12,7 +12,7 @@
 // the digit represented by exp
 struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorted* graph, struct EdgeList* edgeList, int exp){
 
-	__u32 i;
+	long i;
 	__u32 key;
 	__u32 pos;
 
@@ -40,7 +40,7 @@ struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorte
         edgeList->edges_array[i] = graph->sorted_edges_array[i];
 	}
 
-	for (i = 1; i < 10; i++) {
+	for (i = 0; i < 10; i++) {
         graph->vertex_count[i] = 0;
 	}
 
@@ -53,7 +53,7 @@ struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorte
 struct GraphRadixSorted* radixSortEdgesBySource (struct EdgeList* edgeList){
 
 	__u32 exp;
-	struct GraphRadixSorted* graph = graphRadixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+	struct GraphRadixSorted* graph = radixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
 
     // Do counting sort for every digit. Note that instead
     // of passing digit number, exp is passed. exp is 10^i
@@ -89,7 +89,7 @@ return graph;
 
 struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
 
-	struct GraphRadixSorted* graph = graphRadixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+	struct GraphRadixSorted* graph = radixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
 
 
 	return graph;
@@ -97,7 +97,7 @@ struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* 
 
 
 
-struct GraphRadixSorted* graphRadixSortedCreateGraph(__u32 V, __u32 E){
+struct GraphRadixSorted* radixSortedCreateGraph(__u32 V, __u32 E){
 
 	// struct GraphRadixSorted* graph = (struct GraphRadixSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphRadixSorted));
 	struct GraphRadixSorted* graph = (struct GraphRadixSorted*) my_aligned_alloc( sizeof(struct GraphRadixSorted));
@@ -107,7 +107,7 @@ struct GraphRadixSorted* graphRadixSortedCreateGraph(__u32 V, __u32 E){
 	graph->num_edges = E;
 	graph->vertices = newVertexArray(V);
 	// graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
-	graph->vertex_count = (__u32*) my_aligned_alloc( V * sizeof(__u32));
+	graph->vertex_count = (__u32*) my_aligned_alloc( 10 * sizeof(__u32));
 	graph->sorted_edges_array = newEdgeArray(E);
 
 	int i;
@@ -116,6 +116,15 @@ struct GraphRadixSorted* graphRadixSortedCreateGraph(__u32 V, __u32 E){
 	}
 
     return graph;
+}
+
+void radixSortedFreeGraph (struct GraphRadixSorted* graph){
+
+	freeVertexArray(graph->vertices);
+	free(graph->vertex_count);
+	freeEdgeArray(graph->sorted_edges_array);
+	free(graph);
+
 }
 
 void radixSortedGraphPrint(struct GraphRadixSorted* graph){

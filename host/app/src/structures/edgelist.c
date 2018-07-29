@@ -38,6 +38,14 @@ struct EdgeList* newEdgeList( __u32 num_edges){
 
 }
 
+ void freeEdgeList( struct EdgeList* edgeList){
+
+        freeEdgeArray(edgeList->edges_array);
+        free(edgeList);
+
+}
+
+
 
 struct Edge* newEdgeArray(__u32 num_edges){
 
@@ -55,6 +63,12 @@ struct Edge* newEdgeArray(__u32 num_edges){
         }
 
         return edges_array;
+
+}
+
+void freeEdgeArray(struct Edge* edges_array){
+
+        free(edges_array);
 
 }
 
@@ -161,6 +175,8 @@ struct EdgeList* readEdgeListsbin(const char * fname, struct EdgeListAttributes*
         __u32 num_edges = (__u64)fs.st_size/((offset)*sizeof(__u32));
         // double percentage = 0.0;
         // double percentage_sum = 0.0;
+
+         num_edges /= 2;
 
         printf("START Reading EdgeList from file %s \n",fname);
 

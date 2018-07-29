@@ -37,7 +37,8 @@ struct GraphRadixSorted{
 void radixSortedGraphPrint(struct GraphRadixSorted* graph);
 struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorted* graph,struct EdgeList* edgeList, int exp);
 struct GraphRadixSorted* radixSortMapVertices (struct GraphRadixSorted* graph);
-struct GraphRadixSorted* graphRadixSortedCreateGraph(__u32 V, __u32 E);
+struct GraphRadixSorted* radixSortedCreateGraph(__u32 V, __u32 E);
+void radixSortedFreeGraph (struct GraphRadixSorted* graph);
 struct GraphRadixSorted* radixSortEdgesBySource (struct EdgeList* edgeList);
 struct GraphRadixSorted* radixSortedgesBySourceAndDestination (struct EdgeList* edgeList);
 

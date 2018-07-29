@@ -18,6 +18,6 @@ struct Vertex {
 
 
 struct Vertex* newVertexArray(__u32 num_vertices);
-
+void freeVertexArray(struct Vertex* vertices);
 
 #endif

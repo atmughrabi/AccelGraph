@@ -32,13 +32,12 @@ struct EdgeListAttributes {
 __u32 maxTwoIntegers(__u32 num1, __u32 num2);
 
 void edgeListPrint(struct EdgeList* edgeList);
+void freeEdgeList( struct EdgeList* edgeList);
+void freeEdgeArray(struct Edge* edges_array);
 
 struct Edge* newEdgeArray(__u32 num_edges);
-
 struct EdgeList* readEdgeListstxt(const char * fname,  struct EdgeListAttributes* attr);
-
 struct EdgeList* readEdgeListsbin(const char * fname,  struct EdgeListAttributes* attr);
-
 struct EdgeList* newEdgeList(__u32 num_edges);
 
 #endif

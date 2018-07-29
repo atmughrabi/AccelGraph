@@ -34,10 +34,11 @@ struct GraphCountSorted{
 };
 
 
-void CountSortedGraphPrint(struct GraphCountSorted* graph);
+void countSortedGraphPrint(struct GraphCountSorted* graph);
+void countSortedFreeGraph (struct GraphCountSorted* graph);
 
 struct GraphCountSorted* countSortMapVertices (struct GraphCountSorted* graph);
-struct GraphCountSorted* GraphCountSortedCreateGraph(__u32 V, __u32 E);
+struct GraphCountSorted* countSortedCreateGraph(__u32 V, __u32 E);
 struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList);
 struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
 
