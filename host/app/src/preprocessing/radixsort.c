@@ -6,7 +6,7 @@
 #include "radixsort.h"
 #include "edgelist.h"
 #include "vertex.h"
-
+#include "mymalloc.h"
 
 // A function to do counting sort of edgeList according to
 // the digit represented by exp
@@ -99,12 +99,15 @@ struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* 
 
 struct GraphRadixSorted* graphRadixSortedCreateGraph(__u32 V, __u32 E){
 
-	struct GraphRadixSorted* graph = (struct GraphRadixSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphRadixSorted));
+	// struct GraphRadixSorted* graph = (struct GraphRadixSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphRadixSorted));
+	struct GraphRadixSorted* graph = (struct GraphRadixSorted*) my_aligned_alloc( sizeof(struct GraphRadixSorted));
+
 
 	graph->num_vertices = V;
 	graph->num_edges = E;
 	graph->vertices = newVertexArray(V);
-	graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
+	// graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
+	graph->vertex_count = (__u32*) my_aligned_alloc( V * sizeof(__u32));
 	graph->sorted_edges_array = newEdgeArray(E);
 
 	int i;

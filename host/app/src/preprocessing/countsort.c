@@ -6,6 +6,7 @@
 #include "countsort.h"
 #include "edgelist.h"
 #include "vertex.h"
+#include "mymalloc.h"
 
 
 struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList){
@@ -78,12 +79,15 @@ struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* 
 
 struct GraphCountSorted* GraphCountSortedCreateGraph(__u32 V, __u32 E){
 
-	struct GraphCountSorted* graph = (struct GraphCountSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphCountSorted));
+	// struct GraphCountSorted* graph = (struct GraphCountSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphCountSorted));
+	struct GraphCountSorted* graph = (struct GraphCountSorted*) my_aligned_alloc( sizeof(struct GraphCountSorted));
+
 
 	graph->num_vertices = V;
 	graph->num_edges = E;
 	graph->vertices = newVertexArray(V);
-	graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
+	// graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
+	graph->vertex_count = (__u32*) my_aligned_alloc( V * sizeof(__u32));
 	graph->sorted_edges_array = newEdgeArray(E);
 
 	__u32 i;
