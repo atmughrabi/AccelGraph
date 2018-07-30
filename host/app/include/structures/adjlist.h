@@ -2,13 +2,18 @@
 #define ADJLIST_H
 
 #include "edgelist.h"
+#include "graphconfig.h"
 
 // A structure to represent an adjacency list node
-struct AdjListNode {
+struct __attribute__((__packed__)) AdjListNode {
 
 	__u32 dest;
 	__u32 src;
+
+	#ifdef WEIGHTED
 	__u32 weight;
+	#endif
+
 	struct AdjListNode* next;
 
 };
@@ -49,6 +54,8 @@ void adjListAddEdgeDirected(struct Graph* graph, __u32 src, __u32 dest, __u32 we
 // A utility function to print the adjacency list 
 // representation of graph
 void adjListPrintGraph(struct Graph* graph);
+
+void adjListFreeGraph(struct Graph* graph);
 
 
 #endif

@@ -40,7 +40,8 @@ struct GraphRadixSorted* radixSortMapVertices (struct GraphRadixSorted* graph);
 struct GraphRadixSorted* radixSortedCreateGraph(__u32 V, __u32 E);
 void radixSortedFreeGraph (struct GraphRadixSorted* graph);
 struct GraphRadixSorted* radixSortEdgesBySource (struct EdgeList* edgeList);
-struct GraphRadixSorted* radixSortedgesBySourceAndDestination (struct EdgeList* edgeList);
+struct GraphRadixSorted* radixSortEdgesBySourceOptimized (struct EdgeList* edgeList);
+struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
 
 
 #endif

@@ -52,6 +52,8 @@ struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorte
 
 struct GraphRadixSorted* radixSortEdgesBySource (struct EdgeList* edgeList){
 
+	printf("*** START Radix Sort Edges By Source *** \n");
+
 	__u32 exp;
 	struct GraphRadixSorted* graph = radixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
 
@@ -61,8 +63,12 @@ struct GraphRadixSorted* radixSortEdgesBySource (struct EdgeList* edgeList){
 	 for (exp = 1; (edgeList->num_vertices/exp) > 0; exp *= 10){
 	 	graph = radixSortCountSortEdgesBySource (graph, edgeList, exp);
 	 }
-		
+	
 	graph = radixSortMapVertices (graph);
+
+	printf("DONE Radix Sort Edges By Source \n");
+	radixSortedGraphPrint(graph);
+
 
 	return graph;
 
@@ -89,7 +95,104 @@ return graph;
 
 struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
 
+	printf("*** START Radix Sort Edges By Source And Destination *** \n");
+
+	// __u32 exp;
+	// long i;
+	// __u32 key;
+	// __u32 pos;
+
 	struct GraphRadixSorted* graph = radixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+
+    // Do counting sort for every digit. Note that instead
+    // of passing digit number, exp is passed. exp is 10^i
+    // where i is current digit number
+
+	__u32 count = edgeList->num_edges;
+	__u32 mIndex[8][256] = { 0 };
+	__u32 * pmIndex;
+	__u32 i, j, m, n;
+	__u32 u;
+
+	 for (i = 0; i < count; i++) {       /* generate histograms */
+		u = edgeList->edges_array[i].dest;
+        mIndex[7][(u >> 0)  & 0xff]++;
+        mIndex[6][(u >> 8)  & 0xff]++;
+        mIndex[5][(u >> 16) & 0xff]++;
+        mIndex[4][(u >> 24) & 0xff]++;
+
+        u = edgeList->edges_array[i].src;
+        mIndex[3][(u >> 0)  & 0xff]++;
+        mIndex[2][(u >> 8)  & 0xff]++;
+        mIndex[1][(u >> 16) & 0xff]++;
+        mIndex[0][(u >> 24) & 0xff]++;
+
+
+
+    }
+
+    for (j = 0; j < 4; j++) {           /* convert to indices generate prefixsum */
+        pmIndex = mIndex[j];
+        n = 0;
+        for (i = 0; i < 256; i++) {
+            m = pmIndex[i];
+            pmIndex[i] = n;
+            n += m;
+        }
+    }
+
+     for (j = 4; j < 8; j++) {           /* convert to indices generate prefixsum */
+        pmIndex = mIndex[j];
+        n = 0;
+        for (i = 0; i < 256; i++) {
+            m = pmIndex[i];
+            pmIndex[i] = n;
+            n += m;
+        }
+    }
+
+     for (i = 0; i < count; i++) {       /* radix sort */
+        u = edgeList->edges_array[i].dest;
+        graph->sorted_edges_array[mIndex[7][(u >> 0) & 0xff]++] = edgeList->edges_array[i];
+    }
+    for (i = 0; i < count; i++) {
+        u = graph->sorted_edges_array[i].dest;
+        edgeList->edges_array[mIndex[6][(u >> 8) & 0xff]++] = graph->sorted_edges_array[i];
+    }
+    for (i = 0; i < count; i++) {
+        u = edgeList->edges_array[i].dest;
+        graph->sorted_edges_array[mIndex[5][(u >> 16) & 0xff]++] = edgeList->edges_array[i];
+    }
+    for (i = 0; i < count; i++) {
+        u = graph->sorted_edges_array[i].dest;
+        edgeList->edges_array[mIndex[4][(u >> 24) & 0xff]++] = graph->sorted_edges_array[i];
+    }
+
+    for (i = 0; i < count; i++) {       /* radix sort */
+        u = edgeList->edges_array[i].src;
+        graph->sorted_edges_array[mIndex[3][(u >> 0) & 0xff]++] = edgeList->edges_array[i];
+    }
+    for (i = 0; i < count; i++) {
+        u = graph->sorted_edges_array[i].src;
+        edgeList->edges_array[mIndex[2][(u >> 8) & 0xff]++] = graph->sorted_edges_array[i];
+    }
+    for (i = 0; i < count; i++) {
+        u = edgeList->edges_array[i].src;
+        graph->sorted_edges_array[mIndex[1][(u >> 16) & 0xff]++] = edgeList->edges_array[i];
+    }
+    for (i = 0; i < count; i++) {
+        u = graph->sorted_edges_array[i].src;
+        edgeList->edges_array[mIndex[0][(u >> 24) & 0xff]++] = graph->sorted_edges_array[i];
+    }
+
+    freeEdgeArray(graph->sorted_edges_array);
+
+    graph->sorted_edges_array = edgeList->edges_array;
+	
+	graph = radixSortMapVertices (graph);
+
+	printf("DONE Radix Sort Edges By Source And Destination \n");
+	radixSortedGraphPrint(graph);
 
 
 	return graph;
@@ -100,18 +203,26 @@ struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* 
 struct GraphRadixSorted* radixSortedCreateGraph(__u32 V, __u32 E){
 
 	// struct GraphRadixSorted* graph = (struct GraphRadixSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphRadixSorted));
-	struct GraphRadixSorted* graph = (struct GraphRadixSorted*) my_aligned_alloc( sizeof(struct GraphRadixSorted));
-
+	#ifdef ALIGNED
+		struct GraphRadixSorted* graph = (struct GraphRadixSorted*) my_aligned_alloc( sizeof(struct GraphRadixSorted));
+	#else
+        struct GraphRadixSorted* graph = (struct GraphRadixSorted*) my_malloc( sizeof(struct GraphRadixSorted));
+    #endif
 
 	graph->num_vertices = V;
 	graph->num_edges = E;
 	graph->vertices = newVertexArray(V);
 	// graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
-	graph->vertex_count = (__u32*) my_aligned_alloc( 10 * sizeof(__u32));
+	#ifdef ALIGNED
+		graph->vertex_count = (__u32*) my_aligned_alloc( 10 * sizeof(__u32));
+	#else
+        graph->vertex_count = (__u32*) my_malloc( 10 * sizeof(__u32));
+    #endif
+
 	graph->sorted_edges_array = newEdgeArray(E);
 
 	int i;
-	for(i = 0; i < V; i++){
+	for(i = 0; i < 10; i++){
         graph->vertex_count[i] = 0;  
 	}
 
@@ -142,5 +253,81 @@ void radixSortedGraphPrint(struct GraphRadixSorted* graph){
 
    
 }
+
+
+struct GraphRadixSorted* radixSortEdgesBySourceOptimized (struct EdgeList* edgeList){
+
+	printf("*** START Radix Sort Edges By Source *** \n");
+
+	// __u32 exp;
+	// long i;
+	// __u32 key;
+	// __u32 pos;
+
+	struct GraphRadixSorted* graph = radixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+
+    // Do counting sort for every digit. Note that instead
+    // of passing digit number, exp is passed. exp is 10^i
+    // where i is current digit number
+
+	__u32 count = edgeList->num_edges;
+	__u32 mIndex[4][256] = { 0 };
+	__u32 * pmIndex;
+	__u32 i, j, m, n;
+	__u32 u;
+
+	 for (i = 0; i < count; i++) {       /* generate histograms */
+        u = edgeList->edges_array[i].src;
+        mIndex[3][(u >> 0)  & 0xff]++;
+        mIndex[2][(u >> 8)  & 0xff]++;
+        mIndex[1][(u >> 16) & 0xff]++;
+        mIndex[0][(u >> 24) & 0xff]++;
+    }
+
+    for (j = 0; j < 4; j++) {           /* convert to indices generate prefixsum */
+        pmIndex = mIndex[j];
+        n = 0;
+        for (i = 0; i < 256; i++) {
+            m = pmIndex[i];
+            pmIndex[i] = n;
+            n += m;
+        }
+    }
+
+    for (i = 0; i < count; i++) {       /* radix sort */
+        u = edgeList->edges_array[i].src;
+        graph->sorted_edges_array[mIndex[3][(u >> 0) & 0xff]++] = edgeList->edges_array[i];
+    }
+
+    for (i = 0; i < count; i++) {
+        u = graph->sorted_edges_array[i].src;
+        edgeList->edges_array[mIndex[2][(u >> 8) & 0xff]++] = graph->sorted_edges_array[i];
+    }
+
+    for (i = 0; i < count; i++) {
+        u = edgeList->edges_array[i].src;
+        graph->sorted_edges_array[mIndex[1][(u >> 16) & 0xff]++] = edgeList->edges_array[i];
+    }
+
+    for (i = 0; i < count; i++) {
+        u = graph->sorted_edges_array[i].src;
+        edgeList->edges_array[mIndex[0][(u >> 24) & 0xff]++] = graph->sorted_edges_array[i];
+    }
+
+	freeEdgeArray(graph->sorted_edges_array);
+    graph->sorted_edges_array = edgeList->edges_array;
+
+	graph = radixSortMapVertices (graph);
+
+	printf("DONE Radix Sort Edges By Source \n");
+	radixSortedGraphPrint(graph);
+
+
+	return graph;
+
+} 
+
+
+
 
 

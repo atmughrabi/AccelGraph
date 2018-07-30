@@ -1,13 +1,16 @@
 #ifndef EDGELIST_H
 #define EDGELIST_H
-#include <linux/types.h>
 
+#include <linux/types.h>
+#include "graphconfig.h"
 // A structure to represent an edge
-struct Edge {
+struct  __attribute__((__packed__)) Edge {
 
 	__u32 dest;
 	__u32 src;
+	#ifdef WEIGHTED
 	__u32 weight;
+	#endif
 
 };
 
@@ -22,12 +25,12 @@ struct EdgeList {
 };
 
 
-struct EdgeListAttributes {
+// struct EdgeListAttributes {
 
-	__u8 WEIGHTED;
-	__u8 DIRECTED;
+// 	__u8 WEIGHTED;
+// 	__u8 DIRECTED;
 
-};
+// };
 
 __u32 maxTwoIntegers(__u32 num1, __u32 num2);
 
@@ -36,8 +39,8 @@ void freeEdgeList( struct EdgeList* edgeList);
 void freeEdgeArray(struct Edge* edges_array);
 
 struct Edge* newEdgeArray(__u32 num_edges);
-struct EdgeList* readEdgeListstxt(const char * fname,  struct EdgeListAttributes* attr);
-struct EdgeList* readEdgeListsbin(const char * fname,  struct EdgeListAttributes* attr);
+struct EdgeList* readEdgeListstxt(const char * fname);
+struct EdgeList* readEdgeListsbin(const char * fname);
 struct EdgeList* newEdgeList(__u32 num_edges);
 
 #endif

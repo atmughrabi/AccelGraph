@@ -9,8 +9,11 @@
 struct AdjListNode* newAdjListNode(__u32 src, __u32 dest, __u32 weight){
 
 	// struct AdjListNode* newNode = (struct AdjListNode*) aligned_alloc(CACHELINE_BYTES, sizeof(struct AdjListNode));
-    struct AdjListNode* newNode = (struct AdjListNode*) my_aligned_alloc(sizeof(struct AdjListNode));
-
+    #ifdef ALIGNED
+        struct AdjListNode* newNode = (struct AdjListNode*) my_aligned_alloc(sizeof(struct AdjListNode));
+    #else
+        struct AdjListNode* newNode = (struct AdjListNode*) my_malloc(sizeof(struct AdjListNode));
+    #endif
 
 	newNode->dest = dest;
     newNode->src = src;
@@ -26,11 +29,19 @@ struct Graph* adjListCreateGraph(__u32 V){
     // printf("\n Create Graph #Vertecies: %d\n ", V);
 
 	// struct Graph* graph = (struct Graph*) aligned_alloc(CACHELINE_BYTES, sizeof(struct Graph));
-    struct Graph* graph = (struct Graph*) my_aligned_alloc( sizeof(struct Graph));
+    #ifdef ALIGNED
+        struct Graph* graph = (struct Graph*) my_aligned_alloc( sizeof(struct Graph));
+    #else
+        struct Graph* graph = (struct Graph*) my_malloc( sizeof(struct Graph));
+    #endif
 
 	graph->V = V;
 	// graph->parent_array = (struct AdjList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjList));
-    graph->parent_array = (struct AdjList*) my_aligned_alloc( V * sizeof(struct AdjList));
+    #ifdef ALIGNED
+        graph->parent_array = (struct AdjList*) my_aligned_alloc( V * sizeof(struct AdjList));
+    #else
+        graph->parent_array = (struct AdjList*) my_malloc( V * sizeof(struct AdjList));
+    #endif
 
 	__u32 i;
 	for(i = 0; i < V; i++){
@@ -50,12 +61,21 @@ struct Graph* adjListCreateGraph(__u32 V){
 struct Graph* adjListCreateGraphEdgeList(struct EdgeList* edgeList){
 
     // struct Graph* graph = (struct Graph*) aligned_alloc(CACHELINE_BYTES, sizeof(struct Graph));
-    struct Graph* graph = (struct Graph*) my_aligned_alloc( sizeof(struct Graph));
+    #ifdef ALIGNED
+        struct Graph* graph = (struct Graph*) my_aligned_alloc( sizeof(struct Graph));
+    #else
+        struct Graph* graph = (struct Graph*) my_malloc( sizeof(struct Graph));
+    #endif
 
     graph->V = edgeList->num_vertices;
     graph->num_edges = edgeList->num_edges;
     // graph->parent_array = (struct AdjList*) aligned_alloc(CACHELINE_BYTES, graph->V * sizeof(struct AdjList));
-    graph->parent_array = (struct AdjList*) my_aligned_alloc( graph->V * sizeof(struct AdjList));
+
+    #ifdef ALIGNED
+        graph->parent_array = (struct AdjList*) my_aligned_alloc( graph->V * sizeof(struct AdjList));
+    #else
+        graph->parent_array = (struct AdjList*) my_malloc( graph->V * sizeof(struct AdjList));
+    #endif
 
     __u32 i;
     for(i = 0; i < graph->V; i++){
@@ -133,6 +153,30 @@ void adjListPrintGraph(struct Graph* graph){
         }
         printf("\n");
     }
+
+
+}
+
+void adjListFreeGraph(struct Graph* graph){
+
+    __u32 v;
+    for (v = 0; v < graph->V; ++v)
+    {
+        struct AdjListNode* pCrawl = graph->parent_array[v].head;
+        struct AdjListNode* pFree  = graph->parent_array[v].head;
+        while (pCrawl)
+        {
+
+            pFree = pCrawl;
+            pCrawl = pCrawl->next;
+            free(pFree);
+
+        }
+       
+    }
+
+    free(graph->parent_array);
+    free(graph);
 
 
 }

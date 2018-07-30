@@ -13,7 +13,13 @@
 struct Vertex* newVertexArray(__u32 num_vertices){
 
         // struct Vertex* vertex_array = (struct Vertex*) aligned_alloc(CACHELINE_BYTES, num_vertices * sizeof(struct Vertex));
+		
+	#ifdef ALIGNED
         struct Vertex* vertex_array = (struct Vertex*) my_aligned_alloc( num_vertices * sizeof(struct Vertex));
+    #else
+        struct Vertex* vertex_array = (struct Vertex*) my_malloc( num_vertices * sizeof(struct Vertex));
+    #endif
+
 
         __u32 i;
 

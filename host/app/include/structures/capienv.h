@@ -3,7 +3,7 @@
 
 #include <linux/types.h>
 
-#define APP_NAME              "test_afu"
+#define APP_NAME              "test"
 
 #define CACHELINE_BYTES       128                   // 0x80
 #define MMIO_ADDR             0x3fffff8             // 0x3fffff8 >> 2 = 0xfffffe

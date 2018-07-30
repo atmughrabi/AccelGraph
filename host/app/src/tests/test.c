@@ -18,50 +18,56 @@ int main()
     // create the graph given in above fugure
     // int V = 5;
 
+    // const char * fname = "host/app/datasets/test/test.txt";
     // const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
     // const char * fname = "host/app/datasets/twitter/twitter_rv.txt";
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
+
+    // const char * fnameb = "host/app/datasets/test/test.txt.bin";
     const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
 
-    struct EdgeListAttributes* graphAttr = (struct EdgeListAttributes*)malloc(sizeof(struct EdgeListAttributes));
-    graphAttr->WEIGHTED = 0;
-    graphAttr->DIRECTED = 0;
-
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
     // Start(timer);
-    // struct EdgeList* edgeList = readEdgeListstxt(fname, graphAttr);
+    // struct EdgeList* edgeList = readEdgeListstxt(fname);
     // Stop(timer);
     // printf("Read Edge List From File : %f Seconds \n",Seconds(timer));
 
     Start(timer);
-    struct EdgeList* edgeList = readEdgeListsbin(fnameb, graphAttr);
+    struct EdgeList* edgeList = readEdgeListsbin(fnameb);
     Stop(timer);
     printf("Read Edge List From File : %f Seconds \n",Seconds(timer));
     
     // Start(timer);
-    // struct Graph* graph = adjListCreateGraphEdgeList(edgeList);
+    // struct Graph* graph_adjList = adjListCreateGraphEdgeList(edgeList);
     // Stop(timer);
     // printf("adjacency Linked List Edges By Source : %f Seconds \n",Seconds(timer));
 
-    Start(timer);
-    struct GraphCountSorted* graph_countSort = countSortEdgesBySource(edgeList);
-    Stop(timer);
-    printf("Count Sort Edges By Source : %f Seconds \n",Seconds(timer));
+    // adjListFreeGraph(graph_adjList);
 
-    countSortedFreeGraph(graph_countSort);
+    // Start(timer);
+    // struct GraphCountSorted* graph_countSort = countSortEdgesBySource(edgeList);
+    // Stop(timer);
+    // printf("Count Sort Edges By Source : %f Seconds \n",Seconds(timer));
+
+    // countSortedFreeGraph(graph_countSort);
 
     Start(timer);
-    struct GraphRadixSorted* graph_radixSort = radixSortEdgesBySource(edgeList);
+    struct GraphRadixSorted* graph_radixSort = radixSortEdgesBySourceOptimized(edgeList);
     Stop(timer);
     printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
 
+    // Start(timer);
+    // struct GraphRadixSorted* graph_radixSort = radixSortEdgesBySourceAndDestination(edgeList);
+    // Stop(timer);
+    // printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
+
     radixSortedFreeGraph(graph_radixSort);
-    freeEdgeList(edgeList);
+    // freeEdgeList(edgeList);
 
     // edgeListPrint(edgeList);
     // countSortedGraphPrint(graph_countSort);
