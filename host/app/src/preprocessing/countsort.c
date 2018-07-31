@@ -89,7 +89,7 @@ struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* 
 struct GraphCountSorted* countSortedCreateGraph(__u32 V, __u32 E){
 
 	// struct GraphCountSorted* graph = (struct GraphCountSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphCountSorted));
-	#ifdef ALIGNED
+	#if ALIGNED
 		struct GraphCountSorted* graph = (struct GraphCountSorted*) my_aligned_alloc( sizeof(struct GraphCountSorted));
 	#else
         struct GraphCountSorted* graph = (struct GraphCountSorted*) my_malloc( sizeof(struct GraphCountSorted));
@@ -99,7 +99,7 @@ struct GraphCountSorted* countSortedCreateGraph(__u32 V, __u32 E){
 	graph->num_edges = E;
 	graph->vertices = newVertexArray(V);
 	// graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
-	#ifdef ALIGNED
+	#if ALIGNED
 		graph->vertex_count = (__u32*) my_aligned_alloc( V * sizeof(__u32));
 	#else
         graph->vertex_count = (__u32*) my_malloc( V * sizeof(__u32));

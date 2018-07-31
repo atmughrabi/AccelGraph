@@ -28,7 +28,7 @@ __u32 maxTwoIntegers(__u32 num1, __u32 num2){
 struct EdgeList* newEdgeList( __u32 num_edges){
 
         // struct EdgeList* newEdgeList = (struct EdgeList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct EdgeList));
-        #ifdef ALIGNED
+        #if ALIGNED
                 struct EdgeList* newEdgeList = (struct EdgeList*) my_aligned_alloc(sizeof(struct EdgeList));
         #else
                 struct EdgeList* newEdgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
@@ -55,7 +55,7 @@ struct EdgeList* newEdgeList( __u32 num_edges){
 struct Edge* newEdgeArray(__u32 num_edges){
 
         // struct Edge* edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));
-        #ifdef ALIGNED
+        #if ALIGNED
                 struct Edge* edges_array = (struct Edge*) my_aligned_alloc( num_edges * sizeof(struct Edge));
         #else
                 struct Edge* edges_array = (struct Edge*) my_malloc( num_edges * sizeof(struct Edge));
@@ -86,7 +86,11 @@ struct EdgeList* readEdgeListstxt(const char * fname){
 
         FILE *pText, *pBinary;
         __u32 size = 0, i;
-        __u32 src = 0, dest = 0, weight = 1;
+        __u32 src = 0, dest = 0;
+
+        #if WEIGHTED
+                __u32 weight = 1;
+        #endif
 
         char * fname_txt = (char *) malloc((strlen(fname)+5)*sizeof(char));
         char * fname_bin = (char *) malloc((strlen(fname)+5)*sizeof(char));
@@ -119,8 +123,6 @@ struct EdgeList* readEdgeListstxt(const char * fname){
         // double percentage = 0.0;
 
 
-        
-
         while (1)
         {
         size++;
@@ -131,7 +133,7 @@ struct EdgeList* readEdgeListstxt(const char * fname){
         fwrite(&src, sizeof (src), 1, pBinary);
         fwrite(&dest, sizeof (dest), 1, pBinary);
 
-        #ifdef WEIGHTED
+        #if WEIGHTED
                 fwrite(&weight, sizeof (weight), 1, pBinary);
         #endif
 
@@ -181,7 +183,7 @@ struct EdgeList* readEdgeListsbin(const char * fname){
 
         buf_pointer = (__u32 *) buf_addr;
 
-        #ifdef WEIGHTED
+        #if WEIGHTED
          __u32 offset = 3;
         #else
          __u32 offset = 2; 
@@ -191,7 +193,7 @@ struct EdgeList* readEdgeListsbin(const char * fname){
         // double percentage = 0.0;
         // double percentage_sum = 0.0;
 
-         num_edges /= 4;
+         // num_edges /= 4;
 
         printf("START Reading EdgeList from file %s \n",fname);
 
@@ -209,7 +211,7 @@ struct EdgeList* readEdgeListsbin(const char * fname){
                 edgeList->edges_array[i].dest = buf_pointer[((offset)*i)+1];
                 edgeList->num_vertices = maxTwoIntegers(edgeList->num_vertices,maxTwoIntegers(edgeList->edges_array[i].src, edgeList->edges_array[i].dest));
                
-                 #ifdef WEIGHTED
+                 #if WEIGHTED
                         edgeList->edges_array[i].weight = buf_pointer[((offset)*i)+2];
                  #endif
              
@@ -230,12 +232,14 @@ void edgeListPrint(struct EdgeList* edgeList){
         printf("number of vertices (V) : %u \n", edgeList->num_vertices);
         printf("number of edges    (E) : %u \n", edgeList->num_edges);   
 
-        // int i;
-        // for(i = 0; i < edgeList->num_edges; i++){
+        // __u32 i;
+        // for(i = 0; i < graph->num_edges; i++){
 
-        //          printf("%d -> %d w: %d \n", edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);   
-
+        //         #if WEIGHTED
+        //                 printf("%u -> %u w: %d \n", edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);   
+        //         #else
+        //                 printf("%u -> %u \n", edgeList->edges_array[i].src, edgeList->edges_array[i].dest);   
+        //         #endif
         // }
-
 
 }

@@ -26,7 +26,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(ALGO_DIR)/ 	\
 		-I$(APP_DIR)/include/$(TEST_DIR)/ 	\
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
-		-I$(APP_DIR)/include/$(UTIL_DIR)/ \
+		-I$(APP_DIR)/include/$(UTIL_DIR)/   \
 # flags
 CFLAGS            = -O3 -Wall -m64 -g
 

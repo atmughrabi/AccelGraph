@@ -25,8 +25,8 @@ int main()
 
 
     // const char * fnameb = "host/app/datasets/test/test.txt.bin";
-    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
+    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
+    const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
 

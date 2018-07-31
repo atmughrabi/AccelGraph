@@ -7,6 +7,7 @@
 #include "edgelist.h"
 #include "vertex.h"
 #include "mymalloc.h"
+#include "graphconfig.h"
 
 // A function to do counting sort of edgeList according to
 // the digit represented by exp
@@ -203,7 +204,7 @@ struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* 
 struct GraphRadixSorted* radixSortedCreateGraph(__u32 V, __u32 E){
 
 	// struct GraphRadixSorted* graph = (struct GraphRadixSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphRadixSorted));
-	#ifdef ALIGNED
+	#if ALIGNED
 		struct GraphRadixSorted* graph = (struct GraphRadixSorted*) my_aligned_alloc( sizeof(struct GraphRadixSorted));
 	#else
         struct GraphRadixSorted* graph = (struct GraphRadixSorted*) my_malloc( sizeof(struct GraphRadixSorted));
@@ -213,7 +214,7 @@ struct GraphRadixSorted* radixSortedCreateGraph(__u32 V, __u32 E){
 	graph->num_edges = E;
 	graph->vertices = newVertexArray(V);
 	// graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
-	#ifdef ALIGNED
+	#if ALIGNED
 		graph->vertex_count = (__u32*) my_aligned_alloc( 10 * sizeof(__u32));
 	#else
         graph->vertex_count = (__u32*) my_malloc( 10 * sizeof(__u32));
@@ -221,7 +222,7 @@ struct GraphRadixSorted* radixSortedCreateGraph(__u32 V, __u32 E){
 
 	graph->sorted_edges_array = newEdgeArray(E);
 
-	int i;
+	__u32 i;
 	for(i = 0; i < 10; i++){
         graph->vertex_count[i] = 0;  
 	}
@@ -247,8 +248,11 @@ void radixSortedGraphPrint(struct GraphRadixSorted* graph){
 	// __u32 i;
  //    for(i = 0; i < graph->num_edges; i++){
 
- //        printf("%d -> %d w: %d \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest, graph->sorted_edges_array[i].weight);   
-
+ //    	#if WEIGHTED
+ //        	printf("%u -> %u w: %d \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest, graph->sorted_edges_array[i].weight);   
+ //        #else
+ //        	printf("%u -> %u \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);   
+ //        #endif
  //     }
 
    
@@ -270,48 +274,81 @@ struct GraphRadixSorted* radixSortEdgesBySourceOptimized (struct EdgeList* edgeL
     // of passing digit number, exp is passed. exp is 10^i
     // where i is current digit number
 
-	__u32 count = edgeList->num_edges;
-	__u32 mIndex[4][256] = { 0 };
-	__u32 * pmIndex;
-	__u32 i, j, m, n;
-	__u32 u;
+	__u32 radix = 4;  // 32/8 8 bit radix needs 4 iterations
+	__u32 buckets = 256; // 2^radix = 256 buckets
 
-	 for (i = 0; i < count; i++) {       /* generate histograms */
+	__u32 t4 = 0, t3 = 0, t2 = 0, t1 = 0;
+	__u32 o4 = 0, o3 = 0, o2 = 0, o1 = 0;
+	__u32 u = 0;
+	__u32 i = 0;
+
+	free(graph->vertex_count);
+
+	#if ALIGNED
+		graph->vertex_count = (__u32*) my_aligned_alloc( radix * buckets * sizeof(__u32));
+	#else
+        graph->vertex_count = (__u32*) my_malloc( radix * buckets * sizeof(__u32));
+    #endif
+
+
+	
+
+
+	 for (i = 0; i < edgeList->num_edges; i++) {       /* generate histograms */
         u = edgeList->edges_array[i].src;
-        mIndex[3][(u >> 0)  & 0xff]++;
-        mIndex[2][(u >> 8)  & 0xff]++;
-        mIndex[1][(u >> 16) & 0xff]++;
-        mIndex[0][(u >> 24) & 0xff]++;
+        t4 = (u >> 0)  & 0xff;
+        t3 = (u >> 8)  & 0xff;
+        t2 = (u >> 16) & 0xff;
+        t1 = (u >> 24) & 0xff;
+        graph->vertex_count[3*buckets + t4]++;
+        graph->vertex_count[2*buckets + t3]++;
+        graph->vertex_count[1*buckets + t2]++;
+        graph->vertex_count[0*buckets + t1]++;
+
     }
 
-    for (j = 0; j < 4; j++) {           /* convert to indices generate prefixsum */
-        pmIndex = mIndex[j];
-        n = 0;
-        for (i = 0; i < 256; i++) {
-            m = pmIndex[i];
-            pmIndex[i] = n;
-            n += m;
-        }
+
+    for(i=0; i< buckets; i++){ /* convert to indices generate prefixsum */
+
+    	t4 = o4 + graph->vertex_count[3*buckets + i];
+        t3 = o3 + graph->vertex_count[2*buckets + i];
+        t2 = o2 + graph->vertex_count[1*buckets + i];
+        t1 = o1 + graph->vertex_count[0*buckets + i];
+
+        graph->vertex_count[3*buckets + i] = o4;
+        graph->vertex_count[2*buckets + i] = o3;
+        graph->vertex_count[1*buckets + i] = o2;
+        graph->vertex_count[0*buckets + i] = o1;
+
+        o4 = t4;
+        o3 = t3;
+        o2 = t2;
+        o1 = t1;
     }
 
-    for (i = 0; i < count; i++) {       /* radix sort */
+
+    for (i = 0; i < edgeList->num_edges; i++) {       /* radix sort */
         u = edgeList->edges_array[i].src;
-        graph->sorted_edges_array[mIndex[3][(u >> 0) & 0xff]++] = edgeList->edges_array[i];
+        t4 = (u >> 0)  & 0xff;
+        graph->sorted_edges_array[graph->vertex_count[3*buckets + t4]++] = edgeList->edges_array[i];
     }
 
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < edgeList->num_edges; i++) {
         u = graph->sorted_edges_array[i].src;
-        edgeList->edges_array[mIndex[2][(u >> 8) & 0xff]++] = graph->sorted_edges_array[i];
+        t3 = (u >> 8)  & 0xff;
+        edgeList->edges_array[graph->vertex_count[2*buckets + t3]++] = graph->sorted_edges_array[i];
     }
 
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < edgeList->num_edges; i++) {
         u = edgeList->edges_array[i].src;
-        graph->sorted_edges_array[mIndex[1][(u >> 16) & 0xff]++] = edgeList->edges_array[i];
+        t2 = (u >> 16) & 0xff;
+        graph->sorted_edges_array[graph->vertex_count[1*buckets + t2]++] = edgeList->edges_array[i];
     }
 
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < edgeList->num_edges; i++) {
         u = graph->sorted_edges_array[i].src;
-        edgeList->edges_array[mIndex[0][(u >> 24) & 0xff]++] = graph->sorted_edges_array[i];
+        t1 = (u >> 24) & 0xff;
+        edgeList->edges_array[graph->vertex_count[0*buckets + t1]++] = graph->sorted_edges_array[i];
     }
 
 	freeEdgeArray(graph->sorted_edges_array);
