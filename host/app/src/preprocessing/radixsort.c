@@ -276,6 +276,7 @@ struct GraphRadixSorted* radixSortEdgesBySourceOptimized (struct EdgeList* edgeL
 
 	__u32 radix = 4;  // 32/8 8 bit radix needs 4 iterations
 	__u32 buckets = 256; // 2^radix = 256 buckets
+	__u32 num_edges = edgeList->num_edges;
 
 	__u32 t4 = 0, t3 = 0, t2 = 0, t1 = 0;
 	__u32 o4 = 0, o3 = 0, o2 = 0, o1 = 0;
@@ -294,7 +295,7 @@ struct GraphRadixSorted* radixSortEdgesBySourceOptimized (struct EdgeList* edgeL
 	
 
 
-	 for (i = 0; i < edgeList->num_edges; i++) {       /* generate histograms */
+	 for (i = 0; i < num_edges; i++) {       /* generate histograms */
         u = edgeList->edges_array[i].src;
         t4 = (u >> 0)  & 0xff;
         t3 = (u >> 8)  & 0xff;
@@ -327,25 +328,25 @@ struct GraphRadixSorted* radixSortEdgesBySourceOptimized (struct EdgeList* edgeL
     }
 
 
-    for (i = 0; i < edgeList->num_edges; i++) {       /* radix sort */
+    for (i = 0; i < num_edges; i++) {       /* radix sort */
         u = edgeList->edges_array[i].src;
         t4 = (u >> 0)  & 0xff;
         graph->sorted_edges_array[graph->vertex_count[3*buckets + t4]++] = edgeList->edges_array[i];
     }
 
-    for (i = 0; i < edgeList->num_edges; i++) {
+    for (i = 0; i < num_edges; i++) {
         u = graph->sorted_edges_array[i].src;
         t3 = (u >> 8)  & 0xff;
         edgeList->edges_array[graph->vertex_count[2*buckets + t3]++] = graph->sorted_edges_array[i];
     }
 
-    for (i = 0; i < edgeList->num_edges; i++) {
+    for (i = 0; i < num_edges; i++) {
         u = edgeList->edges_array[i].src;
         t2 = (u >> 16) & 0xff;
         graph->sorted_edges_array[graph->vertex_count[1*buckets + t2]++] = edgeList->edges_array[i];
     }
 
-    for (i = 0; i < edgeList->num_edges; i++) {
+    for (i = 0; i < num_edges; i++) {
         u = graph->sorted_edges_array[i].src;
         t1 = (u >> 24) & 0xff;
         edgeList->edges_array[graph->vertex_count[0*buckets + t1]++] = graph->sorted_edges_array[i];
