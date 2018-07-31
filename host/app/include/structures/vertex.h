@@ -6,14 +6,12 @@
 #define NOT_VISITED -1
 
 
-struct Vertex {
+struct __attribute__((__packed__)) Vertex {
 
-	// int visited;
-	// int vertex_id;
+	__u8 visited;
+	__u32 out_degree;
+	__u32 in_degree;
 	int edges_idx;
-	// int out_degree;
-	// int in_degree;
-
 };
 
 

@@ -160,6 +160,7 @@ struct EdgeList* readEdgeListsbin(const char * fname){
         struct stat fs;
         char *buf_addr;
         __u32  *buf_pointer;
+        __u32  src=0 ,dest=0;
  
         if (fd == -1) {
                 err(1, "open: %s", fname);
@@ -196,25 +197,50 @@ struct EdgeList* readEdgeListsbin(const char * fname){
          // num_edges /= 4;
 
         printf("START Reading EdgeList from file %s \n",fname);
+        printf("Graph Properties : ");
+
+        #if WEIGHTED
+                printf("WEIGHTED");
+        #else
+                printf("UN-WEIGHTED");
+        #endif
+
+        #if DIRECTED
+                printf(" DIRECTED \n");
+        #else
+                printf(" UN-DIRECTED \n");
+        #endif
 
 
-        struct EdgeList* edgeList = newEdgeList(num_edges-1);
-
+        #if DIRECTED
+                       struct EdgeList* edgeList = newEdgeList(num_edges-1);
+        #else
+                       struct EdgeList* edgeList = newEdgeList((num_edges-1)*2);
+        #endif
+        
         __u32 i;
-        for(i = 0; i < edgeList->num_edges; i++){
 
-                // percentage_sum += (double)offset;
-                // percentage = percentage_sum / (double)num_edges;
-                // printProgress (percentage);
+        for(i = 0; i < num_edges-1; i++){
+
+                src = buf_pointer[((offset)*i)+0];
+                dest = buf_pointer[((offset)*i)+1];
+
+                #if DIRECTED
+                        edgeList->edges_array[i].src = src;
+                        edgeList->edges_array[i].dest = dest;
+                #else
+                        edgeList->edges_array[i].src = src;
+                        edgeList->edges_array[i].dest = dest;
+
+                        edgeList->edges_array[i+(num_edges-1)].src = dest;
+                        edgeList->edges_array[i+(num_edges-1)].dest = src;
+                #endif
                 
-                edgeList->edges_array[i].src = buf_pointer[((offset)*i)+0];
-                edgeList->edges_array[i].dest = buf_pointer[((offset)*i)+1];
                 edgeList->num_vertices = maxTwoIntegers(edgeList->num_vertices,maxTwoIntegers(edgeList->edges_array[i].src, edgeList->edges_array[i].dest));
                
                  #if WEIGHTED
                         edgeList->edges_array[i].weight = buf_pointer[((offset)*i)+2];
                  #endif
-             
         }
 
         printf("DONE Reading EdgeList from file %s \n", fname);
@@ -233,7 +259,7 @@ void edgeListPrint(struct EdgeList* edgeList){
         printf("number of edges    (E) : %u \n", edgeList->num_edges);   
 
         // __u32 i;
-        // for(i = 0; i < graph->num_edges; i++){
+        // for(i = 0; i < edgeList->num_edges; i++){
 
         //         #if WEIGHTED
         //                 printf("%u -> %u w: %d \n", edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);   

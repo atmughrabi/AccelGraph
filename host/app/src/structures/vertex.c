@@ -25,7 +25,10 @@ struct Vertex* newVertexArray(__u32 num_vertices){
 
         for(i = 0; i < num_vertices; i++){
 
-                vertex_array[i].edges_idx = NO_OUTGOING_EDGES;
+                vertex_array[i].edges_idx  = NO_OUTGOING_EDGES;
+                vertex_array[i].visited    = 0;
+                vertex_array[i].out_degree = 0;
+                vertex_array[i].in_degree  = 0;
 
         }
 

@@ -3,7 +3,7 @@
 
 
 #define WEIGHTED 0
-#define DIRECTED 0  
+#define DIRECTED 0 
 
 
 
