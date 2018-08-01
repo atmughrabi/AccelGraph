@@ -5,12 +5,13 @@
 
 #include "capienv.h"
 #include "adjlist.h" 
-#include "queue.h"
+#include "dynamicqueue.h"
 #include "edgelist.h"
 
 #include "countsort.h"
 #include "radixsort.h"
-
+#include "graph.h"
+#include "vertex.h"
 #include "timer.h"
 
 int main()
@@ -43,30 +44,30 @@ int main()
     printf("Read Edge List From File : %f Seconds \n",Seconds(timer));
     
     // Start(timer);
-    // struct Graph* graph_adjList = adjListCreateGraphEdgeList(edgeList);
+    // struct GraphAdjList* graph_adjList = adjListCreateGraphEdgeList(edgeList);
     // Stop(timer);
     // printf("adjacency Linked List Edges By Source : %f Seconds \n",Seconds(timer));
 
     // adjListFreeGraph(graph_adjList);
 
     // Start(timer);
-    // struct GraphCountSorted* graph_countSort = countSortEdgesBySource(edgeList);
+    // struct Graph* graph_countSort = countSortEdgesBySource(edgeList);
     // Stop(timer);
     // printf("Count Sort Edges By Source : %f Seconds \n",Seconds(timer));
 
     // countSortedFreeGraph(graph_countSort);
 
-    Start(timer);
-    struct GraphRadixSorted* graph_radixSort = radixSortEdgesBySourceOptimized(edgeList);
-    Stop(timer);
-    printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
-
     // Start(timer);
-    // struct GraphRadixSorted* graph_radixSort = radixSortEdgesBySourceAndDestination(edgeList);
+    // struct Graph* graph_radixSort = radixSortEdgesBySourceOptimized(edgeList);
     // Stop(timer);
     // printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
 
-    radixSortedFreeGraph(graph_radixSort);
+    Start(timer);
+    struct Graph* graph_radixSort = radixSortEdgesBySourceAndDestination(edgeList);
+    Stop(timer);
+    printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
+
+    graphFree(graph_radixSort);
     // freeEdgeList(edgeList);
 
     // edgeListPrint(edgeList);

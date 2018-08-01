@@ -3,44 +3,14 @@
 
 #include "edgelist.h"
 #include "vertex.h"
+#include "graph.h"
 
 // A structure to represent an edge
-// struct Edge {
-
-// 	int dest;
-// 	int src;
-// 	int weight;
-
-// };
 
 
-// struct EdgeList {
 
-// 	int num_edges;
-	// int num_vertices;
-	// struct Edge* edges_array;
-
-// };
-
-struct GraphCountSorted{
-
-	__u32 num_edges;
-	__u32 num_vertices;
-	__u32* vertex_count; // needed for counting sort
-	struct Vertex* vertices;
-	struct Edge* sorted_edges_array; // sorted edge array
-
-
-};
-
-
-void countSortedGraphPrint(struct GraphCountSorted* graph);
-void countSortedFreeGraph (struct GraphCountSorted* graph);
-
-struct GraphCountSorted* countSortMapVertices (struct GraphCountSorted* graph);
-struct GraphCountSorted* countSortedCreateGraph(__u32 V, __u32 E);
-struct GraphCountSorted* countSortEdgesBySource (struct EdgeList* edgeList);
-struct GraphCountSorted* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
+struct Graph* countSortEdgesBySource (struct EdgeList* edgeList);
+struct Graph* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
 
 
 #endif

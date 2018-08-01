@@ -5,6 +5,7 @@
 #define NO_INCOMING_EDGES -1
 #define NOT_VISITED -1
 
+#include "graph.h"
 
 struct __attribute__((__packed__)) Vertex {
 
@@ -15,6 +16,7 @@ struct __attribute__((__packed__)) Vertex {
 };
 
 
+struct Graph* mapVertices (struct Graph* graph);
 struct Vertex* newVertexArray(__u32 num_vertices);
 void freeVertexArray(struct Vertex* vertices);
 

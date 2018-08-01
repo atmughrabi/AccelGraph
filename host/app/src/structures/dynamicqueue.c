@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "queue.h"
+#include "dynamicqueue.h"
 #include "adjlist.h"
 #include "capienv.h"
  

@@ -1,5 +1,5 @@
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef DYNAMICQUEUE_H
+#define DYNAMICQUEUE_H
 
 
 

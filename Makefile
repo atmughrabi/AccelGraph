@@ -74,9 +74,9 @@ $(APP_DIR)/$(OBJ_DIR)/adjlist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c $
 	@echo 'making $(GAPP) <- adjlist.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjlist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c
 
-$(APP_DIR)/$(OBJ_DIR)/queue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/queue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/queue.h
-	@echo 'making $(GAPP) <- queue.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/queue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/queue.c
+$(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicqueue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/dynamicqueue.h
+	@echo 'making $(GAPP) <- dynamicqueue.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicqueue.c
 
 $(APP_DIR)/$(OBJ_DIR)/timer.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/timer.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/timer.h
 	@echo 'making $(GAPP) <- timer.o'
@@ -85,6 +85,11 @@ $(APP_DIR)/$(OBJ_DIR)/timer.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/timer.c $(APP
 $(APP_DIR)/$(OBJ_DIR)/edgelist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/edgelist.h
 	@echo 'making $(GAPP) <- edgelist.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgelist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c
+
+$(APP_DIR)/$(OBJ_DIR)/graph.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graph.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/graph.h
+	@echo 'making $(GAPP) <- edgelist.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/graph.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graph.c
+
 
 $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	@echo 'making $(GAPP) <- $(GAPP).o'
@@ -100,7 +105,7 @@ progressbar: $(APP_DIR)/$(OBJ_DIR)/progressbar.o
 
 timer: $(APP_DIR)/$(OBJ_DIR)/timer.o
 
-graph: $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o
+app: $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o
 
 vertex: $(APP_DIR)/$(OBJ_DIR)/vertex.o
 
@@ -110,25 +115,26 @@ radixsort: $(APP_DIR)/$(OBJ_DIR)/radixsort.o
 
 edgelist: $(APP_DIR)/$(OBJ_DIR)/edgelist.o
 
-graph: $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o
+graph: $(APP_DIR)/$(OBJ_DIR)/graph.o
 
 adjlist: $(APP_DIR)/$(OBJ_DIR)/adjlist.o
 
-queue: $(APP_DIR)/$(OBJ_DIR)/queue.o
+dynamicqueue: $(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o
 
 
 
-test: adjlist graph queue edgelist countsort radixsort vertex graph timer progressbar mymalloc
-	@echo 'linking $(GAPP) <- adjlist.o graph.o queue.o edgelist.o countsort.o radixsort.o vertex.o timer.o progressbar.o'
+test: adjlist dynamicqueue edgelist countsort radixsort vertex graph timer progressbar mymalloc app
+	@echo 'linking $(GAPP) <- adjlist.o graph.o dynamicqueue.o edgelist.o countsort.o radixsort.o vertex.o timer.o progressbar.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
+	$(APP_DIR)/$(OBJ_DIR)/graph.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/mymalloc.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/adjlist.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/queue.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/edgelist.o 		\
 	$(PSLSE_LIBCXL_DIR)/libcxl.a 			\

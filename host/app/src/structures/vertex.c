@@ -36,6 +36,24 @@ struct Vertex* newVertexArray(__u32 num_vertices){
 
 }
 
+struct Graph* mapVertices (struct Graph* graph){
+
+    __u32 i;
+    __u32 vertex_id;
+
+    vertex_id = graph->sorted_edges_array[0].src;
+    graph->vertices[vertex_id].edges_idx = 0;
+
+    for(i =1; i < graph->num_edges; i++){
+        if(graph->sorted_edges_array[i].src != graph->sorted_edges_array[i-1].src){         
+            vertex_id = graph->sorted_edges_array[i].src;
+            graph->vertices[vertex_id].edges_idx = 1;
+        }
+    }
+
+return graph;
+
+}
 
 void freeVertexArray(struct Vertex* vertices){
 

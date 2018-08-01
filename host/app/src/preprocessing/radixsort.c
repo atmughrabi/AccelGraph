@@ -7,17 +7,20 @@
 #include "edgelist.h"
 #include "vertex.h"
 #include "mymalloc.h"
+#include "graph.h"
 #include "graphconfig.h"
 
 // A function to do counting sort of edgeList according to
 // the digit represented by exp
-struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorted* graph, struct EdgeList* edgeList, int exp){
+struct Graph* radixSortCountSortEdgesBySource (struct Graph* graph, struct EdgeList* edgeList, int exp){
 
 	long i;
 	__u32 key;
 	__u32 pos;
 
-	
+	for (i = 0; i < 10; i++) {
+        graph->vertex_count[i] = 0;
+	}
 
 	// count occurrence of key: id of the source vertex
 	for(i = 0; i < graph->num_edges; i++){
@@ -41,9 +44,7 @@ struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorte
         edgeList->edges_array[i] = graph->sorted_edges_array[i];
 	}
 
-	for (i = 0; i < 10; i++) {
-        graph->vertex_count[i] = 0;
-	}
+	
 
 	return graph;
 
@@ -51,12 +52,18 @@ struct GraphRadixSorted* radixSortCountSortEdgesBySource (struct GraphRadixSorte
 
 
 
-struct GraphRadixSorted* radixSortEdgesBySource (struct EdgeList* edgeList){
+struct Graph* radixSortEdgesBySource (struct EdgeList* edgeList){
 
 	printf("*** START Radix Sort Edges By Source *** \n");
 
 	__u32 exp;
-	struct GraphRadixSorted* graph = radixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+	struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges);
+
+	#if ALIGNED
+		graph->vertex_count = (__u32*) my_aligned_alloc( 10 * sizeof(__u32));
+	#else
+        graph->vertex_count = (__u32*) my_malloc( 10 * sizeof(__u32));
+    #endif
 
     // Do counting sort for every digit. Note that instead
     // of passing digit number, exp is passed. exp is 10^i
@@ -65,45 +72,23 @@ struct GraphRadixSorted* radixSortEdgesBySource (struct EdgeList* edgeList){
 	 	graph = radixSortCountSortEdgesBySource (graph, edgeList, exp);
 	 }
 	
-	graph = radixSortMapVertices (graph);
+	graph = mapVertices (graph);
 
 	printf("DONE Radix Sort Edges By Source \n");
-	radixSortedGraphPrint(graph);
+	graphPrint(graph);
 
 
 	return graph;
 
 }
 
-struct GraphRadixSorted* radixSortMapVertices (struct GraphRadixSorted* graph){
 
-	__u32 i;
-	__u32 vertex_id;
 
-	vertex_id = graph->sorted_edges_array[0].src;
-	graph->vertices[vertex_id].edges_idx = 0;
-
-	for(i =1; i < graph->num_edges; i++){
-		if(graph->sorted_edges_array[i].src != graph->sorted_edges_array[i-1].src){			
-			vertex_id = graph->sorted_edges_array[i].src;
-			graph->vertices[vertex_id].edges_idx = 1;
-		}
-	}
-
-return graph;
-
-}
-
-struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
+struct Graph* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
 
 	printf("*** START Radix Sort Edges By Source And Destination *** \n");
 
-	// __u32 exp;
-	// long i;
-	// __u32 key;
-	// __u32 pos;
-
-	struct GraphRadixSorted* graph = radixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+	struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges);
 
     // Do counting sort for every digit. Note that instead
     // of passing digit number, exp is passed. exp is 10^i
@@ -190,10 +175,10 @@ struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* 
 
     graph->sorted_edges_array = edgeList->edges_array;
 	
-	graph = radixSortMapVertices (graph);
+	graph = mapVertices(graph);
 
 	printf("DONE Radix Sort Edges By Source And Destination \n");
-	radixSortedGraphPrint(graph);
+	graphPrint(graph);
 
 
 	return graph;
@@ -201,74 +186,17 @@ struct GraphRadixSorted* radixSortEdgesBySourceAndDestination (struct EdgeList* 
 
 
 
-struct GraphRadixSorted* radixSortedCreateGraph(__u32 V, __u32 E){
-
-	// struct GraphRadixSorted* graph = (struct GraphRadixSorted*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphRadixSorted));
-	#if ALIGNED
-		struct GraphRadixSorted* graph = (struct GraphRadixSorted*) my_aligned_alloc( sizeof(struct GraphRadixSorted));
-	#else
-        struct GraphRadixSorted* graph = (struct GraphRadixSorted*) my_malloc( sizeof(struct GraphRadixSorted));
-    #endif
-
-	graph->num_vertices = V;
-	graph->num_edges = E;
-	graph->vertices = newVertexArray(V);
-	// graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
-	#if ALIGNED
-		graph->vertex_count = (__u32*) my_aligned_alloc( 10 * sizeof(__u32));
-	#else
-        graph->vertex_count = (__u32*) my_malloc( 10 * sizeof(__u32));
-    #endif
-
-	graph->sorted_edges_array = newEdgeArray(E);
-
-	__u32 i;
-	for(i = 0; i < 10; i++){
-        graph->vertex_count[i] = 0;  
-	}
-
-    return graph;
-}
-
-void radixSortedFreeGraph (struct GraphRadixSorted* graph){
-
-	freeVertexArray(graph->vertices);
-	free(graph->vertex_count);
-	freeEdgeArray(graph->sorted_edges_array);
-	free(graph);
-
-}
-
-void radixSortedGraphPrint(struct GraphRadixSorted* graph){
-
-	 
-    printf("number of vertices (V) : %d \n", graph->num_vertices);
-    printf("number of edges    (E) : %d \n", graph->num_edges);   
-
-	// __u32 i;
- //    for(i = 0; i < graph->num_edges; i++){
-
- //    	#if WEIGHTED
- //        	printf("%u -> %u w: %d \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest, graph->sorted_edges_array[i].weight);   
- //        #else
- //        	printf("%u -> %u \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);   
- //        #endif
- //     }
-
-   
-}
 
 
-struct GraphRadixSorted* radixSortEdgesBySourceOptimized (struct EdgeList* edgeList){
+
+
+
+
+struct Graph* radixSortEdgesBySourceOptimized (struct EdgeList* edgeList){
 
 	printf("*** START Radix Sort Edges By Source *** \n");
 
-	// __u32 exp;
-	// long i;
-	// __u32 key;
-	// __u32 pos;
-
-	struct GraphRadixSorted* graph = radixSortedCreateGraph(edgeList->num_vertices, edgeList->num_edges);
+	struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges);
 
     // Do counting sort for every digit. Note that instead
     // of passing digit number, exp is passed. exp is 10^i
@@ -283,16 +211,12 @@ struct GraphRadixSorted* radixSortEdgesBySourceOptimized (struct EdgeList* edgeL
 	__u32 u = 0;
 	__u32 i = 0;
 
-	free(graph->vertex_count);
 
 	#if ALIGNED
 		graph->vertex_count = (__u32*) my_aligned_alloc( radix * buckets * sizeof(__u32));
 	#else
         graph->vertex_count = (__u32*) my_malloc( radix * buckets * sizeof(__u32));
     #endif
-
-
-	
 
 
 	 for (i = 0; i < num_edges; i++) {       /* generate histograms */
@@ -355,10 +279,10 @@ struct GraphRadixSorted* radixSortEdgesBySourceOptimized (struct EdgeList* edgeL
 	freeEdgeArray(graph->sorted_edges_array);
     graph->sorted_edges_array = edgeList->edges_array;
 
-	graph = radixSortMapVertices (graph);
+	graph = mapVertices (graph);
 
 	printf("DONE Radix Sort Edges By Source \n");
-	radixSortedGraphPrint(graph);
+	graphPrint(graph);
 
 
 	return graph;

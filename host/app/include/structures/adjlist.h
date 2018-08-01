@@ -28,11 +28,11 @@ struct AdjList {
 
 };
 
-// A structure to represent a graph. A graph
+// A structure to represent a GraphAdjList. A GraphAdjList
 // is an array of adjacency lists.
 // Size of array will be V (number of vertices 
-// in graph)
-struct Graph
+// in GraphAdjList)
+struct GraphAdjList
 {
 	__u32 V;
 	__u32 num_edges;
@@ -43,19 +43,19 @@ struct Graph
 
 // A utility function to create a new adjacency list node
 struct AdjListNode* newAdjListNode(__u32 src, __u32 dest, __u32 weight);
-// A utility function that creates a graph of V vertices
-struct Graph* adjListCreateGraph(__u32 V);
+// A utility function that creates a GraphAdjList of V vertices
+struct GraphAdjList* adjListCreateGraphAdjList(__u32 V);
 
-struct Graph* adjListCreateGraphEdgeList(struct EdgeList* edgeList);
-// Adds an edge to an undirected graph
-void adjListAddEdgeUndirected(struct Graph* graph, __u32 src, __u32 dest, __u32 weight);
-// Adds an edge to a directed graph
-void adjListAddEdgeDirected(struct Graph* graph, __u32 src, __u32 dest, __u32 weight);
+struct GraphAdjList* adjListCreateGraphAdjListEdgeList(struct EdgeList* edgeList);
+// Adds an edge to an undirected GraphAdjList
+void adjListAddEdgeUndirected(struct GraphAdjList* GraphAdjList, __u32 src, __u32 dest, __u32 weight);
+// Adds an edge to a directed GraphAdjList
+void adjListAddEdgeDirected(struct GraphAdjList* GraphAdjList, __u32 src, __u32 dest, __u32 weight);
 // A utility function to print the adjacency list 
-// representation of graph
-void adjListPrintGraph(struct Graph* graph);
+// representation of GraphAdjList
+void adjListPrintGraphAdjList(struct GraphAdjList* GraphAdjList);
 
-void adjListFreeGraph(struct Graph* graph);
+void adjListFreeGraphAdjList(struct GraphAdjList* GraphAdjList);
 
 
 #endif
