@@ -87,8 +87,12 @@ $(APP_DIR)/$(OBJ_DIR)/edgelist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgelist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c
 
 $(APP_DIR)/$(OBJ_DIR)/graph.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graph.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/graph.h
-	@echo 'making $(GAPP) <- edgelist.o'
+	@echo 'making $(GAPP) <- graph.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/graph.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graph.c
+
+$(APP_DIR)/$(OBJ_DIR)/bitmap.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/bitmap.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/bitmap.h
+	@echo 'making $(GAPP) <- bitmap.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/bitmap.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/bitmap.c
 
 
 $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
@@ -98,6 +102,8 @@ $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	-I$(PSLSE_LIBCXL_DIR) \
 	$(INC) \
 	-I$(PSLSE_COMMON_DIR) 
+
+bitmap: $(APP_DIR)/$(OBJ_DIR)/bitmap.o
 
 mymalloc: $(APP_DIR)/$(OBJ_DIR)/mymalloc.o
 
@@ -123,10 +129,11 @@ dynamicqueue: $(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o
 
 
 
-test: adjlist dynamicqueue edgelist countsort radixsort vertex graph timer progressbar mymalloc app
-	@echo 'linking $(GAPP) <- adjlist.o graph.o dynamicqueue.o edgelist.o countsort.o radixsort.o vertex.o timer.o progressbar.o'
+test: adjlist dynamicqueue edgelist countsort radixsort vertex graph timer progressbar mymalloc app bitmap
+	@echo 'linking $(GAPP) <- adjlist.o graph.o dynamicqueue.o edgelist.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
+	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/graph.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/mymalloc.o 		\
@@ -134,7 +141,7 @@ test: adjlist dynamicqueue edgelist countsort radixsort vertex graph timer progr
 	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/adjlist.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/edgelist.o 		\
 	$(PSLSE_LIBCXL_DIR)/libcxl.a 			\

@@ -39,7 +39,7 @@ void freeEdgeList( struct EdgeList* edgeList);
 void freeEdgeArray(struct Edge* edges_array);
 
 struct Edge* newEdgeArray(__u32 num_edges);
-struct EdgeList* readEdgeListstxt(const char * fname);
+void readEdgeListstxt(const char * fname);
 struct EdgeList* readEdgeListsbin(const char * fname);
 struct EdgeList* newEdgeList(__u32 num_edges);
 

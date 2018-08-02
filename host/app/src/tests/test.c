@@ -25,8 +25,9 @@ int main()
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
 
-    const char * fnameb = "host/app/datasets/test/test.txt.bin";
+    // const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
+    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin2";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
@@ -34,9 +35,9 @@ int main()
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
     // Start(timer);
-    // struct EdgeList* edgeList = readEdgeListstxt(fname);
+    // readEdgeListstxt(fname);
     // Stop(timer);
-    // printf("Read Edge List From File : %f Seconds \n",Seconds(timer));
+    // printf("Read Edge List From File converted to binary : %f Seconds \n",Seconds(timer));
 
     Start(timer);
     struct EdgeList* edgeList = readEdgeListsbin(fnameb);
@@ -57,15 +58,15 @@ int main()
 
     // countSortedFreeGraph(graph_countSort);
 
-    // Start(timer);
-    // struct Graph* graph_radixSort = radixSortEdgesBySourceOptimized(edgeList);
-    // Stop(timer);
-    // printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
-
     Start(timer);
-    struct Graph* graph_radixSort = radixSortEdgesBySourceAndDestination(edgeList);
+    struct Graph* graph_radixSort = radixSortEdgesBySourceOptimized(edgeList);
     Stop(timer);
     printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
+
+    // Start(timer);
+    // struct Graph* graph_radixSort = radixSortEdgesBySourceAndDestination(edgeList);
+    // Stop(timer);
+    // printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
 
     graphFree(graph_radixSort);
     // freeEdgeList(edgeList);

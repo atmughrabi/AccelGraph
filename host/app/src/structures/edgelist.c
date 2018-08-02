@@ -82,7 +82,7 @@ void freeEdgeArray(struct Edge* edges_array){
 }
 
 
-struct EdgeList* readEdgeListstxt(const char * fname){
+void readEdgeListstxt(const char * fname){
 
         FILE *pText, *pBinary;
         __u32 size = 0, i;
@@ -96,9 +96,8 @@ struct EdgeList* readEdgeListstxt(const char * fname){
         char * fname_bin = (char *) malloc((strlen(fname)+5)*sizeof(char));
 
         
-
         fname_txt = strcpy (fname_txt, fname);
-        fname_bin = strcat (fname_txt, ".bin");
+        fname_bin = strcat (fname_txt, ".bin2");
 
         printf("Filename : %s \n",fname);
         printf("Filename : %s \n",fname_bin);
@@ -111,16 +110,12 @@ struct EdgeList* readEdgeListstxt(const char * fname){
 
         if (pText == NULL) {
                 err(1, "open: %s", fname);
-                return 0;
+                return ;
         }
          if (pBinary == NULL) {
                 err(1, "open: %s", fname_bin);
-                return 0;
+                return ;
         }
-
-        // int offset = (2+attr->WEIGHTED);
-        // double percentage_sum = 0.0;
-        // double percentage = 0.0;
 
 
         while (1)
@@ -137,6 +132,7 @@ struct EdgeList* readEdgeListstxt(const char * fname){
                 fwrite(&weight, sizeof (weight), 1, pBinary);
         #endif
 
+
         if( i == EOF ) 
            break;
         }
@@ -145,11 +141,6 @@ struct EdgeList* readEdgeListstxt(const char * fname){
         fclose(pText);
         fclose(pBinary);
 
-        // struct EdgeList* edgeList = readEdgeListsbin(fname_bin, attr);
-
-        struct EdgeList* edgeList = NULL;
-
-        return edgeList;
 
 }
 

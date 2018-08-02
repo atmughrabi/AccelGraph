@@ -30,15 +30,15 @@ void graphPrint(struct Graph* graph){
     printf("number of vertices (V) : %d \n", graph->num_vertices);
     printf("number of edges    (E) : %d \n", graph->num_edges);   
 
-	__u32 i;
-    for(i = 0; i < graph->num_edges; i++){
+	// __u32 i;
+ //    for(i = 0; i < graph->num_edges; i++){
 
-    	#if WEIGHTED
-        	printf("%u -> %u w: %d \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest, graph->sorted_edges_array[i].weight);   
-        #else
-        	printf("%u -> %u \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);   
-        #endif
-     }
+ //    	#if WEIGHTED
+ //        	printf("%u -> %u w: %d \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest, graph->sorted_edges_array[i].weight);   
+ //        #else
+ //        	printf("%u -> %u \n", graph->sorted_edges_array[i].src, graph->sorted_edges_array[i].dest);   
+ //        #endif
+ //     }
 
    
 }
