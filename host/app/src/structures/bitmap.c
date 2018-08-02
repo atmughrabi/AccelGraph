@@ -29,6 +29,14 @@ struct Bitmap* newBitmap( __u32 size){
 	return bitmap;
 }
 
+
+void freeBitmap( struct Bitmap* bitmap){
+
+        free(bitmap->bitarray);
+        free(bitmap);
+	
+}
+
 void reset(struct Bitmap* bitmap){
 
 	 memset(bitmap->bitarray, 0, (sizeof(__u8)*((bitmap->size+7)/8)));

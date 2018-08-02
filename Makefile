@@ -94,6 +94,10 @@ $(APP_DIR)/$(OBJ_DIR)/bitmap.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/bitmap.c $(A
 	@echo 'making $(GAPP) <- bitmap.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/bitmap.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/bitmap.c
 
+$(APP_DIR)/$(OBJ_DIR)/arrayqueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayqueue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/arrayqueue.h
+	@echo 'making $(GAPP) <- arrayqueue.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/arrayqueue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayqueue.c
+
 
 $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	@echo 'making $(GAPP) <- $(GAPP).o'
@@ -102,6 +106,8 @@ $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	-I$(PSLSE_LIBCXL_DIR) \
 	$(INC) \
 	-I$(PSLSE_COMMON_DIR) 
+
+arrayqueue: $(APP_DIR)/$(OBJ_DIR)/arrayqueue.o
 
 bitmap: $(APP_DIR)/$(OBJ_DIR)/bitmap.o
 
@@ -129,10 +135,11 @@ dynamicqueue: $(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o
 
 
 
-test: adjlist dynamicqueue edgelist countsort radixsort vertex graph timer progressbar mymalloc app bitmap
-	@echo 'linking $(GAPP) <- adjlist.o graph.o dynamicqueue.o edgelist.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o'
+test: adjlist dynamicqueue edgelist countsort radixsort vertex graph timer progressbar mymalloc app bitmap arrayqueue
+	@echo 'linking $(GAPP) <- adjlist.o graph.o dynamicqueue.o edgelist.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayqueue.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
+	$(APP_DIR)/$(OBJ_DIR)/arrayqueue.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/graph.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
