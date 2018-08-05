@@ -74,3 +74,11 @@ __u8 isEmptyArrayQueue (struct ArrayQueue *q){
   	return 1;
 
 }
+
+__u8  isEnArrayQueued 	(struct ArrayQueue *q, __u32 k){
+
+
+	return getBit(q->bitmap, k);
+
+}
+

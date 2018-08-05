@@ -13,6 +13,7 @@
 #include "graph.h"
 #include "vertex.h"
 #include "timer.h"
+#include "BFS.h"
 
 int main()
 {
@@ -63,10 +64,24 @@ int main()
     Stop(timer);
     printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
 
+
+
+    Start(timer);
+    graph_radixSort = mapVerticesWithInOutDegree (graph_radixSort);
+    Stop(timer);
+    printf("Process In/Out degrees of Nodes : %f Seconds \n",Seconds(timer));
+
+    graphPrint(graph_radixSort);
     // Start(timer);
     // struct Graph* graph_radixSort = radixSortEdgesBySourceAndDestination(edgeList);
     // Stop(timer);
     // printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
+
+    Start(timer);
+    bfs(428333, graph_radixSort);
+    Stop(timer);
+    printf("BFS with array queue : %f Seconds \n",Seconds(timer));
+
 
     graphFree(graph_radixSort);
     // freeEdgeList(edgeList);

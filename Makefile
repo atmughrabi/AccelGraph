@@ -28,7 +28,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 		-I$(APP_DIR)/include/$(UTIL_DIR)/   \
 # flags
-CFLAGS            = -O3 -Wall -m64 -g
+CFLAGS            = -O2 -Wall -m64 -g
 
 all: test
 
@@ -98,6 +98,10 @@ $(APP_DIR)/$(OBJ_DIR)/arrayqueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayque
 	@echo 'making $(GAPP) <- arrayqueue.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/arrayqueue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayqueue.c
 
+$(APP_DIR)/$(OBJ_DIR)/BFS.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/BFS.c $(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/BFS.h
+	@echo 'making $(GAPP) <- BFS.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/BFS.o $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/BFS.c
+
 
 $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	@echo 'making $(GAPP) <- $(GAPP).o'
@@ -133,12 +137,14 @@ adjlist: $(APP_DIR)/$(OBJ_DIR)/adjlist.o
 
 dynamicqueue: $(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o
 
+BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
 
 
-test: adjlist dynamicqueue edgelist countsort radixsort vertex graph timer progressbar mymalloc app bitmap arrayqueue
-	@echo 'linking $(GAPP) <- adjlist.o graph.o dynamicqueue.o edgelist.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayqueue.o'
+test: adjlist dynamicqueue edgelist countsort radixsort vertex graph timer progressbar mymalloc app bitmap arrayqueue BFS
+	@echo 'linking $(GAPP) <- adjlist.o graph.o dynamicqueue.o edgelist.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayqueue.o BFS.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
+	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/arrayqueue.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/graph.o 			\

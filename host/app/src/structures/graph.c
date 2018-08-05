@@ -28,8 +28,10 @@ void graphPrint(struct Graph* graph){
 
 	 
     printf("number of vertices (V) : %d \n", graph->num_vertices);
-    printf("number of edges    (E) : %d \n", graph->num_edges);   
-
+    printf("number of edges    (E) : %d \n", graph->num_edges);  
+    vertexArrayMaxOutdegree(graph->vertices, graph->num_vertices);
+ 	vertexArrayMaxInDegree(graph->vertices, graph->num_vertices);
+ 	// printVertexArray(graph->vertices, graph->num_vertices);
 	// __u32 i;
  //    for(i = 0; i < graph->num_edges; i++){
 

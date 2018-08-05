@@ -234,6 +234,8 @@ struct EdgeList* readEdgeListsbin(const char * fname){
                  #endif
         }
 
+        edgeList->num_vertices++; // max number of veritices Array[0-max]
+
         printf("DONE Reading EdgeList from file %s \n", fname);
         edgeListPrint(edgeList);
 

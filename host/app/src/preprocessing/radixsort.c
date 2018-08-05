@@ -9,6 +9,7 @@
 #include "mymalloc.h"
 #include "graph.h"
 #include "graphconfig.h"
+#include "timer.h"
 
 // A function to do counting sort of edgeList according to
 // the digit represented by exp
@@ -75,7 +76,7 @@ struct Graph* radixSortEdgesBySource (struct EdgeList* edgeList){
 	graph = mapVertices (graph);
 
 	printf("DONE Radix Sort Edges By Source \n");
-	graphPrint(graph);
+	// graphPrint(graph);
 
 
 	return graph;
@@ -178,7 +179,8 @@ struct Graph* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
 	graph = mapVertices(graph);
 
 	printf("DONE Radix Sort Edges By Source And Destination \n");
-	graphPrint(graph);
+
+	// graphPrint(graph);
 
 
 	return graph;
@@ -279,10 +281,18 @@ struct Graph* radixSortEdgesBySourceOptimized (struct EdgeList* edgeList){
 	freeEdgeArray(graph->sorted_edges_array);
     graph->sorted_edges_array = edgeList->edges_array;
 
-	graph = mapVertices (graph);
+    // struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    // Start(timer);
+    graph = mapVertices (graph);
+    // graph = mapVerticesWithInOutDegree (graph);
+    // Stop(timer);
+    // printf("Map vertices to sorted Edge List : %f Seconds \n",Seconds(timer));
+    
+
+	// graph = mapVertices (graph);
 
 	printf("DONE Radix Sort Edges By Source \n");
-	graphPrint(graph);
+	// graphPrint(graph);
 
 
 	return graph;

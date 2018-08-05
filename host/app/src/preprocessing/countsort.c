@@ -58,7 +58,7 @@ struct Graph* countSortEdgesBySource (struct EdgeList* edgeList){
 	graph = mapVertices (graph);
 
 	printf("DONE Count Sort Edges By Source \n");
-	graphPrint(graph);
+	// graphPrint(graph);
 	return graph;
 
 }

@@ -21,7 +21,7 @@ void	 enArrayQueue 	(struct ArrayQueue *q, __u32 k);
 __u32 	deArrayQueue	(struct ArrayQueue *q);
 __u32 	frontArrayQueue (struct ArrayQueue *q);
 __u8  isEmptyArrayQueue (struct ArrayQueue *q);
-
+__u8  isEnArrayQueued 	(struct ArrayQueue *q, __u32 k);
 
 
 #endif
