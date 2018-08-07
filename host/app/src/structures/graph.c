@@ -17,6 +17,8 @@ void graphFree (struct Graph* graph){
 		freeVertexArray(graph->vertices);
 	if(graph->vertex_count)
 		free(graph->vertex_count);
+	if(graph->parents)
+		free(graph->parents);
 	if(graph->sorted_edges_array)
 		freeEdgeArray(graph->sorted_edges_array);
 	if(graph)
@@ -47,7 +49,7 @@ void graphPrint(struct Graph* graph){
 
 
 struct Graph* graphNew(__u32 V, __u32 E){
-
+	int i;
 	// struct Graph* graph = (struct Graph*) aligned_alloc(CACHELINE_BYTES, sizeof(struct Graph));
 	#if ALIGNED
 		struct Graph* graph = (struct Graph*) my_aligned_alloc( sizeof(struct Graph));
@@ -58,10 +60,38 @@ struct Graph* graphNew(__u32 V, __u32 E){
 	graph->num_vertices = V;
 	graph->num_edges = E;
 	graph->vertices = newVertexArray(V);
+
+
+	#if ALIGNED
+		graph->parents  = (__u32*) my_aligned_alloc( V * sizeof(__u32));
+	#else
+        graph->parents  = (__u32*) my_malloc( V *sizeof(__u32));
+    #endif
+
+
+     for(i = 0; i < V; i++){
+                graph->parents[i] = -1;
+     }
 	// graph->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
 	
 	graph->sorted_edges_array = newEdgeArray(E);
 
 
     return graph;
+}
+
+void printParentsArray(struct Graph* graph){
+
+
+    __u32 i;
+
+    printf("| %-15s | %-15s | %-15s | %-15s | \n", "Node", "out_degree", "Parent", "Visited");
+
+    for(i =0; i < graph->num_vertices; i++){
+
+        if((graph->vertices[i].out_degree > 0) || (graph->vertices[i].in_degree > 0))
+        printf("| %-15u | %-15u | %-15u | %-15u | \n",i,  graph->vertices[i].out_degree, graph->parents[i], graph->vertices[i].visited);
+    
+    }
+
 }

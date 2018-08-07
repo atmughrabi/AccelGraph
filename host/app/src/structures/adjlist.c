@@ -17,7 +17,10 @@ struct AdjListNode* newAdjListNode(__u32 src, __u32 dest, __u32 weight){
 
 	newNode->dest = dest;
     newNode->src = src;
-    newNode->weight = weight;
+    #ifdef WEIGHTED
+     newNode->weight = weight;
+    #endif
+     
 	newNode->next = NULL;
 
 	return newNode;

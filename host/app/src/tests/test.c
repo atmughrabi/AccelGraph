@@ -28,7 +28,7 @@ int main()
 
     // const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin2";
+    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
@@ -77,11 +77,18 @@ int main()
     // Stop(timer);
     // printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
 
-    Start(timer);
-    bfs(428333, graph_radixSort);
-    Stop(timer);
-    printf("BFS with array queue : %f Seconds \n",Seconds(timer));
 
+    // Start(timer);
+    // bfs(813286, graph_radixSort);
+    // Stop(timer);
+    // printf("BFS with array queue : %f Seconds \n",Seconds(timer));
+
+    Start(timer);
+    breadthFirstSearch(428333, graph_radixSort);
+    Stop(timer);
+    printf("breadthFirstSearch with array queue : %f Seconds \n",Seconds(timer));
+
+    // printParentsArray(graph_radixSort);
 
     graphFree(graph_radixSort);
     // freeEdgeList(edgeList);

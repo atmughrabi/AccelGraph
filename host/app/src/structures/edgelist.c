@@ -97,7 +97,7 @@ void readEdgeListstxt(const char * fname){
 
         
         fname_txt = strcpy (fname_txt, fname);
-        fname_bin = strcat (fname_txt, ".bin2");
+        fname_bin = strcat (fname_txt, ".bin8");
 
         printf("Filename : %s \n",fname);
         printf("Filename : %s \n",fname_bin);
@@ -132,6 +132,8 @@ void readEdgeListstxt(const char * fname){
                 fwrite(&weight, sizeof (weight), 1, pBinary);
         #endif
 
+        // if( size == 150000000 ) 
+        //      break;
 
         if( i == EOF ) 
            break;

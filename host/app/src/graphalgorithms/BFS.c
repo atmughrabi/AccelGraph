@@ -111,5 +111,191 @@ void bfs(__u32 start_vertex_idx, struct Graph* graph){
 
 
 
+// breadth-first-search(graph, source)
+// 	frontier ← {source}
+// 	next ← {}
+// 	parents ← [-1,-1,. . . -1]
+// 		while frontier 6= {} do
+// 			top-down-step(graph, frontier, next, parents)
+// 			frontier ← next
+// 			next ← {}
+// 		end while
+// 	return parents
+
+void breadthFirstSearch(__u32 start_vertex_idx, struct Graph* graph){
+
+	
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+	struct ArrayQueue* frontier = newArrayQueue(graph->num_vertices);
+	
+	// enArrayQueueDelayed(frontier, start_vertex_idx);
+	// slideWindowArrayQueue(frontier);
+
+	enArrayQueue(frontier, start_vertex_idx);
+	graph->parents[start_vertex_idx] = start_vertex_idx;  
+	// graph->vertices[start_vertex_idx].visited = 1;
+	printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
+    printf(" -----------------------------------------------------\n");
+
+    Start(timer);
+	while(!isEmptyArrayQueue(frontier)){
+
+	
+		// topDownStep_original(graph, frontier);
+		bottomUpStep(graph, frontier);
+		slideWindowArrayQueue(frontier);
 
 
+	}
+	Stop(timer);
+	printf(" -----------------------------------------------------\n");
+	printf("| %-15s | %-15u | %-15f | \n","**", frontier->tail_next, Seconds(timer));
+	printf(" -----------------------------------------------------\n");
+}
+
+
+// top-down-step(graph, frontier, next, parents)
+// 	for v ∈ frontier do
+// 		for u ∈ neighbors[v] do
+// 			if parents[u] = -1 then
+// 				parents[u] ← v
+// 				next ← next ∪ {u}
+// 			end if
+// 		end for
+// 	end for
+
+void topDownStep_original(struct Graph* graph, struct ArrayQueue* frontier){
+
+
+	
+	__u32 v;
+	__u32 u;
+	__u32 i;
+	__u32 j;
+	__u32 edge_idx;
+	__u32 processed_nodes = frontier->tail - frontier->head;
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+	Start(timer);
+
+	for(i = frontier->head ; i < frontier->tail; i++){
+		v = frontier->queue[i];
+		// v = deArrayQueue(frontier);
+		edge_idx = graph->vertices[v].edges_idx;
+
+    	for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++){
+        
+            // destination vertex id
+            u = graph->sorted_edges_array[j].dest;
+            
+            // if the destination vertex is not yet enqueued
+            if((graph->parents[u]) == (-1)) {
+                
+                // add the destination vertex to the queue 
+                enArrayQueueDelayed(frontier, u);
+                graph->parents[u] = v;  
+
+            }
+        }
+
+	} 
+	Stop(timer);
+	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
+}
+
+
+void topDownStep(struct Graph* graph, struct ArrayQueue* frontier){
+
+	__u32 v;
+	__u32 u;
+	// __u32 i;
+	__u32 edge_idx;
+	__u32 processed_nodes = frontier->tail - frontier->head;
+
+	// for(i = frontier->head ; i < frontier->tail; i++){
+
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+	Start(timer);
+	while(!isEmptyArrayQueueCurr(frontier)){
+		// v = frontier->queue[i];
+		v = deArrayQueue(frontier);
+		edge_idx = graph->vertices[v].edges_idx;
+
+        if(edge_idx == NO_OUTGOING_EDGES) {
+            continue;
+        }
+
+        while(graph->sorted_edges_array[edge_idx].src == v) {
+            
+            // destination vertex id
+            u = graph->sorted_edges_array[edge_idx].dest;
+            
+            // if the destination vertex is not yet enqueued
+            if(!isEnArrayQueued(frontier, u)) {
+                
+                // add the destination vertex to the queue 
+                enArrayQueueDelayed(frontier, u);
+                // graph->vertices[u].visited = 1;
+               
+            }
+
+            edge_idx++;
+        }
+
+	} 
+	Stop(timer);
+	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
+}
+
+
+// bottom-up-step(graph, frontier, next, parents)
+// 	for v ∈ vertices do
+// 		if parents[v] = -1 then
+// 			for u ∈ neighbors[v] do
+// 				if u ∈ frontier then
+// 				parents[v] ← u
+// 				next ← next ∪ {v}
+// 				break
+// 				end if
+// 			end for
+// 		end if
+// 	end for
+
+void bottomUpStep(struct Graph* graph, struct ArrayQueue* frontier){
+
+
+	__u32 v;
+	__u32 u;
+	__u32 j;
+	__u32 edge_idx;
+	__u32 processed_nodes = frontier->tail - frontier->head;
+
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+	Start(timer);
+
+	for(v=0 ; v < graph->num_vertices ; v++){
+
+		// printf("\n v: %u \n",v );
+		if(graph->parents[v] == (-1)){	
+			edge_idx = graph->vertices[v].edges_idx;
+			// printf("edge_idx: %u \n",edge_idx );
+			// printf("graph->vertices[v].out_degree: %u \n",graph->vertices[v].out_degree );
+    		for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++){
+    			 u = graph->sorted_edges_array[j].dest;
+    			 // printf("u: %u \n",u );
+    			 if(isEnArrayQueued(frontier, u)){
+    			 	// printf("***infrontier u: %u \n",u );
+    			 	graph->parents[v] = u;
+    			 	enArrayQueueDelayed(frontier, v);
+    			 	break;
+    			 }
+    			 // else
+    			 // printf("***NOT infrontier u: %u \n",u );
+    		}
+		}
+	}
+
+
+	Stop(timer);
+	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
+}
