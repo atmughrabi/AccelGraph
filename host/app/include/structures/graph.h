@@ -10,6 +10,7 @@ struct Graph{
 	__u32 num_vertices;
 	__u32* vertex_count; // needed for counting sort
 	int* parents;       // specify parent for each vertex
+	
 	struct Vertex* vertices;
 	struct Edge* sorted_edges_array; // sorted edge array
 

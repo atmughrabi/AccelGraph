@@ -15,6 +15,19 @@
 #include "timer.h"
 #include "BFS.h"
 
+
+void printMessageWithtime(const char * msg, double time){
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", msg);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", time);
+    printf(" -----------------------------------------------------\n");
+
+
+}
+
+
 int main()
 {
     // create the graph given in above fugure
@@ -35,7 +48,8 @@ int main()
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
-
+    printf("Filename : %s \n",fnameb);
+    
     // Start(timer);
     // readEdgeListstxt(fname);
     // Stop(timer);
@@ -45,14 +59,14 @@ int main()
     struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
     Stop(timer);
     // edgeListPrint(edgeList);
-    printf("Read Edge List From File : %f Seconds \n",Seconds(timer));
-    
+    printMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
+
     #if DIRECTED
         Start(timer);
         struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
         Stop(timer);
         // edgeListPrint(inverse_edgeList);
-        printf("Read Inverse Edge List List From File : %f Seconds \n",Seconds(timer));
+        printMessageWithtime("Read Inverse Edge List List From File (Seconds)",Seconds(timer));
     #endif
 
     struct Graph* graph_radixSort = graphNew(edgeList->num_vertices, edgeList->num_edges, 1);
@@ -75,28 +89,26 @@ int main()
     Start(timer);
     graph_radixSort = radixSortEdgesBySourceOptimized(graph_radixSort, edgeList, 0);
     Stop(timer);
-    printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
-
-
+    printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+    
+   
     #if DIRECTED
         Start(timer);
         graph_radixSort = radixSortEdgesBySourceOptimized(graph_radixSort, inverse_edgeList, 1);
         Stop(timer);
-        printf("Radix Sort Inverse Edges By Source : %f Seconds \n",Seconds(timer));
+        printMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
     #endif
-
 
     Start(timer);
     graph_radixSort = mapVerticesWithInOutDegree (graph_radixSort,0);
     Stop(timer);
-    printf("Process In/Out degrees of Nodes : %f Seconds \n",Seconds(timer));
-
+    printMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
 
     #if DIRECTED
         Start(timer);
         graph_radixSort = mapVerticesWithInOutDegree (graph_radixSort,1);
         Stop(timer);
-        printf("Process In/Out degrees of Inverse Nodes : %f Seconds \n",Seconds(timer));
+        printMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
     #endif
 
     graphPrint(graph_radixSort);
@@ -115,7 +127,8 @@ int main()
     breadthFirstSearch(428333, graph_radixSort);
     // breadthFirstSearch(6, graph_radixSort);
     Stop(timer);
-    printf("breadthFirstSearch with array queue : %f Seconds \n",Seconds(timer));
+    printMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
+
 
     // printGraphParentsArray(graph_radixSort);
 

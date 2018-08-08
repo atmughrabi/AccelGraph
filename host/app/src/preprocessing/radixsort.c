@@ -55,7 +55,7 @@ struct Graph* radixSortCountSortEdgesBySource (struct Graph* graph, struct EdgeL
 
 struct Graph* radixSortEdgesBySource (struct Graph* graph, struct EdgeList* edgeList){
 
-	printf("*** START Radix Sort Edges By Source *** \n");
+	// printf("*** START Radix Sort Edges By Source *** \n");
 
 	__u32 exp;
 	// struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges, 0);
@@ -75,7 +75,7 @@ struct Graph* radixSortEdgesBySource (struct Graph* graph, struct EdgeList* edge
 	
 	graph = mapVertices (graph, 0);
 
-	printf("DONE Radix Sort Edges By Source \n");
+	// printf("DONE Radix Sort Edges By Source \n");
 	// graphPrint(graph);
 
 
@@ -87,7 +87,7 @@ struct Graph* radixSortEdgesBySource (struct Graph* graph, struct EdgeList* edge
 
 struct Graph* radixSortEdgesBySourceAndDestination (struct Graph* graph, struct EdgeList* edgeList,  __u8 inverse){
 
-	printf("*** START Radix Sort Edges By Source And Destination *** \n");
+	// printf("*** START Radix Sort Edges By Source And Destination *** \n");
 
 	// struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges, inverse);
 
@@ -203,7 +203,7 @@ struct Graph* radixSortEdgesBySourceAndDestination (struct Graph* graph, struct 
 	
 	graph = mapVertices(graph, inverse);
 
-	printf("DONE Radix Sort Edges By Source And Destination \n");
+	// printf("DONE Radix Sort Edges By Source And Destination \n");
 
 	// graphPrint(graph);
 
@@ -221,7 +221,7 @@ struct Graph* radixSortEdgesBySourceAndDestination (struct Graph* graph, struct 
 
 struct Graph* radixSortEdgesBySourceOptimized (struct Graph* graph, struct EdgeList* edgeList, __u8 inverse){
 
-	printf("*** START Radix Sort Edges By Source *** \n");
+	// printf("*** START Radix Sort Edges By Source *** \n");
 
 	// struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges, inverse);
 
@@ -346,7 +346,7 @@ struct Graph* radixSortEdgesBySourceOptimized (struct Graph* graph, struct EdgeL
 
 	// graph = mapVertices (graph);
 
-	printf("DONE Radix Sort Edges By Source \n");
+	// printf("DONE Radix Sort Edges By Source \n");
 	// graphPrint(graph);
 
 

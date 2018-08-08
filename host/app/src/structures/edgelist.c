@@ -99,8 +99,8 @@ void readEdgeListstxt(const char * fname){
         fname_txt = strcpy (fname_txt, fname);
         fname_bin = strcat (fname_txt, ".bin8");
 
-        printf("Filename : %s \n",fname);
-        printf("Filename : %s \n",fname_bin);
+        // printf("Filename : %s \n",fname);
+        // printf("Filename : %s \n",fname_bin);
 
 
         pText = fopen(fname, "r");
@@ -189,20 +189,20 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
 
          // num_edges /= 4;
 
-        printf("START Reading EdgeList from file %s \n",fname);
-        printf("Graph Properties : ");
+        // printf("START Reading EdgeList from file %s \n",fname);
+        // printf("Graph Properties : ");
 
-        #if WEIGHTED
-                printf("WEIGHTED");
-        #else
-                printf("UN-WEIGHTED");
-        #endif
+        // #if WEIGHTED
+        //         printf("WEIGHTED");
+        // #else
+        //         printf("UN-WEIGHTED");
+        // #endif
 
-        #if DIRECTED
-                printf(" DIRECTED \n");
-        #else
-                printf(" UN-DIRECTED \n");
-        #endif
+        // #if DIRECTED
+        //         printf(" DIRECTED \n");
+        // #else
+        //         printf(" UN-DIRECTED \n");
+        // #endif
 
 
         #if DIRECTED
@@ -250,7 +250,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
 
         edgeList->num_vertices++; // max number of veritices Array[0-max]
 
-        printf("DONE Reading EdgeList from file %s \n", fname);
+        // printf("DONE Reading EdgeList from file %s \n", fname);
         // edgeListPrint(edgeList);
 
         munmap(buf_addr, fs.st_size);

@@ -28,12 +28,31 @@ void graphFree (struct Graph* graph){
 
 void graphPrint(struct Graph* graph){
 
-	 
-    printf("number of vertices (V) : %d \n", graph->num_vertices);
-    printf("number of edges    (E) : %d \n", graph->num_edges);  
+	
+	printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Graph Properties");
+    printf(" -----------------------------------------------------\n");
+    #if WEIGHTED       
+                printf("| %-51s | \n", "WEIGHTED");
+    #else
+                printf("| %-51s | \n", "UN-WEIGHTED");
+    #endif
+
+    #if DIRECTED
+                printf("| %-51s | \n", "DIRECTED");
+    #else
+       			printf("| %-51s | \n", "UN-DIRECTED");
+    #endif
+	printf(" -----------------------------------------------------\n"); 
+    printf("| %-51s | \n", "Number of Vertices (V)");
+    printf("| %-51u | \n", graph->num_vertices);
+    printf(" -----------------------------------------------------\n"); 
+    printf("| %-51s | \n", "Number of Edges (E)");
+    printf("| %-51u | \n", graph->num_edges);  
+    printf(" -----------------------------------------------------\n");
     vertexArrayMaxOutdegree(graph->vertices, graph->num_vertices);
  	vertexArrayMaxInDegree(graph->vertices, graph->num_vertices);
- 	// printVertexArray(graph->vertices, graph->num_vertices);
+ // 	printVertexArray(graph->vertices, graph->num_vertices);
 	// __u32 i;
 
 	// printf("Edge List (E) : %d \n", graph->num_edges);  

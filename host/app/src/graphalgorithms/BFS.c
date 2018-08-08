@@ -265,8 +265,16 @@ __u32 bottomUpStep(struct Graph* graph, struct ArrayQueue* frontier){
 	__u32 v;
 	__u32 u;
 	__u32 j;
-	__u32 edge_idx;
-	__u32 out_degree;
+	
+
+	#if DIRECTED
+		__u32 out_degree_inverse;
+		__u32 edge_idx_inverse;
+	#else
+		__u32 edge_idx;
+		__u32 out_degree;
+	#endif
+
 	__u32 processed_nodes = frontier->tail - frontier->head;
     __u32 nf = 0; // number of vertices in frontier
 
@@ -275,27 +283,58 @@ __u32 bottomUpStep(struct Graph* graph, struct ArrayQueue* frontier){
 
 	for(v=0 ; v < graph->num_vertices ; v++){
 
-		// printf("\n v: %u \n",v );
-		// if(graph->parents[v] == (-1)){
-		out_degree = -(graph->parents[v]);
-		if(graph->parents[v] < 0){ // optmization 
-			edge_idx = graph->vertices[v].edges_idx;
-			// printf("edge_idx: %u \n",edge_idx );
-			// printf("graph->vertices[v].out_degree: %u \n",graph->vertices[v].out_degree );
-    		for(j = edge_idx ; j < (edge_idx + out_degree) ; j++){
-    			 u = graph->sorted_edges_array[j].dest;
-    			 // printf("u: %u \n",u );
-    			 if(isEnArrayQueued(frontier, u)){
-    			 	// printf("***infrontier u: %u \n",u );
-    			 	graph->parents[v] = u;
-    			 	enArrayQueueDelayed(frontier, v);
-    			 	nf++;
-    			 	break;
-    			 }
-    			 // else
-    			 // printf("***NOT infrontier u: %u \n",u );
-    		}
-		}
+    		#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
+	    		out_degree_inverse = graph->inverse_vertices[v].out_degree;
+
+	    		if(graph->parents[v] < 0){ // optmization
+
+	    			edge_idx_inverse = graph->inverse_vertices[v].edges_idx;
+
+		    		for(j = edge_idx_inverse ; j < (edge_idx_inverse + out_degree_inverse) ; j++){
+
+		    			 u = graph->inverse_sorted_edges_array[j].dest;
+		    			 // printf("u: %u \n",u );
+		    			 if(isEnArrayQueued(frontier, u)){
+		    			 	// printf("***infrontier u: %u \n",u );
+		    			 	graph->parents[v] = u;
+		    			 	enArrayQueueDelayed(frontier, v);
+		    			 	nf++;
+		    			 	break;
+		    			 }
+		    			 // else
+		    			 // printf("***NOT infrontier u: %u \n",u );
+		    		}
+		    	}
+		    	
+		    #else
+		    	// printf("\n v: %u \n",v );
+				// if(graph->parents[v] == (-1)){
+				// out_degree = -(graph->parents[v]);
+				out_degree = graph->vertices[v].out_degree;
+
+				if(graph->parents[v] < 0){ // optmization 
+					edge_idx = graph->vertices[v].edges_idx;
+
+					// printf("edge_idx: %u \n",edge_idx );
+					// printf("graph->vertices[v].out_degree: %u \n",graph->vertices[v].out_degree );
+		    		for(j = edge_idx ; j < (edge_idx + out_degree) ; j++){
+		    			 u = graph->sorted_edges_array[j].dest;
+		    			 // printf("u: %u \n",u );
+		    			 if(isEnArrayQueued(frontier, u)){
+		    			 	// printf("***infrontier u: %u \n",u );
+		    			 	graph->parents[v] = u;
+		    			 	enArrayQueueDelayed(frontier, v);
+		    			 	nf++;
+		    			 	break;
+		    			 }
+		    			 // else
+		    			 // printf("***NOT infrontier u: %u \n",u );
+		    		}
+
+		    	}
+    		#endif
+
+		
 	}
 
 
