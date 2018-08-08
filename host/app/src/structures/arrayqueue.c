@@ -29,6 +29,8 @@ struct ArrayQueue *newArrayQueue(__u32 size){
 
     arrayQueue->bitmap = newBitmap(size);
 
+    arrayQueue->bitmap_next = newBitmap(size);
+
 
     return arrayQueue;
 
@@ -46,6 +48,7 @@ void enArrayQueue (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail] = k;
 	setBit(q->bitmap, k);
+	setBit(q->bitmap_next, k);
 	q->tail = q->tail_next;
 	q->tail++;
 	q->tail_next++;
@@ -56,7 +59,7 @@ void enArrayQueue (struct ArrayQueue *q, __u32 k){
 void enArrayQueueDelayed (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail_next] = k;
-	setBit(q->bitmap, k);
+	setBit(q->bitmap_next, k);
 	q->tail_next++;
 
 }
@@ -64,10 +67,13 @@ void enArrayQueueDelayed (struct ArrayQueue *q, __u32 k){
 
 void slideWindowArrayQueue (struct ArrayQueue *q){
 
-	q->head = q->tail;
-	q->tail = q->tail_next;
-	q->iteration++;
-
+	// if(q->tail_next > q->tail){
+		q->head = q->tail;
+		q->tail = q->tail_next;
+		q->iteration++;
+		q->bitmap = orBitmap(q->bitmap,q->bitmap_next);
+	// }
+	
 }
 
 
@@ -75,6 +81,7 @@ void slideWindowArrayQueue (struct ArrayQueue *q){
 __u32 deArrayQueue(struct ArrayQueue *q){
 
 	__u32 k = q->queue[q->head];
+	clearBit(q->bitmap,k);
 
 	q->head++;
 
@@ -121,6 +128,31 @@ __u8  isEnArrayQueued 	(struct ArrayQueue *q, __u32 k){
 
 
 	return getBit(q->bitmap, k);
+
+}
+
+__u8  isEnArrayQueuedNext 	(struct ArrayQueue *q, __u32 k){
+
+
+	return getBit(q->bitmap_next, k);
+
+}
+
+__u32 sizeArrayQueueCurr(struct ArrayQueue *q){
+
+	return q->tail - q->head;
+
+}
+
+__u32 sizeArrayQueueNext(struct ArrayQueue *q){
+
+	return q->tail_next - q->tail;
+}
+
+
+__u32 sizeArrayQueue(struct ArrayQueue *q){
+
+	return q->tail_next - q->head;
 
 }
 

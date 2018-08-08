@@ -13,7 +13,7 @@ struct Graph* countSortEdgesBySource (struct EdgeList* edgeList){
 
 	 printf("*** START Count Sort Edges By Source *** \n");
 
-	struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges);
+	struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges, 0);
 
 	#if ALIGNED
 		graph->vertex_count = (__u32*) my_aligned_alloc( edgeList->num_vertices * sizeof(__u32));
@@ -55,7 +55,7 @@ struct Graph* countSortEdgesBySource (struct EdgeList* edgeList){
 	}
 
 
-	graph = mapVertices (graph);
+	graph = mapVertices (graph, 0);
 
 	printf("DONE Count Sort Edges By Source \n");
 	// graphPrint(graph);
@@ -67,7 +67,7 @@ struct Graph* countSortEdgesBySource (struct EdgeList* edgeList){
 
 struct Graph* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
 
-	struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges);
+	struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges, 0);
 
 
 	return graph;

@@ -68,8 +68,18 @@ void clearBit(struct Bitmap* bitmap, __u32 pos){
 
 }
 
-void clearBitmap(struct Bitmap* bitmap){
+struct Bitmap*  orBitmap(struct Bitmap* bitmap1, struct Bitmap* bitmap2){
 
-	memset(bitmap->bitarray, 0, (sizeof(__u8)*((bitmap->size+7)/8)));
+
+	__u32 i;
+	__u8 *byte1 = bitmap1->bitarray;
+	__u8 *byte2 = bitmap2->bitarray;
+
+	for(i= 0 ; i < ((bitmap1->size+7)/8); i++){
+		byte1[i] = byte1[i] | byte2[i]; 
+
+	}
+
+	return bitmap1;
 
 }

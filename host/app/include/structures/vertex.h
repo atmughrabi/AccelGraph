@@ -16,8 +16,9 @@ struct __attribute__((__packed__)) Vertex {
 };
 
 
-struct Graph* mapVertices (struct Graph* graph);
-struct Graph* mapVerticesWithInOutDegree (struct Graph* graph);
+struct Graph* mapVertices (struct Graph* graph, __u8 inverse);
+struct Graph* mapVerticesWithInOutDegree (struct Graph* graph, __u8 inverse);
+
 struct Vertex* newVertexArray(__u32 num_vertices);
 void freeVertexArray(struct Vertex* vertices);
 void printVertexArray(struct Vertex* vertex_array, __u32 num_vertices);

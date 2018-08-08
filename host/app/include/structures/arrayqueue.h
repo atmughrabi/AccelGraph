@@ -13,6 +13,7 @@ struct __attribute__((__packed__)) ArrayQueue
 	__u32 iteration;
 	__u32* queue;
 	struct Bitmap* bitmap;
+	struct Bitmap* bitmap_next;
 
 };
 
@@ -28,7 +29,10 @@ void enArrayQueueDelayed (struct ArrayQueue *q, __u32 k);
 void slideWindowArrayQueue (struct ArrayQueue *q);
 __u8 isEmptyArrayQueueNext (struct ArrayQueue *q);
 __u8 isEmptyArrayQueueCurr (struct ArrayQueue *q);
-
+__u32 sizeArrayQueueCurr(struct ArrayQueue *q);
+__u32 sizeArrayQueueNext(struct ArrayQueue *q);
+__u32 sizeArrayQueue(struct ArrayQueue *q);
+__u8  isEnArrayQueuedNext 	(struct ArrayQueue *q, __u32 k);
 // struct ArrayQueue *unionArrayQueued (struct ArrayQueue *q1, struct ArrayQueue *q2);
 
 #endif

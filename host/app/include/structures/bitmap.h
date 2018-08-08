@@ -24,7 +24,7 @@ __u8 getBit(struct Bitmap* bitmap, __u32 pos);
 void clearBit(struct Bitmap* bitmap, __u32 pos);
 void clearBitmap(struct Bitmap* bitmap);
 void freeBitmap( struct Bitmap* bitmap);
-
+struct Bitmap*  orBitmap(struct Bitmap* bitmap1, struct Bitmap* bitmap2);
 
 // int main()
 // {

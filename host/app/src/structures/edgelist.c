@@ -146,7 +146,7 @@ void readEdgeListstxt(const char * fname){
 
 }
 
-struct EdgeList* readEdgeListsbin(const char * fname){
+struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
 
 
         int fd = open(fname, O_RDONLY);
@@ -206,9 +206,10 @@ struct EdgeList* readEdgeListsbin(const char * fname){
 
 
         #if DIRECTED
-                       struct EdgeList* edgeList = newEdgeList(num_edges-1);
+                                       
+                    struct EdgeList* edgeList = newEdgeList(num_edges-1);
         #else
-                       struct EdgeList* edgeList = newEdgeList((num_edges-1)*2);
+                    struct EdgeList* edgeList = newEdgeList((num_edges-1)*2);
         #endif
         
         __u32 i;
@@ -219,8 +220,19 @@ struct EdgeList* readEdgeListsbin(const char * fname){
                 dest = buf_pointer[((offset)*i)+1];
 
                 #if DIRECTED
-                        edgeList->edges_array[i].src = src;
-                        edgeList->edges_array[i].dest = dest;
+
+                if(!inverse){
+                    
+                    edgeList->edges_array[i].src = src;
+                    edgeList->edges_array[i].dest = dest;
+
+                }else{
+
+                    edgeList->edges_array[i].src = dest;
+                    edgeList->edges_array[i].dest = src;
+                }
+                       
+
                 #else
                         edgeList->edges_array[i].src = src;
                         edgeList->edges_array[i].dest = dest;
@@ -239,7 +251,7 @@ struct EdgeList* readEdgeListsbin(const char * fname){
         edgeList->num_vertices++; // max number of veritices Array[0-max]
 
         printf("DONE Reading EdgeList from file %s \n", fname);
-        edgeListPrint(edgeList);
+        // edgeListPrint(edgeList);
 
         munmap(buf_addr, fs.st_size);
         close(fd);
@@ -253,14 +265,14 @@ void edgeListPrint(struct EdgeList* edgeList){
         printf("number of vertices (V) : %u \n", edgeList->num_vertices);
         printf("number of edges    (E) : %u \n", edgeList->num_edges);   
 
-        // __u32 i;
-        // for(i = 0; i < edgeList->num_edges; i++){
+        __u32 i;
+        for(i = 0; i < edgeList->num_edges; i++){
 
-        //         #if WEIGHTED
-        //                 printf("%u -> %u w: %d \n", edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);   
-        //         #else
-        //                 printf("%u -> %u \n", edgeList->edges_array[i].src, edgeList->edges_array[i].dest);   
-        //         #endif
-        // }
+                #if WEIGHTED
+                        printf("%u -> %u w: %d \n", edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);   
+                #else
+                        printf("%u -> %u \n", edgeList->edges_array[i].src, edgeList->edges_array[i].dest);   
+                #endif
+        }
 
 }

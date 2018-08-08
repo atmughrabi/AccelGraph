@@ -36,21 +36,41 @@ struct Vertex* newVertexArray(__u32 num_vertices){
 
 }
 
-struct Graph* mapVertices (struct Graph* graph){
+struct Graph* mapVertices (struct Graph* graph, __u8 inverse){
 
     __u32 i;
     __u32 vertex_id;
-  
-    vertex_id = graph->sorted_edges_array[0].src;
-    graph->vertices[vertex_id].edges_idx = 0;
+
+    struct Vertex* vertices;
+    struct Edge* sorted_edges_array;
+    
+
+    #if DIRECTED
+
+        if(inverse){
+            sorted_edges_array = graph->inverse_sorted_edges_array;
+            vertices = graph->inverse_vertices; // sorted edge array
+        }else{
+            sorted_edges_array = graph->sorted_edges_array;
+            vertices = graph->vertices;
+        }
+
+    #else
+            sorted_edges_array = graph->sorted_edges_array;
+            vertices = graph->vertices;
+    #endif
+
+
+    vertex_id = sorted_edges_array[0].src;
+    vertices[vertex_id].edges_idx = 0;
 
     for(i =1; i < graph->num_edges; i++){
 
         
-        if(graph->sorted_edges_array[i].src != graph->sorted_edges_array[i-1].src){      
+        if(sorted_edges_array[i].src != sorted_edges_array[i-1].src){      
 
-            vertex_id = graph->sorted_edges_array[i].src;
-            graph->vertices[vertex_id].edges_idx = i; 
+            vertex_id = sorted_edges_array[i].src;
+            vertices[vertex_id].edges_idx = i; 
      
         }
     }
@@ -59,41 +79,70 @@ return graph;
 
 }
 
-struct Graph* mapVerticesWithInOutDegree (struct Graph* graph){
+struct Graph* mapVerticesWithInOutDegree (struct Graph* graph, __u8 inverse){
 
     __u32 i;
     __u32 vertex_id;
     __u32 vertex_id_dest;
+     struct Vertex* vertices;
+     struct Edge* sorted_edges_array;
+    
+    #if DIRECTED
+
+        if(inverse){
+            sorted_edges_array = graph->inverse_sorted_edges_array;
+            vertices = graph->inverse_vertices; // sorted edge array
+        }else{
+            sorted_edges_array = graph->sorted_edges_array;
+            vertices = graph->vertices;
+        }
+    
+    #else
+            sorted_edges_array = graph->sorted_edges_array;
+            vertices = graph->vertices;
+    #endif
 
 
-    vertex_id_dest = graph->sorted_edges_array[0].dest;
-    vertex_id = graph->sorted_edges_array[0].src;
 
-    graph->vertices[vertex_id].edges_idx = 0;
-    graph->vertices[vertex_id].out_degree++;
-    graph->vertices[vertex_id_dest].in_degree++;
+    vertex_id_dest = sorted_edges_array[0].dest;
+    vertex_id = sorted_edges_array[0].src;
+
+    vertices[vertex_id].edges_idx = 0;
+    vertices[vertex_id].out_degree++;
+    vertices[vertex_id_dest].in_degree++;
 
     for(i =1; i < graph->num_edges; i++){
 
         
-        if(graph->sorted_edges_array[i].src != graph->sorted_edges_array[i-1].src){      
+        if(sorted_edges_array[i].src != sorted_edges_array[i-1].src){      
 
-            vertex_id = graph->sorted_edges_array[i].src;
-            vertex_id_dest = graph->sorted_edges_array[i].dest;
-            graph->vertices[vertex_id].edges_idx = i; 
-            graph->vertices[vertex_id].out_degree++;      
-            graph->vertices[vertex_id_dest].in_degree++;  
-            // printf("1| %-15u | %-15u | %-15u | %-15u | \n", vertex_id, vertex_id_dest, graph->vertices[vertex_id].out_degree, graph->vertices[vertex_id_dest].in_degree );
+            vertex_id = sorted_edges_array[i].src;
+            vertex_id_dest = sorted_edges_array[i].dest;
+            vertices[vertex_id].edges_idx = i; 
+            vertices[vertex_id].out_degree++;      
+            vertices[vertex_id_dest].in_degree++;  
+            // printf("1| %-15u | %-15u | %-15u | %-15u | \n", vertex_id, vertex_id_dest, vertices[vertex_id].out_degree, vertices[vertex_id_dest].in_degree );
 
 
         }else{
 
-            vertex_id_dest = graph->sorted_edges_array[i].dest;
-            graph->vertices[vertex_id].out_degree++;
-            graph->vertices[vertex_id_dest].in_degree++;
-            // printf("2| %-15u | %-15u | %-15u | %-15u | \n", vertex_id, vertex_id_dest, graph->vertices[vertex_id].out_degree, graph->vertices[vertex_id_dest].in_degree );
+            vertex_id_dest = sorted_edges_array[i].dest;
+            vertices[vertex_id].out_degree++;
+            vertices[vertex_id_dest].in_degree++;
+            // printf("2| %-15u | %-15u | %-15u | %-15u | \n", vertex_id, vertex_id_dest, vertices[vertex_id].out_degree, vertices[vertex_id_dest].in_degree );
 
         }
+    }
+
+// optimization for BFS implentaion instead of -1 we use -out degree to for hybrid approach counter
+
+    if(!inverse){
+     for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++){
+                if(vertices[vertex_id].out_degree)
+                    graph->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
+                else
+                    graph->parents[vertex_id] = -1;
+     }
     }
 
 return graph;

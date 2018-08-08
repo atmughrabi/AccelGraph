@@ -26,9 +26,9 @@
 
 
 
-struct Graph* radixSortCountSortEdgesBySource (struct Graph* graph,struct EdgeList* edgeList, int exp);
-struct Graph* radixSortEdgesBySource (struct EdgeList* edgeList);
-struct Graph* radixSortEdgesBySourceOptimized (struct EdgeList* edgeList);
-struct Graph* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
+struct Graph* radixSortCountSortEdgesBySource (struct Graph* graph, struct EdgeList* edgeList, int exp);
+struct Graph* radixSortEdgesBySource (struct Graph* graph, struct EdgeList* edgeList);
+struct Graph* radixSortEdgesBySourceOptimized (struct Graph* graph, struct EdgeList* edgeList, __u8 inverse);
+struct Graph* radixSortEdgesBySourceAndDestination (struct Graph* graph, struct EdgeList* edgeList, __u8 inverse);
 
 #endif
