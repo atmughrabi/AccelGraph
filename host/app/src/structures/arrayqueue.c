@@ -82,7 +82,6 @@ __u32 deArrayQueue(struct ArrayQueue *q){
 
 	__u32 k = q->queue[q->head];
 	clearBit(q->bitmap,k);
-
 	q->head++;
 
 	return k;

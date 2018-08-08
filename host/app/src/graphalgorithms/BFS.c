@@ -156,8 +156,9 @@ void breadthFirstSearch(__u32 source, struct Graph* graph){
 		if(mf > (mu/alpha)){
 
 
-			nf = sizeArrayQueueCurr(frontier);
-			slideWindowArrayQueue(frontier);
+			nf = sizeArrayQueue(frontier);
+			// slideWindowArrayQueue(frontier);
+			
 
 			do{
 
@@ -165,16 +166,18 @@ void breadthFirstSearch(__u32 source, struct Graph* graph){
 			nf = bottomUpStep(graph, frontier);
 			slideWindowArrayQueue(frontier);
 
+		
 			}while(( nf > nf_prev) || // growing;
 				   ( nf > (n/beta)));
-
+			
 			mf = 1;
 
 		}else{
-
+		
 			mu -= mf;
 			mf = topDownStep(graph, frontier);
 			slideWindowArrayQueue(frontier);
+
 		}
 
 
