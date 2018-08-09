@@ -87,7 +87,14 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
     }
    
     for(i = 0; i < edgeList->num_edges; i++){
+
+        #if DIRECTED
             adjLinkedListAddEdgeUndirected(graphAdjLinkedList, edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);
+        #else
+            adjLinkedListAddEdgeUndirected(graphAdjLinkedList, edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);
+        #endif
+
+
         }
 
     return graphAdjLinkedList;
@@ -182,7 +189,9 @@ void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedLis
     graphAdjLinkedList->parent_array[src].out_degree++;
     graphAdjLinkedList->parent_array[src].visited = 0;
     graphAdjLinkedList->parent_array[src].outNodes = newNode;
-
+    #if WEIGHTED
+        graphAdjLinkedList->parent_array[src].weight = weight;
+    #endif
 
     // Since graphAdjLinkedList is undirected, add an edge from
     // dest to src also
@@ -191,7 +200,9 @@ void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedLis
     graphAdjLinkedList->parent_array[dest].out_degree++;  
     graphAdjLinkedList->parent_array[dest].visited = 0;
     graphAdjLinkedList->parent_array[dest].outNodes = newNode;
-
+    #if WEIGHTED
+        graphAdjLinkedList->parent_array[dest].weight = weight;
+    #endif
 
 }
 // Adds an edge to a directed graphAdjLinkedList
@@ -205,6 +216,9 @@ void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList,
     graphAdjLinkedList->parent_array[src].out_degree++;  
     graphAdjLinkedList->parent_array[src].visited = 0;   
     graphAdjLinkedList->parent_array[src].outNodes = newNode;
+    #if WEIGHTED
+        graphAdjLinkedList->parent_array[src].weight = weight;
+    #endif
 
     #if DIRECTED
         newNode = newAdjLinkedListNode(dest,src,weight);
@@ -212,6 +226,9 @@ void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList,
         graphAdjLinkedList->parent_array[dest].in_degree++;  
         graphAdjLinkedList->parent_array[dest].visited = 0;  
         graphAdjLinkedList->parent_array[dest].inNodes = newNode;
+    #endif
+    #if WEIGHTED
+        graphAdjLinkedList->parent_array[dest].weight = weight;
     #endif
 
 }
