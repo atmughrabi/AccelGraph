@@ -4,16 +4,13 @@
 #include "libcxl.h"
 
 #include "capienv.h"
-#include "adjLinkedList.h" 
-#include "dynamicQueue.h"
-#include "edgeList.h"
+#include "adjlinkedlist.h" 
+#include "dynamicqueue.h"
+#include "edgelist.h"
 
-//edgelist prerpcessing
 #include "countsort.h"
 #include "radixsort.h"
-
-
-#include "graphCSR.h"
+#include "graph.h"
 #include "vertex.h"
 #include "timer.h"
 #include "BFS.h"
@@ -71,7 +68,7 @@ int main()
         printMessageWithtime("Read Inverse Edge List List From File (Seconds)",Seconds(timer));
     #endif
 
-    struct GraphCSR* graph_radixSort = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
+    struct Graph* graph_radixSort = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
     
 
     // Start(timer);
@@ -113,7 +110,7 @@ int main()
         printMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
     #endif
 
-    graphCSRPrint(graph_radixSort);
+    graphPrint(graph_radixSort);
     // Start(timer);
     // struct Graph* graph_radixSort = radixSortEdgesBySourceAndDestination(edgeList);
     // Stop(timer);
@@ -134,7 +131,7 @@ int main()
 
     // printGraphParentsArray(graph_radixSort);
 
-    graphCSRFree(graph_radixSort);
+    graphFree(graph_radixSort);
     // freeEdgeList(edgeList);
 
     // edgeListPrint(edgeList);

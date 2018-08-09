@@ -50,9 +50,9 @@ sim-run:
 vsim-run:
 	cd sim && vsim -do vsim.tcl
 
-$(APP_DIR)/$(OBJ_DIR)/mymalloc.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/mymalloc.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/mymalloc.h
-	@echo 'making $(GAPP) <- mymalloc.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/mymalloc.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/mymalloc.c
+$(APP_DIR)/$(OBJ_DIR)/myMalloc.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/myMalloc.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/myMalloc.h
+	@echo 'making $(GAPP) <- myMalloc.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/myMalloc.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/myMalloc.c
 
 $(APP_DIR)/$(OBJ_DIR)/progressbar.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/progressbar.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/progressbar.h
 	@echo 'making $(GAPP) <- progressbar.o'
@@ -70,33 +70,37 @@ $(APP_DIR)/$(OBJ_DIR)/vertex.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/vertex.c $(A
 	@echo 'making $(GAPP) <- vertex.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/vertex.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/vertex.c
 
-$(APP_DIR)/$(OBJ_DIR)/adjlist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/adjlist.h
-	@echo 'making $(GAPP) <- adjlist.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjlist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjlist.c
+$(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjLinkedList.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/adjLinkedList.h
+	@echo 'making $(GAPP) <- adjLinkedList.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjLinkedList.c
 
-$(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicqueue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/dynamicqueue.h
-	@echo 'making $(GAPP) <- dynamicqueue.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicqueue.c
+$(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicQueue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/dynamicQueue.h
+	@echo 'making $(GAPP) <- dynamicQueue.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicQueue.c
 
 $(APP_DIR)/$(OBJ_DIR)/timer.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/timer.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/timer.h
 	@echo 'making $(GAPP) <- timer.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/timer.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/timer.c
 
-$(APP_DIR)/$(OBJ_DIR)/edgelist.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/edgelist.h
-	@echo 'making $(GAPP) <- edgelist.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgelist.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgelist.c
+$(APP_DIR)/$(OBJ_DIR)/edgeList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgeList.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/edgeList.h
+	@echo 'making $(GAPP) <- edgeList.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/edgeList.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/edgeList.c
 
-$(APP_DIR)/$(OBJ_DIR)/graph.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graph.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/graph.h
-	@echo 'making $(GAPP) <- graph.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/graph.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graph.c
+$(APP_DIR)/$(OBJ_DIR)/graphCSR.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graphCSR.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/graphCSR.h
+	@echo 'making $(GAPP) <- graphCSR.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/graphCSR.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graphCSR.c
+
+$(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graphAdjLinkedList.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/graphAdjLinkedList.h
+	@echo 'making $(GAPP) <- graphAdjLinkedList.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graphAdjLinkedList.c
 
 $(APP_DIR)/$(OBJ_DIR)/bitmap.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/bitmap.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/bitmap.h
 	@echo 'making $(GAPP) <- bitmap.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/bitmap.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/bitmap.c
 
-$(APP_DIR)/$(OBJ_DIR)/arrayqueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayqueue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/arrayqueue.h
-	@echo 'making $(GAPP) <- arrayqueue.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/arrayqueue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayqueue.c
+$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayQueue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/arrayQueue.h
+	@echo 'making $(GAPP) <- arrayQueue.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/arrayQueue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayQueue.c
 
 $(APP_DIR)/$(OBJ_DIR)/BFS.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/BFS.c $(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/BFS.h
 	@echo 'making $(GAPP) <- BFS.o'
@@ -111,11 +115,11 @@ $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o:
 	$(INC) \
 	-I$(PSLSE_COMMON_DIR) 
 
-arrayqueue: $(APP_DIR)/$(OBJ_DIR)/arrayqueue.o
+arrayQueue: $(APP_DIR)/$(OBJ_DIR)/arrayQueue.o
 
 bitmap: $(APP_DIR)/$(OBJ_DIR)/bitmap.o
 
-mymalloc: $(APP_DIR)/$(OBJ_DIR)/mymalloc.o
+myMalloc: $(APP_DIR)/$(OBJ_DIR)/myMalloc.o
 
 progressbar: $(APP_DIR)/$(OBJ_DIR)/progressbar.o
 
@@ -129,34 +133,36 @@ countsort: $(APP_DIR)/$(OBJ_DIR)/countsort.o
 
 radixsort: $(APP_DIR)/$(OBJ_DIR)/radixsort.o
 
-edgelist: $(APP_DIR)/$(OBJ_DIR)/edgelist.o
+edgeList: $(APP_DIR)/$(OBJ_DIR)/edgeList.o
 
-graph: $(APP_DIR)/$(OBJ_DIR)/graph.o
+graphCSR: $(APP_DIR)/$(OBJ_DIR)/graphCSR.o
 
-adjlist: $(APP_DIR)/$(OBJ_DIR)/adjlist.o
+graphAdjLinkedList: $(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o
 
-dynamicqueue: $(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o
+adjLinkedList: $(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o
+
+dynamicQueue: $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o
 
 BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
-
-
-test: adjlist dynamicqueue edgelist countsort radixsort vertex graph timer progressbar mymalloc app bitmap arrayqueue BFS
-	@echo 'linking $(GAPP) <- adjlist.o graph.o dynamicqueue.o edgelist.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayqueue.o BFS.o'
+	
+test: adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
+	@echo 'linking $(GAPP) <- adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/arrayqueue.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/graph.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/graphCSR.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/mymalloc.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/myMalloc.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/adjlist.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/dynamicqueue.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/edgelist.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/edgeList.o 		\
 	$(PSLSE_LIBCXL_DIR)/libcxl.a 			\
 	 -o $(APP_DIR)/test/$(GAPP)				\
 	 -I$(PSLSE_COMMON_DIR) 					\
@@ -164,7 +170,7 @@ test: adjlist dynamicqueue edgelist countsort radixsort vertex graph timer progr
 	 -lrt -lpthread -D SIM 
 
 clean:
-	@rm -fr $(APP_DIR)/graph-build
+	@rm -fr $(APP_DIR)/graphCSR-build
 	@rm -fr $(APP_DIR)/test
 	@rm -fr $(APP_DIR)/sim-build
 	@rm -f $(APP_DIR)/$(OBJ_DIR)/*

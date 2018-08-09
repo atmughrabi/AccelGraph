@@ -1,11 +1,14 @@
 #ifndef VERTEX_H
 #define VERTEX_H
 
+#include <linux/types.h>
+#include "graphCSR.h"
+
 #define NO_OUTGOING_EDGES -1
 #define NO_INCOMING_EDGES 0
 #define NOT_VISITED 0
 
-#include "graph.h"
+
 
 struct __attribute__((__packed__)) Vertex {
 
@@ -16,8 +19,8 @@ struct __attribute__((__packed__)) Vertex {
 };
 
 
-struct Graph* mapVertices (struct Graph* graph, __u8 inverse);
-struct Graph* mapVerticesWithInOutDegree (struct Graph* graph, __u8 inverse);
+struct GraphCSR* mapVertices (struct GraphCSR* graph, __u8 inverse);
+struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 inverse);
 
 struct Vertex* newVertexArray(__u32 num_vertices);
 void freeVertexArray(struct Vertex* vertices);

@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "capienv.h"
-#include "mymalloc.h"
+#include "myMalloc.h"
 
 extern int errno ;
 

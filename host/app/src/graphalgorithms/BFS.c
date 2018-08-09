@@ -4,15 +4,15 @@
 #include <string.h>
 
 #include "timer.h"
-#include "mymalloc.h"
+#include "myMalloc.h"
 #include "boolean.h"
-#include "arrayqueue.h"
+#include "arrayQueue.h"
 #include "BFS.h"
-#include "vertex.h"
+#include "graphCSR.h"
 
 
 
-void bfs(__u32 source, struct Graph* graph){
+void bfs(__u32 source, struct GraphCSR* graph){
 
 
  printf("*** START BFS *** \n");
@@ -122,7 +122,7 @@ void bfs(__u32 source, struct Graph* graph){
 // 		end while
 // 	return parents
 
-void breadthFirstSearch(__u32 source, struct Graph* graph){
+void breadthFirstSearch(__u32 source, struct GraphCSR* graph){
 
 	
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
@@ -138,8 +138,8 @@ void breadthFirstSearch(__u32 source, struct Graph* graph){
 	__u32 nf = 0; // number of vertices in frontier
 	__u32 nf_prev = 0; // number of vertices in frontier
 	__u32 n = graph->num_vertices; // number of nodes
-	__u32 alpha = 15;
-	__u32 beta = 18;
+	__u32 alpha = 14;
+	__u32 beta = 24;
 
 
 	enArrayQueue(frontier, source);
@@ -199,7 +199,7 @@ void breadthFirstSearch(__u32 source, struct Graph* graph){
 // 		end for
 // 	end for
 
-__u32 topDownStep(struct Graph* graph, struct ArrayQueue* frontier){
+__u32 topDownStep(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 
 	
@@ -259,7 +259,7 @@ __u32 topDownStep(struct Graph* graph, struct ArrayQueue* frontier){
 // 		end if
 // 	end for
 
-__u32 bottomUpStep(struct Graph* graph, struct ArrayQueue* frontier){
+__u32 bottomUpStep(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 
 	__u32 v;
@@ -345,7 +345,7 @@ __u32 bottomUpStep(struct Graph* graph, struct ArrayQueue* frontier){
 }
 
 
-void topDownStep_original(struct Graph* graph, struct ArrayQueue* frontier){
+void topDownStep_original(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 	__u32 v;
 	__u32 u;

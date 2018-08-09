@@ -1,7 +1,6 @@
 
 #include "timer.h"
 
-
   void Start(struct Timer* timer) {
     gettimeofday(&(timer->start_time), NULL);
   }

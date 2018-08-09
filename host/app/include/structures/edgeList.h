@@ -2,7 +2,8 @@
 #define EDGELIST_H
 
 #include <linux/types.h>
-#include "graphconfig.h"
+#include "graphConfig.h"
+
 // A structure to represent an edge
 struct  __attribute__((__packed__)) Edge {
 

@@ -1,9 +1,9 @@
 #ifndef RADIXSORT_H
 #define RADIXSORT_H
 
-#include "edgelist.h"
+#include "edgeList.h"
 #include "vertex.h"
-#include "graph.h"
+#include "graphCSR.h"
 
 // A structure to represent an edge
 // struct Edge {
@@ -26,9 +26,9 @@
 
 
 
-struct Graph* radixSortCountSortEdgesBySource (struct Graph* graph, struct EdgeList* edgeList, int exp);
-struct Graph* radixSortEdgesBySource (struct Graph* graph, struct EdgeList* edgeList);
-struct Graph* radixSortEdgesBySourceOptimized (struct Graph* graph, struct EdgeList* edgeList, __u8 inverse);
-struct Graph* radixSortEdgesBySourceAndDestination (struct Graph* graph, struct EdgeList* edgeList, __u8 inverse);
+struct GraphCSR* radixSortCountSortEdgesBySource (struct GraphCSR* graph, struct EdgeList* edgeList, int exp);
+struct GraphCSR* radixSortEdgesBySource (struct GraphCSR* graph, struct EdgeList* edgeList);
+struct GraphCSR* radixSortEdgesBySourceOptimized (struct GraphCSR* graph, struct EdgeList* edgeList, __u8 inverse);
+struct GraphCSR* radixSortEdgesBySourceAndDestination (struct GraphCSR* graph, struct EdgeList* edgeList, __u8 inverse);
 
 #endif

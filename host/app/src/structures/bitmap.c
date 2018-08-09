@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <linux/types.h>
 
-#include "mymalloc.h"
+#include "myMalloc.h"
 #include "bitmap.h"
 
 struct Bitmap* newBitmap( __u32 size){

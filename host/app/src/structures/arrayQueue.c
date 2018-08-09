@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <linux/types.h>
 
-#include "mymalloc.h"
-#include "arrayqueue.h"
+#include "myMalloc.h"
+#include "arrayQueue.h"
 
 
 struct ArrayQueue *newArrayQueue(__u32 size){

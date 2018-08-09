@@ -1,14 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <linux/types.h>
 
-// #include "adjlist.h"
-#include "capienv.h"
-// #include "countsort.h"
-// #include "edgelist.h"
-
+#include "graphCSR.h"
 #include "vertex.h"
-#include "mymalloc.h"
+#include "myMalloc.h"
 
 struct Vertex* newVertexArray(__u32 num_vertices){
 
@@ -36,7 +33,7 @@ struct Vertex* newVertexArray(__u32 num_vertices){
 
 }
 
-struct Graph* mapVertices (struct Graph* graph, __u8 inverse){
+struct GraphCSR* mapVertices (struct GraphCSR* graph, __u8 inverse){
 
     __u32 i;
     __u32 vertex_id;
@@ -79,7 +76,7 @@ return graph;
 
 }
 
-struct Graph* mapVerticesWithInOutDegree (struct Graph* graph, __u8 inverse){
+struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 inverse){
 
     __u32 i;
     __u32 vertex_id;

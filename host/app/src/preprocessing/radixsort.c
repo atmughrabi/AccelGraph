@@ -1,19 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-// #include "adjlist.h"
-#include "capienv.h"
+
 #include "radixsort.h"
-#include "edgelist.h"
+#include "edgeList.h"
 #include "vertex.h"
-#include "mymalloc.h"
-#include "graph.h"
-#include "graphconfig.h"
+#include "myMalloc.h"
+#include "graphCSR.h"
+#include "graphConfig.h"
 #include "timer.h"
 
 // A function to do counting sort of edgeList according to
 // the digit represented by exp
-struct Graph* radixSortCountSortEdgesBySource (struct Graph* graph, struct EdgeList* edgeList, int exp){
+struct GraphCSR* radixSortCountSortEdgesBySource (struct GraphCSR* graph, struct EdgeList* edgeList, int exp){
 
 	long i;
 	__u32 key;
@@ -53,7 +52,7 @@ struct Graph* radixSortCountSortEdgesBySource (struct Graph* graph, struct EdgeL
 
 
 
-struct Graph* radixSortEdgesBySource (struct Graph* graph, struct EdgeList* edgeList){
+struct GraphCSR* radixSortEdgesBySource (struct GraphCSR* graph, struct EdgeList* edgeList){
 
 	// printf("*** START Radix Sort Edges By Source *** \n");
 
@@ -85,7 +84,7 @@ struct Graph* radixSortEdgesBySource (struct Graph* graph, struct EdgeList* edge
 
 
 
-struct Graph* radixSortEdgesBySourceAndDestination (struct Graph* graph, struct EdgeList* edgeList,  __u8 inverse){
+struct GraphCSR* radixSortEdgesBySourceAndDestination (struct GraphCSR* graph, struct EdgeList* edgeList,  __u8 inverse){
 
 	// printf("*** START Radix Sort Edges By Source And Destination *** \n");
 
@@ -219,7 +218,7 @@ struct Graph* radixSortEdgesBySourceAndDestination (struct Graph* graph, struct 
 
 
 
-struct Graph* radixSortEdgesBySourceOptimized (struct Graph* graph, struct EdgeList* edgeList, __u8 inverse){
+struct GraphCSR* radixSortEdgesBySourceOptimized (struct GraphCSR* graph, struct EdgeList* edgeList, __u8 inverse){
 
 	// printf("*** START Radix Sort Edges By Source *** \n");
 

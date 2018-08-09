@@ -8,12 +8,13 @@
 #include <errno.h>
 #include <err.h>
 #include <string.h>
+#include <linux/types.h>
 
-#include "edgelist.h"
-#include "capienv.h"
+
+#include "edgeList.h"
 #include "progressbar.h"
-#include "mymalloc.h"
-#include "graphconfig.h"
+#include "myMalloc.h"
+#include "graphConfig.h"
 
 __u32 maxTwoIntegers(__u32 num1, __u32 num2){
 

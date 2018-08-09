@@ -1,10 +1,12 @@
-#ifndef GRAPH_H
-#define GRAPH_H
+#ifndef GRAPHCSR_H
+#define GRAPHCSR_H
 
-#include "edgelist.h"
+#include <linux/types.h>
+#include "edgeList.h"
 #include "vertex.h"
+#include "graphConfig.h"
 
-struct Graph{
+struct GraphCSR{
 
 	__u32 num_edges;
 	__u32 num_vertices;
@@ -21,11 +23,11 @@ struct Graph{
 
 };
 
+void graphCSRFree(struct GraphCSR* graphCSR);
+void graphCSRPrint (struct GraphCSR* graphCSR);
+void printGraphCSRParentsArray(struct GraphCSR* graphCSR);
+struct GraphCSR* graphCSRNew(__u32 V, __u32 E,  __u8 inverse);
 
 
-void graphFree(struct Graph* graph);
-void graphPrint (struct Graph* graph);
-void printGraphParentsArray(struct Graph* graph);
-struct Graph* graphNew(__u32 V, __u32 E,  __u8 inverse);
 
 #endif

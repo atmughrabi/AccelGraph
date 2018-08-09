@@ -1,19 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-// #include "adjlist.h"
-#include "capienv.h"
-#include "countsort.h"
-#include "edgelist.h"
-#include "vertex.h"
-#include "mymalloc.h"
-#include "graph.h"
 
-struct Graph* countSortEdgesBySource (struct EdgeList* edgeList){
+#include "countsort.h"
+#include "edgeList.h"
+#include "vertex.h"
+#include "myMalloc.h"
+#include "graphCSR.h"
+
+struct GraphCSR* countSortEdgesBySource (struct EdgeList* edgeList){
 
 	 printf("*** START Count Sort Edges By Source *** \n");
 
-	struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges, 0);
+	struct GraphCSR* graph = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
 
 	#if ALIGNED
 		graph->vertex_count = (__u32*) my_aligned_alloc( edgeList->num_vertices * sizeof(__u32));
@@ -65,9 +64,9 @@ struct Graph* countSortEdgesBySource (struct EdgeList* edgeList){
 
 
 
-struct Graph* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
+struct GraphCSR* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
 
-	struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges, 0);
+	struct GraphCSR* graph = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
 
 
 	return graph;

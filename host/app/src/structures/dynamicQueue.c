@@ -2,12 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <linux/types.h>
 
-// #include <linux/types.h>
-#include "dynamicqueue.h"
-#include "adjlist.h"
-#include "capienv.h"
-#include "mymalloc.h"
+#include "dynamicQueue.h"
+#include "myMalloc.h"
  
 // A utility function to create a new linked list node.
 struct QNode* newQNode(__u32 k)
