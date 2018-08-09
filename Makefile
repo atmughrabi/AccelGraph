@@ -76,6 +76,10 @@ $(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjLi
 	@echo 'making $(GAPP) <- adjLinkedList.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjLinkedList.c
 
+$(APP_DIR)/$(OBJ_DIR)/adjArrayList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjArrayList.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/adjArrayList.h
+	@echo 'making $(GAPP) <- adjLinkedList.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjArrayList.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjArrayList.c
+
 $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicQueue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/dynamicQueue.h
 	@echo 'making $(GAPP) <- dynamicQueue.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicQueue.c
@@ -143,12 +147,14 @@ graphAdjLinkedList: $(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o
 
 adjLinkedList: $(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o
 
+adjArrayList: $(APP_DIR)/$(OBJ_DIR)/adjArrayList.o
+
 dynamicQueue: $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o
 
 BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
 	
-test: adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
-	@echo 'linking $(GAPP) <- adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
+test: adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
+	@echo 'linking $(GAPP) <- adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
@@ -162,6 +168,7 @@ test: adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR gr
 	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/adjArrayList.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/edgeList.o 		\

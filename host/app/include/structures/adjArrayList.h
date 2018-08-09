@@ -1,11 +1,11 @@
-#ifndef ADJLINKEDLIST_H
-#define ADJLINKEDLIST_H
+#ifndef ADJARRAYLIST_H
+#define ADJARRAYLIST_H
 
 #include <linux/types.h>
 
 #include "edgeList.h"
 #include "graphConfig.h"
-#include "graphCSR.h"
+
 
 
 // A structure to represent an adjacency list
@@ -37,7 +37,10 @@ struct __attribute__((__packed__)) AdjArrayList {
 
 
 // A utility function to create a new adjacency list node
-struct AdjArrayListNode* newAdjLinkedList(__u32 src, __u32 dest, __u32 weight);
+void adjArrayListPrint(struct AdjArrayList *adjArrayList);
+struct AdjArrayList * adjArrayListNew();
+struct AdjArrayList * adjArrayListCreateNeighbourList(struct AdjArrayList *adjArrayList);
+void adjArrayListFree(struct AdjArrayList *adjArrayList);
 
 
 #endif
