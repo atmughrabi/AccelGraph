@@ -1,6 +1,8 @@
 # globals
 APP                = test_afu
-GAPP               = test
+# GAPP               = test
+# GAPP               = test_bfs
+GAPP               = test_adjlist
 TEST               = test
 
 # dirs

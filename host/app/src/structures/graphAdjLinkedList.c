@@ -89,7 +89,7 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
     for(i = 0; i < edgeList->num_edges; i++){
 
         #if DIRECTED
-            adjLinkedListAddEdgeUndirected(graphAdjLinkedList, edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);
+            adjLinkedListAddEdgeDirected(graphAdjLinkedList, edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);
         #else
             adjLinkedListAddEdgeUndirected(graphAdjLinkedList, edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);
         #endif
@@ -106,30 +106,53 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
 // representation of graphAdjLinkedList
 void graphAdjLinkedListPrint(struct GraphAdjLinkedList* graphAdjLinkedList){
 
-	__u32 v;
-    for (v = 0; v < graphAdjLinkedList->num_vertices; ++v)
-    {
-        struct AdjLinkedListNode* pCrawl = graphAdjLinkedList->parent_array[v].outNodes;
-        printf("\n Adjacency list of vertex %d\n  out_degree: %d \n", v, graphAdjLinkedList->parent_array[v].out_degree);
-        while (pCrawl)
-        {
-            printf("-> %d", pCrawl->dest);
-            pCrawl = pCrawl->next;
-        }
-        printf("\n");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "GraphAdjLinkedList Properties");
+    printf(" -----------------------------------------------------\n");
+    #if WEIGHTED       
+                printf("| %-51s | \n", "WEIGHTED");
+    #else
+                printf("| %-51s | \n", "UN-WEIGHTED");
+    #endif
+
+    #if DIRECTED
+                printf("| %-51s | \n", "DIRECTED");
+    #else
+                printf("| %-51s | \n", "UN-DIRECTED");
+    #endif
+    printf(" -----------------------------------------------------\n"); 
+    printf("| %-51s | \n", "Number of Vertices (V)");
+    printf("| %-51u | \n", graphAdjLinkedList->num_vertices);
+    printf(" -----------------------------------------------------\n"); 
+    printf("| %-51s | \n", "Number of Edges (E)");
+    printf("| %-51u | \n", graphAdjLinkedList->num_edges);  
+    printf(" -----------------------------------------------------\n");
 
 
-        #if DIRECTED
-	        pCrawl = graphAdjLinkedList->parent_array[v].inNodes;
-	        printf("\n Adjacency list of vertex %d\n  in_degree: %d \n", v, graphAdjLinkedList->parent_array[v].in_degree);
-	        while (pCrawl)
-	        {
-	            printf("-> %d", pCrawl->dest);
-	            pCrawl = pCrawl->next;
-	        }
-	        printf("\n");
-        #endif
-    }
+	// __u32 v;
+ //    for (v = 0; v < graphAdjLinkedList->num_vertices; ++v)
+ //    {
+ //        struct AdjLinkedListNode* pCrawl = graphAdjLinkedList->parent_array[v].outNodes;
+ //        printf("\n Adjacency list of vertex %d\n  out_degree: %d \n", v, graphAdjLinkedList->parent_array[v].out_degree);
+ //        while (pCrawl)
+ //        {
+ //            printf("-> %d", pCrawl->dest);
+ //            pCrawl = pCrawl->next;
+ //        }
+ //        printf("\n");
+
+
+ //        #if DIRECTED
+	//         pCrawl = graphAdjLinkedList->parent_array[v].inNodes;
+	//         printf("\n Adjacency list of vertex %d\n  in_degree: %d \n", v, graphAdjLinkedList->parent_array[v].in_degree);
+	//         while (pCrawl)
+	//         {
+	//             printf("-> %d", pCrawl->dest);
+	//             pCrawl = pCrawl->next;
+	//         }
+	//         printf("\n");
+ //        #endif
+ //    }
 
 
 }
@@ -226,9 +249,11 @@ void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList,
         graphAdjLinkedList->parent_array[dest].in_degree++;  
         graphAdjLinkedList->parent_array[dest].visited = 0;  
         graphAdjLinkedList->parent_array[dest].inNodes = newNode;
+
+         #if WEIGHTED
+            graphAdjLinkedList->parent_array[dest].weight = weight;
+        #endif
     #endif
-    #if WEIGHTED
-        graphAdjLinkedList->parent_array[dest].weight = weight;
-    #endif
+
 
 }

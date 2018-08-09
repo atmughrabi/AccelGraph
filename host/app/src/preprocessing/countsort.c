@@ -8,68 +8,69 @@
 #include "myMalloc.h"
 #include "graphCSR.h"
 
-struct GraphCSR* countSortEdgesBySource (struct EdgeList* edgeList){
+struct EdgeList*  countSortEdgesBySource (struct EdgeList* edgeList){
 
-	 printf("*** START Count Sort Edges By Source *** \n");
 
-	struct GraphCSR* graph = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
-
-	#if ALIGNED
-		graph->vertex_count = (__u32*) my_aligned_alloc( edgeList->num_vertices * sizeof(__u32));
-	#else
-        graph->vertex_count = (__u32*) my_malloc( edgeList->num_vertices * sizeof(__u32));
-    #endif
+	
 	
 	long i;
 	__u32 key;
 	__u32 pos;
+	__u32 num_vertices = edgeList->num_vertices;
+	__u32 num_edges = edgeList->num_edges;
 
+
+	struct Edge* sorted_edges_array = newEdgeArray(num_edges);
+
+	#if ALIGNED
+		__u32* vertex_count = (__u32*) my_aligned_alloc( num_vertices * sizeof(__u32));
+	#else
+        __u32* vertex_count = (__u32*) my_malloc( num_vertices * sizeof(__u32));
+    #endif
 	
 	// count occurrence of key: id of the source vertex
-	for(i = 0; i < graph->num_edges; i++){
+	for(i = 0; i < num_edges; i++){
 		key = edgeList->edges_array[i].src;
-		graph->vertex_count[key]++;
+		vertex_count[key]++;
 	}
-
 
 	// transfrom the cumulative sum
 	
-	for(i = 1; i < graph->num_vertices; i++){
-		graph->vertex_count[i] += graph->vertex_count[i-1];
+	for(i = 1; i < num_vertices; i++){
+		vertex_count[i] += vertex_count[i-1];
 	}
 
 	// fill-in the sorted array of edges
 	
-	for(i = graph->num_edges-1; i >= 0; i--){	
+	for(i = num_edges-1; i >= 0; i--){	
 			
 		key = edgeList->edges_array[i].src;
 		
-		pos = graph->vertex_count[key]-1;
+		pos = vertex_count[key]-1;
 		
-		graph->sorted_edges_array[pos] = edgeList->edges_array[i];
+		sorted_edges_array[pos] = edgeList->edges_array[i];
 		
-
-		graph->vertex_count[key]--;
+		vertex_count[key]--;
 		
 	}
 
 
-	graph = mapVertices (graph, 0);
+	free(vertex_count);
+	freeEdgeArray(edgeList->edges_array);
 
-	printf("DONE Count Sort Edges By Source \n");
-	// graphPrint(graph);
-	return graph;
+	edgeList->edges_array = sorted_edges_array;
+
+	return edgeList;
 
 }
 
 
 
-struct GraphCSR* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
-
-	struct GraphCSR* graph = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
+struct EdgeList*  countSortEdgesBySourceAndDestination (struct EdgeList* edgeList){
 
 
-	return graph;
+
+	return edgeList;
 }
 
 

@@ -14,15 +14,11 @@ void graphCSRFree (struct GraphCSR* graphCSR){
 
 	if(graphCSR->vertices)
 		freeVertexArray(graphCSR->vertices);
-	if(graphCSR->vertex_count)
-		free(graphCSR->vertex_count);
 	if(graphCSR->parents)
 		free(graphCSR->parents);
 	if(graphCSR->sorted_edges_array)
 		freeEdgeArray(graphCSR->sorted_edges_array);
-	if(graphCSR)
-		free(graphCSR);
-
+	
 
 	#if DIRECTED
 		if(graphCSR->inverse_vertices)
@@ -30,6 +26,10 @@ void graphCSRFree (struct GraphCSR* graphCSR){
 		if(graphCSR->inverse_sorted_edges_array)
 			freeEdgeArray(graphCSR->inverse_sorted_edges_array);
 	#endif
+
+
+	if(graphCSR)
+		free(graphCSR);
 
 }
 
@@ -115,20 +115,13 @@ struct GraphCSR* graphCSRNew(__u32 V, __u32 E, __u8 inverse){
      for(i = 0; i < V; i++){
                 graphCSR->parents[i] = -1;
      }
-	// graphCSR->vertex_count = (__u32*) aligned_alloc(CACHELINE_BYTES, V * sizeof(__u32));
 	
-	graphCSR->sorted_edges_array = newEdgeArray(E);
-
-	#if DIRECTED
-		if (inverse)
-			graphCSR->inverse_sorted_edges_array = newEdgeArray(E);
-	#endif
 
 
     return graphCSR;
 }
 
-void printGraphCSRParentsArray(struct GraphCSR* graphCSR){
+void graphCSRPrintParentsArray(struct GraphCSR* graphCSR){
 
 
     __u32 i;
@@ -142,4 +135,26 @@ void printGraphCSRParentsArray(struct GraphCSR* graphCSR){
     
     }
 
+}
+
+
+struct GraphCSR* graphCSRAssignEdgeList (struct GraphCSR* graphCSR, struct EdgeList* edgeList, __u8 inverse){
+
+
+	#if DIRECTED
+	    
+	    if(inverse)
+	        graphCSR->inverse_sorted_edges_array = edgeList->edges_array;
+	    else
+	        graphCSR->sorted_edges_array = edgeList->edges_array;
+
+    #else
+
+      	graphCSR->sorted_edges_array = edgeList->edges_array;
+    
+    #endif
+
+  
+	return mapVerticesWithInOutDegree (graphCSR,inverse);   
+    
 }

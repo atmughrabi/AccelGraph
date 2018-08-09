@@ -4,17 +4,21 @@
 #include "libcxl.h"
 
 #include "capienv.h"
-#include "adjlinkedlist.h" 
-#include "dynamicqueue.h"
-#include "edgelist.h"
+#include "adjLinkedList.h" 
+#include "dynamicQueue.h"
+#include "edgeList.h"
 
+//edgelist prerpcessing
 #include "countsort.h"
 #include "radixsort.h"
-#include "graph.h"
+
+
+#include "graphCSR.h"
+#include "graphAdjLinkedList.h"
+
 #include "vertex.h"
 #include "timer.h"
 #include "BFS.h"
-
 
 void printMessageWithtime(const char * msg, double time){
 
@@ -68,59 +72,43 @@ int main()
         printMessageWithtime("Read Inverse Edge List List From File (Seconds)",Seconds(timer));
     #endif
 
-    struct Graph* graph_radixSort = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
-    
+    #if DIRECTED
+        struct GraphCSR* graph_radixSort = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
+    #else
+        struct GraphCSR* graph_radixSort = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
+    #endif
 
-    // Start(timer);
-    // struct GraphAdjList* graph_adjList = adjListCreateGraphEdgeList(edgeList);
-    // Stop(timer);
-    // printf("adjacency Linked List Edges By Source : %f Seconds \n",Seconds(timer));
-
-    // adjListFreeGraph(graph_adjList);
-
-    // Start(timer);
-    // struct Graph* graph_countSort = countSortEdgesBySource(edgeList);
-    // Stop(timer);
-    // printf("Count Sort Edges By Source : %f Seconds \n",Seconds(timer));
-
-    // countSortedFreeGraph(graph_countSort);
-
-    Start(timer);
-    graph_radixSort = radixSortEdgesBySourceOptimized(graph_radixSort, edgeList, 0);
-    Stop(timer);
-    printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
     
    
-    #if DIRECTED
+    Start(timer);
+    edgeList = radixSortEdgesBySourceOptimized(edgeList);
+    Stop(timer);
+    printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+
+
+     #if DIRECTED
         Start(timer);
-        graph_radixSort = radixSortEdgesBySourceOptimized(graph_radixSort, inverse_edgeList, 1);
+        inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
         Stop(timer);
         printMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
     #endif
+    
+    // edgeListPrint(inverse_edgeList);
 
     Start(timer);
-    graph_radixSort = mapVerticesWithInOutDegree (graph_radixSort,0);
+    graph_radixSort = graphCSRAssignEdgeList (graph_radixSort,edgeList, 0);
     Stop(timer);
     printMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
 
     #if DIRECTED
         Start(timer);
-        graph_radixSort = mapVerticesWithInOutDegree (graph_radixSort,1);
+        graph_radixSort = graphCSRAssignEdgeList (graph_radixSort,inverse_edgeList, 1);
         Stop(timer);
         printMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
     #endif
 
-    graphPrint(graph_radixSort);
-    // Start(timer);
-    // struct Graph* graph_radixSort = radixSortEdgesBySourceAndDestination(edgeList);
-    // Stop(timer);
-    // printf("Radix Sort Edges By Source : %f Seconds \n",Seconds(timer));
-
-
-    // Start(timer);
-    // bfs(428333, graph_radixSort);
-    // Stop(timer);
-    // printf("BFS with array queue : %f Seconds \n",Seconds(timer));
+    graphCSRPrint(graph_radixSort);
+    
 
     Start(timer);
     breadthFirstSearch(428333, graph_radixSort);
@@ -131,7 +119,7 @@ int main()
 
     // printGraphParentsArray(graph_radixSort);
 
-    graphFree(graph_radixSort);
+    graphCSRFree(graph_radixSort);
     // freeEdgeList(edgeList);
 
     // edgeListPrint(edgeList);

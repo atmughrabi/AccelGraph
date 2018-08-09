@@ -9,8 +9,8 @@
 
 
 
-struct GraphCSR* countSortEdgesBySource (struct EdgeList* edgeList);
-struct GraphCSR* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
+struct EdgeList* countSortEdgesBySource (struct EdgeList* edgeList);
+struct EdgeList* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
 
 
 #endif
