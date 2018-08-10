@@ -23,7 +23,7 @@ struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V);
 struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeList);
 void graphAdjLinkedListPrint(struct GraphAdjLinkedList* graphAdjLinkedList);
 void graphAdjLinkedListFree(struct GraphAdjLinkedList* graphAdjLinkedList);
-void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedList, __u32 src, __u32 dest, __u32 weight);
-void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList, __u32 src, __u32 dest, __u32 weight);
+void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge);
+void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge);
 
 #endif

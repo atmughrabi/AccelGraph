@@ -12,21 +12,25 @@
 void adjArrayListPrint(struct AdjArrayList *adjArrayList){
 
         __u32 i;
-        struct Edge* pCrawl = adjArrayList->outNodes;
+        struct Edge* pCrawl;
+        if(adjArrayList->out_degree){
+        pCrawl = adjArrayList->outNodes;
         for (i = 0; i < adjArrayList->out_degree; ++i)
         {
              printf("-> %d", pCrawl[i].dest);
         }
         printf("\n");
-
+        }
 
         #if DIRECTED
+        if(adjArrayList->in_degree){
          pCrawl = adjArrayList->inNodes;
          for (i = 0; i < adjArrayList->in_degree; ++i)
         {
-            printf("-> %d", pCrawl[i].dest);
+            printf("<- %d", pCrawl[i].src);
         }
             printf("\n");
+        }
         #endif
     
 }

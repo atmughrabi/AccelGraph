@@ -7,16 +7,16 @@
 // A structure to represent an edge
 struct  __attribute__((__packed__)) Edge {
 
-	__u32 dest;
 	__u32 src;
-	#ifdef WEIGHTED
+	__u32 dest;
+	#if WEIGHTED
 	__u32 weight;
 	#endif
 
 };
 
 
-struct EdgeList {
+struct __attribute__((__packed__)) EdgeList {
 
 	__u32 num_edges;
 	__u32 num_vertices;
@@ -39,6 +39,7 @@ void edgeListPrint(struct EdgeList* edgeList);
 void freeEdgeList( struct EdgeList* edgeList);
 void freeEdgeArray(struct Edge* edges_array);
 
+struct Edge* swapEdgeSrcDest(struct Edge* edge);
 struct Edge* newEdgeArray(__u32 num_edges);
 void readEdgeListstxt(const char * fname);
 struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse);

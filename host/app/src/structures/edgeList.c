@@ -25,6 +25,7 @@ __u32 maxTwoIntegers(__u32 num1, __u32 num2){
 
 }
 
+
 // read edge file to edge_array in memory
 struct EdgeList* newEdgeList( __u32 num_edges){
 
@@ -68,8 +69,10 @@ struct Edge* newEdgeArray(__u32 num_edges){
 
                 edges_array[i].dest = 0;
                 edges_array[i].src = 0;  
-                edges_array[i].weight = 0;
-
+                
+                #if WEIGHTED
+                    edges_array[i].weight = 0;
+                #endif
         }
 
         return edges_array;

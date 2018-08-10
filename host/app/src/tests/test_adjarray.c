@@ -15,6 +15,7 @@
 
 #include "graphCSR.h"
 #include "graphAdjLinkedList.h"
+#include "graphAdjArrayList.h"
 
 #include "vertex.h"
 #include "timer.h"
@@ -65,17 +66,23 @@ int main()
     // edgeListPrint(edgeList);
     printMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
-    Start(timer); 
-    struct GraphAdjLinkedList* graph = graphAdjLinkedListEdgeListNew(edgeList);
+    Start(timer);
+    edgeList = radixSortEdgesBySourceOptimized(edgeList);
     Stop(timer);
-    printMessageWithtime("Create Adj Linked List from EdgeList (Seconds)",Seconds(timer));
-  
-    // graphAdjLinkedListPrint(graph);
+    printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
     Start(timer); 
-    graphAdjLinkedListFree(graph);
+    struct GraphAdjArrayList* graph = graphAdjArrayListEdgeListNew(edgeList);
     Stop(timer);
-    printMessageWithtime("Free Graph Adjacency Linked List (Seconds)",Seconds(timer));
+    printMessageWithtime("Create Adj Array List from EdgeList (Seconds)",Seconds(timer));
+  
+
+    graphAdjArrayListPrint(graph);
+
+    Start(timer); 
+    graphAdjArrayListFree(graph);
+    Stop(timer);
+    printMessageWithtime("Free Graph Adjacency Array List (Seconds)",Seconds(timer));
   
  
     return 0;

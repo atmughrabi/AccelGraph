@@ -50,7 +50,7 @@ struct __attribute__((__packed__)) AdjLinkedList {
 
 
 // A utility function to create a new adjacency list node
-struct AdjLinkedListNode* newAdjLinkedListNode(__u32 src, __u32 dest, __u32 weight);
-
+struct AdjLinkedListNode* newAdjLinkedListOutNode(struct Edge * edge);
+struct AdjLinkedListNode* newAdjLinkedListInNode(struct Edge * edge);
 
 #endif

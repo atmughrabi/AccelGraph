@@ -84,14 +84,15 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
         #endif
 
         graphAdjLinkedList->parent_array[i].visited = 0;
-    }
-   
+    }   
+
+
     for(i = 0; i < edgeList->num_edges; i++){
 
         #if DIRECTED
-            adjLinkedListAddEdgeDirected(graphAdjLinkedList, edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);
+            adjLinkedListAddEdgeDirected(graphAdjLinkedList, &(edgeList->edges_array[i]));
         #else
-            adjLinkedListAddEdgeUndirected(graphAdjLinkedList, edgeList->edges_array[i].src, edgeList->edges_array[i].dest, edgeList->edges_array[i].weight);
+            adjLinkedListAddEdgeUndirected(graphAdjLinkedList, &(edgeList->edges_array[i]));
         #endif
 
 
@@ -147,7 +148,7 @@ void graphAdjLinkedListPrint(struct GraphAdjLinkedList* graphAdjLinkedList){
 	//         printf("\n Adjacency list of vertex %d\n  in_degree: %d \n", v, graphAdjLinkedList->parent_array[v].in_degree);
 	//         while (pCrawl)
 	//         {
-	//             printf("-> %d", pCrawl->dest);
+	//             printf("<- %d", pCrawl->dest);
 	//             pCrawl = pCrawl->next;
 	//         }
 	//         printf("\n");
@@ -202,56 +203,56 @@ void graphAdjLinkedListFree(struct GraphAdjLinkedList* graphAdjLinkedList){
 
 
 // Adds an edge to an undirected graphAdjLinkedList
-void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedList, __u32 src, __u32 dest, __u32 weight){
+void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge){
 
 	// Add an edge from src to dest.  A new node is 
     // added to the adjacency list of src.  The node
     // is added at the begining
-    struct AdjLinkedListNode* newNode = newAdjLinkedListNode(src,dest,weight);
-    newNode->next = graphAdjLinkedList->parent_array[src].outNodes;
-    graphAdjLinkedList->parent_array[src].out_degree++;
-    graphAdjLinkedList->parent_array[src].visited = 0;
-    graphAdjLinkedList->parent_array[src].outNodes = newNode;
+    struct AdjLinkedListNode* newNode = newAdjLinkedListOutNode(edge);
+    newNode->next = graphAdjLinkedList->parent_array[edge->src].outNodes;
+    graphAdjLinkedList->parent_array[edge->src].out_degree++;
+    graphAdjLinkedList->parent_array[edge->src].visited = 0;
+    graphAdjLinkedList->parent_array[edge->src].outNodes = newNode;
     #if WEIGHTED
-        graphAdjLinkedList->parent_array[src].weight = weight;
+        graphAdjLinkedList->parent_array[edge->src].weight = edge->weight;
     #endif
 
     // Since graphAdjLinkedList is undirected, add an edge from
     // dest to src also
-    newNode = newAdjLinkedListNode(dest,src,weight);
-    newNode->next = graphAdjLinkedList->parent_array[dest].outNodes;
-    graphAdjLinkedList->parent_array[dest].out_degree++;  
-    graphAdjLinkedList->parent_array[dest].visited = 0;
-    graphAdjLinkedList->parent_array[dest].outNodes = newNode;
+    newNode = newAdjLinkedListInNode(edge);
+    newNode->next = graphAdjLinkedList->parent_array[edge->dest].outNodes;
+    graphAdjLinkedList->parent_array[edge->dest].out_degree++;  
+    graphAdjLinkedList->parent_array[edge->dest].visited = 0;
+    graphAdjLinkedList->parent_array[edge->dest].outNodes = newNode;
     #if WEIGHTED
-        graphAdjLinkedList->parent_array[dest].weight = weight;
+        graphAdjLinkedList->parent_array[edge->dest].weight = edge->weight;
     #endif
 
 }
 // Adds an edge to a directed graphAdjLinkedList
-void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList, __u32 src, __u32 dest, __u32 weight){
+void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge){
 
     // Add an edge from src to dest.  A new node is 
     // added to the adjacency list of src.  The node
     // is added at the begining
-    struct AdjLinkedListNode* newNode = newAdjLinkedListNode(src,dest,weight);
-    newNode->next = graphAdjLinkedList->parent_array[src].outNodes;
-    graphAdjLinkedList->parent_array[src].out_degree++;  
-    graphAdjLinkedList->parent_array[src].visited = 0;   
-    graphAdjLinkedList->parent_array[src].outNodes = newNode;
+    struct AdjLinkedListNode* newNode = newAdjLinkedListOutNode(edge);
+    newNode->next = graphAdjLinkedList->parent_array[edge->src].outNodes;
+    graphAdjLinkedList->parent_array[edge->src].out_degree++;  
+    graphAdjLinkedList->parent_array[edge->src].visited = 0;   
+    graphAdjLinkedList->parent_array[edge->src].outNodes = newNode;
     #if WEIGHTED
-        graphAdjLinkedList->parent_array[src].weight = weight;
+        graphAdjLinkedList->parent_array[edge->src].weight = weight;
     #endif
 
     #if DIRECTED
-        newNode = newAdjLinkedListNode(dest,src,weight);
-        newNode->next = graphAdjLinkedList->parent_array[dest].inNodes;
-        graphAdjLinkedList->parent_array[dest].in_degree++;  
-        graphAdjLinkedList->parent_array[dest].visited = 0;  
-        graphAdjLinkedList->parent_array[dest].inNodes = newNode;
+        newNode = newAdjLinkedListInNode(edge);
+        newNode->next = graphAdjLinkedList->parent_array[edge->dest].inNodes;
+        graphAdjLinkedList->parent_array[edge->dest].in_degree++;  
+        graphAdjLinkedList->parent_array[edge->dest].visited = 0;  
+        graphAdjLinkedList->parent_array[edge->dest].inNodes = newNode;
 
          #if WEIGHTED
-            graphAdjLinkedList->parent_array[dest].weight = weight;
+            graphAdjLinkedList->parent_array[edge->dest].weight = edge->weight;
         #endif
     #endif
 
