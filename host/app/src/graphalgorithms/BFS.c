@@ -292,7 +292,7 @@ __u32 bottomUpStep(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 		    		for(j = edge_idx_inverse ; j < (edge_idx_inverse + out_degree_inverse) ; j++){
 
-		    			 u = graph->inverse_sorted_edges_array[j].dest;
+		    			 u = graph->inverse_sorted_edges_array[j].dest; // this is the inverse if the src is in frontier let the vertex update.
 		    			 // printf("u: %u \n",u );
 		    			 if(isEnArrayQueued(frontier, u)){
 		    			 	// printf("***infrontier u: %u \n",u );

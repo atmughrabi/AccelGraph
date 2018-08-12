@@ -40,6 +40,8 @@ struct __attribute__((__packed__)) AdjArrayList {
 void adjArrayListPrint(struct AdjArrayList *adjArrayList);
 struct AdjArrayList * adjArrayListNew();
 struct AdjArrayList * adjArrayListCreateNeighbourList(struct AdjArrayList *adjArrayList);
+struct AdjArrayList * adjArrayListCreateNeighbourListOutNodes(struct AdjArrayList *adjArrayList);
+struct AdjArrayList * adjArrayListCreateNeighbourListInNodes(struct AdjArrayList *adjArrayList);
 void adjArrayListFree(struct AdjArrayList *adjArrayList);
 
 

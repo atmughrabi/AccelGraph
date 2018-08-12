@@ -42,9 +42,9 @@ int main()
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
 
-    // const char * fnameb = "host/app/datasets/test/test.txt.bin";
+    const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
+    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
@@ -69,13 +69,13 @@ int main()
         struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
         Stop(timer);
         // edgeListPrint(inverse_edgeList);
-        printMessageWithtime("Read Inverse Edge List List From File (Seconds)",Seconds(timer));
+        printMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
     #endif
 
     #if DIRECTED
-        struct GraphCSR* graph_radixSort = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
+        struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
     #else
-        struct GraphCSR* graph_radixSort = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
+        struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
     #endif
 
     
@@ -96,65 +96,34 @@ int main()
     // edgeListPrint(inverse_edgeList);
 
     Start(timer);
-    graph_radixSort = graphCSRAssignEdgeList (graph_radixSort,edgeList, 0);
+    graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
     Stop(timer);
     printMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
 
     #if DIRECTED
         Start(timer);
-        graph_radixSort = graphCSRAssignEdgeList (graph_radixSort,inverse_edgeList, 1);
+        graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);
         Stop(timer);
         printMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
     #endif
 
-    graphCSRPrint(graph_radixSort);
+    graphCSRPrint(graphCSR);
     
 
     Start(timer);
-    breadthFirstSearch(428333, graph_radixSort);
-    // breadthFirstSearch(6, graph_radixSort);
+    breadthFirstSearch(428333, graphCSR);
+    // breadthFirstSearch(6, graphCSR);
     Stop(timer);
     printMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
 
 
-    // printGraphParentsArray(graph_radixSort);
+    // printGraphParentsArray(graphCSR);
 
-    graphCSRFree(graph_radixSort);
-    // freeEdgeList(edgeList);
-
-    // edgeListPrint(edgeList);
-    // countSortedGraphPrint(graph_countSort);
-    // radixSortedGraphPrint(graph2);
-    
-    // int weight = 1;
-
-    // adjListAddEdgeDirected(graph, 0, 1,weight);
-    // adjListAddEdgeDirected(graph, 0, 4,weight);
-    // adjListAddEdgeDirected(graph, 1, 2,weight);
-    // adjListAddEdgeDirected(graph, 1, 3,weight);
-    // adjListAddEdgeDirected(graph, 1, 4,weight);
-    // adjListAddEdgeDirected(graph, 2, 3,weight);
-    // adjListAddEdgeDirected(graph, 3, 4,weight);
-
-
-    // Driver Program to test queue functions
-   
-    
-    // enQueue(q, 10);
-    // enQueue(q, 20);
-    // deQueue(q);
-    // deQueue(q);
-    // enQueue(q, 30);
-    // enQueue(q, 40);
-    // enQueue(q, 50);
-    // struct QNode *n = deQueue(q);
-    // if (n != NULL)
-    //   printf("Dequeued item is %d", n->key);
-   
-
- 
-    // print the adjacency list representation of the above graph
-    // adjListPrintGraph(graph);
- 
+    graphCSRFree(graphCSR);
+    freeEdgeList(edgeList);
+    #if DIRECTED
+        freeEdgeList(inverse_edgeList);
+    #endif
+    free(timer);
     return 0;
 }

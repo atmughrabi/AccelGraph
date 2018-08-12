@@ -4,6 +4,7 @@ APP                = test_afu
 # GAPP               = test_bfs
 # GAPP               = test_adjlist
 GAPP               = test_adjarray
+# GAPP               = test_grid
 TEST               = test
 
 # dirs
@@ -31,7 +32,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 		-I$(APP_DIR)/include/$(UTIL_DIR)/   \
 # flags
-CFLAGS            = -O2 -Wall -m64 -g
+CFLAGS            = -O0 -Wall -m64 -g
 
 all: test
 
@@ -72,6 +73,10 @@ $(APP_DIR)/$(OBJ_DIR)/countsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort
 $(APP_DIR)/$(OBJ_DIR)/vertex.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/vertex.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/vertex.h
 	@echo 'making $(GAPP) <- vertex.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/vertex.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/vertex.c
+
+$(APP_DIR)/$(OBJ_DIR)/grid.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/grid.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/grid.h
+	@echo 'making $(GAPP) <- grid.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/grid.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/grid.c
 
 $(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjLinkedList.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/adjLinkedList.h
 	@echo 'making $(GAPP) <- adjLinkedList.o'
@@ -148,6 +153,8 @@ edgeList: $(APP_DIR)/$(OBJ_DIR)/edgeList.o
 
 graphCSR: $(APP_DIR)/$(OBJ_DIR)/graphCSR.o
 
+grid: $(APP_DIR)/$(OBJ_DIR)/grid.o
+
 graphAdjLinkedList: $(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o
 
 graphAdjArrayList: $(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o
@@ -160,7 +167,7 @@ dynamicQueue: $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o
 
 BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
 	
-test: graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
+test: grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
 	@echo 'linking $(GAPP) <- graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
@@ -168,6 +175,7 @@ test: graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countso
 	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/graphCSR.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/grid.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\

@@ -9,7 +9,18 @@
 #include "graphAdjArrayList.h"
 #include "graphConfig.h"
 #include "adjArrayList.h"
+#include "timer.h"
 
+
+void graphAdjArrayListPrintMessageWithtime(const char * msg, double time){
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", msg);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", time);
+    printf(" -----------------------------------------------------\n");
+
+}
 
 
 
@@ -73,6 +84,60 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeListNew(struct EdgeList* edgeList
 
 }
 
+struct GraphAdjArrayList* graphAdjArrayListEdgeListNewWithInverse(struct EdgeList* edgeList, struct EdgeList* inverseEdgeList){
+
+    struct Timer* timer = (struct Timer*) my_malloc( sizeof(struct Timer));
+
+    struct GraphAdjArrayList* graphAdjArrayList;
+
+    Start(timer);
+    graphAdjArrayList = graphAdjArrayListGraphNew(edgeList->num_vertices);
+    
+    graphAdjArrayList->num_edges = edgeList->num_edges;
+    Stop(timer);
+    graphAdjArrayListPrintMessageWithtime("Graph AdjArrayList New (Seconds)",Seconds(timer));
+
+    
+
+    Start(timer);
+    graphAdjArrayList = graphAdjArrayListEdgeListProcessOutDegree(graphAdjArrayList, edgeList);
+    Stop(timer);
+    graphAdjArrayListPrintMessageWithtime("Graph EdgeList Process OutDegree (Seconds)",Seconds(timer));
+
+    #if DIRECTED
+        Start(timer);
+        graphAdjArrayList = graphAdjArrayListEdgeListProcessInDegree(graphAdjArrayList, inverseEdgeList);
+        Stop(timer);
+        graphAdjArrayListPrintMessageWithtime("Graph EdgeList Process InDegree (Seconds)",Seconds(timer));
+    #endif
+
+    Start(timer);
+    graphAdjArrayList = graphAdjArrayListEdgeAllocate(graphAdjArrayList);
+    Stop(timer);
+    graphAdjArrayListPrintMessageWithtime("Graph Edge Allocate Memory (Seconds)",Seconds(timer));
+
+    Start(timer);
+    graphAdjArrayList = graphAdjArrayListEdgePopulateOutNodes(graphAdjArrayList, edgeList);
+    Stop(timer);
+    graphAdjArrayListPrintMessageWithtime("Graph Populate OutNodes (Seconds)",Seconds(timer));
+
+    #if DIRECTED
+        Start(timer);
+        graphAdjArrayList = graphAdjArrayListEdgePopulateInNodes(graphAdjArrayList, inverseEdgeList);
+        Stop(timer);
+        graphAdjArrayListPrintMessageWithtime("Graph Populate InNodes (Seconds)",Seconds(timer));
+    #endif
+
+
+    free(timer);
+    return graphAdjArrayList;
+
+
+
+}
+
+
+
 struct GraphAdjArrayList* graphAdjArrayListEdgeListProcessInOutDegree(struct GraphAdjArrayList* graphAdjArrayList, struct EdgeList* edgeList){
 
      __u32 i;
@@ -99,6 +164,42 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeListProcessInOutDegree(struct Gra
 
 }
 
+struct GraphAdjArrayList* graphAdjArrayListEdgeListProcessOutDegree(struct GraphAdjArrayList* graphAdjArrayList, struct EdgeList* edgeList){
+
+     __u32 i;
+     __u32 src;
+
+    for(i = 0; i < edgeList->num_edges; i++){
+
+        src =  edgeList->edges_array[i].src;
+        graphAdjArrayList->parent_array[src].out_degree++;
+    
+    
+    }
+
+    return graphAdjArrayList;
+
+}
+
+struct GraphAdjArrayList* graphAdjArrayListEdgeListProcessInDegree(struct GraphAdjArrayList* graphAdjArrayList, struct EdgeList* inverseEdgeList){
+
+     __u32 i;
+    __u32 dest;
+    
+
+    for(i = 0; i < inverseEdgeList->num_edges; i++){
+
+        dest =  inverseEdgeList->edges_array[i].src;
+        graphAdjArrayList->parent_array[dest].in_degree++;
+    
+    }
+
+    return graphAdjArrayList;
+
+}
+
+
+
 
 struct GraphAdjArrayList* graphAdjArrayListEdgeAllocate(struct GraphAdjArrayList* graphAdjArrayList){
 
@@ -117,6 +218,7 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeAllocate(struct GraphAdjArrayList
     return graphAdjArrayList;
 
 }
+
 
 
 
@@ -157,6 +259,50 @@ struct GraphAdjArrayList* graphAdjArrayListEdgePopulate(struct GraphAdjArrayList
 }
 
 
+struct GraphAdjArrayList* graphAdjArrayListEdgePopulateOutNodes(struct GraphAdjArrayList* graphAdjArrayList, struct EdgeList* edgeList){
+
+     __u32 i;
+     __u32 src;
+     __u32 out_degree;
+    
+
+    for(i = 0; i < edgeList->num_edges; i++){
+
+        src =  edgeList->edges_array[i].src;
+                 
+        out_degree = graphAdjArrayList->parent_array[src].out_degree;
+        graphAdjArrayList->parent_array[src].outNodes[out_degree] = edgeList->edges_array[i];
+        graphAdjArrayList->parent_array[src].out_degree++;  
+    
+    }
+
+    return graphAdjArrayList;
+
+}
+
+
+struct GraphAdjArrayList* graphAdjArrayListEdgePopulateInNodes(struct GraphAdjArrayList* graphAdjArrayList, struct EdgeList* inverseEdgeList){
+
+     __u32 i;
+     __u32 dest;
+     __u32 in_degree;
+   
+
+    for(i = 0; i < inverseEdgeList->num_edges; i++){
+
+            dest = inverseEdgeList->edges_array[i].src;
+            in_degree = graphAdjArrayList->parent_array[dest].in_degree;
+            graphAdjArrayList->parent_array[dest].inNodes[in_degree] = inverseEdgeList->edges_array[i];
+            graphAdjArrayList->parent_array[dest].in_degree++;
+    
+    }
+
+    return graphAdjArrayList;
+
+}
+
+
+
 // // A utility function to print the adjacency list 
 // // representation of graphAdjArrayList
 void graphAdjArrayListPrint(struct GraphAdjArrayList* graphAdjArrayList){
@@ -183,18 +329,18 @@ void graphAdjArrayListPrint(struct GraphAdjArrayList* graphAdjArrayList){
     printf("| %-51u | \n", graphAdjArrayList->num_edges);  
     printf(" -----------------------------------------------------\n");
 
-    // struct AdjArrayList* pCrawl;
-    // __u32 v;
-    // for (v = 0; v < graphAdjArrayList->num_vertices; v++){
+    struct AdjArrayList* pCrawl;
+    __u32 v;
+    for (v = 0; v < graphAdjArrayList->num_vertices; v++){
 
-    //     pCrawl = &(graphAdjArrayList->parent_array[v]);
-    //     if(pCrawl){
+        pCrawl = &(graphAdjArrayList->parent_array[v]);
+        if(pCrawl){
 
-    //         printf("| %-51d | \n", v);
-    //         adjArrayListPrint(pCrawl);
-    //     }
+            printf("\n Node : %d \n", v);
+            adjArrayListPrint(pCrawl);
+        }
 
-    // }
+    }
 
 }
 

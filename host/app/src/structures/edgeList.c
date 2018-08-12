@@ -209,8 +209,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         // #endif
 
 
-        #if DIRECTED
-                                       
+        #if DIRECTED                                    
                     struct EdgeList* edgeList = newEdgeList(num_edges-1);
         #else
                     struct EdgeList* edgeList = newEdgeList((num_edges-1)*2);

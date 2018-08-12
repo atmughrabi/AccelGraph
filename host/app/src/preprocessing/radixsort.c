@@ -198,7 +198,7 @@ struct EdgeList* radixSortEdgesBySourceOptimized (struct EdgeList* edgeList){
 	__u32 radix = 4;  // 32/8 8 bit radix needs 4 iterations
 	__u32 buckets = 256; // 2^radix = 256 buckets
 	__u32 num_edges = edgeList->num_edges;
-    __u32* vertex_count;
+    __u32* vertex_count = NULL;
 
 
 	__u32 t4 = 0, t3 = 0, t2 = 0, t1 = 0;
@@ -213,6 +213,12 @@ struct EdgeList* radixSortEdgesBySourceOptimized (struct EdgeList* edgeList){
 	#else
         vertex_count = (__u32*) my_malloc( radix * buckets * sizeof(__u32));
     #endif
+
+    for(i=0; i < (radix * buckets); i++){
+
+        vertex_count[i] = 0;
+
+    }
 
 
 	 for (i = 0; i < num_edges; i++) {       /* generate histograms */

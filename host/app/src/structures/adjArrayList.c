@@ -27,7 +27,7 @@ void adjArrayListPrint(struct AdjArrayList *adjArrayList){
          pCrawl = adjArrayList->inNodes;
          for (i = 0; i < adjArrayList->in_degree; ++i)
         {
-            printf("<- %d", pCrawl[i].src);
+            printf("<- %d", pCrawl[i].dest);
         }
             printf("\n");
         }
@@ -63,6 +63,26 @@ struct AdjArrayList * adjArrayListCreateNeighbourList(struct AdjArrayList *adjAr
         #if DIRECTED
             adjArrayList->inNodes = newEdgeArray(adjArrayList->in_degree);
         #endif
+
+        return adjArrayList;
+}
+
+struct AdjArrayList * adjArrayListCreateNeighbourListOutNodes(struct AdjArrayList *adjArrayList){
+       
+       
+      
+        adjArrayList->outNodes = newEdgeArray(adjArrayList->out_degree);
+
+        return adjArrayList;
+}
+
+
+struct AdjArrayList * adjArrayListCreateNeighbourListInNodes(struct AdjArrayList *adjArrayList){
+       
+       
+      
+        adjArrayList->inNodes = newEdgeArray(adjArrayList->in_degree);
+    
 
         return adjArrayList;
 }
