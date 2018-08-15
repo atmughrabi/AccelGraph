@@ -1,28 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "libcxl.h"
 
+#include "libcxl.h"
 #include "capienv.h"
+
 #include "adjLinkedList.h" 
 #include "dynamicQueue.h"
 #include "edgeList.h"
 
-//edgelist prerpcessing
 #include "countsort.h"
 #include "radixsort.h"
-
 
 #include "graphCSR.h"
 #include "graphAdjLinkedList.h"
 #include "graphAdjArrayList.h"
+#include "graphGrid.h"
 
 #include "vertex.h"
 #include "timer.h"
 #include "BFS.h"
 
 
-#include "grid.h"
+
 
 
 void printMessageWithtime(const char * msg, double time){
@@ -46,10 +46,10 @@ int main()
     // const char * fname = "host/app/datasets/twitter/twitter_rv.txt";
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
-
-    const char * fnameb = "host/app/datasets/test/test.txt.bin";
+// /
+    // const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
+    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
@@ -75,17 +75,17 @@ int main()
     printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
     Start(timer); 
-    struct Grid * grid = gridNew(edgeList);
+    struct GraphGrid * graphGrid = graphGridNew(edgeList);
     Stop(timer);
-    printMessageWithtime("Create Grid EdgeList (Seconds)",Seconds(timer));
+    printMessageWithtime("Create Graph Grid (Seconds)",Seconds(timer));
   
     freeEdgeList(edgeList);
 
-    
-    gridPrint(grid);
+
+    graphGridPrint(graphGrid);
 
     Start(timer); 
-    gridFree(grid);
+    graphGridFree(graphGrid);
     Stop(timer);
     printMessageWithtime("Free Graph Grid (Seconds)",Seconds(timer));
 

@@ -8,7 +8,6 @@
 #include "vertex.h"
 #include "myMalloc.h"
 #include "graphConfig.h"
-#include "radixsort.h"
 
 
 void gridPrint(struct Grid *grid){

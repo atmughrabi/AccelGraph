@@ -110,6 +110,10 @@ $(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/g
 	@echo 'making $(GAPP) <- graphAdjArrayList.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graphAdjArrayList.c
 
+$(APP_DIR)/$(OBJ_DIR)/graphGrid.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graphGrid.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/graphGrid.h
+	@echo 'making $(GAPP) <- graphGrid.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/graphGrid.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/graphGrid.c
+
 $(APP_DIR)/$(OBJ_DIR)/bitmap.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/bitmap.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/bitmap.h
 	@echo 'making $(GAPP) <- bitmap.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/bitmap.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/bitmap.c
@@ -159,6 +163,8 @@ graphAdjLinkedList: $(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o
 
 graphAdjArrayList: $(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o
 
+graphGrid: $(APP_DIR)/$(OBJ_DIR)/graphGrid.o
+
 adjLinkedList: $(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o
 
 adjArrayList: $(APP_DIR)/$(OBJ_DIR)/adjArrayList.o
@@ -167,8 +173,8 @@ dynamicQueue: $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o
 
 BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
 	
-test: grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
-	@echo 'linking $(GAPP) <- graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
+test: graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
+	@echo 'linking $(GAPP) <- graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
@@ -178,6 +184,7 @@ test: grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList co
 	$(APP_DIR)/$(OBJ_DIR)/grid.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/graphGrid.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/myMalloc.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
