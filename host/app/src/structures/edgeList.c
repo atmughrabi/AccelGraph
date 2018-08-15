@@ -188,26 +188,6 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         #endif
 
         __u32 num_edges = (__u64)fs.st_size/((offset)*sizeof(__u32));
-        // double percentage = 0.0;
-        // double percentage_sum = 0.0;
-
-         // num_edges /= 4;
-
-        // printf("START Reading EdgeList from file %s \n",fname);
-        // printf("Graph Properties : ");
-
-        // #if WEIGHTED
-        //         printf("WEIGHTED");
-        // #else
-        //         printf("UN-WEIGHTED");
-        // #endif
-
-        // #if DIRECTED
-        //         printf(" DIRECTED \n");
-        // #else
-        //         printf(" UN-DIRECTED \n");
-        // #endif
-
 
         #if DIRECTED                                    
                     struct EdgeList* edgeList = newEdgeList(num_edges-1);

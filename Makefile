@@ -3,8 +3,8 @@ APP                = test_afu
 # GAPP               = test
 # GAPP               = test_bfs
 # GAPP               = test_adjlist
-GAPP               = test_adjarray
-# GAPP               = test_grid
+# GAPP               = test_adjarray
+GAPP               = test_grid
 TEST               = test
 
 # dirs

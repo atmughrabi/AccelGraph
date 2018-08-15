@@ -10,8 +10,8 @@
 // A structure to represent an adjacency list
 struct __attribute__((__packed__)) Partition {
 
-	__u32 src_range;
-	__u32 dest_range;
+	// __u32 src_range;
+	// __u32 dest_range;
 	__u32 num_edges;
 	__u32 num_vertices;
 	struct Vertex* vertices;
@@ -36,11 +36,13 @@ struct Grid * gridNew(struct EdgeList* edgeList);
 void  gridFree(struct Grid *grid);
 
 
-struct Grid * gridPartitionSizePreprocessing(struct EdgeList* edgeList);
+struct Grid * gridPartitionSizePreprocessing(struct Grid *grid, struct EdgeList* edgeList);
 __u32 gridCalculatePartitions(struct EdgeList* edgeList);
-__u32 gridGetPartitionIndexFromEdge(struct Edge* edgeList);
-struct Partition* gridIteratePartitions(__u32 start);
-struct Partition* gridIteratePartitionEdges(struct Partition* partition, __u32 start);
+struct Grid * gridPartitionsMemoryAllocations(struct Grid *grid);
+struct Grid * gridPartitionEdgePopulation(struct Grid *grid, struct EdgeList* edgeList);
 
+__u32 getPartitionID(__u32 vertices, __u32 partitions, __u32 vertex_id);
+__u32 getPartitionRangeBegin(__u32 vertices, __u32 partitions, __u32 partition_id);
+__u32 getPartitionRangeEnd(__u32 vertices, __u32 partitions, __u32 partition_id);
 
 #endif

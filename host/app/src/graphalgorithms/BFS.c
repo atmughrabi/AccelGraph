@@ -106,7 +106,7 @@ void bfs(__u32 source, struct GraphCSR* graph){
     printf(" -----------------------------------------------------\n");
     Stop(timer);
     printf("Discovered nodes : %u \n", discovered_nodes);
-
+    free(timer);
 }
 
 
@@ -186,6 +186,7 @@ void breadthFirstSearch(__u32 source, struct GraphCSR* graph){
 	printf(" -----------------------------------------------------\n");
 	printf("| %-15s | %-15u | %-15f | \n","**", frontier->tail_next, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
+	free(timer);
 }
 
 
@@ -242,7 +243,7 @@ __u32 topDownStep(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 	Stop(timer);
 	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
-
+	free(timer);
 	return mf;
 }
 
@@ -340,7 +341,7 @@ __u32 bottomUpStep(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 	Stop(timer);
 	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
-
+	free(timer);
 	return nf;
 }
 
@@ -387,6 +388,7 @@ void topDownStep_original(struct GraphCSR* graph, struct ArrayQueue* frontier){
 	} 
 	Stop(timer);
 	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
+	free(timer);
 }
 
 

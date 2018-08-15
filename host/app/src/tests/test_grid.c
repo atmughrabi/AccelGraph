@@ -22,6 +22,9 @@
 #include "BFS.h"
 
 
+#include "grid.h"
+
+
 void printMessageWithtime(const char * msg, double time){
 
     printf(" -----------------------------------------------------\n");
@@ -44,9 +47,9 @@ int main()
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
 
-    // const char * fnameb = "host/app/datasets/test/test.txt.bin";
+    const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
+    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
@@ -72,18 +75,23 @@ int main()
     printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
     Start(timer); 
-    struct GraphAdjArrayList* graph = graphAdjArrayListEdgeListNew(edgeList);
+    struct Grid * grid = gridNew(edgeList);
     Stop(timer);
-    printMessageWithtime("Create Adj Array List from EdgeList (Seconds)",Seconds(timer));
+    printMessageWithtime("Create Grid EdgeList (Seconds)",Seconds(timer));
   
+    freeEdgeList(edgeList);
 
-    graphAdjArrayListPrint(graph);
+    
+    gridPrint(grid);
 
     Start(timer); 
-    graphAdjArrayListFree(graph);
+    gridFree(grid);
     Stop(timer);
-    printMessageWithtime("Free Graph Adjacency Array List (Seconds)",Seconds(timer));
+    printMessageWithtime("Free Graph Grid (Seconds)",Seconds(timer));
+
+
+
   
- 
+    free(timer);
     return 0;
 }

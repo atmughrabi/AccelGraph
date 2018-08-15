@@ -329,18 +329,18 @@ void graphAdjArrayListPrint(struct GraphAdjArrayList* graphAdjArrayList){
     printf("| %-51u | \n", graphAdjArrayList->num_edges);  
     printf(" -----------------------------------------------------\n");
 
-    struct AdjArrayList* pCrawl;
-    __u32 v;
-    for (v = 0; v < graphAdjArrayList->num_vertices; v++){
+    // struct AdjArrayList* pCrawl;
+    // __u32 v;
+    // for (v = 0; v < graphAdjArrayList->num_vertices; v++){
 
-        pCrawl = &(graphAdjArrayList->parent_array[v]);
-        if(pCrawl){
+    //     pCrawl = &(graphAdjArrayList->parent_array[v]);
+    //     if(pCrawl){
 
-            printf("\n Node : %d \n", v);
-            adjArrayListPrint(pCrawl);
-        }
+    //         printf("\n Node : %d \n", v);
+    //         adjArrayListPrint(pCrawl);
+    //     }
 
-    }
+    // }
 
 }
 
