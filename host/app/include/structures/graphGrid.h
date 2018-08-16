@@ -13,6 +13,7 @@ struct __attribute__((__packed__)) GraphGrid {
 
 	__u32 num_edges;
 	__u32 num_vertices;
+	int* parents;       // specify parent for each vertex
 	struct Grid* grid;
 	
 

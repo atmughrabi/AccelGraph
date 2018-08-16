@@ -9,6 +9,8 @@
 #include "arrayQueue.h"
 #include "BFS.h"
 #include "graphCSR.h"
+#include "graphGrid.h"
+// #include "grid.h"
 
 
 
@@ -122,7 +124,7 @@ void bfs(__u32 source, struct GraphCSR* graph){
 // 		end while
 // 	return parents
 
-void breadthFirstSearch(__u32 source, struct GraphCSR* graph){
+void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 
 	
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
@@ -163,7 +165,7 @@ void breadthFirstSearch(__u32 source, struct GraphCSR* graph){
 			do{
 
 			nf_prev = nf;
-			nf = bottomUpStep(graph, frontier);
+			nf = bottomUpStepGraphCSR(graph, frontier);
 			slideWindowArrayQueue(frontier);
 
 		
@@ -175,7 +177,7 @@ void breadthFirstSearch(__u32 source, struct GraphCSR* graph){
 		}else{
 		
 			mu -= mf;
-			mf = topDownStep(graph, frontier);
+			mf = topDownStepGraphCSR(graph, frontier);
 			slideWindowArrayQueue(frontier);
 
 		}
@@ -186,6 +188,8 @@ void breadthFirstSearch(__u32 source, struct GraphCSR* graph){
 	printf(" -----------------------------------------------------\n");
 	printf("| %-15s | %-15u | %-15f | \n","**", frontier->tail_next, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
+
+	freeArrayQueue(frontier);
 	free(timer);
 }
 
@@ -200,7 +204,7 @@ void breadthFirstSearch(__u32 source, struct GraphCSR* graph){
 // 		end for
 // 	end for
 
-__u32 topDownStep(struct GraphCSR* graph, struct ArrayQueue* frontier){
+__u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 
 	
@@ -260,7 +264,7 @@ __u32 topDownStep(struct GraphCSR* graph, struct ArrayQueue* frontier){
 // 		end if
 // 	end for
 
-__u32 bottomUpStep(struct GraphCSR* graph, struct ArrayQueue* frontier){
+__u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 
 	__u32 v;
@@ -346,50 +350,154 @@ __u32 bottomUpStep(struct GraphCSR* graph, struct ArrayQueue* frontier){
 }
 
 
-void topDownStep_original(struct GraphCSR* graph, struct ArrayQueue* frontier){
+// void topDownStep_original(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
-	__u32 v;
-	__u32 u;
-	// __u32 i;
-	__u32 edge_idx;
-	__u32 processed_nodes = frontier->tail - frontier->head;
+// 	__u32 v;
+// 	__u32 u;
+// 	// __u32 i;
+// 	__u32 edge_idx;
+// 	__u32 processed_nodes = frontier->tail - frontier->head;
 
-	// for(i = frontier->head ; i < frontier->tail; i++){
+// 	// for(i = frontier->head ; i < frontier->tail; i++){
 
-	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-	Start(timer);
-	while(!isEmptyArrayQueueCurr(frontier)){
-		// v = frontier->queue[i];
-		v = deArrayQueue(frontier);
-		edge_idx = graph->vertices[v].edges_idx;
+// 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+// 	Start(timer);
+// 	while(!isEmptyArrayQueueCurr(frontier)){
+// 		// v = frontier->queue[i];
+// 		v = deArrayQueue(frontier);
+// 		edge_idx = graph->vertices[v].edges_idx;
 
-        if(edge_idx == NO_OUTGOING_EDGES) {
-            continue;
-        }
+//         if(edge_idx == NO_OUTGOING_EDGES) {
+//             continue;
+//         }
 
-        while(graph->sorted_edges_array[edge_idx].src == v) {
+//         while(graph->sorted_edges_array[edge_idx].src == v) {
             
-            // destination vertex id
-            u = graph->sorted_edges_array[edge_idx].dest;
+//             // destination vertex id
+//             u = graph->sorted_edges_array[edge_idx].dest;
             
-            // if the destination vertex is not yet enqueued
-            // if(!isEnArrayQueued(frontier, u)) {
-            if((graph->parents[u]) < 0 ){                
-                // add the destination vertex to the queue 
-                enArrayQueueDelayed(frontier, u);
-                // graph->vertices[u].visited = 1;
-                 graph->parents[u] = v;
+//             // if the destination vertex is not yet enqueued
+//             // if(!isEnArrayQueued(frontier, u)) {
+//             if((graph->parents[u]) < 0 ){                
+//                 // add the destination vertex to the queue 
+//                 enArrayQueueDelayed(frontier, u);
+//                 // graph->vertices[u].visited = 1;
+//                  graph->parents[u] = v;
                
-            }
+//             }
 
-            edge_idx++;
-        }
+//             edge_idx++;
+//         }
 
-	} 
+// 	} 
+// 	Stop(timer);
+// 	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
+// 	free(timer);
+// }
+
+
+
+void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
+
+	
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+	struct Timer* timer_iteration = (struct Timer*) malloc(sizeof(struct Timer));
+	struct ArrayQueue* frontier = newArrayQueue(graph->num_vertices);
+	__u32 processed_nodes = 0;
+	// enArrayQueueDelayed(frontier, source);
+	// slideWindowArrayQueue(frontier);
+
+
+	enArrayQueue(frontier, source);
+	graph->parents[source] = source;
+	graphGridSetActivePartitions(graph->grid, source);
+
+	printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
+    printf(" -----------------------------------------------------\n");
+
+    Start(timer);
+	while(!isEmptyArrayQueue(frontier)){ // start while 
+
+		 Start(timer_iteration);
+			breadthFirstSearchStreamEdgesGraphGrid(graph, frontier);
+			processed_nodes = frontier->tail - frontier->head;
+			slideWindowArrayQueue(frontier);
+			breadthFirstSearchSetActivePartitions(graph,frontier);
+		 Stop(timer_iteration);
+		 printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer_iteration));
+
+	} // end while
 	Stop(timer);
-	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
+	printf(" -----------------------------------------------------\n");
+	printf("| %-15s | %-15u | %-15f | \n","**", frontier->tail_next, Seconds(timer));
+	printf(" -----------------------------------------------------\n");
+
+	freeArrayQueue(frontier);
+	free(timer_iteration);
 	free(timer);
 }
 
 
+//we assume that the edges are not sorted in each partition
+void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid* graph, struct ArrayQueue* frontier){
 
+	__u32 totalPartitions = 0;
+     totalPartitions = graph->grid->num_partitions * graph->grid->num_partitions; // PxP
+
+
+    __u32 i;
+    for (i = 0; i < totalPartitions; ++i){
+            if(graph->grid->activePartitions[i]){
+
+            	breadthFirstSearchPartitionGraphGrid(graph,&(graph->grid->partitions[i]),frontier);
+
+
+          } 
+        }
+	}
+
+void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph, struct Partition* partition,struct ArrayQueue* frontier){
+
+
+	 __u32 i;
+	 __u32 src;
+	 __u32 dest;
+	
+
+
+    for (i = 0; i < partition->num_edges; ++i){
+
+    	src  = partition->edgeList->edges_array[i].src;
+        dest = partition->edgeList->edges_array[i].dest;  
+
+         if(isEnArrayQueued(frontier, src) && (graph->parents[dest] < 0)){
+
+		    		graph->parents[dest] = src;
+		    		enArrayQueueDelayed(frontier, dest);
+		    }
+
+
+    }
+
+
+
+}
+
+
+void breadthFirstSearchSetActivePartitions(struct GraphGrid* graph, struct ArrayQueue* frontier){
+
+
+	 __u32 i;
+	 __u32 v;
+
+	graphGridResetActivePartitions(graph->grid);
+
+    for(i = frontier->head ; i < frontier->tail; i++){
+    	v = frontier->queue[i];
+    	graphGridSetActivePartitions(graph->grid, v);
+    }
+
+
+
+}

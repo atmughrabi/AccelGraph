@@ -71,6 +71,18 @@ struct GraphGrid * graphGridNew(struct EdgeList* edgeList){
         struct GraphGrid* graphGrid = (struct GraphGrid*) my_malloc( sizeof(struct GraphGrid));
     #endif
 
+    #if ALIGNED
+        graphGrid->parents  = (int*) my_aligned_alloc( edgeList->num_vertices * sizeof(int));
+    #else
+        graphGrid->parents  = (int*) my_malloc( edgeList->num_vertices *sizeof(int));
+    #endif
+
+    __u32 i;
+     for(i = 0; i < edgeList->num_vertices; i++){
+                graphGrid->parents[i] = -1;
+     }
+    
+
      graphGrid->num_edges = edgeList->num_edges;
      graphGrid->num_vertices = edgeList->num_vertices;
 
@@ -84,6 +96,7 @@ struct GraphGrid * graphGridNew(struct EdgeList* edgeList){
 void   graphGridFree(struct GraphGrid *graphGrid){
 
     gridFree(graphGrid->grid);
+    free(graphGrid->parents);
     free(graphGrid);
 
 }

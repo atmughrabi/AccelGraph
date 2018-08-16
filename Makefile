@@ -1,10 +1,11 @@
 # globals
 APP                = test_afu
 # GAPP               = test
-# GAPP               = test_bfs
+# GAPP               = test_bfs_graphCSR
+GAPP               = test_bfs_graphGrid
 # GAPP               = test_adjlist
 # GAPP               = test_adjarray
-GAPP               = test_grid
+# GAPP               = test_grid
 TEST               = test
 
 # dirs
@@ -32,7 +33,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 		-I$(APP_DIR)/include/$(UTIL_DIR)/   \
 # flags
-CFLAGS            = -O0 -Wall -m64 -g
+CFLAGS            = -O3 -Wall -m64 -g
 
 all: test
 

@@ -1,24 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "libcxl.h"
 
+#include "libcxl.h"
 #include "capienv.h"
+
 #include "adjLinkedList.h" 
 #include "dynamicQueue.h"
 #include "edgeList.h"
 
-//edgelist prerpcessing
 #include "countsort.h"
 #include "radixsort.h"
 
-
 #include "graphCSR.h"
 #include "graphAdjLinkedList.h"
+#include "graphAdjArrayList.h"
+#include "graphGrid.h"
 
 #include "vertex.h"
 #include "timer.h"
 #include "BFS.h"
+
+
+
+
 
 void printMessageWithtime(const char * msg, double time){
 
@@ -41,10 +46,10 @@ int main()
     // const char * fname = "host/app/datasets/twitter/twitter_rv.txt";
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
-
-    const char * fnameb = "host/app/datasets/test/test.txt.bin";
+// /
+    // const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
+    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
@@ -64,66 +69,37 @@ int main()
     // edgeListPrint(edgeList);
     printMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
-    #if DIRECTED
-        Start(timer);
-        struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-        Stop(timer);
-        // edgeListPrint(inverse_edgeList);
-        printMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
-    #endif
+    // Start(timer);
+    // edgeList = radixSortEdgesBySourceAndDestination(edgeList);
+    // Stop(timer);
+    // printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
-    #if DIRECTED
-        struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
-    #else
-        struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
-    #endif
-
-    
-   
-    Start(timer);
-    edgeList = radixSortEdgesBySourceOptimized(edgeList);
+    Start(timer); 
+    struct GraphGrid * graphGrid = graphGridNew(edgeList);
     Stop(timer);
-    printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+    printMessageWithtime("Create Graph Grid (Seconds)",Seconds(timer));
+  
+    freeEdgeList(edgeList);
 
 
-     #if DIRECTED
-        Start(timer);
-        inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
-        Stop(timer);
-        printMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
-    #endif
-    
-    // edgeListPrint(inverse_edgeList);
+    graphGridPrint(graphGrid);
+
 
     Start(timer);
-    graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
-    Stop(timer);
-    printMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
-
-    #if DIRECTED
-        Start(timer);
-        graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);
-        Stop(timer);
-        printMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
-    #endif
-
-    graphCSRPrint(graphCSR);
-    
-
-    Start(timer);
-    // breadthFirstSearchGraphCSR(428333, graphCSR);
-    breadthFirstSearchGraphCSR(6, graphCSR);
+    breadthFirstSearchGraphGrid(428333, graphGrid);
     Stop(timer);
     printMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
 
 
-    // printGraphParentsArray(graphCSR);
 
-    graphCSRFree(graphCSR);
-    // freeEdgeList(edgeList);
-    // #if DIRECTED
-    //     freeEdgeList(inverse_edgeList);
-    // #endif
+    Start(timer); 
+    graphGridFree(graphGrid);
+    Stop(timer);
+    printMessageWithtime("Free Graph Grid (Seconds)",Seconds(timer));
+
+
+
+  
     free(timer);
     return 0;
 }

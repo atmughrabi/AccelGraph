@@ -39,6 +39,7 @@ struct ArrayQueue *newArrayQueue(__u32 size){
 
 void freeArrayQueue(struct ArrayQueue *q){
 
+	freeBitmap(q->bitmap_next);
 	freeBitmap(q->bitmap);
 	free(q->queue);
 	free(q);

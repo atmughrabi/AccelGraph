@@ -166,7 +166,7 @@ void  gridFree(struct Grid *grid){
            freeEdgeList(grid->partitions[i].edgeList);
 	}
 
-
+    free(grid->activePartitions);
 	free(grid->partitions);
 	free(grid);
 
