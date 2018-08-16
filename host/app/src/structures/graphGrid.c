@@ -38,7 +38,10 @@ void  graphGridPrint(struct GraphGrid *graphGrid){
     printf("| %-51u | \n", graphGrid->grid->num_partitions);  
     printf(" -----------------------------------------------------\n");
 
-    // __u32 i;
+   
+
+
+  //   __u32 i;
   //    for ( i = 0; i < ( graphGrid->grid->num_partitions*graphGrid->grid->num_partitions); ++i)
   //       {
 
@@ -50,13 +53,14 @@ void  graphGridPrint(struct GraphGrid *graphGrid){
   //       printf("| %-11s (%u,%u) \n", "Partition: ", y, x);
   //  		printf("| %-11s %-40u   \n", "Edges: ", graphGrid->grid->partitions[i].num_edges);  
   //  		printf("| %-11s %-40u   \n", "Vertices: ", graphGrid->grid->partitions[i].num_vertices);  
-  //  		// edgeListPrint(graphGrid->grid->partitions[i].edgeList);
+  //  		edgeListPrint(graphGrid->grid->partitions[i].edgeList);
   //       }
 
   //       }
 
 
 }
+
 
 struct GraphGrid * graphGridNew(struct EdgeList* edgeList){
 

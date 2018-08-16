@@ -47,9 +47,9 @@ int main()
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
 // /
-    // const char * fnameb = "host/app/datasets/test/test.txt.bin";
+    const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
+    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
@@ -70,7 +70,7 @@ int main()
     printMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
     Start(timer);
-    edgeList = radixSortEdgesBySourceOptimized(edgeList);
+    edgeList = radixSortEdgesBySourceAndDestination(edgeList);
     Stop(timer);
     printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 

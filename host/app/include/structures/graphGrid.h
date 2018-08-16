@@ -14,12 +14,14 @@ struct __attribute__((__packed__)) GraphGrid {
 	__u32 num_edges;
 	__u32 num_vertices;
 	struct Grid* grid;
+	
 
 };
 
 void  graphGridPrint(struct GraphGrid *graphGrid);
 struct GraphGrid * graphGridNew(struct EdgeList* edgeList);
 void   graphGridFree(struct GraphGrid *graphGrid);
+
 
 
 #endif

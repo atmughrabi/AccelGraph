@@ -38,6 +38,17 @@ void gridPrint(struct Grid *grid){
     printf("| %-51u | \n", grid->num_partitions);  
     printf(" -----------------------------------------------------\n");
 
+    // _u32 i;
+    //  for ( i = 0; i < grid->num_vertices; ++i)
+    //     {
+
+    //         __u32 begin = getPartitionRangeBegin();
+    //         __u32 end = getPartitionRangeEnd();
+
+
+
+    //     }
+
   //   __u32 i;
   //    for ( i = 0; i < (grid->num_partitions*grid->num_partitions); ++i)
   //       {
@@ -55,6 +66,47 @@ void gridPrint(struct Grid *grid){
 
 }
 
+void   graphGridResetActivePartitions(struct Grid *grid){
+
+    __u32 totalPartitions = 0;
+     totalPartitions = grid->num_partitions * grid->num_partitions;
+    __u32 i;
+    for (i = 0; i < totalPartitions; ++i){
+            grid->activePartitions[i] = 0; 
+        }
+    }
+
+void   graphGridSetActivePartitions(struct Grid *grid, __u32 vertex){
+
+    __u32 row = getPartitionID(grid->num_vertices,grid->num_partitions, vertex);
+    __u32 Partition_idx = 0;
+    __u32 i;
+    for ( i = 0; i < (grid->num_partitions); ++i){
+
+        Partition_idx= (row*grid->num_partitions)+i;
+        if(grid->partitions[Partition_idx].edgeList->num_edges){
+                grid->activePartitions[Partition_idx] = 1;
+            }
+        }
+    }
+
+// void   graphGridMapVerticesInPartitions(struct Grid *grid){
+
+//      __u32 totalPartitions = 0;
+
+//      totalPartitions = grid->num_partitions * grid->num_partitions;
+
+//     __u32 i;
+//         for (i = 0; i < totalPartitions; ++i)
+//         {
+
+//         grid->partitions[i].edgeList;
+        
+//         }
+
+
+
+// }
 
 
 struct Grid * gridNew(struct EdgeList* edgeList){
@@ -79,12 +131,19 @@ struct Grid * gridNew(struct EdgeList* edgeList){
         grid->partitions = (struct Partition*) my_malloc(totalPartitions * sizeof(struct Partition));
     #endif
 
+    #if ALIGNED
+        grid->activePartitions = (__u32*) my_aligned_alloc(totalPartitions * sizeof(__u32));
+    #else
+        grid->activePartitions = (__u32*) my_malloc(totalPartitions * sizeof(__u32));
+    #endif
+
         __u32 i;
         for (i = 0; i < totalPartitions; ++i)
         {
 
 		 grid->partitions[i].num_edges = 0;
 		 grid->partitions[i].num_vertices = 0;	/* code */
+         grid->activePartitions[i] = 0;
         
         }
 
@@ -131,9 +190,12 @@ struct Grid * gridPartitionSizePreprocessing(struct Grid *grid, struct EdgeList*
 		dest = edgeList->edges_array[i].dest;
 		row = getPartitionID(num_vertices, num_partitions, src);
 		col = getPartitionID(num_vertices, num_partitions, dest);
+
 		grid->partitions[(row*grid->num_partitions)+col].num_edges++;
 		grid->partitions[(row*grid->num_partitions)+col].num_vertices = maxTwoIntegers(grid->partitions[(row*grid->num_partitions)+col].num_vertices,maxTwoIntegers(src, dest));
-               
+        
+
+
 	}
 
 	return grid;
@@ -166,7 +228,19 @@ struct Grid * gridPartitionEdgePopulation(struct Grid *grid, struct EdgeList* ed
 		Partition_idx= (row*grid->num_partitions)+col;
 
 		grid->partitions[Partition_idx].edgeList->edges_array[grid->partitions[Partition_idx].num_edges] = edgeList->edges_array[i];
-		grid->partitions[Partition_idx].num_edges++;         
+		grid->partitions[Partition_idx].num_edges++;  
+
+        // printf("| %-11s (%u,%u)   | \n", "Edge: ", src, dest);
+        // graphGridSetActivePartitions(grid,src);
+        // __u32 j;
+        // for (j=0 ; j<num_partitions*num_partitions ; j++){
+
+        //     printf("[%d] %d ",j,grid->activePartitions[j]);
+
+        // }
+        // printf("\n");
+        // graphGridResetActivePartitions(grid);
+
 	}
 
 	return grid;
@@ -183,10 +257,10 @@ struct Grid * gridPartitionsMemoryAllocations(struct Grid *grid){
 	 for ( i = 0; i < totalPartitions; ++i)
         {
 
-		 
-		 grid->partitions[i].edgeList = newEdgeList(grid->partitions[i].num_edges);
-		 grid->partitions[i].edgeList->num_vertices = grid->partitions[i].num_vertices;
-         grid->partitions[i].num_edges = 0;
+            grid->partitions[i].edgeList = newEdgeList(grid->partitions[i].num_edges);
+            // grid->partitions[i].vertices = newVertexArray(grid->partitions[i].num_vertices);
+            grid->partitions[i].edgeList->num_vertices = grid->partitions[i].num_vertices;
+            grid->partitions[i].num_edges = 0;
 
         }
 
