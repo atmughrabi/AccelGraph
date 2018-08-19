@@ -13,6 +13,7 @@ struct __attribute__((__packed__)) GraphAdjLinkedList
 {
 	__u32 num_vertices;
 	__u32 num_edges;
+	int * parents;
 	struct AdjLinkedList* parent_array;
 	
 };

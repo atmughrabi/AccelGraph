@@ -43,9 +43,9 @@ int main()
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
 
-    const char * fnameb = "host/app/datasets/test/test.txt.bin";
+    // const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
+    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
@@ -69,7 +69,15 @@ int main()
     struct GraphAdjLinkedList* graph = graphAdjLinkedListEdgeListNew(edgeList);
     Stop(timer);
     printMessageWithtime("Create Adj Linked List from EdgeList (Seconds)",Seconds(timer));
-  
+
+    freeEdgeList(edgeList);
+    
+
+    Start(timer);
+    breadthFirstSearchGraphAdjLinkedList(428333, graph);
+    // breadthFirstSearchGraphAdjLinkedList(6, graph);
+    Stop(timer);
+    printMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
     // graphAdjLinkedListPrint(graph);
 
     Start(timer); 
@@ -77,6 +85,6 @@ int main()
     Stop(timer);
     printMessageWithtime("Free Graph Adjacency Linked List (Seconds)",Seconds(timer));
   
- 
+    free(timer);
     return 0;
 }

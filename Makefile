@@ -3,8 +3,8 @@ APP                = test_afu
 # GAPP               = test
 # GAPP               = test_graphCSR
 # GAPP               = test_graphGrid
-# GAPP               = test_graphAdjList
-GAPP               = test_graphAdjArray
+GAPP               = test_graphAdjList
+# GAPP               = test_graphAdjArray
 # GAPP               = test_grid
 TEST               = test
 

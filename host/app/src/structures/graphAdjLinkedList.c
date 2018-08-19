@@ -72,8 +72,17 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
         graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
     #endif
 
+    #if ALIGNED
+        graphAdjLinkedList->parents  = (int*) my_aligned_alloc( graphAdjLinkedList->num_vertices * sizeof(int));
+    #else
+        graphAdjLinkedList->parents  = (int*) my_malloc( graphAdjLinkedList->num_vertices *sizeof(int));
+    #endif
+
+
     __u32 i;
     for(i = 0; i < graphAdjLinkedList->num_vertices; i++){
+
+        graphAdjLinkedList->parents[i] = -1; 
 
         graphAdjLinkedList->parent_array[i].outNodes = NULL;
         graphAdjLinkedList->parent_array[i].out_degree = 0; 
@@ -194,6 +203,7 @@ void graphAdjLinkedListFree(struct GraphAdjLinkedList* graphAdjLinkedList){
        
     }
 
+    free(graphAdjLinkedList->parents);
     free(graphAdjLinkedList->parent_array);
     free(graphAdjLinkedList);
 
