@@ -41,10 +41,11 @@ int main()
     // const char * fname = "host/app/datasets/twitter/twitter_rv.txt";
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
-
+                           
+    const char * fnameb = "/home/atmughra/12_Github/1_Graph_Benchmark_Tools/gapbs/benchmark/graphs";
     // const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
+    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
@@ -64,13 +65,6 @@ int main()
     // edgeListPrint(edgeList);
     printMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
-    #if DIRECTED
-        Start(timer);
-        struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-        Stop(timer);
-        // edgeListPrint(inverse_edgeList);
-        printMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
-    #endif
 
     #if DIRECTED
         struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
@@ -78,34 +72,41 @@ int main()
         struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
     #endif
 
-    
    
     Start(timer);
     edgeList = radixSortEdgesBySourceOptimized(edgeList);
     Stop(timer);
     printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
-
-     #if DIRECTED
-        Start(timer);
-        inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
-        Stop(timer);
-        printMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
-    #endif
-    
-    // edgeListPrint(inverse_edgeList);
-
     Start(timer);
     graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
     Stop(timer);
     printMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
 
-    #if DIRECTED
+     #if DIRECTED
+
+        Start(timer);
+        struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
+        Stop(timer);
+        // edgeListPrint(inverse_edgeList);
+        printMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
+
+
+        Start(timer);
+        inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
+        Stop(timer);
+        printMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
+
         Start(timer);
         graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);
         Stop(timer);
         printMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
+
     #endif
+    
+    // edgeListPrint(inverse_edgeList);
+
+   
 
     graphCSRPrint(graphCSR);
     
