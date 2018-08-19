@@ -6,7 +6,7 @@
 
 #include "myMalloc.h"
 #include "arrayQueue.h"
-
+#include "bitmap.h"
 
 struct ArrayQueue *newArrayQueue(__u32 size){
 
@@ -73,6 +73,7 @@ void slideWindowArrayQueue (struct ArrayQueue *q){
 		q->head = q->tail;
 		q->tail = q->tail_next;
 		q->iteration++;
+		reset(q->bitmap);
 		q->bitmap = orBitmap(q->bitmap,q->bitmap_next);
 	// }
 	

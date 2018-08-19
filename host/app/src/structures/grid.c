@@ -8,7 +8,7 @@
 #include "vertex.h"
 #include "myMalloc.h"
 #include "graphConfig.h"
-
+#include "bitmap.h"
 
 void gridPrint(struct Grid *grid){
 
@@ -137,6 +137,9 @@ struct Grid * gridNew(struct EdgeList* edgeList){
         grid->activePartitions = (__u32*) my_malloc(totalPartitions * sizeof(__u32));
     #endif
 
+        grid->activeVertices = newBitmap(grid->num_vertices);
+
+
         __u32 i;
         for (i = 0; i < totalPartitions; ++i)
         {
@@ -258,7 +261,6 @@ struct Grid * gridPartitionsMemoryAllocations(struct Grid *grid){
         {
 
             grid->partitions[i].edgeList = newEdgeList(grid->partitions[i].num_edges);
-            // grid->partitions[i].vertices = newVertexArray(grid->partitions[i].num_vertices);
             grid->partitions[i].edgeList->num_vertices = grid->partitions[i].num_vertices;
             grid->partitions[i].num_edges = 0;
 

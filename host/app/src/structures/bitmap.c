@@ -50,6 +50,17 @@ void setBit(struct Bitmap* bitmap, __u32 pos){
 
 }
 
+void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end){
+
+ __u32 pos;
+
+ for (pos = start; pos < end; ++pos)
+ {
+ 	ba_set(bitmap->bitarray, pos);
+ }
+
+}
+
 void setBitAtomic(struct Bitmap* bitmap, __u32 pos){
 
 	ba_set(bitmap->bitarray, pos);

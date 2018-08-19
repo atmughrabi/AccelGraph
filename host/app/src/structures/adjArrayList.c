@@ -59,8 +59,11 @@ struct AdjArrayList * adjArrayListNew(){
 
 struct AdjArrayList * adjArrayListCreateNeighbourList(struct AdjArrayList *adjArrayList){
        
-        adjArrayList->outNodes = newEdgeArray(adjArrayList->out_degree);
+       if(adjArrayList->out_degree)
+            adjArrayList->outNodes = newEdgeArray(adjArrayList->out_degree);
+        
         #if DIRECTED
+        if(adjArrayList->in_degree)
             adjArrayList->inNodes = newEdgeArray(adjArrayList->in_degree);
         #endif
 

@@ -44,12 +44,20 @@ struct GraphAdjArrayList* graphAdjArrayListGraphNew(__u32 V){
         graphAdjArrayList->parent_array = (struct AdjArrayList*) my_malloc( V * sizeof(struct AdjArrayList));
     #endif
 
+    #if ALIGNED
+        graphAdjArrayList->parents  = (int*) my_aligned_alloc( V * sizeof(int));
+    #else
+        graphAdjArrayList->parents  = (int*) my_malloc( V *sizeof(int));
+    #endif
+
+
 	__u32 i;
 	for(i = 0; i < V; i++){
 
         graphAdjArrayList->parent_array[i].visited = 0;
 		graphAdjArrayList->parent_array[i].outNodes = NULL;
-        graphAdjArrayList->parent_array[i].out_degree = 0; 
+        graphAdjArrayList->parent_array[i].out_degree = 0;
+        graphAdjArrayList->parents[i] = -1; 
 
         #if DIRECTED
             graphAdjArrayList->parent_array[i].inNodes = NULL; 
@@ -361,6 +369,7 @@ void graphAdjArrayListFree(struct GraphAdjArrayList* graphAdjArrayList){
        
     }
 
+    free(graphAdjArrayList->parents);
     free(graphAdjArrayList->parent_array);
     free(graphAdjArrayList);
 

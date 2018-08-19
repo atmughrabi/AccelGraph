@@ -44,9 +44,9 @@ int main()
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
 
-    // const char * fnameb = "host/app/datasets/test/test.txt.bin";
+    const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
+    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
@@ -105,7 +105,16 @@ int main()
     #if DIRECTED
         freeEdgeList(inverse_edgeList);
     #endif
-  
+
+
+    
+    
+
+    Start(timer);
+    // breadthFirstSearchGraphAdjArrayList(428333, graphCSR);
+    breadthFirstSearchGraphAdjArrayList(6, graph);
+    Stop(timer);
+    printMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
 
     // graphAdjArrayListPrint(graph);
 

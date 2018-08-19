@@ -6,15 +6,15 @@
 #include "edgeList.h"
 #include "vertex.h"
 #include "graphConfig.h"
+#include "bitmap.h"
 
 // A structure to represent an adjacency list
 struct __attribute__((__packed__)) Partition {
 
-	// __u32 src_range;
-	// __u32 dest_range;
+	// __u32 vertex_start;
+	// __u32 vertex_end;
 	__u32 num_edges;
 	__u32 num_vertices;
-	struct Vertex* vertices;
 	struct EdgeList* edgeList;
 
 };
@@ -28,6 +28,7 @@ struct __attribute__((__packed__)) Grid {
 	__u32 num_partitions;
 	struct Partition* partitions;
 	__u32 *activePartitions;
+	struct Bitmap* activeVertices;
 };
 
 
