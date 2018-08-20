@@ -35,31 +35,31 @@ void * generateGraphDataStructure(const char *fnameb, int datastructure){
             Start(timer);
             graph = (void *)graphCSRPreProcessingStep (fnameb);
             Stop(timer);
-            generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Total Time (Seconds)",Seconds(timer));
+            generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         case 1: // Grid
             Start(timer);
             graph = (void *)graphGridPreProcessingStep (fnameb);
             Stop(timer);
-            generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Total Time (Seconds)",Seconds(timer));
+            generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         case 2: // Adj Linked List     
             Start(timer);
             graph = (void *)graphAdjLinkedListPreProcessingStep (fnameb);
             Stop(timer);
-            generateGraphPrintMessageWithtime("Graph LinkedList Preprocessing Step Time (Seconds)",Seconds(timer));
+            generateGraphPrintMessageWithtime("GraphAdjLinkedList Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         case 3: // Adj Array List
             Start(timer);
             graph = (void *)graphAdjArrayListPreProcessingStep (fnameb);
             Stop(timer);
-            generateGraphPrintMessageWithtime("GraphAdjArrayList Preprocessing Step Total Time (Seconds)",Seconds(timer));
+            generateGraphPrintMessageWithtime("GraphAdjArrayList Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         default:// CSR
             Start(timer);
             graph = (void *)graphCSRPreProcessingStep (fnameb);
             Stop(timer);
-            generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Total Time (Seconds)",Seconds(timer));
+            generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)",Seconds(timer));
        
           break;          
       }
@@ -79,8 +79,10 @@ void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root){
           runBreadthFirstSearchAlgorithm(graph,datastructure, root);
           break;
         case 1: // pagerank filename
+          printf(" pagerank to be implemented \n");
           break;
         case 2: // SSSP file name root
+           printf(" SSSP to be implemented \n");
           break;
         default:// bfs file name root
           runBreadthFirstSearchAlgorithm(graph,datastructure, root);
@@ -97,6 +99,12 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root){
     struct GraphGrid* graphGrid = NULL;
     struct GraphAdjLinkedList* graphAdjLinkedList = NULL;
     struct GraphAdjArrayList* graphAdjArrayList = NULL;
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE) ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51u | \n", root);
+    printf(" -----------------------------------------------------\n");
 
     switch (datastructure)
       { 

@@ -364,52 +364,6 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 	return nf;
 }
 
-
-// void topDownStep_original(struct GraphCSR* graph, struct ArrayQueue* frontier){
-
-// 	__u32 v;
-// 	__u32 u;
-// 	// __u32 i;
-// 	__u32 edge_idx;
-// 	__u32 processed_nodes = frontier->tail - frontier->head;
-
-// 	// for(i = frontier->head ; i < frontier->tail; i++){
-
-// 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-// 	Start(timer);
-// 	while(!isEmptyArrayQueueCurr(frontier)){
-// 		// v = frontier->queue[i];
-// 		v = deArrayQueue(frontier);
-// 		edge_idx = graph->vertices[v].edges_idx;
-
-//         if(edge_idx == NO_OUTGOING_EDGES) {
-//             continue;
-//         }
-
-//         while(graph->sorted_edges_array[edge_idx].src == v) {
-            
-//             // destination vertex id
-//             u = graph->sorted_edges_array[edge_idx].dest;
-            
-//             // if the destination vertex is not yet enqueued
-//             // if(!isEnArrayQueued(frontier, u)) {
-//             if((graph->parents[u]) < 0 ){                
-//                 // add the destination vertex to the queue 
-//                 enArrayQueueDelayed(frontier, u);
-//                 // graph->vertices[u].visited = 1;
-//                  graph->parents[u] = v;
-               
-//             }
-
-//             edge_idx++;
-//         }
-
-// 	} 
-// 	Stop(timer);
-// 	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
-// 	free(timer);
-// }
-
 // function STREAMVERTICES(Fv,F)
 // 	Sum = 0
 // 		for each vertex do
@@ -470,17 +424,6 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 	free(timer_iteration);
 	free(timer);
 }
-
-// function STREAMVERTICES(Fv,F)
-// 	Sum = 0
-// 		for each vertex do
-// 			if F(vertex) then
-// 				Sum += Fv(edge)
-// 			end if
-// 		end for
-// 	return Sum
-// end function
-
 
 // function STREAMEDGES(Fe,F)
 // 	Sum = 0

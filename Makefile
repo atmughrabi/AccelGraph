@@ -9,6 +9,7 @@ GAPP               = main
 # GAPP               = test_grid
 TEST               = test
 
+
 # dirs
 PSLSE_DIR         = sim/pslse
 PSLSE_COMMON_DIR  = sim/pslse/common
@@ -211,8 +212,17 @@ test: graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynam
 	 -lrt -lpthread -D SIM 
 
 
+#app command line arguments
+# fnameb = "host/app/datasets/test/test.txt.bin"
+# fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
+fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
+root  = 6
+datastructure = 0
+algorithm = 0
+
+
 run: test
-	./$(APP_DIR)/test/$(GAPP)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root)
 	
 
 clean:

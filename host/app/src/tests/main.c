@@ -38,9 +38,12 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "f:d:a:r:usw")) != -1)
+  while ((c = getopt (argc, argv, "h:f:d:a:r:usw")) != -1)
     switch (c)
       {
+      case 'h':
+        usage();
+        break;
       case 'f':
         fvalue = optarg;
         fnameb = fvalue;

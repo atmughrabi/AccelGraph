@@ -421,7 +421,7 @@ struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fname
         Start(timer); 
         struct GraphAdjArrayList* graph = graphAdjArrayListEdgeListNewWithInverse(edgeList,inverse_edgeList);
         Stop(timer);
-        graphAdjArrayListPrintMessageWithtime("Create Adj Array List from EdgeList With Inverse(Seconds)",Seconds(timer));
+        graphAdjArrayListPrintMessageWithtime("Create Adj Array List from EdgeList (Seconds)",Seconds(timer));
     #else
         Start(timer); 
         struct GraphAdjArrayList* graph = graphAdjArrayListEdgeListNew(edgeList);
