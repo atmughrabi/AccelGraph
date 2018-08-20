@@ -11,15 +11,15 @@
 //edgelist prerpcessing
 #include "countsort.h"
 #include "radixsort.h"
-
+#include "myMalloc.h"
 
 #include "graphCSR.h"
 #include "graphAdjLinkedList.h"
+#include "graphAdjArrayList.h"
 
 #include "vertex.h"
 #include "timer.h"
 #include "BFS.h"
-
 
 void printMessageWithtime(const char * msg, double time){
 
@@ -32,8 +32,7 @@ void printMessageWithtime(const char * msg, double time){
 }
 
 
-int main()
-{
+void main(const char * fnameb) {
     // create the graph given in above fugure
     // int V = 5;
 
@@ -46,11 +45,11 @@ int main()
     // const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
-    const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
+    // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
 
 
-    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    struct Timer* timer = (struct Timer*) my_malloc(sizeof(struct Timer));
 
     printf("Filename : %s \n",fnameb);
     
@@ -65,26 +64,64 @@ int main()
     // edgeListPrint(edgeList);
     printMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
-    Start(timer); 
-    struct GraphAdjLinkedList* graph = graphAdjLinkedListEdgeListNew(edgeList);
+    #if DIRECTED
+        Start(timer);
+        struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
+        Stop(timer);
+        // edgeListPrint(inverse_edgeList);
+        printMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
+    #endif
+
+    Start(timer);
+    edgeList = radixSortEdgesBySourceOptimized(edgeList);
     Stop(timer);
-    printMessageWithtime("Create Adj Linked List from EdgeList (Seconds)",Seconds(timer));
+    printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+
+
+    #if DIRECTED
+        Start(timer);
+        inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
+        Stop(timer);
+        printMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
+    #endif
+
+    // Start(timer); 
+    // struct GraphAdjArrayList* graph = graphAdjArrayListEdgeListNew(edgeList);
+    // Stop(timer);
+    // printMessageWithtime("Create Adj Array List from EdgeList (Seconds)",Seconds(timer));
+
+    #if DIRECTED
+        Start(timer); 
+        struct GraphAdjArrayList* graph = graphAdjArrayListEdgeListNewWithInverse(edgeList,inverse_edgeList);
+        Stop(timer);
+        printMessageWithtime("Create Adj Array List from EdgeList With Inverse(Seconds)",Seconds(timer));
+    #endif
+
+
 
     freeEdgeList(edgeList);
+    #if DIRECTED
+        freeEdgeList(inverse_edgeList);
+    #endif
+
+
+    
     
 
     Start(timer);
-    breadthFirstSearchGraphAdjLinkedList(428333, graph);
-    // breadthFirstSearchGraphAdjLinkedList(6, graph);
+    breadthFirstSearchGraphAdjArrayList(428333, graph);
+    // breadthFirstSearchGraphAdjArrayList(6, graph);
     Stop(timer);
     printMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
-    // graphAdjLinkedListPrint(graph);
+
+    // graphAdjArrayListPrint(graph);
 
     Start(timer); 
-    graphAdjLinkedListFree(graph);
+    graphAdjArrayListFree(graph);
     Stop(timer);
-    printMessageWithtime("Free Graph Adjacency Linked List (Seconds)",Seconds(timer));
-  
+    printMessageWithtime("Free Graph Adjacency Array List (Seconds)",Seconds(timer));
+    
+
     free(timer);
     return 0;
 }

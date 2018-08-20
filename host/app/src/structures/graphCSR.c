@@ -9,6 +9,13 @@
 #include "graphCSR.h"
 #include "graphConfig.h"
 
+//edgelist prerpcessing
+#include "countsort.h"
+#include "radixsort.h"
+
+#include "timer.h"
+
+
 
 void graphCSRFree (struct GraphCSR* graphCSR){
 
@@ -157,4 +164,77 @@ struct GraphCSR* graphCSRAssignEdgeList (struct GraphCSR* graphCSR, struct EdgeL
   
 	return mapVerticesWithInOutDegree (graphCSR,inverse);   
     
+}
+
+
+struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb){
+
+    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+
+    printf("Filename : %s \n",fnameb);
+    
+
+    Start(timer);
+    struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
+    Stop(timer);
+    // edgeListPrint(edgeList);
+    graphCSRPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
+
+
+    #if DIRECTED
+        struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
+    #else
+        struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
+    #endif
+
+   
+    Start(timer);
+    edgeList = radixSortEdgesBySourceOptimized(edgeList);
+    Stop(timer);
+    graphCSRPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+
+    Start(timer);
+    graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
+    Stop(timer);
+    graphCSRPrintMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
+
+     #if DIRECTED
+
+        Start(timer);
+        struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
+        Stop(timer);
+        // edgeListPrint(inverse_edgeList);
+        graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
+
+
+        Start(timer);
+        inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
+        Stop(timer);
+        graphCSRPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
+
+        Start(timer);
+        graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);
+        Stop(timer);
+        graphCSRPrintMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
+
+    #endif
+    
+   
+    graphCSRPrint(graphCSR);
+
+    free(timer);
+    return graphCSR;
+
+    
+}
+
+
+void graphCSRPrintMessageWithtime(const char * msg, double time){
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", msg);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", time);
+    printf(" -----------------------------------------------------\n");
+
 }

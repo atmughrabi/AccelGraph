@@ -9,7 +9,7 @@
 #include "graphAdjLinkedList.h"
 #include "graphConfig.h"
 #include "adjLinkedList.h"
-
+#include "timer.h"
 
 
 
@@ -265,6 +265,40 @@ void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList,
             graphAdjLinkedList->parent_array[edge->dest].weight = edge->weight;
         #endif
     #endif
+
+
+}
+
+
+void   graphAdjLinkedListPrintMessageWithtime(const char * msg, double time){
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", msg);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", time);
+    printf(" -----------------------------------------------------\n");
+
+}
+struct GraphAdjLinkedList* graphAdjLinkedListPreProcessingStep (const char * fnameb){
+
+    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+
+
+
+    Start(timer);
+    struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
+    Stop(timer);
+    // edgeListPrint(edgeList);
+    graphAdjLinkedListPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
+
+    Start(timer); 
+    struct GraphAdjLinkedList* graphAdjLinkedList = graphAdjLinkedListEdgeListNew(edgeList);
+    Stop(timer);
+    graphAdjLinkedListPrintMessageWithtime("Create Adj Linked List from EdgeList (Seconds)",Seconds(timer));
+
+    freeEdgeList(edgeList);
+    free(timer);
+    return graphAdjLinkedList;
 
 
 }

@@ -15,7 +15,15 @@
 #include "graphAdjLinkedList.h"
 // #include "grid.h"
 
+void resetParentArray(int* parents, __u32 V){
 
+	__u32 i;
+	 for(i = 0; i < V; i++){
+                parents[i] = -1;
+     }
+
+
+}
 
 void bfs(__u32 source, struct GraphCSR* graph){
 
@@ -111,6 +119,8 @@ void bfs(__u32 source, struct GraphCSR* graph){
     printf(" -----------------------------------------------------\n");
     Stop(timer);
     printf("Discovered nodes : %u \n", discovered_nodes);
+
+	freeArrayQueue(queue);    
     free(timer);
 }
 
@@ -192,6 +202,8 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 	printf("| %-15s | %-15u | %-15f | \n","**", frontier->tail_next, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
+
+	resetParentArray(graph->parents, graph->num_vertices);
 	freeArrayQueue(frontier);
 	free(timer);
 }
@@ -453,6 +465,7 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 	printf("| %-15s | %-15u | %-15f | \n","**", frontier->tail_next, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
+	resetParentArray(graph->parents, graph->num_vertices);
 	freeArrayQueue(frontier);
 	free(timer_iteration);
 	free(timer);
@@ -604,6 +617,7 @@ void breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList*
 	printf("| %-15s | %-15u | %-15f | \n","**", frontier->tail_next, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
+	resetParentArray(graph->parents, graph->num_vertices);
 	freeArrayQueue(frontier);
 	free(timer);
 }
@@ -843,6 +857,7 @@ void breadthFirstSearchGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedLis
 	printf("| %-15s | %-15u | %-15f | \n","**", frontier->tail_next, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
+	resetParentArray(graph->parents, graph->num_vertices);
 	freeArrayQueue(frontier);
 	free(timer);
 }

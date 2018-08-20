@@ -7,6 +7,8 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
+
+void resetParentArray(int* parents, __u32 V);
 void bfs(__u32 source, struct GraphCSR* graph);
 
 

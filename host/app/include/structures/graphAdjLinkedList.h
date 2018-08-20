@@ -26,5 +26,10 @@ void graphAdjLinkedListPrint(struct GraphAdjLinkedList* graphAdjLinkedList);
 void graphAdjLinkedListFree(struct GraphAdjLinkedList* graphAdjLinkedList);
 void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge);
 void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge);
+void   graphAdjLinkedListPrintMessageWithtime(const char * msg, double time);
+struct GraphAdjLinkedList* graphAdjLinkedListPreProcessingStep (const char * fnameb);
 
 #endif
+
+
+

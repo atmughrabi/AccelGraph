@@ -9,6 +9,11 @@
 #include "myMalloc.h"
 #include "graphConfig.h"
 
+#include "countsort.h"
+#include "radixsort.h"
+
+#include "timer.h"
+
 
 void  graphGridPrint(struct GraphGrid *graphGrid){
 
@@ -103,4 +108,49 @@ void   graphGridFree(struct GraphGrid *graphGrid){
 
 
 
+struct GraphGrid* graphGridPreProcessingStep (const char * fnameb){
+
+   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+
+    printf("Filename : %s \n",fnameb);
+    
+
+    Start(timer);
+    struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
+    Stop(timer);
+    // edgeListPrint(edgeList);
+    graphGridPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
+
+    Start(timer);
+    edgeList = radixSortEdgesBySourceAndDestination(edgeList);
+    Stop(timer);
+    graphGridPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+
+    Start(timer); 
+    struct GraphGrid * graphGrid = graphGridNew(edgeList);
+    Stop(timer);
+    graphGridPrintMessageWithtime("Create Graph Grid (Seconds)",Seconds(timer));
+  
+
+    graphGridPrint(graphGrid);
+
+
+    freeEdgeList(edgeList);
+    free(timer);
+    return graphGrid;
+
+
+}
+
+
+
+void graphGridPrintMessageWithtime(const char * msg, double time){
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", msg);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", time);
+    printf(" -----------------------------------------------------\n");
+
+}
 

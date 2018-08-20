@@ -101,7 +101,7 @@ void readEdgeListstxt(const char * fname){
 
         
         fname_txt = strcpy (fname_txt, fname);
-        fname_bin = strcat (fname_txt, ".bin8");
+        fname_bin = strcat (fname_txt, ".bin");
 
         // printf("Filename : %s \n",fname);
         // printf("Filename : %s \n",fname_bin);
@@ -192,7 +192,11 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         #if DIRECTED                                    
                     struct EdgeList* edgeList = newEdgeList(num_edges-1);
         #else
-                    struct EdgeList* edgeList = newEdgeList((num_edges-1)*2);
+                    if(inverse){
+                        struct EdgeList* edgeList = newEdgeList((num_edges-1)*2);
+                    }else{
+                        struct EdgeList* edgeList = newEdgeList(num_edges-1);
+                    }
         #endif
         
         __u32 i;
@@ -217,11 +221,15 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
                        
 
                 #else
-                        edgeList->edges_array[i].src = src;
-                        edgeList->edges_array[i].dest = dest;
-
-                        edgeList->edges_array[i+(num_edges-1)].src = dest;
-                        edgeList->edges_array[i+(num_edges-1)].dest = src;
+                        if(inverse){
+                            edgeList->edges_array[i].src = src;
+                            edgeList->edges_array[i].dest = dest;
+                            edgeList->edges_array[i+(num_edges-1)].src = dest;
+                            edgeList->edges_array[i+(num_edges-1)].dest = src;
+                        }else{
+                            edgeList->edges_array[i].src = src;
+                            edgeList->edges_array[i].dest = dest;
+                        }
                 #endif
                 
                 edgeList->num_vertices = maxTwoIntegers(edgeList->num_vertices,maxTwoIntegers(edgeList->edges_array[i].src, edgeList->edges_array[i].dest));

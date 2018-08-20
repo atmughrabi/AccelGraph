@@ -9,6 +9,10 @@
 #include "graphAdjArrayList.h"
 #include "graphConfig.h"
 #include "adjArrayList.h"
+//edgelist prerpcessing
+#include "countsort.h"
+#include "radixsort.h"
+
 #include "timer.h"
 
 
@@ -376,4 +380,64 @@ void graphAdjArrayListFree(struct GraphAdjArrayList* graphAdjArrayList){
 
 }
 
+
+struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fnameb){
+
+
+    struct Timer* timer = (struct Timer*) my_malloc(sizeof(struct Timer));
+
+    printf("Filename : %s \n",fnameb);
+
+    Start(timer);
+    struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
+    Stop(timer);
+    // edgeListPrint(edgeList);
+    graphAdjArrayListPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
+
+    #if DIRECTED
+        Start(timer);
+        struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
+        Stop(timer);
+        // edgeListPrint(inverse_edgeList);
+        graphAdjArrayListPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
+    #endif
+
+    Start(timer);
+    edgeList = radixSortEdgesBySourceOptimized(edgeList);
+    Stop(timer);
+    graphAdjArrayListPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+
+
+    #if DIRECTED
+        Start(timer);
+        inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
+        Stop(timer);
+        graphAdjArrayListPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
+    #endif
+
+   
+
+    #if DIRECTED
+        Start(timer); 
+        struct GraphAdjArrayList* graph = graphAdjArrayListEdgeListNewWithInverse(edgeList,inverse_edgeList);
+        Stop(timer);
+        graphAdjArrayListPrintMessageWithtime("Create Adj Array List from EdgeList With Inverse(Seconds)",Seconds(timer));
+    #else
+        Start(timer); 
+        struct GraphAdjArrayList* graph = graphAdjArrayListEdgeListNew(edgeList);
+        Stop(timer);
+        graphAdjArrayListPrintMessageWithtime("Create Adj Array List from EdgeList (Seconds)",Seconds(timer));
+    #endif
+
+    freeEdgeList(edgeList);
+    #if DIRECTED
+        freeEdgeList(inverse_edgeList);
+    #endif
+
+    free(timer);
+
+    return graph;
+
+    
+}
 

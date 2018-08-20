@@ -36,14 +36,16 @@ int main()
     // create the graph given in above fugure
     // int V = 5;
 
+
+    // const char * fnameb = "/home/atmughra/12_Github/1_Graph_Benchmark_Tools/gapbs/benchmark/graphs/raw/twitter_rv.net";
     // const char * fname = "host/app/datasets/test/test.txt";
     // const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
     // const char * fname = "host/app/datasets/twitter/twitter_rv.txt";
     // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
 
                            
-    const char * fnameb = "/home/atmughra/12_Github/1_Graph_Benchmark_Tools/gapbs/benchmark/graphs";
-    // const char * fnameb = "host/app/datasets/test/test.txt.bin";
+    // const char * fnameb = "/home/atmughra/12_Github/1_Graph_Benchmark_Tools/gapbs/benchmark/graphs/bin/twitter_rv.net.bin8";
+    const char * fnameb = "host/app/datasets/test/test.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
     // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
@@ -51,80 +53,28 @@ int main()
 
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    struct GraphCSR* graphCSR = NULL;
+    __u32 root = 6;
 
-    printf("Filename : %s \n",fnameb);
+    // printf("Filename : %s \n",fnameb);
     
-    // Start(timer);
-    // readEdgeListstxt(fname);
-    // Stop(timer);
-    // printf("Read Edge List From File converted to binary : %f Seconds \n",Seconds(timer));
+    // // Start(timer);
+    // // readEdgeListstxt(fname);
+    // // Stop(timer);
+    // // printf("Read Edge List From File converted to binary : %f Seconds \n",Seconds(timer));
 
     Start(timer);
-    struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
+    graphCSR = graphCSRPreProcessingStep (fnameb);
     Stop(timer);
-    // edgeListPrint(edgeList);
-    printMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
+    printMessageWithtime("GraphCSR Preprocessing Step Total Time (Seconds)",Seconds(timer));
 
-
-    #if DIRECTED
-        struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
-    #else
-        struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
-    #endif
-
-   
-    Start(timer);
-    edgeList = radixSortEdgesBySourceOptimized(edgeList);
-    Stop(timer);
-    printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
     Start(timer);
-    graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
-    Stop(timer);
-    printMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
-
-     #if DIRECTED
-
-        Start(timer);
-        struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-        Stop(timer);
-        // edgeListPrint(inverse_edgeList);
-        printMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
-
-
-        Start(timer);
-        inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
-        Stop(timer);
-        printMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
-
-        Start(timer);
-        graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);
-        Stop(timer);
-        printMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
-
-    #endif
-    
-    // edgeListPrint(inverse_edgeList);
-
-   
-
-    graphCSRPrint(graphCSR);
-    
-
-    Start(timer);
-    breadthFirstSearchGraphCSR(428333, graphCSR);
-    // breadthFirstSearchGraphCSR(6, graphCSR);
+    breadthFirstSearchGraphCSR(root, graphCSR);
     Stop(timer);
     printMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
 
-
-    // printGraphParentsArray(graphCSR);
-
     graphCSRFree(graphCSR);
-    // freeEdgeList(edgeList);
-    // #if DIRECTED
-    //     freeEdgeList(inverse_edgeList);
-    // #endif
     free(timer);
     return 0;
 }
