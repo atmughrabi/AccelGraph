@@ -7,11 +7,11 @@
 
 static void usage(void) {
   printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] [-u -s -w]\n");
-  printf("\t-u: create undirected on load (For example for WCC running with load mode 2 or 3)\n");
   printf("\t-a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP\n");
   printf("\t-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List\n");
-  printf("\t-w: weighted input graph\n");
   printf("\t-r [root]: BFS & SSSP root\n");
+  printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
+  printf("\t-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
   printf("\t-s: symmetrict graph, if not given set of incoming edges will be created \n"); 
   _exit(-1);
 }
