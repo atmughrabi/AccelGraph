@@ -1,9 +1,10 @@
 # globals
 APP                = test_afu
+GAPP               = main
 # GAPP               = test
 # GAPP               = test_graphCSR
 # GAPP               = test_graphGrid
-GAPP               = test_graphAdjLinkedList
+# GAPP               = test_graphAdjLinkedList
 # GAPP               = test_graphAdjArray
 # GAPP               = test_grid
 TEST               = test
@@ -54,6 +55,10 @@ sim-run:
 
 vsim-run:
 	cd sim && vsim -do vsim.tcl
+
+$(APP_DIR)/$(OBJ_DIR)/graphRun.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/graphRun.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/graphRun.h
+	@echo 'making $(GAPP) <- graphRun.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/graphRun.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/graphRun.c
 
 $(APP_DIR)/$(OBJ_DIR)/myMalloc.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/myMalloc.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/myMalloc.h
 	@echo 'making $(GAPP) <- myMalloc.o'
@@ -172,12 +177,15 @@ adjArrayList: $(APP_DIR)/$(OBJ_DIR)/adjArrayList.o
 
 dynamicQueue: $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o
 
+graphRun: $(APP_DIR)/$(OBJ_DIR)/graphRun.o
+
 BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
 	
-test: graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
-	@echo 'linking $(GAPP) <- graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
+test: graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
+	@echo 'linking $(GAPP) <- graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
+	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
