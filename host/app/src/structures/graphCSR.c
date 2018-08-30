@@ -189,7 +189,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb){
 
    
     Start(timer);
-    edgeList = radixSortEdgesBySourceOptimized(edgeList);
+    edgeList = radixSortEdgesBySource(edgeList);
     Stop(timer);
     graphCSRPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
@@ -208,7 +208,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb){
 
 
         Start(timer);
-        inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
+        inverse_edgeList = radixSortEdgesBySource(inverse_edgeList);
         Stop(timer);
         graphCSRPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
 

@@ -82,7 +82,7 @@ void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root){
           printf(" pagerank to be implemented \n");
           break;
         case 2: // SSSP file name root
-           printf(" SSSP to be implemented \n");
+          printf(" SSSP to be implemented \n");
           break;
         default:// bfs file name root
           runBreadthFirstSearchAlgorithm(graph,datastructure, root);

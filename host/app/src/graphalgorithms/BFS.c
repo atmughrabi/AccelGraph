@@ -69,7 +69,7 @@ void bfs(__u32 source, struct GraphCSR* graph){
         	discovered_nodes_Iter_2 = discovered_nodes_Iter_1;
         	Stop(timer);
         	
-        	printf("| %-15u | %-15u | %-15f | \n",iteration, discovered_nodes_Iter_1, Seconds(timer));
+        	 ;
   		    Start(timer);
   		    iteration++;
         	discovered_nodes_Iter_1 = 0;

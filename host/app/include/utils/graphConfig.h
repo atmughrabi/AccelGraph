@@ -4,5 +4,6 @@
 #define WEIGHTED 0
 #define DIRECTED 1 
 
+extern int numThreads;
 
 #endif
