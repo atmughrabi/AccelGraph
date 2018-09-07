@@ -264,7 +264,10 @@ run: test
 
 run-capi: test-capi
 	./$(APP_DIR)/test/$(GAPP)-capi -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads)
-	
+
+debug: test	
+	gdb ./$(APP_DIR)/test/$(GAPP)
+
 
 clean:
 	@rm -fr $(APP_DIR)/graphCSR-build

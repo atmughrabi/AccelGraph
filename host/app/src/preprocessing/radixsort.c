@@ -13,7 +13,23 @@
 
 // A function to do counting sort of edgeList according to
 // the digit represented by exp
-void radixSortCountSortEdgesBySource (struct Edge** sorted_edges_array, struct EdgeList* edgeList, __u32 j, __u32 buckets, __u32* buckets_count){
+// The parallel version has the following pseudo code
+// parallel_for part in 0..K-1
+//   for i in indexes(part)
+//     bucket = compute_bucket(a[i])
+//     Cnt[part][bucket]++
+
+// base = 0
+// for bucket in 0..R-1
+//   for part in 0..K-1
+//     Cnt[part][bucket] += base
+//     base = Cnt[part][bucket]
+
+// parallel_for part in 0..K-1
+//   for i in indexes(part)
+//     bucket = compute_bucket(a[i])
+//     out[Cnt[part][bucket]++] = a[i]
+void radixSortCountSortEdgesBySource (struct Edge** sorted_edges_array, struct EdgeList* edgeList, __u32 radix, __u32 buckets, __u32* buckets_count){
 
 	struct Edge* temp_edges_array = NULL; 
     __u32 num_edges = edgeList->num_edges;
@@ -21,77 +37,75 @@ void radixSortCountSortEdgesBySource (struct Edge** sorted_edges_array, struct E
     __u32 o = 0;
     __u32 u = 0;
     __u32 i = 0;
+    __u32 j = 0;
     __u32 P = numThreads;  // 32/8 8 bit radix needs 4 iterations
-    // __u32 t_id = 0;
-    // __u32 offset = 0;
-    // __u32 base = 0;
+    __u32 t_id = 0;
+    __u32 offset_start = 0;
+    __u32 offset_end = 0;
+    __u32 base = 0;
 
-    // #pragma omp parallel private(offset,t_id, P) firstprivate(base) 
-    // {
-    //     P = omp_get_num_threads();
-    //     t_id = omp_get_thread_num();
-    //     offset = t_id*(num_edges/P);
+    #pragma omp parallel default(none) shared(sorted_edges_array,edgeList,radix,buckets,buckets_count,num_edges) firstprivate(t_id, P, offset_end,offset_start,base,i,j,t,u,o) 
+    {
+        P = omp_get_num_threads();
+        t_id = omp_get_thread_num();
+        offset_start = t_id*(num_edges/P);
 
-    //     printf("numthreads %d\n", P);
-    //     // printf("t_id %d\n", t_id);
-    //     printf("t_id %d\n", t_id);
 
-    //     //HISTOGRAM-KEYS 
-    //     for(i=0; i < buckets; i++){ 
-    //         buckets_count[(t_id*buckets)+i] = 0;
-    //     }
+        if(t_id == (P-1)){
+            offset_end = offset_start+(num_edges/P) + (num_edges%P) ;
+        }
+        else{
+            offset_end = offset_start+(num_edges/P);
+        }
+        
+
+        //HISTOGRAM-KEYS 
+        for(i=0; i < buckets; i++){ 
+            buckets_count[(t_id*buckets)+i] = 0;
+        }
 
        
-    //     for (i = offset; i < (offset+(num_edges/P)); i++) {       /* generate histograms */
-    //         u = edgeList->edges_array[i].src;
-    //         t = (u >> (j*8)) & 0xff;
-    //         buckets_count[(t_id*buckets)+t]++;
-    //     }
-
-    //     if(t_id != 0)
-    //     for(i=0; i < buckets; i++){ 
-    //         buckets_count[(t_id*buckets)+i] += base;
-    //         base = buckets_count[((t_id-1)*buckets)+i]
-    //     }
+        for (i = offset_start; i < offset_end; i++) {      
+            u = edgeList->edges_array[i].src;
+            t = (u >> (radix*8)) & 0xff;
+            buckets_count[(t_id*buckets)+t]++;
+        }
 
 
-    // }
+        #pragma omp barrier
 
-//HISTOGRAM-KEYS 
-    for(i=0; i < (P*buckets); i++){
-        buckets_count[i] = 0;
+
+        //SCAN BUCKETS
+        if(t_id == 0){
+
+        for(i=0; i < buckets; i++){
+             for(j=0 ; j < P; j++){
+             t = buckets_count[(j*buckets)+i];
+             buckets_count[(j*buckets)+i] = base;
+             base += t;
+         }
+        }
+
+        }
+
+        #pragma omp barrier
+
+        //RANK-AND-PERMUTE
+        for (i = offset_start; i < offset_end; i++) {       /* radix sort */
+            u = edgeList->edges_array[i].src;
+            t = (u >> (radix*8)) & 0xff;
+            o = buckets_count[(t_id*buckets)+t];
+            (*sorted_edges_array)[o] = edgeList->edges_array[i];
+            buckets_count[(t_id*buckets)+t]++;
+
+        }
+
     }
 
-    
-        for (i = 0; i < num_edges; i++) {       /* generate histograms */
-            u = edgeList->edges_array[i].src;
-            t = (u >> (j*8)) & 0xff;
-            buckets_count[t]++;
-        }
-
-    //SCAN BUCKETS
-
-        for(i=0; i< buckets; i++){ /* convert to indices generate prefixsum */
-            t = buckets_count[i];
-            buckets_count[i] = o;
-            o = t + o;
-        }
-
-
-    //RANK-AND-PERMUTE
-        for (i = 0; i < num_edges; i++) {       /* radix sort */
-            u = edgeList->edges_array[i].src;
-            t = (u >> (j*8))  & 0xff;
-            o = buckets_count[t];
-            (*sorted_edges_array)[o] = edgeList->edges_array[i];
-            buckets_count[t]++;
-        }
-
-    
     temp_edges_array = *sorted_edges_array;
     *sorted_edges_array = edgeList->edges_array;
     edgeList->edges_array = temp_edges_array;
-
+    
 }
 
 // This algorithm coded in accordance to Zagha et al paper 1991

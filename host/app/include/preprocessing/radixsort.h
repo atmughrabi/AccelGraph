@@ -9,5 +9,5 @@ struct EdgeList* radixSortEdgesBySource (struct EdgeList* edgeList);
 struct EdgeList* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
 struct EdgeList* radixSortEdgesBySourceOptimized (struct EdgeList* edgeList);
 struct EdgeList* radixSortEdgesBySourceOptimizedParallel (struct EdgeList* edgeList);
-void radixSortCountSortEdgesBySource (struct Edge** sorted_edges_array, struct EdgeList* edgeList, __u32 j, __u32 buckets, __u32* buckets_count);
+void radixSortCountSortEdgesBySource (struct Edge** sorted_edges_array, struct EdgeList* edgeList, __u32 radix, __u32 buckets, __u32* buckets_count);
 #endif
