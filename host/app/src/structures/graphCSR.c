@@ -65,7 +65,7 @@ void graphCSRPrint(struct GraphCSR* graphCSR){
     printf("| %-51u | \n", graphCSR->num_edges);  
     printf(" -----------------------------------------------------\n");
     vertexArrayMaxOutdegree(graphCSR->vertices, graphCSR->num_vertices);
- 	vertexArrayMaxInDegree(graphCSR->vertices, graphCSR->num_vertices);
+ 	vertexArrayMaxInDegree(graphCSR->inverse_vertices, graphCSR->num_vertices);
  // 	printVertexArray(graphCSR->vertices, graphCSR->num_vertices);
 	// __u32 i;
 

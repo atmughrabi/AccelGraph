@@ -9,7 +9,7 @@
 #include <err.h>
 #include <string.h>
 #include <linux/types.h>
-
+#include <omp.h>
 
 #include "edgeList.h"
 #include "progressbar.h"
@@ -200,7 +200,9 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         #endif
         
         __u32 i;
+        __u32 num_vertices = 0;
 
+        #pragma omp parallel for reduction(max:num_vertices)
         for(i = 0; i < num_edges-1; i++){
 
                 src = buf_pointer[((offset)*i)+0];
@@ -232,14 +234,14 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
                         }
                 #endif
                 
-                edgeList->num_vertices = maxTwoIntegers(edgeList->num_vertices,maxTwoIntegers(edgeList->edges_array[i].src, edgeList->edges_array[i].dest));
+                num_vertices = maxTwoIntegers(num_vertices,maxTwoIntegers(edgeList->edges_array[i].src, edgeList->edges_array[i].dest));
                
                  #if WEIGHTED
                         edgeList->edges_array[i].weight = buf_pointer[((offset)*i)+2];
                  #endif
         }
 
-        edgeList->num_vertices++; // max number of veritices Array[0-max]
+        edgeList->num_vertices = num_vertices+1; // max number of veritices Array[0-max]
 
         // printf("DONE Reading EdgeList from file %s \n", fname);
         // edgeListPrint(edgeList);

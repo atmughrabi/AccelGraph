@@ -27,6 +27,7 @@ void freeVertexArray(struct Vertex* vertices);
 void printVertexArray(struct Vertex* vertex_array, __u32 num_vertices);
 void vertexArrayMaxOutdegree(struct Vertex* vertex_array, __u32 num_vertices);
 void vertexArrayMaxInDegree(struct Vertex* vertex_array, __u32 num_vertices);
+void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted_edges_array, __u32* offset_start,__u32* offset_end);
 
 
 #endif

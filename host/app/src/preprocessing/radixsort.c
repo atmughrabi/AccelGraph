@@ -126,7 +126,7 @@ struct EdgeList* radixSortEdgesBySource (struct EdgeList* edgeList){
     __u32 num_edges = edgeList->num_edges;
     __u32* buckets_count = NULL;
 
-    omp_set_num_threads(P);
+    // omp_set_num_threads(P);
    
     __u32 j = 0; //1,2,3 iteration
 

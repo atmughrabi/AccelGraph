@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/types.h>
+#include <omp.h>
 
 #include "graphCSR.h"
 #include "vertex.h"
@@ -22,7 +23,7 @@ struct Vertex* newVertexArray(__u32 num_vertices){
 
         for(i = 0; i < num_vertices; i++){
 
-                vertex_array[i].edges_idx  = NO_OUTGOING_EDGES;
+                vertex_array[i].edges_idx  = 0;
                 vertex_array[i].visited    = 0;
                 vertex_array[i].out_degree = 0;
                 vertex_array[i].in_degree  = 0;
@@ -76,13 +77,72 @@ return graph;
 
 }
 
+void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted_edges_array, __u32* offset_start,__u32* offset_end){
+
+    __u32 i;
+    __u32 j;
+    __u32 P = numThreads;
+
+
+
+    for(i=0 ; i < P ; i++){
+    
+        offset_start[i] = 0;
+        offset_end[i] = 0;
+
+    }
+
+    offset_start[0] = 0;
+    offset_end[0] = offset_start[0] + (graph->num_edges/P);
+
+
+    for(i=1 ; i < P ; i++){
+
+       
+
+        for(j = offset_end[i-1]; j < graph->num_edges; j++){
+
+             if(sorted_edges_array[j].src != sorted_edges_array[j-1].src){  
+                offset_start[i] = j;
+                offset_end[i-1] = j;
+
+                if(i == (P-1)){
+                 offset_end[i] = i*(graph->num_edges/P) + (graph->num_edges/P) + (graph->num_edges%P) ;
+                }
+                else{
+                 offset_end[i] =  offset_start[i] + (graph->num_edges/P);
+                }
+
+                break;
+             }
+
+            
+         }
+
+       
+    }
+
+
+}
+
 struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 inverse){
 
     __u32 i;
     __u32 vertex_id;
-    __u32 vertex_id_dest;
+    // __u32 vertex_id_dest;
+    __u32 P = numThreads; 
      struct Vertex* vertices;
      struct Edge* sorted_edges_array;
+
+    #if ALIGNED
+        __u32* offset_start_arr = (__u32*) my_aligned_alloc( P * sizeof(__u32));
+        __u32* offset_end_arr = (__u32*) my_aligned_alloc( P * sizeof(__u32));
+    #else
+        __u32* offset_start_arr = (__u32*) my_malloc( P * sizeof(__u32));
+        __u32* offset_end_arr = (__u32*) my_malloc( P * sizeof(__u32));
+    #endif
+
+   
     
     #if DIRECTED
 
@@ -98,48 +158,93 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
             sorted_edges_array = graph->sorted_edges_array;
             vertices = graph->vertices;
     #endif
+    
+   
+    partitionEdgeListOffsetStartEnd(graph, sorted_edges_array, offset_start_arr, offset_end_arr);
 
 
+    __u32 t_id = 0;
+    __u32 offset_start = 0;
+    __u32 offset_end = 0;
 
-    vertex_id_dest = sorted_edges_array[0].dest;
-    vertex_id = sorted_edges_array[0].src;
+    #pragma omp parallel default(none) private(i,vertex_id) shared(vertices,sorted_edges_array,offset_start_arr,offset_end_arr) firstprivate(t_id, offset_end,offset_start) 
+    {
+        
+        t_id = omp_get_thread_num();
+        offset_start = offset_start_arr[t_id];
+        offset_end = offset_end_arr[t_id];
+        printf(" t_id %d offset_start %d offset_end %d \n",t_id,offset_start,offset_end);
 
-    vertices[vertex_id].edges_idx = 0;
-    vertices[vertex_id].out_degree++;
-    vertices[vertex_id_dest].in_degree++;
+        vertex_id = sorted_edges_array[offset_start].src;
+        vertices[vertex_id].edges_idx = offset_start;
+        vertices[vertex_id].out_degree++;
 
-    for(i =1; i < graph->num_edges; i++){
+        for(i = offset_start+1; i < offset_end; i++){
 
         
         if(sorted_edges_array[i].src != sorted_edges_array[i-1].src){      
 
             vertex_id = sorted_edges_array[i].src;
-            vertex_id_dest = sorted_edges_array[i].dest;
             vertices[vertex_id].edges_idx = i; 
-            vertices[vertex_id].out_degree++;      
-            vertices[vertex_id_dest].in_degree++;  
-            // printf("1| %-15u | %-15u | %-15u | %-15u | \n", vertex_id, vertex_id_dest, vertices[vertex_id].out_degree, vertices[vertex_id_dest].in_degree );
-
-
+            vertices[vertex_id].out_degree++;  
+         
         }else{
-
-            vertex_id_dest = sorted_edges_array[i].dest;
             vertices[vertex_id].out_degree++;
-            vertices[vertex_id_dest].in_degree++;
-            // printf("2| %-15u | %-15u | %-15u | %-15u | \n", vertex_id, vertex_id_dest, vertices[vertex_id].out_degree, vertices[vertex_id_dest].in_degree );
-
         }
     }
 
-// optimization for BFS implentaion instead of -1 we use -out degree to for hybrid approach counter
 
+    }
+
+    // // vertex_id_dest = sorted_edges_array[0].dest;
+    // vertex_id = sorted_edges_array[0].src;
+    // vertices[vertex_id].edges_idx = 0;
+    // vertices[vertex_id].out_degree++;
+    // // vertices[vertex_id_dest].in_degree++;
+
+
+
+    // // #pragma omp parallel for schedule (dynamic,1024) default(none) private(i) firstprivate(vertex_id_dest, vertex_id) shared(vertices,sorted_edges_array,graph)
+    // for(i =1; i < graph->num_edges; i++){
+
+        
+    //     if(sorted_edges_array[i].src != sorted_edges_array[i-1].src){      
+
+    //         vertex_id = sorted_edges_array[i].src;
+    //         // vertex_id_dest = sorted_edges_array[i].dest;
+    //         vertices[vertex_id].edges_idx = i; 
+    //         // #pragma omp atomic
+    //         vertices[vertex_id].out_degree++;  
+    //         // #pragma omp atomic    
+    //             // vertices[vertex_id_dest].in_degree++;  
+    //         // printf("1| %-15u | %-15u |\n", vertex_id, vertices[vertex_id].out_degree );
+
+
+    //     }else{
+
+    //         // vertex_id_dest = sorted_edges_array[i].dest;
+    //         // #pragma omp atomic
+    //         vertices[vertex_id].out_degree++;
+    //         // #pragma omp atomic    
+    //             // vertices[vertex_id_dest].in_degree++;
+
+    //         // printf("2| %-15u | %-15u |\n", vertex_id, vertices[vertex_id].out_degree );
+
+    //     }
+    // }
+
+// optimization for BFS implentaion instead of -1 we use -out degree to for hybrid approach counter
+    // printVertexArray(vertices, graph->num_vertices);
     if(!inverse){
-     for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++){
+
+    #pragma omp parallel for default(none) private(vertex_id)  shared(vertices,graph)
+    for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++){
                 if(vertices[vertex_id].out_degree)
                     graph->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
                 else
                     graph->parents[vertex_id] = -1;
      }
+
     }
 
 return graph;
@@ -155,6 +260,8 @@ void vertexArrayMaxOutdegree(struct Vertex* vertex_array, __u32 num_vertices){
     printf(" -----------------------------------------------------\n");
     printf("| %-15s | %-15s | %-15s | \n", "Node", "*max_out_degree", "in_degree");
     printf(" -----------------------------------------------------\n");
+
+
 
     for(i =0; i < num_vertices; i++){
 
@@ -185,15 +292,15 @@ void vertexArrayMaxInDegree(struct Vertex* vertex_array, __u32 num_vertices){
     for(i =0; i < num_vertices; i++){
 
 
-        in_degree = maxTwoIntegers(in_degree, vertex_array[i].in_degree);
-        if(vertex_array[i].in_degree == in_degree)
+        in_degree = maxTwoIntegers(in_degree, vertex_array[i].out_degree);
+        if(vertex_array[i].out_degree == in_degree)
             index = i;
        
         
     }
 
 
-    printf("| %-15u | %-15u | %-15u | \n",index,  vertex_array[index].out_degree, vertex_array[index].in_degree);
+    printf("| %-15u | %-15u | %-15u | \n",index,  vertex_array[index].in_degree, vertex_array[index].out_degree);
    printf(" -----------------------------------------------------\n");
 
 }
@@ -207,7 +314,7 @@ void printVertexArray(struct Vertex* vertex_array, __u32 num_vertices){
 
     for(i =0; i < num_vertices; i++){
 
-        if((vertex_array[i].out_degree > 0) || (vertex_array[i].in_degree > 0))
+        if((vertex_array[i].out_degree > 0) )
         printf("| %-15u | %-15u | %-15u | %-15u | \n",i,  vertex_array[i].out_degree, vertex_array[i].in_degree, vertex_array[i].visited);
     
     }
