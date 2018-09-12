@@ -159,7 +159,7 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
             vertices = graph->vertices;
     #endif
     
-   
+   //edge list must be sorted 
     partitionEdgeListOffsetStartEnd(graph, sorted_edges_array, offset_start_arr, offset_end_arr);
 
 
@@ -173,7 +173,7 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
         t_id = omp_get_thread_num();
         offset_start = offset_start_arr[t_id];
         offset_end = offset_end_arr[t_id];
-        printf(" t_id %d offset_start %d offset_end %d \n",t_id,offset_start,offset_end);
+        // printf(" t_id %d offset_start %d offset_end %d \n",t_id,offset_start,offset_end);
 
         vertex_id = sorted_edges_array[offset_start].src;
         vertices[vertex_id].edges_idx = offset_start;
@@ -196,48 +196,10 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
 
     }
 
-    // // vertex_id_dest = sorted_edges_array[0].dest;
-    // vertex_id = sorted_edges_array[0].src;
-    // vertices[vertex_id].edges_idx = 0;
-    // vertices[vertex_id].out_degree++;
-    // // vertices[vertex_id_dest].in_degree++;
-
-
-
-    // // #pragma omp parallel for schedule (dynamic,1024) default(none) private(i) firstprivate(vertex_id_dest, vertex_id) shared(vertices,sorted_edges_array,graph)
-    // for(i =1; i < graph->num_edges; i++){
-
-        
-    //     if(sorted_edges_array[i].src != sorted_edges_array[i-1].src){      
-
-    //         vertex_id = sorted_edges_array[i].src;
-    //         // vertex_id_dest = sorted_edges_array[i].dest;
-    //         vertices[vertex_id].edges_idx = i; 
-    //         // #pragma omp atomic
-    //         vertices[vertex_id].out_degree++;  
-    //         // #pragma omp atomic    
-    //             // vertices[vertex_id_dest].in_degree++;  
-    //         // printf("1| %-15u | %-15u |\n", vertex_id, vertices[vertex_id].out_degree );
-
-
-    //     }else{
-
-    //         // vertex_id_dest = sorted_edges_array[i].dest;
-    //         // #pragma omp atomic
-    //         vertices[vertex_id].out_degree++;
-    //         // #pragma omp atomic    
-    //             // vertices[vertex_id_dest].in_degree++;
-
-    //         // printf("2| %-15u | %-15u |\n", vertex_id, vertices[vertex_id].out_degree );
-
-    //     }
-    // }
-
 // optimization for BFS implentaion instead of -1 we use -out degree to for hybrid approach counter
-    // printVertexArray(vertices, graph->num_vertices);
     if(!inverse){
 
-    #pragma omp parallel for default(none) private(vertex_id)  shared(vertices,graph)
+    #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graph)
     for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++){
                 if(vertices[vertex_id].out_degree)
                     graph->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
