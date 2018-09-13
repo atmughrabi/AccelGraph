@@ -255,9 +255,9 @@ fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8"
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root  = 6
 root = 428333
-datastructure = 0
+datastructure = 1
 algorithm = 0
-numThreads  = 4;
+numThreads  = 1;
 
 run: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads)

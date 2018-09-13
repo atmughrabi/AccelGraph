@@ -83,6 +83,7 @@ struct GraphGrid * graphGridNew(struct EdgeList* edgeList){
     #endif
 
     __u32 i;
+    #pragma omp parallel for default(none) private(i) shared(edgeList,graphGrid)
      for(i = 0; i < edgeList->num_vertices; i++){
                 graphGrid->parents[i] = -1;
      }
@@ -122,7 +123,7 @@ struct GraphGrid* graphGridPreProcessingStep (const char * fnameb){
     graphGridPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
     Start(timer);
-    edgeList = radixSortEdgesBySourceAndDestination(edgeList);
+    edgeList = radixSortEdgesBySource(edgeList);
     Stop(timer);
     graphGridPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 

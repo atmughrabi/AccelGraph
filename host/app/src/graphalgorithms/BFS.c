@@ -234,6 +234,7 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	Start(timer);
 
+	
 	for(i = frontier->head ; i < frontier->tail; i++){
 		v = frontier->queue[i];
 		// v = deArrayQueue(frontier);

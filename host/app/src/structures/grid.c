@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/types.h>
+#include <omp.h>
 
 #include "grid.h"
 #include "edgeList.h"
@@ -141,6 +142,7 @@ struct Grid * gridNew(struct EdgeList* edgeList){
 
 
         __u32 i;
+        #pragma omp parallel for default(none) private(i) shared(totalPartitions,grid)
         for (i = 0; i < totalPartitions; ++i)
         {
 
@@ -180,26 +182,47 @@ struct Grid * gridPartitionSizePreprocessing(struct Grid *grid, struct EdgeList*
 	__u32 i;
 	__u32 src;
 	__u32 dest;
+    __u32 Partition_idx;
+
 	__u32 num_partitions = grid->num_partitions;
 	__u32 num_vertices = grid->num_vertices;
+
 
 	__u32 row;
 	__u32 col;
 
+    omp_lock_t lock[num_partitions*num_partitions];
 
+    #pragma omp parallel for
+    for (i=0; i<num_partitions*num_partitions; i++){
+        omp_init_lock(&(lock[i]));
+    }
+
+
+    #pragma omp parallel for default(none) private(i,row,col,src,dest,Partition_idx) shared(lock,num_vertices, num_partitions,edgeList,grid)
 	for(i = 0; i < edgeList->num_edges; i++){
 
 		src  = edgeList->edges_array[i].src;
 		dest = edgeList->edges_array[i].dest;
+
 		row = getPartitionID(num_vertices, num_partitions, src);
 		col = getPartitionID(num_vertices, num_partitions, dest);
+        Partition_idx= (row*num_partitions)+col;
 
-		grid->partitions[(row*grid->num_partitions)+col].num_edges++;
-		grid->partitions[(row*grid->num_partitions)+col].num_vertices = maxTwoIntegers(grid->partitions[(row*grid->num_partitions)+col].num_vertices,maxTwoIntegers(src, dest));
-        
-
+        omp_set_lock(&(lock[Partition_idx]));
+        {
+		grid->partitions[Partition_idx].num_edges++;
+		grid->partitions[Partition_idx].num_vertices = maxTwoIntegers(grid->partitions[Partition_idx].num_vertices,maxTwoIntegers(src, dest));
+        }
+        omp_unset_lock((&lock[Partition_idx]));
 
 	}
+
+
+    #pragma omp parallel for
+    for (i=0; i<num_partitions*num_partitions; i++){
+        omp_destroy_lock(&(lock[i]));
+    }
 
 	return grid;
 
@@ -220,7 +243,15 @@ struct Grid * gridPartitionEdgePopulation(struct Grid *grid, struct EdgeList* ed
 	__u32 row;
 	__u32 col;
 
+    omp_lock_t lock[num_partitions*num_partitions];
 
+    #pragma omp parallel for
+    for (i=0; i<num_partitions*num_partitions; i++){
+        omp_init_lock(&(lock[i]));
+    }
+
+
+    #pragma omp parallel for default(none) private(i,row,col,src,dest,Partition_idx) shared(lock,num_vertices, num_partitions,edgeList,grid)
 	for(i = 0; i < edgeList->num_edges; i++){
 
 
@@ -228,26 +259,24 @@ struct Grid * gridPartitionEdgePopulation(struct Grid *grid, struct EdgeList* ed
 		dest = edgeList->edges_array[i].dest;
 		row = getPartitionID(num_vertices, num_partitions, src);
 		col = getPartitionID(num_vertices, num_partitions, dest);
-		Partition_idx= (row*grid->num_partitions)+col;
+		Partition_idx= (row*num_partitions)+col;
 
+        omp_set_lock(&(lock[Partition_idx]));
+        {
 		grid->partitions[Partition_idx].edgeList->edges_array[grid->partitions[Partition_idx].num_edges] = edgeList->edges_array[i];
 		grid->partitions[Partition_idx].num_edges++;  
+        }
+        omp_unset_lock((&lock[Partition_idx]));
+	
+    }
 
-        // printf("| %-11s (%u,%u)   | \n", "Edge: ", src, dest);
-        // graphGridSetActivePartitions(grid,src);
-        // __u32 j;
-        // for (j=0 ; j<num_partitions*num_partitions ; j++){
 
-        //     printf("[%d] %d ",j,grid->activePartitions[j]);
-
-        // }
-        // printf("\n");
-        // graphGridResetActivePartitions(grid);
-
-	}
+    #pragma omp parallel for
+    for (i=0; i<num_partitions*num_partitions; i++){
+        omp_destroy_lock(&(lock[i]));
+    }
 
 	return grid;
-
 
 }
 
@@ -257,6 +286,7 @@ struct Grid * gridPartitionsMemoryAllocations(struct Grid *grid){
 	__u32 i;
 	__u32 totalPartitions = grid->num_partitions*grid->num_partitions;
 	
+    #pragma omp parallel for default(none) private(i) shared(totalPartitions,grid)
 	 for ( i = 0; i < totalPartitions; ++i)
         {
 
