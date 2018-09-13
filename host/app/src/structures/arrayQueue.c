@@ -66,6 +66,14 @@ void enArrayQueueDelayed (struct ArrayQueue *q, __u32 k){
 
 }
 
+void enArrayQueueDelayedBitmap (struct ArrayQueue *q, __u32 k){
+
+	// q->queue[q->tail_next] = k;
+	setBit(q->bitmap_next, k);
+	// q->tail_next++;
+
+}
+
 
 void slideWindowArrayQueue (struct ArrayQueue *q){
 
@@ -155,6 +163,11 @@ __u32 sizeArrayQueueNext(struct ArrayQueue *q){
 __u32 sizeArrayQueue(struct ArrayQueue *q){
 
 	return q->tail_next - q->head;
+
+}
+
+void flushArrayQueueToShared(struct ArrayQueue *local, struct ArrayQueue *shared){
+
 
 }
 

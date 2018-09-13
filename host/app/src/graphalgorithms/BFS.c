@@ -234,7 +234,7 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	Start(timer);
 
-	
+
 	for(i = frontier->head ; i < frontier->tail; i++){
 		v = frontier->queue[i];
 		// v = deArrayQueue(frontier);
@@ -302,6 +302,7 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	Start(timer);
 
+	// #pragma omp parallel for default(none) private(v) shared(graph) reduction(+:nf)
 	for(v=0 ; v < graph->num_vertices ; v++){
 
     		#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
