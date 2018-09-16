@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <linux/types.h>
+#include <omp.h>
 
 #include "myMalloc.h"
 #include "arrayQueue.h"
@@ -169,6 +170,30 @@ __u32 sizeArrayQueue(struct ArrayQueue *q){
 }
 
 void flushArrayQueueToShared(struct ArrayQueue *local_q, struct ArrayQueue *shared_q){
+
+__u32 i;
+
+__u32 shared_q_tail_next = 0;
+__u32 local_q_tail = 0;
+local_q_tail = local_q->tail;
+
+	#pragma omp critical
+	{
+		shared_q_tail_next = shared_q->tail_next;	
+		shared_q->tail_next += local_q_tail;
+	}
+
+
+	for(i = local_q->head ; i < local_q->tail; i++){
+
+		shared_q->queue[shared_q_tail_next] = local_q->queue[i];
+		shared_q_tail_next++;
+
+	}
+
+	local_q->head = 0;
+    local_q->tail = 0;
+    local_q->tail_next = 0;
 
 
 }

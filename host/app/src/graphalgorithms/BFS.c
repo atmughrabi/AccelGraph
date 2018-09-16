@@ -142,13 +142,8 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 
 	
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-	struct ArrayQueue* frontierQueue = newArrayQueue(graph->num_vertices);
-	
-	// enArrayQueueDelayed(frontier, source);
-	// slideWindowArrayQueue(frontier);
-
-	
-
+	struct ArrayQueue* sharedFrontierQueue = newArrayQueue(graph->num_vertices);
+	__u32 P = numThreads;
 	__u32 mu = graph->num_edges; // number of edges to check from frontier
 	__u32 mf = graph->vertices[source].out_degree; // number of edges from unexplored verticies
 	__u32 nf = 0; // number of vertices in frontier
@@ -157,8 +152,20 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 	__u32 alpha = 14;
 	__u32 beta = 24;
 
+	#if ALIGNED
+		struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_alloc( P * sizeof(struct ArrayQueue*));
+	#else
+        struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_alloc( P * sizeof(struct ArrayQueue*));
+    #endif
 
-	enArrayQueue(frontierQueue, source);
+   __u32 i;
+   for(i=0 ; i < P ; i++){
+		localFrontierQueues[i] = newArrayQueue(graph->num_vertices);
+		
+   }
+
+
+	enArrayQueue(sharedFrontierQueue, source);
 	graph->parents[source] = source;  
 
 	// graph->vertices[source].visited = 1;
@@ -167,37 +174,37 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
     printf(" -----------------------------------------------------\n");
 
     Start(timer);
-	while(!isEmptyArrayQueue(frontierQueue)){ // start while 
+	while(!isEmptyArrayQueue(sharedFrontierQueue)){ // start while 
 
 		if(mf > (mu/alpha)){
 
-			arrayQueueToBitmap(frontierQueue);
+			arrayQueueToBitmap(sharedFrontierQueue);
 
-			nf = sizeArrayQueue(frontierQueue);
+			nf = sizeArrayQueue(sharedFrontierQueue);
 			// slideWindowArrayQueue(frontier);
 			
 			do{
 
 			nf_prev = nf;
-			nf = bottomUpStepGraphCSR(graph, frontierQueue);
+			nf = bottomUpStepGraphCSR(graph, sharedFrontierQueue);
 
-			swapBitmaps(&frontierQueue->bitmap, &frontierQueue->bitmap_next);
-			reset(frontierQueue->bitmap_next);
+			swapBitmaps(&sharedFrontierQueue->bitmap, &sharedFrontierQueue->bitmap_next);
+			reset(sharedFrontierQueue->bitmap_next);
 			
 		
 			}while(( nf > nf_prev) || // growing;
 				   ( nf > (n/beta)));
 
 			
-			bitmapToArrayQueue(frontierQueue);
+			bitmapToArrayQueue(sharedFrontierQueue);
 
 			mf = 1;
 
 		}else{
 		
 			mu -= mf;
-			mf = topDownStepGraphCSR(graph, frontierQueue);
-			slideWindowArrayQueue(frontierQueue);
+			mf = topDownStepGraphCSR(graph, sharedFrontierQueue,localFrontierQueues);
+			slideWindowArrayQueue(sharedFrontierQueue);
 		
 
 		}
@@ -206,12 +213,12 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 	} // end while
 	Stop(timer);
 	printf(" -----------------------------------------------------\n");
-	printf("| %-15s | %-15u | %-15f | \n","**", frontierQueue->processed_nodes, Seconds(timer));
+	printf("| %-15s | %-15u | %-15f | \n","**", sharedFrontierQueue->processed_nodes, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
 
 	resetParentArray(graph->parents, graph->num_vertices);
-	freeArrayQueue(frontierQueue);
+	freeArrayQueue(sharedFrontierQueue);
 	free(timer);
 }
 
@@ -226,7 +233,7 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 // 		end for
 // 	end for
 
-__u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
+__u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier, struct ArrayQueue** localFrontierQueues){
 
 
 	
@@ -238,36 +245,45 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 	__u32 processed_nodes = 0;
 	__u32 mf = 0;
 
+	// struct ArrayQueue* localFrontierQueue = newArrayQueue(graph->num_vertices);
+
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	Start(timer);
 
 
-	for(i = frontier->head ; i < frontier->tail; i++){
-		processed_nodes++;
-		v = frontier->queue[i];
-		edge_idx = graph->vertices[v].edges_idx;
-
-    	for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++){
-        
-            // destination vertex id
-            u = graph->sorted_edges_array[j].dest;
-            
-            // if the destination vertex is not yet enqueued
-            // if((graph->parents[u]) == (-1)) { // fixed to implement optemizations
-            if((graph->parents[u]) < 0 ){
-               
-                // add the destination vertex to the queue 
-                enArrayQueueDelayed(frontier, u);
-                mf +=  -(graph->parents[u]);
-                graph->parents[u] = v;  
-
-            }
-        }
-
-	} 
-
+	#pragma omp parallel default (none) private(u,v,j,i,edge_idx) shared(localFrontierQueues,graph,frontier,processed_nodes,mf) 
+  	{
+  		__u32 t_id = omp_get_thread_num();
+  		struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
 		
+  		
+  		#pragma omp for reduction(+:mf,processed_nodes) 
+		for(i = frontier->head ; i < frontier->tail; i++){
+			processed_nodes++;
+			v = frontier->queue[i];
+			edge_idx = graph->vertices[v].edges_idx;
 
+	    	for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++){
+	        
+	            // destination vertex id
+	            u = graph->sorted_edges_array[j].dest;
+	            
+	            // if the destination vertex is not yet enqueued
+	            // if((graph->parents[u]) == (-1)) { // fixed to implement optemizations
+	            if((graph->parents[u]) < 0 ){
+	               
+	                // add the destination vertex to the queue 
+	                enArrayQueue(localFrontierQueue, u);
+	                mf +=  -(graph->parents[u]);
+	                graph->parents[u] = v;  
+
+	            }
+	        }
+
+		} 
+
+		flushArrayQueueToShared(localFrontierQueue,frontier);
+	}
 	Stop(timer);
 	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration++, processed_nodes, Seconds(timer));
 	free(timer);
