@@ -125,16 +125,41 @@ struct Bitmap*  andBitmap(struct Bitmap* bitmap1, struct Bitmap* bitmap2){
 }
 
 
+void swapBitmaps (struct Bitmap** bitmap1, struct Bitmap** bitmap2){
+
+
+	struct Bitmap* temp_bitmap = *bitmap1;
+	*bitmap1 = *bitmap2;
+	*bitmap2 = temp_bitmap;
+
+
+}
+
 __u32 getNumOfSetBits (struct Bitmap* bitmap){
 
 	__u32 i;
 	__u32 numSetBits = 0;
 	__u8 bit = 0;
 
-	for(i= 0 ; i < ((bitmap->size+7)/8); i++){
+	for(i= 0 ; i < (bitmap->size); i++){
 		bit = ba_get(bitmap->bitarray, i);
 		numSetBits += bit;
 	}
 
 	return numSetBits;
+}
+
+void printSetBits (struct Bitmap* bitmap){
+
+	__u32 i;
+	__u8 bit = 0;
+
+	for(i= 0 ; i < (bitmap->size); i++){
+		bit = ba_get(bitmap->bitarray, i);
+		if(bit){
+			printf("**%u \n", i);
+		}
+		bit = 0;
+	}
+
 }

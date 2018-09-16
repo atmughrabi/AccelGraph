@@ -21,6 +21,8 @@ struct ArrayQueue *newArrayQueue(__u32 size){
     arrayQueue->tail_next = 0;
     arrayQueue->size = size;
     arrayQueue->iteration = 0;
+    arrayQueue->processed_nodes = 0;
+
 
     #if ALIGNED
 		arrayQueue->queue = (__u32*) my_aligned_alloc(size*sizeof(__u32));
@@ -49,8 +51,8 @@ void freeArrayQueue(struct ArrayQueue *q){
 void enArrayQueue (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail] = k;
-	setBit(q->bitmap, k);
-	setBit(q->bitmap_next, k);
+	// setBit(q->bitmap, k);
+	// setBit(q->bitmap_next, k);
 	q->tail = q->tail_next;
 	q->tail++;
 	q->tail_next++;
@@ -61,7 +63,7 @@ void enArrayQueue (struct ArrayQueue *q, __u32 k){
 void enArrayQueueDelayed (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail_next] = k;
-	setBit(q->bitmap_next, k);
+	// setBit(q->bitmap_next, k);
 	q->tail_next++;
 
 }
@@ -80,9 +82,9 @@ void slideWindowArrayQueue (struct ArrayQueue *q){
 	// if(q->tail_next > q->tail){
 		q->head = q->tail;
 		q->tail = q->tail_next;
-		q->iteration++;
-		reset(q->bitmap);
-		q->bitmap = orBitmap(q->bitmap,q->bitmap_next);
+		
+		// reset(q->bitmap);
+		// q->bitmap = orBitmap(q->bitmap,q->bitmap_next);
 	// }
 	
 }
@@ -92,7 +94,7 @@ void slideWindowArrayQueue (struct ArrayQueue *q){
 __u32 deArrayQueue(struct ArrayQueue *q){
 
 	__u32 k = q->queue[q->head];
-	clearBit(q->bitmap,k);
+	// clearBit(q->bitmap,k);
 	q->head++;
 
 	return k;
@@ -166,8 +168,41 @@ __u32 sizeArrayQueue(struct ArrayQueue *q){
 
 }
 
-void flushArrayQueueToShared(struct ArrayQueue *local, struct ArrayQueue *shared){
+void flushArrayQueueToShared(struct ArrayQueue *local_q, struct ArrayQueue *shared_q){
 
+
+}
+
+void arrayQueueToBitmap(struct ArrayQueue *q){
+
+	__u32 v;
+	__u32 i;
+	// printf("Q-Bit %u -> %u \n", q->head, q->tail );
+	for(i = q->head ; i < q->tail; i++){
+		// printf("%u \n", i );
+		v = q->queue[i];
+		// printf("%u \n", v );
+		setBit(q->bitmap, v);
+		// q->head++;
+	}
+
+	q->head = q->tail;
+
+
+}
+
+void bitmapToArrayQueue(struct ArrayQueue *q){
+	__u32 i;
+
+	for(i= 0 ; i < (q->bitmap->size); i++){
+		if(getBit(q->bitmap, i)){
+			q->queue[q->tail] = i;
+			q->tail++;
+		}
+		
+	}
+
+	q->tail_next = q->tail;
 
 }
 

@@ -6,7 +6,7 @@
 
 #define ba_set(ptr, bit)    (ptr)[(bit) >> 3] |= (__u8)(1 << ((bit) & 7)); 
 #define ba_clear(ptr, bit)  (ptr)[(bit) >> 3] &= (__u8)(~(1 << ((bit) & 7))); 
-#define ba_get(ptr, bit)    ((ptr)[(bit) >> 3] & (__u8)(1 << ((bit) & 7)) ?  1 : 0 )
+#define ba_get(ptr, bit)    ((ptr)[(bit) >> 3] & (__u8)(1 << ((bit) & 7)) ?  1 : 0 ) 
 #define ba_setbit(ptr, bit, value) { if (value) { ba_set((ptr), (bit)) } else { ba_clear((ptr), (bit)); } }
 
 struct __attribute__((__packed__)) Bitmap
@@ -29,7 +29,8 @@ void freeBitmap( struct Bitmap* bitmap);
 struct Bitmap*  orBitmap(struct Bitmap* bitmap1, struct Bitmap* bitmap2);
 struct Bitmap*  andBitmap(struct Bitmap* bitmap1, struct Bitmap* bitmap2);
 __u32 getNumOfSetBits (struct Bitmap* bitmap);
-
+void swapBitmaps (struct Bitmap** bitmap1, struct Bitmap** bitmap2);
+void printSetBits (struct Bitmap* bitmap);
 
 // int main()
 // {

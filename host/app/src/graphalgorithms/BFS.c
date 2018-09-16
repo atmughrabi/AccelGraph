@@ -141,7 +141,7 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 
 	
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-	struct ArrayQueue* frontier = newArrayQueue(graph->num_vertices);
+	struct ArrayQueue* frontierQueue = newArrayQueue(graph->num_vertices);
 	
 	// enArrayQueueDelayed(frontier, source);
 	// slideWindowArrayQueue(frontier);
@@ -157,7 +157,7 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 	__u32 beta = 24;
 
 
-	enArrayQueue(frontier, source);
+	enArrayQueue(frontierQueue, source);
 	graph->parents[source] = source;  
 
 	// graph->vertices[source].visited = 1;
@@ -166,32 +166,38 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
     printf(" -----------------------------------------------------\n");
 
     Start(timer);
-	while(!isEmptyArrayQueue(frontier)){ // start while 
+	while(!isEmptyArrayQueue(frontierQueue)){ // start while 
 
 		if(mf > (mu/alpha)){
 
+			arrayQueueToBitmap(frontierQueue);
 
-			nf = sizeArrayQueue(frontier);
+			nf = sizeArrayQueue(frontierQueue);
 			// slideWindowArrayQueue(frontier);
 			
-
 			do{
 
 			nf_prev = nf;
-			nf = bottomUpStepGraphCSR(graph, frontier);
-			slideWindowArrayQueue(frontier);
+			nf = bottomUpStepGraphCSR(graph, frontierQueue);
 
+			swapBitmaps(&frontierQueue->bitmap, &frontierQueue->bitmap_next);
+			reset(frontierQueue->bitmap_next);
+			
 		
 			}while(( nf > nf_prev) || // growing;
 				   ( nf > (n/beta)));
+
 			
+			bitmapToArrayQueue(frontierQueue);
+
 			mf = 1;
 
 		}else{
 		
 			mu -= mf;
-			mf = topDownStepGraphCSR(graph, frontier);
-			slideWindowArrayQueue(frontier);
+			mf = topDownStepGraphCSR(graph, frontierQueue);
+			slideWindowArrayQueue(frontierQueue);
+		
 
 		}
 
@@ -199,12 +205,12 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 	} // end while
 	Stop(timer);
 	printf(" -----------------------------------------------------\n");
-	printf("| %-15s | %-15u | %-15f | \n","**", frontier->tail_next, Seconds(timer));
+	printf("| %-15s | %-15u | %-15f | \n","**", frontierQueue->processed_nodes, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
 
 	resetParentArray(graph->parents, graph->num_vertices);
-	freeArrayQueue(frontier);
+	freeArrayQueue(frontierQueue);
 	free(timer);
 }
 
@@ -228,7 +234,7 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 	__u32 i;
 	__u32 j;
 	__u32 edge_idx;
-	__u32 processed_nodes = frontier->tail - frontier->head;
+	__u32 processed_nodes = 0;
 	__u32 mf = 0;
 
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
@@ -236,8 +242,8 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 
 	for(i = frontier->head ; i < frontier->tail; i++){
+		processed_nodes++;
 		v = frontier->queue[i];
-		// v = deArrayQueue(frontier);
 		edge_idx = graph->vertices[v].edges_idx;
 
     	for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++){
@@ -248,7 +254,7 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
             // if the destination vertex is not yet enqueued
             // if((graph->parents[u]) == (-1)) { // fixed to implement optemizations
             if((graph->parents[u]) < 0 ){
-                
+               
                 // add the destination vertex to the queue 
                 enArrayQueueDelayed(frontier, u);
                 mf +=  -(graph->parents[u]);
@@ -259,11 +265,12 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 	} 
 
-	
+		
 
 	Stop(timer);
-	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
+	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration++, processed_nodes, Seconds(timer));
 	free(timer);
+	frontier->processed_nodes += processed_nodes;
 	return mf;
 }
 
@@ -296,8 +303,10 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 		__u32 out_degree;
 	#endif
 
-	__u32 processed_nodes = frontier->tail - frontier->head;
+	__u32 processed_nodes = getNumOfSetBits(frontier->bitmap);
     __u32 nf = 0; // number of vertices in frontier
+    frontier->processed_nodes += processed_nodes;
+
 
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	Start(timer);
@@ -309,17 +318,19 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 	    		out_degree_inverse = graph->inverse_vertices[v].out_degree;
 
 	    		if(graph->parents[v] < 0){ // optmization
-
+	    			// processed_nodes++;
 	    			edge_idx_inverse = graph->inverse_vertices[v].edges_idx;
 
 		    		for(j = edge_idx_inverse ; j < (edge_idx_inverse + out_degree_inverse) ; j++){
 
 		    			 u = graph->inverse_sorted_edges_array[j].dest; // this is the inverse if the src is in frontier let the vertex update.
 		    			 // printf("u: %u \n",u );
-		    			 if(isEnArrayQueued(frontier, u)){
-		    			 	// printf("***infrontier u: %u \n",u );
+		    			 if(getBit(frontier->bitmap, u)){
+		    			 	// printf("***infrontier u: %u v: %u\n",u,v);
+		    			 	
 		    			 	graph->parents[v] = u;
-		    			 	enArrayQueueDelayed(frontier, v);
+		    			 	setBit(frontier->bitmap_next, v);
+		    			 	// printSetBits (frontier->bitmap_next);
 		    			 	nf++;
 		    			 	break;
 		    			 }
@@ -336,16 +347,17 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 				if(graph->parents[v] < 0){ // optmization 
 					edge_idx = graph->vertices[v].edges_idx;
-
+					// processed_nodes++;
 					// printf("edge_idx: %u \n",edge_idx );
 					// printf("graph->vertices[v].out_degree: %u \n",graph->vertices[v].out_degree );
 		    		for(j = edge_idx ; j < (edge_idx + out_degree) ; j++){
 		    			 u = graph->sorted_edges_array[j].dest;
 		    			 // printf("u: %u \n",u );
-		    			 if(isEnArrayQueued(frontier, u)){
+		    			 if(getBit(frontier->bitmap, u)){
 		    			 	// printf("***infrontier u: %u \n",u );
+		    			 	// processed_nodes++;
 		    			 	graph->parents[v] = u;
-		    			 	enArrayQueueDelayed(frontier, v);
+		    			 	setBit(frontier->bitmap_next, v);
 		    			 	nf++;
 		    			 	break;
 		    			 }
@@ -361,7 +373,7 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* frontier){
 
 
 	Stop(timer);
-	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration, processed_nodes, Seconds(timer));
+	printf("| %-15u | %-15u | %-15f | \n",frontier->iteration++, processed_nodes, Seconds(timer));
 	free(timer);
 	return nf;
 }
