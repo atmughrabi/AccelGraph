@@ -21,8 +21,7 @@ struct ArrayQueue *newArrayQueue(__u32 size){
     arrayQueue->tail = 0;
     arrayQueue->tail_next = 0;
     arrayQueue->size = size;
-    arrayQueue->iteration = 0;
-    arrayQueue->processed_nodes = 0;
+  
 
 
     #if ALIGNED
@@ -31,10 +30,9 @@ struct ArrayQueue *newArrayQueue(__u32 size){
         arrayQueue->queue = (__u32*) my_malloc(size*sizeof(__u32));
 	#endif
 
-    arrayQueue->bitmap = newBitmap(size);
+    arrayQueue->q_bitmap = newBitmap(size);
 
-    arrayQueue->bitmap_next = newBitmap(size);
-
+    arrayQueue->q_bitmap_next = newBitmap(size);
 
     return arrayQueue;
 
@@ -42,8 +40,9 @@ struct ArrayQueue *newArrayQueue(__u32 size){
 
 void freeArrayQueue(struct ArrayQueue *q){
 
-	freeBitmap(q->bitmap_next);
-	freeBitmap(q->bitmap);
+	freeBitmap(q->q_bitmap_next);
+	freeBitmap(q->q_bitmap);
+
 	free(q->queue);
 	free(q);
 
@@ -52,8 +51,8 @@ void freeArrayQueue(struct ArrayQueue *q){
 void enArrayQueue (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail] = k;
-	// setBit(q->bitmap, k);
-	// setBit(q->bitmap_next, k);
+	setBit(q->q_bitmap, k); // needs fixing
+	setBit(q->q_bitmap_next, k);
 	q->tail = q->tail_next;
 	q->tail++;
 	q->tail_next++;
@@ -61,10 +60,29 @@ void enArrayQueue (struct ArrayQueue *q, __u32 k){
 }
 
 
+void enArrayQueueAtomic (struct ArrayQueue *q, __u32 k){
+
+	__u32 local_q_tail = 0;
+
+	#pragma omp critical
+	{
+		local_q_tail = q->tail;
+		q->tail_next++;
+		q->tail = q->tail_next;
+	}
+	
+
+	q->queue[local_q_tail] = k;
+	setBit(q->q_bitmap, k); // needs fixing
+	setBit(q->q_bitmap_next, k);
+
+}
+
+
 void enArrayQueueDelayed (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail_next] = k;
-	// setBit(q->bitmap_next, k);
+	setBit(q->q_bitmap_next, k);
 	q->tail_next++;
 
 }
@@ -72,7 +90,7 @@ void enArrayQueueDelayed (struct ArrayQueue *q, __u32 k){
 void enArrayQueueDelayedBitmap (struct ArrayQueue *q, __u32 k){
 
 	// q->queue[q->tail_next] = k;
-	setBit(q->bitmap_next, k);
+	setBit(q->q_bitmap_next, k);
 	// q->tail_next++;
 
 }
@@ -83,9 +101,16 @@ void slideWindowArrayQueue (struct ArrayQueue *q){
 	// if(q->tail_next > q->tail){
 		q->head = q->tail;
 		q->tail = q->tail_next;
-		
-		// reset(q->bitmap);
-		// q->bitmap = orBitmap(q->bitmap,q->bitmap_next);
+		// q->iteration++;
+		reset(q->q_bitmap);
+		__u32 i;
+
+		#pragma omp parallel for
+		for(i = q->head; i < q->tail; i++){
+			setBit(q->q_bitmap, q->queue[i]);
+		}
+
+		// q->q_bitmap = orBitmap(q->q_bitmap,q->q_bitmap_next);
 	// }
 	
 }
@@ -95,7 +120,7 @@ void slideWindowArrayQueue (struct ArrayQueue *q){
 __u32 deArrayQueue(struct ArrayQueue *q){
 
 	__u32 k = q->queue[q->head];
-	// clearBit(q->bitmap,k);
+	clearBit(q->q_bitmap,k);
 	q->head++;
 
 	return k;
@@ -140,14 +165,14 @@ __u8 isEmptyArrayQueueNext (struct ArrayQueue *q){
 __u8  isEnArrayQueued 	(struct ArrayQueue *q, __u32 k){
 
 
-	return getBit(q->bitmap, k);
+	return getBit(q->q_bitmap, k);
 
 }
 
 __u8  isEnArrayQueuedNext 	(struct ArrayQueue *q, __u32 k){
 
 
-	return getBit(q->bitmap_next, k);
+	return getBit(q->q_bitmap_next, k);
 
 }
 
@@ -183,22 +208,17 @@ local_q_tail = local_q->tail;
 		shared_q->tail_next += local_q_tail;
 	}
 
-
-	for(i = local_q->head ; i < local_q->tail; i++){
-
+	for(i = local_q->head ; i < local_q->tail; i++,shared_q_tail_next++){
 		shared_q->queue[shared_q_tail_next] = local_q->queue[i];
-		shared_q_tail_next++;
-
 	}
 
 	local_q->head = 0;
     local_q->tail = 0;
     local_q->tail_next = 0;
 
-
 }
 
-void arrayQueueToBitmap(struct ArrayQueue *q){
+void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b){
 
 	__u32 v;
 	__u32 i;
@@ -207,7 +227,7 @@ void arrayQueueToBitmap(struct ArrayQueue *q){
 		// printf("%u \n", i );
 		v = q->queue[i];
 		// printf("%u \n", v );
-		setBit(q->bitmap, v);
+		setBit(b, v);
 		// q->head++;
 	}
 
@@ -216,11 +236,11 @@ void arrayQueueToBitmap(struct ArrayQueue *q){
 
 }
 
-void bitmapToArrayQueue(struct ArrayQueue *q){
+void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q){
 	__u32 i;
 
-	for(i= 0 ; i < (q->bitmap->size); i++){
-		if(getBit(q->bitmap, i)){
+	for(i= 0 ; i < (b->size); i++){
+		if(getBit(b, i)){
 			q->queue[q->tail] = i;
 			q->tail++;
 		}

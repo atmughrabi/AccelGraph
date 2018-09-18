@@ -72,6 +72,8 @@ void   graphGridResetActivePartitions(struct Grid *grid){
     __u32 totalPartitions = 0;
      totalPartitions = grid->num_partitions * grid->num_partitions;
     __u32 i;
+
+    // #pragma omp parallel for default(none) shared(grid,totalPartitions) private(i)
     for (i = 0; i < totalPartitions; ++i){
             grid->activePartitions[i] = 0; 
         }
@@ -82,32 +84,19 @@ void   graphGridSetActivePartitions(struct Grid *grid, __u32 vertex){
     __u32 row = getPartitionID(grid->num_vertices,grid->num_partitions, vertex);
     __u32 Partition_idx = 0;
     __u32 i;
-    for ( i = 0; i < (grid->num_partitions); ++i){
+    __u32 totalPartitions = 0;
+     totalPartitions = grid->num_partitions;
 
-        Partition_idx= (row*grid->num_partitions)+i;
+    // #pragma omp parallel for default(none) shared(grid,totalPartitions,row) private(i,Partition_idx)
+    for ( i = 0; i < totalPartitions; ++i){
+
+        Partition_idx= (row*totalPartitions)+i;
         if(grid->partitions[Partition_idx].edgeList->num_edges){
                 grid->activePartitions[Partition_idx] = 1;
             }
         }
     }
 
-// void   graphGridMapVerticesInPartitions(struct Grid *grid){
-
-//      __u32 totalPartitions = 0;
-
-//      totalPartitions = grid->num_partitions * grid->num_partitions;
-
-//     __u32 i;
-//         for (i = 0; i < totalPartitions; ++i)
-//         {
-
-//         grid->partitions[i].edgeList;
-        
-//         }
-
-
-
-// }
 
 
 struct Grid * gridNew(struct EdgeList* edgeList){

@@ -40,6 +40,8 @@ struct __attribute__((__packed__)) GraphAdjArrayList
 {
 	__u32 num_vertices;
 	__u32 num_edges;
+	__u32 iteration;
+	__u32 processed_nodes;
 	int* parents;
 	struct AdjArrayList* parent_array;
 

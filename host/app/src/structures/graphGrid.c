@@ -94,6 +94,8 @@ struct GraphGrid * graphGridNew(struct EdgeList* edgeList){
 
      graphGrid->grid = gridNew(edgeList); 
 
+     graphGrid->iteration = 0;
+     graphGrid->processed_nodes = 0;
 
      return graphGrid;
 

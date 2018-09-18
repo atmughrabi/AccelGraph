@@ -47,6 +47,9 @@ struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V){
         graphAdjLinkedList->parent_array[i].visited = 0;
 	}
 
+     graphAdjLinkedList->iteration = 0;
+    graphAdjLinkedList->processed_nodes = 0;
+
     // printf("\n Success!!! V: %d\n ", V);
 
     return graphAdjLinkedList;
@@ -106,6 +109,9 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
 
 
         }
+
+    graphAdjLinkedList->iteration = 0;
+    graphAdjLinkedList->processed_nodes = 0;
 
     return graphAdjLinkedList;
 

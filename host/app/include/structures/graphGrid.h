@@ -13,6 +13,9 @@ struct __attribute__((__packed__)) GraphGrid {
 
 	__u32 num_edges;
 	__u32 num_vertices;
+	__u32 iteration;
+	__u32 processed_nodes;
+	
 	int* parents;       // specify parent for each vertex
 	struct Grid* grid;
 	

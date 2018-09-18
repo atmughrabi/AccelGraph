@@ -123,7 +123,8 @@ struct GraphCSR* graphCSRNew(__u32 V, __u32 E, __u8 inverse){
                 graphCSR->parents[i] = -1;
      }
 	
-
+     graphCSR->iteration = 0;
+    graphCSR->processed_nodes = 0;
 
     return graphCSR;
 }

@@ -10,6 +10,8 @@ struct GraphCSR{
 
 	__u32 num_edges;
 	__u32 num_vertices;
+	__u32 iteration;
+	__u32 processed_nodes;
 	// __u32* vertex_count; // needed for counting sort
 	int* parents;       // specify parent for each vertex
 	

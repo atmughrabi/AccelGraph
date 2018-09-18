@@ -39,7 +39,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 		-I$(APP_DIR)/include/$(UTIL_DIR)/   \
 # flags
-CFLAGS            = -O2 -Wall -m64 -g -fopenmp
+CFLAGS            = -O3 -Wall -m64 -g -fopenmp
 
 all: test
 
@@ -257,7 +257,7 @@ fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8"
 root = 428333
 datastructure = 0
 algorithm = 0
-numThreads  = 8;
+numThreads  = 16
 
 run: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads)
