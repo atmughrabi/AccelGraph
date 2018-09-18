@@ -171,6 +171,7 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 
 
 	enArrayQueue(sharedFrontierQueue, source);
+    // setBit(sharedFrontierQueue->q_bitmap,source);
 	graph->parents[source] = source;  
 
 	// graph->vertices[source].visited = 1;
@@ -186,7 +187,6 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 			arrayQueueToBitmap(sharedFrontierQueue,bitmapCurr);
 
 			nf = sizeArrayQueue(sharedFrontierQueue);
-			// slideWindowArrayQueue(sharedFrontierQueue);
 			
 			do{
 
@@ -200,12 +200,12 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 
 			swapBitmaps(&bitmapCurr, &bitmapNext);
 			reset(bitmapNext);
-			
+
+	
 		
 			}while(( nf > nf_prev) || // growing;
 				   ( nf > (n/beta)));
 
-			
 			bitmapToArrayQueue(bitmapCurr,sharedFrontierQueue);
 
 			mf = 1;
@@ -221,9 +221,12 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 			inner_time +=  Seconds(timer_inner);
 
 			slideWindowArrayQueue(sharedFrontierQueue);
-		
+
+			// swapBitmaps(&sharedFrontierQueue->q_bitmap, &sharedFrontierQueue->q_bitmap_next);
+			// reset(sharedFrontierQueue->q_bitmap_next);
 
 		}
+
 
 
 	} // end while
@@ -265,6 +268,7 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFront
 	__u32 j;
 	__u32 edge_idx;
 	__u32 processed_nodes = 0;
+	__u32 processed_nodes_next = 0;
 	__u32 mf = 0;
 
 	// struct ArrayQueue* localFrontierQueue = newArrayQueue(graph->num_vertices);
@@ -273,13 +277,13 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFront
 	Start(timer);
 
 
-	#pragma omp parallel default (none) private(u,v,j,i,edge_idx) shared(localFrontierQueues,graph,sharedFrontierQueue,processed_nodes,mf) 
+	#pragma omp parallel default (none) private(u,v,j,i,edge_idx) shared(processed_nodes_next,localFrontierQueues,graph,sharedFrontierQueue,processed_nodes,mf) 
   	{
   		__u32 t_id = omp_get_thread_num();
   		struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
 		
   		
-  		#pragma omp for reduction(+:mf,processed_nodes) 
+  		#pragma omp for reduction(+:mf,processed_nodes,processed_nodes_next) 
 		for(i = sharedFrontierQueue->head ; i < sharedFrontierQueue->tail; i++){
 			processed_nodes++;
 			v = sharedFrontierQueue->queue[i];
@@ -290,14 +294,16 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFront
 	            // destination vertex id
 	            u = graph->sorted_edges_array[j].dest;
 	            
+
 	            // if the destination vertex is not yet enqueued
 	            // if((graph->parents[u]) == (-1)) { // fixed to implement optemizations
 	            if((graph->parents[u]) < 0 ){
-	               	
+	            
 	                // add the destination vertex to the queue 
 	                enArrayQueue(localFrontierQueue, u);
 	                mf +=  -(graph->parents[u]);
 	                graph->parents[u] = v;  
+	                processed_nodes_next++;
 
 	            }
 	        }
@@ -306,6 +312,10 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFront
 
 		flushArrayQueueToShared(localFrontierQueue,sharedFrontierQueue);
 	}
+
+	// sharedFrontierQueue->q_bitmap->numSetBits = processed_nodes;
+	sharedFrontierQueue->q_bitmap_next->numSetBits = processed_nodes_next;
+
 	Stop(timer);
 	printf("| TD %-12u | %-15u | %-15f | \n",graph->iteration++, processed_nodes, Seconds(timer));
 	free(timer);
@@ -313,7 +323,176 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFront
 	return mf;
 }
 
-// bottom-up-step(graph, sharedFrontierQueue, next, parents)
+// breadth-first-search(graph, source)
+// 	sharedFrontierQueue ← {source}
+// 	next ← {}
+// 	parents ← [-1,-1,. . . -1]
+// 		while sharedFrontierQueue 6= {} do
+// 			top-down-step(graph, sharedFrontierQueue, next, parents)
+// 			sharedFrontierQueue ← next
+// 			next ← {}
+// 		end while
+// 	return parents
+
+void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR* graph){
+
+	
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+	struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
+	double inner_time = 0;
+	struct ArrayQueue* sharedFrontierQueue = newArrayQueue(graph->num_vertices);
+
+	__u32 mu = graph->num_edges; // number of edges to check from sharedFrontierQueue
+	__u32 mf = graph->vertices[source].out_degree; // number of edges from unexplored verticies
+	__u32 nf = 0; // number of vertices in sharedFrontierQueue
+	__u32 nf_prev = 0; // number of vertices in sharedFrontierQueue
+	__u32 n = graph->num_vertices; // number of nodes
+	__u32 alpha = 20;
+	__u32 beta = 20;
+
+
+    setBit(sharedFrontierQueue->q_bitmap_next,source);
+    sharedFrontierQueue->q_bitmap_next->numSetBits = 1;
+	graph->parents[source] = source;  
+
+	swapBitmaps(&sharedFrontierQueue->q_bitmap, &sharedFrontierQueue->q_bitmap_next);
+	reset(sharedFrontierQueue->q_bitmap_next);
+
+
+	printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
+    printf(" -----------------------------------------------------\n");
+
+    Start(timer);
+    while (sharedFrontierQueue->q_bitmap->numSetBits){
+
+		if(mf > (mu/alpha)){
+		
+			nf = sharedFrontierQueue->q_bitmap->numSetBits;
+		
+			do{
+
+			nf_prev = nf;
+
+			Start(timer_inner);
+			nf = bottomUpStepGraphCSR(graph,sharedFrontierQueue->q_bitmap,sharedFrontierQueue->q_bitmap_next);
+			Stop(timer_inner);
+
+			inner_time +=  Seconds(timer_inner);
+
+			swapBitmaps(&sharedFrontierQueue->q_bitmap, &sharedFrontierQueue->q_bitmap_next);
+			reset(sharedFrontierQueue->q_bitmap_next);
+
+			
+			}while(( nf > nf_prev) || // growing;
+				   ( nf > (n/beta)));
+
+
+			mf = 1;
+
+		}else{
+		
+			mu -= mf;
+
+			Start(timer_inner);
+			mf = topDownStepUsingBitmapsGraphCSR(graph, sharedFrontierQueue);
+			Stop(timer_inner);
+
+			inner_time +=  Seconds(timer_inner);
+
+			swapBitmaps(&sharedFrontierQueue->q_bitmap, &sharedFrontierQueue->q_bitmap_next);
+			reset(sharedFrontierQueue->q_bitmap_next);
+
+		}
+
+
+
+	} // end while
+	Stop(timer);
+	printf(" -----------------------------------------------------\n");
+	printf("| %-15s | %-15u | %-15f | \n","No OverHead", graph->processed_nodes, inner_time);
+	printf(" -----------------------------------------------------\n");
+	printf(" -----------------------------------------------------\n");
+	printf("| %-15s | %-15u | %-15f | \n","total", graph->processed_nodes, Seconds(timer));
+	printf(" -----------------------------------------------------\n");
+
+
+	resetParentArray(graph->parents, graph->num_vertices);
+	freeArrayQueue(sharedFrontierQueue);
+	free(timer);
+	free(timer_inner);
+}
+
+
+__u32 topDownStepUsingBitmapsGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFrontierQueue){
+
+
+	
+	__u32 v;
+	__u32 u;
+	__u32 i;
+	__u32 j;
+	__u32 edge_idx;
+	__u32 processed_nodes = sharedFrontierQueue->q_bitmap->numSetBits;
+	__u32 processed_nodes_next = 0;
+	__u32 mf = 0;
+
+	// struct ArrayQueue* localFrontierQueue = newArrayQueue(graph->num_vertices);
+	graph->processed_nodes += processed_nodes;
+
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+	Start(timer);
+
+
+	#pragma omp parallel default (none) private(u,v,j,i,edge_idx) shared(graph,sharedFrontierQueue,processed_nodes_next,mf) 
+  	{
+  		
+  		
+  		#pragma omp for reduction(+:mf,processed_nodes_next) schedule (dynamic , 1024)
+		for(i= 0 ; i < (sharedFrontierQueue->q_bitmap->size); i++){
+		if(getBit(sharedFrontierQueue->q_bitmap, i)){
+			// processed_nodes++;
+			v = i;
+			edge_idx = graph->vertices[v].edges_idx;
+
+	    	for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++){
+	        
+	       
+	            u = graph->sorted_edges_array[j].dest;
+	            int u_parent = graph->parents[u];
+	         
+	            if(u_parent < 0 ){
+				if(__sync_bool_compare_and_swap(&graph->parents[u],u_parent,v))
+					{	
+		                mf +=  -(u_parent);
+		                setBit(sharedFrontierQueue->q_bitmap_next, u);
+		                processed_nodes_next++;
+
+		            }
+
+	            }
+	        }
+
+		} 
+
+	}
+
+}
+
+	// sharedFrontierQueue->q_bitmap->numSetBits = processed_nodes;
+	sharedFrontierQueue->q_bitmap_next->numSetBits = processed_nodes_next;
+
+	Stop(timer);
+	printf("| TD %-12u | %-15u | %-15f | \n",graph->iteration++, processed_nodes, Seconds(timer));
+	free(timer);
+	
+	return mf;
+}
+
+
+
+
+// bottom-up-step(graph, sharedFrontierQueue, next, parents) //pull
 // 	for v ∈ vertices do
 // 		if parents[v] = -1 then
 // 			for u ∈ neighbors[v] do
@@ -337,7 +516,9 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct Bitmap* bitmapCurr, st
 	struct Vertex* vertices = NULL;
 	struct Edge* sorted_edges_array = NULL;
 
-	__u32 processed_nodes = getNumOfSetBits(bitmapCurr);
+	// __u32 processed_nodes = getNumOfSetBits(bitmapCurr);
+	 __u32 processed_nodes_next = 0;
+	 __u32 processed_nodes = bitmapCurr->numSetBits;
     __u32 nf = 0; // number of vertices in sharedFrontierQueue
     graph->processed_nodes += processed_nodes;
 
@@ -352,7 +533,7 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct Bitmap* bitmapCurr, st
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	Start(timer);
 
-	#pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf)  
+	#pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf, processed_nodes_next)  
 	for(v=0 ; v < graph->num_vertices ; v++){
 				out_degree = vertices[v].out_degree;
 				if(graph->parents[v] < 0){ // optmization 
@@ -363,6 +544,7 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct Bitmap* bitmapCurr, st
 		    			 if(getBit(bitmapCurr, u)){
 		    			 	graph->parents[v] = u;
 		    			 	setBit(bitmapNext, v);
+		    			 	processed_nodes_next++;
 		    			 	nf++;
 		    			 	break;
 		    			 }
@@ -372,9 +554,10 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct Bitmap* bitmapCurr, st
     	
 	}
 
-
+	bitmapNext->numSetBits = processed_nodes_next;
+	
 	Stop(timer);
-	printf("| BU %-12u | %-15u | %-15f | \n",graph->iteration++, processed_nodes, Seconds(timer));
+	printf("| BU %-12u | %-15u | %-15f | \n",graph->iteration++, processed_nodes , Seconds(timer));
 	free(timer);
 	return nf;
 }

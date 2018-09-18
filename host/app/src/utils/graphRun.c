@@ -99,11 +99,13 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root){
     struct GraphGrid* graphGrid = NULL;
     struct GraphAdjLinkedList* graphAdjLinkedList = NULL;
     struct GraphAdjArrayList* graphAdjArrayList = NULL;
-
+    printf("*-----------------------------------------------------*\n");
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE) ");
     printf(" -----------------------------------------------------\n");
     printf("| %-51u | \n", root);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-20s %-30u | \n", "Number of Threads :",numThreads);
     printf(" -----------------------------------------------------\n");
 
     switch (datastructure)
@@ -147,6 +149,14 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root){
             graphAdjArrayListFree(graphAdjArrayList);
             Stop(timer);
             generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)",Seconds(timer));
+          break;
+        case 4: // CSR with no frontier only Bitmaps
+            graphCSR = (struct GraphCSR*)graph;
+            Start(timer);
+            breadthFirstSearchUsingBitmapsGraphCSR(root, graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
+            graphCSRFree(graphCSR);
           break;
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;

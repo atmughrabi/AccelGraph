@@ -48,7 +48,7 @@ void reset(struct Bitmap* bitmap){
 void setBit(struct Bitmap* bitmap, __u32 pos){
 
 	ba_set(bitmap->bitarray, pos);
-	bitmap->numSetBits++;
+	// bitmap->numSetBits++;
 
 }
 
@@ -59,7 +59,7 @@ void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end){
  for (pos = start; pos < end; ++pos)
  {
  	ba_set(bitmap->bitarray, pos);
- 	bitmap->numSetBits++;
+ 	// bitmap->numSetBits++;
  }
 
 }
@@ -67,7 +67,9 @@ void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end){
 void setBitAtomic(struct Bitmap* bitmap, __u32 pos){
 
 	ba_set(bitmap->bitarray, pos);
-	bitmap->numSetBits++;
+	// bitmap->numSetBits++;
+
+	
 
 }
 
@@ -81,7 +83,7 @@ __u8 getBit(struct Bitmap* bitmap, __u32 pos){
 void clearBit(struct Bitmap* bitmap, __u32 pos){
 
 	ba_clear(bitmap->bitarray, pos);
-	bitmap->numSetBits--;
+	// bitmap->numSetBits--;
 
 }
 
@@ -127,13 +129,14 @@ struct Bitmap*  andBitmap(struct Bitmap* bitmap1, struct Bitmap* bitmap2){
 
 void swapBitmaps (struct Bitmap** bitmap1, struct Bitmap** bitmap2){
 
-
+	
 	struct Bitmap* temp_bitmap = *bitmap1;
 	*bitmap1 = *bitmap2;
 	*bitmap2 = temp_bitmap;
 
-
 }
+
+
 
 __u32 getNumOfSetBits (struct Bitmap* bitmap){
 

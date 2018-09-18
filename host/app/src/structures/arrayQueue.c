@@ -52,7 +52,7 @@ void enArrayQueue (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail] = k;
 	setBit(q->q_bitmap, k); // needs fixing
-	setBit(q->q_bitmap_next, k);
+	// setBit(q->q_bitmap_next, k);
 	q->tail = q->tail_next;
 	q->tail++;
 	q->tail_next++;
@@ -74,7 +74,7 @@ void enArrayQueueAtomic (struct ArrayQueue *q, __u32 k){
 
 	q->queue[local_q_tail] = k;
 	setBit(q->q_bitmap, k); // needs fixing
-	setBit(q->q_bitmap_next, k);
+	// setBit(q->q_bitmap_next, k);
 
 }
 
@@ -99,17 +99,24 @@ void enArrayQueueDelayedBitmap (struct ArrayQueue *q, __u32 k){
 void slideWindowArrayQueue (struct ArrayQueue *q){
 
 	// if(q->tail_next > q->tail){
+		__u32 i;
+		__u32 numSetBits = 0;
+
 		q->head = q->tail;
 		q->tail = q->tail_next;
 		// q->iteration++;
 		reset(q->q_bitmap);
-		__u32 i;
+		reset(q->q_bitmap_next);
 
-		#pragma omp parallel for
+		#pragma omp parallel for reduction(+:numSetBits)
 		for(i = q->head; i < q->tail; i++){
 			setBit(q->q_bitmap, q->queue[i]);
+			numSetBits++;
+			
 		}
 
+		// q->q_bitmap_next->numSetBits = 0;
+		q->q_bitmap->numSetBits = numSetBits;
 		// q->q_bitmap = orBitmap(q->q_bitmap,q->q_bitmap_next);
 	// }
 	
@@ -218,6 +225,9 @@ local_q_tail = local_q->tail;
 
 }
 
+
+
+
 void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b){
 
 	__u32 v;
@@ -231,8 +241,9 @@ void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b){
 		// q->head++;
 	}
 
+	b->numSetBits = q->q_bitmap->numSetBits;
 	q->head = q->tail;
-
+	q->tail_next = q->tail;
 
 }
 
@@ -247,8 +258,43 @@ void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q){
 		
 	}
 
+
+	// slideWindowArrayQueue(q);
 	q->tail_next = q->tail;
 
 }
 
 // struct ArrayQueue *unionArrayQueued (struct ArrayQueue *q1, struct ArrayQueue *q2);
+
+
+void bitmapToArrayQueueA(struct Bitmap* b, struct ArrayQueue *q){
+
+	q->head = 0;
+	q->tail = 0;
+	q->tail_next = 0;
+
+	#pragma omp parallel
+  {
+	__u32 i;
+
+	struct ArrayQueue* localFrontierQueue = newArrayQueue(b->size);
+
+	#pragma omp for
+	for(i= 0 ; i < (b->size); i++){
+		if(getBit(b, i)){
+			localFrontierQueue->queue[q->tail] = i;
+			localFrontierQueue->tail++;
+		}
+		
+	}
+
+	flushArrayQueueToShared(localFrontierQueue,q);
+	freeArrayQueue(localFrontierQueue);
+
+	}
+
+	q->head = q->tail;
+	q->tail = q->tail_next;
+	// slideWindowArrayQueue(q);
+
+}

@@ -19,7 +19,9 @@ void breadthFirstSearchSetActivePartitions(struct GraphGrid* graph, struct Array
 
 
 void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph);
+void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR* graph);
 __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFrontierQueue,  struct ArrayQueue** localFrontierQueues);
+__u32 topDownStepUsingBitmapsGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFrontierQueue);
 __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct Bitmap* bitmapCurr, struct Bitmap* bitmapNext);
 
 
