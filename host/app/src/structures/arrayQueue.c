@@ -247,7 +247,7 @@ void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b){
 
 }
 
-void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q){
+void bitmapToArrayQueueS(struct Bitmap* b, struct ArrayQueue *q){
 	__u32 i;
 
 	for(i= 0 ; i < (b->size); i++){
@@ -267,22 +267,20 @@ void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q){
 // struct ArrayQueue *unionArrayQueued (struct ArrayQueue *q1, struct ArrayQueue *q2);
 
 
-void bitmapToArrayQueueA(struct Bitmap* b, struct ArrayQueue *q){
+void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q){
 
-	q->head = 0;
-	q->tail = 0;
-	q->tail_next = 0;
+	struct ArrayQueue* localFrontierQueue;
 
-	#pragma omp parallel
+	#pragma omp parallel shared(b)  private(localFrontierQueue)
   {
 	__u32 i;
 
-	struct ArrayQueue* localFrontierQueue = newArrayQueue(b->size);
+	 localFrontierQueue = newArrayQueue(b->size);
 
 	#pragma omp for
 	for(i= 0 ; i < (b->size); i++){
 		if(getBit(b, i)){
-			localFrontierQueue->queue[q->tail] = i;
+			localFrontierQueue->queue[localFrontierQueue->tail] = i;
 			localFrontierQueue->tail++;
 		}
 		
@@ -293,8 +291,7 @@ void bitmapToArrayQueueA(struct Bitmap* b, struct ArrayQueue *q){
 
 	}
 
-	q->head = q->tail;
-	q->tail = q->tail_next;
-	// slideWindowArrayQueue(q);
+	
+	slideWindowArrayQueue(q);
 
 }

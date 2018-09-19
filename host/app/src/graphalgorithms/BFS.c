@@ -276,7 +276,6 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFront
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	Start(timer);
 
-
 	#pragma omp parallel default (none) private(u,v,j,i,edge_idx) shared(processed_nodes_next,localFrontierQueues,graph,sharedFrontierQueue,processed_nodes,mf) 
   	{
   		__u32 t_id = omp_get_thread_num();
@@ -312,7 +311,7 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFront
 
 		flushArrayQueueToShared(localFrontierQueue,sharedFrontierQueue);
 	}
-
+	
 	// sharedFrontierQueue->q_bitmap->numSetBits = processed_nodes;
 	sharedFrontierQueue->q_bitmap_next->numSetBits = processed_nodes_next;
 
