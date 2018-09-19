@@ -250,14 +250,19 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 
 #app command line arguments
 fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8"
-# fnameb = "host/app/datasets/test/test.txt.bin"
-# fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
-# fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
-# root  = 6
 root = 428333
-datastructure = 0
+
+# fnameb = "host/app/datasets/test/test.txt.bin"
+# root  = 6
+
+# fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
+# root = 107
+
+# fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
+# root = 428333
+datastructure = 1
 algorithm = 0
-numThreads  = 8
+numThreads  = 4
 
 run: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads)

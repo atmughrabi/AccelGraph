@@ -41,7 +41,7 @@ void * generateGraphDataStructure(const char *fnameb, int datastructure){
             Start(timer);
             graph = (void *)graphGridPreProcessingStep (fnameb);
             Stop(timer);
-            generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)",Seconds(timer));
+            generateGraphPrintMessageWithtime("GraphGrid Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         case 2: // Adj Linked List     
             Start(timer);

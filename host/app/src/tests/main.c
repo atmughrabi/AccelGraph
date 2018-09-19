@@ -105,7 +105,7 @@ int main (int argc, char **argv)
       }
 
      
-     
+      omp_set_nested(1);
       omp_set_num_threads(numThreads);
       graph = generateGraphDataStructure(fnameb, datastructure);
       runGraphAlgorithms(graph, datastructure, algorithm, root);
