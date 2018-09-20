@@ -260,7 +260,7 @@ root = 428333
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 1
+datastructure = 0
 algorithm = 0
 numThreads  = 4
 
