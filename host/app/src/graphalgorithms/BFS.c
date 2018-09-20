@@ -154,8 +154,8 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 	__u32 nf = 0; // number of vertices in sharedFrontierQueue
 	__u32 nf_prev = 0; // number of vertices in sharedFrontierQueue
 	__u32 n = graph->num_vertices; // number of nodes
-	__u32 alpha = 20;
-	__u32 beta = 20;
+	__u32 alpha = 15;
+	__u32 beta = 18;
 
 	#if ALIGNED
 		struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_alloc( P * sizeof(struct ArrayQueue*));
@@ -346,8 +346,8 @@ void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR* graph
 	__u32 nf = 0; // number of vertices in sharedFrontierQueue
 	__u32 nf_prev = 0; // number of vertices in sharedFrontierQueue
 	__u32 n = graph->num_vertices; // number of nodes
-	__u32 alpha = 20;
-	__u32 beta = 20;
+	__u32 alpha = 15;
+	__u32 beta = 18;
 
 
     setBit(sharedFrontierQueue->q_bitmap_next,source);
