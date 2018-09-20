@@ -296,15 +296,20 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFront
 
 	            // if the destination vertex is not yet enqueued
 	            // if((graph->parents[u]) == (-1)) { // fixed to implement optemizations
-	            if((graph->parents[u]) < 0 ){
+	            int u_parent = graph->parents[u];
+	         
+	            if(u_parent < 0 ){
+				if(__sync_bool_compare_and_swap(&graph->parents[u],u_parent,v))
+					{
 	            
 	                // add the destination vertex to the queue 
 	                enArrayQueue(localFrontierQueue, u);
 	                mf +=  -(graph->parents[u]);
-	                graph->parents[u] = v;  
+	                // graph->parents[u] = v;  
 	                processed_nodes_next++;
 
 	            }
+	        }
 	        }
 
 		} 
