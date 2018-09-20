@@ -114,6 +114,8 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root){
             graphCSR = (struct GraphCSR*)graph;
             Start(timer);
             breadthFirstSearchGraphCSR(root, graphCSR);
+            breadthFirstSearchGraphCSR(root, graphCSR);
+            breadthFirstSearchGraphCSR(root, graphCSR);
             Stop(timer);
             generateGraphPrintMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
             graphCSRFree(graphCSR);
