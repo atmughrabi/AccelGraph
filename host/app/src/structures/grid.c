@@ -73,9 +73,37 @@ void   graphGridResetActivePartitions(struct Grid *grid){
      totalPartitions = grid->num_partitions * grid->num_partitions;
     __u32 i;
 
-    // #pragma omp parallel for default(none) shared(grid,totalPartitions) private(i)
+    #pragma omp parallel for default(none) shared(grid,totalPartitions) private(i)
     for (i = 0; i < totalPartitions; ++i){
             grid->activePartitions[i] = 0; 
+        }
+
+
+
+    }
+
+void   graphGridResetActivePartitionsMap(struct Grid *grid){
+
+    reset(grid->activePartitionsMap);
+    
+    }
+
+void   graphGridSetActivePartitionsMap(struct Grid *grid, __u32 vertex){
+
+    __u32 row = getPartitionID(grid->num_vertices,grid->num_partitions, vertex);
+    __u32 Partition_idx = 0;
+    __u32 i;
+    __u32 totalPartitions = 0;
+     totalPartitions = grid->num_partitions;
+
+    // #pragma omp parallel for default(none) shared(grid,totalPartitions,row) private(i,Partition_idx)
+    for ( i = 0; i < totalPartitions; ++i){
+
+        Partition_idx= (row*totalPartitions)+i;
+        if(!getBit(grid->activePartitionsMap,Partition_idx))
+        if(grid->partitions[Partition_idx].edgeList->num_edges){
+                setBitAtomic(grid->activePartitionsMap,Partition_idx);
+            }
         }
     }
 
@@ -127,8 +155,8 @@ struct Grid * gridNew(struct EdgeList* edgeList){
         grid->activePartitions = (__u32*) my_malloc(totalPartitions * sizeof(__u32));
     #endif
 
-        grid->activeVertices = newBitmap(grid->num_vertices);
-
+        // grid->activeVertices = newBitmap(grid->num_vertices);
+        grid->activePartitionsMap = newBitmap(totalPartitions);
 
         __u32 i;
         #pragma omp parallel for default(none) private(i) shared(totalPartitions,grid)

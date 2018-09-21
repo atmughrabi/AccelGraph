@@ -28,7 +28,8 @@ struct  Grid {
 	__u32 num_partitions;
 	struct Partition* partitions;
 	__u32 *activePartitions;
-	struct Bitmap* activeVertices;
+	struct Bitmap* activePartitionsMap;
+	// struct Bitmap* activeVertices;
 };
 
 
@@ -43,7 +44,9 @@ struct Grid * gridPartitionsMemoryAllocations(struct Grid *grid);
 struct Grid * gridPartitionEdgePopulation(struct Grid *grid, struct EdgeList* edgeList);
 void   graphGridSetActivePartitions(struct Grid *grid, __u32 vertex);
 void   graphGridResetActivePartitions(struct Grid *grid);
-// void   graphGridMapVerticesInPartitions(struct Grid *grid);
+
+void   graphGridResetActivePartitionsMap(struct Grid *grid);
+void   graphGridSetActivePartitionsMap(struct Grid *grid, __u32 vertex);
 
 __u32 getPartitionID(__u32 vertices, __u32 partitions, __u32 vertex_id);
 __u32 getPartitionRangeBegin(__u32 vertices, __u32 partitions, __u32 partition_id);
