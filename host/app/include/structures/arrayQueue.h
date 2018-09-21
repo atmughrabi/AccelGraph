@@ -35,7 +35,7 @@ __u32 sizeArrayQueue(struct ArrayQueue *q);
 __u8  isEnArrayQueuedNext 	(struct ArrayQueue *q, __u32 k);
 void flushArrayQueueToShared(struct ArrayQueue *local_q, struct ArrayQueue *shared_q);
 void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b);
-void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q);
+void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q, struct ArrayQueue** localFrontierQueues);
 
 #endif
 

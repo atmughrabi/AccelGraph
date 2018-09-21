@@ -255,15 +255,14 @@ void bitmapToArrayQueueS(struct Bitmap* b, struct ArrayQueue *q){
 // struct ArrayQueue *unionArrayQueued (struct ArrayQueue *q1, struct ArrayQueue *q2);
 
 
-void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q){
+void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q, struct ArrayQueue** localFrontierQueues){
 
-	struct ArrayQueue* localFrontierQueue;
-
-	#pragma omp parallel shared(b)  private(localFrontierQueue)
+	#pragma omp parallel shared(b,localFrontierQueues)
   {
 	__u32 i;
 
-	 localFrontierQueue = newArrayQueue(b->size);
+	 __u32 t_id = omp_get_thread_num();
+	 struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
 
 	#pragma omp for
 	for(i= 0 ; i < (b->size); i++){
@@ -275,11 +274,9 @@ void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q){
 	}
 
 	flushArrayQueueToShared(localFrontierQueue,q);
-	freeArrayQueue(localFrontierQueue);
 
 	}
 
-	
 	slideWindowArrayQueue(q);
 
 }

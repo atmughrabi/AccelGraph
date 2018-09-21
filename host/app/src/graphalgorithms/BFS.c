@@ -213,7 +213,7 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 				   ( nf > (n/beta)));
 
 			Start(timer_inner);
-			bitmapToArrayQueue(bitmapCurr,sharedFrontierQueue);
+			bitmapToArrayQueue(bitmapCurr,sharedFrontierQueue,localFrontierQueues);
 			Stop(timer_inner);
 			printf("| C  %-12s | %-15s | %-15f | \n"," ", " " , Seconds(timer_inner));
 
