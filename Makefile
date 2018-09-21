@@ -61,6 +61,10 @@ sim-run:
 vsim-run:
 	cd sim && vsim -do vsim.tcl
 
+$(APP_DIR)/$(OBJ_DIR)/mt19937.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/mt19937.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/mt19937.h
+	@echo 'making $(GAPP) <- mt19937.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/mt19937.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/mt19937.c
+
 $(APP_DIR)/$(OBJ_DIR)/graphRun.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/graphRun.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/graphRun.h
 	@echo 'making $(GAPP) <- graphRun.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/graphRun.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/graphRun.c
@@ -188,14 +192,16 @@ adjLinkedList: $(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o
 
 adjArrayList: $(APP_DIR)/$(OBJ_DIR)/adjArrayList.o
 
+mt19937: $(APP_DIR)/$(OBJ_DIR)/mt19937.o
+
 dynamicQueue: $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o
 
 graphRun: $(APP_DIR)/$(OBJ_DIR)/graphRun.o
 
 BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
 	
-test: graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
-	@echo 'linking $(GAPP) <- graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
+test: mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
+	@echo 'linking $(GAPP) <- mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 			\
@@ -217,6 +223,7 @@ test: graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynam
 	$(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/edgeList.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/mt19937.o 		\
 	 -o $(APP_DIR)/test/$(GAPP)				\
 	 $(CFLAGS)
 
@@ -250,7 +257,7 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 
 #app command line arguments
 fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
-root = 428333
+root = 6479472
 
 
 # fnameb = "host/app/datasets/test/test.txt.bin"
@@ -263,13 +270,14 @@ root = 428333
 # root = 428333
 datastructure = 0
 algorithm = 0
-numThreads  = 4
+numThreads  = 8
+iterations = 4
 
 run: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
 
 run-capi: test-capi
-	./$(APP_DIR)/test/$(GAPP)-capi -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads)
+	./$(APP_DIR)/test/$(GAPP)-capi -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
 
 debug: test	
 	gdb ./$(APP_DIR)/test/$(GAPP)

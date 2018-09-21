@@ -15,6 +15,32 @@
 
 #include "timer.h"
 
+void graphCSRReset (struct GraphCSR* graphCSR){
+
+    struct Vertex* vertices;
+    __u32 vertex_id;
+    // #if DIRECTED
+    //     if(inverse){
+    //         vertices = graph->inverse_vertices; // sorted edge array
+    //     }else{
+    //         vertices = graph->vertices;
+    //     }
+    // #else
+            vertices = graphCSR->vertices;
+    // #endif
+
+    graphCSR->iteration = 0;
+    graphCSR->processed_nodes = 0;
+
+    #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graphCSR)
+    for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++){
+                if(vertices[vertex_id].out_degree)
+                    graphCSR->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
+                else
+                    graphCSR->parents[vertex_id] = -1;
+     }
+
+}
 
 
 void graphCSRFree (struct GraphCSR* graphCSR){

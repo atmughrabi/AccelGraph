@@ -66,8 +66,13 @@ void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end){
 
 void setBitAtomic(struct Bitmap* bitmap, __u32 pos){
 
-	ba_set(bitmap->bitarray, pos);
-	// bitmap->numSetBits++;
+	// ba_set(bitmap->bitarray, pos);
+	 __u8 *bitarray = bitmap->bitarray;
+	 __u8 old_val, new_val;
+    do {
+      old_val = bitarray[(pos) >> 3];
+      new_val = old_val | (__u8)(1 << ((pos) & 7));
+    } while (!__sync_bool_compare_and_swap(&bitarray[(pos) >> 3], old_val, new_val));
 
 	
 

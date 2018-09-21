@@ -194,6 +194,7 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 
 			Start(timer_inner);
 			nf = bottomUpStepGraphCSR(graph,bitmapCurr,bitmapNext);
+			// printf("nf: %u \n",nf );
 			Stop(timer_inner);
 
 			inner_time +=  Seconds(timer_inner);
@@ -217,7 +218,6 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 			Start(timer_inner);
 			mf = topDownStepGraphCSR(graph, sharedFrontierQueue,localFrontierQueues);
 			Stop(timer_inner);
-
 			inner_time +=  Seconds(timer_inner);
 
 			slideWindowArrayQueue(sharedFrontierQueue);
@@ -238,8 +238,12 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 	printf("| %-15s | %-15u | %-15f | \n","total", graph->processed_nodes, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
-
-	resetParentArray(graph->parents, graph->num_vertices);
+	graphCSRReset(graph);
+	// resetParentArray(graph->parents, graph->num_vertices);
+	for(i=0 ; i < P ; i++){
+		freeArrayQueue(localFrontierQueues[i]);		
+   	}
+   	free(localFrontierQueues);
 	freeArrayQueue(sharedFrontierQueue);
 	freeBitmap(bitmapNext);
 	freeBitmap(bitmapCurr);
@@ -302,14 +306,12 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFront
 				if(__sync_bool_compare_and_swap(&graph->parents[u],u_parent,v))
 					{
 	            
-	                // add the destination vertex to the queue 
 	                enArrayQueue(localFrontierQueue, u);
-	                mf +=  -(graph->parents[u]);
-	                // graph->parents[u] = v;  
+	                mf +=  -(u_parent);
 	                processed_nodes_next++;
 
 	            }
-	        }
+	        	}
 	        }
 
 		} 
@@ -321,7 +323,7 @@ __u32 topDownStepGraphCSR(struct GraphCSR* graph, struct ArrayQueue* sharedFront
 	sharedFrontierQueue->q_bitmap_next->numSetBits = processed_nodes_next;
 
 	Stop(timer);
-	printf("| TD %-12u | %-15u | %-15f | \n",graph->iteration++, processed_nodes, Seconds(timer));
+	printf("| TD %-12u | %-15u | %-15f | \n",graph->iteration++, processed_nodes_next, Seconds(timer));
 	free(timer);
 	graph->processed_nodes += processed_nodes;
 	return mf;
@@ -561,7 +563,7 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct Bitmap* bitmapCurr, st
 	bitmapNext->numSetBits = processed_nodes_next;
 	
 	Stop(timer);
-	printf("| BU %-12u | %-15u | %-15f | \n",graph->iteration++, processed_nodes , Seconds(timer));
+	printf("| BU %-12u | %-15u | %-15f | \n",graph->iteration++, processed_nodes_next , Seconds(timer));
 	free(timer);
 	return nf;
 }

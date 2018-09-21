@@ -25,7 +25,8 @@ struct GraphCSR{
 
 };
 
-void graphCSRFree(struct GraphCSR* graphCSR);
+void graphCSRReset(struct GraphCSR* graphCSR);
+void graphCSRFree (struct GraphCSR* graphCSR);
 void graphCSRPrint (struct GraphCSR* graphCSR);
 struct GraphCSR* graphCSRAssignEdgeList (struct GraphCSR* graphCSR, struct EdgeList* edgeList, __u8 inverse);
 void graphCSRPrintParentsArray(struct GraphCSR* graphCSR);

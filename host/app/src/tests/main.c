@@ -14,6 +14,7 @@ static void usage(void) {
   printf("\t-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List\n");
   printf("\t-r [root]: BFS & SSSP root\n");
   printf("\t-n [num threads] default:max number of threads the system has\n");
+  printf("\t-i [num iterations] number of iterations for BFS random roots for example\n");
   printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
   printf("\t-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
   printf("\t-s: symmetrict graph, if not given set of incoming edges will be created \n"); 
@@ -31,8 +32,10 @@ int main (int argc, char **argv)
   char *rvalue = NULL;
   char *dvalue = NULL;
   char *nvalue = NULL;
+  char *ivalue = NULL;
 
-  int root = 0;
+  int iterations = 0;
+  int root = -1;
   int algorithm = 0;
   int datastructure = 0;
   numThreads = omp_get_max_threads();
@@ -44,7 +47,7 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "h:f:d:a:r:n:usw")) != -1)
+  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:usw")) != -1)
     switch (c)
       {
       case 'h':
@@ -71,6 +74,10 @@ int main (int argc, char **argv)
         nvalue = optarg;
         numThreads = atoi(nvalue);
         break;
+      case 'i':
+        ivalue = optarg;
+        iterations = atoi(ivalue);
+        break;
       case 'u':
         uflag = 1;
         break;
@@ -89,8 +96,10 @@ int main (int argc, char **argv)
           fprintf (stderr, "Option -%c [algorithm] requires an argument.\n", optopt);
         else if (optopt == 'r')
           fprintf (stderr, "Option -%c [root] requires an argument.\n", optopt);
-        else if (optopt == 'r')
-          fprintf (stderr, "Option -%c [root] requires an argument.\n", optopt);
+        else if (optopt == 'n')
+          fprintf (stderr, "Option -%c [num threads] requires an argument.\n", optopt);
+        else if (optopt == 'i')
+          fprintf (stderr, "Option -%c [num iterations] requires an argument.\n", optopt);
         else if (isprint (optopt))
           fprintf (stderr, "Unknown option `-%c'.\n", optopt);
         else
@@ -104,11 +113,12 @@ int main (int argc, char **argv)
         abort ();
       }
 
-     
+      
+      init_genrand(27491095);
       omp_set_nested(1);
       omp_set_num_threads(numThreads);
       graph = generateGraphDataStructure(fnameb, datastructure);
-      runGraphAlgorithms(graph, datastructure, algorithm, root);
+      runGraphAlgorithms(graph, datastructure, algorithm, root, iterations);
 
   return 0;
 }

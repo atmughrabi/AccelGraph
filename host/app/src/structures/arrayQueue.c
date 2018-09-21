@@ -203,21 +203,21 @@ __u32 sizeArrayQueue(struct ArrayQueue *q){
 
 void flushArrayQueueToShared(struct ArrayQueue *local_q, struct ArrayQueue *shared_q){
 
-__u32 i;
+// __u32 i;
 
-__u32 shared_q_tail_next = 0;
-__u32 local_q_tail = 0;
-local_q_tail = local_q->tail;
+// __u32 shared_q_tail_next = 0;
+// __u32 local_q_tail = 0;
+// local_q_tail = local_q->tail;
 
-	#pragma omp critical
-	{
-		shared_q_tail_next = shared_q->tail_next;	
-		shared_q->tail_next += local_q_tail;
-	}
+__u32 shared_q_tail_next = __sync_fetch_and_add(&shared_q->tail_next,local_q->tail);
+__u32 local_q_size = local_q->tail - local_q->head;
+// &shared_q->queue[shared_q_tail_next]
+// local_q->queue
+// 	for(i = local_q->head ; i < local_q->tail; i++,shared_q_tail_next++){
+// 		shared_q->queue[shared_q_tail_next] = local_q->queue[i];
+// 	}
 
-	for(i = local_q->head ; i < local_q->tail; i++,shared_q_tail_next++){
-		shared_q->queue[shared_q_tail_next] = local_q->queue[i];
-	}
+memcpy(&shared_q->queue[shared_q_tail_next],&local_q->queue[local_q->head],local_q_size*(sizeof(__u32)));
 
 	local_q->head = 0;
     local_q->tail = 0;
@@ -233,11 +233,13 @@ void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b){
 	__u32 v;
 	__u32 i;
 	// printf("Q-Bit %u -> %u \n", q->head, q->tail );
+
+	#pragma omp parallel for
 	for(i = q->head ; i < q->tail; i++){
 		// printf("%u \n", i );
 		v = q->queue[i];
 		// printf("%u \n", v );
-		setBit(b, v);
+		setBitAtomic(b, v);
 		// q->head++;
 	}
 

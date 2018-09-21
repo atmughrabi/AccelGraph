@@ -11,6 +11,7 @@
 #include "timer.h"
 #include "graphRun.h"
 #include "BFS.h"
+#include "mt19937.h"
 
 void generateGraphPrintMessageWithtime(const char * msg, double time){
 
@@ -71,28 +72,29 @@ void * generateGraphDataStructure(const char *fnameb, int datastructure){
 }
 
 
-void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root){
+void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root, int iterations){
 
   switch (algorithm)
       {
         case 0: // bfs filename root 
-          runBreadthFirstSearchAlgorithm(graph,datastructure, root);
+          runBreadthFirstSearchAlgorithm(graph, datastructure, root, iterations);
           break;
         case 1: // pagerank filename
-          printf(" pagerank to be implemented \n");
+          printf(" pagerank to be implemented %d \n", iterations);
           break;
         case 2: // SSSP file name root
           printf(" SSSP to be implemented \n");
           break;
         default:// bfs file name root
-          runBreadthFirstSearchAlgorithm(graph,datastructure, root);
+          runBreadthFirstSearchAlgorithm(graph,datastructure, root, iterations);
           break;          
       }
 
 }
 
 
-void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root){
+
+void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, int iterations){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
     struct GraphCSR* graphCSR = NULL;
@@ -112,10 +114,45 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root){
       { 
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
+            // if(root >= 0 && root <= graphCSR->num_vertices){
+            // Start(timer);
+            // breadthFirstSearchGraphCSR(root, graphCSR);
+            // Stop(timer);
+            // generateGraphPrintMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
+            // }
+
+
+           
+            // while(iterations){
+
+
+
+            //   while(1){
+            //     root = genrand_int32();
+            //       if(root < graphCSR->num_vertices){
+            //         if( graphCSR->vertices[root].out_degree > 0 )
+            //          break;
+            //     }
+            //   }
+
+            // if(root >= 0 && root <= graphCSR->num_vertices){
+            // Start(timer);
+            // breadthFirstSearchGraphCSR(root, graphCSR);
+            // Stop(timer);
+            // generateGraphPrintMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
+            // }
+
+              
+            //    iterations--;
+            //   }
+
+             
+            
             Start(timer);
-            breadthFirstSearchGraphCSR(root, graphCSR);
-            breadthFirstSearchGraphCSR(root, graphCSR);
-            breadthFirstSearchGraphCSR(root, graphCSR);
+            breadthFirstSearchGraphCSR(6479472, graphCSR);
+            breadthFirstSearchGraphCSR(9678012, graphCSR);
+            breadthFirstSearchGraphCSR(10908142, graphCSR);
+            breadthFirstSearchGraphCSR(7463732, graphCSR);
             Stop(timer);
             generateGraphPrintMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
             graphCSRFree(graphCSR);
