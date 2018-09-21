@@ -280,20 +280,20 @@ struct EdgeList* radixSortEdgesBySourceOptimizedParallel (struct EdgeList* edgeL
     #endif
 
     // omp_set_dynamic(0);     // Explicitly disable dynamic teams
-    omp_set_num_threads(numThreads);
+    // omp_set_num_threads(numThreads);
 
     printf("numthreads %d\n", numThreads);
 
     // #pragma omp parallel for default(none) private (x,i) shared(step,num_steps) reduction (+:sum)
 
-    #pragma omp parallel for default(none) private(i) shared(radix,buckets,vertex_count)
+    // #pragma omp parallel for default(none) private(i) shared(radix,buckets,vertex_count)
     for(i=0; i < (radix * buckets); i++){
 
         vertex_count[i] = 0;
 
     }
 
-     #pragma omp parallel for default(none) private(i,t4,t3,t2,t1,u) shared(edgeList,buckets,num_edges) reduction(+:vertex_count[:radix * buckets])
+     // #pragma omp parallel for default(none) private(i,t4,t3,t2,t1,u) shared(edgeList,buckets,num_edges) reduction(+:vertex_count[:radix * buckets])
 	 for (i = 0; i < num_edges; i++) {       /* generate histograms */
         u = edgeList->edges_array[i].src;
         t4 = (u >> 0)  & 0xff;

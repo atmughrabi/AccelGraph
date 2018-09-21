@@ -97,14 +97,16 @@ void   graphGridSetActivePartitionsMap(struct Grid *grid, __u32 vertex){
      totalPartitions = grid->num_partitions;
 
     // #pragma omp parallel for default(none) shared(grid,totalPartitions,row) private(i,Partition_idx)
+
     for ( i = 0; i < totalPartitions; ++i){
 
         Partition_idx= (row*totalPartitions)+i;
 
-        if(grid->partitions[Partition_idx].edgeList->num_edges)
+        if(grid->partitions[Partition_idx].edgeList->num_edges){
          if(!getBit(grid->activePartitionsMap,Partition_idx)){
                 setBitAtomic(grid->activePartitionsMap,Partition_idx);
             }
+        }
         }
     }
 
