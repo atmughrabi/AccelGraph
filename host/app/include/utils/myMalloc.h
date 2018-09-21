@@ -4,15 +4,10 @@
 // extern int errno ;
 
 #define ALIGNED 1
-
-#if ALIGNED
-	
-	#define CACHELINE_BYTES 128
-
-#endif
+#define CACHELINE_BYTES 128
 
 char *strerror(int errnum);
-void * my_aligned_alloc( size_t size );
+void * my_aligned_malloc( size_t size );
 void * my_malloc( size_t size );
 
 #endif

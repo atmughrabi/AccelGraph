@@ -12,7 +12,7 @@
 struct ArrayQueue *newArrayQueue(__u32 size){
 
 	#if ALIGNED
-		struct ArrayQueue* arrayQueue = (struct ArrayQueue*) my_aligned_alloc( sizeof(struct ArrayQueue));
+		struct ArrayQueue* arrayQueue = (struct ArrayQueue*) my_aligned_malloc( sizeof(struct ArrayQueue));
 	#else
         struct ArrayQueue* arrayQueue = (struct ArrayQueue*) my_malloc( sizeof(struct ArrayQueue));
 	#endif
@@ -25,7 +25,7 @@ struct ArrayQueue *newArrayQueue(__u32 size){
 
 
     #if ALIGNED
-		arrayQueue->queue = (__u32*) my_aligned_alloc(size*sizeof(__u32));
+		arrayQueue->queue = (__u32*) my_aligned_malloc(size*sizeof(__u32));
 	#else
         arrayQueue->queue = (__u32*) my_malloc(size*sizeof(__u32));
 	#endif
@@ -51,7 +51,7 @@ void freeArrayQueue(struct ArrayQueue *q){
 void enArrayQueue (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail] = k;
-	setBit(q->q_bitmap, k); // needs fixing
+	// setBit(q->q_bitmap, k); // needs fixing
 	// setBit(q->q_bitmap_next, k);
 	q->tail = q->tail_next;
 	q->tail++;
@@ -82,7 +82,7 @@ void enArrayQueueAtomic (struct ArrayQueue *q, __u32 k){
 void enArrayQueueDelayed (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail_next] = k;
-	setBit(q->q_bitmap_next, k);
+	// setBit(q->q_bitmap_next, k);
 	q->tail_next++;
 
 }
@@ -99,24 +99,24 @@ void enArrayQueueDelayedBitmap (struct ArrayQueue *q, __u32 k){
 void slideWindowArrayQueue (struct ArrayQueue *q){
 
 	// if(q->tail_next > q->tail){
-		__u32 i;
-		__u32 numSetBits = 0;
+		// __u32 i;
+		// __u32 numSetBits = 0;
 
 		q->head = q->tail;
 		q->tail = q->tail_next;
 		// q->iteration++;
-		reset(q->q_bitmap);
-		reset(q->q_bitmap_next);
+		// reset(q->q_bitmap);
+		// reset(q->q_bitmap_next);
 
-		#pragma omp parallel for reduction(+:numSetBits)
-		for(i = q->head; i < q->tail; i++){
-			setBit(q->q_bitmap, q->queue[i]);
-			numSetBits++;
+		// #pragma omp parallel for reduction(+:numSetBits)
+		// for(i = q->head; i < q->tail; i++){
+		// 	setBit(q->q_bitmap, q->queue[i]);
+		// 	numSetBits++;
 			
-		}
+		// }
 
-		// q->q_bitmap_next->numSetBits = 0;
-		q->q_bitmap->numSetBits = numSetBits;
+		// // q->q_bitmap_next->numSetBits = 0;
+		// q->q_bitmap->numSetBits = numSetBits;
 		// q->q_bitmap = orBitmap(q->q_bitmap,q->q_bitmap_next);
 	// }
 	
@@ -203,19 +203,8 @@ __u32 sizeArrayQueue(struct ArrayQueue *q){
 
 void flushArrayQueueToShared(struct ArrayQueue *local_q, struct ArrayQueue *shared_q){
 
-// __u32 i;
-
-// __u32 shared_q_tail_next = 0;
-// __u32 local_q_tail = 0;
-// local_q_tail = local_q->tail;
-
 __u32 shared_q_tail_next = __sync_fetch_and_add(&shared_q->tail_next,local_q->tail);
 __u32 local_q_size = local_q->tail - local_q->head;
-// &shared_q->queue[shared_q_tail_next]
-// local_q->queue
-// 	for(i = local_q->head ; i < local_q->tail; i++,shared_q_tail_next++){
-// 		shared_q->queue[shared_q_tail_next] = local_q->queue[i];
-// 	}
 
 memcpy(&shared_q->queue[shared_q_tail_next],&local_q->queue[local_q->head],local_q_size*(sizeof(__u32)));
 
@@ -236,11 +225,8 @@ void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b){
 
 	#pragma omp parallel for
 	for(i = q->head ; i < q->tail; i++){
-		// printf("%u \n", i );
 		v = q->queue[i];
-		// printf("%u \n", v );
 		setBitAtomic(b, v);
-		// q->head++;
 	}
 
 	b->numSetBits = q->q_bitmap->numSetBits;

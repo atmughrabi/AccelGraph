@@ -9,7 +9,7 @@
 #include "bitmap.h"
 
 // A structure to represent an adjacency list
-struct __attribute__((__packed__)) Partition {
+struct  Partition {
 
 	// __u32 vertex_start;
 	// __u32 vertex_end;
@@ -21,7 +21,7 @@ struct __attribute__((__packed__)) Partition {
 
 
 // A structure to represent an adjacency list
-struct __attribute__((__packed__)) Grid {
+struct  Grid {
 
 	__u32 num_edges;
 	__u32 num_vertices;

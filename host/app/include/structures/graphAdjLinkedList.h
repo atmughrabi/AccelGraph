@@ -9,7 +9,7 @@
 // is an array of adjacency lists.
 // Size of array will be V (number of vertices 
 // in GraphAdjLinkedList)
-struct __attribute__((__packed__)) GraphAdjLinkedList
+struct  GraphAdjLinkedList
 {
 	__u32 num_vertices;
 	__u32 num_edges;

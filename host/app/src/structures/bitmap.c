@@ -11,19 +11,21 @@ struct Bitmap* newBitmap( __u32 size){
 
 
 	#if ALIGNED
-		struct Bitmap* bitmap = (struct Bitmap*) my_aligned_alloc( sizeof(struct Bitmap));
+		struct Bitmap* bitmap = (struct Bitmap*) my_aligned_malloc( sizeof(struct Bitmap));
 	#else
         struct Bitmap* bitmap = (struct Bitmap*) my_malloc( sizeof(struct Bitmap));
 	#endif
 
 
     #if ALIGNED
-		bitmap->bitarray = (__u8*) my_aligned_alloc(sizeof(__u8)*((size+7)/8));
+		bitmap->bitarray = (__u32*) my_aligned_malloc(sizeof(__u32)*((size+kBitsPerWord - 1)/kBitsPerWord));
 	#else
-        bitmap->bitarray = (__u8*) my_malloc(sizeof(__u8)*((size+7)/8));
+        bitmap->bitarray = (__u32*) my_malloc(sizeof(__u32)*((size+kBitsPerWord - 1)/kBitsPerWord));
 	#endif
 
-    memset(bitmap->bitarray, 0, (sizeof(__u8)*((size+7)/8)));
+      
+
+    memset(bitmap->bitarray, 0, (sizeof(__u32)*((size+kBitsPerWord - 1)/kBitsPerWord)));
 	bitmap->size =  size;
 	bitmap->numSetBits =  0;
 
@@ -40,15 +42,16 @@ void freeBitmap( struct Bitmap* bitmap){
 
 void reset(struct Bitmap* bitmap){
 
-	 memset(bitmap->bitarray, 0, (sizeof(__u8)*((bitmap->size+7)/8)));
+	 memset(bitmap->bitarray, 0, (sizeof(__u32)*((bitmap->size+kBitsPerWord - 1)/kBitsPerWord)));
 	 bitmap->numSetBits =  0;
 
 }
 
 void setBit(struct Bitmap* bitmap, __u32 pos){
 
-	ba_set(bitmap->bitarray, pos);
+	// ba_set(bitmap->bitarray, pos);
 	// bitmap->numSetBits++;
+	bitmap->bitarray[word_offset(pos)] |= (__u32) (1 << bit_offset(pos));
 
 }
 
@@ -58,7 +61,7 @@ void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end){
 
  for (pos = start; pos < end; ++pos)
  {
- 	ba_set(bitmap->bitarray, pos);
+ 	setBit(bitmap, pos);
  	// bitmap->numSetBits++;
  }
 
@@ -67,12 +70,12 @@ void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end){
 void setBitAtomic(struct Bitmap* bitmap, __u32 pos){
 
 	// ba_set(bitmap->bitarray, pos);
-	 __u8 *bitarray = bitmap->bitarray;
-	 __u8 old_val, new_val;
+	 // __u64 *bitarray = bitmap->bitarray;
+	 __u32 old_val, new_val;
     do {
-      old_val = bitarray[(pos) >> 3];
-      new_val = old_val | (__u8)(1 << ((pos) & 7));
-    } while (!__sync_bool_compare_and_swap(&bitarray[(pos) >> 3], old_val, new_val));
+      old_val = bitmap->bitarray[word_offset(pos)];
+      new_val = old_val | (__u32) (1 << bit_offset(pos));
+    } while (!__sync_bool_compare_and_swap(&bitmap->bitarray[word_offset(pos)], old_val, new_val));
 
 	
 
@@ -80,15 +83,16 @@ void setBitAtomic(struct Bitmap* bitmap, __u32 pos){
 
 __u8 getBit(struct Bitmap* bitmap, __u32 pos){
 
-	__u8 bit = ba_get(bitmap->bitarray, pos);
-	return bit;
+	// __u8 bit = ba_get(bitmap->bitarray, pos);
+	return (__u8)(bitmap->bitarray[word_offset(pos)] >> bit_offset(pos)) & 1l;;
 
 }
 
 void clearBit(struct Bitmap* bitmap, __u32 pos){
 
-	ba_clear(bitmap->bitarray, pos);
+	// ba_clear(bitmap->bitarray, pos);
 	// bitmap->numSetBits--;
+	bitmap->bitarray[word_offset(pos)] &= ((__u32) (~(1l << bit_offset(pos))));
 
 }
 
@@ -96,11 +100,11 @@ struct Bitmap*  orBitmap(struct Bitmap* bitmap1, struct Bitmap* bitmap2){
 
 
 	__u32 i;
-	__u8 *byte1 = bitmap1->bitarray;
-	__u8 *byte2 = bitmap2->bitarray;
+	__u32 *byte1 = bitmap1->bitarray;
+	__u32 *byte2 = bitmap2->bitarray;
 	bitmap1->numSetBits = 0;
 
-	for(i= 0 ; i < ((bitmap1->size+7)/8); i++){
+	for(i= 0 ; i <((bitmap1->size+kBitsPerWord - 1)/kBitsPerWord); i++){
 		byte1[i] = byte1[i] | byte2[i]; 
 
 	}
@@ -116,11 +120,11 @@ struct Bitmap*  andBitmap(struct Bitmap* bitmap1, struct Bitmap* bitmap2){
 
 
 	__u32 i;
-	__u8 *byte1 = bitmap1->bitarray;
-	__u8 *byte2 = bitmap2->bitarray;
+	__u32 *byte1 = bitmap1->bitarray;
+	__u32 *byte2 = bitmap2->bitarray;
 	bitmap1->numSetBits = 0;
 
-	for(i= 0 ; i < ((bitmap1->size+7)/8); i++){
+	for(i= 0 ; i < ((bitmap1->size+kBitsPerWord - 1)/kBitsPerWord); i++){
 		byte1[i] = byte1[i] & byte2[i]; 
 
 	}
@@ -147,11 +151,11 @@ __u32 getNumOfSetBits (struct Bitmap* bitmap){
 
 	__u32 i;
 	__u32 numSetBits = 0;
-	__u8 bit = 0;
 
+	#pragma omp parallel for reduction(+:numSetBits)
 	for(i= 0 ; i < (bitmap->size); i++){
-		bit = ba_get(bitmap->bitarray, i);
-		numSetBits += bit;
+		if(getBit(bitmap, i))
+			numSetBits++;
 	}
 
 	return numSetBits;
@@ -160,14 +164,11 @@ __u32 getNumOfSetBits (struct Bitmap* bitmap){
 void printSetBits (struct Bitmap* bitmap){
 
 	__u32 i;
-	__u8 bit = 0;
 
 	for(i= 0 ; i < (bitmap->size); i++){
-		bit = ba_get(bitmap->bitarray, i);
-		if(bit){
+		if(getBit(bitmap, i)){
 			printf("**%u \n", i);
 		}
-		bit = 0;
 	}
 
 }

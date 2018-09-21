@@ -9,7 +9,7 @@
 
 
 // A structure to represent an adjacency list
-struct __attribute__((__packed__)) AdjArrayList {
+struct  AdjArrayList {
 
 	__u8 visited;
 	__u32 out_degree;
@@ -26,7 +26,7 @@ struct __attribute__((__packed__)) AdjArrayList {
 // // is an array of adjacency lists.
 // // Size of array will be V (number of vertices 
 // // in GraphAdjLinkedList)
-// struct __attribute__((__packed__)) GraphAdjLinkedList
+// struct  GraphAdjLinkedList
 // {
 // 	__u32 num_vertices;
 // 	__u32 num_edges;

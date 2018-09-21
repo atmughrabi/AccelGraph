@@ -3,17 +3,23 @@
 
 #include <linux/types.h>
 
+#define kBitsPerWord  32
+#define word_offset(n)  (n / kBitsPerWord)
+#define bit_offset(n)  (n & (kBitsPerWord - 1))
 
-#define ba_set(ptr, bit)    (ptr)[(bit) >> 3] |= (__u8)(1 << ((bit) & 7)); 
-#define ba_clear(ptr, bit)  (ptr)[(bit) >> 3] &= (__u8)(~(1 << ((bit) & 7))); 
-#define ba_get(ptr, bit)    ((ptr)[(bit) >> 3] & (__u8)(1 << ((bit) & 7)) ?  1 : 0 ) 
+#define ba_set(ptr, bit)    ((ptr)[(bit) >> 5] |= (__u32)(1 << ((bit) & kBitsPerWord)))
+#define ba_clear(ptr, bit)  ((ptr)[(bit) >> 5] &= (__u32)(~(1 << ((bit) & kBitsPerWord))))
+#define ba_get(ptr, bit)    ((ptr)[(bit) >> 5] & (__u32)(1 << ((bit) & kBitsPerWord)) ?  1 : 0 ) 
 #define ba_setbit(ptr, bit, value) { if (value) { ba_set((ptr), (bit)) } else { ba_clear((ptr), (bit)); } }
 
-struct __attribute__((__packed__)) Bitmap
+
+
+
+struct  Bitmap
 {
 	__u32 size;
 	__u32 numSetBits;
-	__u8 *bitarray;
+	__u32 *bitarray;
 
 };
 

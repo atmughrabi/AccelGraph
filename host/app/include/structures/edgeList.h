@@ -5,7 +5,7 @@
 #include "graphConfig.h"
 
 // A structure to represent an edge
-struct  __attribute__((__packed__)) Edge {
+struct   Edge {
 
 	__u32 src;
 	__u32 dest;
@@ -16,7 +16,7 @@ struct  __attribute__((__packed__)) Edge {
 };
 
 
-struct __attribute__((__packed__)) EdgeList {
+struct  EdgeList {
 
 	__u32 num_edges;
 	__u32 num_vertices;

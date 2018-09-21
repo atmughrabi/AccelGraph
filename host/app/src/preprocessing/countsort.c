@@ -23,7 +23,7 @@ struct EdgeList*  countSortEdgesBySource (struct EdgeList* edgeList){
 	struct Edge* sorted_edges_array = newEdgeArray(num_edges);
 
 	#if ALIGNED
-		__u32* vertex_count = (__u32*) my_aligned_alloc( num_vertices * sizeof(__u32));
+		__u32* vertex_count = (__u32*) my_aligned_malloc( num_vertices * sizeof(__u32));
 	#else
         __u32* vertex_count = (__u32*) my_malloc( num_vertices * sizeof(__u32));
     #endif

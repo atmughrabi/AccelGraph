@@ -6,7 +6,7 @@
 
 extern int errno ;
 
-void * my_aligned_alloc( size_t size )
+void * my_aligned_malloc( size_t size )
 {
 
 	void *dataOut = aligned_alloc(CACHELINE_BYTES, size);

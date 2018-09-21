@@ -35,7 +35,7 @@ struct GraphAdjArrayList* graphAdjArrayListGraphNew(__u32 V){
 
 	// struct graphAdjArrayList* graphAdjArrayList = (struct graphAdjArrayList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct graphAdjArrayList));
     #if ALIGNED
-        struct GraphAdjArrayList* graphAdjArrayList = (struct GraphAdjArrayList*) my_aligned_alloc( sizeof(struct GraphAdjArrayList));
+        struct GraphAdjArrayList* graphAdjArrayList = (struct GraphAdjArrayList*) my_aligned_malloc( sizeof(struct GraphAdjArrayList));
     #else
         struct GraphAdjArrayList* graphAdjArrayList = (struct GraphAdjArrayList*) my_malloc( sizeof(struct GraphAdjArrayList));
     #endif
@@ -43,13 +43,13 @@ struct GraphAdjArrayList* graphAdjArrayListGraphNew(__u32 V){
 	graphAdjArrayList->num_vertices = V;
 	// graphAdjArrayList->parent_array = (struct AdjArrayList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjArrayList));
     #if ALIGNED
-        graphAdjArrayList->parent_array = (struct AdjArrayList*) my_aligned_alloc( V * sizeof(struct AdjArrayList));
+        graphAdjArrayList->parent_array = (struct AdjArrayList*) my_aligned_malloc( V * sizeof(struct AdjArrayList));
     #else
         graphAdjArrayList->parent_array = (struct AdjArrayList*) my_malloc( V * sizeof(struct AdjArrayList));
     #endif
 
     #if ALIGNED
-        graphAdjArrayList->parents  = (int*) my_aligned_alloc( V * sizeof(int));
+        graphAdjArrayList->parents  = (int*) my_aligned_malloc( V * sizeof(int));
     #else
         graphAdjArrayList->parents  = (int*) my_malloc( V *sizeof(int));
     #endif

@@ -9,7 +9,7 @@
 
 
 // A structure to represent an adjacency list
-struct __attribute__((__packed__)) GraphGrid {
+struct  GraphGrid {
 
 	__u32 num_edges;
 	__u32 num_vertices;

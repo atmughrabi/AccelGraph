@@ -71,13 +71,13 @@ struct GraphGrid * graphGridNew(struct EdgeList* edgeList){
 
 
     #if ALIGNED
-        struct GraphGrid* graphGrid = (struct GraphGrid*) my_aligned_alloc(sizeof(struct GraphGrid));
+        struct GraphGrid* graphGrid = (struct GraphGrid*) my_aligned_malloc(sizeof(struct GraphGrid));
     #else
         struct GraphGrid* graphGrid = (struct GraphGrid*) my_malloc( sizeof(struct GraphGrid));
     #endif
 
     #if ALIGNED
-        graphGrid->parents  = (int*) my_aligned_alloc( edgeList->num_vertices * sizeof(int));
+        graphGrid->parents  = (int*) my_aligned_malloc( edgeList->num_vertices * sizeof(int));
     #else
         graphGrid->parents  = (int*) my_malloc( edgeList->num_vertices *sizeof(int));
     #endif

@@ -6,7 +6,7 @@
 #include "edgeList.h"
 
 // // A structure to represent an adjacency list
-// struct __attribute__((__packed__)) AdjArrayList {
+// struct  AdjArrayList {
 
 // 	__u8 visited;
 // 	__u32 out_degree;
@@ -20,7 +20,7 @@
 // };
 
 
-// struct  __attribute__((__packed__)) Edge {
+// struct   Edge {
 
 // 	__u32 dest;
 // 	__u32 src;
@@ -36,7 +36,7 @@
 // is an array of adjacency lists.
 // Size of array will be V (number of vertices 
 // in GraphAdjArrayList)
-struct __attribute__((__packed__)) GraphAdjArrayList
+struct  GraphAdjArrayList
 {
 	__u32 num_vertices;
 	__u32 num_edges;

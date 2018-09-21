@@ -133,7 +133,7 @@ struct EdgeList* radixSortEdgesBySource (struct EdgeList* edgeList){
     struct Edge* sorted_edges_array = newEdgeArray(num_edges);
 
     #if ALIGNED
-        buckets_count = (__u32*) my_aligned_alloc(P * buckets * sizeof(__u32));
+        buckets_count = (__u32*) my_aligned_malloc(P * buckets * sizeof(__u32));
     #else
         buckets_count = (__u32*) my_malloc(P * buckets * sizeof(__u32));
     #endif
@@ -274,7 +274,7 @@ struct EdgeList* radixSortEdgesBySourceOptimizedParallel (struct EdgeList* edgeL
     struct Edge* sorted_edges_array = newEdgeArray(num_edges);
 
 	#if ALIGNED
-		vertex_count = (__u32*) my_aligned_alloc( radix * buckets * sizeof(__u32));
+		vertex_count = (__u32*) my_aligned_malloc( radix * buckets * sizeof(__u32));
 	#else
         vertex_count = (__u32*) my_malloc( radix * buckets * sizeof(__u32));
     #endif
@@ -398,7 +398,7 @@ struct EdgeList* radixSortEdgesBySourceOptimized (struct EdgeList* edgeList){
     struct Edge* sorted_edges_array = newEdgeArray(num_edges);
 
     #if ALIGNED
-        vertex_count = (__u32*) my_aligned_alloc( radix * buckets * sizeof(__u32));
+        vertex_count = (__u32*) my_aligned_malloc( radix * buckets * sizeof(__u32));
     #else
         vertex_count = (__u32*) my_malloc( radix * buckets * sizeof(__u32));
     #endif

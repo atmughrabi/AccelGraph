@@ -10,7 +10,7 @@
 
 
 
-struct __attribute__((__packed__)) Vertex {
+struct  Vertex {
 
 	__u8 visited;
 	__u32 out_degree;

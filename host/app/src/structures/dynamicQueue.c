@@ -11,7 +11,7 @@
 struct QNode* newQNode(__u32 k)
 {
     #if ALIGNED
-        struct QNode *temp = (struct QNode*)  my_aligned_alloc(sizeof(struct QNode));
+        struct QNode *temp = (struct QNode*)  my_aligned_malloc(sizeof(struct QNode));
     #else
         struct QNode *temp = (struct QNode*)  my_malloc(sizeof(struct QNode));
     #endif
@@ -24,7 +24,7 @@ struct QNode* newQNode(__u32 k)
 struct DynamicQueue *newDynamicQueue()
 {
     #if ALIGNED
-        struct DynamicQueue *q = (struct DynamicQueue*) my_aligned_alloc(sizeof(struct DynamicQueue));
+        struct DynamicQueue *q = (struct DynamicQueue*) my_aligned_malloc(sizeof(struct DynamicQueue));
     #else
         struct DynamicQueue *q = (struct DynamicQueue*) my_malloc(sizeof(struct DynamicQueue));
     #endif

@@ -20,7 +20,7 @@ struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V){
 
 	// struct graphAdjLinkedList* graphAdjLinkedList = (struct graphAdjLinkedList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct graphAdjLinkedList));
     #if ALIGNED
-        struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_aligned_alloc( sizeof(struct GraphAdjLinkedList));
+        struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_aligned_malloc( sizeof(struct GraphAdjLinkedList));
     #else
         struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_malloc( sizeof(struct GraphAdjLinkedList));
     #endif
@@ -28,7 +28,7 @@ struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V){
 	graphAdjLinkedList->num_vertices = V;
 	// graphAdjLinkedList->parent_array = (struct AdjLinkedList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjLinkedList));
     #if ALIGNED
-        graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_aligned_alloc( V * sizeof(struct AdjLinkedList));
+        graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_aligned_malloc( V * sizeof(struct AdjLinkedList));
     #else
         graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_malloc( V * sizeof(struct AdjLinkedList));
     #endif
@@ -60,7 +60,7 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
 
     // struct graphAdjLinkedList* graphAdjLinkedList = (struct graphAdjLinkedList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct graphAdjLinkedList));
     #if ALIGNED
-        struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_aligned_alloc( sizeof(struct GraphAdjLinkedList));
+        struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_aligned_malloc( sizeof(struct GraphAdjLinkedList));
     #else
         struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_malloc( sizeof(struct GraphAdjLinkedList));
     #endif
@@ -70,13 +70,13 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
     // graphAdjLinkedList->parent_array = (struct AdjLinkedList*) aligned_alloc(CACHELINE_BYTES, graphAdjLinkedList->V * sizeof(struct AdjLinkedList));
 
     #if ALIGNED
-        graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_aligned_alloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
+        graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_aligned_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
     #else
         graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
     #endif
 
     #if ALIGNED
-        graphAdjLinkedList->parents  = (int*) my_aligned_alloc( graphAdjLinkedList->num_vertices * sizeof(int));
+        graphAdjLinkedList->parents  = (int*) my_aligned_malloc( graphAdjLinkedList->num_vertices * sizeof(int));
     #else
         graphAdjLinkedList->parents  = (int*) my_malloc( graphAdjLinkedList->num_vertices *sizeof(int));
     #endif

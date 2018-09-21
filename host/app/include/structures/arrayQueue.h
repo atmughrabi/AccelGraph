@@ -4,7 +4,7 @@
 #include <linux/types.h>
 #include "bitmap.h"
 
-struct __attribute__((__packed__)) ArrayQueue
+struct  ArrayQueue
 {
 	__u32 head;
 	__u32 tail;

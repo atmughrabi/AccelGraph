@@ -123,7 +123,7 @@ struct GraphCSR* graphCSRNew(__u32 V, __u32 E, __u8 inverse){
 	int i;
 	// struct GraphCSR* graphCSR = (struct GraphCSR*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphCSR));
 	#if ALIGNED
-		struct GraphCSR* graphCSR = (struct GraphCSR*) my_aligned_alloc( sizeof(struct GraphCSR));
+		struct GraphCSR* graphCSR = (struct GraphCSR*) my_aligned_malloc( sizeof(struct GraphCSR));
 	#else
         struct GraphCSR* graphCSR = (struct GraphCSR*) my_malloc( sizeof(struct GraphCSR));
     #endif
@@ -134,22 +134,27 @@ struct GraphCSR* graphCSRNew(__u32 V, __u32 E, __u8 inverse){
 	graphCSR->vertices = newVertexArray(V);
 
 	#if DIRECTED
-		if (inverse)
+		if (inverse){
 			graphCSR->inverse_vertices = newVertexArray(V);
+
+        }
 	#endif
 
 	#if ALIGNED
-		graphCSR->parents  = (int*) my_aligned_alloc( V * sizeof(int));
+		graphCSR->parents  = (int*) my_aligned_malloc( V * sizeof(int));
 	#else
         graphCSR->parents  = (int*) my_malloc( V *sizeof(int));
     #endif
 
 
-     for(i = 0; i < V; i++){
+
+    #pragma omp for
+    for(i = 0; i < V; i++){
                 graphCSR->parents[i] = -1;
-     }
+          
+    }
 	
-     graphCSR->iteration = 0;
+    graphCSR->iteration = 0;
     graphCSR->processed_nodes = 0;
 
     return graphCSR;

@@ -31,7 +31,7 @@ struct EdgeList* newEdgeList( __u32 num_edges){
 
         // struct EdgeList* newEdgeList = (struct EdgeList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct EdgeList));
         #if ALIGNED
-                struct EdgeList* newEdgeList = (struct EdgeList*) my_aligned_alloc(sizeof(struct EdgeList));
+                struct EdgeList* newEdgeList = (struct EdgeList*) my_aligned_malloc(sizeof(struct EdgeList));
         #else
                 struct EdgeList* newEdgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
         #endif
@@ -58,7 +58,7 @@ struct Edge* newEdgeArray(__u32 num_edges){
 
         // struct Edge* edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));
         #if ALIGNED
-                struct Edge* edges_array = (struct Edge*) my_aligned_alloc( num_edges * sizeof(struct Edge));
+                struct Edge* edges_array = (struct Edge*) my_aligned_malloc( num_edges * sizeof(struct Edge));
         #else
                 struct Edge* edges_array = (struct Edge*) my_malloc( num_edges * sizeof(struct Edge));
         #endif

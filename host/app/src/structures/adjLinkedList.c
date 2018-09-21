@@ -12,7 +12,7 @@ struct AdjLinkedListNode* newAdjLinkedListOutNode(struct Edge * edge){
 
 	// struct AdjLinkedListNode* newNode = (struct AdjLinkedListNode*) aligned_alloc(CACHELINE_BYTES, sizeof(struct AdjLinkedListNode));
     #if ALIGNED
-        struct AdjLinkedListNode* newNode = (struct AdjLinkedListNode*) my_aligned_alloc(sizeof(struct AdjLinkedListNode));
+        struct AdjLinkedListNode* newNode = (struct AdjLinkedListNode*) my_aligned_malloc(sizeof(struct AdjLinkedListNode));
     #else
         struct AdjLinkedListNode* newNode = (struct AdjLinkedListNode*) my_malloc(sizeof(struct AdjLinkedListNode));
     #endif
@@ -34,7 +34,7 @@ struct AdjLinkedListNode* newAdjLinkedListInNode(struct Edge * edge){
 
     // struct AdjLinkedListNode* newNode = (struct AdjLinkedListNode*) aligned_alloc(CACHELINE_BYTES, sizeof(struct AdjLinkedListNode));
     #if ALIGNED
-        struct AdjLinkedListNode* newNode = (struct AdjLinkedListNode*) my_aligned_alloc(sizeof(struct AdjLinkedListNode));
+        struct AdjLinkedListNode* newNode = (struct AdjLinkedListNode*) my_aligned_malloc(sizeof(struct AdjLinkedListNode));
     #else
         struct AdjLinkedListNode* newNode = (struct AdjLinkedListNode*) my_malloc(sizeof(struct AdjLinkedListNode));
     #endif

@@ -13,7 +13,7 @@ struct Vertex* newVertexArray(__u32 num_vertices){
         // struct Vertex* vertex_array = (struct Vertex*) aligned_alloc(CACHELINE_BYTES, num_vertices * sizeof(struct Vertex));
 		
 	#if ALIGNED
-        struct Vertex* vertex_array = (struct Vertex*) my_aligned_alloc( num_vertices * sizeof(struct Vertex));
+        struct Vertex* vertex_array = (struct Vertex*) my_aligned_malloc( num_vertices * sizeof(struct Vertex));
     #else
         struct Vertex* vertex_array = (struct Vertex*) my_malloc( num_vertices * sizeof(struct Vertex));
     #endif
@@ -133,10 +133,11 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
     __u32 P = numThreads; 
      struct Vertex* vertices;
      struct Edge* sorted_edges_array;
+    
 
     #if ALIGNED
-        __u32* offset_start_arr = (__u32*) my_aligned_alloc( P * sizeof(__u32));
-        __u32* offset_end_arr = (__u32*) my_aligned_alloc( P * sizeof(__u32));
+        __u32* offset_start_arr = (__u32*) my_aligned_malloc( P * sizeof(__u32));
+        __u32* offset_end_arr = (__u32*) my_aligned_malloc( P * sizeof(__u32));
     #else
         __u32* offset_start_arr = (__u32*) my_malloc( P * sizeof(__u32));
         __u32* offset_end_arr = (__u32*) my_malloc( P * sizeof(__u32));
@@ -179,6 +180,8 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
         vertices[vertex_id].edges_idx = offset_start;
         vertices[vertex_id].out_degree++;
 
+        
+
         for(i = offset_start+1; i < offset_end; i++){
 
         
@@ -186,10 +189,13 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
 
             vertex_id = sorted_edges_array[i].src;
             vertices[vertex_id].edges_idx = i; 
-            vertices[vertex_id].out_degree++;  
+            vertices[vertex_id].out_degree++;
+
+           
          
         }else{
             vertices[vertex_id].out_degree++;
+           
         }
     }
 

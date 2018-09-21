@@ -8,7 +8,7 @@
 #include "graphCSR.h"
 
 // A structure to represent an adjacency list node
-struct __attribute__((__packed__)) AdjLinkedListNode {
+struct  AdjLinkedListNode {
 
 	__u32 dest;
 	// __u32 src;
@@ -22,7 +22,7 @@ struct __attribute__((__packed__)) AdjLinkedListNode {
 };
 
 // A structure to represent an adjacency list
-struct __attribute__((__packed__)) AdjLinkedList {
+struct  AdjLinkedList {
 
 	__u8 visited;
 	__u32 out_degree;
@@ -39,7 +39,7 @@ struct __attribute__((__packed__)) AdjLinkedList {
 // // is an array of adjacency lists.
 // // Size of array will be V (number of vertices 
 // // in GraphAdjLinkedList)
-// struct __attribute__((__packed__)) GraphAdjLinkedList
+// struct  GraphAdjLinkedList
 // {
 // 	__u32 num_vertices;
 // 	__u32 num_edges;

@@ -4,7 +4,7 @@
 #include <linux/types.h>
 
 // A linked list (LL) node to store a queue entry
-struct __attribute__((__packed__)) QNode
+struct  QNode
 {
 
     __u32 key;
@@ -13,7 +13,7 @@ struct __attribute__((__packed__)) QNode
  
 // The queue, front stores the front node of LL and rear stores ths
 // last node of LL
-struct __attribute__((__packed__)) DynamicQueue
+struct  DynamicQueue
 {
 	__u32 size;
     struct QNode *front, *rear;

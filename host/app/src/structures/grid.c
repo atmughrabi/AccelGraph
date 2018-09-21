@@ -105,7 +105,7 @@ struct Grid * gridNew(struct EdgeList* edgeList){
 	__u32 totalPartitions = 0;
 
 	#if ALIGNED
-		struct Grid* grid = (struct Grid*) my_aligned_alloc(sizeof(struct Grid));
+		struct Grid* grid = (struct Grid*) my_aligned_malloc(sizeof(struct Grid));
 	#else
         struct Grid* grid = (struct Grid*) my_malloc( sizeof(struct Grid));
     #endif
@@ -116,13 +116,13 @@ struct Grid * gridNew(struct EdgeList* edgeList){
     totalPartitions = grid->num_partitions * grid->num_partitions;
 
     #if ALIGNED
-		grid->partitions = (struct Partition*) my_aligned_alloc(totalPartitions * sizeof(struct Partition));
+		grid->partitions = (struct Partition*) my_aligned_malloc(totalPartitions * sizeof(struct Partition));
 	#else
         grid->partitions = (struct Partition*) my_malloc(totalPartitions * sizeof(struct Partition));
     #endif
 
     #if ALIGNED
-        grid->activePartitions = (__u32*) my_aligned_alloc(totalPartitions * sizeof(__u32));
+        grid->activePartitions = (__u32*) my_aligned_malloc(totalPartitions * sizeof(__u32));
     #else
         grid->activePartitions = (__u32*) my_malloc(totalPartitions * sizeof(__u32));
     #endif
