@@ -86,7 +86,7 @@ void freeEdgeArray(struct Edge* edges_array){
 }
 
 
-void readEdgeListstxt(const char * fname){
+char * readEdgeListstxt(const char * fname){
 
         FILE *pText, *pBinary;
         __u32 size = 0, i;
@@ -114,11 +114,11 @@ void readEdgeListstxt(const char * fname){
 
         if (pText == NULL) {
                 err(1, "open: %s", fname);
-                return ;
+                return NULL;
         }
          if (pBinary == NULL) {
                 err(1, "open: %s", fname_bin);
-                return ;
+                return NULL;
         }
 
 
@@ -146,6 +146,9 @@ void readEdgeListstxt(const char * fname){
       
         fclose(pText);
         fclose(pBinary);
+
+
+        return fname_bin;
 
 
 }

@@ -5,6 +5,9 @@
 #include <omp.h>
 
 #include "graphRun.h"
+#include "edgeList.h"
+#include "myMalloc.h"
+#include "timer.h"
 
 int numThreads;
 
@@ -15,9 +18,10 @@ static void usage(void) {
   printf("\t-r [root]: BFS & SSSP root\n");
   printf("\t-n [num threads] default:max number of threads the system has\n");
   printf("\t-i [num iterations] number of iterations for BFS random roots for example\n");
+  printf("\t-c: convert to bin file on load example:-f <graph file> -c\n");
   printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
   printf("\t-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
-  printf("\t-s: symmetrict graph, if not given set of incoming edges will be created \n"); 
+  printf("\t-s: symmetric graph, if not given set of incoming edges will be created \n"); 
   _exit(-1);
 }
 
@@ -26,6 +30,7 @@ int main (int argc, char **argv)
   int uflag = 0;
   int wflag = 0;
   int sflag = 0;
+  int cflag = 0;
 
   char *fvalue = NULL;
   char *avalue = NULL;
@@ -47,7 +52,7 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:usw")) != -1)
+  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:uswc")) != -1)
     switch (c)
       {
       case 'h':
@@ -87,6 +92,9 @@ int main (int argc, char **argv)
       case 'w':
         sflag = 1;
         break;
+      case 'c':
+        cflag = 1;
+        break;
       case '?':
         if (optopt == 'f')
           fprintf (stderr, "Option -%c <graph file> requires an argument  .\n", optopt);
@@ -113,13 +121,25 @@ int main (int argc, char **argv)
         abort ();
       }
 
+      struct Timer* timer = (struct Timer*) my_malloc(sizeof(struct Timer));
       
       init_genrand(27491095);
       omp_set_nested(1);
       omp_set_num_threads(numThreads);
+
+      if(cflag)
+      {
+        Start(timer);
+        fnameb = readEdgeListstxt(fnameb);
+        Stop(timer);
+        printf("Read Edge List From File converted to binary : %f Seconds \n",Seconds(timer));
+      }
+
       graph = generateGraphDataStructure(fnameb, datastructure);
       runGraphAlgorithms(graph, datastructure, algorithm, root, iterations);
 
+
+      free(timer);
   return 0;
 }
 
