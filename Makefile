@@ -257,7 +257,7 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 
 #app command line arguments
 fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
-root = 6479472
+root = 428333
 
 
 # fnameb = "host/app/datasets/test/test.txt.bin"

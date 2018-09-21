@@ -582,17 +582,17 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 		localFrontierQueues[i] = newArrayQueue(graph->num_vertices);
 	}
 
-	#if ALIGNED
-		struct ArrayQueue** localFrontierQueuesL2 = (struct ArrayQueue**) my_aligned_malloc( P * P * sizeof(struct ArrayQueue*));
-	#else
-        struct ArrayQueue** localFrontierQueuesL2 = (struct ArrayQueue**) my_aligned_malloc( P * P *  sizeof(struct ArrayQueue*));
-    #endif
+	// #if ALIGNED
+	// 	struct ArrayQueue** localFrontierQueuesL2 = (struct ArrayQueue**) my_aligned_malloc( P * P * sizeof(struct ArrayQueue*));
+	// #else
+ //        struct ArrayQueue** localFrontierQueuesL2 = (struct ArrayQueue**) my_aligned_malloc( P * P *  sizeof(struct ArrayQueue*));
+ //    #endif
 
   
-   #pragma omp parallel for
-   for(i=0 ; i < P*P ; i++){
-		localFrontierQueuesL2[i] = newArrayQueue(graph->num_vertices);
-	}
+ //   #pragma omp parallel for
+ //   for(i=0 ; i < P*P ; i++){
+	// 	localFrontierQueuesL2[i] = newArrayQueue(graph->num_vertices);
+	// }
 
 
 		
@@ -617,7 +617,7 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 	while(!isEmptyArrayQueue(sharedFrontierQueue)){ // start while 
 
 		 Start(timer_iteration);
-			breadthFirstSearchStreamEdgesGraphGrid(graph, sharedFrontierQueue, localFrontierQueues, localFrontierQueuesL2);
+			breadthFirstSearchStreamEdgesGraphGrid(graph, sharedFrontierQueue, localFrontierQueues);
 		 Stop(timer_iteration);
 
 		 
@@ -626,9 +626,7 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 			arrayQueueGenerateBitmap(sharedFrontierQueue);
 			breadthFirstSearchSetActivePartitions(graph,sharedFrontierQueue);
 
-		 // Stop(timer_iteration);
-
-		inner_time += Seconds(timer_iteration);
+		 inner_time += Seconds(timer_iteration);
 		 printf("| %-15u | %-15u | %-15f | \n",graph->iteration++, processed_nodes, Seconds(timer_iteration));
 	} // end while
 	Stop(timer);
@@ -645,12 +643,12 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 		freeArrayQueue(localFrontierQueues[i]);
 	}	
   
-   #pragma omp parallel for
-   for(i=0 ; i < P*P ; i++){
-		freeArrayQueue(localFrontierQueuesL2[i]);
-	}
+ //   #pragma omp parallel for
+ //   for(i=0 ; i < P*P ; i++){
+	// 	freeArrayQueue(localFrontierQueuesL2[i]);
+	// }
 
-	free(localFrontierQueuesL2);
+	// free(localFrontierQueuesL2);
 	free(localFrontierQueues);
 	free(timer_iteration);
 	free(timer);
@@ -668,7 +666,7 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 // 	return Sum
 // end function
 //we assume that the edges are not sorted in each partition
-void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid* graph, struct ArrayQueue* sharedFrontierQueue,  struct ArrayQueue** localFrontierQueues, struct ArrayQueue** localFrontierQueuesL2){
+void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid* graph, struct ArrayQueue* sharedFrontierQueue,  struct ArrayQueue** localFrontierQueues){
 	// struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	__u32 totalPartitions = 0;
      totalPartitions = graph->grid->num_partitions * graph->grid->num_partitions; // PxP
@@ -684,7 +682,7 @@ void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid* graph, struct Arra
            			{
            				__u32 t_id = omp_get_thread_num();
                         struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
-	            		breadthFirstSearchPartitionGraphGrid(graph,&(graph->grid->partitions[i]),sharedFrontierQueue,localFrontierQueue, localFrontierQueuesL2);
+	            		breadthFirstSearchPartitionGraphGrid(graph,&(graph->grid->partitions[i]),sharedFrontierQueue,localFrontierQueue);
            				flushArrayQueueToShared(localFrontierQueue,sharedFrontierQueue);
            			}
 			    		
@@ -697,7 +695,7 @@ void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid* graph, struct Arra
 }
    
    
-void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph, struct Partition* partition,struct ArrayQueue* sharedFrontierQueue, struct ArrayQueue* localFrontierQueue,  struct ArrayQueue** localFrontierQueuesL2){
+void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph, struct Partition* partition,struct ArrayQueue* sharedFrontierQueue, struct ArrayQueue* localFrontierQueue){
 
 	 __u32 i;
 	 __u32 src;

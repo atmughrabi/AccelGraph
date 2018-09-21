@@ -100,8 +100,9 @@ void   graphGridSetActivePartitionsMap(struct Grid *grid, __u32 vertex){
     for ( i = 0; i < totalPartitions; ++i){
 
         Partition_idx= (row*totalPartitions)+i;
-        if(!getBit(grid->activePartitionsMap,Partition_idx))
-        if(grid->partitions[Partition_idx].edgeList->num_edges){
+
+        if(grid->partitions[Partition_idx].edgeList->num_edges)
+         if(!getBit(grid->activePartitionsMap,Partition_idx)){
                 setBitAtomic(grid->activePartitionsMap,Partition_idx);
             }
         }
