@@ -568,6 +568,7 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 	struct Timer* timer_iteration = (struct Timer*) malloc(sizeof(struct Timer));
 	struct ArrayQueue* sharedFrontierQueue = newArrayQueue(graph->num_vertices);
 	__u32 P = numThreads;
+	double inner_time = 0;
 
 	#if ALIGNED
 		struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_malloc( P * sizeof(struct ArrayQueue*));
@@ -584,26 +585,42 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 		
 	__u32 processed_nodes = 0;
 
+	Start(timer_iteration);
 	enArrayQueue(sharedFrontierQueue, source);
+	arrayQueueGenerateBitmap(sharedFrontierQueue);
 	graph->parents[source] = source;
 	graphGridSetActivePartitions(graph->grid, source);
+	Stop(timer_iteration);
 
 	printf(" -----------------------------------------------------\n");
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
+  	printf("| %-15u | %-15u | %-15f | \n",graph->iteration++, ++processed_nodes, Seconds(timer_iteration));
+
+  	inner_time += Seconds(timer_iteration);
     Start(timer);
 	while(!isEmptyArrayQueue(sharedFrontierQueue)){ // start while 
 
 		 Start(timer_iteration);
 			breadthFirstSearchStreamEdgesGraphGrid(graph, sharedFrontierQueue, localFrontierQueues);
-			processed_nodes = sharedFrontierQueue->tail - sharedFrontierQueue->head;
-			slideWindowArrayQueue(sharedFrontierQueue);
-			breadthFirstSearchSetActivePartitions(graph,sharedFrontierQueue);
 		 Stop(timer_iteration);
+			processed_nodes = sharedFrontierQueue->tail_next - sharedFrontierQueue->tail;
+			slideWindowArrayQueue(sharedFrontierQueue);
+			arrayQueueGenerateBitmap(sharedFrontierQueue);
+			
+
+			breadthFirstSearchSetActivePartitions(graph,sharedFrontierQueue);
+
+		 // Stop(timer_iteration);
+
+		inner_time += Seconds(timer_iteration);
 		 printf("| %-15u | %-15u | %-15f | \n",graph->iteration++, processed_nodes, Seconds(timer_iteration));
 	} // end while
 	Stop(timer);
+	printf(" -----------------------------------------------------\n");
+	printf("| %-15s | %-15u | %-15f | \n","No OverHead", sharedFrontierQueue->tail_next, inner_time);
+	printf(" -----------------------------------------------------\n");
 	printf(" -----------------------------------------------------\n");
 	printf("| %-15s | %-15u | %-15f | \n","**", sharedFrontierQueue->tail_next, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
@@ -642,7 +659,7 @@ void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid* graph, struct Arra
    
     	for (i = 0; i < totalPartitions; ++i){
            		if(graph->grid->activePartitions[i]){
-           			#pragma	omp task 
+           			#pragma	omp task untied
            			{
            				__u32 t_id = omp_get_thread_num();
                         struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
@@ -681,7 +698,7 @@ void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph, struct Partit
 			if(isEnArrayQueued(sharedFrontierQueue, src) && (v_dest < 0)){
 						if(__sync_bool_compare_and_swap(&graph->parents[dest],v_dest,src))
 						{
-			    		graph->parents[dest] = src;
+			    		// graph->parents[dest] = src;
 			    		enArrayQueue(localFrontierQueue, dest);
 			    	}
 			}

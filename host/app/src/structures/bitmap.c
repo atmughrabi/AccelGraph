@@ -49,8 +49,6 @@ void reset(struct Bitmap* bitmap){
 
 void setBit(struct Bitmap* bitmap, __u32 pos){
 
-	// ba_set(bitmap->bitarray, pos);
-	// bitmap->numSetBits++;
 	bitmap->bitarray[word_offset(pos)] |= (__u32) (1 << bit_offset(pos));
 
 }
@@ -62,15 +60,13 @@ void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end){
  for (pos = start; pos < end; ++pos)
  {
  	setBit(bitmap, pos);
- 	// bitmap->numSetBits++;
  }
 
 }
 
 void setBitAtomic(struct Bitmap* bitmap, __u32 pos){
 
-	// ba_set(bitmap->bitarray, pos);
-	 // __u64 *bitarray = bitmap->bitarray;
+	
 	 __u32 old_val, new_val;
     do {
       old_val = bitmap->bitarray[word_offset(pos)];
@@ -83,15 +79,12 @@ void setBitAtomic(struct Bitmap* bitmap, __u32 pos){
 
 __u8 getBit(struct Bitmap* bitmap, __u32 pos){
 
-	// __u8 bit = ba_get(bitmap->bitarray, pos);
 	return (__u8)(bitmap->bitarray[word_offset(pos)] >> bit_offset(pos)) & 1l;;
 
 }
 
 void clearBit(struct Bitmap* bitmap, __u32 pos){
 
-	// ba_clear(bitmap->bitarray, pos);
-	// bitmap->numSetBits--;
 	bitmap->bitarray[word_offset(pos)] &= ((__u32) (~(1l << bit_offset(pos))));
 
 }

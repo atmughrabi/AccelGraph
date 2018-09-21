@@ -218,12 +218,24 @@ memcpy(&shared_q->queue[shared_q_tail_next],&local_q->queue[local_q->head],local
 
 
 
+void arrayQueueGenerateBitmap(struct ArrayQueue *q){
+
+	__u32 v;
+	__u32 i;
+
+	#pragma omp parallel for
+	for(i = q->head ; i < q->tail; i++){
+		v = q->queue[i];
+		setBitAtomic(q->q_bitmap, v);
+	}
+
+}
+
 
 void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b){
 
 	__u32 v;
 	__u32 i;
-	// printf("Q-Bit %u -> %u \n", q->head, q->tail );
 
 	#pragma omp parallel for
 	for(i = q->head ; i < q->tail; i++){
@@ -231,31 +243,11 @@ void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b){
 		setBitAtomic(b, v);
 	}
 
-	b->numSetBits = q->q_bitmap->numSetBits;
+	// b->numSetBits = q->q_bitmap->numSetBits;
 	q->head = q->tail;
 	q->tail_next = q->tail;
 
 }
-
-void bitmapToArrayQueueS(struct Bitmap* b, struct ArrayQueue *q){
-	__u32 i;
-
-	for(i= 0 ; i < (b->size); i++){
-		if(getBit(b, i)){
-			q->queue[q->tail] = i;
-			q->tail++;
-		}
-		
-	}
-
-
-	// slideWindowArrayQueue(q);
-	q->tail_next = q->tail;
-
-}
-
-// struct ArrayQueue *unionArrayQueued (struct ArrayQueue *q1, struct ArrayQueue *q2);
-
 
 void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q, struct ArrayQueue** localFrontierQueues){
 
