@@ -51,8 +51,17 @@ void freeArrayQueue(struct ArrayQueue *q){
 void enArrayQueue (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail] = k;
-	// setBit(q->q_bitmap, k); // needs fixing
-	// setBit(q->q_bitmap_next, k);
+	q->tail = q->tail_next;
+	q->tail++;
+	q->tail_next++;
+
+}
+
+
+void enArrayQueueWithBitmap (struct ArrayQueue *q, __u32 k){
+
+	q->queue[q->tail] = k;
+	setBit(q->q_bitmap, k);
 	q->tail = q->tail_next;
 	q->tail++;
 	q->tail_next++;
@@ -62,19 +71,17 @@ void enArrayQueue (struct ArrayQueue *q, __u32 k){
 
 void enArrayQueueAtomic (struct ArrayQueue *q, __u32 k){
 
-	__u32 local_q_tail = 0;
-
-	#pragma omp critical
-	{
-		local_q_tail = q->tail;
-		q->tail_next++;
-		q->tail = q->tail_next;
-	}
-	
-
+	__u32 local_q_tail = __sync_fetch_and_add(&q->tail,1);
 	q->queue[local_q_tail] = k;
-	setBit(q->q_bitmap, k); // needs fixing
-	// setBit(q->q_bitmap_next, k);
+	
+}
+
+
+void enArrayQueueWithBitmapAtomic (struct ArrayQueue *q, __u32 k){
+
+	__u32 local_q_tail = __sync_fetch_and_add(&q->tail,1);
+	setBitAtomic(q->q_bitmap, k);
+	q->queue[local_q_tail] = k;
 
 }
 
@@ -82,47 +89,42 @@ void enArrayQueueAtomic (struct ArrayQueue *q, __u32 k){
 void enArrayQueueDelayed (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail_next] = k;
-	// setBit(q->q_bitmap_next, k);
 	q->tail_next++;
 
 }
 
-void enArrayQueueDelayedBitmap (struct ArrayQueue *q, __u32 k){
+void enArrayQueueDelayedWithBitmap (struct ArrayQueue *q, __u32 k){
 
-	// q->queue[q->tail_next] = k;
+	q->queue[q->tail_next] = k;
 	setBit(q->q_bitmap_next, k);
-	// q->tail_next++;
+	q->tail_next++;
+
+}
+
+void enArrayQueueDelayedWithBitmapAtomic (struct ArrayQueue *q, __u32 k){
+
+	__u32 local_q_tail_next = __sync_fetch_and_add(&q->tail_next,1);
+	setBitAtomic(q->q_bitmap, k);
+	q->queue[local_q_tail_next] = k;
 
 }
 
 
 void slideWindowArrayQueue (struct ArrayQueue *q){
 
-	// if(q->tail_next > q->tail){
-		// __u32 i;
-		// __u32 numSetBits = 0;
-
 		q->head = q->tail;
 		q->tail = q->tail_next;
-		// q->iteration++;
-		// reset(q->q_bitmap);
-		// reset(q->q_bitmap_next);
-
-		// #pragma omp parallel for reduction(+:numSetBits)
-		// for(i = q->head; i < q->tail; i++){
-		// 	setBit(q->q_bitmap, q->queue[i]);
-		// 	numSetBits++;
-			
-		// }
-
-		// // q->q_bitmap_next->numSetBits = 0;
-		// q->q_bitmap->numSetBits = numSetBits;
-		// q->q_bitmap = orBitmap(q->q_bitmap,q->q_bitmap_next);
-	// }
 	
 }
 
+void slideWindowArrayQueueBitmap (struct ArrayQueue *q){
 
+	q->head = q->tail;
+	q->tail = q->tail_next;
+	swapBitmaps(&q->q_bitmap, &q->q_bitmap_next);
+	reset(q->q_bitmap_next);
+
+}
 
 __u32 deArrayQueue(struct ArrayQueue *q){
 

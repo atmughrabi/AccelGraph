@@ -115,18 +115,12 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
             // if(root >= 0 && root <= graphCSR->num_vertices){
-            // Start(timer);
-            // breadthFirstSearchGraphCSR(root, graphCSR);
-            // Stop(timer);
-            // generateGraphPrintMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
+            //   Start(timer);
+            //   breadthFirstSearchGraphCSR(root, graphCSR);
+            //   Stop(timer);
+            //   generateGraphPrintMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
             // }
-
-
-           
             // while(iterations){
-
-
-
             //   while(1){
             //     root = genrand_int32();
             //       if(root < graphCSR->num_vertices){
@@ -134,17 +128,14 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
             //          break;
             //     }
             //   }
-
             // if(root >= 0 && root <= graphCSR->num_vertices){
-            // Start(timer);
-            // breadthFirstSearchGraphCSR(root, graphCSR);
-            // Stop(timer);
-            // generateGraphPrintMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
-            // }
-
-              
+            //   Start(timer);
+            //   breadthFirstSearchGraphCSR(root, graphCSR);
+            //   Stop(timer);
+            //   generateGraphPrintMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
+            // }   
             //    iterations--;
-            //   }
+            // }
 
              
             
