@@ -135,6 +135,7 @@ int main (int argc, char **argv)
         printf("Read Edge List From File converted to binary : %f Seconds \n",Seconds(timer));
       }
 
+      
       graph = generateGraphDataStructure(fnameb, datastructure);
       runGraphAlgorithms(graph, datastructure, algorithm, root, iterations);
 

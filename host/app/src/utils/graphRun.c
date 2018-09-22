@@ -140,10 +140,14 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
              
             
             Start(timer);
-            breadthFirstSearchGraphCSR(6479472, graphCSR);
-            breadthFirstSearchGraphCSR(9678012, graphCSR);
-            breadthFirstSearchGraphCSR(10908142, graphCSR);
-            breadthFirstSearchGraphCSR(7463732, graphCSR);
+            breadthFirstSearchGraphCSR(12441072, graphCSR);
+            breadthFirstSearchGraphCSR(54488257, graphCSR);
+            breadthFirstSearchGraphCSR(25451915, graphCSR);
+            breadthFirstSearchGraphCSR(57714473, graphCSR);
+            breadthFirstSearchGraphCSR(14839494, graphCSR);
+            breadthFirstSearchGraphCSR(32081104, graphCSR);
+            breadthFirstSearchGraphCSR(52957357, graphCSR);
+            breadthFirstSearchGraphCSR(50444380, graphCSR);
             Stop(timer);
             generateGraphPrintMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
             graphCSRFree(graphCSR);
