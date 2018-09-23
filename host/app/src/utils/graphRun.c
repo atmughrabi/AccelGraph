@@ -113,14 +113,14 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
             if(root >= 0 && root <= graphCSR->num_vertices){
              
               breadthFirstSearchGraphCSR(root, graphCSR);
-              breadthFirstSearchGraphCSR(12441072, graphCSR);
-              breadthFirstSearchGraphCSR(54488257, graphCSR);
-              breadthFirstSearchGraphCSR(25451915, graphCSR);
-              breadthFirstSearchGraphCSR(57714473, graphCSR);
-              breadthFirstSearchGraphCSR(14839494, graphCSR);
-              breadthFirstSearchGraphCSR(32081104, graphCSR);
-              breadthFirstSearchGraphCSR(52957357, graphCSR);
-              breadthFirstSearchGraphCSR(50444380, graphCSR);
+              // breadthFirstSearchGraphCSR(12441072, graphCSR);
+              // breadthFirstSearchGraphCSR(54488257, graphCSR);
+              // breadthFirstSearchGraphCSR(25451915, graphCSR);
+              // breadthFirstSearchGraphCSR(57714473, graphCSR);
+              // breadthFirstSearchGraphCSR(14839494, graphCSR);
+              // breadthFirstSearchGraphCSR(32081104, graphCSR);
+              // breadthFirstSearchGraphCSR(52957357, graphCSR);
+              // breadthFirstSearchGraphCSR(50444380, graphCSR);
 
 
             } 

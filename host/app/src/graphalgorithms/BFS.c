@@ -78,6 +78,12 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
+    if(source < 0 && source > graph->num_vertices){
+		printf(" -----------------------------------------------------\n");
+    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	printf(" -----------------------------------------------------\n");
+		return;
+	}
 
   	Start(timer_inner);
 	enArrayQueue(sharedFrontierQueue, source);
@@ -304,6 +310,22 @@ void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR* graph
 	__u32 alpha = 15;
 	__u32 beta = 18;
 
+
+	printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51u | \n", source);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
+    printf(" -----------------------------------------------------\n");
+
+    if(source < 0 && source > graph->num_vertices){
+		printf(" -----------------------------------------------------\n");
+    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	printf(" -----------------------------------------------------\n");
+		return;
+	}
+
 	Start(timer_inner);
     setBit(sharedFrontierQueue->q_bitmap_next,source);
     sharedFrontierQueue->q_bitmap_next->numSetBits = 1;
@@ -314,9 +336,6 @@ void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR* graph
 	Stop(timer_inner);
 	inner_time +=  Seconds(timer_inner);
 	// graph->vertices[source].visited = 1;
-	printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
 
     
 	printf("| TD %-12u | %-15u | %-15f | \n",graph->iteration++, ++graph->processed_nodes , Seconds(timer_inner));
@@ -499,7 +518,20 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 	// 	localFrontierQueuesL2[i] = newArrayQueue(graph->num_vertices);
 	// }
 
+	printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51u | \n", source);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
+    printf(" -----------------------------------------------------\n");
 
+    if(source < 0 && source > graph->num_vertices){
+		printf(" -----------------------------------------------------\n");
+    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	printf(" -----------------------------------------------------\n");
+		return;
+	}
 		
 	__u32 processed_nodes = 0;
 
@@ -511,9 +543,6 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 	graphGridSetActivePartitionsMap(graph->grid, source);
 	Stop(timer_iteration);
 
-	printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
 
   	printf("| %-15u | %-15u | %-15f | \n",graph->iteration++, ++processed_nodes, Seconds(timer_iteration));
 
@@ -685,14 +714,26 @@ void breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList*
 	__u32 alpha = 14;
 	__u32 beta = 24;
 
+	printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51u | \n", source);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
+    printf(" -----------------------------------------------------\n");
+
+    if(source < 0 && source > graph->num_vertices){
+		printf(" -----------------------------------------------------\n");
+    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	printf(" -----------------------------------------------------\n");
+		return;
+	}
+
 
 	enArrayQueue(sharedFrontierQueue, source);
 	graph->parents[source] = source;  
 
-	// graph->vertices[source].visited = 1;
-	printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
+
 
     Start(timer);
 	while(!isEmptyArrayQueue(sharedFrontierQueue)){ // start while 
@@ -925,14 +966,24 @@ void breadthFirstSearchGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedLis
 	__u32 alpha = 14;
 	__u32 beta = 24;
 
+	printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51u | \n", source);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
+    printf(" -----------------------------------------------------\n");
+
+    if(source < 0 && source > graph->num_vertices){
+		printf(" -----------------------------------------------------\n");
+    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	printf(" -----------------------------------------------------\n");
+		return;
+	}
 
 	enArrayQueue(sharedFrontierQueue, source);
 	graph->parents[source] = source;  
 
-	// graph->vertices[source].visited = 1;
-	printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
 
     Start(timer);
 	while(!isEmptyArrayQueue(sharedFrontierQueue)){ // start while 
