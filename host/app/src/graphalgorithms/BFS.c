@@ -606,43 +606,43 @@ void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid* graph, struct Arra
      totalPartitions = graph->grid->num_partitions * graph->grid->num_partitions; // PxP
     __u32 i;	
 
-	#pragma omp parallel
-    #pragma	omp single nowait
-    {	
+	// #pragma omp parallel
+ //    #pragma	omp single nowait
+ //    {	
    
     	for (i = 0; i < totalPartitions; ++i){
            		if(getBit(graph->grid->activePartitionsMap,i)){
-           			#pragma	omp task untied
-           			{
-           				__u32 t_id = omp_get_thread_num();
-                        struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
-	            		breadthFirstSearchPartitionGraphGrid(graph,&(graph->grid->partitions[i]),sharedFrontierQueue,localFrontierQueue);
-           				flushArrayQueueToShared(localFrontierQueue,sharedFrontierQueue);
-           			}
+           			// #pragma	omp task untied
+           			// {
+           			// 	__u32 t_id = omp_get_thread_num();
+              //           struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
+	            		breadthFirstSearchPartitionGraphGrid(graph,&(graph->grid->partitions[i]),sharedFrontierQueue,localFrontierQueues);
+           				// flushArrayQueueToShared(localFrontierQueue,sharedFrontierQueue);
+           			// }
 			    		
         	} 
         }
-    }
+    // }
 
         // flushArrayQueueToShared(localFrontierQueue,sharedFrontierQueue);
 	// }
 }
    
    
-void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph, struct Partition* partition,struct ArrayQueue* sharedFrontierQueue, struct ArrayQueue* localFrontierQueue){
+void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph, struct Partition* partition,struct ArrayQueue* sharedFrontierQueue, struct ArrayQueue** localFrontierQueues){
 
 	 __u32 i;
 	 __u32 src;
 	 __u32 dest;
 
  
-	// #pragma omp parallel default(none) private(i,src,dest) shared(localFrontierQueuesL2,graph,partition,sharedFrontierQueue,localFrontierQueue)
- //    {
+	#pragma omp parallel default(none) private(i,src,dest) shared(graph,partition,sharedFrontierQueue,localFrontierQueues)
+    {
     	
- //        __u32 t_id = omp_get_thread_num();
- //        struct ArrayQueue* localFrontierQueueL2 = localFrontierQueuesL2[t_id];
+        __u32 t_id = omp_get_thread_num();
+        struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
    		
-	// 	#pragma omp for schedule(dynamic, 1024)
+		#pragma omp for schedule(dynamic, 1024)
 	    for (i = 0; i < partition->num_edges; ++i){
 	    		
 	    	src  = partition->edgeList->edges_array[i].src;
@@ -657,10 +657,10 @@ void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph, struct Partit
 			}
 		}
 		
-	// 		flushArrayQueueToShared(localFrontierQueueL2,localFrontierQueue);
-	// 		// slideWindowArrayQueue(localFrontierQueue);
-	// 		localFrontierQueue->tail = localFrontierQueue->tail_next; // to apply to condition to the next flush
-	// }
+			flushArrayQueueToShared(localFrontierQueue,sharedFrontierQueue);
+			// slideWindowArrayQueue(localFrontierQueue);
+			// localFrontierQueue->tail = localFrontierQueue->tail_next; // to apply to condition to the next flush
+	}
 
 	
 }
