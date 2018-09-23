@@ -51,9 +51,8 @@ void freeArrayQueue(struct ArrayQueue *q){
 void enArrayQueue (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail] = k;
-	q->tail = q->tail_next;
 	q->tail++;
-	q->tail_next++;
+	q->tail_next = q->tail;
 
 }
 
