@@ -26,8 +26,9 @@ UTIL_DIR		  = utils
 
 
 # compilers
-CPP               = c++
-CC				  =gcc
+# CPP               = c++
+# CC				  = clang
+CC				  = gcc
 
 CAPI = 	-I$(PSLSE_COMMON_DIR) 					\
 		-I$(PSLSE_LIBCXL_DIR) 					\
@@ -141,6 +142,10 @@ $(APP_DIR)/$(OBJ_DIR)/BFS.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/BFS.c $(APP_DIR)/
 	@echo 'making $(GAPP) <- BFS.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/BFS.o $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/BFS.c
 
+$(APP_DIR)/$(OBJ_DIR)/pageRank.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/pageRank.c $(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/pageRank.h
+	@echo 'making $(GAPP) <- pageRank.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/pageRank.o $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/pageRank.c
+
 
 $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o: $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).c
 	@echo 'making $(GAPP) <- $(GAPP).o'
@@ -199,13 +204,16 @@ dynamicQueue: $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o
 graphRun: $(APP_DIR)/$(OBJ_DIR)/graphRun.o
 
 BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
+
+pageRank: $(APP_DIR)/$(OBJ_DIR)/pageRank.o
 	
-test: mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS
-	@echo 'linking $(GAPP) <- mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
+test: mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+	@echo 'linking $(GAPP) <- mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/graphCSR.o 		\
@@ -233,6 +241,7 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP)-capi.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/graphCSR.o 		\
@@ -250,6 +259,7 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 	$(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/edgeList.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/mt19937.o 		\
 	$(PSLSE_LIBCXL_DIR)/libcxl.a 			\
 	 -o $(APP_DIR)/test/$(GAPP)-capi		\
 	$(CAPI) \
@@ -268,7 +278,7 @@ root = 428333
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 1
+datastructure = 0
 algorithm = 0
 numThreads  = 8
 iterations = 4
@@ -281,6 +291,8 @@ run-capi: test-capi
 
 debug: test	
 	gdb ./$(APP_DIR)/test/$(GAPP)
+
+profile: 
 
 
 clean:

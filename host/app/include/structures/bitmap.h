@@ -28,7 +28,7 @@ void reset(struct Bitmap* bitmap);
 void setBit(struct Bitmap* bitmap, __u32 pos);
 void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end);
 void setBitAtomic(struct Bitmap* bitmap, __u32 pos);
-__u8 getBit(struct Bitmap* bitmap, __u32 pos);
+__u32 getBit(struct Bitmap* bitmap, __u32 pos);
 void clearBit(struct Bitmap* bitmap, __u32 pos);
 void clearBitmap(struct Bitmap* bitmap);
 void freeBitmap( struct Bitmap* bitmap);

@@ -67,19 +67,21 @@ void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end){
 void setBitAtomic(struct Bitmap* bitmap, __u32 pos){
 
 	
-	 __u32 old_val, new_val;
-    do {
-      old_val = bitmap->bitarray[word_offset(pos)];
-      new_val = old_val | (__u32) (1 << bit_offset(pos));
-    } while (!__sync_bool_compare_and_swap(&bitmap->bitarray[word_offset(pos)], old_val, new_val));
+	 // __u32 old_val, new_val;
+  //   do {
+  //     old_val = bitmap->bitarray[word_offset(pos)];
+  //     new_val = old_val | (__u32) (1 << bit_offset(pos));
+  //   } while (!__sync_bool_compare_and_swap(&bitmap->bitarray[word_offset(pos)], old_val, new_val));
 
 	
-
+    __sync_fetch_and_or(bitmap->bitarray+word_offset(pos), 1ul<<bit_offset(pos));
 }
 
-__u8 getBit(struct Bitmap* bitmap, __u32 pos){
 
-	return (__u8)(bitmap->bitarray[word_offset(pos)] >> bit_offset(pos)) & 1l;;
+
+__u32 getBit(struct Bitmap* bitmap, __u32 pos){
+
+	return (bitmap->bitarray[word_offset(pos)] >> bit_offset(pos)) & 1l;;
 
 }
 

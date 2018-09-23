@@ -17,7 +17,9 @@ static void usage(void) {
   printf("\t-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List\n");
   printf("\t-r [root]: BFS & SSSP root\n");
   printf("\t-n [num threads] default:max number of threads the system has\n");
-  printf("\t-i [num iterations] number of iterations for BFS random roots for example\n");
+  printf("\t-i [num iterations] number of random trials [default:0]\n");
+  printf("\t-t [num iterations] number of iterations for page rank random\n");
+  printf("\t-e [epsilon ] tolerance value of for page rank [default:0.0001]\n");
   printf("\t-c: convert to bin file on load example:-f <graph file> -c\n");
   printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
   printf("\t-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
@@ -38,8 +40,12 @@ int main (int argc, char **argv)
   char *dvalue = NULL;
   char *nvalue = NULL;
   char *ivalue = NULL;
+  char *tvalue = NULL;
+  char *evalue = NULL;
 
   int iterations = 0;
+  int trials = 20;
+  double epsilon = 0.0001;
   int root = -1;
   int algorithm = 0;
   int datastructure = 0;
@@ -83,6 +89,14 @@ int main (int argc, char **argv)
         ivalue = optarg;
         iterations = atoi(ivalue);
         break;
+      case 't':
+        tvalue = optarg;
+        trials = atoi(tvalue);
+        break;
+      case 'e':
+        evalue = optarg;
+        epsilon = atof(evalue);
+        break;
       case 'u':
         uflag = 1;
         break;
@@ -108,6 +122,10 @@ int main (int argc, char **argv)
           fprintf (stderr, "Option -%c [num threads] requires an argument.\n", optopt);
         else if (optopt == 'i')
           fprintf (stderr, "Option -%c [num iterations] requires an argument.\n", optopt);
+        else if (optopt == 't')
+          fprintf (stderr, "Option -%c [num trials] requires an argument.\n", optopt);
+        else if (optopt == 'e')
+          fprintf (stderr, "Option -%c [epsilon] requires an argument.\n", optopt);
         else if (isprint (optopt))
           fprintf (stderr, "Unknown option `-%c'.\n", optopt);
         else
@@ -137,7 +155,7 @@ int main (int argc, char **argv)
 
       
       graph = generateGraphDataStructure(fnameb, datastructure);
-      runGraphAlgorithms(graph, datastructure, algorithm, root, iterations);
+      runGraphAlgorithms(graph, datastructure, algorithm, root, iterations, epsilon, trials);
 
 
       free(timer);

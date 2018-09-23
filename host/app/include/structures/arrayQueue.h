@@ -17,14 +17,14 @@ struct  ArrayQueue
 };
 
 
-struct ArrayQueue *newArrayQueue (__u32 size);
-void 	freeArrayQueue	(struct ArrayQueue *q);
+struct ArrayQueue *newArrayQueue 	(__u32 size);
+void 	freeArrayQueue				(struct ArrayQueue *q);
 
 
-void	 enArrayQueue 	(struct ArrayQueue *q, __u32 k);
-void enArrayQueueWithBitmap (struct ArrayQueue *q, __u32 k);
-void enArrayQueueAtomic (struct ArrayQueue *q, __u32 k);
-void enArrayQueueWithBitmapAtomic (struct ArrayQueue *q, __u32 k);
+void enArrayQueue 					(struct ArrayQueue *q, __u32 k);
+void enArrayQueueWithBitmap 		(struct ArrayQueue *q, __u32 k);
+void enArrayQueueAtomic 			(struct ArrayQueue *q, __u32 k);
+void enArrayQueueWithBitmapAtomic 	(struct ArrayQueue *q, __u32 k);
 
 
 __u32 	deArrayQueue	(struct ArrayQueue *q);
@@ -32,7 +32,7 @@ __u32 	frontArrayQueue (struct ArrayQueue *q);
 __u8  isEmptyArrayQueue (struct ArrayQueue *q);
 __u8  isEnArrayQueued 	(struct ArrayQueue *q, __u32 k);
 
-void enArrayQueueDelayed (struct ArrayQueue *q, __u32 k);
+void enArrayQueueDelayed 	(struct ArrayQueue *q, __u32 k);
 void enArrayQueueDelayedWithBitmapAtomic (struct ArrayQueue *q, __u32 k);
 void enArrayQueueDelayedWithBitmap (struct ArrayQueue *q, __u32 k);
 

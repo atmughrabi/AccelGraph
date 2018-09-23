@@ -16,8 +16,9 @@
 
 void generateGraphPrintMessageWithtime(const char * msg, double time);
 void * generateGraphDataStructure(const char *fnameb, int datastructure);
-void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root, int iterations);
+void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root, int iterations,double epsilon, int trials);
 void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, int iterations);
+void runPageRankAlgorithm(void *graph, int datastructure, double epsilon, int trials, int iterations);
 
 #endif
 
