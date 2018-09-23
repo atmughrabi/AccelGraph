@@ -51,6 +51,8 @@ void graphCSRFree (struct GraphCSR* graphCSR){
 		free(graphCSR->parents);
 	if(graphCSR->sorted_edges_array)
 		freeEdgeArray(graphCSR->sorted_edges_array);
+    if(graphCSR->sorted_edge_array)
+        free(graphCSR->sorted_edge_array);
 	
 
 	#if DIRECTED
@@ -58,6 +60,8 @@ void graphCSRFree (struct GraphCSR* graphCSR){
 			freeVertexArray(graphCSR->inverse_vertices);
 		if(graphCSR->inverse_sorted_edges_array)
 			freeEdgeArray(graphCSR->inverse_sorted_edges_array);
+        if(graphCSR->inverse_sorted_edge_array)
+            free(graphCSR->inverse_sorted_edge_array);
 	#endif
 
 

@@ -17,10 +17,12 @@ struct GraphCSR{
 	
 	struct Vertex* vertices;
 	struct Edge* sorted_edges_array; // sorted edge array
+	__u32* sorted_edge_array; // sorted edge array
 
 	#if DIRECTED
 		struct Vertex* inverse_vertices;
 		struct Edge* inverse_sorted_edges_array; // sorted edge array
+		__u32* inverse_sorted_edge_array; // sorted edge array
 	#endif
 
 };

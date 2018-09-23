@@ -116,15 +116,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
     struct GraphAdjLinkedList* graphAdjLinkedList = NULL;
     struct GraphAdjArrayList* graphAdjArrayList = NULL;
 
-
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE) ");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", root);
-    printf(" -----------------------------------------------------\n");
-
-
-            
     switch (datastructure)
       { 
         case 0: // CSR

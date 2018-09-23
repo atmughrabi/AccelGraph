@@ -138,9 +138,11 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
     #if ALIGNED
         __u32* offset_start_arr = (__u32*) my_aligned_malloc( P * sizeof(__u32));
         __u32* offset_end_arr = (__u32*) my_aligned_malloc( P * sizeof(__u32));
+        __u32* sorted_edge_array = (__u32*) my_aligned_malloc( graph->num_edges * sizeof(__u32));
     #else
         __u32* offset_start_arr = (__u32*) my_malloc( P * sizeof(__u32));
         __u32* offset_end_arr = (__u32*) my_malloc( P * sizeof(__u32));
+        __u32* sorted_edge_array = (__u32*) my_malloc( graph->num_edges * sizeof(__u32));
     #endif
 
    
@@ -150,14 +152,17 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
         if(inverse){
             sorted_edges_array = graph->inverse_sorted_edges_array;
             vertices = graph->inverse_vertices; // sorted edge array
+            graph->inverse_sorted_edge_array = sorted_edge_array;
         }else{
             sorted_edges_array = graph->sorted_edges_array;
             vertices = graph->vertices;
+            graph->sorted_edge_array = sorted_edge_array;
         }
     
     #else
             sorted_edges_array = graph->sorted_edges_array;
             vertices = graph->vertices;
+            graph->sorted_edge_array = sorted_edge_array;
     #endif
     
    //edge list must be sorted 
@@ -168,7 +173,7 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
     __u32 offset_start = 0;
     __u32 offset_end = 0;
 
-    #pragma omp parallel default(none) private(i,vertex_id) shared(vertices,sorted_edges_array,offset_start_arr,offset_end_arr) firstprivate(t_id, offset_end,offset_start) 
+    #pragma omp parallel default(none) private(i,vertex_id) shared(sorted_edge_array,vertices,sorted_edges_array,offset_start_arr,offset_end_arr) firstprivate(t_id, offset_end,offset_start) 
     {
         
         t_id = omp_get_thread_num();
@@ -184,6 +189,7 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
 
         for(i = offset_start+1; i < offset_end; i++){
 
+        sorted_edge_array[i] = sorted_edges_array[i].dest;
         
         if(sorted_edges_array[i].src != sorted_edges_array[i-1].src){      
 
@@ -214,6 +220,15 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
      }
 
     }
+
+
+    // if(graph->sorted_edges_array)
+    //     freeEdgeArray(graph->sorted_edges_array);
+    // #if DIRECTED
+    //     if(inverse)
+    //     if(graph->inverse_sorted_edges_array)
+    //         freeEdgeArray(graph->inverse_sorted_edges_array);
+    // #endif
 
 return graph;
 
