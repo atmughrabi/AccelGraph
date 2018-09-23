@@ -237,7 +237,7 @@ void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b){
 	__u32 v;
 	__u32 i;
 
-	#pragma omp parallel for
+	#pragma omp parallel for default(none) shared(q,b) private(v,i)
 	for(i = q->head ; i < q->tail; i++){
 		v = q->queue[i];
 		setBitAtomic(b, v);
@@ -247,18 +247,19 @@ void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b){
 	q->head = q->tail;
 	q->tail_next = q->tail;
 
+
 }
 
 void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q, struct ArrayQueue** localFrontierQueues){
 
-	#pragma omp parallel shared(b,localFrontierQueues)
+	#pragma omp parallel default(none) shared(b,localFrontierQueues,q)
   {
 	__u32 i;
 
 	 __u32 t_id = omp_get_thread_num();
 	 struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
 
-	#pragma omp for
+	#pragma omp for 
 	for(i= 0 ; i < (b->size); i++){
 		if(getBit(b, i)){
 			localFrontierQueue->queue[localFrontierQueue->tail] = i;

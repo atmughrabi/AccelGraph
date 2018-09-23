@@ -16,6 +16,8 @@
 #include "graphAdjLinkedList.h"
 // #include "grid.h"
 
+
+
 void resetParentArray(int* parents, __u32 V){
 
 	__u32 i;
@@ -25,7 +27,6 @@ void resetParentArray(int* parents, __u32 V){
 
 
 }
-
 
 // breadth-first-search(graph, source)
 // 	sharedFrontierQueue ← {source}
@@ -69,6 +70,15 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 		
    }
 
+  	printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51u | \n", source);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
+    printf(" -----------------------------------------------------\n");
+
+
   	Start(timer_inner);
 	enArrayQueue(sharedFrontierQueue, source);
     // setBit(sharedFrontierQueue->q_bitmap,source);
@@ -76,10 +86,7 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 	Stop(timer_inner);
 	inner_time +=  Seconds(timer_inner);
 	// graph->vertices[source].visited = 1;
-	printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
-
+	
     
 	printf("| TD %-12u | %-15u | %-15f | \n",graph->iteration++, ++graph->processed_nodes , Seconds(timer_inner));
 
@@ -98,8 +105,6 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 				Start(timer_inner);
 				nf_prev = nf;
 				nf = bottomUpStepGraphCSR(graph,bitmapCurr,bitmapNext);
-
-				// bitmapNext->numSetBits =  getNumOfSetBits(bitmapNext);
 				swapBitmaps(&bitmapCurr, &bitmapNext);
 				reset(bitmapNext);
 				Stop(timer_inner);

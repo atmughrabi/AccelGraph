@@ -23,16 +23,6 @@ void generateGraphPrintMessageWithtime(const char * msg, double time){
 
 }
 
-void generateGraphPrintMessageWithRoot(const char * msg, __u32 root){
-
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", msg);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", root);
-    printf(" -----------------------------------------------------\n");
-
-}
-
 
 
 void * generateGraphDataStructure(const char *fnameb, int datastructure){
@@ -121,8 +111,18 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
             if(root >= 0 && root <= graphCSR->num_vertices){
-              generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
+             
               breadthFirstSearchGraphCSR(root, graphCSR);
+              breadthFirstSearchGraphCSR(12441072, graphCSR);
+              breadthFirstSearchGraphCSR(54488257, graphCSR);
+              breadthFirstSearchGraphCSR(25451915, graphCSR);
+              breadthFirstSearchGraphCSR(57714473, graphCSR);
+              breadthFirstSearchGraphCSR(14839494, graphCSR);
+              breadthFirstSearchGraphCSR(32081104, graphCSR);
+              breadthFirstSearchGraphCSR(52957357, graphCSR);
+              breadthFirstSearchGraphCSR(50444380, graphCSR);
+
+
             } 
             while(iterations){
               while(1){
@@ -133,7 +133,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
                   }
               }
               if(root >= 0 && root <= graphCSR->num_vertices){
-                generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
                 breadthFirstSearchGraphCSR(root, graphCSR);
               }   
                iterations--;
@@ -144,7 +143,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
         case 1: // Grid
             graphGrid = (struct GraphGrid*)graph;
             if(root >= 0 && root <= graphGrid->num_vertices){
-              generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
               breadthFirstSearchGraphGrid(root, graphGrid);
             } 
             while(iterations){
@@ -155,7 +153,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
                   }
               }
               if(root >= 0 && root <= graphGrid->num_vertices){
-                generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
                 breadthFirstSearchGraphGrid(root, graphGrid);
               }   
                iterations--;
@@ -169,7 +166,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
         case 2: // Adj Linked List
             graphAdjLinkedList = (struct GraphAdjLinkedList*)graph;
               if(root >= 0 && root <= graphAdjLinkedList->num_vertices){
-              generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
               breadthFirstSearchGraphAdjLinkedList(root, graphAdjLinkedList);
             } 
             while(iterations){
@@ -181,7 +177,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
                   }
               }
               if(root >= 0 && root <= graphAdjLinkedList->num_vertices){
-                generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
                 breadthFirstSearchGraphAdjLinkedList(root, graphAdjLinkedList);
               }   
                iterations--;
@@ -195,7 +190,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
         case 3: // Adj Array List
             graphAdjArrayList = (struct GraphAdjArrayList*)graph;
             if(root >= 0 && root <= graphAdjArrayList->num_vertices){
-              generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
               breadthFirstSearchGraphAdjArrayList(root, graphAdjArrayList);
             } 
             while(iterations){
@@ -207,7 +201,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
                   }
               }
               if(root >= 0 && root <= graphAdjArrayList->num_vertices){
-                generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
                 breadthFirstSearchGraphAdjArrayList(root, graphAdjArrayList);
               }   
                iterations--;
@@ -221,7 +214,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
         case 4: // CSR with no frontier only Bitmaps
             graphCSR = (struct GraphCSR*)graph;
             if(root >= 0 && root <= graphCSR->num_vertices){
-              generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
               breadthFirstSearchUsingBitmapsGraphCSR(root, graphCSR);
             } 
             while(iterations){
@@ -233,7 +225,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
                   }
               }
               if(root >= 0 && root <= graphCSR->num_vertices){
-                generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
                 breadthFirstSearchUsingBitmapsGraphCSR(root, graphCSR);
               }   
                iterations--;
@@ -244,7 +235,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
             if(root >= 0 && root <= graphCSR->num_vertices){
-              generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
               breadthFirstSearchGraphCSR(root, graphCSR);
             } 
             while(iterations){
@@ -256,7 +246,6 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
                   }
               }
               if(root >= 0 && root <= graphCSR->num_vertices){
-                generateGraphPrintMessageWithRoot("Starting Breadth First Search (SOURCE NODE)",root);
                 breadthFirstSearchGraphCSR(root, graphCSR);
               }   
                iterations--;
