@@ -26,7 +26,33 @@ void graphAdjArrayListPrintMessageWithtime(const char * msg, double time){
 
 }
 
+void graphAdjArrayListReset(struct GraphAdjArrayList* graphAdjArrayList){
 
+     struct AdjArrayList* vertices;
+    __u32 vertex_id;
+    // #if DIRECTED
+    //     if(inverse){
+    //         vertices = graph->inverse_vertices; // sorted edge array
+    //     }else{
+    //         vertices = graph->vertices;
+    //     }
+    // #else
+            vertices = graphAdjArrayList->parent_array;
+    // #endif
+
+    graphAdjArrayList->iteration = 0;
+    graphAdjArrayList->processed_nodes = 0;
+
+    #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graphAdjArrayList)
+    for(vertex_id = 0; vertex_id < graphAdjArrayList->num_vertices ; vertex_id++){
+                if(vertices[vertex_id].out_degree)
+                    graphAdjArrayList->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
+                else
+                    graphAdjArrayList->parents[vertex_id] = -1;
+     }
+
+
+}
 
 // A utility function that creates a graphAdjArrayList of V vertices
 struct GraphAdjArrayList* graphAdjArrayListGraphNew(__u32 V){
@@ -71,7 +97,7 @@ struct GraphAdjArrayList* graphAdjArrayListGraphNew(__u32 V){
         graphAdjArrayList->parent_array[i].visited = 0;
 	}
 
-     graphAdjArrayList->iteration = 0;
+    graphAdjArrayList->iteration = 0;
     graphAdjArrayList->processed_nodes = 0;
     // printf("\n Success!!! V: %d\n ", V);
 

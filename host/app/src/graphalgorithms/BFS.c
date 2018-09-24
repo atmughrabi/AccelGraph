@@ -400,7 +400,7 @@ void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR* graph
 	printf("| %-15s | %-15u | %-15f | \n","total", graph->processed_nodes, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
-
+	graphCSRReset(graph);
 	resetParentArray(graph->parents, graph->num_vertices);
 	freeArrayQueue(sharedFrontierQueue);
 	free(timer);
@@ -485,7 +485,7 @@ __u32 topDownStepUsingBitmapsGraphCSR(struct GraphCSR* graph, struct ArrayQueue*
 // 	return Sum
 // end function
 //we assume that the edges are not sorted in each partition
-struct ArrayQueue** localFrontierQueuesL2;
+
 void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
@@ -506,17 +506,17 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 		localFrontierQueues[i] = newArrayQueue(graph->num_vertices);
 	}
 
-	#if ALIGNED
-		 localFrontierQueuesL2 = (struct ArrayQueue**) my_aligned_malloc( P * P * sizeof(struct ArrayQueue*));
-	#else
-         localFrontierQueuesL2 = (struct ArrayQueue**) my_aligned_malloc( P * P *  sizeof(struct ArrayQueue*));
-    #endif
+	// #if ALIGNED
+	// 	struct ArrayQueue** localFrontierQueuesL2 = (struct ArrayQueue**) my_aligned_malloc( P * P * sizeof(struct ArrayQueue*));
+	// #else
+ //        struct ArrayQueue** localFrontierQueuesL2 = (struct ArrayQueue**) my_aligned_malloc( P * P *  sizeof(struct ArrayQueue*));
+ //    #endif
 
   
-   #pragma omp parallel for
-   for(i=0 ; i < P*P ; i++){
-		localFrontierQueuesL2[i] = newArrayQueue(graph->num_vertices);
-	}
+ //   #pragma omp parallel for
+ //   for(i=0 ; i < P*P ; i++){
+	// 	localFrontierQueuesL2[i] = newArrayQueue(graph->num_vertices);
+	// }
 
 	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE)");
@@ -577,12 +577,12 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 		freeArrayQueue(localFrontierQueues[i]);
 	}	
   
-   #pragma omp parallel for
-   for(i=0 ; i < P*P ; i++){
-		freeArrayQueue(localFrontierQueuesL2[i]);
-	}
+ //   #pragma omp parallel for
+ //   for(i=0 ; i < P*P ; i++){
+	// 	freeArrayQueue(localFrontierQueuesL2[i]);
+	// }
 
-	free(localFrontierQueuesL2);
+	// free(localFrontierQueuesL2);
 	free(localFrontierQueues);
 	free(timer_iteration);
 	free(timer);
@@ -636,13 +636,13 @@ void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph, struct Partit
 	 __u32 dest;
 
  
-	#pragma omp parallel default(none) private(i,src,dest) shared(localFrontierQueuesL2,graph,partition,sharedFrontierQueue,localFrontierQueue)  num_threads(4)
-    {
+	// #pragma omp parallel default(none) private(i,src,dest) shared(localFrontierQueuesL2,graph,partition,sharedFrontierQueue,localFrontierQueue)
+ //    {
     	
-        __u32 t_id = omp_get_thread_num();
-        struct ArrayQueue* localFrontierQueueL2 = localFrontierQueuesL2[t_id];
+ //        __u32 t_id = omp_get_thread_num();
+ //        struct ArrayQueue* localFrontierQueueL2 = localFrontierQueuesL2[t_id];
    		
-		#pragma omp for 
+	// 	#pragma omp for schedule(dynamic, 1024)
 	    for (i = 0; i < partition->num_edges; ++i){
 	    		
 	    	src  = partition->edgeList->edges_array[i].src;
@@ -652,15 +652,15 @@ void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph, struct Partit
 						if(__sync_bool_compare_and_swap(&graph->parents[dest],v_dest,src))
 						{
 			    		// graph->parents[dest] = src;
-			    		enArrayQueue(localFrontierQueueL2, dest);
+			    		enArrayQueue(localFrontierQueue, dest);
 			    	}
 			}
 		}
 		
-			flushArrayQueueToShared(localFrontierQueueL2,localFrontierQueue);
-			// slideWindowArrayQueue(localFrontierQueue);
-			localFrontierQueue->tail = localFrontierQueue->tail_next; // to apply to condition to the next flush
-	}
+	// 		flushArrayQueueToShared(localFrontierQueueL2,localFrontierQueue);
+	// 		// slideWindowArrayQueue(localFrontierQueue);
+	// 		localFrontierQueue->tail = localFrontierQueue->tail_next; // to apply to condition to the next flush
+	// }
 
 	
 }
@@ -699,22 +699,34 @@ void breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList*
 
 	
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+	struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
+	double inner_time = 0;
 	struct ArrayQueue* sharedFrontierQueue = newArrayQueue(graph->num_vertices);
-	
-	// enArrayQueueDelayed(sharedFrontierQueue, source);
-	// slideWindowArrayQueue(sharedFrontierQueue);
+	struct Bitmap* bitmapCurr = newBitmap(graph->num_vertices);
+    struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
 
-	
-
+	__u32 P = numThreads;
 	__u32 mu = graph->num_edges; // number of edges to check from sharedFrontierQueue
 	__u32 mf = graph->parent_array[source].out_degree; // number of edges from unexplored verticies
 	__u32 nf = 0; // number of vertices in sharedFrontierQueue
 	__u32 nf_prev = 0; // number of vertices in sharedFrontierQueue
 	__u32 n = graph->num_vertices; // number of nodes
-	__u32 alpha = 14;
-	__u32 beta = 24;
+	__u32 alpha = 15;
+	__u32 beta = 18;
 
-	printf(" -----------------------------------------------------\n");
+	#if ALIGNED
+		struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_malloc( P * sizeof(struct ArrayQueue*));
+	#else
+        struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_malloc( P * sizeof(struct ArrayQueue*));
+    #endif
+
+   __u32 i;
+   for(i=0 ; i < P ; i++){
+		localFrontierQueues[i] = newArrayQueue(graph->num_vertices);
+		
+   }
+
+  	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51u | \n", source);
@@ -729,52 +741,88 @@ void breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList*
 		return;
 	}
 
-
+  	Start(timer_inner);
 	enArrayQueue(sharedFrontierQueue, source);
+    // setBit(sharedFrontierQueue->q_bitmap,source);
 	graph->parents[source] = source;  
-
-
+	Stop(timer_inner);
+	inner_time +=  Seconds(timer_inner);
+	// graph->vertices[source].visited = 1;
+	
+    
+	printf("| TD %-12u | %-15u | %-15f | \n",graph->iteration++, ++graph->processed_nodes , Seconds(timer_inner));
 
     Start(timer);
 	while(!isEmptyArrayQueue(sharedFrontierQueue)){ // start while 
 
 		if(mf > (mu/alpha)){
 
-
+			Start(timer_inner);
+			arrayQueueToBitmap(sharedFrontierQueue,bitmapCurr);
 			nf = sizeArrayQueue(sharedFrontierQueue);
-			// slideWindowArrayQueue(sharedFrontierQueue);
-			
+			Stop(timer_inner);
+			printf("| E  %-12s | %-15s | %-15f | \n"," ", " " , Seconds(timer_inner));
 
 			do{
+				Start(timer_inner);
+				nf_prev = nf;
+				nf = bottomUpStepGraphAdjArrayList(graph,bitmapCurr,bitmapNext);
+				swapBitmaps(&bitmapCurr, &bitmapNext);
+				reset(bitmapNext);
+				Stop(timer_inner);
 
-			nf_prev = nf;
-			nf = bottomUpStepGraphAdjArrayList(graph, sharedFrontierQueue);
-			slideWindowArrayQueue(sharedFrontierQueue);
-
-		
+				//stats collection
+				inner_time +=  Seconds(timer_inner);
+				graph->processed_nodes += nf;
+				printf("| BU %-12u | %-15u | %-15f | \n",graph->iteration++, nf , Seconds(timer_inner));
+			
 			}while(( nf > nf_prev) || // growing;
 				   ( nf > (n/beta)));
-			
+
+			Start(timer_inner);
+			bitmapToArrayQueue(bitmapCurr,sharedFrontierQueue,localFrontierQueues);
+			Stop(timer_inner);
+			printf("| C  %-12s | %-15s | %-15f | \n"," ", " " , Seconds(timer_inner));
+
 			mf = 1;
 
 		}else{
-		
-			mu -= mf;
-			mf = topDownStepGraphAdjArrayList(graph, sharedFrontierQueue);
+			
+			Start(timer_inner);
+			mu -= mf;		
+			mf = topDownStepGraphAdjArrayList(graph, sharedFrontierQueue,localFrontierQueues);
 			slideWindowArrayQueue(sharedFrontierQueue);
+			Stop(timer_inner);
+
+			//stats collection
+			inner_time +=  Seconds(timer_inner);
+			graph->processed_nodes += sharedFrontierQueue->tail - sharedFrontierQueue->head;;
+			printf("| TD %-12u | %-15u | %-15f | \n",graph->iteration++, sharedFrontierQueue->tail - sharedFrontierQueue->head, Seconds(timer_inner));
 
 		}
+
 
 
 	} // end while
 	Stop(timer);
 	printf(" -----------------------------------------------------\n");
-	printf("| %-15s | %-15u | %-15f | \n","**", sharedFrontierQueue->tail_next, Seconds(timer));
+	printf("| %-15s | %-15u | %-15f | \n","No OverHead", graph->processed_nodes, inner_time);
+	printf(" -----------------------------------------------------\n");
+	printf(" -----------------------------------------------------\n");
+	printf("| %-15s | %-15u | %-15f | \n","total", graph->processed_nodes, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
+	graphAdjArrayListReset(graph);
 	resetParentArray(graph->parents, graph->num_vertices);
+	for(i=0 ; i < P ; i++){
+		freeArrayQueue(localFrontierQueues[i]);		
+   	}
+   	free(localFrontierQueues);
 	freeArrayQueue(sharedFrontierQueue);
+	freeBitmap(bitmapNext);
+	freeBitmap(bitmapCurr);
 	free(timer);
+	free(timer_inner);
 }
 
 
@@ -788,7 +836,7 @@ void breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList*
 // 		end for
 // 	end for
 
-__u32 topDownStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct ArrayQueue* sharedFrontierQueue){
+__u32 topDownStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct ArrayQueue* sharedFrontierQueue,  struct ArrayQueue** localFrontierQueues){
 
 
 	
@@ -796,44 +844,42 @@ __u32 topDownStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct Array
 	__u32 u;
 	__u32 i;
 	__u32 j;
-	__u32 processed_nodes = sharedFrontierQueue->tail - sharedFrontierQueue->head;
 	__u32 mf = 0;
+
 	__u32 out_degree;
 	struct Edge* outNodes;
 
-	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-	Start(timer);
-
-	for(i = sharedFrontierQueue->head ; i < sharedFrontierQueue->tail; i++){
-		v = sharedFrontierQueue->queue[i];
+	#pragma omp parallel default (none) private(out_degree,outNodes,u,v,j,i) shared(localFrontierQueues,graph,sharedFrontierQueue,mf)
+  	{
+  		__u32 t_id = omp_get_thread_num();
+  		struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
+		
+  		
+  		#pragma omp for reduction(+:mf) schedule(auto)
+		for(i = sharedFrontierQueue->head ; i < sharedFrontierQueue->tail; i++){
+			v = sharedFrontierQueue->queue[i];
 		// v = deArrayQueue(sharedFrontierQueue);
-		outNodes = graph->parent_array[v].outNodes;
-		out_degree = graph->parent_array[v].out_degree;
+			outNodes = graph->parent_array[v].outNodes;
+			out_degree = graph->parent_array[v].out_degree;
 
-    	for(j = 0 ; j < out_degree ; j++){
-        
-            // destination vertex id
-            u = outNodes[j].dest;
-            
-            // if the destination vertex is not yet enqueued
-            // if((graph->parents[u]) == (-1)) { // fixed to implement optemizations
-            if((graph->parents[u]) < 0 ){
-                
-                // add the destination vertex to the queue 
-                enArrayQueueDelayed(sharedFrontierQueue, u);
-                mf +=  -(graph->parents[u]);
-                graph->parents[u] = v;  
+	    	for(j = 0 ; j < out_degree ; j++){
+	         
+	            u = outNodes[j].dest;
+	            int u_parent = graph->parents[u]; 
+	            if(u_parent < 0 ){
+				if(__sync_bool_compare_and_swap(&graph->parents[u],u_parent,v))
+					{ 
+	                enArrayQueue(localFrontierQueue, u);
+	                mf +=  -(u_parent);
+	          	  	}
+	        	}
+	        }
 
-            }
-        }
+		} 
 
-	} 
+		flushArrayQueueToShared(localFrontierQueue,sharedFrontierQueue);
+	}
 
-	
-
-	Stop(timer);
-	printf("| %-15u | %-15u | %-15f | \n",graph->iteration, processed_nodes, Seconds(timer));
-	free(timer);
 	return mf;
 }
 
@@ -850,87 +896,48 @@ __u32 topDownStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct Array
 // 		end if
 // 	end for
 
-__u32 bottomUpStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct ArrayQueue* sharedFrontierQueue){
+__u32 bottomUpStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct Bitmap* bitmapCurr, struct Bitmap* bitmapNext){
 
 
 	__u32 v;
 	__u32 u;
 	__u32 j;
-	
 
-	#if DIRECTED
-		__u32  in_degree;
-		struct Edge* inNodes;
-	#else
-		__u32 out_degree;
-		struct Edge* outNodes;
-	#endif
-
-	__u32 processed_nodes = sharedFrontierQueue->tail - sharedFrontierQueue->head;
+	// __u32 processed_nodes = bitmapCurr->numSetBits;
     __u32 nf = 0; // number of vertices in sharedFrontierQueue
+    // graph->processed_nodes += processed_nodes;
 
-	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-	Start(timer);
+   
+		__u32 degree;
+		struct Edge* Nodes;
 
+
+	#pragma omp parallel for default(none) private(Nodes,j,u,v,degree) shared(bitmapCurr,bitmapNext,graph) reduction(+:nf) schedule(dynamic, 1024)
 	for(v=0 ; v < graph->num_vertices ; v++){
+				if(graph->parents[v] < 0){ // optmization
 
-    		#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
-
-	    		if(graph->parents[v] < 0){ // optmization
-
-	    			inNodes = graph->parent_array[v].inNodes;
-	    			in_degree = graph->parent_array[v].in_degree;
-
-		    		for(j = 0 ; j < in_degree ; j++){
-
-		    			 u = inNodes[j].dest; // this is the inverse if the src is in sharedFrontierQueue let the vertex update.
-		    			 // printf("u: %u \n",u );
-		    			 if(isEnArrayQueued(sharedFrontierQueue, u)){
-		    			 	// printf("***infrontier u: %u \n",u );
+					#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
+						Nodes = graph->parent_array[v].inNodes;
+	    				degree = graph->parent_array[v].in_degree;
+					#else
+	    				Nodes = graph->parent_array[v].outNodes;
+	    				degree = graph->parent_array[v].out_degree;
+					#endif
+					
+		    		for(j = 0 ; j < (degree) ; j++){
+		    			 u = Nodes[j].dest;
+		    			 if(getBit(bitmapCurr, u)){
 		    			 	graph->parents[v] = u;
-		    			 	enArrayQueueDelayed(sharedFrontierQueue, v);
+		    			 	setBit(bitmapNext, v);
 		    			 	nf++;
 		    			 	break;
 		    			 }
-		    			 // else
-		    			 // printf("***NOT infrontier u: %u \n",u );
-		    		}
-		    	}
-		    	
-		    #else
-		    	
-				if(graph->parents[v] < 0){ // optmization 
-
-					outNodes = graph->parent_array[v].outNodes;
-	    			out_degree = graph->parent_array[v].out_degree;
-
-					// printf("edge_idx: %u \n",edge_idx );
-					// printf("graph->vertices[v].out_degree: %u \n",graph->vertices[v].out_degree );
-		    		for(j = 0 ; j < out_degree ; j++){
-
-		    			 u = outNodes.dest;
-		    			 // printf("u: %u \n",u );
-		    			 if(isEnArrayQueued(sharedFrontierQueue, u)){
-		    			 	// printf("***infrontier u: %u \n",u );
-		    			 	graph->parents[v] = u;
-		    			 	enArrayQueueDelayed(sharedFrontierQueue, v);
-		    			 	nf++;
-		    			 	break;
-		    			 }
-		    			 // else
-		    			 // printf("***NOT infrontier u: %u \n",u );
 		    		}
 
 		    	}
-    		#endif
-
-		
+    	
 	}
 
-
-	Stop(timer);
-	printf("| %-15u | %-15u | %-15f | \n",graph->iteration, processed_nodes, Seconds(timer));
-	free(timer);
 	return nf;
 }
 
