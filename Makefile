@@ -278,13 +278,20 @@ root = 428333
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 1
+datastructure = 0
 algorithm = 0
-numThreads  = 8
+numThreads  = 80
 iterations = 0
 
 run: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n 8 -i $(iterations)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n 27 -i $(iterations)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n 30	-i $(iterations)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
+
+
 
 run-capi: test-capi
 	./$(APP_DIR)/test/$(GAPP)-capi -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)

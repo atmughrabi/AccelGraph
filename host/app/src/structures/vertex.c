@@ -83,7 +83,7 @@ void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted
     __u32 j;
     __u32 P = numThreads;
 
-
+ 
 
     for(i=0 ; i < P ; i++){
     
@@ -98,21 +98,31 @@ void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted
 
     for(i=1 ; i < P ; i++){
 
-       
+        j = offset_end[i-1];
 
-        for(j = offset_end[i-1]; j < graph->num_edges; j++){
+        if(j == graph->num_edges){
+            offset_start[i] = graph->num_edges;
+            offset_end[i] = graph->num_edges;
+            continue;
+        }
+          
 
+        for(; j < graph->num_edges; j++){
+            // printf("j %u \n",j );
              if(sorted_edges_array[j].src != sorted_edges_array[j-1].src){  
                 offset_start[i] = j;
                 offset_end[i-1] = j;
 
                 if(i == (P-1)){
-                 offset_end[i] = i*(graph->num_edges/P) + (graph->num_edges/P) + (graph->num_edges%P) ;
+                    offset_end[i] = i*(graph->num_edges/P) + (graph->num_edges/P) + (graph->num_edges%P) ;
                 }
                 else{
-                 offset_end[i] =  offset_start[i] + (graph->num_edges/P);
+                    offset_end[i] =  offset_start[i] + (graph->num_edges/P);
                 }
 
+                if(offset_end[i] > graph->num_edges && offset_start[i] < graph->num_edges){
+                    offset_end[i] = graph->num_edges;       
+                }
                 break;
              }
 
@@ -121,6 +131,10 @@ void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted
 
        
     }
+     for(i=0 ; i < P ; i++){
+
+
+     }
 
 
 }
@@ -179,9 +193,9 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
     {
         
         t_id = omp_get_thread_num();
+
         offset_start = offset_start_arr[t_id];
         offset_end = offset_end_arr[t_id];
-        // printf(" t_id %d offset_start %d offset_end %d \n",t_id,offset_start,offset_end);
 
         vertex_id = sorted_edges_array[offset_start].src;
         vertices[vertex_id].edges_idx = offset_start;
@@ -199,9 +213,11 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
             vertices[vertex_id].edges_idx = i; 
             vertices[vertex_id].out_degree++;
 
+
            
          
-        }else{
+        }
+        else{
             vertices[vertex_id].out_degree++;
            
         }

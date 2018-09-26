@@ -130,7 +130,8 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 
 			mf = 1;
 
-		}else{
+		}
+		else{
 			
 			Start(timer_inner);
 			mu -= mf;		
@@ -371,7 +372,8 @@ void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR* graph
 
 			mf = 1;
 
-		}else{
+		}
+		else{
 		
 			mu -= mf;
 
@@ -786,7 +788,8 @@ void breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList*
 
 			mf = 1;
 
-		}else{
+		}
+		else{
 			
 			Start(timer_inner);
 			mu -= mf;		
@@ -1018,7 +1021,8 @@ void breadthFirstSearchGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedLis
 			
 			mf = 1;
 
-		}else{
+		}
+		else{
 		
 			mu -= mf;
 			mf = topDownStepGraphAdjLinkedList(graph, sharedFrontierQueue);
