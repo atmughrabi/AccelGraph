@@ -28,6 +28,7 @@ struct  Grid {
 	__u32 num_partitions;
 	struct Partition* partitions;
 	__u32 *activePartitions;
+	__u32* out_degree;
 	struct Bitmap* activePartitionsMap;
 	// struct Bitmap* activeVertices;
 };

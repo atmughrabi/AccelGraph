@@ -19,7 +19,7 @@ static void usage(void) {
   printf("\t-n [num threads] default:max number of threads the system has\n");
   printf("\t-i [num iterations] number of random trials [default:0]\n");
   printf("\t-t [num iterations] number of iterations for page rank random\n");
-  printf("\t-e [epsilon ] tolerance value of for page rank [default:0.0001]\n");
+  printf("\t-e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001]\n");
   printf("\t-c: convert to bin file on load example:-f <graph file> -c\n");
   printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
   printf("\t-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile\n");

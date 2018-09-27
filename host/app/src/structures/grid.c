@@ -158,6 +158,12 @@ struct Grid * gridNew(struct EdgeList* edgeList){
         grid->activePartitions = (__u32*) my_malloc(totalPartitions * sizeof(__u32));
     #endif
 
+     #if ALIGNED
+        grid->out_degree = (__u32*) my_aligned_malloc(grid->num_vertices * sizeof(__u32));
+    #else
+        grid->out_degree = (__u32*) my_malloc(grid->num_vertices * sizeof(__u32));
+    #endif
+
         // grid->activeVertices = newBitmap(grid->num_vertices);
         grid->activePartitionsMap = newBitmap(totalPartitions);
 
@@ -169,6 +175,7 @@ struct Grid * gridNew(struct EdgeList* edgeList){
 		 grid->partitions[i].num_edges = 0;
 		 grid->partitions[i].num_vertices = 0;	/* code */
          grid->activePartitions[i] = 0;
+         grid->out_degree[i] = 0;
         
         }
 
@@ -224,6 +231,8 @@ struct Grid * gridPartitionSizePreprocessing(struct Grid *grid, struct EdgeList*
 
 		src  = edgeList->edges_array[i].src;
 		dest = edgeList->edges_array[i].dest;
+
+        __sync_fetch_and_add(&grid->out_degree[src],1);
 
 		row = getPartitionID(num_vertices, num_partitions, src);
 		col = getPartitionID(num_vertices, num_partitions, dest);

@@ -212,9 +212,6 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
             vertex_id = sorted_edges_array[i].src;
             vertices[vertex_id].edges_idx = i; 
             vertices[vertex_id].out_degree++;
-
-
-           
          
         }
         else{

@@ -265,9 +265,23 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 	$(CAPI) \
 	$(CFLAGS) \
 
+
+# "Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w]
+  # "-a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP
+  # "-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List
+  # "-r [root]: BFS & SSSP root
+  # "-n [num threads] default:max number of threads the system has
+  # "-i [num iterations] number of random trials [default:0]
+  # "-t [num iterations] number of iterations for page rank random
+  # "-e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001]
+  # "-c: convert from txt to bin file on load example:-f <graph file> -c
+  # "-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile
+  # "-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile
+  # "-s: symmetric graph, if not given set of incoming edges will be created
+
 #app command line arguments
 fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
-root = 428333
+root = -1
 
 
 # fnameb = "host/app/datasets/test/test.txt.bin"
@@ -278,20 +292,26 @@ root = 428333
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 0
+datastructure = 1
 algorithm = 0
-numThreads  = 80
-iterations = 0
+numThreads  = 8
+iterations = 1
+tolerance = 0.0001
 
 run: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n 8 -i $(iterations)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n 27 -i $(iterations)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n 30	-i $(iterations)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
+	
+run-bfs: test
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -i $(iterations)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 0 -n $(numThreads) -i $(iterations)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 0 -n $(numThreads) -i $(iterations)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 4 -a 0 -n $(numThreads) -i $(iterations)
 
-
+run-pr: test
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 4 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance)
 
 run-capi: test-capi
 	./$(APP_DIR)/test/$(GAPP)-capi -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)

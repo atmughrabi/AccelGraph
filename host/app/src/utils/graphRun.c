@@ -111,18 +111,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
             if(root >= 0 && root <= graphCSR->num_vertices){
-             
               breadthFirstSearchGraphCSR(root, graphCSR);
-              // breadthFirstSearchGraphCSR(12441072, graphCSR);
-              // breadthFirstSearchGraphCSR(54488257, graphCSR);
-              // breadthFirstSearchGraphCSR(25451915, graphCSR);
-              // breadthFirstSearchGraphCSR(57714473, graphCSR);
-              // breadthFirstSearchGraphCSR(14839494, graphCSR);
-              // breadthFirstSearchGraphCSR(32081104, graphCSR);
-              // breadthFirstSearchGraphCSR(52957357, graphCSR);
-              // breadthFirstSearchGraphCSR(50444380, graphCSR);
-
-
             } 
             while(iterations){
               while(1){
@@ -149,6 +138,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
               while(1){
                 root = genrand_int32();
                   if(root < graphGrid->num_vertices){
+                    if(graphGrid->grid->out_degree[root] > 0)
                      break;
                   }
               }
