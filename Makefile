@@ -40,7 +40,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 		-I$(APP_DIR)/include/$(UTIL_DIR)/   \
 # flags
-CFLAGS            = -O3 -Wall -m64 -fopenmp
+CFLAGS            = -O3 -Wall -m64 -fopenmp -g
 
 all: test
 
@@ -281,7 +281,7 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 
 #app command line arguments
 fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
-root = -1
+root = 428333
 
 
 # fnameb = "host/app/datasets/test/test.txt.bin"
@@ -292,10 +292,10 @@ root = -1
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 1
-algorithm = 0
-numThreads  = 8
-iterations = 1
+datastructure = 0
+algorithm = 1
+numThreads  = 16
+iterations = 0
 tolerance = 0.0001
 
 run: test
@@ -304,8 +304,8 @@ run: test
 run-bfs: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -i $(iterations)
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 0 -n $(numThreads) -i $(iterations)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 0 -n $(numThreads) -i $(iterations)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 4 -a 0 -n $(numThreads) -i $(iterations)
+	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 0 -n $(numThreads) -i $(iterations)
+	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 4 -a 0 -n $(numThreads) -i $(iterations)
 
 run-pr: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance)

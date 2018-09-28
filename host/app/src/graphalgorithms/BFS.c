@@ -493,6 +493,8 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	struct Timer* timer_iteration = (struct Timer*) malloc(sizeof(struct Timer));
 	struct ArrayQueue* sharedFrontierQueue = newArrayQueue(graph->num_vertices);
+	
+	
 	__u32 P = numThreads;
 	double inner_time = 0;
 
@@ -606,24 +608,29 @@ void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid* graph, struct Arra
 	// struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	__u32 totalPartitions = 0;
      totalPartitions = graph->grid->num_partitions * graph->grid->num_partitions; // PxP
-    __u32 i;	
+    
 
-	#pragma omp parallel
-    #pragma	omp single nowait
+	#pragma omp parallel default(none) shared(totalPartitions,localFrontierQueues ,sharedFrontierQueue, graph)
+    // #pragma	omp single nowait
     {	
-   
+    	__u32 i;
+    	__u32 t_id = omp_get_thread_num();
+    	// __u32 A = 0;
+    	struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
+
+   		#pragma omp for schedule(dynamic, 256)
     	for (i = 0; i < totalPartitions; ++i){
            		if(getBit(graph->grid->activePartitionsMap,i)){
-           			#pragma	omp task untied
-           			{
-           				__u32 t_id = omp_get_thread_num();
-                        struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
+           			// #pragma	omp task untied
+           			// {
+           				
 	            		breadthFirstSearchPartitionGraphGrid(graph,&(graph->grid->partitions[i]),sharedFrontierQueue,localFrontierQueue);
            				flushArrayQueueToShared(localFrontierQueue,sharedFrontierQueue);
-           			}
+           			// }
 			    		
         	} 
         }
+
     }
 
         // flushArrayQueueToShared(localFrontierQueue,sharedFrontierQueue);
@@ -653,7 +660,7 @@ void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph, struct Partit
 			if(isEnArrayQueued(sharedFrontierQueue, src) && (v_dest < 0)){
 						if(__sync_bool_compare_and_swap(&graph->parents[dest],v_dest,src))
 						{
-			    		// graph->parents[dest] = src;
+			    		graph->parents[dest] = src;
 			    		enArrayQueue(localFrontierQueue, dest);
 			    	}
 			}
@@ -681,6 +688,173 @@ void breadthFirstSearchSetActivePartitions(struct GraphGrid* graph, struct Array
     	// graphGridSetActivePartitions(graph->grid, v);
     	// if(getBit(graph->grid->activePartitionsMap,i))
     		graphGridSetActivePartitionsMap(graph->grid, v);
+    }
+}
+
+
+// function STREAMVERTICES(Fv,F)
+// 	Sum = 0
+// 		for each vertex do
+// 			if F(vertex) then
+// 				Sum += Fv(edge)
+// 			end if
+// 		end for
+// 	return Sum
+// end function
+
+// function STREAMEDGES(Fe,F)
+// 	Sum = 0
+// 		for each active block do >> block with active edges
+// 			for each edge ∈ block do
+// 				if F(edge.source) then
+// 					Sum += Fe(edge)
+// 				end if
+// 			end for
+// 		end for
+// 	return Sum
+// end function
+//we assume that the edges are not sorted in each partition
+
+void breadthFirstSearchGraphGridBitmap(__u32 source, struct GraphGrid* graph){
+
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+	struct Timer* timer_iteration = (struct Timer*) malloc(sizeof(struct Timer));
+	struct Bitmap* FrontierBitmapCurr = newBitmap(graph->num_vertices);
+	struct Bitmap* FrontierBitmapNext = newBitmap(graph->num_vertices);
+	double inner_time = 0;
+
+	printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51u | \n", source);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
+    printf(" -----------------------------------------------------\n");
+
+    if(source < 0 && source > graph->num_vertices){
+		printf(" -----------------------------------------------------\n");
+    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	printf(" -----------------------------------------------------\n");
+		return;
+	}
+		
+	__u32 processed_nodes = 0;
+	__u32 total_processed_nodes = 0;
+
+	Start(timer_iteration);
+	setBit(FrontierBitmapNext,source);
+	graph->parents[source] = source;
+	processed_nodes = getNumOfSetBits(FrontierBitmapNext);
+	swapBitmaps (&FrontierBitmapCurr,&FrontierBitmapNext);
+	reset(FrontierBitmapNext);
+	// printf("%u %u\n",getNumOfSetBits(FrontierBitmapCurr),getNumOfSetBits(FrontierBitmapNext) );
+	breadthFirstSearchSetActivePartitionsBitmap(graph, FrontierBitmapCurr);
+		
+
+	Stop(timer_iteration);
+
+
+	total_processed_nodes += processed_nodes;
+  	printf("| %-15u | %-15u | %-15f | \n",graph->iteration++, processed_nodes, Seconds(timer_iteration));
+
+  	inner_time += Seconds(timer_iteration);
+    Start(timer);
+	while(processed_nodes){ // start while 
+
+		Start(timer_iteration);
+			breadthFirstSearchStreamEdgesGraphGridBitmap(graph, FrontierBitmapCurr, FrontierBitmapNext);
+		Stop(timer_iteration);
+
+		processed_nodes = getNumOfSetBits(FrontierBitmapNext);
+		swapBitmaps (&FrontierBitmapCurr,&FrontierBitmapNext);
+		reset(FrontierBitmapNext);
+		breadthFirstSearchSetActivePartitionsBitmap(graph,FrontierBitmapCurr);
+		total_processed_nodes += processed_nodes;
+		inner_time += Seconds(timer_iteration);
+		printf("| %-15u | %-15u | %-15f | \n",graph->iteration++, processed_nodes, Seconds(timer_iteration));
+	} // end while
+	Stop(timer);
+	printf(" -----------------------------------------------------\n");
+	printf("| %-15s | %-15u | %-15f | \n","No OverHead", total_processed_nodes, inner_time);
+	printf(" -----------------------------------------------------\n");
+	printf(" -----------------------------------------------------\n");
+	printf("| %-15s | %-15u | %-15f | \n","**", total_processed_nodes, Seconds(timer));
+	printf(" -----------------------------------------------------\n");
+
+	resetParentArray(graph->parents, graph->num_vertices);
+	freeBitmap(FrontierBitmapCurr);
+	freeBitmap(FrontierBitmapNext);
+	free(timer_iteration);
+	free(timer);
+}
+
+// function STREAMEDGES(Fe,F)
+// 	Sum = 0
+// 		for each active block do >> block with active edges
+// 			for each edge ∈ block do
+// 				if F(edge.source) then
+// 					Sum += Fe(edge)
+// 				end if
+// 			end for
+// 		end for
+// 	return Sum
+// end function
+//we assume that the edges are not sorted in each partition
+void breadthFirstSearchStreamEdgesGraphGridBitmap(struct GraphGrid* graph, struct Bitmap* FrontierBitmapCurr, struct Bitmap* FrontierBitmapNext){
+	// struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+	__u32 totalPartitions = 0;
+     totalPartitions = graph->grid->num_partitions * graph->grid->num_partitions; // PxP
+    
+
+	#pragma omp parallel default(none) shared(totalPartitions,FrontierBitmapCurr ,FrontierBitmapNext, graph)
+    // #pragma	omp single nowait
+    {	
+    	__u32 i;
+
+   		#pragma omp for schedule(dynamic, 256)
+    	for (i = 0; i < totalPartitions; ++i){
+           		if(getBit(graph->grid->activePartitionsMap,i)){
+	            		breadthFirstSearchPartitionGraphGridBitmap(graph,&(graph->grid->partitions[i]),FrontierBitmapCurr,FrontierBitmapNext);
+        	} 
+        }
+    }
+}
+   
+   
+void breadthFirstSearchPartitionGraphGridBitmap(struct GraphGrid* graph, struct Partition* partition,struct Bitmap* FrontierBitmapCurr, struct Bitmap* FrontierBitmapNext){
+
+	 __u32 i;
+	 __u32 src;
+	 __u32 dest;
+
+	    for (i = 0; i < partition->num_edges; ++i){
+	    		
+	    	src  = partition->edgeList->edges_array[i].src;
+	        dest = partition->edgeList->edges_array[i].dest;
+	        int v_dest = graph->parents[dest];
+			if(getBit(FrontierBitmapCurr, src) && (v_dest < 0)){
+						if(__sync_bool_compare_and_swap(&graph->parents[dest],v_dest,src))
+						{
+			    		// graph->parents[dest] = src;
+			    		setBitAtomic(FrontierBitmapNext, dest);
+			    	}
+			}
+		}
+		
+	
+	
+}
+
+void breadthFirstSearchSetActivePartitionsBitmap(struct GraphGrid* graph, struct Bitmap* FrontierBitmap){
+
+	 __u32 i;
+
+	graphGridResetActivePartitionsMap(graph->grid);
+
+	#pragma omp parallel for default(none) shared(graph,FrontierBitmap) private(i) schedule(dynamic,1024)
+    for(i = 0 ; i < FrontierBitmap->size; i++){
+    	if(getBit(FrontierBitmap,i))
+    		graphGridSetActivePartitionsMap(graph->grid, i);
     }
 }
 

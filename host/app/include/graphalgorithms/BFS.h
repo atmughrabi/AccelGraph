@@ -18,6 +18,11 @@ void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid* graph, struct Arra
 void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph,struct Partition* partition,struct ArrayQueue* sharedFrontierQueue, struct ArrayQueue* localFrontierQueue);
 void breadthFirstSearchSetActivePartitions(struct GraphGrid* graph, struct ArrayQueue* sharedFrontierQueue);
 
+void breadthFirstSearchGraphGridBitmap(__u32 source, struct GraphGrid* graph);
+void breadthFirstSearchStreamEdgesGraphGridBitmap(struct GraphGrid* graph,struct Bitmap* FrontierBitmapCurr, struct Bitmap* FrontierBitmapNext);
+void breadthFirstSearchPartitionGraphGridBitmap(struct GraphGrid* graph,struct Partition* partition, struct Bitmap* FrontierBitmapCurr, struct Bitmap* FrontierBitmapNext);
+void breadthFirstSearchSetActivePartitionsBitmap(struct GraphGrid* graph,struct Bitmap* FrontierBitmap);
+
 
 void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph);
 void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR* graph);

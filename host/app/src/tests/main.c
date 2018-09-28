@@ -14,7 +14,7 @@ int numThreads;
 static void usage(void) {
   printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w]\n");
   printf("\t-a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP\n");
-  printf("\t-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List\n");
+  printf("\t-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List [4-5] same order bitmap frontiers\n");
   printf("\t-r [root]: BFS & SSSP root\n");
   printf("\t-n [num threads] default:max number of threads the system has\n");
   printf("\t-i [num iterations] number of random trials [default:0]\n");

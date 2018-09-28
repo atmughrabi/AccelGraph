@@ -7,11 +7,14 @@
 #include "graphAdjArrayList.h"
 #include "graphGrid.h"
 
+#include "mt19937.h"
 #include "graphConfig.h"
 #include "timer.h"
 #include "graphRun.h"
+
 #include "BFS.h"
-#include "mt19937.h"
+#include "pageRank.h"
+
 
 void generateGraphPrintMessageWithtime(const char * msg, double time){
 
@@ -59,6 +62,18 @@ void * generateGraphDataStructure(const char *fnameb, int datastructure){
             graph = (void *)graphAdjArrayListPreProcessingStep (fnameb);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphAdjArrayList Preprocessing Step Time (Seconds)",Seconds(timer));
+          break;
+        case 4: // CSR
+            Start(timer);
+            graph = (void *)graphCSRPreProcessingStep (fnameb);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)",Seconds(timer));
+          break;
+        case 5: // Grid
+            Start(timer);
+            graph = (void *)graphGridPreProcessingStep (fnameb);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("GraphGrid Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         default:// CSR
             Start(timer);
@@ -222,6 +237,32 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
             graphCSRFree(graphCSR);
           break;
 
+         case 5: // Grid with no frontiers only Bitmaps
+            graphGrid = (struct GraphGrid*)graph;
+            if(root >= 0 && root <= graphGrid->num_vertices){
+              breadthFirstSearchGraphGridBitmap(root, graphGrid);
+            } 
+            while(iterations){
+              while(1){
+                root = genrand_int32();
+                  if(root < graphGrid->num_vertices){
+                    if(graphGrid->grid->out_degree[root] > 0)
+                     break;
+                  }
+              }
+              if(root >= 0 && root <= graphGrid->num_vertices){
+                breadthFirstSearchGraphGridBitmap(root, graphGrid);
+              }   
+               iterations--;
+            }
+            Start(timer); 
+            graphGridFree(graphGrid);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)",Seconds(timer));
+          break;
+
+          
+
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
             if(root >= 0 && root <= graphCSR->num_vertices){
@@ -262,7 +303,7 @@ void runPageRankAlgorithm(void *graph, int datastructure, double epsilon, int tr
       { 
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
-            pageRankPullGraphCSR(0.0001 , 20, graphCSR);
+            pageRankPullGraphCSR(epsilon , trials, graphCSR);
             graphCSRFree(graphCSR);
           break;
 

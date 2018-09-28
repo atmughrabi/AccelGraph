@@ -43,7 +43,15 @@ void freeBitmap( struct Bitmap* bitmap){
 void reset(struct Bitmap* bitmap){
 
 	 memset(bitmap->bitarray, 0, (sizeof(__u32)*((bitmap->size+kBitsPerWord - 1)/kBitsPerWord)));
-	 bitmap->numSetBits =  0;
+
+	//  __u32 *word = bitmap->bitarray;
+	//  __u32 i;
+
+	// #pragma omp parallel for
+	// for(i= 0 ; i <((bitmap->size+kBitsPerWord - 1)/kBitsPerWord); i++){
+	// 	word[i] = 0; 
+	// }
+	bitmap->numSetBits =  0;
 
 }
 
@@ -95,12 +103,12 @@ struct Bitmap*  orBitmap(struct Bitmap* bitmap1, struct Bitmap* bitmap2){
 
 
 	__u32 i;
-	__u32 *byte1 = bitmap1->bitarray;
-	__u32 *byte2 = bitmap2->bitarray;
+	__u32 *word1 = bitmap1->bitarray;
+	__u32 *word2 = bitmap2->bitarray;
 	bitmap1->numSetBits = 0;
 
 	for(i= 0 ; i <((bitmap1->size+kBitsPerWord - 1)/kBitsPerWord); i++){
-		byte1[i] = byte1[i] | byte2[i]; 
+		word1[i] = word1[i] | word2[i]; 
 
 	}
 

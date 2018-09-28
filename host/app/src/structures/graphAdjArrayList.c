@@ -431,14 +431,14 @@ struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fname
     #endif
 
     Start(timer);
-    edgeList = radixSortEdgesBySourceOptimized(edgeList);
+    edgeList = radixSortEdgesBySource(edgeList);
     Stop(timer);
     graphAdjArrayListPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
 
     #if DIRECTED
         Start(timer);
-        inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
+        inverse_edgeList = radixSortEdgesBySource(inverse_edgeList);
         Stop(timer);
         graphAdjArrayListPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
     #endif

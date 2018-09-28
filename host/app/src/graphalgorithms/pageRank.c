@@ -10,9 +10,9 @@
 #include "pageRank.h"
 
 #include "graphCSR.h"
-#include "graphGrid.h"
-#include "graphAdjArrayList.h"
-#include "graphAdjLinkedList.h"
+// #include "graphGrid.h"
+// #include "graphAdjArrayList.h"
+// #include "graphAdjLinkedList.h"
 
 
 // void pageRankPullGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);

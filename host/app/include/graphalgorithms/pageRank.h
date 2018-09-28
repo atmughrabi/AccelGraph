@@ -6,7 +6,7 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
-const float Damp = 0.85;
+#define Damp 0.85f
 
 void pageRankPullGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 void pageRankPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);

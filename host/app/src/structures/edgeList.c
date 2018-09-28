@@ -173,7 +173,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         }
  
         /* fs.st_size could have been 0 actually */
-        buf_addr = mmap(0, fs.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+        buf_addr = mmap(0, fs.st_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
 
         if (buf_addr == (void*) -1) {
                 err(1, "mmap: %s", fname);
@@ -205,7 +205,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         __u32 i;
         __u32 num_vertices = 0;
 
-        // #pragma omp parallel for reduction(max:num_vertices) 
+        #pragma omp parallel for reduction(max:num_vertices) 
         for(i = 0; i < num_edges-1; i++){
 
                 src = buf_pointer[((offset)*i)+0];
