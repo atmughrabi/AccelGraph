@@ -1,4 +1,4 @@
-#Graph Processing Framework With OpenMP/CAPI/OpenCL
+# Graph Processing Framework With OpenMP/CAPI/OpenCL
 
 AFU framework for Graph Processing algorithms with CAPI connected FGPAs With OpenCL/Verilog/OpenMP
 
