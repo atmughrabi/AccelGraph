@@ -1,6 +1,6 @@
-# CAPI Graph Processing Framework
+#Graph Processing Framework With OpenMP/CAPI/OpenCL
 
-AFU framework for Graph Processing algorithms with CAPI connected FGPAs.
+AFU framework for Graph Processing algorithms with CAPI connected FGPAs With OpenCL/Verilog/OpenMP
 
 More info
 * ~~Webinar: TO BE ADDED ~~  
@@ -83,7 +83,7 @@ It is assumed that the 32-bit version of vsim is installed in `/opt/altera/15.0/
 
 Please note that all listed `make` commands should be executed from the root of this project.
 
-### Initial setup
+### Initial setup For FPGA Development With CAPI
 
 1. Clone the repository. enter the directory and initialize the submodules
   ```bash
@@ -135,6 +135,25 @@ Please note that all listed `make` commands should be executed from the root of 
   ```
 
 5. Wait for your host application to terminate then switch to the PSLSE terminal and kill (`CTRL+C`) the running PSLSE process to inspect the wave.
+
+### Initial compilation for the Graph frame work with OpenMP
+
+1. Clone the repository. enter the directory and initialize the submodules
+  ```bash
+ Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w].
+   -a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP.
+   -d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List [4-5] same order bitmap frontiers.
+   -r [root]: BFS & SSSP root.
+   -p [algorithm direction] 0 push 1 pull 2 push/pull.
+   -n [num threads] default:max number of threads the system has.
+   -i [num iterations] number of random trials [default:0].
+   -t [num iterations] number of iterations for page rank random.
+   -e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001].
+   -c: convert to bin file on load example:-f <graph file> -c.
+   -u: create undirected on load => check graphConfig.h -> define DIRECTED 0 then recompile.
+   -w: weighted input graph check graphConfig.h ->define WEIGHTED 1 then recompile.
+   -s: symmetric graph, if not given set of incoming edges will be created . 
+```
 
 ### Development
 

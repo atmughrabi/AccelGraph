@@ -265,19 +265,20 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 	$(CAPI) \
 	$(CFLAGS) \
 
+# Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w].
+#   -a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP.
+#   -d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List [4-5] same order bitmap frontiers.
+#   -r [root]: BFS & SSSP root.
+#   -p [algorithm direction] 0 push 1 pull 2 push/pull.
+#   -n [num threads] default:max number of threads the system has.
+#   -i [num iterations] number of random trials [default:0].
+#   -t [num iterations] number of iterations for page rank random.
+#   -e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001].
+#   -c: convert to bin file on load example:-f <graph file> -c.
+#   -u: create undirected on load => check graphConfig.h -> define DIRECTED 0 then recompile.
+#   -w: weighted input graph check graphConfig.h ->define WEIGHTED 1 then recompile.
+#   -s: symmetric graph, if not given set of incoming edges will be created . 
 
-# "Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w]
-  # "-a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP
-  # "-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List
-  # "-r [root]: BFS & SSSP root
-  # "-n [num threads] default:max number of threads the system has
-  # "-i [num iterations] number of random trials [default:0]
-  # "-t [num iterations] number of iterations for page rank random
-  # "-e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001]
-  # "-c: convert from txt to bin file on load example:-f <graph file> -c
-  # "-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile
-  # "-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile
-  # "-s: symmetric graph, if not given set of incoming edges will be created
 
 #app command line arguments
 # fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
