@@ -17,7 +17,7 @@ struct  GraphAdjLinkedList
 	__u32 processed_nodes;
 	
 	int * parents;
-	struct AdjLinkedList* parent_array;
+	struct AdjLinkedList* vertices;
 	
 };
 

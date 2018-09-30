@@ -37,7 +37,7 @@ void graphAdjArrayListReset(struct GraphAdjArrayList* graphAdjArrayList){
     //         vertices = graph->vertices;
     //     }
     // #else
-            vertices = graphAdjArrayList->parent_array;
+            vertices = graphAdjArrayList->vertices;
     // #endif
 
     graphAdjArrayList->iteration = 0;
@@ -67,11 +67,11 @@ struct GraphAdjArrayList* graphAdjArrayListGraphNew(__u32 V){
     #endif
 
 	graphAdjArrayList->num_vertices = V;
-	// graphAdjArrayList->parent_array = (struct AdjArrayList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjArrayList));
+	// graphAdjArrayList->vertices = (struct AdjArrayList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjArrayList));
     #if ALIGNED
-        graphAdjArrayList->parent_array = (struct AdjArrayList*) my_aligned_malloc( V * sizeof(struct AdjArrayList));
+        graphAdjArrayList->vertices = (struct AdjArrayList*) my_aligned_malloc( V * sizeof(struct AdjArrayList));
     #else
-        graphAdjArrayList->parent_array = (struct AdjArrayList*) my_malloc( V * sizeof(struct AdjArrayList));
+        graphAdjArrayList->vertices = (struct AdjArrayList*) my_malloc( V * sizeof(struct AdjArrayList));
     #endif
 
     #if ALIGNED
@@ -84,17 +84,17 @@ struct GraphAdjArrayList* graphAdjArrayListGraphNew(__u32 V){
 	__u32 i;
 	for(i = 0; i < V; i++){
 
-        graphAdjArrayList->parent_array[i].visited = 0;
-		graphAdjArrayList->parent_array[i].outNodes = NULL;
-        graphAdjArrayList->parent_array[i].out_degree = 0;
+        graphAdjArrayList->vertices[i].visited = 0;
+		graphAdjArrayList->vertices[i].outNodes = NULL;
+        graphAdjArrayList->vertices[i].out_degree = 0;
         graphAdjArrayList->parents[i] = -1; 
 
         #if DIRECTED
-            graphAdjArrayList->parent_array[i].inNodes = NULL; 
-            graphAdjArrayList->parent_array[i].in_degree = 0;
+            graphAdjArrayList->vertices[i].inNodes = NULL; 
+            graphAdjArrayList->vertices[i].in_degree = 0;
         #endif
 
-        graphAdjArrayList->parent_array[i].visited = 0;
+        graphAdjArrayList->vertices[i].visited = 0;
 	}
 
     graphAdjArrayList->iteration = 0;
@@ -194,9 +194,9 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeListProcessInOutDegree(struct Gra
 
         #if DIRECTED
             dest = edgeList->edges_array[i].dest;
-            graphAdjArrayList->parent_array[dest].in_degree++;
+            graphAdjArrayList->vertices[dest].in_degree++;
         #endif
-            graphAdjArrayList->parent_array[src].out_degree++;
+            graphAdjArrayList->vertices[src].out_degree++;
     
     }
 
@@ -212,7 +212,7 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeListProcessOutDegree(struct Graph
     for(i = 0; i < edgeList->num_edges; i++){
 
         src =  edgeList->edges_array[i].src;
-        graphAdjArrayList->parent_array[src].out_degree++;
+        graphAdjArrayList->vertices[src].out_degree++;
     
     
     }
@@ -230,7 +230,7 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeListProcessInDegree(struct GraphA
     for(i = 0; i < inverseEdgeList->num_edges; i++){
 
         dest =  inverseEdgeList->edges_array[i].src;
-        graphAdjArrayList->parent_array[dest].in_degree++;
+        graphAdjArrayList->vertices[dest].in_degree++;
     
     }
 
@@ -246,12 +246,12 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeAllocate(struct GraphAdjArrayList
      __u32 v;
     for(v = 0; v < graphAdjArrayList->num_vertices; v++){
 
-        adjArrayListCreateNeighbourList(&(graphAdjArrayList->parent_array[v]));
+        adjArrayListCreateNeighbourList(&(graphAdjArrayList->vertices[v]));
 
         #if DIRECTED
-              graphAdjArrayList->parent_array[v].in_degree =  0;
+              graphAdjArrayList->vertices[v].in_degree =  0;
         #endif
-        graphAdjArrayList->parent_array[v].out_degree = 0; // will be used as an index to edge array outnode
+        graphAdjArrayList->vertices[v].out_degree = 0; // will be used as an index to edge array outnode
     
     }
 
@@ -280,15 +280,15 @@ struct GraphAdjArrayList* graphAdjArrayListEdgePopulate(struct GraphAdjArrayList
         src =  edgeList->edges_array[i].src;
         
                  
-        out_degree = graphAdjArrayList->parent_array[src].out_degree;
-        graphAdjArrayList->parent_array[src].outNodes[out_degree] = edgeList->edges_array[i];
-        graphAdjArrayList->parent_array[src].out_degree++;
+        out_degree = graphAdjArrayList->vertices[src].out_degree;
+        graphAdjArrayList->vertices[src].outNodes[out_degree] = edgeList->edges_array[i];
+        graphAdjArrayList->vertices[src].out_degree++;
 
         #if DIRECTED
             dest = edgeList->edges_array[i].dest;
-            in_degree = graphAdjArrayList->parent_array[dest].in_degree;
-            graphAdjArrayList->parent_array[dest].inNodes[in_degree] = edgeList->edges_array[i];
-            graphAdjArrayList->parent_array[dest].in_degree++;
+            in_degree = graphAdjArrayList->vertices[dest].in_degree;
+            graphAdjArrayList->vertices[dest].inNodes[in_degree] = edgeList->edges_array[i];
+            graphAdjArrayList->vertices[dest].in_degree++;
         #endif  
             
     
@@ -310,9 +310,9 @@ struct GraphAdjArrayList* graphAdjArrayListEdgePopulateOutNodes(struct GraphAdjA
 
         src =  edgeList->edges_array[i].src;
                  
-        out_degree = graphAdjArrayList->parent_array[src].out_degree;
-        graphAdjArrayList->parent_array[src].outNodes[out_degree] = edgeList->edges_array[i];
-        graphAdjArrayList->parent_array[src].out_degree++;  
+        out_degree = graphAdjArrayList->vertices[src].out_degree;
+        graphAdjArrayList->vertices[src].outNodes[out_degree] = edgeList->edges_array[i];
+        graphAdjArrayList->vertices[src].out_degree++;  
     
     }
 
@@ -331,9 +331,9 @@ struct GraphAdjArrayList* graphAdjArrayListEdgePopulateInNodes(struct GraphAdjAr
     for(i = 0; i < inverseEdgeList->num_edges; i++){
 
             dest = inverseEdgeList->edges_array[i].src;
-            in_degree = graphAdjArrayList->parent_array[dest].in_degree;
-            graphAdjArrayList->parent_array[dest].inNodes[in_degree] = inverseEdgeList->edges_array[i];
-            graphAdjArrayList->parent_array[dest].in_degree++;
+            in_degree = graphAdjArrayList->vertices[dest].in_degree;
+            graphAdjArrayList->vertices[dest].inNodes[in_degree] = inverseEdgeList->edges_array[i];
+            graphAdjArrayList->vertices[dest].in_degree++;
     
     }
 
@@ -373,7 +373,7 @@ void graphAdjArrayListPrint(struct GraphAdjArrayList* graphAdjArrayList){
     // __u32 v;
     // for (v = 0; v < graphAdjArrayList->num_vertices; v++){
 
-    //     pCrawl = &(graphAdjArrayList->parent_array[v]);
+    //     pCrawl = &(graphAdjArrayList->vertices[v]);
     //     if(pCrawl){
 
     //         printf("\n Node : %d \n", v);
@@ -392,7 +392,7 @@ void graphAdjArrayListFree(struct GraphAdjArrayList* graphAdjArrayList){
 
     for (v = 0; v < graphAdjArrayList->num_vertices; ++v)
     {
-        pCrawl = &(graphAdjArrayList->parent_array[v]);
+        pCrawl = &(graphAdjArrayList->vertices[v]);
         
         freeEdgeArray(pCrawl->outNodes);
         #if DIRECTED
@@ -402,7 +402,7 @@ void graphAdjArrayListFree(struct GraphAdjArrayList* graphAdjArrayList){
     }
 
     free(graphAdjArrayList->parents);
-    free(graphAdjArrayList->parent_array);
+    free(graphAdjArrayList->vertices);
     free(graphAdjArrayList);
 
 

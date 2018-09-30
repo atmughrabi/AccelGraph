@@ -43,7 +43,7 @@ struct  AdjLinkedList {
 // {
 // 	__u32 num_vertices;
 // 	__u32 num_edges;
-// 	struct AdjLinkedList* parent_array;
+// 	struct AdjLinkedList* vertices;
 	
 // };
 

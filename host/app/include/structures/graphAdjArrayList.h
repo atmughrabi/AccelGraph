@@ -43,7 +43,7 @@ struct  GraphAdjArrayList
 	__u32 iteration;
 	__u32 processed_nodes;
 	int* parents;
-	struct AdjArrayList* parent_array;
+	struct AdjArrayList* vertices;
 
 	
 };

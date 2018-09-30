@@ -22,7 +22,7 @@ void graphAdjLinkedListReset(struct GraphAdjLinkedList* graphAdjLinkedList){
     //         vertices = graph->vertices;
     //     }
     // #else
-            vertices = graphAdjLinkedList->parent_array;
+            vertices = graphAdjLinkedList->vertices;
     // #endif
 
     graphAdjLinkedList->iteration = 0;
@@ -52,25 +52,25 @@ struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V){
     #endif
 
 	graphAdjLinkedList->num_vertices = V;
-	// graphAdjLinkedList->parent_array = (struct AdjLinkedList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjLinkedList));
+	// graphAdjLinkedList->vertices = (struct AdjLinkedList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjLinkedList));
     #if ALIGNED
-        graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_aligned_malloc( V * sizeof(struct AdjLinkedList));
+        graphAdjLinkedList->vertices = (struct AdjLinkedList*) my_aligned_malloc( V * sizeof(struct AdjLinkedList));
     #else
-        graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_malloc( V * sizeof(struct AdjLinkedList));
+        graphAdjLinkedList->vertices = (struct AdjLinkedList*) my_malloc( V * sizeof(struct AdjLinkedList));
     #endif
 
 	__u32 i;
 	for(i = 0; i < V; i++){
 
-		 graphAdjLinkedList->parent_array[i].outNodes = NULL;
-        graphAdjLinkedList->parent_array[i].out_degree = 0; 
+		 graphAdjLinkedList->vertices[i].outNodes = NULL;
+        graphAdjLinkedList->vertices[i].out_degree = 0; 
 
         #if DIRECTED
-            graphAdjLinkedList->parent_array[i].inNodes = NULL; 
-            graphAdjLinkedList->parent_array[i].in_degree = 0;
+            graphAdjLinkedList->vertices[i].inNodes = NULL; 
+            graphAdjLinkedList->vertices[i].in_degree = 0;
         #endif
 
-        graphAdjLinkedList->parent_array[i].visited = 0;
+        graphAdjLinkedList->vertices[i].visited = 0;
 	}
 
      graphAdjLinkedList->iteration = 0;
@@ -93,12 +93,12 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
 
     graphAdjLinkedList->num_vertices = edgeList->num_vertices;
     graphAdjLinkedList->num_edges = edgeList->num_edges;
-    // graphAdjLinkedList->parent_array = (struct AdjLinkedList*) aligned_alloc(CACHELINE_BYTES, graphAdjLinkedList->V * sizeof(struct AdjLinkedList));
+    // graphAdjLinkedList->vertices = (struct AdjLinkedList*) aligned_alloc(CACHELINE_BYTES, graphAdjLinkedList->V * sizeof(struct AdjLinkedList));
 
     #if ALIGNED
-        graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_aligned_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
+        graphAdjLinkedList->vertices = (struct AdjLinkedList*) my_aligned_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
     #else
-        graphAdjLinkedList->parent_array = (struct AdjLinkedList*) my_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
+        graphAdjLinkedList->vertices = (struct AdjLinkedList*) my_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
     #endif
 
     #if ALIGNED
@@ -113,15 +113,15 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
 
         graphAdjLinkedList->parents[i] = -1; 
 
-        graphAdjLinkedList->parent_array[i].outNodes = NULL;
-        graphAdjLinkedList->parent_array[i].out_degree = 0; 
+        graphAdjLinkedList->vertices[i].outNodes = NULL;
+        graphAdjLinkedList->vertices[i].out_degree = 0; 
 
         #if DIRECTED
-            graphAdjLinkedList->parent_array[i].inNodes = NULL; 
-            graphAdjLinkedList->parent_array[i].in_degree = 0;
+            graphAdjLinkedList->vertices[i].inNodes = NULL; 
+            graphAdjLinkedList->vertices[i].in_degree = 0;
         #endif
 
-        graphAdjLinkedList->parent_array[i].visited = 0;
+        graphAdjLinkedList->vertices[i].visited = 0;
     }   
 
 
@@ -174,8 +174,8 @@ void graphAdjLinkedListPrint(struct GraphAdjLinkedList* graphAdjLinkedList){
 	// __u32 v;
  //    for (v = 0; v < graphAdjLinkedList->num_vertices; ++v)
  //    {
- //        struct AdjLinkedListNode* pCrawl = graphAdjLinkedList->parent_array[v].outNodes;
- //        printf("\n Adjacency list of vertex %d\n  out_degree: %d \n", v, graphAdjLinkedList->parent_array[v].out_degree);
+ //        struct AdjLinkedListNode* pCrawl = graphAdjLinkedList->vertices[v].outNodes;
+ //        printf("\n Adjacency list of vertex %d\n  out_degree: %d \n", v, graphAdjLinkedList->vertices[v].out_degree);
  //        while (pCrawl)
  //        {
  //            printf("-> %d", pCrawl->dest);
@@ -185,8 +185,8 @@ void graphAdjLinkedListPrint(struct GraphAdjLinkedList* graphAdjLinkedList){
 
 
  //        #if DIRECTED
-	//         pCrawl = graphAdjLinkedList->parent_array[v].inNodes;
-	//         printf("\n Adjacency list of vertex %d\n  in_degree: %d \n", v, graphAdjLinkedList->parent_array[v].in_degree);
+	//         pCrawl = graphAdjLinkedList->vertices[v].inNodes;
+	//         printf("\n Adjacency list of vertex %d\n  in_degree: %d \n", v, graphAdjLinkedList->vertices[v].in_degree);
 	//         while (pCrawl)
 	//         {
 	//             printf("<- %d", pCrawl->dest);
@@ -207,8 +207,8 @@ void graphAdjLinkedListFree(struct GraphAdjLinkedList* graphAdjLinkedList){
 
     for (v = 0; v < graphAdjLinkedList->num_vertices; ++v)
     {
-        pCrawl = graphAdjLinkedList->parent_array[v].outNodes;
-        pFree  = graphAdjLinkedList->parent_array[v].outNodes;
+        pCrawl = graphAdjLinkedList->vertices[v].outNodes;
+        pFree  = graphAdjLinkedList->vertices[v].outNodes;
 
         while (pCrawl)
         {
@@ -220,8 +220,8 @@ void graphAdjLinkedListFree(struct GraphAdjLinkedList* graphAdjLinkedList){
         }
 
          #if DIRECTED
-	        pCrawl = graphAdjLinkedList->parent_array[v].inNodes;
-	        pFree  = graphAdjLinkedList->parent_array[v].inNodes;
+	        pCrawl = graphAdjLinkedList->vertices[v].inNodes;
+	        pFree  = graphAdjLinkedList->vertices[v].inNodes;
 
 	        while (pCrawl)
 	        {
@@ -236,7 +236,7 @@ void graphAdjLinkedListFree(struct GraphAdjLinkedList* graphAdjLinkedList){
     }
 
     free(graphAdjLinkedList->parents);
-    free(graphAdjLinkedList->parent_array);
+    free(graphAdjLinkedList->vertices);
     free(graphAdjLinkedList);
 
 
@@ -251,23 +251,23 @@ void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedLis
     // added to the adjacency list of src.  The node
     // is added at the begining
     struct AdjLinkedListNode* newNode = newAdjLinkedListOutNode(edge);
-    newNode->next = graphAdjLinkedList->parent_array[edge->src].outNodes;
-    graphAdjLinkedList->parent_array[edge->src].out_degree++;
-    graphAdjLinkedList->parent_array[edge->src].visited = 0;
-    graphAdjLinkedList->parent_array[edge->src].outNodes = newNode;
+    newNode->next = graphAdjLinkedList->vertices[edge->src].outNodes;
+    graphAdjLinkedList->vertices[edge->src].out_degree++;
+    graphAdjLinkedList->vertices[edge->src].visited = 0;
+    graphAdjLinkedList->vertices[edge->src].outNodes = newNode;
     #if WEIGHTED
-        graphAdjLinkedList->parent_array[edge->src].weight = edge->weight;
+        graphAdjLinkedList->vertices[edge->src].weight = edge->weight;
     #endif
 
     // Since graphAdjLinkedList is undirected, add an edge from
     // dest to src also
     newNode = newAdjLinkedListInNode(edge);
-    newNode->next = graphAdjLinkedList->parent_array[edge->dest].outNodes;
-    graphAdjLinkedList->parent_array[edge->dest].out_degree++;  
-    graphAdjLinkedList->parent_array[edge->dest].visited = 0;
-    graphAdjLinkedList->parent_array[edge->dest].outNodes = newNode;
+    newNode->next = graphAdjLinkedList->vertices[edge->dest].outNodes;
+    graphAdjLinkedList->vertices[edge->dest].out_degree++;  
+    graphAdjLinkedList->vertices[edge->dest].visited = 0;
+    graphAdjLinkedList->vertices[edge->dest].outNodes = newNode;
     #if WEIGHTED
-        graphAdjLinkedList->parent_array[edge->dest].weight = edge->weight;
+        graphAdjLinkedList->vertices[edge->dest].weight = edge->weight;
     #endif
 
 }
@@ -278,23 +278,23 @@ void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList,
     // added to the adjacency list of src.  The node
     // is added at the begining
     struct AdjLinkedListNode* newNode = newAdjLinkedListOutNode(edge);
-    newNode->next = graphAdjLinkedList->parent_array[edge->src].outNodes;
-    graphAdjLinkedList->parent_array[edge->src].out_degree++;  
-    graphAdjLinkedList->parent_array[edge->src].visited = 0;   
-    graphAdjLinkedList->parent_array[edge->src].outNodes = newNode;
+    newNode->next = graphAdjLinkedList->vertices[edge->src].outNodes;
+    graphAdjLinkedList->vertices[edge->src].out_degree++;  
+    graphAdjLinkedList->vertices[edge->src].visited = 0;   
+    graphAdjLinkedList->vertices[edge->src].outNodes = newNode;
     #if WEIGHTED
-        graphAdjLinkedList->parent_array[edge->src].weight = weight;
+        graphAdjLinkedList->vertices[edge->src].weight = weight;
     #endif
 
     #if DIRECTED
         newNode = newAdjLinkedListInNode(edge);
-        newNode->next = graphAdjLinkedList->parent_array[edge->dest].inNodes;
-        graphAdjLinkedList->parent_array[edge->dest].in_degree++;  
-        graphAdjLinkedList->parent_array[edge->dest].visited = 0;  
-        graphAdjLinkedList->parent_array[edge->dest].inNodes = newNode;
+        newNode->next = graphAdjLinkedList->vertices[edge->dest].inNodes;
+        graphAdjLinkedList->vertices[edge->dest].in_degree++;  
+        graphAdjLinkedList->vertices[edge->dest].visited = 0;  
+        graphAdjLinkedList->vertices[edge->dest].inNodes = newNode;
 
          #if WEIGHTED
-            graphAdjLinkedList->parent_array[edge->dest].weight = edge->weight;
+            graphAdjLinkedList->vertices[edge->dest].weight = edge->weight;
         #endif
     #endif
 

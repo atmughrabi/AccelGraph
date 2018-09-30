@@ -177,7 +177,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
               while(1){
                 root = genrand_int32();
                   if(root < graphAdjLinkedList->num_vertices){
-                    if(graphAdjLinkedList->parent_array[root].out_degree > 0)
+                    if(graphAdjLinkedList->vertices[root].out_degree > 0)
                      break;
                   }
               }
@@ -201,7 +201,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
               while(1){
                 root = genrand_int32();
                   if(root < graphAdjArrayList->num_vertices){
-                    if(graphAdjArrayList->parent_array[root].out_degree > 0)
+                    if(graphAdjArrayList->vertices[root].out_degree > 0)
                      break;
                   }
               }

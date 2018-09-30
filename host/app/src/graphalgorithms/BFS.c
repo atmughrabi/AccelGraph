@@ -894,7 +894,7 @@ void breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList*
 
 	__u32 P = numThreads;
 	__u32 mu = graph->num_edges; // number of edges to check from sharedFrontierQueue
-	__u32 mf = graph->parent_array[source].out_degree; // number of edges from unexplored verticies
+	__u32 mf = graph->vertices[source].out_degree; // number of edges from unexplored verticies
 	__u32 nf = 0; // number of vertices in sharedFrontierQueue
 	__u32 nf_prev = 0; // number of vertices in sharedFrontierQueue
 	__u32 n = graph->num_vertices; // number of nodes
@@ -1048,8 +1048,8 @@ __u32 topDownStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct Array
 		for(i = sharedFrontierQueue->head ; i < sharedFrontierQueue->tail; i++){
 			v = sharedFrontierQueue->queue[i];
 		// v = deArrayQueue(sharedFrontierQueue);
-			outNodes = graph->parent_array[v].outNodes;
-			out_degree = graph->parent_array[v].out_degree;
+			outNodes = graph->vertices[v].outNodes;
+			out_degree = graph->vertices[v].out_degree;
 
 	    	for(j = 0 ; j < out_degree ; j++){
 	         
@@ -1106,11 +1106,11 @@ __u32 bottomUpStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct Bitm
 		if(graph->parents[v] < 0){ // optmization
 
 			#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
-				Nodes = graph->parent_array[v].inNodes;
-				degree = graph->parent_array[v].in_degree;
+				Nodes = graph->vertices[v].inNodes;
+				degree = graph->vertices[v].in_degree;
 			#else
-				Nodes = graph->parent_array[v].outNodes;
-				degree = graph->parent_array[v].out_degree;
+				Nodes = graph->vertices[v].outNodes;
+				degree = graph->vertices[v].out_degree;
 			#endif
 			
     		for(j = 0 ; j < (degree) ; j++){
@@ -1154,7 +1154,7 @@ void breadthFirstSearchGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedLis
 
 	__u32 P = numThreads;
 	__u32 mu = graph->num_edges; // number of edges to check from sharedFrontierQueue
-	__u32 mf = graph->parent_array[source].out_degree; // number of edges from unexplored verticies
+	__u32 mf = graph->vertices[source].out_degree; // number of edges from unexplored verticies
 	__u32 nf = 0; // number of vertices in sharedFrontierQueue
 	__u32 nf_prev = 0; // number of vertices in sharedFrontierQueue
 	__u32 n = graph->num_vertices; // number of nodes
@@ -1308,8 +1308,8 @@ __u32 topDownStepGraphAdjLinkedList(struct GraphAdjLinkedList* graph, struct Arr
 		for(i = sharedFrontierQueue->head ; i < sharedFrontierQueue->tail; i++){
 			v = sharedFrontierQueue->queue[i];
 		// v = deArrayQueue(sharedFrontierQueue);
-			outNodes = graph->parent_array[v].outNodes;
-			out_degree = graph->parent_array[v].out_degree;
+			outNodes = graph->vertices[v].outNodes;
+			out_degree = graph->vertices[v].out_degree;
 
 	    	for(j = 0 ; j < out_degree ; j++){
 	         
@@ -1368,11 +1368,11 @@ __u32 bottomUpStepGraphAdjLinkedList(struct GraphAdjLinkedList* graph, struct Bi
 		if(graph->parents[v] < 0){ // optmization
 
 			#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
-				Nodes = graph->parent_array[v].inNodes;
-				degree = graph->parent_array[v].in_degree;
+				Nodes = graph->vertices[v].inNodes;
+				degree = graph->vertices[v].in_degree;
 			#else
-				Nodes = graph->parent_array[v].outNodes;
-				degree = graph->parent_array[v].out_degree;
+				Nodes = graph->vertices[v].outNodes;
+				degree = graph->vertices[v].out_degree;
 			#endif
 			
     		for(j = 0 ; j < (degree) ; j++){
