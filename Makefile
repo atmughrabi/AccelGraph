@@ -282,18 +282,18 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 
 #app command line arguments
 # fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
-# root = -1
+root = -1
 
 
 # fnameb = "host/app/datasets/test/test.txt.bin"
 # root  = 6
 
 fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
-root = 107
+# root = 107
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 0
+datastructure = 2
 algorithm = 0
 numThreads  = 16
 iterations = 4

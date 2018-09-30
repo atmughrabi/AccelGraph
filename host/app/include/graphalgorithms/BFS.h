@@ -8,11 +8,6 @@
 #include "graphAdjLinkedList.h"
 
 
-
-void resetParentArray(int* parents, __u32 V);
-void bfs(__u32 source, struct GraphCSR* graph);
-
-
 void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph);
 void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid* graph, struct ArrayQueue* sharedFrontierQueue, struct ArrayQueue** localFrontierQueues);
 void breadthFirstSearchPartitionGraphGrid(struct GraphGrid* graph,struct Partition* partition,struct ArrayQueue* sharedFrontierQueue, struct ArrayQueue* localFrontierQueue);

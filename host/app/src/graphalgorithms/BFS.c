@@ -18,15 +18,7 @@
 
 
 
-void resetParentArray(int* parents, __u32 V){
 
-	__u32 i;
-	 for(i = 0; i < V; i++){
-                parents[i] = -1;
-     }
-
-
-}
 
 // breadth-first-search(graph, source)
 // 	sharedFrontierQueue ← {source}
@@ -160,7 +152,6 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 	printf(" -----------------------------------------------------\n");
 
 	graphCSRReset(graph);
-	// resetParentArray(graph->parents, graph->num_vertices);
 	for(i=0 ; i < P ; i++){
 		freeArrayQueue(localFrontierQueues[i]);		
    	}
@@ -407,8 +398,7 @@ void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR* graph
 	printf("| %-15s | %-15u | %-15f | \n","total", graph->processed_nodes, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
-	// graphCSRReset(graph);
-	// resetParentArray(graph->parents, graph->num_vertices);
+	
 	freeArrayQueue(sharedFrontierQueue);
 	free(timer);
 	free(timer_inner);
@@ -582,7 +572,6 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 	printf("| %-15s | %-15u | %-15f | \n","**", sharedFrontierQueue->tail_next, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
-	resetParentArray(graph->parents, graph->num_vertices);
 	freeArrayQueue(sharedFrontierQueue);
 	for(i=0 ; i < P ; i++){
 		freeArrayQueue(localFrontierQueues[i]);
@@ -790,7 +779,7 @@ void breadthFirstSearchGraphGridBitmap(__u32 source, struct GraphGrid* graph){
 	printf("| %-15s | %-15u | %-15f | \n","**", total_processed_nodes, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
-	resetParentArray(graph->parents, graph->num_vertices);
+	
 	freeBitmap(FrontierBitmapCurr);
 	freeBitmap(FrontierBitmapNext);
 	free(timer_iteration);
@@ -1001,8 +990,7 @@ void breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList*
 	printf("| %-15s | %-15u | %-15f | \n","total", graph->processed_nodes, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
-	graphAdjArrayListReset(graph);
-	// resetParentArray(graph->parents, graph->num_vertices);
+	
 	for(i=0 ; i < P ; i++){
 		freeArrayQueue(localFrontierQueues[i]);		
    	}
@@ -1261,8 +1249,7 @@ void breadthFirstSearchGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedLis
 	printf("| %-15s | %-15u | %-15f | \n","total", graph->processed_nodes, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
-	graphAdjLinkedListReset(graph);
-	// resetParentArray(graph->parents, graph->num_vertices);
+	
 	for(i=0 ; i < P ; i++){
 		freeArrayQueue(localFrontierQueues[i]);		
    	}
