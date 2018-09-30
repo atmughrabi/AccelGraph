@@ -11,7 +11,33 @@
 #include "adjLinkedList.h"
 #include "timer.h"
 
+void graphAdjLinkedListReset(struct GraphAdjLinkedList* graphAdjLinkedList){
 
+     struct AdjLinkedList* vertices;
+    __u32 vertex_id;
+    // #if DIRECTED
+    //     if(inverse){
+    //         vertices = graph->inverse_vertices; // sorted edge array
+    //     }else{
+    //         vertices = graph->vertices;
+    //     }
+    // #else
+            vertices = graphAdjLinkedList->parent_array;
+    // #endif
+
+    graphAdjLinkedList->iteration = 0;
+    graphAdjLinkedList->processed_nodes = 0;
+
+    #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graphAdjLinkedList)
+    for(vertex_id = 0; vertex_id < graphAdjLinkedList->num_vertices ; vertex_id++){
+                if(vertices[vertex_id].out_degree)
+                    graphAdjLinkedList->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
+                else
+                    graphAdjLinkedList->parents[vertex_id] = -1;
+     }
+
+
+}
 
 // A utility function that creates a graphAdjLinkedList of V vertices
 struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V){

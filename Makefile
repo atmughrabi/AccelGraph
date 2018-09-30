@@ -280,32 +280,34 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
   # "-s: symmetric graph, if not given set of incoming edges will be created
 
 #app command line arguments
-fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
-root = 428333
+# fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
+# root = -1
 
 
 # fnameb = "host/app/datasets/test/test.txt.bin"
 # root  = 6
 
-# fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
-# root = 107
+fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
+root = 107
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
 datastructure = 0
-algorithm = 1
+algorithm = 0
 numThreads  = 16
-iterations = 0
+iterations = 4
 tolerance = 0.0001
 
 run: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
 	
 run-bfs: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -i $(iterations)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 0 -n $(numThreads) -i $(iterations)
-	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 0 -n $(numThreads) -i $(iterations)
-	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 4 -a 0 -n $(numThreads) -i $(iterations)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -i $(iterations) #CSR with Qs
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 0 -n $(numThreads) -i $(iterations) #Grid with Qs
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 2 -a 0 -n $(numThreads) -i $(iterations) #Linked list
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 0 -n $(numThreads) -i $(iterations) #Linked array
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 4 -a 0 -n $(numThreads) -i $(iterations) #CSR with bitmap
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 5 -a 0 -n $(numThreads) -i $(iterations) #Grid with bitmaps
 
 run-pr: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance)

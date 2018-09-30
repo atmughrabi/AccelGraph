@@ -84,7 +84,7 @@ void   graphGridResetActivePartitions(struct Grid *grid){
 
 void   graphGridResetActivePartitionsMap(struct Grid *grid){
 
-    reset(grid->activePartitionsMap);
+    clearBitmap(grid->activePartitionsMap);
     
     }
 
@@ -238,10 +238,13 @@ struct Grid * gridPartitionSizePreprocessing(struct Grid *grid, struct EdgeList*
 		col = getPartitionID(num_vertices, num_partitions, dest);
         Partition_idx= (row*num_partitions)+col;
 
+
+        // __sync_fetch_and_add(&grid->partitions[Partition_idx].num_edges,1);
+        
         omp_set_lock(&(lock[Partition_idx]));
         {
-		grid->partitions[Partition_idx].num_edges++;
-		grid->partitions[Partition_idx].num_vertices = maxTwoIntegers(grid->partitions[Partition_idx].num_vertices,maxTwoIntegers(src, dest));
+    		grid->partitions[Partition_idx].num_edges++;
+    		grid->partitions[Partition_idx].num_vertices = maxTwoIntegers(grid->partitions[Partition_idx].num_vertices,maxTwoIntegers(src, dest));
         }
         omp_unset_lock((&lock[Partition_idx]));
 
@@ -345,7 +348,7 @@ __u32 gridCalculatePartitions(struct EdgeList* edgeList){
 
 
 
-__u32 getPartitionID(__u32 vertices, __u32 partitions, __u32 vertex_id) {
+inline __u32 getPartitionID(__u32 vertices, __u32 partitions, __u32 vertex_id) {
         
         __u32 partition_size = vertices / partitions;
 

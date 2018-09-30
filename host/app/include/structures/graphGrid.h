@@ -24,6 +24,7 @@ struct  GraphGrid {
 
 };
 
+void  graphGridReset(struct GraphGrid *graphGrid);
 void  graphGridPrint(struct GraphGrid *graphGrid);
 struct GraphGrid * graphGridNew(struct EdgeList* edgeList);
 void   graphGridFree(struct GraphGrid *graphGrid);

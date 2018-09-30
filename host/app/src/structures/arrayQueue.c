@@ -121,7 +121,7 @@ void slideWindowArrayQueueBitmap (struct ArrayQueue *q){
 	q->head = q->tail;
 	q->tail = q->tail_next;
 	swapBitmaps(&q->q_bitmap, &q->q_bitmap_next);
-	reset(q->q_bitmap_next);
+	clearBitmap(q->q_bitmap_next);
 
 }
 

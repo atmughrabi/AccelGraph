@@ -40,7 +40,7 @@ void freeBitmap( struct Bitmap* bitmap){
 	
 }
 
-void reset(struct Bitmap* bitmap){
+void clearBitmap(struct Bitmap* bitmap){
 
 	 memset(bitmap->bitarray, 0, (sizeof(__u32)*((bitmap->size+kBitsPerWord - 1)/kBitsPerWord)));
 
@@ -155,7 +155,7 @@ __u32 getNumOfSetBits (struct Bitmap* bitmap){
 	__u32 i;
 	__u32 numSetBits = 0;
 
-	#pragma omp parallel for reduction(+:numSetBits)
+	#pragma omp parallel for reduction(+:numSetBits) schedule(dynamic,256)
 	for(i= 0 ; i < (bitmap->size); i++){
 		if(getBit(bitmap, i))
 			numSetBits++;

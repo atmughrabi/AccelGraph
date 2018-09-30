@@ -37,7 +37,7 @@ __u32 topDownStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct Array
 
 
 void breadthFirstSearchGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedList* graph);
-__u32 bottomUpStepGraphAdjLinkedList(struct GraphAdjLinkedList* graph, struct ArrayQueue* sharedFrontierQueue);
-__u32 topDownStepGraphAdjLinkedList(struct GraphAdjLinkedList* graph, struct ArrayQueue* sharedFrontierQueue);
+__u32 bottomUpStepGraphAdjLinkedList(struct GraphAdjLinkedList* graph, struct Bitmap* bitmapCurr, struct Bitmap* bitmapNext);
+__u32 topDownStepGraphAdjLinkedList(struct GraphAdjLinkedList* graph, struct ArrayQueue* sharedFrontierQueue,  struct ArrayQueue** localFrontierQueues);
 
 #endif

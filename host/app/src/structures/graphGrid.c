@@ -15,6 +15,22 @@
 #include "timer.h"
 
 
+void  graphGridReset(struct GraphGrid *graphGrid){
+
+  __u32 i;
+  graphGrid->iteration = 0;
+  graphGrid->processed_nodes = 0;
+
+
+  #pragma omp parallel for default(none) shared(graphGrid) private(i)
+  for(i = 0; i < graphGrid->num_vertices; i++){
+        graphGrid->parents[i] = -1;
+  }
+
+  graphGridResetActivePartitionsMap(graphGrid->grid);
+
+}
+
 void  graphGridPrint(struct GraphGrid *graphGrid){
 
 

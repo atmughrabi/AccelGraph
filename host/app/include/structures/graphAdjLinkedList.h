@@ -25,6 +25,7 @@ struct  GraphAdjLinkedList
 // A utility function that creates a GraphAdjLinkedList of V vertices
 struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V);
 struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeList);
+void graphAdjLinkedListReset(struct GraphAdjLinkedList* graphAdjLinkedList);
 void graphAdjLinkedListPrint(struct GraphAdjLinkedList* graphAdjLinkedList);
 void graphAdjLinkedListFree(struct GraphAdjLinkedList* graphAdjLinkedList);
 void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge);
@@ -33,6 +34,5 @@ void   graphAdjLinkedListPrintMessageWithtime(const char * msg, double time);
 struct GraphAdjLinkedList* graphAdjLinkedListPreProcessingStep (const char * fnameb);
 
 #endif
-
 
 

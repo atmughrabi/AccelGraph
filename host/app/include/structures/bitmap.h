@@ -24,7 +24,7 @@ struct  Bitmap
 };
 
 struct Bitmap* newBitmap( __u32 size);
-void reset(struct Bitmap* bitmap);
+void clearBitmap(struct Bitmap* bitmap);
 void setBit(struct Bitmap* bitmap, __u32 pos);
 void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end);
 void setBitAtomic(struct Bitmap* bitmap, __u32 pos);
