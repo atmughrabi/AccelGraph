@@ -16,6 +16,7 @@ static void usage(void) {
   printf("\t-a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP\n");
   printf("\t-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List [4-5] same order bitmap frontiers\n");
   printf("\t-r [root]: BFS & SSSP root\n");
+  printf("\t-p [algorithm direction] 0 push 1 pull 2 push/pull\n");
   printf("\t-n [num threads] default:max number of threads the system has\n");
   printf("\t-i [num iterations] number of random trials [default:0]\n");
   printf("\t-t [num iterations] number of iterations for page rank random\n");
@@ -42,6 +43,7 @@ int main (int argc, char **argv)
   char *ivalue = NULL;
   char *tvalue = NULL;
   char *evalue = NULL;
+  char *pvalue = NULL;
 
   int iterations = 0;
   int trials = 20;
@@ -49,6 +51,7 @@ int main (int argc, char **argv)
   int root = -1;
   int algorithm = 0;
   int datastructure = 0;
+  int pushpull = 0;
   numThreads = omp_get_max_threads();
 
   char *fnameb = NULL;
@@ -97,6 +100,10 @@ int main (int argc, char **argv)
         evalue = optarg;
         epsilon = atof(evalue);
         break;
+      case 'p':
+        pvalue = optarg;
+        pushpull = atof(pvalue);
+        break;
       case 'u':
         uflag = 1;
         break;
@@ -126,6 +133,8 @@ int main (int argc, char **argv)
           fprintf (stderr, "Option -%c [num trials] requires an argument.\n", optopt);
         else if (optopt == 'e')
           fprintf (stderr, "Option -%c [epsilon] requires an argument.\n", optopt);
+        else if (optopt == 'p')
+          fprintf (stderr, "Option -%c [push/pull] requires an argument.\n", optopt);
         else if (isprint (optopt))
           fprintf (stderr, "Unknown option `-%c'.\n", optopt);
         else
