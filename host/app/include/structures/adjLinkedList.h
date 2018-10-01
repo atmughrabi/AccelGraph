@@ -19,7 +19,7 @@ struct  AdjLinkedListNode {
 
 	struct AdjLinkedListNode* next;
 
-};
+}__attribute__((packed));
 
 // A structure to represent an adjacency list
 struct  AdjLinkedList {
@@ -33,7 +33,7 @@ struct  AdjLinkedList {
 		struct AdjLinkedListNode* inNodes;
 	#endif
 
-};
+}__attribute__((packed));
 
 // // A structure to represent a GraphAdjLinkedList. A GraphAdjLinkedList
 // // is an array of adjacency lists.

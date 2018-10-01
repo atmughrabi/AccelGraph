@@ -281,21 +281,21 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 
 
 #app command line arguments
-# fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
+fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
 root = -1
 
 
 # fnameb = "host/app/datasets/test/test.txt.bin"
 # root  = 6
 
-fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
+# fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
 # root = 107
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
 datastructure = 2
 algorithm = 0
-numThreads  = 16
+numThreads  = 1
 iterations = 4
 tolerance = 0.0001
 
@@ -321,6 +321,10 @@ run-capi: test-capi
 
 debug: test	
 	gdb ./$(APP_DIR)/test/$(GAPP)
+
+debug-memory: test	
+	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
+	
 
 profile: 
 

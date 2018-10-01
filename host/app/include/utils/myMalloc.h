@@ -3,7 +3,7 @@
 
 // extern int errno ;
 
-#define ALIGNED 1
+#define ALIGNED 0
 #define CACHELINE_BYTES 128
 
 char *strerror(int errnum);

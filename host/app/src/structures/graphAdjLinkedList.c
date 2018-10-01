@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/types.h>
+#include <omp.h>
 
 #include "edgeList.h"
 #include "vertex.h"
@@ -60,9 +61,10 @@ struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V){
     #endif
 
 	__u32 i;
+    #pragma omp parallel for
 	for(i = 0; i < V; i++){
 
-		 graphAdjLinkedList->vertices[i].outNodes = NULL;
+		graphAdjLinkedList->vertices[i].outNodes = NULL;
         graphAdjLinkedList->vertices[i].out_degree = 0; 
 
         #if DIRECTED
@@ -73,7 +75,7 @@ struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V){
         graphAdjLinkedList->vertices[i].visited = 0;
 	}
 
-     graphAdjLinkedList->iteration = 0;
+    graphAdjLinkedList->iteration = 0;
     graphAdjLinkedList->processed_nodes = 0;
 
     // printf("\n Success!!! V: %d\n ", V);
@@ -109,6 +111,7 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
 
 
     __u32 i;
+    #pragma omp parallel for
     for(i = 0; i < graphAdjLinkedList->num_vertices; i++){
 
         graphAdjLinkedList->parents[i] = -1; 
@@ -124,7 +127,19 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
         graphAdjLinkedList->vertices[i].visited = 0;
     }   
 
+     #if ALIGNED
+        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graphAdjLinkedList->num_vertices * sizeof(omp_lock_t));
+    #else
+        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graphAdjLinkedList->num_vertices *sizeof(omp_lock_t));
+    #endif
 
+
+    #pragma omp parallel for
+    for (i=0; i<graphAdjLinkedList->num_vertices; i++){
+        omp_init_lock(&(vertex_lock[i]));
+    }
+
+    #pragma omp parallel for
     for(i = 0; i < edgeList->num_edges; i++){
 
         // #if DIRECTED
@@ -132,10 +147,16 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
         // #else
         //     adjLinkedListAddEdgeUndirected(graphAdjLinkedList, &(edgeList->edges_array[i]));
         // #endif
-        adjLinkedListAddEdge(graphAdjLinkedList, &(edgeList->edges_array[i]));
+        adjLinkedListAddEdge(graphAdjLinkedList, &(edgeList->edges_array[i]),vertex_lock);
 
         }
 
+    #pragma omp parallel for
+    for (i=0; i<graphAdjLinkedList->num_vertices; i++){
+        omp_destroy_lock(&(vertex_lock[i]));
+    }
+
+    free(vertex_lock);
     graphAdjLinkedList->iteration = 0;
     graphAdjLinkedList->processed_nodes = 0;
 
@@ -242,12 +263,16 @@ void graphAdjLinkedListFree(struct GraphAdjLinkedList* graphAdjLinkedList){
 
 }
 
-void adjLinkedListAddEdge(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge){
+void adjLinkedListAddEdge(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge, omp_lock_t *vertex_lock){
+
+    // omp_set_lock(&(vertex_lock[edge->src]));
+    // omp_unset_lock((&vertex_lock[edge->src]));
 
     // Add an edge from src to dest.  A new node is 
     // added to the adjacency list of src.  The node
     // is added at the begining
     struct AdjLinkedListNode* newNode = newAdjLinkedListOutNode(edge);
+    omp_set_lock(&(vertex_lock[edge->src]));
     newNode->next = graphAdjLinkedList->vertices[edge->src].outNodes;
     graphAdjLinkedList->vertices[edge->src].out_degree++;
     graphAdjLinkedList->vertices[edge->src].visited = 0;
@@ -255,10 +280,14 @@ void adjLinkedListAddEdge(struct GraphAdjLinkedList* graphAdjLinkedList, struct 
     #if WEIGHTED
         graphAdjLinkedList->vertices[edge->src].weight = edge->weight;
     #endif
+    omp_unset_lock((&vertex_lock[edge->src]));
 
-     // Since graphAdjLinkedList is undirected, add an edge from
+    // omp_set_lock(&(vertex_lock[edge->dest]));
+    // omp_unset_lock((&vertex_lock[edge->dest]));
+    // Since graphAdjLinkedList is undirected, add an edge from
     // dest to src also
     newNode = newAdjLinkedListInNode(edge);
+    omp_set_lock(&(vertex_lock[edge->dest]));
     #if DIRECTED
         newNode->next = graphAdjLinkedList->vertices[edge->dest].inNodes;
         graphAdjLinkedList->vertices[edge->dest].in_degree++; 
@@ -274,6 +303,7 @@ void adjLinkedListAddEdge(struct GraphAdjLinkedList* graphAdjLinkedList, struct 
     #if WEIGHTED
         graphAdjLinkedList->vertices[edge->dest].weight = edge->weight;
     #endif
+    omp_unset_lock((&vertex_lock[edge->dest]));
 
 }
 
