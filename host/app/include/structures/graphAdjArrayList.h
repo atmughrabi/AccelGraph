@@ -64,5 +64,5 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeAllocate(struct GraphAdjArrayList
 struct GraphAdjArrayList* graphAdjArrayListEdgePopulate(struct GraphAdjArrayList* graphAdjArrayList, struct EdgeList* edgeList);
 struct GraphAdjArrayList* graphAdjArrayListEdgePopulateOutNodes(struct GraphAdjArrayList* graphAdjArrayList, struct EdgeList* edgeList);
 struct GraphAdjArrayList* graphAdjArrayListEdgePopulateInNodes(struct GraphAdjArrayList* graphAdjArrayList, struct EdgeList* inverseEdgeList);
-struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fnameb);
+struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fnameb, __u32 sort);
 #endif

@@ -28,7 +28,7 @@ void generateGraphPrintMessageWithtime(const char * msg, double time){
 
 
 
-void * generateGraphDataStructure(const char *fnameb, int datastructure){
+void * generateGraphDataStructure(const char *fnameb, int datastructure, int sort){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
     void *graph = NULL;
@@ -41,13 +41,13 @@ void * generateGraphDataStructure(const char *fnameb, int datastructure){
       { 
         case 0: // CSR
             Start(timer);
-            graph = (void *)graphCSRPreProcessingStep (fnameb);
+            graph = (void *)graphCSRPreProcessingStep (fnameb, sort);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         case 1: // Grid
             Start(timer);
-            graph = (void *)graphGridPreProcessingStep (fnameb);
+            graph = (void *)graphGridPreProcessingStep (fnameb, sort);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphGrid Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
@@ -59,25 +59,25 @@ void * generateGraphDataStructure(const char *fnameb, int datastructure){
           break;
         case 3: // Adj Array List
             Start(timer);
-            graph = (void *)graphAdjArrayListPreProcessingStep (fnameb);
+            graph = (void *)graphAdjArrayListPreProcessingStep (fnameb, sort);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphAdjArrayList Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         case 4: // CSR
             Start(timer);
-            graph = (void *)graphCSRPreProcessingStep (fnameb);
+            graph = (void *)graphCSRPreProcessingStep (fnameb, sort);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         case 5: // Grid
             Start(timer);
-            graph = (void *)graphGridPreProcessingStep (fnameb);
+            graph = (void *)graphGridPreProcessingStep (fnameb, sort);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphGrid Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         default:// CSR
             Start(timer);
-            graph = (void *)graphCSRPreProcessingStep (fnameb);
+            graph = (void *)graphCSRPreProcessingStep (fnameb, sort);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)",Seconds(timer));
        
@@ -91,7 +91,7 @@ void * generateGraphDataStructure(const char *fnameb, int datastructure){
 }
 
 
-void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root, int iterations, double epsilon, int trials){
+void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root, int iterations, double epsilon, int trials, int pushpull){
 
   switch (algorithm)
       {

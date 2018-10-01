@@ -259,11 +259,12 @@ struct EdgeList* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList
     #endif
 
     for(j=0 ; j < radix ; j++){
-        radixSortCountSortEdgesBySource (&sorted_edges_array, edgeList, j, buckets, buckets_count);
-    }
-    for(j=0 ; j < radix ; j++){
         radixSortCountSortEdgesByDestination (&sorted_edges_array, edgeList, j, buckets, buckets_count);
     }
+    for(j=0 ; j < radix ; j++){
+        radixSortCountSortEdgesBySource (&sorted_edges_array, edgeList, j, buckets, buckets_count);
+    }
+    
 
     free(buckets_count);
     free(sorted_edges_array);

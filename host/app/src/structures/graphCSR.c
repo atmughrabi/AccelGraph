@@ -10,8 +10,9 @@
 #include "graphConfig.h"
 
 //edgelist prerpcessing
-#include "countsort.h"
-#include "radixsort.h"
+// #include "countsort.h"
+// #include "radixsort.h"
+#include "sortRun.h"
 
 #include "timer.h"
 
@@ -203,7 +204,7 @@ struct GraphCSR* graphCSRAssignEdgeList (struct GraphCSR* graphCSR, struct EdgeL
 }
 
 
-struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb){
+struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
@@ -224,12 +225,12 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb){
     #endif
 
    
-    Start(timer);
-    edgeList = radixSortEdgesBySource(edgeList);
+    // Start(timer);
+    edgeList = sortRunAlgorithms(edgeList, sort);
     // edgeList = radixSortEdgesBySourceOptimized(edgeList);
     // edgeListPrint(edgeList);
-    Stop(timer);
-    graphCSRPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+    // Stop(timer);
+    // graphCSRPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
     Start(timer);
     graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
@@ -245,11 +246,11 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb){
         graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
 
 
-        Start(timer);
-        inverse_edgeList = radixSortEdgesBySource(inverse_edgeList);
+        // Start(timer);
+        inverse_edgeList = sortRunAlgorithms(inverse_edgeList, sort);
         // inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
-        Stop(timer);
-        graphCSRPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
+        // Stop(timer);
+        // graphCSRPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
 
         Start(timer);
         graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);

@@ -8,6 +8,7 @@
 #include "edgeList.h"
 #include "myMalloc.h"
 #include "timer.h"
+#include "mt19937.h"
 
 int numThreads;
 
@@ -17,22 +18,23 @@ static void usage(void) {
   printf("\t-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List [4-5] same order bitmap frontiers\n");
   printf("\t-r [root]: BFS & SSSP root\n");
   printf("\t-p [algorithm direction] 0 push 1 pull 2 push/pull\n");
+  printf("\t-o [sorting algorithm] 0 radix-src 1 radix-src-dest 2 count-src 3 count-src-dst.\n");
   printf("\t-n [num threads] default:max number of threads the system has\n");
-  printf("\t-i [num iterations] number of random trials [default:0]\n");
-  printf("\t-t [num iterations] number of iterations for page rank random\n");
+  printf("\t-i [num iterations] number of random iterations for each whole run [default:0]\n");
+  printf("\t-t [num trials] number of iterations for page rank random to converge\n");
   printf("\t-e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001]\n");
   printf("\t-c: convert to bin file on load example:-f <graph file> -c\n");
-  printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
-  printf("\t-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
-  printf("\t-s: symmetric graph, if not given set of incoming edges will be created \n"); 
+  // printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
+  // printf("\t-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
+  // printf("\t-s: symmetric graph, if not given set of incoming edges will be created \n"); 
   _exit(-1);
 }
 
 int main (int argc, char **argv)
 {
-  int uflag = 0;
-  int wflag = 0;
-  int sflag = 0;
+  // int uflag = 0;
+  // int wflag = 0;
+  // int sflag = 0;
   int cflag = 0;
 
   char *fvalue = NULL;
@@ -44,6 +46,7 @@ int main (int argc, char **argv)
   char *tvalue = NULL;
   char *evalue = NULL;
   char *pvalue = NULL;
+  char *ovalue = NULL;
 
   int iterations = 0;
   int trials = 20;
@@ -52,6 +55,9 @@ int main (int argc, char **argv)
   int algorithm = 0;
   int datastructure = 0;
   int pushpull = 0;
+  int sort = 0;
+
+
   numThreads = omp_get_max_threads();
 
   char *fnameb = NULL;
@@ -61,7 +67,7 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:uswc")) != -1)
+  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:c")) != -1)
     switch (c)
       {
       case 'h':
@@ -104,15 +110,19 @@ int main (int argc, char **argv)
         pvalue = optarg;
         pushpull = atof(pvalue);
         break;
-      case 'u':
-        uflag = 1;
+      case 'o':
+        ovalue = optarg;
+        sort = atof(ovalue);
         break;
-      case 's':
-        wflag = 1;
-        break;
-      case 'w':
-        sflag = 1;
-        break;
+      // case 'u':
+      //   uflag = 1;
+      //   break;
+      // case 's':
+      //   wflag = 1;
+      //   break;
+      // case 'w':
+      //   sflag = 1;
+      //   break;
       case 'c':
         cflag = 1;
         break;
@@ -135,6 +145,8 @@ int main (int argc, char **argv)
           fprintf (stderr, "Option -%c [epsilon] requires an argument.\n", optopt);
         else if (optopt == 'p')
           fprintf (stderr, "Option -%c [push/pull] requires an argument.\n", optopt);
+        else if (optopt == 'o')
+          fprintf (stderr, "Option -%c [radix/count] requires an argument.\n", optopt);
         else if (isprint (optopt))
           fprintf (stderr, "Unknown option `-%c'.\n", optopt);
         else
@@ -162,9 +174,9 @@ int main (int argc, char **argv)
         printf("Read Edge List From File converted to binary : %f Seconds \n",Seconds(timer));
       }
 
-      
-      graph = generateGraphDataStructure(fnameb, datastructure);
-      runGraphAlgorithms(graph, datastructure, algorithm, root, iterations, epsilon, trials);
+     
+      graph = generateGraphDataStructure(fnameb, datastructure, sort);
+      runGraphAlgorithms(graph, datastructure, algorithm, root, iterations, epsilon, trials, pushpull);
 
 
       free(timer);

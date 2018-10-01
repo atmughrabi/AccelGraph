@@ -10,8 +10,9 @@
 #include "graphConfig.h"
 #include "adjArrayList.h"
 //edgelist prerpcessing
-#include "countsort.h"
-#include "radixsort.h"
+// #include "countsort.h"
+// #include "radixsort.h"
+#include "sortRun.h"
 
 #include "timer.h"
 
@@ -409,12 +410,10 @@ void graphAdjArrayListFree(struct GraphAdjArrayList* graphAdjArrayList){
 }
 
 
-struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fnameb){
+struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fnameb, __u32 sort){
 
 
     struct Timer* timer = (struct Timer*) my_malloc(sizeof(struct Timer));
-
-    printf("Filename : %s \n",fnameb);
 
     Start(timer);
     struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
@@ -422,25 +421,23 @@ struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fname
     // edgeListPrint(edgeList);
     graphAdjArrayListPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
+    // Start(timer);
+    edgeList = sortRunAlgorithms(edgeList, sort);
+    // Stop(timer);
+    // graphAdjArrayListPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+
+
     #if DIRECTED
         Start(timer);
         struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
         Stop(timer);
         // edgeListPrint(inverse_edgeList);
         graphAdjArrayListPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
-    #endif
 
-    Start(timer);
-    edgeList = radixSortEdgesBySource(edgeList);
-    Stop(timer);
-    graphAdjArrayListPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
-
-
-    #if DIRECTED
-        Start(timer);
-        inverse_edgeList = radixSortEdgesBySource(inverse_edgeList);
-        Stop(timer);
-        graphAdjArrayListPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
+        // Start(timer);
+        inverse_edgeList = sortRunAlgorithms(inverse_edgeList, sort);
+        // Stop(timer);
+        // graphAdjArrayListPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
     #endif
 
    
