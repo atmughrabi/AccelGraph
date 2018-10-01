@@ -56,7 +56,7 @@ struct EdgeList*  countSortEdgesBySource (struct EdgeList* edgeList){
 		// count occurrence of key: id of the source vertex
 		for(i = offset_start; i < offset_end; i++){
 			key = edgeList->edges_array[i].src;
-			vertex_count[key]++;
+			vertex_count[(t_id*num_vertices)+key]++;
 		}
 
 		#pragma omp barrier
@@ -79,7 +79,7 @@ struct EdgeList*  countSortEdgesBySource (struct EdgeList* edgeList){
         for(i = offset_start; i < offset_end; i++){	
 			
 			key = edgeList->edges_array[i].src;
-			pos = vertex_count[key];
+			pos = vertex_count[(t_id*num_vertices)+key];
 			sorted_edges_array[pos] = edgeList->edges_array[i];
 			vertex_count[(t_id*num_vertices)+key]++;
 		
@@ -141,7 +141,7 @@ struct EdgeList* countSortEdgesByDestination (struct EdgeList* edgeList){
 		// count occurrence of key: id of the source vertex
 		for(i = offset_start; i < offset_end; i++){
 			key = edgeList->edges_array[i].dest;
-			vertex_count[key]++;
+			vertex_count[(t_id*num_vertices)+key]++;
 		}
 
 		#pragma omp barrier
@@ -164,7 +164,7 @@ struct EdgeList* countSortEdgesByDestination (struct EdgeList* edgeList){
         for(i = offset_start; i < offset_end; i++){	
 			
 			key = edgeList->edges_array[i].dest;
-			pos = vertex_count[key];
+			pos = vertex_count[(t_id*num_vertices)+key];
 			sorted_edges_array[pos] = edgeList->edges_array[i];
 			vertex_count[(t_id*num_vertices)+key]++;
 		

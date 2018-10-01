@@ -208,7 +208,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
-    printf("Filename : %s \n",fnameb);
+    // printf("Filename : %s \n",fnameb);
     
 
     Start(timer);
