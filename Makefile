@@ -288,9 +288,14 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 #   -w: weighted input graph check graphConfig.h ->define WEIGHTED 1 then recompile.
 #   -s: symmetric graph, if not given set of incoming edges will be created . 
 
+# fnameb = "host/app/datasets/RMAT/RMAT-26.bin"
+# fnameb = "host/app/datasets/RMAT/RMAT19.txt"
+# fnameb = "host/app/datasets/RMAT/RMAT20.txt"
+# fnameb = "host/app/datasets/RMAT/RMAT21.bin"
+fnameb = "host/app/datasets/RMAT/RMAT22.bin"
 
 #app command line arguments
-fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
+# fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
 root = -1
 
 
@@ -305,13 +310,14 @@ root = -1
 datastructure = 0
 algorithm = 0
 numThreads  = 8
-iterations = 4
+iterations = 1
 trials = 20
 tolerance = 0.0001
 sort = 0
-
+pushpull = 1
+	
 run: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull)
 	
 run-bfs: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -i $(iterations) #CSR with Qs
@@ -322,10 +328,16 @@ run-bfs: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 5 -a 0 -n $(numThreads) -i $(iterations) #Grid with bitmaps
 
 run-pr: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 4 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials)
+	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 2 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials)
+
+run-sort: test
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 0  #radix src
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 1 #radix src-dst
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 2 #count src
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 3 #count src-dst
 
 run-capi: test-capi
 	./$(APP_DIR)/test/$(GAPP)-capi -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)

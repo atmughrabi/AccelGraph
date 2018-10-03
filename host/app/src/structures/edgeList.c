@@ -124,9 +124,10 @@ char * readEdgeListstxt(const char * fname){
 
         while (1)
         {
-        size++;
+       
         i = fscanf(pText, "%u\t%u\n", &src, &dest);
-
+        if( i == EOF ) 
+           break;
         // printf(" %lu -> %lu \n", src,dest);
 
         fwrite(&src, sizeof (src), 1, pBinary);
@@ -136,11 +137,12 @@ char * readEdgeListstxt(const char * fname){
                 fwrite(&weight, sizeof (weight), 1, pBinary);
         #endif
 
+        size++;
         // if( size == 150000000 ) 
         //      break;
 
-        if( i == EOF ) 
-           break;
+       
+
         }
 
       

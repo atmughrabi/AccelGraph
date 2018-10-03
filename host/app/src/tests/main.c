@@ -48,14 +48,14 @@ int main (int argc, char **argv)
   char *pvalue = NULL;
   char *ovalue = NULL;
 
-  int iterations = 0;
-  int trials = 20;
+  __u32 iterations = 0;
+  __u32 trials = 20;
   double epsilon = 0.0001;
   int root = -1;
-  int algorithm = 0;
-  int datastructure = 0;
-  int pushpull = 0;
-  int sort = 0;
+  __u32 algorithm = 0;
+  __u32 datastructure = 0;
+  __u32 pushpull = 0;
+  __u32 sort = 0;
 
 
   numThreads = omp_get_max_threads();

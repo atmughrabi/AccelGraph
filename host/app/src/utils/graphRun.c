@@ -28,7 +28,7 @@ void generateGraphPrintMessageWithtime(const char * msg, double time){
 
 
 
-void * generateGraphDataStructure(const char *fnameb, int datastructure, int sort){
+void * generateGraphDataStructure(const char *fnameb, __u32 datastructure, __u32 sort){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
     void *graph = NULL;
@@ -91,7 +91,7 @@ void * generateGraphDataStructure(const char *fnameb, int datastructure, int sor
 }
 
 
-void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root, int iterations, double epsilon, int trials, int pushpull){
+void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int root, __u32 iterations, double epsilon, __u32 trials, __u32 pushpull){
 
   switch (algorithm)
       {
@@ -99,7 +99,7 @@ void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root, 
           runBreadthFirstSearchAlgorithm(graph, datastructure, root, iterations);
           break;
         case 1: // pagerank filename
-          runPageRankAlgorithm(graph, datastructure, epsilon, trials, iterations);
+          runPageRankAlgorithm(graph, datastructure, epsilon, trials, iterations, pushpull);
           break;
         case 2: // SSSP file name root
           printf(" SSSP to be implemented \n");
@@ -113,7 +113,7 @@ void runGraphAlgorithms(void *graph, int datastructure,int algorithm, int root, 
 
 
 
-void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, int iterations){
+void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 iterations){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
     struct GraphCSR* graphCSR = NULL;
@@ -141,7 +141,10 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
               }   
                iterations--;
             }
+            Start(timer);
             graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
           break;
 
         case 1: // Grid
@@ -234,7 +237,10 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
               }   
                iterations--;
             }
+            Start(timer);
             graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
           break;
 
          case 5: // Grid with no frontiers only Bitmaps
@@ -281,7 +287,10 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
               }   
                iterations--;
             }
+            Start(timer);
             graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
           break;          
       }
 
@@ -290,7 +299,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, int datastructure, int root, in
 }
 
 
-void runPageRankAlgorithm(void *graph, int datastructure, double epsilon, int trials, int iterations){
+void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 trials, __u32 iterations, __u32 pushpull){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
     struct GraphCSR* graphCSR = NULL;
@@ -303,13 +312,16 @@ void runPageRankAlgorithm(void *graph, int datastructure, double epsilon, int tr
       { 
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
-            pageRankPullGraphCSR(epsilon , trials, graphCSR);
+            pageRankGraphCSR(epsilon , trials, pushpull, graphCSR);
+            Start(timer);
             graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
           break;
 
         case 1: // Grid
             graphGrid = (struct GraphGrid*)graph;
-         
+            pageRankGraphGrid(epsilon , trials, pushpull, graphGrid);
             Start(timer); 
             graphGridFree(graphGrid);
             Stop(timer);
@@ -318,7 +330,7 @@ void runPageRankAlgorithm(void *graph, int datastructure, double epsilon, int tr
 
         case 2: // Adj Linked List
             graphAdjLinkedList = (struct GraphAdjLinkedList*)graph;
-            
+            pageRankGraphAdjLinkedList(epsilon , trials, pushpull, graphAdjLinkedList);
             Start(timer); 
             graphAdjLinkedListFree(graphAdjLinkedList);
             Stop(timer);
@@ -327,23 +339,22 @@ void runPageRankAlgorithm(void *graph, int datastructure, double epsilon, int tr
 
         case 3: // Adj Array List
             graphAdjArrayList = (struct GraphAdjArrayList*)graph;
-          
+            
+            pageRankGraphAdjArrayList(epsilon , trials, pushpull, graphAdjArrayList);
+
             Start(timer); 
             graphAdjArrayListFree(graphAdjArrayList);
             Stop(timer);
             generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)",Seconds(timer));
           break;
-
-        case 4: // CSR with no frontier only Bitmaps
-            graphCSR = (struct GraphCSR*)graph;
-          
-            graphCSRFree(graphCSR);
-          break;
           
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
-           
+            pageRankGraphCSR(epsilon , trials, pushpull, graphCSR);
+            Start(timer);
             graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
           break;          
       }
 

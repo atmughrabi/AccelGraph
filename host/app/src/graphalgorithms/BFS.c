@@ -14,9 +14,12 @@
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
-// #include "grid.h"
 
 
+
+// ********************************************************************************************
+// ***************					CSR DataStructure							 **************
+// ********************************************************************************************
 
 
 
@@ -277,6 +280,12 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct Bitmap* bitmapCurr, st
 	return nf;
 }
 
+
+// ********************************************************************************************
+// ***************		CSR DataStructure/Bitmap Frontiers						 **************
+// ********************************************************************************************
+
+
 // breadth-first-search(graph, source)
 // 	sharedFrontierQueue ← {source}
 // 	next ← {}
@@ -458,7 +467,9 @@ __u32 topDownStepUsingBitmapsGraphCSR(struct GraphCSR* graph, struct ArrayQueue*
 
 
 
-
+// ********************************************************************************************
+// ***************					GRID DataStructure							 **************
+// ********************************************************************************************
 
 // function STREAMVERTICES(Fv,F)
 // 	Sum = 0
@@ -688,6 +699,10 @@ void breadthFirstSearchSetActivePartitions(struct GraphGrid* graph, struct Array
 }
 
 
+// ********************************************************************************************
+// ***************					GRID DataStructure/Bitmap Frontiers			 **************
+// ********************************************************************************************
+
 // function STREAMVERTICES(Fv,F)
 // 	Sum = 0
 // 		for each vertex do
@@ -857,6 +872,11 @@ void breadthFirstSearchSetActivePartitionsBitmap(struct GraphGrid* graph, struct
     		graphGridSetActivePartitionsMap(graph->grid, i);
     }
 }
+
+
+// ********************************************************************************************
+// ***************					ArrayList DataStructure					     **************
+// ********************************************************************************************
 
 
 // breadth-first-search(graph, source)
@@ -1117,6 +1137,11 @@ __u32 bottomUpStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct Bitm
 
 	return nf;
 }
+
+
+// ********************************************************************************************
+// ***************					LinkedList DataStructure					 **************
+// ********************************************************************************************
 
 
 // breadth-first-search(graph, source)
