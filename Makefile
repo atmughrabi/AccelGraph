@@ -292,10 +292,10 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 # fnameb = "host/app/datasets/RMAT/RMAT19.txt"
 # fnameb = "host/app/datasets/RMAT/RMAT20.txt"
 # fnameb = "host/app/datasets/RMAT/RMAT21.bin"
-fnameb = "host/app/datasets/RMAT/RMAT22.bin"
+# fnameb = "host/app/datasets/RMAT/RMAT22.bin"
 
 #app command line arguments
-# fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
+fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
 root = -1
 
 
@@ -308,9 +308,9 @@ root = -1
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
 datastructure = 0
-algorithm = 0
+algorithm = 1
 numThreads  = 8
-iterations = 1
+iterations = 4
 trials = 20
 tolerance = 0.0001
 sort = 0
@@ -328,10 +328,10 @@ run-bfs: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 5 -a 0 -n $(numThreads) -i $(iterations) #Grid with bitmaps
 
 run-pr: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials)
-	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 2 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials)
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p $(pushpull)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p $(pushpull)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 2 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p $(pushpull)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p $(pushpull)
 
 run-sort: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 0  #radix src

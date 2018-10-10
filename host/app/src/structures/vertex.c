@@ -228,14 +228,26 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
 
     #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graph)
     for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++){
-                if(vertices[vertex_id].out_degree)
-                    graph->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
-                else
-                    graph->parents[vertex_id] = -1;
+        #if DIRECTED
+            graph->inverse_vertices[vertex_id].in_degree = vertices[vertex_id].out_degree;
+        #endif
+        if(vertices[vertex_id].out_degree)
+            graph->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
+        else
+            graph->parents[vertex_id] = -1;
      }
 
     }
-
+    #if DIRECTED
+    else{
+       
+            #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graph)
+            for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++){
+                graph->vertices[vertex_id].in_degree = vertices[vertex_id].out_degree;          
+            }
+        
+    }
+    #endif
 
     // if(graph->sorted_edges_array)
     //     freeEdgeArray(graph->sorted_edges_array);
