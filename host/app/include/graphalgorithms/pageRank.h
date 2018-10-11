@@ -12,7 +12,8 @@
 // ***************					Auxilary functions  	  					 **************
 // ********************************************************************************************
 
-void pageRankPrint(float *pageRankArray);
+void addAtomicFloat(float *num, float value);
+void pageRankPrint(float *pageRankArray, __u32 num_vertices);
 void pageRankCompare(float *pageRankArrayOp1,float *pageRankArrayOp2);
 
 // ********************************************************************************************
