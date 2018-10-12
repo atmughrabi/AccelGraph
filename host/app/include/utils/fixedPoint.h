@@ -7,7 +7,7 @@
 //0000 0000 0000 0000.1111 1111 1111 1111
 
 #define SCALEF 24 // 1/2^16
-#define SCALED 53 // 1/2^32
+#define SCALED 54 // 1/2^32
 #define EPSILON 1  // smallest possible increment or decrement you can perform
 #define FRACTION_MASK_32 (0xFFFF_FFFF >> (32-SCALEF))
 #define FRACTION_MASK_64 (0xFFFF_FFFF_FFFF_FFFF >> (64-SCALED))
@@ -16,8 +16,10 @@
 
 #define FloatToFixed(num)	((num) * (float)((__u32)(1)<<SCALEF))
 #define DoubleToFixed(num)	((num) * (double)((__u64)(1)<<SCALED))
-#define FixedToDouble(num)	((double)(num) / (double)((__u64)(1)<<SCALED))
-#define FixedToFloat(num)	((float)(num) / (float)((__u32)(1)<<SCALEF))
+#define FixedToDouble64(num)	((double)(num) / (double)((__u64)(1)<<SCALED))
+#define FixedToDouble32(num)	((double)(num) / (double)((__u32)(1)<<SCALEF))
+#define FixedToFloat64(num)	((float)(num) / (float)((__u64)(1)<<SCALED))
+#define FixedToFloat32(num)	((float)(num) / (float)((__u32)(1)<<SCALEF))
 
 #define UInt64ToFixed(num)	((__u64) (num)<<SCALED)
 #define UInt32ToFixed(num)	((__u32) (num)<<SCALEF)

@@ -193,7 +193,7 @@ void pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
 
 
     Stop(timer_inner);
-    printf("| %-15u | %-15.10lf | %-15f | \n",iter, error, Seconds(timer_inner));
+    printf("| %-15u | %-15.13lf | %-15f | \n",iter, error, Seconds(timer_inner));
     if(error < epsilon)
       break;
 
@@ -302,7 +302,7 @@ void pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
     }
 
     Stop(timer_inner);
-    printf("| %-15u | %-15.10lf | %-15f | \n",iter, error, Seconds(timer_inner));
+    printf("| %-15u | %-15.13lf | %-15f | \n",iter, error, Seconds(timer_inner));
     if(error < epsilon)
       break;
 
@@ -341,14 +341,8 @@ void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
 
   double error = 0;
   float init_pr = 1.0f / (float)graph->num_vertices;
-  printf(" init_pr %.30f \n",init_pr );
-
-
-
-
   float base_pr = (1.0f - Damp) / (float)graph->num_vertices;
-  printf(" base_pr %.30f \n",base_pr );
-
+ 
 
   struct Vertex* vertices = NULL;
   __u32* sorted_edges_array = NULL;
@@ -408,13 +402,13 @@ void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
      
 
       float prevPageRank = pageRanks[v];
-      pageRanks[v] = base_pr + (Damp * FixedToDouble(nodeIncomingPR));
+      pageRanks[v] = base_pr + (Damp * FixedToFloat64(nodeIncomingPR));
       error += fabs( pageRanks[v] - prevPageRank);
     }
 
 
     Stop(timer_inner);
-    printf("| %-15u | %-15.10lf | %-15f | \n",iter, error, Seconds(timer_inner));
+    printf("| %-15u | %-15.13lf | %-15f | \n",iter, error, Seconds(timer_inner));
     if(error < epsilon)
       break;
 
@@ -504,7 +498,8 @@ void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
         u = graph->sorted_edge_array[j];
           
-        addAtomicFixedPoint(&pageRanksNext[u],riDividedOnDiClause[v] );
+        // addAtomicFixedPoint(&pageRanksNext[u],riDividedOnDiClause[v] );
+        __sync_add_and_fetch(&pageRanksNext[u], riDividedOnDiClause[v]);
     
       }
 
@@ -513,13 +508,13 @@ void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
     #pragma omp parallel for reduction(+ : error)
     for(v = 0; v < graph->num_vertices; v++){
       float prevPageRank =  pageRanks[v];
-      pageRanks[v] = base_pr + (Damp * FixedToDouble(pageRanksNext[v]));
+      pageRanks[v] = base_pr + (Damp * FixedToDouble64(pageRanksNext[v]));
       error += fabs( pageRanks[v] - prevPageRank);
       pageRanksNext[v] = 0;
     }
 
     Stop(timer_inner);
-    printf("| %-15u | %-15lf | %-15f | \n",iter, error, Seconds(timer_inner));
+    printf("| %-15u | %-15.13lf | %-15f | \n",iter, error, Seconds(timer_inner));
     if(error < epsilon)
       break;
 
@@ -557,6 +552,16 @@ void pageRankDataDrivenPullFixedPointGraphCSR(double epsilon,  __u32 iteraions, 
 
 }
 void pageRankDataDrivenPushFixedPointGraphCSR(double epsilon,  __u32 iteraions, struct GraphCSR* graph){
+
+
+}
+
+void pageRankDataDrivenPushPullGraphCSR(double epsilon,  __u32 iteraions, struct GraphCSR* graph){
+
+
+}
+
+void pageRankDataDrivenPushPullFixedPointGraphCSR(double epsilon,  __u32 iteraions, struct GraphCSR* graph){
 
 
 }
