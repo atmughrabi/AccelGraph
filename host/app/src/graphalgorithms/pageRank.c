@@ -9,6 +9,7 @@
 #include "myMalloc.h"
 #include "boolean.h"
 #include "pageRank.h"
+#include "fixedPoint.h"
 
 #include "graphCSR.h"
 #include "graphGrid.h"
@@ -16,62 +17,54 @@
 #include "graphAdjLinkedList.h"
 
 
-void addAtomicFloat(float *num, float value){
+// void addAtomicFloat(float *num, float value){
 
-  float newV, oldV;
+//   float newV, oldV;
 
-  do {oldV = *num;  newV = oldV+value;}
-  while(!__sync_bool_compare_and_swap((long*)num, *((long*)&oldV), *((long*)&newV))); 
+//   do {oldV = *num;  newV = oldV+value;}
+//   while(!__sync_bool_compare_and_swap((long*)num, *((long*)&oldV), *((long*)&newV))); 
 
-}
-
-
+// }
 
 void pageRankPrint(float *pageRankArray , __u32 num_vertices){
-
-__u32 v;
-for(v = 0; v < num_vertices; v++){
-
-  printf("Rank[%d]=%f \n",v,pageRankArray[v]);
-
-}
-
-
-
+  __u32 v;
+  for(v = 0; v < num_vertices; v++){
+    printf("Rank[%d]=%f \n",v,pageRankArray[v]);
+  }
 }
 
 // ********************************************************************************************
 // ***************					GRID DataStructure							 **************
 // ********************************************************************************************
 
-void pageRankGraphGrid(double epsilon,  __u32 trials, __u32 pushpull, struct GraphGrid* graph){
+void pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphGrid* graph){
 
 	switch (pushpull)
       { 
         case 0: // push
-        	pageRankPushGraphGrid(epsilon, trials, graph);
+        	pageRankPushGraphGrid(epsilon, iterations, graph);
         break;
         case 1: // pull
-          	pageRankPullGraphGrid(epsilon, trials, graph);
+          	pageRankPullGraphGrid(epsilon, iterations, graph);
         break;
         case 2: // pushpull
-          	pageRankPullPushGraphGrid(epsilon, trials, graph);
+          	pageRankPullPushGraphGrid(epsilon, iterations, graph);
         break;  
         default:// push
-           	pageRankPushGraphGrid(epsilon, trials, graph);
+           	pageRankPushGraphGrid(epsilon, iterations, graph);
         break;          
       }
 
 }
-void pageRankPullGraphGrid(double epsilon,  __u32 trials, struct GraphGrid* graph){
+void pageRankPullGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
 
 
 }
-void pageRankPushGraphGrid(double epsilon,  __u32 trials, struct GraphGrid* graph){
+void pageRankPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
 
 
 }
-void pageRankPullPushGraphGrid(double epsilon,  __u32 trials, struct GraphGrid* graph){
+void pageRankPullPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
 
 
 }
@@ -81,28 +74,43 @@ void pageRankPullPushGraphGrid(double epsilon,  __u32 trials, struct GraphGrid* 
 // ********************************************************************************************
 
 
-void pageRankGraphCSR(double epsilon,  __u32 trials, __u32 pushpull, struct GraphCSR* graph){
+void pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph){
        
     switch (pushpull)
       { 
         case 0: // push
-        	pageRankPushGraphCSR(epsilon, trials, graph);
+            pageRankPushGraphCSR(epsilon, iterations, graph);
         break;
         case 1: // pull
-          	pageRankPullGraphCSR(epsilon, trials, graph);
+          	pageRankPullGraphCSR(epsilon, iterations, graph);
         break;
-        case 2: // pushpull
-          	pageRankPullPushGraphCSR(epsilon, trials, graph);
-        break;  
+        case 2: // push
+            pageRankPullFixedPointGraphCSR(epsilon, iterations, graph);
+        break;
+        case 3: // pull
+            pageRankPushFixedPointGraphCSR(epsilon, iterations, graph);
+        break;
+        case 4: // push
+            pageRankDataDrivenPullGraphCSR(epsilon, iterations, graph);
+        break;
+        case 5: // pull
+            pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
+        break;
+        case 6: // push
+            pageRankDataDrivenPullFixedPointGraphCSR(epsilon, iterations, graph);
+        break;
+        case 7: // pull
+            pageRankDataDrivenPushFixedPointGraphCSR(epsilon, iterations, graph);
+        break;
         default:// push
-           	pageRankPushGraphCSR(epsilon, trials, graph);
+           	pageRankPullGraphCSR(epsilon, iterations, graph);
         break;          
       }
 
 }
 
 // topoligy driven approach
-void pageRankPullGraphCSR(double epsilon,  __u32 trials, struct GraphCSR* graph){
+void pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
   __u32 iter;
   __u32 i;
@@ -151,7 +159,7 @@ void pageRankPullGraphCSR(double epsilon,  __u32 trials, struct GraphCSR* graph)
     pageRanks[i] = init_pr;
   }
 
-  for(iter = 0; iter < trials; iter++){
+  for(iter = 0; iter < iterations; iter++){
     Start(timer_inner);
     error = 0;
     #pragma omp parallel for
@@ -164,7 +172,7 @@ void pageRankPullGraphCSR(double epsilon,  __u32 trials, struct GraphCSR* graph)
       float nodeIncomingPR = 0;
       degree = vertices[v].out_degree;
       edge_idx = vertices[v].edges_idx;
-      
+      // #pragma omp parallel for reduction(+ : nodeIncomingPR) schedule(dynamic, 1024)
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
         u = sorted_edges_array[j];
         nodeIncomingPR += riDividedOnDiClause[u];
@@ -194,7 +202,7 @@ void pageRankPullGraphCSR(double epsilon,  __u32 trials, struct GraphCSR* graph)
 	
 
 }
-void pageRankPushGraphCSR(double epsilon,  __u32 trials, struct GraphCSR* graph){
+void pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
 	__u32 iter;
   __u32 i;
@@ -248,7 +256,7 @@ void pageRankPushGraphCSR(double epsilon,  __u32 trials, struct GraphCSR* graph)
     pageRanksNext[i] = 0.0f;
   }
 
-  for(iter = 0; iter < trials; iter++){
+  for(iter = 0; iter < iterations; iter++){
     Start(timer_inner);
     error = 0;
     #pragma omp parallel for
@@ -261,20 +269,19 @@ void pageRankPushGraphCSR(double epsilon,  __u32 trials, struct GraphCSR* graph)
     for(v = 0; v < graph->num_vertices; v++){
       degree = graph->vertices[v].out_degree;
       edge_idx = graph->vertices[v].edges_idx;
+
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
         u = graph->sorted_edge_array[j];
         
         // omp_set_lock(&(vertex_lock[u]));
-        pageRanksNext[u] += riDividedOnDiClause[v];
+        // pageRanksNext[u] += riDividedOnDiClause[v];
         // omp_unset_lock((&vertex_lock[u]));
 
-        // #pragma omp atomic
-        // pageRanksNext[u] += riDividedOnDiClause[v];
+        #pragma omp atomic
+          pageRanksNext[u] += riDividedOnDiClause[v];
       
         // addAtomicFloat(&pageRanks[u] , riDividedOnDiClause[v]);
       }
-
-      // printf(" %d \n",v );
     }
 
     #pragma omp parallel for reduction(+ : error)
@@ -309,11 +316,32 @@ void pageRankPushGraphCSR(double epsilon,  __u32 trials, struct GraphCSR* graph)
   free(riDividedOnDiClause);
 
 }
-void pageRankPullPushGraphCSR(double epsilon,  __u32 trials, struct GraphCSR* graph){
 
-	printf("pageRankPullPushGraphCSR\n");
-	
+void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iteraions, struct GraphCSR* graph){
+
+
 }
+void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iteraions, struct GraphCSR* graph){
+
+
+}
+void pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iteraions, struct GraphCSR* graph){
+
+
+}
+void pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iteraions, struct GraphCSR* graph){
+
+
+}
+void pageRankDataDrivenPullFixedPointGraphCSR(double epsilon,  __u32 iteraions, struct GraphCSR* graph){
+
+
+}
+void pageRankDataDrivenPushFixedPointGraphCSR(double epsilon,  __u32 iteraions, struct GraphCSR* graph){
+
+
+}
+
 
 
 // ********************************************************************************************
@@ -321,34 +349,34 @@ void pageRankPullPushGraphCSR(double epsilon,  __u32 trials, struct GraphCSR* gr
 // ********************************************************************************************
 
 
-void pageRankGraphAdjArrayList(double epsilon,  __u32 trials, __u32 pushpull, struct GraphAdjArrayList* graph){
+void pageRankGraphAdjArrayList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList* graph){
 
 	switch (pushpull)
       { 
         case 0: // push
-        	pageRankPushGraphAdjArrayList(epsilon, trials, graph);
+        	pageRankPushGraphAdjArrayList(epsilon, iterations, graph);
         break;
         case 1: // pull
-          	pageRankPullGraphAdjArrayList(epsilon, trials, graph);
+          	pageRankPullGraphAdjArrayList(epsilon, iterations, graph);
         break;
         case 2: // pushpull
-          	pageRankPullPushGraphAdjArrayList(epsilon, trials, graph);
+          	pageRankPullPushGraphAdjArrayList(epsilon, iterations, graph);
         break;  
         default:// push
-           	pageRankPushGraphAdjArrayList(epsilon, trials, graph);
+           	pageRankPushGraphAdjArrayList(epsilon, iterations, graph);
         break;          
       }
 
 }
-void pageRankPullGraphAdjArrayList(double epsilon,  __u32 trials, struct GraphAdjArrayList* graph){
+void pageRankPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
 
 }
-void pageRankPushGraphAdjArrayList(double epsilon,  __u32 trials, struct GraphAdjArrayList* graph){
+void pageRankPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
 
 }
-void pageRankPullPushGraphAdjArrayList(double epsilon,  __u32 trials, struct GraphAdjArrayList* graph){
+void pageRankPullPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
 
 }
@@ -359,34 +387,34 @@ void pageRankPullPushGraphAdjArrayList(double epsilon,  __u32 trials, struct Gra
 // ********************************************************************************************
 
 
-void pageRankGraphAdjLinkedList(double epsilon,  __u32 trials, __u32 pushpull, struct GraphAdjLinkedList* graph){
+void pageRankGraphAdjLinkedList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList* graph){
 
 	switch (pushpull)
       { 
         case 0: // push
-        	pageRankPushGraphAdjLinkedList(epsilon, trials, graph);
+        	pageRankPushGraphAdjLinkedList(epsilon, iterations, graph);
         break;
         case 1: // pull
-          	pageRankPullGraphAdjLinkedList(epsilon, trials, graph);
+          	pageRankPullGraphAdjLinkedList(epsilon, iterations, graph);
         break;
         case 2: // pushpull
-          	pageRankPullPushGraphAdjLinkedList(epsilon, trials, graph);
+          	pageRankPullPushGraphAdjLinkedList(epsilon, iterations, graph);
         break;  
         default:// push
-           	pageRankPushGraphAdjLinkedList(epsilon, trials, graph);
+           	pageRankPushGraphAdjLinkedList(epsilon, iterations, graph);
         break;          
       }
 
 }
-void pageRankPullGraphAdjLinkedList(double epsilon,  __u32 trials, struct GraphAdjLinkedList* graph){
+void pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
 
 }
-void pageRankPushGraphAdjLinkedList(double epsilon,  __u32 trials, struct GraphAdjLinkedList* graph){
+void pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
 
 }
-void pageRankPullPushGraphAdjLinkedList(double epsilon,  __u32 trials, struct GraphAdjLinkedList* graph){
+void pageRankPullPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
 
 }

@@ -96,16 +96,16 @@ void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int r
   switch (algorithm)
       {
         case 0: // bfs filename root 
-          runBreadthFirstSearchAlgorithm(graph, datastructure, root, iterations);
+          runBreadthFirstSearchAlgorithm(graph, datastructure, root, trials);
           break;
         case 1: // pagerank filename
-          runPageRankAlgorithm(graph, datastructure, epsilon, trials, iterations, pushpull);
+          runPageRankAlgorithm(graph, datastructure, epsilon, iterations, trials, pushpull);
           break;
         case 2: // SSSP file name root
           printf(" SSSP to be implemented \n");
           break;
         default:// bfs file name root
-          runBreadthFirstSearchAlgorithm(graph,datastructure, root, iterations);
+          runBreadthFirstSearchAlgorithm(graph,datastructure, root, trials);
           break;          
       }
 
@@ -113,7 +113,7 @@ void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int r
 
 
 
-void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 iterations){
+void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
     struct GraphCSR* graphCSR = NULL;
@@ -128,7 +128,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             if(root >= 0 && root <= graphCSR->num_vertices){
               breadthFirstSearchGraphCSR(root, graphCSR);
             } 
-            while(iterations){
+            while(trials){
               while(1){
                 root = genrand_int32();
                   if(root < graphCSR->num_vertices){
@@ -139,7 +139,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
               if(root >= 0 && root <= graphCSR->num_vertices){
                 breadthFirstSearchGraphCSR(root, graphCSR);
               }   
-               iterations--;
+               trials--;
             }
             Start(timer);
             graphCSRFree(graphCSR);
@@ -152,7 +152,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             if(root >= 0 && root <= graphGrid->num_vertices){
               breadthFirstSearchGraphGrid(root, graphGrid);
             } 
-            while(iterations){
+            while(trials){
               while(1){
                 root = genrand_int32();
                   if(root < graphGrid->num_vertices){
@@ -163,7 +163,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
               if(root >= 0 && root <= graphGrid->num_vertices){
                 breadthFirstSearchGraphGrid(root, graphGrid);
               }   
-               iterations--;
+               trials--;
             }
             Start(timer); 
             graphGridFree(graphGrid);
@@ -176,7 +176,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
               if(root >= 0 && root <= graphAdjLinkedList->num_vertices){
               breadthFirstSearchGraphAdjLinkedList(root, graphAdjLinkedList);
             } 
-            while(iterations){
+            while(trials){
               while(1){
                 root = genrand_int32();
                   if(root < graphAdjLinkedList->num_vertices){
@@ -187,7 +187,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
               if(root >= 0 && root <= graphAdjLinkedList->num_vertices){
                 breadthFirstSearchGraphAdjLinkedList(root, graphAdjLinkedList);
               }   
-               iterations--;
+               trials--;
             }
             Start(timer); 
             graphAdjLinkedListFree(graphAdjLinkedList);
@@ -200,7 +200,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             if(root >= 0 && root <= graphAdjArrayList->num_vertices){
               breadthFirstSearchGraphAdjArrayList(root, graphAdjArrayList);
             } 
-            while(iterations){
+            while(trials){
               while(1){
                 root = genrand_int32();
                   if(root < graphAdjArrayList->num_vertices){
@@ -211,7 +211,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
               if(root >= 0 && root <= graphAdjArrayList->num_vertices){
                 breadthFirstSearchGraphAdjArrayList(root, graphAdjArrayList);
               }   
-               iterations--;
+               trials--;
             }
             Start(timer); 
             graphAdjArrayListFree(graphAdjArrayList);
@@ -224,7 +224,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             if(root >= 0 && root <= graphCSR->num_vertices){
               breadthFirstSearchUsingBitmapsGraphCSR(root, graphCSR);
             } 
-            while(iterations){
+            while(trials){
               while(1){
                 root = genrand_int32();
                   if(root < graphCSR->num_vertices){
@@ -235,7 +235,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
               if(root >= 0 && root <= graphCSR->num_vertices){
                 breadthFirstSearchUsingBitmapsGraphCSR(root, graphCSR);
               }   
-               iterations--;
+               trials--;
             }
             Start(timer);
             graphCSRFree(graphCSR);
@@ -248,7 +248,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             if(root >= 0 && root <= graphGrid->num_vertices){
               breadthFirstSearchGraphGridBitmap(root, graphGrid);
             } 
-            while(iterations){
+            while(trials){
               while(1){
                 root = genrand_int32();
                   if(root < graphGrid->num_vertices){
@@ -259,7 +259,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
               if(root >= 0 && root <= graphGrid->num_vertices){
                 breadthFirstSearchGraphGridBitmap(root, graphGrid);
               }   
-               iterations--;
+               trials--;
             }
             Start(timer); 
             graphGridFree(graphGrid);
@@ -274,7 +274,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             if(root >= 0 && root <= graphCSR->num_vertices){
               breadthFirstSearchGraphCSR(root, graphCSR);
             } 
-            while(iterations){
+            while(trials){
               while(1){
                 root = genrand_int32();
                   if(root < graphCSR->num_vertices){
@@ -285,7 +285,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
               if(root >= 0 && root <= graphCSR->num_vertices){
                 breadthFirstSearchGraphCSR(root, graphCSR);
               }   
-               iterations--;
+               trials--;
             }
             Start(timer);
             graphCSRFree(graphCSR);
@@ -299,7 +299,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
 }
 
 
-void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 trials, __u32 iterations, __u32 pushpull){
+void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 trials, __u32 pushpull){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
     struct GraphCSR* graphCSR = NULL;
@@ -312,7 +312,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
       { 
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
-            pageRankGraphCSR(epsilon , trials, pushpull, graphCSR);
+            pageRankGraphCSR(epsilon , iterations, pushpull, graphCSR);
             Start(timer);
             graphCSRFree(graphCSR);
             Stop(timer);
@@ -321,7 +321,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
 
         case 1: // Grid
             graphGrid = (struct GraphGrid*)graph;
-            pageRankGraphGrid(epsilon , trials, pushpull, graphGrid);
+            pageRankGraphGrid(epsilon , iterations, pushpull, graphGrid);
             Start(timer); 
             graphGridFree(graphGrid);
             Stop(timer);
@@ -330,7 +330,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
 
         case 2: // Adj Linked List
             graphAdjLinkedList = (struct GraphAdjLinkedList*)graph;
-            pageRankGraphAdjLinkedList(epsilon , trials, pushpull, graphAdjLinkedList);
+            pageRankGraphAdjLinkedList(epsilon , iterations, pushpull, graphAdjLinkedList);
             Start(timer); 
             graphAdjLinkedListFree(graphAdjLinkedList);
             Stop(timer);
@@ -340,7 +340,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
         case 3: // Adj Array List
             graphAdjArrayList = (struct GraphAdjArrayList*)graph;
             
-            pageRankGraphAdjArrayList(epsilon , trials, pushpull, graphAdjArrayList);
+            pageRankGraphAdjArrayList(epsilon , iterations, pushpull, graphAdjArrayList);
 
             Start(timer); 
             graphAdjArrayListFree(graphAdjArrayList);
@@ -350,7 +350,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
           
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
-            pageRankGraphCSR(epsilon , trials, pushpull, graphCSR);
+            pageRankGraphCSR(epsilon , iterations, pushpull, graphCSR);
             Start(timer);
             graphCSRFree(graphCSR);
             Stop(timer);

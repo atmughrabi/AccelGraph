@@ -17,11 +17,11 @@ static void usage(void) {
   printf("\t-a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP\n");
   printf("\t-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List [4-5] same order bitmap frontiers\n");
   printf("\t-r [root]: BFS & SSSP root\n");
-  printf("\t-p [algorithm direction] 0 push 1 pull 2 push/pull\n");
+  printf("\t-p [algorithm direction] [0-1] push-pull [2-3] push-pull fixed point arithmetic [4-7] same order but using data driven\n");
   printf("\t-o [sorting algorithm] 0 radix-src 1 radix-src-dest 2 count-src 3 count-src-dst.\n");
   printf("\t-n [num threads] default:max number of threads the system has\n");
-  printf("\t-i [num iterations] number of random iterations for each whole run [default:0]\n");
-  printf("\t-t [num trials] number of iterations for page rank random to converge\n");
+  printf("\t-i [num iterations] number of iterations for page rank random to converge\n");
+  printf("\t-t [num trials] number of random trials for each whole run [default:0]\n");
   printf("\t-e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001]\n");
   printf("\t-c: convert to bin file on load example:-f <graph file> -c\n");
   // printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
@@ -48,8 +48,8 @@ int main (int argc, char **argv)
   char *pvalue = NULL;
   char *ovalue = NULL;
 
-  __u32 iterations = 0;
-  __u32 trials = 20;
+  __u32 iterations = 20;
+  __u32 trials = 0;
   double epsilon = 0.0001;
   int root = -1;
   __u32 algorithm = 0;

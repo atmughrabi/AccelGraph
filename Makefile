@@ -78,6 +78,10 @@ $(APP_DIR)/$(OBJ_DIR)/progressbar.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/progressb
 	@echo 'making $(GAPP) <- progressbar.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/progressbar.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/progressbar.c
 
+$(APP_DIR)/$(OBJ_DIR)/fixedPoint.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/fixedPoint.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/fixedPoint.h
+	@echo 'making $(GAPP) <- fixedPoint.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/fixedPoint.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/fixedPoint.c
+
 $(APP_DIR)/$(OBJ_DIR)/radixsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/radixsort.c $(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)/radixsort.h
 	@echo 'making $(GAPP) <- radixsort.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/radixsort.o $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/radixsort.c
@@ -150,7 +154,6 @@ $(APP_DIR)/$(OBJ_DIR)/pageRank.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/pageRank.c $
 	@echo 'making $(GAPP) <- pageRank.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/pageRank.o $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/pageRank.c
 
-
 $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o: $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).c
 	@echo 'making $(GAPP) <- $(GAPP).o'
 	@$(CC) $(CFLAGS) -c -o $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
@@ -172,6 +175,8 @@ bitmap: $(APP_DIR)/$(OBJ_DIR)/bitmap.o
 myMalloc: $(APP_DIR)/$(OBJ_DIR)/myMalloc.o
 
 progressbar: $(APP_DIR)/$(OBJ_DIR)/progressbar.o
+
+fixedPoint: $(APP_DIR)/$(OBJ_DIR)/fixedPoint.o
 
 timer: $(APP_DIR)/$(OBJ_DIR)/timer.o
 
@@ -213,8 +218,8 @@ BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
 
 pageRank: $(APP_DIR)/$(OBJ_DIR)/pageRank.o
 	
-test: sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
-	@echo 'linking $(GAPP) <- sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
+test: fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+	@echo 'linking $(GAPP) <- fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
@@ -228,6 +233,7 @@ test: sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adj
 	$(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/graphGrid.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/fixedPoint.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/myMalloc.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
@@ -242,8 +248,8 @@ test: sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adj
 	 -o $(APP_DIR)/test/$(GAPP)				\
 	 $(CFLAGS)
 
-test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc bitmap arrayQueue BFS
-	@echo 'linking $(GAPP) <- graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
+test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc bitmap arrayQueue BFS
+	@echo 'linking $(GAPP) <- fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP)-capi.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
@@ -257,6 +263,7 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 	$(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/graphGrid.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/fixedPoint.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/myMalloc.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
@@ -274,19 +281,17 @@ test-capi: app-capi graphRun graphGrid grid graphAdjArrayList adjArrayList adjLi
 	$(CFLAGS) \
 
 # Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w].
-#   -a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP.
-#   -d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List [4-5] same order bitmap frontiers.
-#   -r [root]: BFS & SSSP root.
-#   -p [algorithm direction] 0 push 1 pull 2 push/pull.
-#   -o [sorting algorithm] 0 radix-src 1 radix-src-dest 2 count-src 3 count-src-dst.
-#   -n [num threads] default:max number of threads the system has.
-#   -i [num iterations] number of random trials [default:0].
-#   -t [num iterations] number of iterations for page rank random.
-#   -e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001].
-#   -c: convert to bin file on load example:-f <graph file> -c.
-#   -u: create undirected on load => check graphConfig.h -> define DIRECTED 0 then recompile.
-#   -w: weighted input graph check graphConfig.h ->define WEIGHTED 1 then recompile.
-#   -s: symmetric graph, if not given set of incoming edges will be created . 
+  # -a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP
+  # -d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List [4-5] same order bitmap frontiers
+  # -r [root]: BFS & SSSP root
+  # -p [algorithm direction] [0-1] push-pull [2-3] push-pull fixed point arithmetic [4-7] same order but using data driven
+  # -o [sorting algorithm] 0 radix-src 1 radix-src-dest 2 count-src 3 count-src-dst.
+  # -n [num threads] default:max number of threads the system has
+  # -i [num iterations] number of iterations for page rank random to converge
+  # -t [num trials] number of random trials for each whole run [default:0]
+  # -e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001]
+  # -c: convert to bin file on load example:-f <graph file> -c
+
 
 # fnameb = "host/app/datasets/RMAT/RMAT-26.bin"
 # fnameb = "host/app/datasets/RMAT/RMAT19.txt"
@@ -309,15 +314,15 @@ root = -1
 # root = 428333
 datastructure = 0
 algorithm = 1
-numThreads  = 4
-iterations = 4
-trials = 10
+numThreads  = 8
+iterations = 20
+trials = 1
 tolerance = 0.0001
 sort = 0
 pushpull = 1
 	
 run: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials)
 	
 run-bfs: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -i $(iterations) #CSR with Qs
