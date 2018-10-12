@@ -317,12 +317,12 @@ algorithm = 1
 numThreads  = 8
 iterations = 20
 trials = 1
-tolerance = 0.0001
+tolerance = 0.000001
 sort = 0
-pushpull = 1
+pushpull = 3
 	
 run: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance)
 	
 run-bfs: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -i $(iterations) #CSR with Qs
@@ -340,9 +340,9 @@ run-pr: test
 
 run-sort: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 0  #radix src
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 1 #radix src-dst
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 2 #count src
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 3 #count src-dst
+	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 1 #radix src-dst
+	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 2 #count src
+	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 3 #count src-dst
 
 run-capi: test-capi
 	./$(APP_DIR)/test/$(GAPP)-capi -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)

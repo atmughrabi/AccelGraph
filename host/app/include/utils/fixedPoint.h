@@ -6,8 +6,8 @@
 //0100 1010 1010 0010.1101 0101 0101 0011
 //0000 0000 0000 0000.1111 1111 1111 1111
 
-#define SCALEF 16 // 1/2^16
-#define SCALED 32 // 1/2^32
+#define SCALEF 24 // 1/2^16
+#define SCALED 53 // 1/2^32
 #define EPSILON 1  // smallest possible increment or decrement you can perform
 #define FRACTION_MASK_32 (0xFFFF_FFFF >> (32-SCALEF))
 #define FRACTION_MASK_64 (0xFFFF_FFFF_FFFF_FFFF >> (64-SCALED))

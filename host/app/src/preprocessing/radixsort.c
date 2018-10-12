@@ -74,19 +74,18 @@ void radixSortCountSortEdgesBySource (struct Edge** sorted_edges_array, struct E
 
         #pragma omp barrier
 
-
-        //SCAN BUCKETS
+       
+        // SCAN BUCKETS
         if(t_id == 0){
-
-        for(i=0; i < buckets; i++){
-             for(j=0 ; j < P; j++){
-             t = buckets_count[(j*buckets)+i];
-             buckets_count[(j*buckets)+i] = base;
-             base += t;
-         }
+            for(i=0; i < buckets; i++){
+                 for(j=0 ; j < P; j++){
+                 t = buckets_count[(j*buckets)+i];
+                 buckets_count[(j*buckets)+i] = base;
+                 base += t;
+                }
+            }
         }
 
-        }
 
         #pragma omp barrier
 
