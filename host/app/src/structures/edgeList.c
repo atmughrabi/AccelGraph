@@ -207,7 +207,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         __u32 i;
         __u32 num_vertices = 0;
 
-        #pragma omp parallel for reduction(max:num_vertices) 
+        // #pragma omp parallel for reduction(max:num_vertices) 
         for(i = 0; i < num_edges-1; i++){
 
                 src = buf_pointer[((offset)*i)+0];
