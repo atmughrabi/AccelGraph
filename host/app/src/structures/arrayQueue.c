@@ -38,6 +38,16 @@ struct ArrayQueue *newArrayQueue(__u32 size){
 
 }
 
+
+void resetArrayQueue(struct ArrayQueue *q){
+
+	q->head = 0;
+    q->tail = 0;
+    q->tail_next = 0;
+    clearBitmap(q->q_bitmap);
+
+}
+
 void freeArrayQueue(struct ArrayQueue *q){
 
 	freeBitmap(q->q_bitmap_next);
@@ -51,7 +61,7 @@ void freeArrayQueue(struct ArrayQueue *q){
 void enArrayQueue (struct ArrayQueue *q, __u32 k){
 
 	q->queue[q->tail] = k;
-	q->tail++;
+	q->tail = (q->tail+1)%q->size;
 	q->tail_next = q->tail;
 
 }
@@ -79,8 +89,8 @@ void enArrayQueueAtomic (struct ArrayQueue *q, __u32 k){
 void enArrayQueueWithBitmapAtomic (struct ArrayQueue *q, __u32 k){
 
 	__u32 local_q_tail = __sync_fetch_and_add(&q->tail,1);
-	setBitAtomic(q->q_bitmap, k);
 	q->queue[local_q_tail] = k;
+	setBitAtomic(q->q_bitmap, k);
 
 }
 
@@ -129,11 +139,12 @@ __u32 deArrayQueue(struct ArrayQueue *q){
 
 	__u32 k = q->queue[q->head];
 	clearBit(q->q_bitmap,k);
-	q->head++;
+	q->head = (q->head+1)%q->size;
 
 	return k;
 
 }
+
 
 __u32 frontArrayQueue (struct ArrayQueue *q){
 

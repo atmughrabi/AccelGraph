@@ -8,6 +8,7 @@
 #include "myMalloc.h"
 #include "boolean.h"
 #include "arrayQueue.h"
+#include "bitmap.h"
 #include "BFS.h"
 
 #include "graphCSR.h"
