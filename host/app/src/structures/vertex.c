@@ -192,7 +192,7 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
     #pragma omp parallel default(none) private(i,vertex_id) shared(graph,sorted_edge_array,vertices,sorted_edges_array,offset_start_arr,offset_end_arr) firstprivate(t_id, offset_end,offset_start) 
     {
         
-        // t_id = omp_get_thread_num();
+        t_id = omp_get_thread_num();
 
         offset_start = offset_start_arr[t_id];
         offset_end = offset_end_arr[t_id];
@@ -263,7 +263,7 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
 
 // printVertexArray(graph->vertices, graph->num_vertices);
 // printVertexArray(graph->inverse_vertices, graph->num_vertices);
-printVertexArray(graph->vertices,graph->num_vertices);
+// printVertexArray(graph->vertices,graph->num_vertices);
 return graph;
 
 }

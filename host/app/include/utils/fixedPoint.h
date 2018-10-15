@@ -6,8 +6,9 @@
 //0100 1010 1010 0010.1101 0101 0101 0011
 //0000 0000 0000 0000.1111 1111 1111 1111
 
-#define SCALEF 24 // 1/2^16
-#define SCALED 54 // 1/2^32
+#define WHOLEW 16
+#define SCALEF (32-WHOLEW) // 1/2^16
+#define SCALED (64-WHOLEW) // 1/2^32
 #define EPSILON 1  // smallest possible increment or decrement you can perform
 #define FRACTION_MASK_32 (0xFFFF_FFFF >> (32-SCALEF))
 #define FRACTION_MASK_64 (0xFFFF_FFFF_FFFF_FFFF >> (64-SCALED))
@@ -21,15 +22,17 @@
 #define FixedToFloat64(num)	((float)(num) / (float)((__u64)(1)<<SCALED))
 #define FixedToFloat32(num)	((float)(num) / (float)((__u32)(1)<<SCALEF))
 
-#define UInt64ToFixed(num)	((__u64) (num)<<SCALED)
+
 #define UInt32ToFixed(num)	((__u32) (num)<<SCALEF)
+#define UInt64ToFixed(num)	((__u64) (num)<<SCALED)
 #define Int32ToFixed(num)	( (num)<<SCALEF)
 #define Int64ToFixed(num)	( (num)<<SCALED)
 
-#define FixeToUInt64(num)	((__u64) (num)>>SCALED)
-#define FixeToUInt32(num)	((__u32) (num)>>SCALEF)
-#define FixeToInt32(num)	( (num)>>SCALEF)
-#define FixeToInt64(num)	( (num)>>SCALED)
+
+#define FixedToUInt32(num)	((__u32) (num)>>SCALEF)
+#define FixedToUInt64(num)	((__u64) (num)>>SCALED)
+#define FixedToInt32(num)	( (num)>>SCALEF)
+#define FixedToInt64(num)	( (num)>>SCALED)
 
 #define FractionPart32(num)	( (num) & FRACTION_MASK_32)
 #define FractionPart64(num)	( (num) & FRACTION_MASK_64)
@@ -37,15 +40,16 @@
 #define WholePart64(num)	( (num) & WHOLE_MASK_64)
 
 #define MULFixed32V1(x,y) (((__u64)(x)*(__u64)(y))>>SCALEF) // slow
-#define MULFixed64V1(x,y) (((__u64)(x)*(__u64)(y))>>SCALED)
+#define MULFixed64V1(x,y) (((__uint128_t)(x)*(__uint128_t)(y))>>SCALED)
  
 #define MULFixed32V2(x,y) ((((x)>>8)*((y)>>8))>>0) // fast lose precision
 
 
-#define DIVFixed32V1(x,y) (((__u64)(x) << SCALEF)/(y)) // slow
-#define DIVFixed64V1(x,y) (((__u64)(x) << SCALED)/(y))
+#define DIVFixed32V1(x,y) (((__u64)(x) << SCALEF)/(__u64)(y)) // slow
+#define DIVFixed64V1(x,y) (((__uint128_t)(x) << SCALED)/(__uint128_t)(y))
  
 #define DIVFixed32V2(x,y) ((((x)<<8)/((y)<<8))) // fast lose precision
+#define DIVFixed64V2(x,y) ((((x)<<16)/((y)<<16))) // fast lose precision
 
 __u32 floatToFixed(float num); 
 __u64 foubleToFixed(double num);

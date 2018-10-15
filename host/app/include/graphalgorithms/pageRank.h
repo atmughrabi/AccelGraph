@@ -10,12 +10,18 @@
 #define Damp 0.85f
 
 // ********************************************************************************************
-// ***************					Auxilary functions  	  					 **************
+// ***************					Auxiliary functions  	  					 **************
 // ********************************************************************************************
 void addAtomicFixedPoint(__u64 *num, __u64 value);
 void addAtomicFloat(float *num, float value);
+void addAtomicDouble(double *num, double value);
+void setAtomic(__u64 *num, __u64 value);
+
 void pageRankPrint(float *pageRankArray, __u32 num_vertices);
 void pageRankCompare(float *pageRankArrayOp1,float *pageRankArrayOp2);
+void swapWorkLists (__u8** workList1, __u8** workList2);
+void resetWorkList(__u8* workList, __u32 size);
+void setWorkList(__u8* workList,  __u32 size);
 
 // ********************************************************************************************
 // ***************					GRID DataStructure							 **************
