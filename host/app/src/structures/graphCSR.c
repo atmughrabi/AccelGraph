@@ -198,8 +198,9 @@ struct GraphCSR* graphCSRAssignEdgeList (struct GraphCSR* graphCSR, struct EdgeL
     
     #endif
 
-  
+    
 	return mapVerticesWithInOutDegree (graphCSR,inverse);   
+
     
 }
 
@@ -235,6 +236,8 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort){
     Start(timer);
     graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
     Stop(timer);
+
+
     graphCSRPrintMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
 
      #if DIRECTED

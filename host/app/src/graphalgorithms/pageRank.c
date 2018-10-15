@@ -284,14 +284,12 @@ void pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
 
 }
 void pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
-
+ 
+ 
 	__u32 iter;
   __u32 i;
-  __u32 j;
   __u32 v;
-  __u32 u;
-  __u32 degree;
-  __u32 edge_idx;
+ 
   // double error = 0;
   __u32 activeVertices = 0;
   double error_total = 0;
@@ -353,13 +351,16 @@ void pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
       
     }
     
-    #pragma omp parallel for default(none) schedule(dynamic, 1024) private(v,j,u,degree,edge_idx) shared(graph,pageRanksNext,riDividedOnDiClause)
+    #pragma omp parallel for default(none) schedule(dynamic, 1024) private(v) shared(graph,pageRanksNext,riDividedOnDiClause)
     for(v = 0; v < graph->num_vertices; v++){
-      degree = graph->vertices[v].out_degree;
-      edge_idx = graph->vertices[v].edges_idx;
+
+      __u32 degree = graph->vertices[v].out_degree;
+      __u32 edge_idx = graph->vertices[v].edges_idx;
       __u32 tid = omp_get_thread_num();
+      __u32 j;
+
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
-        u = graph->sorted_edge_array[j];
+       __u32 u = graph->sorted_edge_array[j];
         // u =  graph->sorted_edges_array[j].src;
         // omp_set_lock(&(vertex_lock[u]));
         //   pageRanksNext[u] += riDividedOnDiClause[v];

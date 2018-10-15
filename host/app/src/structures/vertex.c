@@ -189,17 +189,21 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
 
     
 
-    #pragma omp parallel default(none) private(i,vertex_id) shared(sorted_edge_array,vertices,sorted_edges_array,offset_start_arr,offset_end_arr) firstprivate(t_id, offset_end,offset_start) 
+    #pragma omp parallel default(none) private(i,vertex_id) shared(graph,sorted_edge_array,vertices,sorted_edges_array,offset_start_arr,offset_end_arr) firstprivate(t_id, offset_end,offset_start) 
     {
         
-        t_id = omp_get_thread_num();
+        // t_id = omp_get_thread_num();
 
         offset_start = offset_start_arr[t_id];
         offset_end = offset_end_arr[t_id];
 
+        if(offset_start < graph->num_edges){
+
         vertex_id = sorted_edges_array[offset_start].src;
         vertices[vertex_id].edges_idx = offset_start;
         vertices[vertex_id].out_degree++;
+
+         // printf("tid %u start %u end %u v vertex_id %u\n",t_id,offset_start,offset_end,vertex_id );
 
         sorted_edge_array[offset_start] = sorted_edges_array[offset_start].dest;
 
@@ -217,9 +221,9 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
         else{
             vertices[vertex_id].out_degree++;
            
+            }
         }
     }
-
 
     }
 
@@ -257,6 +261,9 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
     //         freeEdgeArray(graph->inverse_sorted_edges_array);
     // #endif
 
+// printVertexArray(graph->vertices, graph->num_vertices);
+// printVertexArray(graph->inverse_vertices, graph->num_vertices);
+printVertexArray(graph->vertices,graph->num_vertices);
 return graph;
 
 }
