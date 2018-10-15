@@ -39,12 +39,17 @@ void pageRankPullPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGr
 void pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph);
 void pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
 void pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
+
 void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
 void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
+
 void pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
 void pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
+void pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
+
 void pageRankDataDrivenPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
 void pageRankDataDrivenPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
+void pageRankDataDrivenPullPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
 
 // ********************************************************************************************
 // ***************					ArrayList DataStructure					     **************
