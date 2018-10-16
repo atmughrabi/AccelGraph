@@ -93,6 +93,13 @@ __u32 getBit(struct Bitmap* bitmap, __u32 pos){
 
 }
 
+
+// __u32 getBitAtomic(struct Bitmap* bitmap, __u32 pos){
+
+// 	return (bitmap->bitarray[word_offset(pos)] >> bit_offset(pos)) & 1l;;
+
+// }
+
 void clearBit(struct Bitmap* bitmap, __u32 pos){
 
 	bitmap->bitarray[word_offset(pos)] &= ((__u32) (~(1l << bit_offset(pos))));

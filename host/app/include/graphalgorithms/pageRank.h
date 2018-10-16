@@ -12,6 +12,7 @@
 // ********************************************************************************************
 // ***************					Auxiliary functions  	  					 **************
 // ********************************************************************************************
+
 void addAtomicFixedPoint(__u64 *num, __u64 value);
 void addAtomicFloat(float *num, float value);
 void addAtomicDouble(double *num, double value);
@@ -30,7 +31,11 @@ void setWorkList(__u8* workList,  __u32 size);
 void pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphGrid* graph);
 void pageRankPullGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 void pageRankPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
-void pageRankPullPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
+
+void pageRankStreamEdgesGraphGridBitmap(struct GraphGrid* graph, struct Bitmap* FrontierBitmapCurr, struct Bitmap* FrontierBitmapNext);
+void pageRankPartitionGraphGridBitmap(struct GraphGrid* graph, struct Partition* partition,struct Bitmap* FrontierBitmapCurr, struct Bitmap* FrontierBitmapNext);
+void pageRankSetActivePartitionsBitmap(struct GraphGrid* graph, struct Bitmap* FrontierBitmap);
+
 
 // ********************************************************************************************
 // ***************					CSR DataStructure							 **************
@@ -63,7 +68,6 @@ void pageRankPullPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct
 // ********************************************************************************************
 // ***************					LinkedList DataStructure					 **************
 // ********************************************************************************************
-
 
 void pageRankGraphAdjLinkedList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList* graph);
 void pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph);

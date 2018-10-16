@@ -300,11 +300,11 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 # fnameb = "host/app/datasets/RMAT/RMAT22.bin"
 
 #app command line arguments
-# fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
+fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
 root = -1
 
 
-fnameb = "host/app/datasets/test/test.txt.bin"
+# fnameb = "host/app/datasets/test/test.txt.bin"
 # root  = 6
 
 # fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
@@ -317,7 +317,7 @@ algorithm = 1
 numThreads  = 1
 iterations = 100
 trials = 1
-tolerance = 1e-12
+tolerance = 1e-5
 sort = 0
 pushpull = 1
 	
