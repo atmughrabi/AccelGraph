@@ -314,12 +314,12 @@ root = -1
 # root = 428333
 datastructure = 0
 algorithm = 1
-numThreads  = 1
+numThreads  = 8
 iterations = 100
 trials = 1
 tolerance = 1e-5
 sort = 0
-pushpull = 1
+pushpull = 0
 	
 run: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance)

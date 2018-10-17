@@ -401,17 +401,25 @@ void pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
 
   }// end iteration loop
 
-  #pragma omp parallel for
+  double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
   for(v = 0; v < graph->num_vertices; v++){
     pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    sum += pageRanks[v];
   }
 
   Stop(timer);
 
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",iter, sum, error_total, Seconds(timer));
+  printf(" -----------------------------------------------------\n");
 
-  printf(" -----------------------------------------------------\n");
-  printf("| %-15s | %-15u | %-15f | \n","total", iter+1, Seconds(timer));
-  printf(" -----------------------------------------------------\n");
+
+  // printf(" -----------------------------------------------------\n");
+  // printf("| %-10s | %-8lf | %-15s | %-9s | \n","PR Sum ",sum, iter, Seconds(timer));
+  // printf(" -----------------------------------------------------\n");
 
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
@@ -538,20 +546,20 @@ void pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
   }// end iteration loop
 
 
-  #pragma omp parallel for
+  double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
   for(v = 0; v < graph->num_vertices; v++){
     pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    sum += pageRanks[v];
   }
 
-  
-
   Stop(timer);
-  
 
   printf(" -----------------------------------------------------\n");
-  printf("| %-15s | %-15u | %-15f | \n","total", iter+1, Seconds(timer));
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
   printf(" -----------------------------------------------------\n");
-
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",iter, sum, error_total, Seconds(timer));
+  printf(" -----------------------------------------------------\n");
   // pageRankPrint(pageRanks, graph->num_vertices);
 
   #pragma omp parallel for
@@ -668,15 +676,19 @@ void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
 
   }// end iteration loop
 
-  #pragma omp parallel for
+   double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
   for(v = 0; v < graph->num_vertices; v++){
     pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    sum += pageRanks[v];
   }
 
   Stop(timer);
 
   printf(" -----------------------------------------------------\n");
-  printf("| %-15s | %-15u | %-15f | \n","total", iter+1, Seconds(timer));
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",iter, sum, error_total, Seconds(timer));
   printf(" -----------------------------------------------------\n");
 
   // pageRankPrint(pageRanks, graph->num_vertices);
@@ -809,15 +821,19 @@ void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
   }// end iteration loop
 
 
-  #pragma omp parallel for
+   double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
   for(v = 0; v < graph->num_vertices; v++){
     pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    sum += pageRanks[v];
   }
 
   Stop(timer);
 
   printf(" -----------------------------------------------------\n");
-  printf("| %-15s | %-15u | %-15f | \n","total", iter+1, Seconds(timer));
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",iter, sum, error_total, Seconds(timer));
   printf(" -----------------------------------------------------\n");
 
   // pageRankPrint(pageRanks, graph->num_vertices);
@@ -969,17 +985,22 @@ void pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct Gr
       break;
 
   }// end iteration loop
-  Stop(timer);
 
-  #pragma omp parallel for
+   double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
   for(v = 0; v < graph->num_vertices; v++){
     pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    sum += pageRanks[v];
   }
 
+  Stop(timer);
 
   printf(" -----------------------------------------------------\n");
-  printf("| %-15s | %-15u | %-15f | \n","total", iter+1, Seconds(timer));
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
   printf(" -----------------------------------------------------\n");
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",iter, sum, error_total, Seconds(timer));
+  printf(" -----------------------------------------------------\n");
+
 
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(workListCurr);
@@ -1128,19 +1149,22 @@ void pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct Gr
 
   }// end iteration loop
 
-  #pragma omp parallel for
+
+   double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
   for(v = 0; v < graph->num_vertices; v++){
     pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    sum += pageRanks[v];
   }
-
-  
 
   Stop(timer);
 
-  
   printf(" -----------------------------------------------------\n");
-  printf("| %-15s | %-15u | %-15f | \n","total", iter+1, Seconds(timer));
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
   printf(" -----------------------------------------------------\n");
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",iter, sum, error_total, Seconds(timer));
+  printf(" -----------------------------------------------------\n");
+
 
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(workListCurr);
@@ -1293,24 +1317,20 @@ void pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, struc
 
   }// end iteration loop
 
-  #pragma omp parallel for
+
+   double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
   for(v = 0; v < graph->num_vertices; v++){
     pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    sum += pageRanks[v];
   }
-
 
   Stop(timer);
 
-  // float sum = 0.0f;
-  //  #pragma omp parallel for reduction(+:sum)
-  // for(v = 0; v < graph->num_vertices; v++){
-  //   sum += pageRanks[v];
-  // }
-
-  // printf("Sum PR %f \n" ,sum);
-
   printf(" -----------------------------------------------------\n");
-  printf("| %-15s | %-15u | %-15f | \n","total", iter+1, Seconds(timer));
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",iter, sum, error_total, Seconds(timer));
   printf(" -----------------------------------------------------\n");
 
   // pageRankPrint(pageRanks, graph->num_vertices);
