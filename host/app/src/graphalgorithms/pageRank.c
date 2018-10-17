@@ -525,6 +525,9 @@ void pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
 
     #pragma omp parallel for private(v) shared(epsilon, pageRanks,pageRanksNext,base_pr) reduction(+ : error_total, activeVertices) 
     for(v = 0; v < graph->num_vertices; v++){
+
+
+
       float prevPageRank =  pageRanks[v];
       float nextPageRank =  base_pr + (Damp * pageRanksNext[v]);
       pageRanks[v] = nextPageRank;
@@ -776,6 +779,8 @@ void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
     // Start(timer_inner);
     #pragma omp parallel for default(none) schedule(dynamic, 1024) private(v) shared(graph,pageRanksNext,riDividedOnDiClause)
     for(v = 0; v < graph->num_vertices; v++){
+
+      
 
       __u32 degree = graph->vertices[v].out_degree;
       __u32 edge_idx = graph->vertices[v].edges_idx;

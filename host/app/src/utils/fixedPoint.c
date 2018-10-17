@@ -5,73 +5,230 @@
 #include "fixedPoint.h"
 
 
-__u32 floatToFixed(float num){
+void initFixedPoint(struct FixedPoint* fp){
 
-	return (num * (float)((__u32)1<<SCALEF));
-
-}
-
-__u64 doubleToFixed(double num){
-
-	return (num * (double)((__u64)1<<SCALED));
 
 }
 
-double fixedToDouble(__u64 num){
+__u32 floatToFixed32(float num){
 
-	return ((double)num / (double)((__u64)1<<SCALED));
 
-}
 
-float  fixedToFloat(__u32 num){
+}	//((num) * (float)((__u32)(1)<<SCALEF))
+__u32 doubleToFixed32(double num){
 
-	return ((float)num / (float)((__u32)1<<SCALEF));
 
-}
 
-__u32 uInt32ToFixed(__u32 num){
+}	//((num) * (double)((__u32)(1)<<SCALEF))
 
-	return ((__u32) num<<SCALEF);
+__u64 floatToFixed64(float num){
 
-}	
 
-__u64 uInt64ToFixed(__u64 num){
 
-	return ((__u64) num<<SCALED);
+}	//((num) * (float)((__u32)(1)<<SCALEF))
+__u64 doubleToFixed64(double num){
 
-}	
 
-int int32ToFixed(int num){
 
-	return (num<<SCALEF);
 
-}	
+}	//((num) * (double)((__u64)(1)<<SCALED))
 
-long int64ToFixed(long num){
+double fixed32ToDouble32(__u32 num){
 
-	return (num<<SCALED);
 
-}	
 
-__u64 fixeToUInt64(__u64 num){
+}	//((double)(num) / (double)((__u32)(1)<<SCALEF))
+double fixed32ToDouble64(__u32 num){
 
-	return ((__u64) num>>SCALED);
 
-}	
-__u32 fixeToUInt32(__u32 num){
 
-	return ((__u32) num>>SCALEF);
+}	//((double)(num) / (double)((__u64)(1)<<SCALED))
 
-}
+float fixed32ToFloat(__u32 num){
 
-int fixeToInt32(int num){
 
-	return ( num>>SCALEF);
 
-}
+}	//((float)(num) / (float)((__u32)(1)<<SCALEF))
+float fixed32ToDouble(__u32 num){
 
-long fixeToInt64(long num){
 
-	return ( num>>SCALED);
 
-}	
+}	//((float)(num) / (float)((__u64)(1)<<SCALED))
+
+float fixed64ToFloat(__u64 num){
+
+
+
+}	//((float)(num) / (float)((__u32)(1)<<SCALEF))
+double fixed64ToDouble(__u64 num){
+
+
+
+}	//((float)(num) / (float)((__u64)(1)<<SCALED))
+
+__u32 uInt32ToFixed32(__u32 num){
+
+
+
+}	//((__u32) (num)<<SCALEF)
+__u32 uInt64ToFixed32(__u64 num){
+
+
+
+}	//((__u64) (num)<<SCALED)
+
+__u64 int32ToFixed64(int num){
+
+
+
+
+}	//( (num)<<SCALEF)
+__u64 int64ToFixed64(long num){
+
+
+
+
+}	//( (num)<<SCALED)
+
+__u64 int32ToFixed64(int num){
+
+
+
+
+}	//( (num)<<SCALEF)
+__u64 int64ToFixed64(long num){
+
+
+
+
+}	//( (num)<<SCALED)
+
+__u32 fixed32ToUInt32(__u32 num){
+
+
+
+
+}	//((__u32) (num)>>SCALEF)
+__u64 fixed32ToUInt64(__u32 num){
+
+
+
+
+}	//((__u64) (num)>>SCALED)
+
+__u32 fixed64ToUInt32(__u64 num){
+
+
+
+
+}	//((__u32) (num)>>SCALEF)
+__u64 fixed64ToUInt64(__u64 num){
+
+
+
+
+}	//((__u64) (num)>>SCALED)
+
+int fixed32ToInt32(__u32 num){
+
+
+
+
+}  	//( (num)>>SCALEF)
+long fixed32ToInt64(__u32 num){
+
+
+
+
+}	//( (num)>>SCALED)
+
+int fixed64ToInt32(__u64 num){
+
+
+
+
+}  	//( (num)>>SCALEF)
+long fixed64ToInt64(__u64 num){
+
+
+
+
+}	//( (num)>>SCALED)
+
+__u32 fractionPart32(__u32 num){
+
+
+
+
+}	//( (num) & FRACTION_MASK_32)
+__u32 wholePart32(__u32 num){
+
+
+
+
+}	//( (num) & WHOLE_MASK_32)
+
+__u64 fractionPart64(__u64 num){
+
+
+
+
+}	//( (num) & FRACTION_MASK_64)
+__u64 wholePart64(__u64 num){
+
+
+
+
+}	//( (num) & WHOLE_MASK_64)
+
+__u64 mul32U(__u32 x,__u32 y){
+
+
+
+
+}         //((__u64)((__u64)(x)*(__u64)(y)))
+__u32 mulFixed32V1(__u32 x,__u32 y){
+
+
+
+
+} //(MUL32U(x,y)>>SCALEF) // slow
+__u32 mulFixed32V1ROUND(__u32 x,__u32 y){
+
+
+
+
+} //(MUL32U(x,y)  + (MUL32U(x,y) & (1<<(SCALEF-1))<<1)) // slow
+
+__uint128_t mul64U(__u64 x,__u64 y){
+
+
+
+
+}         //((__uint128_t)((__uint128_t)(x)*(__uint128_t)(y)))
+__u64 mulFixed64V1(__u64 x,__u64 y){
+
+
+
+
+} //(MUL64U(x,y)>>SCALED) // slow
+__u64 mulFixed64V1ROUND(__u64 x,__u64 y){
+
+
+
+
+} //(MUL64U(x,y)  + (MUL64U(x,y) & (1<<(SCALED-1))<<1)) // slow
+ 
+
+__u32 divFixed32V1(__u32 x,__u32 y){
+
+
+
+
+} //(((__u64)(x) << SCALEF)/(__u64)(y)) // slow
+__u64 divFixed64V1(__u64 x,__u64 y){
+
+
+
+	
+} //(((__uint128_t)(x) << SCALED)/(__uint128_t)(y))
