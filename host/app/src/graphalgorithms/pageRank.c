@@ -1819,31 +1819,54 @@ void pageRankGraphAdjArrayList(double epsilon,  __u32 iterations, __u32 pushpull
 
 	switch (pushpull)
       { 
-        case 0: // push
-        	pageRankPushGraphAdjArrayList(epsilon, iterations, graph);
+       
+        case 0: // pull
+            pageRankPullGraphAdjArrayList(epsilon, iterations, graph);
         break;
-        case 1: // pull
-          	pageRankPullGraphAdjArrayList(epsilon, iterations, graph);
+        case 1: // push
+            pageRankPushGraphAdjArrayList(epsilon, iterations, graph);
         break;
-        case 2: // pushpull
-          	pageRankPullPushGraphAdjArrayList(epsilon, iterations, graph);
-        break;  
+        case 2: // pull
+            pageRankPullFixedPointGraphAdjArrayList(epsilon, iterations, graph);
+        break;
+        case 3: // push
+            pageRankPushFixedPointGraphAdjArrayList(epsilon, iterations, graph);
+        break;
+        case 4: // pull
+            pageRankDataDrivenPullGraphAdjArrayList(epsilon, iterations, graph);
+        break;
+        case 5: // push
+            pageRankDataDrivenPushGraphAdjArrayList(epsilon, iterations, graph);
+        break;
+        case 6: // pullpush
+            pageRankDataDrivenPullPushGraphAdjArrayList(epsilon, iterations, graph);
+        break;
         default:// push
-           	pageRankPushGraphAdjArrayList(epsilon, iterations, graph);
+           	pageRankPullGraphAdjArrayList(epsilon, iterations, graph);
         break;          
       }
 
 }
-void pageRankPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
+void pageRankPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
 }
 void pageRankPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
+}
+void pageRankPullFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
 }
-void pageRankPullPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
+void pageRankPushFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
+}
+void pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
+
+}
+void pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
+
+}
+void pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
 }
 
@@ -1857,30 +1880,52 @@ void pageRankGraphAdjLinkedList(double epsilon,  __u32 iterations, __u32 pushpul
 
 	switch (pushpull)
       { 
-        case 0: // push
-        	pageRankPushGraphAdjLinkedList(epsilon, iterations, graph);
+        case 0: // pull
+            pageRankPullGraphAdjLinkedList(epsilon, iterations, graph);
         break;
-        case 1: // pull
-          	pageRankPullGraphAdjLinkedList(epsilon, iterations, graph);
+        case 1: // push
+            pageRankPushGraphAdjLinkedList(epsilon, iterations, graph);
         break;
-        case 2: // pushpull
-          	pageRankPullPushGraphAdjLinkedList(epsilon, iterations, graph);
-        break;  
+        case 2: // pull
+            pageRankPullFixedPointGraphAdjLinkedList(epsilon, iterations, graph);
+        break;
+        case 3: // push
+            pageRankPushFixedPointGraphAdjLinkedList(epsilon, iterations, graph);
+        break;
+        case 4: // pull
+            pageRankDataDrivenPullGraphAdjLinkedList(epsilon, iterations, graph);
+        break;
+        case 5: // push
+            pageRankDataDrivenPushGraphAdjLinkedList(epsilon, iterations, graph);
+        break;
+        case 6: // pullpush
+            pageRankDataDrivenPullPushGraphAdjLinkedList(epsilon, iterations, graph);
+        break;
         default:// push
-           	pageRankPushGraphAdjLinkedList(epsilon, iterations, graph);
+           	pageRankPullGraphAdjLinkedList(epsilon, iterations, graph);
         break;          
       }
 
 }
-void pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
+void pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
 }
 void pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
+}
+void pageRankPullFixedPointGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
 }
-void pageRankPullPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
+void pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
+}
+void pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
+
+}
+void pageRankDataDrivenPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
+
+}
+void pageRankDataDrivenPullPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
 }
