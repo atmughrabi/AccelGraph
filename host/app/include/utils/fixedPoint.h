@@ -20,8 +20,8 @@ struct FixedPoint
 };
 
 #define WHOLEW 16
-#define SCALEF (32-WHOLEW) // 1/2^16
-#define SCALED (64-WHOLEW) // 1/2^32
+#define SCALEF 16 // 1/2^16
+#define SCALED 32 // 1/2^32
 #define EPSILON 1  // smallest possible increment or decrement you can perform
 #define FRACTION_MASK_32 (0xFFFFFFFF >> (32-SCALEF))
 #define FRACTION_MASK_64 (0xFFFFFFFFFFFFFFFF >> (64-SCALED))
@@ -29,17 +29,23 @@ struct FixedPoint
 #define WHOLE_MASK_32 (-1 ^ FRACTION_MASK_32)
 #define WHOLE_MASK_64 (-1 ^ FRACTION_MASK_64)
 
-#define FloatToFixed(num)	(__u32)((num) * (float)((__u32)(1)<<SCALEF) + (float)(num >= 0 ? 0.5 : -0.5))
-#define DoubleToFixed(num)	(__u32)((num) * (double)((__u64)(1)<<SCALED) + (double)(num >= 0 ? 0.5 : -0.5))
+#define FloatToFixed32(num)	(__u32)((num) * (float)((__u32)(1)<<SCALEF) + (float)(num >= 0 ? 0.5 : -0.5))
+#define DoubleToFixed32(num)	(__u32)((num) * (double)((__u32)(1)<<SCALEF) + (double)(num >= 0 ? 0.5 : -0.5))
 
-#define FixedToDouble32(num)	((double)(num) / (double)((__u32)(1)<<SCALEF))
-#define FixedToDouble64(num)	((double)(num) / (double)((__u64)(1)<<SCALED))
+#define FloatToFixed64(num)	(__u64)((num) * (float)((__u64)(1)<<SCALED) + (float)(num >= 0 ? 0.5 : -0.5))
+#define DoubleToFixed64(num)	(__u64)((num) * (double)((__u64)(1)<<SCALED) + (double)(num >= 0 ? 0.5 : -0.5))
 
-#define FixedToFloat32(num)	((float)(num) / (float)((__u32)(1)<<SCALEF))
-#define FixedToFloat64(num)	((float)(num) / (float)((__u64)(1)<<SCALED))
+#define Fixed32ToDouble(num)	((double)(num) / (double)((__u32)(1)<<SCALEF))
+#define Fixed64ToDouble(num)	((double)(num) / (double)((__u64)(1)<<SCALED))
 
-#define UInt32ToFixed(num)	((__u32) (num)<<SCALEF)
-#define UInt64ToFixed(num)	((__u64) (num)<<SCALED)
+#define Fixed32ToFloat(num)	((float)(num) / (float)((__u32)(1)<<SCALEF))
+#define Fixed64ToFloat(num)	((float)(num) / (float)((__u64)(1)<<SCALED))
+
+#define UInt32ToFixed32(num)	((__u32) (num)<<SCALEF)
+#define UInt64ToFixed32(num)	((__u64) (num)<<SCALEF)
+
+#define UInt32ToFixed64(num)	((__u32) (num)<<SCALED)
+#define UInt64ToFixed64(num)	((__u64) (num)<<SCALED)
 
 #define Int32ToFixed(num)	( (num)<<SCALEF)
 #define Int64ToFixed(num)	( (num)<<SCALED)

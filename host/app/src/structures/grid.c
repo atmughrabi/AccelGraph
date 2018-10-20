@@ -181,11 +181,22 @@ struct Grid * gridNew(struct EdgeList* edgeList){
 		 grid->partitions[i].num_edges = 0;
 		 grid->partitions[i].num_vertices = 0;	/* code */
          grid->activePartitions[i] = 0;
-         grid->out_degree[i] = 0;
-         grid->in_degree[i] = 0;
+        
         
         }
 
+
+        #pragma omp parallel for default(none) private(i) shared(grid)
+        for (i = 0; i < grid->num_vertices ; ++i)
+        {
+
+        grid->out_degree[i] = 0;
+        grid->in_degree[i] = 0;
+        
+        }
+
+
+      
 
     grid = gridPartitionSizePreprocessing(grid, edgeList);
     grid = gridPartitionsMemoryAllocations(grid);

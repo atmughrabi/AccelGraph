@@ -165,17 +165,114 @@ void pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct
 
 void pageRankPullGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
 
+ __u32 iter;
+  __u32 v;
+  __u32 activeVertices = 0;
+  double error_total = 0;
+  // float init_pr = 1.0f / (float)graph->num_vertices;
+  float base_pr = (1.0f - Damp);
+  struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+  struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
+
+  #if ALIGNED
+        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
+        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
+        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
+  #else
+        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  #endif
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Page Rank Pull (tolerance/epsilon)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51.13lf | \n", epsilon);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iteration","Active", "Error", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+  Start(timer);
+  
+  #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext,pageRanks,base_pr)
+  for(v = 0; v < graph->num_vertices; v++){
+    pageRanks[v] = base_pr;
+    pageRanksNext[v] = 0.0f;
+  }
+
+  for(iter = 0; iter < iterations; iter++){
+    error_total = 0;
+    activeVertices = 0;
+    Start(timer_inner);
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++){
+      if(graph->grid->out_degree[v])
+        riDividedOnDiClause[v] = pageRanks[v]/graph->grid->out_degree[v];
+      else
+        riDividedOnDiClause[v] = 0.0f;
+    }
+ 
+    pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
+    // pageRankStreamEdgesGraphGridColWise(graph, riDividedOnDiClause, pageRanksNext);
+
+
+    #pragma omp parallel for private(v) shared(epsilon, pageRanks,pageRanksNext,base_pr) reduction(+ : error_total, activeVertices) 
+    for(v = 0; v < graph->num_vertices; v++){
+      float prevPageRank =  pageRanks[v];
+      float nextPageRank =  base_pr + (Damp * pageRanksNext[v]);
+      pageRanks[v] = nextPageRank;
+      pageRanksNext[v] = 0.0f;
+      double error = fabs( nextPageRank - prevPageRank);
+      error_total += (error/graph->num_vertices);
+
+      if(error >= epsilon){
+        activeVertices++;
+      }
+    }
+
+
+    Stop(timer_inner);
+    printf("| %-10u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
+    if(activeVertices == 0)
+      break;
+
+  }// end iteration loop
+
+  double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
+  for(v = 0; v < graph->num_vertices; v++){
+    pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    sum += pageRanks[v];
+  }
+
+  Stop(timer);
+
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",iter, sum, error_total, Seconds(timer));
+  printf(" -----------------------------------------------------\n");
+
+
+  // printf(" -----------------------------------------------------\n");
+  // printf("| %-10s | %-8lf | %-15s | %-9s | \n","PR Sum ",sum, iter, Seconds(timer));
+  // printf(" -----------------------------------------------------\n");
+
+  // pageRankPrint(pageRanks, graph->num_vertices);
+  free(timer);
+  free(timer_inner);
+  free(pageRanks);
+  free(pageRanksNext);
+  free(riDividedOnDiClause);
+  
+
 
 }
+
 void pageRankPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
 
 
 }
-void pageRankPullPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
-
-
-}
-
 
 // function STREAMEDGES(Fe,F)
 //  Sum = 0
@@ -189,28 +286,28 @@ void pageRankPullPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGr
 //  return Sum
 // end function
 //we assume that the edges are not sorted in each partition
-void pageRankStreamEdgesGraphGridBitmap(struct GraphGrid* graph, struct Bitmap* FrontierBitmapCurr, struct Bitmap* FrontierBitmapNext){
+void pageRankStreamEdgesGraphGridRowWise(struct GraphGrid* graph, float* riDividedOnDiClause, float* pageRanksNext){
   // struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-  __u32 totalPartitions = 0;
-     totalPartitions = graph->grid->num_partitions * graph->grid->num_partitions; // PxP
+
+  __u32 totalPartitions  = graph->grid->num_partitions; // PxP
     
 
-  #pragma omp parallel default(none) shared(totalPartitions,FrontierBitmapCurr ,FrontierBitmapNext, graph)
-    // #pragma  omp single nowait
-    { 
+  // #pragma omp parallel default(none) shared(totalPartitions,riDividedOnDiClause ,pageRanksNext, graph)
+  //   #pragma  omp single nowait
+    // { 
       __u32 i;
-
-      #pragma omp for schedule(dynamic, 256)
-      for (i = 0; i < totalPartitions; ++i){
-              if(getBit(graph->grid->activePartitionsMap,i) && graph->grid->partitions[i].num_edges){
-                  pageRankPartitionGraphGridBitmap(graph,&(graph->grid->partitions[i]),FrontierBitmapCurr,FrontierBitmapNext);
-          } 
+      for (i = 0; i < totalPartitions; ++i){ 
+        __u32 j;// iterate over partitions rowwise
+        #pragma omp for private(j) schedule(dynamic,8)
+        for (j = 0; j < totalPartitions; ++j){
+            pageRankPartitionGraphGridRowWise(graph,&(graph->grid->partitions[(i*totalPartitions)+j]),riDividedOnDiClause, pageRanksNext);
         }
-    }
+      }
+    // }
 }
    
    
-void pageRankPartitionGraphGridBitmap(struct GraphGrid* graph, struct Partition* partition,struct Bitmap* FrontierBitmapCurr, struct Bitmap* FrontierBitmapNext){
+void pageRankPartitionGraphGridRowWise(struct GraphGrid* graph, struct Partition* partition, float* riDividedOnDiClause, float* pageRanksNext){
 
    __u32 i;
    __u32 src;
@@ -219,34 +316,56 @@ void pageRankPartitionGraphGridBitmap(struct GraphGrid* graph, struct Partition*
 
       for (i = 0; i < partition->num_edges; ++i){
           
-        src  = partition->edgeList->edges_array[i].src;
+          src  = partition->edgeList->edges_array[i].src;
           dest = partition->edgeList->edges_array[i].dest;
-          int v_dest = graph->parents[dest];
-          if((v_dest < 0)){
-        if(getBit(FrontierBitmapCurr, src)){
-              if(__sync_bool_compare_and_swap(&graph->parents[dest],v_dest,src))
-              {
-                // graph->parents[dest] = src;
-                setBitAtomic(FrontierBitmapNext, dest);
-              }
-        }
-      }
+
+
+          pageRanksNext[dest] +=  riDividedOnDiClause[src];
+       
     }
     
 
 }
 
-void pageRankSetActivePartitionsBitmap(struct GraphGrid* graph, struct Bitmap* FrontierBitmap){
+void pageRankStreamEdgesGraphGridColWise(struct GraphGrid* graph, float* riDividedOnDiClause, float* pageRanksNext){
+  // struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+
+  __u32 totalPartitions  = graph->grid->num_partitions; // PxP
+    
+
+  // #pragma omp parallel default(none) shared(totalPartitions,riDividedOnDiClause ,pageRanksNext, graph)
+  //   #pragma  omp single nowait
+    // { 
+      __u32 j;
+      for (j = 0; j < totalPartitions; ++j){
+        __u32 i;// iterate over partitions rowwise
+        #pragma omp for private(i) schedule(dynamic,64)
+         for (i = 0; i < totalPartitions; ++i){ 
+            pageRankPartitionGraphGridColWise(graph,&(graph->grid->partitions[(i*totalPartitions)+j]),riDividedOnDiClause, pageRanksNext);
+        }
+      }
+    // }
+}
+   
+   
+void pageRankPartitionGraphGridColWise(struct GraphGrid* graph, struct Partition* partition, float* riDividedOnDiClause, float* pageRanksNext){
 
    __u32 i;
+   __u32 src;
+   __u32 dest;
 
-  graphGridResetActivePartitionsMap(graph->grid);
 
-  #pragma omp parallel for default(none) shared(graph,FrontierBitmap) private(i) schedule(dynamic,1024)
-    for(i = 0 ; i < FrontierBitmap->size; i++){
-      if(getBit(FrontierBitmap,i))
-        graphGridSetActivePartitionsMap(graph->grid, i);
+      for (i = 0; i < partition->num_edges; ++i){
+          
+          src  = partition->edgeList->edges_array[i].src;
+          dest = partition->edgeList->edges_array[i].dest;
+
+          #pragma omp atomic update
+          pageRanksNext[dest] +=  riDividedOnDiClause[src];
+       
     }
+    
+
 }
 
 
@@ -346,8 +465,6 @@ void pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
     printf(" -----------------------------------------------------\n");
 
   Start(timer);
-    
-
   #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext,pageRanks,base_pr)
   for(v = 0; v < graph->num_vertices; v++){
     pageRanks[v] = base_pr;
@@ -383,7 +500,6 @@ void pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
       float prevPageRank =  pageRanks[v];
       float nextPageRank =  base_pr + (Damp * pageRanksNext[v]);
       pageRanks[v] = nextPageRank;
-      // pageRanksFP[v] = FloatToFixed(nextPageRank);
       pageRanksNext[v] = 0.0f;
       double error = fabs( nextPageRank - prevPageRank);
       error_total += (error/graph->num_vertices);
@@ -593,6 +709,11 @@ void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
   double error_total = 0;
   // float init_pr = 1.0f / (float)graph->num_vertices;
   float base_pr = (1.0f - Damp);
+
+  // __u64 base_pr_fp = FloatToFixed64(base_pr);
+  // __u64 epsilon_fp = DoubleToFixed64(epsilon);
+  // __u64 num_vertices_fp = UInt32ToFixed64();
+
   struct Vertex* vertices = NULL;
   __u32* sorted_edges_array = NULL;
   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
@@ -610,10 +731,14 @@ void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
         float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
         __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
         __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
+        // __u64* outDegreesFP = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
+        // __u64* pageRanksFP = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
   #else
         float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
         __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
         __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+        // __u64* outDegreesFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+        // __u64* pageRanksFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
   #endif
 
     printf(" -----------------------------------------------------\n");
@@ -629,7 +754,7 @@ void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
 
   #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext,pageRanks,base_pr)
   for(v = 0; v < graph->num_vertices; v++){
-    pageRanks[v] = base_pr;
+     pageRanks[v] = base_pr;
      pageRanksNext[v] = 0;
   }
 
@@ -640,11 +765,15 @@ void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++){
       if(graph->vertices[v].out_degree)
-        riDividedOnDiClause[v] = DoubleToFixed(pageRanks[v]/graph->vertices[v].out_degree);
+        riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v]/graph->vertices[v].out_degree);
       else
         riDividedOnDiClause[v] = 0;
     }
- 
+
+    // Stop(timer_inner);
+    // printf("|A %-9u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
+
+    //  Start(timer_inner);
     #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
     for(v = 0; v < graph->num_vertices; v++){
       degree = vertices[v].out_degree;
@@ -655,11 +784,14 @@ void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
       }
 
     }
+    // Stop(timer_inner);
+    // printf("|B %-9u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
 
+    // Start(timer_inner);
     #pragma omp parallel for private(v) shared(epsilon, pageRanks,pageRanksNext,base_pr) reduction(+ : error_total, activeVertices) 
     for(v = 0; v < graph->num_vertices; v++){
       float prevPageRank =  pageRanks[v];
-      float nextPageRank =  base_pr + (Damp * FixedToFloat64(pageRanksNext[v]));
+      float nextPageRank =  base_pr + (Damp * Fixed64ToDouble(pageRanksNext[v]));
       pageRanks[v] = nextPageRank;
       // pageRanksFP[v] = FloatToFixed(nextPageRank);
       pageRanksNext[v] = 0;
@@ -670,6 +802,9 @@ void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
         activeVertices++;
       }
     }
+
+    // Stop(timer_inner);
+    // printf("|C %-9u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
 
 
     Stop(timer_inner);
@@ -767,7 +902,7 @@ void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
     #pragma omp parallel for private(v) shared(riDividedOnDiClause,pageRanks,graph)
     for(v = 0; v < graph->num_vertices; v++){
       if(graph->vertices[v].out_degree){
-        riDividedOnDiClause[v] = DoubleToFixed(pageRanks[v]/graph->vertices[v].out_degree);
+        riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v]/graph->vertices[v].out_degree);
          // riDividedOnDiClause[v] = DIVFixed64V1(pageRanksFP[v],UInt64ToFixed(graph->vertices[v].out_degree));
        }
       else
@@ -780,7 +915,7 @@ void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
     #pragma omp parallel for default(none) schedule(dynamic, 1024) private(v) shared(graph,pageRanksNext,riDividedOnDiClause)
     for(v = 0; v < graph->num_vertices; v++){
 
-      
+
 
       __u32 degree = graph->vertices[v].out_degree;
       __u32 edge_idx = graph->vertices[v].edges_idx;
@@ -806,7 +941,7 @@ void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
     #pragma omp parallel for private(v) shared(epsilon, pageRanks,pageRanksNext,base_pr) reduction(+ : error_total, activeVertices) 
     for(v = 0; v < graph->num_vertices; v++){
       float prevPageRank =  pageRanks[v];
-      float nextPageRank =  base_pr + (Damp * FixedToFloat64(pageRanksNext[v]));
+      float nextPageRank =  base_pr + (Damp * Fixed64ToDouble(pageRanksNext[v]));
       pageRanks[v] = nextPageRank;
       // pageRanksFP[v] = FloatToFixed(nextPageRank);
       pageRanksNext[v] = 0;
@@ -1113,7 +1248,7 @@ void pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct Gr
         float newPageRank =  aResiduals[v]+pageRanks[v];
         error_total+= fabs(newPageRank/graph->num_vertices - oldPageRank/graph->num_vertices);
 
-        #pragma omp atomic write
+        // #pragma omp atomic write
         pageRanks[v] = newPageRank;
         
         degree = graph->vertices[v].out_degree;
@@ -1129,7 +1264,7 @@ void pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct Gr
           #pragma omp atomic update
           aResiduals[u] += delta;
 
-          if (((prevResidual + delta) >= epsilon) && (prevResidual < epsilon)){
+          if ((fabs(prevResidual + delta) >= epsilon) && (prevResidual <= epsilon)){
             activeVertices++;
             if(!workListNext[u]){
 
@@ -1298,9 +1433,14 @@ void pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, struc
         edge_idx = graph->vertices[v].edges_idx;
         for(j = edge_idx ; j < (edge_idx + degree) ; j++){
           u = graph->sorted_edge_array[j];
-          float prevResidual = aResiduals[u];
-          aResiduals[u] += delta;
-          if ((aResiduals[u] >= epsilon) && (prevResidual < epsilon)){
+          float prevResidual = 0.0f;
+
+          prevResidual = aResiduals[u];
+
+          #pragma omp atomic update
+            aResiduals[u] += delta;
+
+          if ((fabs(prevResidual+delta) >= epsilon) && (prevResidual <= epsilon)){
             activeVertices++;
             if(!workListNext[u]){
               workListNext[u] = 1;

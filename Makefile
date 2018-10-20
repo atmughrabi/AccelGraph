@@ -1,6 +1,7 @@
 # globals
 APP                = test_afu
 GAPP               = main
+# GAPP               = test_fixedpoint
 # GAPP               = test
 # GAPP               = test_graphCSR
 # GAPP               = test_graphGrid
@@ -312,10 +313,10 @@ root = -1
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 0
+datastructure = 1
 algorithm = 1
 numThreads  = 8
-iterations = 100
+iterations = 10
 trials = 1
 tolerance = 1e-5
 sort = 0

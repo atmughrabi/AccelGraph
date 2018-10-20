@@ -9,6 +9,13 @@
 
 #define Damp 0.85f
 
+struct PageRanks{
+
+	__u32 vertex;
+	float pageRank;
+
+};
+
 // ********************************************************************************************
 // ***************					Auxiliary functions  	  					 **************
 // ********************************************************************************************
@@ -32,9 +39,11 @@ void pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct
 void pageRankPullGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 void pageRankPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 
-void pageRankStreamEdgesGraphGridBitmap(struct GraphGrid* graph, struct Bitmap* FrontierBitmapCurr, struct Bitmap* FrontierBitmapNext);
-void pageRankPartitionGraphGridBitmap(struct GraphGrid* graph, struct Partition* partition,struct Bitmap* FrontierBitmapCurr, struct Bitmap* FrontierBitmapNext);
-void pageRankSetActivePartitionsBitmap(struct GraphGrid* graph, struct Bitmap* FrontierBitmap);
+void pageRankStreamEdgesGraphGridRowWise(struct GraphGrid* graph, float* riDividedOnDiClause, float* pageRanksNext);
+void pageRankPartitionGraphGridRowWise(struct GraphGrid* graph, struct Partition* partition, float* riDividedOnDiClause, float* pageRanksNext);
+void pageRankStreamEdgesGraphGridColWise(struct GraphGrid* graph, float* riDividedOnDiClause, float* pageRanksNext);
+void pageRankPartitionGraphGridColWise(struct GraphGrid* graph, struct Partition* partition, float* riDividedOnDiClause, float* pageRanksNext);
+
 
 
 // ********************************************************************************************
