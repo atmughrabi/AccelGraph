@@ -36,12 +36,17 @@ void setWorkList(__u8* workList,  __u32 size);
 // ********************************************************************************************
 
 void pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphGrid* graph);
-void pageRankPullGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
-void pageRankPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
+void pageRankPullRowGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
+void pageRankPushRowGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 
-void pageRankPullFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
-void pageRankPushFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
+void pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
+void pageRankPushRowFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 
+void pageRankPullColumnsGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
+void pageRankPushColumnGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
+
+void pageRankPullColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
+void pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 
 // ********************************************************************************************
 // ***************					CSR DataStructure							 **************

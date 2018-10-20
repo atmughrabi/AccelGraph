@@ -313,7 +313,7 @@ fnameb = "host/app/datasets/test/test.txt.bin"
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 1
+datastructure = 3
 algorithm = 1
 numThreads  = 8
 iterations = 10
