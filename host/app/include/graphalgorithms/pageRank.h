@@ -39,11 +39,8 @@ void pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct
 void pageRankPullGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 void pageRankPushGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 
-void pageRankStreamEdgesGraphGridRowWise(struct GraphGrid* graph, float* riDividedOnDiClause, float* pageRanksNext);
-void pageRankPartitionGraphGridRowWise(struct GraphGrid* graph, struct Partition* partition, float* riDividedOnDiClause, float* pageRanksNext);
-void pageRankStreamEdgesGraphGridColWise(struct GraphGrid* graph, float* riDividedOnDiClause, float* pageRanksNext);
-void pageRankPartitionGraphGridColWise(struct GraphGrid* graph, struct Partition* partition, float* riDividedOnDiClause, float* pageRanksNext);
-
+void pageRankPullFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
+void pageRankPushFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 
 
 // ********************************************************************************************
