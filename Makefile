@@ -87,6 +87,10 @@ $(APP_DIR)/$(OBJ_DIR)/radixsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/radixsort
 	@echo 'making $(GAPP) <- radixsort.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/radixsort.o $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/radixsort.c
 
+$(APP_DIR)/$(OBJ_DIR)/reorder.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/reorder.c $(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)/reorder.h
+	@echo 'making $(GAPP) <- reorder.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/reorder.o $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/reorder.c
+
 $(APP_DIR)/$(OBJ_DIR)/countsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c $(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)/countsort.h
 	@echo 'making $(GAPP) <- countsort.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/countsort.o $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/countsort.c
@@ -191,6 +195,8 @@ countsort: $(APP_DIR)/$(OBJ_DIR)/countsort.o
 
 radixsort: $(APP_DIR)/$(OBJ_DIR)/radixsort.o
 
+reorder: $(APP_DIR)/$(OBJ_DIR)/reorder.o
+
 sortRun: $(APP_DIR)/$(OBJ_DIR)/sortRun.o
 
 edgeList: $(APP_DIR)/$(OBJ_DIR)/edgeList.o
@@ -219,11 +225,12 @@ BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
 
 pageRank: $(APP_DIR)/$(OBJ_DIR)/pageRank.o
 	
-test: fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
-	@echo 'linking $(GAPP) <- fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
+test: reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+	@echo 'linking $(GAPP) <- reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
@@ -313,14 +320,14 @@ root = -1
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 2
-algorithm = 1
+datastructure = 0
+algorithm = 0
 numThreads  = 8
 iterations = 10
 trials = 1
 tolerance = 1e-5
 sort = 0
-pushpull = 6
+pushpull = 0
 	
 run: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance)

@@ -257,6 +257,62 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         return edgeList;
 }
 
+struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse){
+
+     
+        __u32 num_edges = edgeListmem->num_edges;
+
+        #if DIRECTED                                    
+                    struct EdgeList* edgeList = newEdgeList(num_edges);
+        #else
+                    if(inverse){
+                        struct EdgeList* edgeList = newEdgeList((num_edges)*2);
+                    }else{
+                        struct EdgeList* edgeList = newEdgeList(num_edges);
+                    }
+        #endif
+        
+        __u32 i;
+
+        #pragma omp parallel for  
+        for(i = 0; i < num_edges; i++){
+
+                #if DIRECTED
+
+                if(!inverse){
+                    
+                    edgeList->edges_array[i].src = edgeListmem->edges_array[i].src;
+                    edgeList->edges_array[i].dest = edgeListmem->edges_array[i].dest;
+
+                }else{
+
+                    edgeList->edges_array[i].src = edgeListmem->edges_array[i].dest;
+                    edgeList->edges_array[i].dest = edgeListmem->edges_array[i].src;
+                }
+                       
+
+                #else
+                        if(inverse){
+                            edgeList->edges_array[i].src = edgeListmem->edges_array[i].src;
+                            edgeList->edges_array[i].dest = edgeListmem->edges_array[i].dest;
+                            edgeList->edges_array[i+(num_edges)].src = edgeListmem->edges_array[i].dest;
+                            edgeList->edges_array[i+(num_edges)].dest = edgeListmem->edges_array[i].src;
+                        }else{
+                            edgeList->edges_array[i].src = edgeListmem->edges_array[i].src;
+                            edgeList->edges_array[i].dest = edgeListmem->edges_array[i].dest;
+                        }
+                #endif
+                
+                 #if WEIGHTED
+                        edgeList->edges_array[i].weight = edgeListmem->edges_array[i].weight;
+                 #endif
+        }
+
+        edgeList->num_vertices = edgeListmem->num_vertices; // max number of veritices Array[0-max]
+
+        return edgeList;
+}
+
 void edgeListPrint(struct EdgeList* edgeList){
 
         

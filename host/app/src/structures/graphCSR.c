@@ -8,6 +8,7 @@
 #include "myMalloc.h"
 #include "graphCSR.h"
 #include "graphConfig.h"
+#include "reorder.h"
 
 //edgelist prerpcessing
 // #include "countsort.h"
@@ -243,7 +244,8 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort){
      #if DIRECTED
 
         Start(timer);
-        struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
+        // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
+        struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1);
         Stop(timer);
         // edgeListPrint(inverse_edgeList);
         graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
@@ -263,9 +265,45 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort){
     #endif
     
    
+  
+    // edgeList = reorderGraphList(graphCSR);
+
+    // // edgeListPrint(edgeList);
+
+
+    // Start(timer);
+    // graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
+    // Stop(timer);
+
+
+    // graphCSRPrintMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
+
+    //  #if DIRECTED
+
+    //     Start(timer);
+    //     inverse_edgeList = readEdgeListsbin(fnameb,1);
+    //     Stop(timer);
+    //     // edgeListPrint(inverse_edgeList);
+    //     graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
+
+
+    //     // Start(timer);
+    //     inverse_edgeList = sortRunAlgorithms(inverse_edgeList, sort);
+    //     // inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
+    //     // Stop(timer);
+    //     // graphCSRPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
+
+    //     Start(timer);
+    //     graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);
+    //     Stop(timer);
+    //     graphCSRPrintMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
+
+    // #endif
+
     graphCSRPrint(graphCSR);
 
     free(timer);
+
     return graphCSR;
 
     

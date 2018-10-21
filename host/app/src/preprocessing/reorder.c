@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -6,10 +5,12 @@
 #include <math.h>
 #include <omp.h>
 
+#include "fixedPoint.h"
 #include "timer.h"
 #include "myMalloc.h"
 #include "graphCSR.h"
-
+#include "reorder.h"
+#include "edgeList.h"
 
 struct EdgeList* reorderGraphList(struct GraphCSR* graph){
 
@@ -17,21 +18,89 @@ struct EdgeList* reorderGraphList(struct GraphCSR* graph){
 	__u32 v;
 	double epsilon = 0.000001;
 	__u32 iterations = 20;
+	struct EdgeList* edgeList = NULL;
+	__u32* labelsInverse;
+	__u32* labels;
+	 struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
 	#if ALIGNED
-        __u32* labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+        labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+        labelsInverse = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
   	#else
-        __u32* labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+        labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+        labelsInverse = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
   	#endif
 
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting PageRank Reording/Relabeling");
+    printf(" -----------------------------------------------------\n");
+
+    Start(timer);
     #pragma omp parallel for
 	for(v = 0; v < graph->num_vertices; v++){
-		labels[v]=v;
+		labelsInverse[v]= v;
 	}
 
 	pageRanks = pageRankPullReOrderGraphCSR(epsilon, iterations, graph);
 
+
+	labelsInverse = radixSortEdgesByPageRank(pageRanks, labelsInverse, graph->num_vertices);
+
+	#pragma omp parallel for
+	for(v = 0; v < graph->num_vertices; v++){
+		labels[labelsInverse[v]] = v;
+	}
+
+	edgeList = relabelEdgeList(graph,labels);
+
+	Stop(timer);
+
+	printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "PageRank Reording/Relabeling Complete");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", Seconds(timer));
+    printf(" -----------------------------------------------------\n");
+
+	free(timer);
+
+	return edgeList;
 }
+
+struct EdgeList* relabelEdgeList(struct GraphCSR* graph, __u32* labels){
+
+	struct  EdgeList* edgeList;
+
+	#if ALIGNED
+        edgeList = (struct  EdgeList*) my_aligned_malloc(graph->num_vertices*sizeof(struct  EdgeList));
+  	#else
+        edgeList = (struct  EdgeList*) my_malloc(graph->num_vertices*sizeof(struct  EdgeList));
+  	#endif
+
+    edgeList->num_edges = graph->num_edges;
+    edgeList->num_vertices = graph->num_vertices;
+    edgeList->edges_array = graph->sorted_edges_array;
+
+    __u32 i;
+   
+     #pragma omp parallel for
+    for(i = 0; i < edgeList->num_edges; i++){
+    	__u32 src;
+    	__u32 dest;
+    	src = edgeList->edges_array[i].src;
+    	dest = edgeList->edges_array[i].dest;
+
+    	edgeList->edges_array[i].src = labels[src];
+    	edgeList->edges_array[i].dest = labels[dest];
+
+    }
+
+   
+
+    return edgeList;
+
+}
+
 
 // topoligy driven approach
 float* pageRankPullReOrderGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
@@ -133,7 +202,11 @@ float* pageRankPullReOrderGraphCSR(double epsilon,  __u32 iterations, struct Gra
   double sum = 0.0f;
   #pragma omp parallel for reduction(+:sum)
   for(v = 0; v < graph->num_vertices; v++){
-    pageRanks[v] = pageRanks[v]/graph->num_vertices;
+  	if(graph->vertices[v].out_degree || graph->vertices[v].in_degree)
+    	pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    else
+    	pageRanks[v] = 0.0f;
+
     sum += pageRanks[v];
   }
 
@@ -158,5 +231,149 @@ float* pageRankPullReOrderGraphCSR(double epsilon,  __u32 iterations, struct Gra
 
   return pageRanks;
 	
+
+}
+
+
+void radixSortCountSortEdgesByRanks (__u32** pageRanksFP, __u32** pageRanksFPTemp, __u32** labels, __u32** labelsTemp,__u32 radix, __u32 buckets, __u32* buckets_count, __u32 num_vertices){
+
+	__u32* tempPointer = NULL; 
+    __u32 t = 0;
+    __u32 o = 0;
+    __u32 u = 0;
+    __u32 i = 0;
+    __u32 j = 0;
+    __u32 P = numThreads;  // 32/8 8 bit radix needs 4 iterations
+    __u32 t_id = 0;
+    __u32 offset_start = 0;
+    __u32 offset_end = 0;
+    __u32 base = 0;
+
+    #pragma omp parallel default(none) shared(pageRanksFP, pageRanksFPTemp,radix,labels,labelsTemp,buckets,buckets_count, num_vertices) firstprivate(t_id, P, offset_end,offset_start,base,i,j,t,u,o) 
+    {
+        P = omp_get_num_threads();
+        t_id = omp_get_thread_num();
+        offset_start = t_id*(num_vertices/P);
+
+
+        if(t_id == (P-1)){
+            offset_end = offset_start+(num_vertices/P) + (num_vertices%P) ;
+        }
+        else{
+            offset_end = offset_start+(num_vertices/P);
+        }
+        
+
+        //HISTOGRAM-KEYS 
+        for(i=0; i < buckets; i++){ 
+            buckets_count[(t_id*buckets)+i] = 0;
+        }
+
+       
+        for (i = offset_start; i < offset_end; i++) {      
+            u = (*pageRanksFP)[i];
+            t = (u >> (radix*8)) & 0xff;
+            buckets_count[(t_id*buckets)+t]++;
+        }
+
+
+        #pragma omp barrier
+
+       
+        // SCAN BUCKETS
+        if(t_id == 0){
+            for(i=0; i < buckets; i++){
+                 for(j=0 ; j < P; j++){
+                 t = buckets_count[(j*buckets)+i];
+                 buckets_count[(j*buckets)+i] = base;
+                 base += t;
+                }
+            }
+        }
+
+
+        #pragma omp barrier
+
+        //RANK-AND-PERMUTE
+        for (i = offset_start; i < offset_end; i++) {       /* radix sort */
+            u = (*pageRanksFP)[i];
+            t = (u >> (radix*8)) & 0xff;
+            o = buckets_count[(t_id*buckets)+t];
+            (*pageRanksFPTemp)[o] = (*pageRanksFP)[i];
+            (*labelsTemp)[o] = (*labels)[i];
+            buckets_count[(t_id*buckets)+t]++;
+
+        }
+
+    }
+
+    tempPointer = *labels;
+    *labels = *labelsTemp;
+    *labelsTemp = tempPointer;
+
+
+    tempPointer = *pageRanksFP;
+    *pageRanksFP = *pageRanksFPTemp;
+    *pageRanksFPTemp = tempPointer;
+    
+}
+
+__u32* radixSortEdgesByPageRank (float* pageRanks, __u32* labels, __u32 num_vertices){
+
+	
+	    // printf("*** START Radix Sort Edges By Source *** \n");
+
+    // struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges, inverse);
+
+    // Do counting sort for every digit. Note that instead
+    // of passing digit number, exp is passed. exp is 10^i
+    // where i is current digit number
+	__u32 v;
+    __u32 radix = 4;  // 32/8 8 bit radix needs 4 iterations
+    __u32 P = numThreads;  // 32/8 8 bit radix needs 4 iterations
+    __u32 buckets = 256; // 2^radix = 256 buckets
+    __u32* buckets_count = NULL;
+
+    // omp_set_num_threads(P);
+   	
+    __u32 j = 0; //1,2,3 iteration
+
+    __u32* pageRanksFP = NULL;
+    __u32* pageRanksFPTemp = NULL;
+    __u32* labelsTemp = NULL;
+  
+
+    #if ALIGNED
+        buckets_count = (__u32*) my_aligned_malloc(P * buckets * sizeof(__u32));
+        pageRanksFP = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
+        pageRanksFPTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
+        labelsTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
+    #else
+        buckets_count = (__u32*) my_malloc(P * buckets * sizeof(__u32));
+        pageRanksFP = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+        pageRanksFPTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+        labelsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+    #endif
+
+   	#pragma omp parallel for
+	for(v = 0; v < num_vertices; v++){
+		pageRanksFP[v]= FloatToFixed32(pageRanks[v]);
+	}
+
+    for(j=0 ; j < radix ; j++){
+        radixSortCountSortEdgesByRanks (&pageRanksFP, &pageRanksFPTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
+    }
+
+ 	//  	#pragma omp parallel for
+	// for(v = 0; v < num_vertices; v++){
+	// 	pageRanks[v]= Fixed32ToFloat(pageRanksFP[v]);
+	// }
+
+    free(buckets_count);
+    free(pageRanksFP);
+    free(pageRanksFPTemp);
+    free(labelsTemp);
+
+    return labels;
 
 }
