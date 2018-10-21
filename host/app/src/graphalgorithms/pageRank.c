@@ -2840,10 +2840,11 @@ void pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon,  __u32 iteratio
         #pragma omp atomic write
         pageRanks[v] = newPageRank;
 
+         Nodes = graph->vertices[v].outNodes;
+        degree = graph->vertices[v].out_degree;
         float delta = Damp*(aResiduals[v]/degree);
     
-        Nodes = graph->vertices[v].outNodes;
-        degree = graph->vertices[v].out_degree;
+       
     
         for(j = 0 ; j < (degree) ; j++){
          __u32 u = Nodes[j].dest;
@@ -3932,10 +3933,12 @@ void pageRankDataDrivenPullPushGraphAdjLinkedList(double epsilon,  __u32 iterati
         #pragma omp atomic write
         pageRanks[v] = newPageRank;
 
-        float delta = Damp*(aResiduals[v]/degree);
-    
         Nodes = graph->vertices[v].outNodes;
         degree = graph->vertices[v].out_degree;
+        
+        float delta = Damp*(aResiduals[v]/degree);
+    
+       
     
         for(j = 0 ; j < (degree) ; j++){
            u = Nodes->dest;
