@@ -15,14 +15,15 @@ int numThreads;
 static void usage(void) {
   printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w]\n");
   printf("\t-a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP\n");
-  printf("\t-d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List [4-5] same order bitmap frontiers\n");
+  printf("\t-d [data structure] : 0-CSR, 1-Grid, 2-Adj Linked List, 3-Adj Array List [4-5] same order bitmap frontiers\n");
   printf("\t-r [root]: BFS & SSSP root\n");
-  printf("\t-p [algorithm direction] [0-1] push-pull [2-3] push-pull fixed point arithmetic [4-7] same order but using data driven\n");
-  printf("\t-o [sorting algorithm] 0 radix-src 1 radix-src-dest 2 count-src 3 count-src-dst.\n");
+  printf("\t-p [algorithm direction] [0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-6]-same order but using data driven\n");
+  printf("\t-o [sorting algorithm] 0-radix-src 1-radix-src-dest 2-count-src 3-count-src-dst.\n");
   printf("\t-n [num threads] default:max number of threads the system has\n");
-  printf("\t-i [num iterations] number of iterations for page rank random to converge\n");
+  printf("\t-i [num iterations] number of iterations for pagerank to converge [default:20]\n");
   printf("\t-t [num trials] number of random trials for each whole run [default:0]\n");
   printf("\t-e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001]\n");
+  printf("\t-l [mode] lightweight reordering 0-no-reordering 1-pagerank-order\n");
   printf("\t-c: convert to bin file on load example:-f <graph file> -c\n");
   // printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
   // printf("\t-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
@@ -47,6 +48,7 @@ int main (int argc, char **argv)
   char *evalue = NULL;
   char *pvalue = NULL;
   char *ovalue = NULL;
+  char *lvalue = NULL;
 
   __u32 iterations = 20;
   __u32 trials = 0;
@@ -56,6 +58,7 @@ int main (int argc, char **argv)
   __u32 datastructure = 0;
   __u32 pushpull = 0;
   __u32 sort = 0;
+  __u32 lmode = 0;
 
 
   numThreads = omp_get_max_threads();
@@ -67,7 +70,7 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:c")) != -1)
+  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:c")) != -1)
     switch (c)
       {
       case 'h':
@@ -114,6 +117,10 @@ int main (int argc, char **argv)
         ovalue = optarg;
         sort = atof(ovalue);
         break;
+      case 'l':
+        lvalue = optarg;
+        lmode = atof(lvalue);
+        break;
       // case 'u':
       //   uflag = 1;
       //   break;
@@ -147,6 +154,8 @@ int main (int argc, char **argv)
           fprintf (stderr, "Option -%c [push/pull] requires an argument.\n", optopt);
         else if (optopt == 'o')
           fprintf (stderr, "Option -%c [radix/count] requires an argument.\n", optopt);
+        else if (optopt == 'l')
+          fprintf (stderr, "Option -%c [mode] lightweight reordering requires an argument.\n", optopt);
         else if (isprint (optopt))
           fprintf (stderr, "Unknown option `-%c'.\n", optopt);
         else
