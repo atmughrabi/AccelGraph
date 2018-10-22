@@ -410,7 +410,7 @@ void graphAdjArrayListFree(struct GraphAdjArrayList* graphAdjArrayList){
 }
 
 
-struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fnameb, __u32 sort){
+struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fnameb, __u32 sort, __u32 lmode){
 
 
     struct Timer* timer = (struct Timer*) my_malloc(sizeof(struct Timer));

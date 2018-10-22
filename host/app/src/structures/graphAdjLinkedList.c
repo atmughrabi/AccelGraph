@@ -374,7 +374,7 @@ void   graphAdjLinkedListPrintMessageWithtime(const char * msg, double time){
     printf(" -----------------------------------------------------\n");
 
 }
-struct GraphAdjLinkedList* graphAdjLinkedListPreProcessingStep (const char * fnameb){
+struct GraphAdjLinkedList* graphAdjLinkedListPreProcessingStep (const char * fnameb, __u32 lmode){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 

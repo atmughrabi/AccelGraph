@@ -9,6 +9,9 @@
 #include "myMalloc.h"
 #include "graphConfig.h"
 
+#include "reorder.h"
+#include "graphCSR.h"
+
 // #include "countsort.h"
 // #include "radixsort.h"
 #include "sortRun.h"
@@ -128,7 +131,7 @@ void   graphGridFree(struct GraphGrid *graphGrid){
 
 
 
-struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort){
+struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort, __u32 lmode){
 
    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
@@ -140,6 +143,14 @@ struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort){
     Stop(timer);
     // edgeListPrint(edgeList);
     graphGridPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
+
+    //   #if DIRECTED
+    //     struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
+    // #else
+    //     struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
+    // #endif
+     // if(lmode)
+        // edgeList = reorderPageRankGraphProcess(graphCSR, sort, edgeList);
 
     // Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);

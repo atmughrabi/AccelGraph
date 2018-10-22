@@ -47,17 +47,8 @@ void graphCSRReset (struct GraphCSR* graphCSR){
 
 void graphCSRHardReset (struct GraphCSR* graphCSR){
 
-    struct Vertex* vertices;
+  
     __u32 vertex_id;
-    // #if DIRECTED
-    //     if(inverse){
-    //         vertices = graph->inverse_vertices; // sorted edge array
-    //     }else{
-    //         vertices = graph->vertices;
-    //     }
-    // #else
-           
-    // #endif
 
     graphCSR->iteration = 0;
     graphCSR->processed_nodes = 0;
@@ -257,8 +248,8 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
         struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
     #endif
 
-    if(lmode == 1)
-        edgeList = reorderPageRankGraphProcess(graphCSR, sort, edgeList);
+    if(lmode)
+        edgeList = reorderGraphProcess(graphCSR, sort, edgeList, lmode);
     // Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);
     // edgeList = radixSortEdgesBySourceOptimized(edgeList);

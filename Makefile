@@ -41,7 +41,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 		-I$(APP_DIR)/include/$(UTIL_DIR)/   \
 # flags
-CFLAGS            = -O3 -Wall -m64 -fopenmp -g
+CFLAGS            = -O -Wall -m64 -fopenmp -g
 
 all: test
 
@@ -329,8 +329,8 @@ reorder = 1
 # root = 428333
 datastructure = 0
 algorithm = 0
-numThreads  = 8
-iterations = 10
+numThreads  = 1
+iterations = 100
 trials = 0
 tolerance = 1e-5
 sort = 0

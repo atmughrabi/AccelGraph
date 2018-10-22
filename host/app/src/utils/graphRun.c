@@ -47,19 +47,19 @@ void * generateGraphDataStructure(const char *fnameb, __u32 datastructure, __u32
           break;
         case 1: // Grid
             Start(timer);
-            graph = (void *)graphGridPreProcessingStep (fnameb, sort);
+            graph = (void *)graphGridPreProcessingStep (fnameb, sort, lmode);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphGrid Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         case 2: // Adj Linked List     
             Start(timer);
-            graph = (void *)graphAdjLinkedListPreProcessingStep (fnameb);
+            graph = (void *)graphAdjLinkedListPreProcessingStep (fnameb, lmode);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphAdjLinkedList Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         case 3: // Adj Array List
             Start(timer);
-            graph = (void *)graphAdjArrayListPreProcessingStep (fnameb, sort);
+            graph = (void *)graphAdjArrayListPreProcessingStep (fnameb, sort, lmode);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphAdjArrayList Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
