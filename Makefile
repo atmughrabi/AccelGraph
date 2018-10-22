@@ -288,17 +288,20 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 	$(CAPI) \
 	$(CFLAGS) \
 
-# Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w].
-  # -a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP
-  # -d [data structure] : 0 CSR, 1 Grid, 2 Adj Linked List, 3 Adj Array List [4-5] same order bitmap frontiers
-  # -r [root]: BFS & SSSP root
-  # -p [algorithm direction] [0-1] push-pull [2-3] push-pull fixed point arithmetic [4-7] same order but using data driven
-  # -o [sorting algorithm] 0 radix-src 1 radix-src-dest 2 count-src 3 count-src-dst.
-  # -n [num threads] default:max number of threads the system has
-  # -i [num iterations] number of iterations for page rank random to converge
-  # -t [num trials] number of random trials for each whole run [default:0]
-  # -e [epsilon/tolerance ] tolerance value of for page rank [default:0.0001]
-  # -c: convert to bin file on load example:-f <graph file> -c
+# Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w]
+#   -a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP
+#   -d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj Linked List, [3]-Adj Array List [4-5] same order bitmap frontiers
+#   -r [root]: BFS & SSSP root
+#   -p [algorithm direction] [0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-6]-same order but using data driven
+#   -o [sorting algorithm] [0]-radix-src [1]-radix-src-dest [2]-count-src [3]-count-src-dst.
+#   -n [num threads] default:max number of threads the system has
+#   -i [num iterations] number of iterations for pagerank to converge [default:20]
+#   -t [num trials] number of random trials for each whole run [default:0]
+#   -e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]
+#   -l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-bfs-clustering 
+#   -c: convert to bin file on load example:-f <graph file> -c
+
+
 
 
 # fnameb = "host/app/datasets/RMAT/RMAT-26.bin"
@@ -309,14 +312,22 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 
 #app command line arguments
 fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
+
 # root = 428333 #max out labelless
 # root = 813286 #max in  labelless
 # reorder = 0
 
-
 # root = 428298 #max out label
-root = 61578167 #max in  label
-reorder = 1
+# root = 61578167 #max in  label
+# reorder = 1
+
+# root = 5576448 #max out label
+# root = 0 #max in  label
+# reorder = 2
+
+# root = 0 #max out label
+# root = 2 #max in  label
+# reorder = 3
 
 # fnameb = "host/app/datasets/test/test.txt.bin"
 # root  = 6

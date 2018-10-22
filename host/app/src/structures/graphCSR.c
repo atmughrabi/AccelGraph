@@ -60,8 +60,7 @@ void graphCSRHardReset (struct GraphCSR* graphCSR){
                         graphCSR->inverse_vertices[vertex_id].in_degree = 0;
                         graphCSR->inverse_vertices[vertex_id].out_degree = 0;
                     }
-                #endif
-                    
+                #endif                
                     graphCSR->vertices[vertex_id].out_degree = 0;
                     graphCSR->vertices[vertex_id].in_degree = 0;
                     graphCSR->parents[vertex_id] = -1;
