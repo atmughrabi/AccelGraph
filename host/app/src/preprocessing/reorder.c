@@ -4,7 +4,9 @@
 #include <string.h>
 #include <math.h>
 #include <omp.h>
+#include <linux/types.h>
 
+#include "sortRun.h"
 #include "fixedPoint.h"
 #include "timer.h"
 #include "myMalloc.h"
@@ -375,5 +377,85 @@ __u32* radixSortEdgesByPageRank (float* pageRanks, __u32* labels, __u32 num_vert
     free(labelsTemp);
 
     return labels;
+
+}
+
+
+
+struct EdgeList* reorderPageRankGraphProcess(struct GraphCSR* graph, __u32 sort, struct EdgeList* edgeList){
+
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    // printf("Filename : %s \n",fnameb);
+    
+	printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Reorder Process");
+    printf(" -----------------------------------------------------\n");
+    Start(timer);
+
+	    // Start(timer);
+    edgeList = sortRunAlgorithms(edgeList, sort);
+    // edgeList = radixSortEdgesBySourceOptimized(edgeList);
+    // edgeListPrint(edgeList);
+    // Stop(timer);
+    // graphCSRPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+
+    Start(timer);
+    graph = graphCSRAssignEdgeList (graph,edgeList, 0);
+    Stop(timer);
+
+
+    graphCSRPrintMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
+
+     #if DIRECTED
+
+        Start(timer);
+        // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
+        struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1);
+        Stop(timer);
+        // edgeListPrint(inverse_edgeList);
+        graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
+
+
+        // Start(timer);
+        inverse_edgeList = sortRunAlgorithms(inverse_edgeList, sort);
+        // inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
+        // Stop(timer);
+        // graphCSRPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
+
+        Start(timer);
+        graph = graphCSRAssignEdgeList (graph,inverse_edgeList, 1);
+        Stop(timer);
+        graphCSRPrintMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
+
+    #endif
+    
+   
+  
+    edgeList = reorderGraphList(graph);
+
+
+    Stop(timer);
+   
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Reorder Complete");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", Seconds(timer));
+    printf(" -----------------------------------------------------\n");
+
+    free(timer);
+
+    #if DIRECTED
+		if(graph->inverse_sorted_edges_array)
+			freeEdgeArray(graph->inverse_sorted_edges_array);
+	#endif
+
+	
+	graphCSRHardReset (graph);
+
+
+    return edgeList;
+
+
 
 }

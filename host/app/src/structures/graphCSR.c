@@ -45,6 +45,40 @@ void graphCSRReset (struct GraphCSR* graphCSR){
 }
 
 
+void graphCSRHardReset (struct GraphCSR* graphCSR){
+
+    struct Vertex* vertices;
+    __u32 vertex_id;
+    // #if DIRECTED
+    //     if(inverse){
+    //         vertices = graph->inverse_vertices; // sorted edge array
+    //     }else{
+    //         vertices = graph->vertices;
+    //     }
+    // #else
+           
+    // #endif
+
+    graphCSR->iteration = 0;
+    graphCSR->processed_nodes = 0;
+
+    #pragma omp parallel for default(none) private(vertex_id) shared(graphCSR)
+    for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++){
+                #if DIRECTED
+                    if(graphCSR->inverse_vertices){
+                        graphCSR->inverse_vertices[vertex_id].in_degree = 0;
+                        graphCSR->inverse_vertices[vertex_id].out_degree = 0;
+                    }
+                #endif
+                    
+                    graphCSR->vertices[vertex_id].out_degree = 0;
+                    graphCSR->vertices[vertex_id].in_degree = 0;
+                    graphCSR->parents[vertex_id] = -1;
+     }
+
+}
+
+
 void graphCSRFree (struct GraphCSR* graphCSR){
 
 	if(graphCSR->vertices)
@@ -53,17 +87,12 @@ void graphCSRFree (struct GraphCSR* graphCSR){
 		free(graphCSR->parents);
 	if(graphCSR->sorted_edges_array)
 		freeEdgeArray(graphCSR->sorted_edges_array);
-    if(graphCSR->sorted_edge_array)
-        free(graphCSR->sorted_edge_array);
-	
 
 	#if DIRECTED
 		if(graphCSR->inverse_vertices)
 			freeVertexArray(graphCSR->inverse_vertices);
 		if(graphCSR->inverse_sorted_edges_array)
 			freeEdgeArray(graphCSR->inverse_sorted_edges_array);
-        if(graphCSR->inverse_sorted_edge_array)
-            free(graphCSR->inverse_sorted_edge_array);
 	#endif
 
 
@@ -98,6 +127,8 @@ void graphCSRPrint(struct GraphCSR* graphCSR){
     printf(" -----------------------------------------------------\n");
     vertexArrayMaxOutdegree(graphCSR->vertices, graphCSR->num_vertices);
  	vertexArrayMaxInDegree(graphCSR->inverse_vertices, graphCSR->num_vertices);
+    // printVertexArray(graphCSR->vertices, graphCSR->num_vertices);
+    // printVertexArray(graphCSR->inverse_vertices, graphCSR->num_vertices);
  // 	printVertexArray(graphCSR->vertices, graphCSR->num_vertices);
 	// __u32 i;
 
@@ -206,7 +237,7 @@ struct GraphCSR* graphCSRAssignEdgeList (struct GraphCSR* graphCSR, struct EdgeL
 }
 
 
-struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort){
+struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __u32 lmode){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
@@ -226,7 +257,8 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort){
         struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
     #endif
 
-   
+    if(lmode == 1)
+        edgeList = reorderPageRankGraphProcess(graphCSR, sort, edgeList);
     // Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);
     // edgeList = radixSortEdgesBySourceOptimized(edgeList);
@@ -247,7 +279,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort){
         // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
         struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1);
         Stop(timer);
-        // edgeListPrint(inverse_edgeList);
+       
         graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
 
 
@@ -256,6 +288,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort){
         // inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
         // Stop(timer);
         // graphCSRPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
+         // edgeListPrint(inverse_edgeList);
 
         Start(timer);
         graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);
@@ -264,43 +297,9 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort){
 
     #endif
     
-   
-  
-    // edgeList = reorderGraphList(graphCSR);
-
-    // // edgeListPrint(edgeList);
-
-
-    // Start(timer);
-    // graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
-    // Stop(timer);
-
-
-    // graphCSRPrintMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
-
-    //  #if DIRECTED
-
-    //     Start(timer);
-    //     inverse_edgeList = readEdgeListsbin(fnameb,1);
-    //     Stop(timer);
-    //     // edgeListPrint(inverse_edgeList);
-    //     graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
-
-
-    //     // Start(timer);
-    //     inverse_edgeList = sortRunAlgorithms(inverse_edgeList, sort);
-    //     // inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
-    //     // Stop(timer);
-    //     // graphCSRPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
-
-    //     Start(timer);
-    //     graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);
-    //     Stop(timer);
-    //     graphCSRPrintMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
-
-    // #endif
 
     graphCSRPrint(graphCSR);
+
 
     free(timer);
 

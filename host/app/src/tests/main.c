@@ -184,7 +184,7 @@ int main (int argc, char **argv)
       }
 
      
-      graph = generateGraphDataStructure(fnameb, datastructure, sort);
+      graph = generateGraphDataStructure(fnameb, datastructure, sort, lmode);
       runGraphAlgorithms(graph, datastructure, algorithm, root, iterations, epsilon, trials, pushpull);
 
 

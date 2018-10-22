@@ -33,7 +33,8 @@ void graphCSRPrint (struct GraphCSR* graphCSR);
 struct GraphCSR* graphCSRAssignEdgeList (struct GraphCSR* graphCSR, struct EdgeList* edgeList, __u8 inverse);
 void graphCSRPrintParentsArray(struct GraphCSR* graphCSR);
 struct GraphCSR* graphCSRNew(__u32 V, __u32 E,  __u8 inverse);
-struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort);
+struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __u32 lmode);
 void graphCSRPrintMessageWithtime(const char * msg, double time);
+void graphCSRHardReset (struct GraphCSR* graphCSR);
 
 #endif

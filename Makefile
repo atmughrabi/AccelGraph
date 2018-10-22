@@ -309,11 +309,18 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 
 #app command line arguments
 fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
-root = -1
+# root = 428333 #max out labelless
+# root = 813286 #max in  labelless
+# reorder = 0
 
+
+# root = 428298 #max out label
+root = 61578167 #max in  label
+reorder = 1
 
 # fnameb = "host/app/datasets/test/test.txt.bin"
 # root  = 6
+# root  = 19
 
 # fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
 # root = 107
@@ -324,13 +331,14 @@ datastructure = 0
 algorithm = 0
 numThreads  = 8
 iterations = 10
-trials = 1
+trials = 0
 tolerance = 1e-5
 sort = 0
 pushpull = 0
+
 	
 run: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
 	
 run-bfs: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -i $(iterations) #CSR with Qs
