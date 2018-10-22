@@ -317,13 +317,13 @@ fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
 # root = 813286 #max in  labelless
 # reorder = 0
 
-# root = 428298 #max out label
-# root = 61578167 #max in  label
+# root = 61149872 #max out label
+# root = 3 #max in  label
 # reorder = 1
 
-# root = 5576448 #max out label
+root = 5576448 #max out label
 # root = 0 #max in  label
-# reorder = 2
+reorder = 2
 
 # root = 0 #max out label
 # root = 2 #max in  label
@@ -340,7 +340,7 @@ fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
 # root = 428333
 datastructure = 0
 algorithm = 0
-numThreads  = 1
+numThreads  = 8
 iterations = 100
 trials = 0
 tolerance = 1e-5

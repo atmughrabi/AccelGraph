@@ -168,7 +168,7 @@ void pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct
 }
 
 
-void pageRankPullRowGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
+float* pageRankPullRowGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
 
  __u32 iter;
   __u32 v;
@@ -284,17 +284,16 @@ void pageRankPullRowGraphGrid(double epsilon,  __u32 iterations, struct GraphGri
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
   
-
+   return pageRanks;
 
 }
 
 
 
-void pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
+float* pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
 
  __u32 iter;
   __u32 v;
@@ -410,11 +409,10 @@ void pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 iterations, struc
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
   
-
+   return pageRanks;
 
 }
 
@@ -424,7 +422,7 @@ void pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 iterations, struc
 
 
 
-void pageRankPushColumnGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
+float* pageRankPushColumnGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
 
   __u32 iter;
   __u32 v;
@@ -543,16 +541,15 @@ void pageRankPushColumnGraphGrid(double epsilon,  __u32 iterations, struct Graph
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
-
+   return pageRanks;
 }
 
 
 
-void pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
+float* pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph){
 
   __u32 iter;
   __u32 v;
@@ -671,10 +668,10 @@ void pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, st
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
+   return pageRanks;
 
 }
 
@@ -717,12 +714,12 @@ void pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct 
         break;
 
        
-        case 7: // push
-            pageRankDataDrivenPullFixedPointGraphCSR(epsilon, iterations, graph);
-        break;
-        case 8: // pull
-            pageRankDataDrivenPushFixedPointGraphCSR(epsilon, iterations, graph);
-        break;
+        // case 7: // push
+        //     pageRankDataDrivenPullFixedPointGraphCSR(epsilon, iterations, graph);
+        // break;
+        // case 8: // pull
+        //     pageRankDataDrivenPushFixedPointGraphCSR(epsilon, iterations, graph);
+        // break;
         
         default:// pull
            	pageRankPullGraphCSR(epsilon, iterations, graph);
@@ -732,7 +729,7 @@ void pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct 
 }
 
 // topoligy driven approach
-void pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+float* pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
   __u32 iter;
   __u32 j;
@@ -851,13 +848,12 @@ void pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 	
-
+   return pageRanks;
 }
-void pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+float* pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
  
 
 	__u32 iter;
@@ -1000,15 +996,15 @@ void pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* gr
   free(timer);
   free(timer_inner);
   free(vertex_lock);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
+   return pageRanks;
 }
 
 
 // topoligy driven approach
-void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+float* pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
  __u32 iter;
   __u32 j;
@@ -1143,11 +1139,13 @@ void pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(riDividedOnDiClause);
+
+   return pageRanks;
+
 }
 
-void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+float* pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
   __u32 iter;
   __u32 i;
@@ -1297,14 +1295,14 @@ void pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct Gr
   free(timer);
   free(timer_inner);
   free(vertex_lock);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
+   return pageRanks;
 }
 
 
-void pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+float* pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
   
   
@@ -1458,12 +1456,11 @@ void pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct Gr
   free(workListNext);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(riDividedOnDiClause);
 
-
+   return pageRanks;
 }
-void pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+float* pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
   __u32 iter;
   __u32 v;
@@ -1622,15 +1619,14 @@ void pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct Gr
   free(workListNext);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(aResiduals);
   free(riDividedOnDiClause);
 
-
+   return pageRanks;
 }
 
 
-void pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+float* pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
    __u32 iter;
   __u32 v;
@@ -1794,28 +1790,28 @@ void pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, struc
   free(workListNext);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(aResiduals);
   free(riDividedOnDiClause);
 
+   return pageRanks;
 
 }
 
 
-void pageRankDataDrivenPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+// float* pageRankDataDrivenPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
 
-}
+// }
 
-void pageRankDataDrivenPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
-
-
-}
-
-void pageRankDataDrivenPullPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+// float* pageRankDataDrivenPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
 
-}
+// }
+
+// float* pageRankDataDrivenPullPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+
+
+// }
 
 
 
@@ -1857,7 +1853,7 @@ void pageRankGraphAdjArrayList(double epsilon,  __u32 iterations, __u32 pushpull
 
 }
 
-void pageRankPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
+float* pageRankPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
   __u32 iter;
   __u32 j;
@@ -1976,12 +1972,12 @@ void pageRankPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct Gra
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
+   return pageRanks;
 }
-void pageRankPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
+float* pageRankPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
   __u32 iter;
   __u32 i;
@@ -2126,12 +2122,13 @@ void pageRankPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct Gra
   free(timer);
   free(timer_inner);
   free(vertex_lock);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
+   return pageRanks;
+
 }
-void pageRankPullFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
+float* pageRankPullFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
    __u32 iter;
   __u32 j;
@@ -2250,13 +2247,12 @@ void pageRankPullFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations, 
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
-
+   return pageRanks;
 }
-void pageRankPushFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
+float* pageRankPushFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
    __u32 iter;
   __u32 i;
@@ -2401,12 +2397,12 @@ void pageRankPushFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations, 
   free(timer);
   free(timer_inner);
   free(vertex_lock);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
+  return pageRanks;
 }
-void pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
+float* pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
   __u32 iter;
   __u32 i;
@@ -2558,11 +2554,11 @@ void pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  __u32 iterations, 
   free(workListNext);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(riDividedOnDiClause);
 
+   return pageRanks;
 }
-void pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
+float* pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
    __u32 iter;
   __u32 v;
@@ -2723,12 +2719,12 @@ void pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  __u32 iterations, 
   free(workListNext);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(aResiduals);
   free(riDividedOnDiClause);
 
+   return pageRanks;
 }
-void pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
+float* pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph){
 
    __u32 iter;
   __u32 v;
@@ -2898,10 +2894,10 @@ void pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon,  __u32 iteratio
   free(workListNext);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(aResiduals);
   free(riDividedOnDiClause);
 
+   return pageRanks;
 
 }
 
@@ -2943,7 +2939,7 @@ void pageRankGraphAdjLinkedList(double epsilon,  __u32 iterations, __u32 pushpul
 
 }
 
-void pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
+float* pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
   __u32 iter;
   __u32 j;
@@ -3063,12 +3059,13 @@ void pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct Gr
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
+   return pageRanks;
+
 }
-void pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
+float* pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
    __u32 iter;
   __u32 i;
@@ -3214,12 +3211,13 @@ void pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct Gr
   free(timer);
   free(timer_inner);
   free(vertex_lock);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
+   return pageRanks;
+
 }
-void pageRankPullFixedPointGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
+float* pageRankPullFixedPointGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
    __u32 iter;
   __u32 j;
@@ -3339,12 +3337,13 @@ void pageRankPullFixedPointGraphAdjLinkedList(double epsilon,  __u32 iterations,
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
+   return pageRanks;
+
 }
-void pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
+float* pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
    __u32 iter;
   __u32 i;
@@ -3489,12 +3488,13 @@ void pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  __u32 iterations,
   free(timer);
   free(timer_inner);
   free(vertex_lock);
-  free(pageRanks);
   free(pageRanksNext);
   free(riDividedOnDiClause);
 
+  return pageRanks;
+
 }
-void pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
+float* pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
    __u32 iter;
   __u32 i;
@@ -3647,11 +3647,12 @@ void pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  __u32 iterations,
   free(workListNext);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(riDividedOnDiClause);
 
+   return pageRanks;
+
 }
-void pageRankDataDrivenPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
+float* pageRankDataDrivenPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
    __u32 iter;
   __u32 v;
@@ -3814,12 +3815,14 @@ void pageRankDataDrivenPushGraphAdjLinkedList(double epsilon,  __u32 iterations,
   free(workListNext);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(aResiduals);
   free(riDividedOnDiClause);
 
+   return pageRanks;
+
 }
-void pageRankDataDrivenPullPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
+
+float* pageRankDataDrivenPullPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph){
 
    __u32 iter;
   __u32 v;
@@ -3993,8 +3996,10 @@ void pageRankDataDrivenPullPushGraphAdjLinkedList(double epsilon,  __u32 iterati
   free(workListNext);
   free(timer);
   free(timer_inner);
-  free(pageRanks);
   free(aResiduals);
   free(riDividedOnDiClause);
+
+
+   return pageRanks;
 
 }

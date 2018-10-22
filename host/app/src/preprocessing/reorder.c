@@ -63,7 +63,7 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
 
 	Stop(timer);
 
-	printf(" -----------------------------------------------------\n");
+	  printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "PageRank Reording/Relabeling Complete");
     printf(" -----------------------------------------------------\n");
     printf("| %-51f | \n", Seconds(timer));
