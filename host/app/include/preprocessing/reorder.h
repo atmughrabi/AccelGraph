@@ -4,11 +4,6 @@
 #include <linux/types.h>
 
 
-#define Damp 0.85f
-
-
-float* pageRankPullReOrderGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
-
 struct EdgeList* relabelEdgeList(struct GraphCSR* graph, __u32* labels);
 struct EdgeList* reorderGraphProcess(struct GraphCSR* graph, __u32 sort, struct EdgeList* edgeList,  __u32 lmode);
 struct EdgeList* reorderGraphListDegree(struct GraphCSR* graph, __u32 lmode);

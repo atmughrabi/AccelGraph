@@ -20,7 +20,7 @@ struct FixedPoint
 };
 
 #define WHOLEW 16
-#define SCALEF 24 // 1/2^16
+#define SCALEF 30 // 1/2^16
 #define SCALED 32 // 1/2^32
 #define EPSILON 1  // smallest possible increment or decrement you can perform
 #define FRACTION_MASK_32 (0xFFFFFFFF >> (32-SCALEF))
