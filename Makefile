@@ -308,14 +308,14 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 # fnameb = "host/app/datasets/RMAT/RMAT19.txt"
 # fnameb = "host/app/datasets/RMAT/RMAT20.txt"
 # fnameb = "host/app/datasets/RMAT/RMAT21.bin"
-fnameb = "host/app/datasets/RMAT/RMAT22.bin"
-root = 3009230
+# fnameb = "host/app/datasets/RMAT/RMAT22.bin"
+# root = 3009230
 #app command line arguments
-# fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
+fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
 
-# root = 428333 #max out labelless
+root = 428333 #max out labelless
 # root = 813286 #max in  labelless
-# reorder = 0
+reorder = 0
 
 # root = 19144669 #max out label
 # root = 3 #max in  label
@@ -323,7 +323,7 @@ root = 3009230
 
 # root = 5576448 #max out label
 # root = 0 #max in  label
-reorder = 2
+# reorder = 2
 
 # root = 0 #max out label
 # root = 2 #max in  label
@@ -339,7 +339,7 @@ reorder = 2
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
 datastructure = 1
-algorithm = 0
+algorithm = 1
 numThreads  = 8
 iterations = 100
 trials = 0
