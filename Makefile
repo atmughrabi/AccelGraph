@@ -41,7 +41,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 		-I$(APP_DIR)/include/$(UTIL_DIR)/   \
 # flags
-CFLAGS            = -O -Wall -m64 -fopenmp -g
+CFLAGS            = -O3 -Wall -m64 -fopenmp -g
 
 all: test
 
@@ -308,10 +308,10 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 # fnameb = "host/app/datasets/RMAT/RMAT19.txt"
 # fnameb = "host/app/datasets/RMAT/RMAT20.txt"
 # fnameb = "host/app/datasets/RMAT/RMAT21.bin"
-# fnameb = "host/app/datasets/RMAT/RMAT22.bin"
-
+fnameb = "host/app/datasets/RMAT/RMAT22.bin"
+root = 3009230
 #app command line arguments
-fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
+# fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
 
 # root = 428333 #max out labelless
 # root = 813286 #max in  labelless
@@ -321,7 +321,7 @@ fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
 # root = 3 #max in  label
 # reorder = 1
 
-root = 5576448 #max out label
+# root = 5576448 #max out label
 # root = 0 #max in  label
 reorder = 2
 
@@ -338,14 +338,14 @@ reorder = 2
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 0
+datastructure = 1
 algorithm = 0
 numThreads  = 8
 iterations = 100
 trials = 0
 tolerance = 1e-5
 sort = 0
-pushpull = 4
+pushpull = 2
 
 	
 run: test

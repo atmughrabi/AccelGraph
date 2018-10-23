@@ -144,6 +144,7 @@ struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort, _
     // edgeListPrint(edgeList);
     graphGridPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
+
     //   #if DIRECTED
     //     struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
     // #else

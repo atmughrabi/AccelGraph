@@ -905,7 +905,7 @@ float* pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* 
   #pragma omp parallel for default(none) private(v) shared(base_pr,pageRanksNext,graph,pageRanks)
   for(v = 0; v < graph->num_vertices; v++){
     pageRanks[v] = base_pr;
-    pageRanksNext[v] = 0.0f;
+    pageRanksNext[v] = 0;
   }
 
   for(iter = 0; iter < iterations; iter++){
@@ -917,7 +917,7 @@ float* pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* 
       if(graph->vertices[v].out_degree)
         riDividedOnDiClause[v] = pageRanks[v]/graph->vertices[v].out_degree;
       else
-        riDividedOnDiClause[v] = 0.0f;
+        riDividedOnDiClause[v] = 0;
       
     }
     
@@ -949,12 +949,10 @@ float* pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* 
     #pragma omp parallel for private(v) shared(epsilon, pageRanks,pageRanksNext,base_pr) reduction(+ : error_total, activeVertices) 
     for(v = 0; v < graph->num_vertices; v++){
 
-
-
       float prevPageRank =  pageRanks[v];
       float nextPageRank =  base_pr + (Damp * pageRanksNext[v]);
       pageRanks[v] = nextPageRank;
-      pageRanksNext[v] = 0.0f;
+      pageRanksNext[v] = 0;
       double error = fabs( nextPageRank - prevPageRank);
       error_total += (error/graph->num_vertices);
 

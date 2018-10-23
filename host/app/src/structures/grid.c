@@ -365,7 +365,7 @@ __u32 gridCalculatePartitions(struct EdgeList* edgeList){
 	//epfl everything graph
 	__u32 num_vertices  = edgeList->num_vertices;
 	__u32 num_Paritions = (num_vertices * 8 / 1024) / 20;
-	if(num_Paritions > 2000) 
+	if(num_Paritions > 1000) 
 		num_Paritions = 256;
 	if(num_Paritions == 0 ) 
 		num_Paritions = 4;
