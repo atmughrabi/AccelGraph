@@ -13,6 +13,7 @@
 #include "graphRun.h"
 
 #include "BFS.h"
+#include "DFS.h"
 #include "pageRank.h"
 
 
@@ -91,6 +92,9 @@ void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int r
           break;
         case 2: // SSSP file name root
           printf(" SSSP to be implemented \n");
+          break;
+        case 3: // SSSP file name root
+          runDepthFirstSearchAlgorithm(graph, datastructure, root, trials);
           break;
         default:// bfs file name root
           runBreadthFirstSearchAlgorithm(graph,datastructure, root, trials);
@@ -256,6 +260,97 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
           break;
 
           
+
+        default:// CSR
+            graphCSR = (struct GraphCSR*)graph;
+            if(root >= 0 && root <= graphCSR->num_vertices){
+              breadthFirstSearchGraphCSR(root, graphCSR);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int32();
+                  if(root < graphCSR->num_vertices){
+                    if(graphCSR->vertices[root].out_degree > 0)
+                     break;
+                  }
+              }
+              if(root >= 0 && root <= graphCSR->num_vertices){
+                breadthFirstSearchGraphCSR(root, graphCSR);
+              }   
+               trials--;
+            }
+            Start(timer);
+            graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
+          break;          
+      }
+
+     free(timer);
+
+}
+
+void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials){
+
+    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    struct GraphCSR* graphCSR = NULL;
+    struct GraphGrid* graphGrid = NULL;
+    struct GraphAdjLinkedList* graphAdjLinkedList = NULL;
+    struct GraphAdjArrayList* graphAdjArrayList = NULL;
+
+    switch (datastructure)
+      { 
+        case 0: // CSR
+            graphCSR = (struct GraphCSR*)graph;
+            if(root >= 0 && root <= graphCSR->num_vertices){
+              depthFirstSearchGraphCSR(root, graphCSR);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int32();
+                  if(root < graphCSR->num_vertices){
+                    if(graphCSR->vertices[root].out_degree > 0)
+                     break;
+                  }
+              }
+              if(root >= 0 && root <= graphCSR->num_vertices){
+                depthFirstSearchGraphCSR(root, graphCSR);
+              }   
+               trials--;
+            }
+            Start(timer);
+            graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
+          break;
+
+        case 1: // Grid
+            graphGrid = (struct GraphGrid*)graph;
+          
+            Start(timer); 
+            graphGridFree(graphGrid);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)",Seconds(timer));
+          break;
+
+        case 2: // Adj Linked List
+            graphAdjLinkedList = (struct GraphAdjLinkedList*)graph;
+           
+            Start(timer); 
+            graphAdjLinkedListFree(graphAdjLinkedList);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)",Seconds(timer));   
+            break;
+
+        case 3: // Adj Array List
+            graphAdjArrayList = (struct GraphAdjArrayList*)graph;
+          
+            Start(timer); 
+            graphAdjArrayListFree(graphAdjArrayList);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)",Seconds(timer));
+          break;
+
 
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
