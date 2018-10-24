@@ -239,7 +239,13 @@ struct Grid * gridPartitionSizePreprocessing(struct Grid *grid, struct EdgeList*
 	__u32 row;
 	__u32 col;
 
-    omp_lock_t lock[num_partitions*num_partitions];
+    // omp_lock_t lock[num_partitions*num_partitions];
+
+    #if ALIGNED
+        omp_lock_t *lock  = (omp_lock_t*) my_aligned_malloc( num_partitions*num_partitions * sizeof(omp_lock_t));
+    #else
+        omp_lock_t *lock  = (omp_lock_t*) my_malloc( num_partitions*num_partitions *sizeof(omp_lock_t));
+    #endif
 
     #pragma omp parallel for
     for (i=0; i<num_partitions*num_partitions; i++){
@@ -303,7 +309,11 @@ struct Grid * gridPartitionEdgePopulation(struct Grid *grid, struct EdgeList* ed
 	__u32 row;
 	__u32 col;
 
-    omp_lock_t lock[num_partitions*num_partitions];
+    #if ALIGNED
+        omp_lock_t *lock  = (omp_lock_t*) my_aligned_malloc( num_partitions*num_partitions * sizeof(omp_lock_t));
+    #else
+        omp_lock_t *lock  = (omp_lock_t*) my_malloc( num_partitions*num_partitions *sizeof(omp_lock_t));
+    #endif
 
     #pragma omp parallel for
     for (i=0; i<num_partitions*num_partitions; i++){
@@ -365,7 +375,7 @@ __u32 gridCalculatePartitions(struct EdgeList* edgeList){
 	//epfl everything graph
 	__u32 num_vertices  = edgeList->num_vertices;
 	__u32 num_Paritions = (num_vertices * 8 / 1024) / 20;
-	if(num_Paritions > 1000) 
+	if(num_Paritions > 2000) 
 		num_Paritions = 256;
 	if(num_Paritions == 0 ) 
 		num_Paritions = 4;
