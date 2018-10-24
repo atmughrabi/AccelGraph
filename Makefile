@@ -151,6 +151,10 @@ $(APP_DIR)/$(OBJ_DIR)/arrayQueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayQue
 	@echo 'making $(GAPP) <- arrayQueue.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/arrayQueue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayQueue.c
 
+$(APP_DIR)/$(OBJ_DIR)/arrayStack.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayStack.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/arrayStack.h
+	@echo 'making $(GAPP) <- arrayStack.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/arrayStack.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayStack.c
+
 $(APP_DIR)/$(OBJ_DIR)/BFS.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/BFS.c $(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/BFS.h
 	@echo 'making $(GAPP) <- BFS.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/BFS.o $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/BFS.c
@@ -174,6 +178,8 @@ $(APP_DIR)/$(OBJ_DIR)/$(GAPP)-capi.o: $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).
 	
 
 arrayQueue: $(APP_DIR)/$(OBJ_DIR)/arrayQueue.o
+
+arrayStack: $(APP_DIR)/$(OBJ_DIR)/arrayStack.o
 
 bitmap: $(APP_DIR)/$(OBJ_DIR)/bitmap.o
 
@@ -225,8 +231,8 @@ BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
 
 pageRank: $(APP_DIR)/$(OBJ_DIR)/pageRank.o
 	
-test: reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
-	@echo 'linking $(GAPP) <- reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
+test: arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+	@echo 'linking $(GAPP) <- arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
@@ -234,6 +240,7 @@ test: reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayLi
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/arrayStack.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/graphCSR.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/grid.o 			\
@@ -308,7 +315,7 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 # fnameb = "host/app/datasets/RMAT/RMAT19.txt"
 # fnameb = "host/app/datasets/RMAT/RMAT20.txt"
 # fnameb = "host/app/datasets/RMAT/RMAT21.bin"
-# fnameb = "host/app/datasets/RMAT/RMAT22.bin"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT22.bin"
 # root = 3009230
 # root = 0
 #app command line arguments
@@ -322,17 +329,17 @@ fnameb = "../01_GraphDatasets/twitter/twitter_rv.net.bin8"
 # root = 3 #max in  label
 # reorder = 1
 
-# root = 5576448 #max out label
+root = 5576448 #max out label
 # root = 0 #max in  label
-# reorder = 2
+reorder = 2
 
 # root = 0 #max out label
 # root = 2 #max in  label
 # reorder = 3
 
-root = 0 #max out label
+# root = 0 #max out label
 # root = 2 #max in  label
-reorder = 4
+# reorder = 4
 
 
 # fnameb = "host/app/datasets/test/test.txt.bin"
@@ -344,14 +351,14 @@ reorder = 4
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 0
+datastructure = 1
 algorithm = 0
 numThreads  = 8
 iterations = 100
 trials = 0
 tolerance = 1e-5
 sort = 0
-pushpull = 0
+pushpull = 5
 
 	
 run: test
