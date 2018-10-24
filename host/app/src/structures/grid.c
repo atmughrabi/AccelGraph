@@ -10,6 +10,7 @@
 #include "myMalloc.h"
 #include "graphConfig.h"
 #include "bitmap.h"
+#include "timer.h"
 
 void gridPrint(struct Grid *grid){
 
@@ -141,6 +142,8 @@ struct Grid * gridNew(struct EdgeList* edgeList){
         struct Grid* grid = (struct Grid*) my_malloc( sizeof(struct Grid));
     #endif
 
+    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+
     grid->num_edges = edgeList->num_edges;
     grid->num_vertices = edgeList->num_vertices;
     grid->num_partitions = gridCalculatePartitions(edgeList);
@@ -196,11 +199,34 @@ struct Grid * gridNew(struct EdgeList* edgeList){
         }
 
 
-      
+    Start(timer);
+    grid = graphGridProcessInOutDegrees(grid, edgeList);
+    Stop(timer);
+    gridPrintMessageWithtime("Grid Process In Out Degrees (Seconds)",Seconds(timer));
 
-    grid = gridPartitionSizePreprocessing(grid, edgeList);
+
+    Start(timer);
+    grid = gridPartitionEdgeListSizePreprocessing(grid, edgeList);
+    Stop(timer);
+    gridPrintMessageWithtime("Partition EdgeList Size (Seconds)",Seconds(timer));
+
+
+    Start(timer);
     grid = gridPartitionsMemoryAllocations(grid);
+    Stop(timer);
+    gridPrintMessageWithtime("Partitions Memory Allocations (Seconds)",Seconds(timer));
+
+
+    Start(timer);
     grid = gridPartitionEdgePopulation(grid, edgeList);
+    Stop(timer);
+    gridPrintMessageWithtime("Partition Edge Population (Seconds)",Seconds(timer));
+
+
+    Start(timer);
+    grid = gridPartitionVertexSizePreprocessing(grid);
+    Stop(timer);
+    gridPrintMessageWithtime("Partition Vertex Size (Seconds)",Seconds(timer));
 
     return grid;
 }
@@ -225,7 +251,64 @@ void  gridFree(struct Grid *grid){
 
 }
 
-struct Grid * gridPartitionSizePreprocessing(struct Grid *grid, struct EdgeList* edgeList){
+
+struct Grid * graphGridProcessInOutDegrees(struct Grid *grid, struct EdgeList* edgeList){
+
+    __u32 i;
+    __u32 src;
+    __u32 dest;
+
+    #pragma omp parallel for default(none) private(i,src,dest) shared(edgeList,grid)
+    for(i = 0; i < edgeList->num_edges; i++){
+
+        src  = edgeList->edges_array[i].src;
+        dest = edgeList->edges_array[i].dest;
+
+        #pragma omp atomic update
+            grid->out_degree[src]++;
+
+        #pragma omp atomic update
+            grid->in_degree[dest]++;
+
+        }
+
+        return grid;
+
+}
+
+struct Grid * gridPartitionVertexSizePreprocessing(struct Grid *grid){
+
+    __u32 i;
+    __u32 j;
+    __u32 src;
+    __u32 dest;
+    __u32 num_vertices = 0;
+    __u32 totalPartitions = grid->num_partitions*grid->num_partitions;
+    
+    // #pragma omp parallel for default(none) private(i) shared(totalPartitions,grid)
+     #pragma omp parallel for default(none) private(i,src,dest,num_vertices) shared(totalPartitions,grid) schedule(dynamic,1024)
+     for ( j = 0; j < totalPartitions; ++j){
+            num_vertices = 0;
+            // #pragma omp parallel for default(none) private(i,src,dest) shared(j,grid) schedule(dynamic,1024) reduction(max:num_vertices)
+            for(i = 0; i <  grid->partitions[j].edgeList->num_edges; i++){
+
+                src  =  grid->partitions[j].edgeList->edges_array[i].src;
+                dest =  grid->partitions[j].edgeList->edges_array[i].dest;
+
+                num_vertices = maxTwoIntegers(num_vertices ,maxTwoIntegers(src, dest));
+
+            }
+
+            grid->partitions[j].num_vertices = num_vertices;
+            grid->partitions[j].edgeList->num_vertices = num_vertices;
+        }
+
+    return grid;
+
+
+}
+
+struct Grid * gridPartitionEdgeListSizePreprocessing(struct Grid *grid, struct EdgeList* edgeList){
 
 	__u32 i;
 	__u32 src;
@@ -241,29 +324,13 @@ struct Grid * gridPartitionSizePreprocessing(struct Grid *grid, struct EdgeList*
 
     // omp_lock_t lock[num_partitions*num_partitions];
 
-    #if ALIGNED
-        omp_lock_t *lock  = (omp_lock_t*) my_aligned_malloc( num_partitions*num_partitions * sizeof(omp_lock_t));
-    #else
-        omp_lock_t *lock  = (omp_lock_t*) my_malloc( num_partitions*num_partitions *sizeof(omp_lock_t));
-    #endif
-
-    #pragma omp parallel for
-    for (i=0; i<num_partitions*num_partitions; i++){
-        omp_init_lock(&(lock[i]));
-    }
 
 
-    #pragma omp parallel for default(none) private(i,row,col,src,dest,Partition_idx) shared(lock,num_vertices, num_partitions,edgeList,grid)
+    #pragma omp parallel for default(none) private(i,row,col,src,dest,Partition_idx) shared(num_vertices, num_partitions,edgeList,grid)
 	for(i = 0; i < edgeList->num_edges; i++){
 
 		src  = edgeList->edges_array[i].src;
 		dest = edgeList->edges_array[i].dest;
-
-        #pragma omp atomic update
-            grid->out_degree[src]++;
-
-        #pragma omp atomic update
-            grid->in_degree[dest]++;
 
         // __sync_fetch_and_add(&grid->out_degree[src],1);
         // __sync_fetch_and_add(&grid->in_degree[dest],1);
@@ -275,20 +342,14 @@ struct Grid * gridPartitionSizePreprocessing(struct Grid *grid, struct EdgeList*
 
         // __sync_fetch_and_add(&grid->partitions[Partition_idx].num_edges,1);
         
-        omp_set_lock(&(lock[Partition_idx]));
-        {
-    		grid->partitions[Partition_idx].num_edges++;
-    		grid->partitions[Partition_idx].num_vertices = maxTwoIntegers(grid->partitions[Partition_idx].num_vertices,maxTwoIntegers(src, dest));
-        }
-        omp_unset_lock((&lock[Partition_idx]));
+            #pragma omp atomic update
+    		  grid->partitions[Partition_idx].num_edges++;
+
+        //     #pragma omp atomic update
+    		  // grid->partitions[Partition_idx].num_vertices = maxTwoIntegers(grid->partitions[Partition_idx].num_vertices,maxTwoIntegers(src, dest));
 
 	}
 
-
-    #pragma omp parallel for
-    for (i=0; i<num_partitions*num_partitions; i++){
-        omp_destroy_lock(&(lock[i]));
-    }
 
 	return grid;
 
@@ -430,4 +491,14 @@ __u32 getPartitionRangeEnd(__u32 vertices, __u32 partitions, __u32 partition_id)
         __u32 end = split_point + (partition_id - split_partition + 1) * (partition_size - 1);
 
         return  end;
+}
+
+void gridPrintMessageWithtime(const char * msg, double time){
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", msg);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", time);
+    printf(" -----------------------------------------------------\n");
+
 }

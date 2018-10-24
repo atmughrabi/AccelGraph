@@ -38,12 +38,14 @@ struct  Grid {
 void gridPrint(struct Grid *grid);
 struct Grid * gridNew(struct EdgeList* edgeList);
 void  gridFree(struct Grid *grid);
+void gridPrintMessageWithtime(const char * msg, double time);
 
-
-struct Grid * gridPartitionSizePreprocessing(struct Grid *grid, struct EdgeList* edgeList);
+struct Grid * gridPartitionEdgeListSizePreprocessing(struct Grid *grid, struct EdgeList* edgeList);
+struct Grid * gridPartitionVertexSizePreprocessing(struct Grid *grid);
 __u32 gridCalculatePartitions(struct EdgeList* edgeList);
 struct Grid * gridPartitionsMemoryAllocations(struct Grid *grid);
 struct Grid * gridPartitionEdgePopulation(struct Grid *grid, struct EdgeList* edgeList);
+struct Grid * graphGridProcessInOutDegrees(struct Grid *grid, struct EdgeList* edgeList);
 void   graphGridSetActivePartitions(struct Grid *grid, __u32 vertex);
 void   graphGridResetActivePartitions(struct Grid *grid);
 
