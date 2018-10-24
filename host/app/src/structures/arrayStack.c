@@ -135,7 +135,7 @@ void slideWindowArrayStackBitmap (struct ArrayStack *q){
 
 __u32 popArrayStack(struct ArrayStack *q){
 
-	__u32 k = q->Stack[q->tail];
+	__u32 k = q->Stack[q->tail-1];
 	clearBit(q->q_bitmap,k);
 	q->tail = q->tail-1;
 
