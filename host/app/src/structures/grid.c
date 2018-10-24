@@ -322,10 +322,6 @@ struct Grid * gridPartitionEdgeListSizePreprocessing(struct Grid *grid, struct E
 	__u32 row;
 	__u32 col;
 
-    // omp_lock_t lock[num_partitions*num_partitions];
-
-
-
     #pragma omp parallel for default(none) private(i,row,col,src,dest,Partition_idx) shared(num_vertices, num_partitions,edgeList,grid)
 	for(i = 0; i < edgeList->num_edges; i++){
 
@@ -339,20 +335,14 @@ struct Grid * gridPartitionEdgeListSizePreprocessing(struct Grid *grid, struct E
 		col = getPartitionID(num_vertices, num_partitions, dest);
         Partition_idx= (row*num_partitions)+col;
 
-
         // __sync_fetch_and_add(&grid->partitions[Partition_idx].num_edges,1);
         
-            #pragma omp atomic update
-    		  grid->partitions[Partition_idx].num_edges++;
-
-        //     #pragma omp atomic update
-    		  // grid->partitions[Partition_idx].num_vertices = maxTwoIntegers(grid->partitions[Partition_idx].num_vertices,maxTwoIntegers(src, dest));
+        #pragma omp atomic update
+		  grid->partitions[Partition_idx].num_edges++;
 
 	}
 
-
 	return grid;
-
 
 }
 
