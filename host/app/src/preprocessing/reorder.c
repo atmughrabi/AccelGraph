@@ -21,18 +21,24 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
 	__u32 v;
 	double epsilon = 0.0001;
 	__u32 iterations = 10;
-	struct EdgeList* edgeList = NULL;
+	
 	__u32* labelsInverse;
 	__u32* labels;
 	 struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
 	#if ALIGNED
-        labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        labelsInverse = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-  	#else
-        labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        labelsInverse = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-  	#endif
+      labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+      labelsInverse = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+	#else
+      labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+      labelsInverse = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+	#endif
+
+  #if ALIGNED
+      struct EdgeList* edgeList = (struct EdgeList*) my_aligned_malloc(sizeof(struct EdgeList));
+  #else
+      struct EdgeList* edgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
+  #endif
 
 
     printf(" -----------------------------------------------------\n");
@@ -66,7 +72,12 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
     labels[labelsInverse[v]] = graph->num_vertices -1 - v;
   }
 
-	edgeList = relabelEdgeList(graph,labels);
+
+  edgeList->num_vertices = graph->num_vertices;
+  edgeList->num_edges = graph->num_edges;
+  edgeList->edges_array = graph->sorted_edges_array;
+
+	edgeList = relabelEdgeList(edgeList ,labels);
 
 	Stop(timer);
 
@@ -265,19 +276,17 @@ __u32* radixSortEdgesByDegree (__u32* degrees, __u32* labels, __u32 num_vertices
 
 }
 
-
-struct EdgeList* reorderGraphProcess(struct GraphCSR* graph, __u32 sort, struct EdgeList* edgeList, __u32 lmode){
-
-	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-    // printf("Filename : %s \n",fnameb);
+struct EdgeList* reorderGraphProcessPageRank( __u32 sort, struct EdgeList* edgeList, __u32 lmode){
     
-    printf(" *****************************************************\n");
-	  printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Reorder Process");
-    printf(" -----------------------------------------------------\n");
-    Start(timer);
+  struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
-	    // Start(timer);
+  #if DIRECTED
+      struct GraphCSR* graph = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
+  #else
+      struct GraphCSR* graph = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
+  #endif
+
+    // Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);
     // edgeList = radixSortEdgesBySourceOptimized(edgeList);
     // edgeListPrint(edgeList);
@@ -315,13 +324,128 @@ struct EdgeList* reorderGraphProcess(struct GraphCSR* graph, __u32 sort, struct 
     #endif
     
 
+    edgeList = reorderGraphListPageRank(graph);
+
+  if(graph->vertices)
+    freeVertexArray(graph->vertices);
+  if(graph->parents)
+    free(graph->parents);
+  // if(graph->sorted_edges_array)
+  //   freeEdgeArray(graph->sorted_edges_array);
+
+  #if DIRECTED
+    if(graph->inverse_vertices)
+      freeVertexArray(graph->inverse_vertices);
+    if(graph->inverse_sorted_edges_array)
+      freeEdgeArray(graph->inverse_sorted_edges_array);
+  #endif
+
+
+    free(timer);
+
+    return edgeList;
+
+
+}
+
+
+struct EdgeList* reorderGraphProcessDegree( __u32 sort, struct EdgeList* edgeList, __u32 lmode){
+
+
+     __u32* degrees;
+
+    #if ALIGNED
+        degrees = (__u32*) my_aligned_malloc(edgeList->num_vertices*sizeof(__u32));
+    #else
+        degrees = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
+    #endif
+
+    degrees = reorderGraphProcessInOutDegrees( degrees , edgeList, lmode);
+
+    edgeList = reorderGraphListDegree( edgeList, degrees, lmode);
+
+    return edgeList;
+
+}
+
+__u32 reorderGraphProcessVertexSize( struct EdgeList* edgeList){
+
+    __u32 i;
+    __u32 src;
+    __u32 dest;
+    __u32 num_vertices = 0;
+
+    #pragma omp parallel for default(none) private(i,src,dest) shared(edgeList) reduction(max: num_vertices)
+    for(i = 0; i < edgeList->num_edges; i++){
+
+      src  = edgeList->edges_array[i].src;
+      dest = edgeList->edges_array[i].dest;
+      num_vertices = maxTwoIntegers(num_vertices ,maxTwoIntegers(src, dest));
+
+    }
+
+    return num_vertices;
+}
+
+
+__u32* reorderGraphProcessInOutDegrees(__u32* degrees , struct EdgeList* edgeList, __u32 lmode){
+
+    __u32 i;
+    __u32 src;
+    __u32 dest;
+
+    #pragma omp parallel for default(none) private(i,src,dest) shared(edgeList,degrees,lmode)
+    for(i = 0; i < edgeList->num_edges; i++){
+      src  = edgeList->edges_array[i].src;
+      dest = edgeList->edges_array[i].dest;
+
+      if(lmode == 3){
+      #pragma omp atomic update
+          degrees[src]++;
+      }
+      else if(lmode == 2){
+      #pragma omp atomic update
+          degrees[dest]++;
+      }
+      else if(lmode == 4){
+      #pragma omp atomic update
+          degrees[dest]++;
+      #pragma omp atomic update
+          degrees[src]++;
+      }
+
+    }
+
+    return degrees;
+}
+
+
+
+struct EdgeList* reorderGraphProcess( __u32 sort, struct EdgeList* edgeList, __u32 lmode){
+
+ 
+
+
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    // printf("Filename : %s \n",fnameb);
+    
+    printf(" *****************************************************\n");
+	  printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Reorder Process");
+    printf(" -----------------------------------------------------\n");
+    Start(timer);
+
+	  
+
     
     if(lmode == 1) // pageRank
-      edgeList = reorderGraphListPageRank(graph);
+      edgeList = reorderGraphProcessPageRank( sort, edgeList, lmode);
     else if(lmode == 2)
-      edgeList = reorderGraphListDegree(graph,lmode);// in-degree
+      edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// in-degree
     else if(lmode == 3)
-      edgeList = reorderGraphListDegree(graph,lmode);// out-degree
+      edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// out-degree
+    else if(lmode == 4)
+      edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// in/out-degree
 
 
     Stop(timer);
@@ -336,39 +460,25 @@ struct EdgeList* reorderGraphProcess(struct GraphCSR* graph, __u32 sort, struct 
 
     free(timer);
 
-    #if DIRECTED
-		if(graph->inverse_sorted_edges_array)
-			freeEdgeArray(graph->inverse_sorted_edges_array);
-	  #endif
-
-	
-	  graphCSRHardReset(graph);
-
-
     return edgeList;
 
 }
 
 
-struct EdgeList* reorderGraphListDegree(struct GraphCSR* graph, __u32 lmode){
+struct EdgeList* reorderGraphListDegree(struct EdgeList* edgeList, __u32* degrees, __u32 lmode){
 
   __u32 v;
-  struct EdgeList* edgeList = NULL;
   __u32* labelsInverse;
   __u32* labels;
-  __u32* degrees;
    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
     #if ALIGNED
-        labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        labelsInverse = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        degrees = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-
+        labels = (__u32*) my_aligned_malloc(edgeList->num_vertices*sizeof(__u32));
+        labelsInverse = (__u32*) my_aligned_malloc(edgeList->num_vertices*sizeof(__u32));
+    
     #else
-        labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        labelsInverse = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        degrees = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-
+        labels = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
+        labelsInverse = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
     #endif
 
     
@@ -381,42 +491,28 @@ struct EdgeList* reorderGraphListDegree(struct GraphCSR* graph, __u32 lmode){
     else if(lmode == 3){
     printf("| %-51s | \n", "OUT-DEGREE");
     }
+    else if(lmode == 4){
+    printf("| %-51s | \n", "IN/OUT-DEGREE");
+    }
     printf(" -----------------------------------------------------\n");
 
     Start(timer);
 
   #pragma omp parallel for
-  for(v = 0; v < graph->num_vertices; v++){
+  for(v = 0; v < edgeList->num_vertices; v++){
     labelsInverse[v]= v;
   }
 
-  #pragma omp parallel for
-  for(v = 0; v < graph->num_vertices; v++){
-    // degrees[v]= vertices[v].out_degree;
-
-    if(lmode == 2){ // in-degree
-      #if DIRECTED
-        degrees[v]= graph->inverse_vertices[v].out_degree;
-      #else
-        degrees[v]= graph->vertices[v].out_degree;
-      #endif
-    }
-    else if(lmode == 3){ // out-degree
-      degrees[v]= graph->vertices[v].out_degree;
-    }
-  }
-
-
-  labelsInverse = radixSortEdgesByDegree(degrees, labelsInverse, graph->num_vertices);
+  labelsInverse = radixSortEdgesByDegree(degrees, labelsInverse, edgeList->num_vertices);
 
 
   //decending order mapping
   #pragma omp parallel for
-  for(v = 0; v < graph->num_vertices; v++){
-    labels[labelsInverse[v]] = graph->num_vertices -1 - v;
+  for(v = 0; v < edgeList->num_vertices; v++){
+    labels[labelsInverse[v]] = edgeList->num_vertices -1 - v;
   }
 
-  edgeList = relabelEdgeList(graph,labels);
+  edgeList = relabelEdgeList(edgeList,labels);
 
   Stop(timer);
 
@@ -432,19 +528,7 @@ struct EdgeList* reorderGraphListDegree(struct GraphCSR* graph, __u32 lmode){
   return edgeList;
 }
 
-struct EdgeList* relabelEdgeList(struct GraphCSR* graph, __u32* labels){
-
-  struct  EdgeList* edgeList;
-
-  #if ALIGNED
-        edgeList = (struct  EdgeList*) my_aligned_malloc(graph->num_vertices*sizeof(struct  EdgeList));
-    #else
-        edgeList = (struct  EdgeList*) my_malloc(graph->num_vertices*sizeof(struct  EdgeList));
-    #endif
-
-    edgeList->num_edges = graph->num_edges;
-    edgeList->num_vertices = graph->num_vertices;
-    edgeList->edges_array = graph->sorted_edges_array;
+struct EdgeList* relabelEdgeList(struct EdgeList* edgeList, __u32* labels){
 
     __u32 i;
    

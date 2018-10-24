@@ -145,14 +145,9 @@ struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort, _
     graphGridPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
 
-    #if DIRECTED
-        struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
-    #else
-        struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
-    #endif
-    
+   
     if(lmode)
-        edgeList = reorderGraphProcess(graphCSR, sort, edgeList, lmode);
+        edgeList = reorderGraphProcess(sort, edgeList, lmode);
 
     // Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);

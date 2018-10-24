@@ -241,14 +241,17 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
     graphCSRPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
 
+
+    if(lmode)
+        edgeList = reorderGraphProcess(sort, edgeList, lmode);
+
+
     #if DIRECTED
         struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
     #else
         struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
     #endif
 
-    if(lmode)
-        edgeList = reorderGraphProcess(graphCSR, sort, edgeList, lmode);
     // Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);
     // edgeList = radixSortEdgesBySourceOptimized(edgeList);

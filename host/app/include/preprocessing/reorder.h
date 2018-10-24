@@ -4,11 +4,12 @@
 #include <linux/types.h>
 
 
-struct EdgeList* relabelEdgeList(struct GraphCSR* graph, __u32* labels);
-struct EdgeList* reorderGraphProcess(struct GraphCSR* graph, __u32 sort, struct EdgeList* edgeList,  __u32 lmode);
-struct EdgeList* reorderGraphListDegree(struct GraphCSR* graph, __u32 lmode);
+struct EdgeList* relabelEdgeList(struct EdgeList* edgeList, __u32* labels);
+struct EdgeList* reorderGraphProcess(__u32 sort, struct EdgeList* edgeList,  __u32 lmode);
+struct EdgeList* reorderGraphListDegree(struct EdgeList* edgeList, __u32* degrees, __u32 lmode);
 struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph);
-
+__u32* reorderGraphProcessInOutDegrees(__u32* degrees , struct EdgeList* edgeList, __u32 lmode);
+__u32 reorderGraphProcessVertexSize( struct EdgeList* edgeList);
 __u32* radixSortEdgesByDegree (__u32* degrees, __u32* labels, __u32 num_vertices);
 __u32* radixSortEdgesByPageRank (float* pageRanks, __u32* labels, __u32 num_vertices);
 

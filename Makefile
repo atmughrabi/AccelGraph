@@ -298,7 +298,7 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 #   -i [num iterations] number of iterations for pagerank to converge [default:20]
 #   -t [num trials] number of random trials for each whole run [default:0]
 #   -e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]
-#   -l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-bfs-clustering 
+#   -l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree  [4]In+out degree [4]-bfs-clustering 
 #   -c: convert to bin file on load example:-f <graph file> -c
 
 
@@ -312,13 +312,13 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 # root = 3009230
 # root = 0
 #app command line arguments
-fnameb = "host/app/datasets/twitter/twitter_rv.net.bin8"
+fnameb = "../01_GraphDatasets/twitter/twitter_rv.net.bin8"
 
-root = 428333 #max out labelless
+# root = 428333 #max out labelless
 # root = 813286 #max in  labelless
-reorder = 0
+# reorder = 0
 
-# root = 19144669 #max out label
+# root = 19144663 #max out label
 # root = 3 #max in  label
 # reorder = 1
 
@@ -330,6 +330,11 @@ reorder = 0
 # root = 2 #max in  label
 # reorder = 3
 
+root = 0 #max out label
+# root = 2 #max in  label
+reorder = 4
+
+
 # fnameb = "host/app/datasets/test/test.txt.bin"
 # root  = 6
 # root  = 19
@@ -339,7 +344,7 @@ reorder = 0
 
 # fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 1
+datastructure = 0
 algorithm = 0
 numThreads  = 8
 iterations = 100
