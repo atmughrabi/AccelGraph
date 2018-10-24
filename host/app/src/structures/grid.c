@@ -363,6 +363,7 @@ struct Grid * gridPartitionEdgePopulation(struct Grid *grid, struct EdgeList* ed
 	__u32 src;
 	__u32 dest;
 	__u32 Partition_idx;
+    __u32 Edge_idx;
 
 	__u32 num_partitions = grid->num_partitions;
 	__u32 num_vertices = grid->num_vertices;
@@ -370,43 +371,31 @@ struct Grid * gridPartitionEdgePopulation(struct Grid *grid, struct EdgeList* ed
 	__u32 row;
 	__u32 col;
 
-    #if ALIGNED
-        omp_lock_t *lock  = (omp_lock_t*) my_aligned_malloc( num_partitions*num_partitions * sizeof(omp_lock_t));
-    #else
-        omp_lock_t *lock  = (omp_lock_t*) my_malloc( num_partitions*num_partitions *sizeof(omp_lock_t));
-    #endif
-
-    #pragma omp parallel for
-    for (i=0; i<num_partitions*num_partitions; i++){
-        omp_init_lock(&(lock[i]));
-    }
+   
 
 
-    #pragma omp parallel for default(none) private(i,row,col,src,dest,Partition_idx) shared(lock,num_vertices, num_partitions,edgeList,grid)
+    #pragma omp parallel for default(none) private(Edge_idx,i,row,col,src,dest,Partition_idx) shared(num_vertices, num_partitions,edgeList,grid)
 	for(i = 0; i < edgeList->num_edges; i++){
 
 
 		src  = edgeList->edges_array[i].src;
 		dest = edgeList->edges_array[i].dest;
+
 		row = getPartitionID(num_vertices, num_partitions, src);
 		col = getPartitionID(num_vertices, num_partitions, dest);
 		Partition_idx= (row*num_partitions)+col;
 
-        omp_set_lock(&(lock[Partition_idx]));
-        {
-		grid->partitions[Partition_idx].edgeList->edges_array[grid->partitions[Partition_idx].num_edges] = edgeList->edges_array[i];
-		grid->partitions[Partition_idx].num_edges++;  
-        }
-        omp_unset_lock((&lock[Partition_idx]));
+        Edge_idx = __sync_fetch_and_add(&grid->partitions[Partition_idx].num_edges,1);
+
+        struct Edge * edgePtr = &grid->partitions[Partition_idx].edgeList->edges_array[Edge_idx];
+
+		(*edgePtr) = edgeList->edges_array[i];
+
 	
     }
 
 
-    #pragma omp parallel for
-    for (i=0; i<num_partitions*num_partitions; i++){
-        omp_destroy_lock(&(lock[i]));
-    }
-
+   
 	return grid;
 
 }
