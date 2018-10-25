@@ -303,7 +303,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
             if(root >= 0 && root <= graphCSR->num_vertices){
-              depthFirstSearchGraphCSR(root, graphCSR);
+              pDepthFirstSearchGraphCSR(root, graphCSR);
             } 
             while(trials){
               while(1){
@@ -314,7 +314,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
                   }
               }
               if(root >= 0 && root <= graphCSR->num_vertices){
-                depthFirstSearchGraphCSR(root, graphCSR);
+                pDepthFirstSearchGraphCSR(root, graphCSR);
               }   
                trials--;
             }

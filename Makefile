@@ -41,7 +41,7 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 		-I$(APP_DIR)/include/$(UTIL_DIR)/   \
 # flags
-CFLAGS            = -O3 -Wall -m64 -fopenmp -g
+CFLAGS            = -O3 -Wall -m64 -fopenmp -g 
 
 all: test
 
@@ -318,17 +318,17 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 
 
 
-# fnameb = "host/app/datasets/RMAT/RMAT-26.bin"
-# fnameb = "host/app/datasets/RMAT/RMAT19.txt"
-# fnameb = "host/app/datasets/RMAT/RMAT20.txt"
-# fnameb = "host/app/datasets/RMAT/RMAT21.bin"
-fnameb = "../01_GraphDatasets/RMAT/RMAT22.bin"
-root = 3009230
+# fnameb = "../01_GraphDatasets/RMAT/RMAT-26.bin"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT19.txt"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT20.txt"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT21.bin"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT22.bin"
+# root = 3009230
 # root = 0
 #app command line arguments
-# fnameb = "../01_GraphDatasets/twitter/twitter_rv.net.bin8"
+fnameb = "../01_GraphDatasets/twitter/twitter_rv.net.bin8"
 
-# root = 428333 #max out labelless
+root = 428333 #max out labelless
 # root = 813286 #max in  labelless
 reorder = 0
 
@@ -349,14 +349,14 @@ reorder = 0
 # reorder = 4
 
 
-# fnameb = "host/app/datasets/test/test.txt.bin"
+# fnameb = "../01_GraphDatasets/test/test.txt.bin"
 # root  = 6
 # root  = 19
 
-# fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin"
+# fnameb = "../01_GraphDatasets/facebook/facebook_combined.txt.bin"
 # root = 107
 
-# fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin"
+# fnameb = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
 datastructure = 0
 algorithm = 3
@@ -369,6 +369,7 @@ pushpull = 5
 
 	
 run: test
+	# ulimit -s unlimited 
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
 	
 run-bfs: test
