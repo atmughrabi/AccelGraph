@@ -1,4 +1,5 @@
-# Graph Processing Framework With OpenMP/CAPI/OpenCL
+# AccelGraph
+## Graph Processing Framework With OpenMP/CAPI/OpenCL
 
 AFU framework for Graph Processing algorithms with CAPI connected FGPAs With OpenCL/Verilog/OpenMP
 
@@ -60,18 +61,18 @@ This will be added later.
 
 2. Run the algorithm with the data structure and other settings you need
   ```bash
-  Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w]
-  -a [algorithm] : 0 bfs, 1 pagerank, 2 SSSP
-  -d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj Linked List, [3]-Adj Array List [4-5] same order bitmap frontiers
-  -r [root]: BFS & SSSP root
+Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -u -s -w]
+  -a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP, [3]-DFS [4]-IncrementalAggregation
+  -d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers
+  -r [root]: BFS, DFS, SSSP root
   -p [algorithm direction] [0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-6]-same order but using data driven
   -o [sorting algorithm] [0]-radix-src [1]-radix-src-dest [2]-count-src [3]-count-src-dst.
   -n [num threads] default:max number of threads the system has
   -i [num iterations] number of iterations for pagerank to converge [default:20]
   -t [num trials] number of random trials for each whole run [default:0]
   -e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]
-  -l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-bfs-clustering 
-  -c: convert to bin file on load example:-f <graph file> -c
+  -l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree avg [5]-Rabbit  
+  -c: read text format convert to bin file on load example:-f <graph file> -c
 ```
 
 ### AFU wrapper and Frame

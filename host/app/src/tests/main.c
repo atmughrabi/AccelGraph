@@ -13,7 +13,7 @@
 int numThreads;
 
 static void usage(void) {
-  printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w]\n");
+  printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -u -s -w]\n");
   printf("\t-a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP, [3]-DFS [4]-IncrementalAggregation\n");
   printf("\t-d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers\n");
   printf("\t-r [root]: BFS, DFS, SSSP root\n");
@@ -24,9 +24,9 @@ static void usage(void) {
   printf("\t-t [num trials] number of random trials for each whole run [default:0]\n");
   printf("\t-e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]\n");
   printf("\t-l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  \n");
-  printf("\t-c: convert to bin file on load example:-f <graph file> -c\n");
+  printf("\t-c: read text format convert to bin file on load example:-f <graph file> -c\n");
   // printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
-  // printf("\t-w: weighted input graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
+  // printf("\t-w: weight generate or load from file graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
   // printf("\t-s: symmetric graph, if not given set of incoming edges will be created \n"); 
   _exit(-1);
 }
