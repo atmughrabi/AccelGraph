@@ -21,7 +21,7 @@ void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int r
 void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials);
 void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 trials, __u32 pushpull);
 void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials);
-
+void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 trials);
 #endif
 
 

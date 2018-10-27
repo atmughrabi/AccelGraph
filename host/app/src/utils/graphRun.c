@@ -15,6 +15,7 @@
 #include "BFS.h"
 #include "DFS.h"
 #include "pageRank.h"
+#include "incrementalAggregation.h"
 
 
 void generateGraphPrintMessageWithtime(const char * msg, double time){
@@ -93,8 +94,11 @@ void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int r
         case 2: // SSSP file name root
           printf(" SSSP to be implemented \n");
           break;
-        case 3: // SSSP file name root
+        case 3: // DFS file name root
           runDepthFirstSearchAlgorithm(graph, datastructure, root, trials);
+          break;
+        case 4: // incremental Aggregation file name root
+          runIncrementalAggregationAlgorithm(graph, datastructure, trials);
           break;
         default:// bfs file name root
           runBreadthFirstSearchAlgorithm(graph,datastructure, root, trials);
@@ -303,7 +307,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
             if(root >= 0 && root <= graphCSR->num_vertices){
-              pDepthFirstSearchGraphCSR(root, graphCSR);
+              depthFirstSearchGraphCSR(root, graphCSR);
             } 
             while(trials){
               while(1){
@@ -314,7 +318,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
                   }
               }
               if(root >= 0 && root <= graphCSR->num_vertices){
-                pDepthFirstSearchGraphCSR(root, graphCSR);
+                depthFirstSearchGraphCSR(root, graphCSR);
               }   
                trials--;
             }
@@ -380,6 +384,75 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
      free(timer);
 
 }
+
+
+void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 trials){
+
+    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    struct GraphCSR* graphCSR = NULL;
+    struct GraphGrid* graphGrid = NULL;
+    struct GraphAdjLinkedList* graphAdjLinkedList = NULL;
+    struct GraphAdjArrayList* graphAdjArrayList = NULL;
+
+    switch (datastructure)
+      { 
+        case 0: // CSR
+            graphCSR = (struct GraphCSR*)graph;
+            while(trials){
+               incrementalAggregationGraphCSR(graphCSR);  
+               trials--;
+            }
+            Start(timer);
+            graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
+          break;
+
+        case 1: // Grid
+            graphGrid = (struct GraphGrid*)graph;
+          
+            Start(timer); 
+            graphGridFree(graphGrid);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)",Seconds(timer));
+          break;
+
+        case 2: // Adj Linked List
+            graphAdjLinkedList = (struct GraphAdjLinkedList*)graph;
+           
+            Start(timer); 
+            graphAdjLinkedListFree(graphAdjLinkedList);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)",Seconds(timer));   
+            break;
+
+        case 3: // Adj Array List
+            graphAdjArrayList = (struct GraphAdjArrayList*)graph;
+          
+            Start(timer); 
+            graphAdjArrayListFree(graphAdjArrayList);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)",Seconds(timer));
+          break;
+
+
+        default:// CSR
+           graphCSR = (struct GraphCSR*)graph;
+            while(trials){
+               incrementalAggregationGraphCSR(graphCSR);  
+               trials--;
+            }
+            Start(timer);
+            graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
+          break;          
+      }
+
+     free(timer);
+
+}
+
 
 
 void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 trials, __u32 pushpull){

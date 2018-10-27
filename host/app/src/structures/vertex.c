@@ -83,6 +83,8 @@ void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted
     __u32 j;
     __u32 P = numThreads;
 
+    if(P >  graph->num_edges)
+        P = graph->num_edges;
  
 
     for(i=0 ; i < P ; i++){
@@ -95,6 +97,9 @@ void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted
     offset_start[0] = 0;
     offset_end[0] = offset_start[0] + (graph->num_edges/P);
 
+      if(1 == (P)){
+            offset_end[0] = graph->num_edges;
+       }
 
     for(i=1 ; i < P ; i++){
 
@@ -108,33 +113,41 @@ void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted
           
 
         for(; j < graph->num_edges; j++){
-            // printf("j %u \n",j );
+               
              if(sorted_edges_array[j].src != sorted_edges_array[j-1].src){  
                 offset_start[i] = j;
                 offset_end[i-1] = j;
-
+               
                 if(i == (P-1)){
                     offset_end[i] = i*(graph->num_edges/P) + (graph->num_edges/P) + (graph->num_edges%P) ;
                 }
                 else{
-                    offset_end[i] =  offset_start[i] + (graph->num_edges/P);
+                    offset_end[i] =  offset_start[i] + (graph->num_edges/P);  
                 }
 
                 if(offset_end[i] > graph->num_edges && offset_start[i] < graph->num_edges){
                     offset_end[i] = graph->num_edges;       
+                    // printf("3-%u %u\n", offset_start[i], offset_end[i] );
                 }
+            
                 break;
              }
-
+             else if(sorted_edges_array[j].src == sorted_edges_array[j-1].src && j == (graph->num_edges-1)){
+                offset_start[i] = graph->num_edges;
+                offset_end[i] = graph->num_edges;
+                offset_end[i-1] = graph->num_edges;
+                 
+             }
             
          }
 
        
     }
-     for(i=0 ; i < P ; i++){
+     // for(i=0 ; i < P ; i++){
 
-
-     }
+     //    printf("%u %u\n", offset_start[i], offset_end[i] );
+      
+     // }
 
 
 }
@@ -203,26 +216,24 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
         vertices[vertex_id].edges_idx = offset_start;
         vertices[vertex_id].out_degree++;
 
-         // printf("tid %u start %u end %u v vertex_id %u\n",t_id,offset_start,offset_end,vertex_id );
+        // printf("tid %u start %u end %u v vertex_id %u\n",t_id,offset_start,offset_end,vertex_id );
 
         sorted_edge_array[offset_start] = sorted_edges_array[offset_start].dest;
 
         for(i = offset_start+1; i < offset_end; i++){
 
         sorted_edge_array[i] = sorted_edges_array[i].dest;
+        vertex_id = sorted_edges_array[i].src;
+        vertices[vertex_id].out_degree++;
         
-        if(sorted_edges_array[i].src != sorted_edges_array[i-1].src){      
-
-            vertex_id = sorted_edges_array[i].src;
-            vertices[vertex_id].edges_idx = i; 
-            vertices[vertex_id].out_degree++;
-         
-        }
-        else{
-            vertices[vertex_id].out_degree++;
-           
+            if(sorted_edges_array[i].src != sorted_edges_array[i-1].src){      
+                vertices[vertex_id].edges_idx = i; 
             }
+              // printf("v %u d %u \n",vertex_id, vertices[vertex_id].out_degree);
         }
+
+
+
     }
 
     }

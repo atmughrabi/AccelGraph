@@ -269,7 +269,7 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR* graph, struct Bitmap* bitmapCurr, st
 		    			 u = sorted_edges_array[j];
 		    			 if(getBit(bitmapCurr, u)){
 		    			 	graph->parents[v] = u;
-		    			 	setBit(bitmapNext, v);
+		    			 	setBitAtomic(bitmapNext, v);
 		    			 	nf++;
 		    			 	break;
 		    			 }
@@ -1126,7 +1126,7 @@ __u32 bottomUpStepGraphAdjArrayList(struct GraphAdjArrayList* graph, struct Bitm
     			 u = Nodes[j].dest;
     			 if(getBit(bitmapCurr, u)){
     			 	graph->parents[v] = u;
-    			 	setBit(bitmapNext, v);
+    			 	setBitAtomic(bitmapNext, v);
     			 	nf++;
     			 	break;
     			 }
@@ -1393,7 +1393,7 @@ __u32 bottomUpStepGraphAdjLinkedList(struct GraphAdjLinkedList* graph, struct Bi
             	  Nodes = Nodes->next;
     			 if(getBit(bitmapCurr, u)){
     			 	graph->parents[v] = u;
-    			 	setBit(bitmapNext, v);
+    			 	setBitAtomic(bitmapNext, v);
     			 	nf++;
     			 	break;
     			 }

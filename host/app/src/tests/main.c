@@ -14,8 +14,8 @@ int numThreads;
 
 static void usage(void) {
   printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-u -s -w]\n");
-  printf("\t-a [algorithm] : [0] bfs, [1] pagerank, [2] SSSP, [3] DFS\n");
-  printf("\t-d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj Linked List, [3]-Adj Array List [4-5] same order bitmap frontiers\n");
+  printf("\t-a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP, [3]-DFS [4]-IncrementalAggregation\n");
+  printf("\t-d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers\n");
   printf("\t-r [root]: BFS, DFS, SSSP root\n");
   printf("\t-p [algorithm direction] [0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-6]-same order but using data driven\n");
   printf("\t-o [sorting algorithm] [0]-radix-src [1]-radix-src-dest [2]-count-src [3]-count-src-dst.\n");
@@ -70,7 +70,7 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:c")) != -1)
+  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:ch")) != -1)
     switch (c)
       {
       case 'h':

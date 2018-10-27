@@ -66,6 +66,7 @@ void depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR* graph){
 			__u32 edge_idx = graph->vertices[v].edges_idx;
 			__u32 j;
 
+			
 	    	for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++){
 	         
 	            __u32 u = graph->sorted_edge_array[j];
@@ -222,7 +223,7 @@ void pDepthFirstSearchGraphCSRTask(__u32 source, struct GraphCSR* graph){
         if(u_parent < 0 ){
 			if(__sync_bool_compare_and_swap(&graph->parents[u],u_parent,v)){ 
 			
-			#pragma omp task  
+			// #pragma omp task  
             	pDepthFirstSearchGraphCSRTask( u, graph);
 
           	} 

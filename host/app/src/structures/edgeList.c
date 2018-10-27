@@ -128,7 +128,7 @@ char * readEdgeListstxt(const char * fname){
         i = fscanf(pText, "%u\t%u\n", &src, &dest);
         if( i == EOF ) 
            break;
-        // printf(" %lu -> %lu \n", src,dest);
+      
 
         fwrite(&src, sizeof (src), 1, pBinary);
         fwrite(&dest, sizeof (dest), 1, pBinary);
@@ -195,12 +195,12 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         __u32 num_edges = (__u64)fs.st_size/((offset)*sizeof(__u32));
 
         #if DIRECTED                                    
-                    struct EdgeList* edgeList = newEdgeList(num_edges-1);
+                    struct EdgeList* edgeList = newEdgeList(num_edges);
         #else
                     if(inverse){
-                        struct EdgeList* edgeList = newEdgeList((num_edges-1)*2);
+                        struct EdgeList* edgeList = newEdgeList((num_edges)*2);
                     }else{
-                        struct EdgeList* edgeList = newEdgeList(num_edges-1);
+                        struct EdgeList* edgeList = newEdgeList(num_edges);
                     }
         #endif
         
@@ -208,11 +208,11 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         __u32 num_vertices = 0;
 
         // #pragma omp parallel for reduction(max:num_vertices) 
-        for(i = 0; i < num_edges-1; i++){
+        for(i = 0; i < num_edges; i++){
 
                 src = buf_pointer[((offset)*i)+0];
                 dest = buf_pointer[((offset)*i)+1];
-
+                // printf(" %u %lu -> %lu \n",src,dest);
                 #if DIRECTED
 
                 if(!inverse){
@@ -247,7 +247,6 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         }
 
         edgeList->num_vertices = num_vertices+1; // max number of veritices Array[0-max]
-
         // printf("DONE Reading EdgeList from file %s \n", fname);
         // edgeListPrint(edgeList);
 
