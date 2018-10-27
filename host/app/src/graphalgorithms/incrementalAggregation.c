@@ -82,50 +82,86 @@ float calculateModularityGain(__u32 v, struct GraphCSR* graph){
 
 
 	__u32 j;
-	__u32 edge_idx;
+	__u32 k;
+	__u32 edge_idv;
+	__u32 edge_idu;
 	float deltaQ = 0.0;
 	float deltaQtemp = 0.0;
-	float op1 = 0.0;
-	float op2 = 0.0;
-	__u32 edgeWeight = 1;
-	__u32 degreeV = 0;
-	__u32 degreeU = 0;
+	__u32 edgeWeightVU = 0;
+	__u32 edgeWeightUV = 0;
+	__u32 degreeVout = 0;
+	__u32 degreeVin = 0;
+	__u32 degreeUout = 0;
+	__u32 degreeUin = 0;
 
-	float numEdges2m = 1.0/((graph->num_edges/2)*2);
-	float numEdges2m2 = numEdges2m*numEdges2m;
-
-	__u32 out_degree;
-	// struct Vertex* vertices = NULL;
-	// struct Edge*  sorted_edges_array = NULL;
+	struct Vertex* vertices = NULL;
+	struct Edge*  sorted_edges_array = NULL;
     
+ 	#if DIRECTED
+		vertices = graph->inverse_vertices;
+		sorted_edges_array = graph->inverse_sorted_edges_array;
+	#else
+		vertices = graph->vertices;
+		sorted_edges_array = graph->sorted_edges_array;
+	#endif
 
- //    #if DIRECTED
-	// 	vertices = graph->inverse_vertices;
-	// 	sorted_edges_array = graph->inverse_sorted_edges_array;
-	// #else
-	// 	vertices = graph->vertices;
-	// 	sorted_edges_array = graph->sorted_edges_array;
-	// #endif
+	float numEdgesm = 1.0/((graph->num_edges));
+	float numEdgesm2 = numEdgesm*numEdgesm;
 
-	edge_idx = graph->vertices[v].edges_idx;
-	degreeV = graph->vertices[v].out_degree;
+	edge_idv = graph->vertices[v].edges_idx;
+	degreeVout = graph->vertices[v].out_degree;
+	degreeVin = graph->vertices[v].in_degree;
 
-	for(j = edge_idx ; j < (edge_idx + degreeV) ; j++){
-     
+	for(j = edge_idv ; j < (edge_idv + degreeVout) ; j++){
+     	
+     	deltaQtemp = 0.0;
+     	edgeWeightVU =  1;
         __u32 u = graph->sorted_edges_array[j].dest;
-      	degreeU = graph->vertices[u].out_degree;
+      	degreeUout = graph->vertices[u].out_degree;
+		degreeUin = graph->vertices[u].in_degree;
 
-		#if WEIGHTED
-      		edgeWeight =  graph->sorted_edges_array[j].weight;
+		//check if there is an opposite edge when directed graph is chosen
+		#if DIRECTED
+			edge_idu = vertices[u].edges_idx;
+			for(k = edge_idu ; k < (edge_idu + degreeUin) ; k++){
+	     
+		        __u32 n = sorted_edges_array[k].dest;
+		      	edgeWeightUV = 0;
+
+			        #if WEIGHTED
+		        		if(n == v){
+	      					edgeWeightUV =  sorted_edges_array[k].weight;
+	      					break;
+	      				}
+	      			#else
+	      				if(n == v){
+	      					edgeWeightUV =  1;
+	      					break;
+	      				}
+					#endif
+
+
+				 
+			}
+		#else
+			#if WEIGHTED
+      			edgeWeightVU =  graph->sorted_edges_array[j].weight;
+      			edgeWeightUV =  graph->sorted_edges_array[j].weight;
+	    	#else
+				edgeWeightVU = 1;
+				edgeWeightUV = 1;
+			#endif
 		#endif
 
 
-      	deltaQtemp = 2*(numEdges2m - (float)(degreeU*degreeV*numEdges2m2));
 
-  		printf("v %u u %u q %lf \n",v,u,deltaQtemp);
+      	deltaQtemp = ((edgeWeightVU*numEdgesm) - (float)(degreeVin*degreeUout*numEdgesm2)) + ((edgeWeightUV*numEdgesm) - (float)(degreeUin*degreeVout*numEdgesm2));
+
 
       	if(deltaQ <= deltaQtemp)
       		deltaQ = deltaQtemp;
+
+      	printf("v %u u %u q %lf\n", v, u, deltaQtemp);
 
 
     }
