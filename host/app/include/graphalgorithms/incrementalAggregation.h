@@ -12,6 +12,6 @@
 // ********************************************************************************************
 
 void incrementalAggregationGraphCSR(struct GraphCSR* graph);
-float calculateModularityGain(__u32 v,struct GraphCSR* graph);
+void calculateModularityGain(float *deltaQ, __u32 *u, __u32 v, struct GraphCSR* graph);
 
 #endif

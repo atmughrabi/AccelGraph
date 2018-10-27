@@ -26,10 +26,11 @@
 void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 
 	__u32 v;
+	__u32 u;
 	__u32 * vertices;
 	__u32 * degrees;
-	double deltaQ = 0.0;
-	float totalQ = 0.0;
+	float deltaQ = 0.0;
+	double totalQ = 0.0;
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 	#if ALIGNED
         vertices = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
@@ -57,9 +58,11 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 	
     for(v=0 ; v < graph->num_vertices; v++){
 
-    	deltaQ = calculateModularityGain(vertices[v], graph);
-    	totalQ += deltaQ;
-    	printf("%lf\n",deltaQ );
+    	u = vertices[v];
+    	calculateModularityGain(&deltaQ, &u, vertices[v], graph);
+    	printf("v %u -> u %u q %lf\n", vertices[v], u, deltaQ);
+    	totalQ += (double)deltaQ;
+    	deltaQ = 0.0;
 
     }
 
@@ -78,14 +81,13 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 }
 
 
-float calculateModularityGain(__u32 v, struct GraphCSR* graph){
+void calculateModularityGain(float *deltaQ, __u32 *u, __u32 v, struct GraphCSR* graph){
 
 
 	__u32 j;
 	__u32 k;
 	__u32 edge_idv;
 	__u32 edge_idu;
-	float deltaQ = 0.0;
 	float deltaQtemp = 0.0;
 	__u32 edgeWeightVU = 0;
 	__u32 edgeWeightUV = 0;
@@ -116,13 +118,13 @@ float calculateModularityGain(__u32 v, struct GraphCSR* graph){
      	
      	deltaQtemp = 0.0;
      	edgeWeightVU =  1;
-        __u32 u = graph->sorted_edges_array[j].dest;
-      	degreeUout = graph->vertices[u].out_degree;
-		degreeUin = graph->vertices[u].in_degree;
+        __u32 i = graph->sorted_edges_array[j].dest;
+      	degreeUout = graph->vertices[i].out_degree;
+		degreeUin = graph->vertices[i].in_degree;
 
 		//check if there is an opposite edge when directed graph is chosen
 		#if DIRECTED
-			edge_idu = vertices[u].edges_idx;
+			edge_idu = vertices[i].edges_idx;
 			for(k = edge_idu ; k < (edge_idu + degreeUin) ; k++){
 	     
 		        __u32 n = sorted_edges_array[k].dest;
@@ -158,15 +160,16 @@ float calculateModularityGain(__u32 v, struct GraphCSR* graph){
       	deltaQtemp = ((edgeWeightVU*numEdgesm) - (float)(degreeVin*degreeUout*numEdgesm2)) + ((edgeWeightUV*numEdgesm) - (float)(degreeUin*degreeVout*numEdgesm2));
 
 
-      	if(deltaQ <= deltaQtemp)
-      		deltaQ = deltaQtemp;
+      	if((*deltaQ) <= deltaQtemp){
+      		(*deltaQ) = deltaQtemp;
+      		(*u) = i;
+      	}
 
-      	printf("v %u u %u q %lf\n", v, u, deltaQtemp);
-
+      	
+      	// printf("v %u u %u q %lf\n", v, i, deltaQtemp);s
 
     }
 
-    return deltaQ;
 }
 
 
