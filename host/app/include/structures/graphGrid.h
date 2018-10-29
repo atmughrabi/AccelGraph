@@ -29,6 +29,6 @@ void  graphGridPrint(struct GraphGrid *graphGrid);
 struct GraphGrid * graphGridNew(struct EdgeList* edgeList);
 void   graphGridFree(struct GraphGrid *graphGrid);
 void   graphGridPrintMessageWithtime(const char * msg, double time);
-struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort,  __u32 lmode);
+struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort,  __u32 lmode, __u32 symmetric, __u32 weighted);
 
 #endif

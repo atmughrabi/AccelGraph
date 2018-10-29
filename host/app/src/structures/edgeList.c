@@ -193,14 +193,15 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         #endif
 
         __u32 num_edges = (__u64)fs.st_size/((offset)*sizeof(__u32));
+        struct EdgeList* edgeList;
 
         #if DIRECTED                                    
-                    struct EdgeList* edgeList = newEdgeList(num_edges);
+                     edgeList = newEdgeList(num_edges);
         #else
                     if(inverse){
-                        struct EdgeList* edgeList = newEdgeList((num_edges)*2);
+                         edgeList = newEdgeList((num_edges)*2);
                     }else{
-                        struct EdgeList* edgeList = newEdgeList(num_edges);
+                         edgeList = newEdgeList(num_edges);
                     }
         #endif
         
@@ -260,14 +261,14 @@ struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse){
 
      
         __u32 num_edges = edgeListmem->num_edges;
-
+        struct EdgeList* edgeList;
         #if DIRECTED                                    
-                    struct EdgeList* edgeList = newEdgeList(num_edges);
+                    edgeList = newEdgeList(num_edges);
         #else
                     if(inverse){
-                        struct EdgeList* edgeList = newEdgeList((num_edges)*2);
+                        edgeList = newEdgeList((num_edges)*2);
                     }else{
-                        struct EdgeList* edgeList = newEdgeList(num_edges);
+                        edgeList = newEdgeList(num_edges);
                     }
         #endif
         

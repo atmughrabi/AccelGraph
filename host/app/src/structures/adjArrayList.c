@@ -80,6 +80,7 @@ struct AdjArrayList * adjArrayListCreateNeighbourListOutNodes(struct AdjArrayLis
 }
 
 
+#if DIRECTED
 struct AdjArrayList * adjArrayListCreateNeighbourListInNodes(struct AdjArrayList *adjArrayList){
        
        
@@ -89,7 +90,7 @@ struct AdjArrayList * adjArrayListCreateNeighbourListInNodes(struct AdjArrayList
 
         return adjArrayList;
 }
-
+#endif
 
 void adjArrayListFree(struct AdjArrayList *adjArrayList){
 

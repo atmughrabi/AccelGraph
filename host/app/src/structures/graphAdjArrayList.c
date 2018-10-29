@@ -94,8 +94,6 @@ struct GraphAdjArrayList* graphAdjArrayListGraphNew(__u32 V){
             graphAdjArrayList->vertices[i].inNodes = NULL; 
             graphAdjArrayList->vertices[i].in_degree = 0;
         #endif
-
-        graphAdjArrayList->vertices[i].visited = 0;
 	}
 
     graphAdjArrayList->iteration = 0;
@@ -222,6 +220,8 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeListProcessOutDegree(struct Graph
 
 }
 
+
+#if DIRECTED
 struct GraphAdjArrayList* graphAdjArrayListEdgeListProcessInDegree(struct GraphAdjArrayList* graphAdjArrayList, struct EdgeList* inverseEdgeList){
 
      __u32 i;
@@ -238,7 +238,7 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeListProcessInDegree(struct GraphA
     return graphAdjArrayList;
 
 }
-
+#endif
 
 
 
@@ -322,6 +322,7 @@ struct GraphAdjArrayList* graphAdjArrayListEdgePopulateOutNodes(struct GraphAdjA
 }
 
 
+#if DIRECTED
 struct GraphAdjArrayList* graphAdjArrayListEdgePopulateInNodes(struct GraphAdjArrayList* graphAdjArrayList, struct EdgeList* inverseEdgeList){
 
      __u32 i;
@@ -341,6 +342,7 @@ struct GraphAdjArrayList* graphAdjArrayListEdgePopulateInNodes(struct GraphAdjAr
     return graphAdjArrayList;
 
 }
+#endif
 
 
 
@@ -410,7 +412,7 @@ void graphAdjArrayListFree(struct GraphAdjArrayList* graphAdjArrayList){
 }
 
 
-struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fnameb, __u32 sort, __u32 lmode){
+struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fnameb, __u32 sort, __u32 lmode, __u32 symmetric, __u32 weighted){
 
 
     struct Timer* timer = (struct Timer*) my_malloc(sizeof(struct Timer));

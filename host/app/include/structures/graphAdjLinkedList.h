@@ -33,7 +33,7 @@ void adjLinkedListAddEdge(struct GraphAdjLinkedList* graphAdjLinkedList, struct 
 void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge);
 void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList, struct Edge * edge);
 void   graphAdjLinkedListPrintMessageWithtime(const char * msg, double time);
-struct GraphAdjLinkedList* graphAdjLinkedListPreProcessingStep (const char * fnameb,  __u32 lmode);
+struct GraphAdjLinkedList* graphAdjLinkedListPreProcessingStep (const char * fnameb,  __u32 lmode, __u32 symmetric, __u32 weighted);
 
 #endif
 

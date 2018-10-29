@@ -26,16 +26,16 @@ static void usage(void) {
   printf("\t-l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  \n");
   printf("\t-c: read text format convert to bin file on load example:-f <graph file> -c\n");
   // printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
-  // printf("\t-w: weight generate or load from file graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
-  // printf("\t-s: symmetric graph, if not given set of incoming edges will be created \n"); 
+  printf("\t-w: Weight generate or load from file graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
+  printf("\t-s: Symmetric graph, if not given set of incoming edges will be created \n"); 
   _exit(-1);
 }
 
 int main (int argc, char **argv)
 {
   // int uflag = 0;
-  // int wflag = 0;
-  // int sflag = 0;
+  int wflag = 0;
+  int sflag = 0;
   int cflag = 0;
 
   char *fvalue = NULL;
@@ -59,6 +59,8 @@ int main (int argc, char **argv)
   __u32 pushpull = 0;
   __u32 sort = 0;
   __u32 lmode = 0;
+  __u32 symmetric = 0;
+  __u32 weighted = 0;
 
 
   numThreads = omp_get_max_threads();
@@ -70,7 +72,7 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:ch")) != -1)
+  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:chs")) != -1)
     switch (c)
       {
       case 'h':
@@ -121,15 +123,14 @@ int main (int argc, char **argv)
         lvalue = optarg;
         lmode = atof(lvalue);
         break;
-      // case 'u':
-      //   uflag = 1;
-      //   break;
-      // case 's':
-      //   wflag = 1;
-      //   break;
-      // case 'w':
-      //   sflag = 1;
-      //   break;
+      case 's':
+        sflag = 1;
+        symmetric = sflag;
+        break;
+      case 'w':
+        wflag = 1;
+        weighted = wflag;
+        break;
       case 'c':
         cflag = 1;
         break;
@@ -184,7 +185,7 @@ int main (int argc, char **argv)
       }
 
      
-      graph = generateGraphDataStructure(fnameb, datastructure, sort, lmode);
+      graph = generateGraphDataStructure(fnameb, datastructure, sort, lmode, symmetric, weighted);
       runGraphAlgorithms(graph, datastructure, algorithm, root, iterations, epsilon, trials, pushpull);
 
 

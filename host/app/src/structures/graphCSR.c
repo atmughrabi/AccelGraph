@@ -116,7 +116,9 @@ void graphCSRPrint(struct GraphCSR* graphCSR){
     printf("| %-51u | \n", graphCSR->num_edges);  
     printf(" -----------------------------------------------------\n");
     vertexArrayMaxOutdegree(graphCSR->vertices, graphCSR->num_vertices);
- 	vertexArrayMaxInDegree(graphCSR->inverse_vertices, graphCSR->num_vertices);
+    #if DIRECTED
+ 	  vertexArrayMaxInDegree(graphCSR->inverse_vertices, graphCSR->num_vertices);
+    #endif
     // printVertexArray(graphCSR->vertices, graphCSR->num_vertices);
     // printVertexArray(graphCSR->inverse_vertices, graphCSR->num_vertices);
  // 	printVertexArray(graphCSR->vertices, graphCSR->num_vertices);
@@ -227,7 +229,7 @@ struct GraphCSR* graphCSRAssignEdgeList (struct GraphCSR* graphCSR, struct EdgeL
 }
 
 
-struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __u32 lmode){
+struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __u32 lmode, __u32 symmetric, __u32 weighted){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 

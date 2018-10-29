@@ -131,7 +131,7 @@ void   graphGridFree(struct GraphGrid *graphGrid){
 
 
 
-struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort, __u32 lmode){
+struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort, __u32 lmode, __u32 symmetric, __u32 weighted){
 
    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
