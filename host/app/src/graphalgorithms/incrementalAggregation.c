@@ -204,11 +204,7 @@ void calculateModularityGain(float *deltaQ, __u32 *u, __u32 v, __u32* dest, __u3
 	float numEdgesm = 1.0/((graph->num_edges));
 	float numEdgesm2 = numEdgesm*numEdgesm;
 
-	edge_idv = graph->vertices[v].edges_idx;
-	degreeVout = graph->vertices[v].out_degree;
-	degreeVin = graph->vertices[v].in_degree;
-
-
+	
 	struct ArrayQueue* Neighbors = newArrayQueue(graph->num_vertices);
 	struct ArrayQueue* reachableSet = returnReachableSetOfNodesFromDendrogram(v, atomChild, sibling, graph);
 	for(j = reachableSet->head ; j < reachableSet->tail; j++){
@@ -219,6 +215,7 @@ void calculateModularityGain(float *deltaQ, __u32 *u, __u32 v, __u32* dest, __u3
 			}
 
 			printf("|%u|",tempV);
+
 	}
 	printf("\n");
 
@@ -226,16 +223,26 @@ void calculateModularityGain(float *deltaQ, __u32 *u, __u32 v, __u32* dest, __u3
 		__u32 tempt = reachableSet->queue[j];
 		__u32 tempn = dest[tempt];
 
+		__u32 degreeTemp = graph->vertices[tempn].out_degree;
+		__u32 edgeTemp = graph->vertices[tempn].edges_idx;
 
-		enArrayQueue(Neighbors, tempn);	
+		for(j = edgeTemp ; j < (edgeTemp + degreeTemp) ; j++){
+			__u32 t = graph->sorted_edges_array[j].dest;
+			enArrayQueue(Neighbors, t);	
+		}
 	}
 
 
-	for(j = edge_idv ; j < (edge_idv + degreeVout) ; j++){
+
+	edge_idv = graph->vertices[v].edges_idx;
+	degreeVout = graph->vertices[v].out_degree;
+	degreeVin = graph->vertices[v].in_degree;
+
+	for(j = Neighbors->head ; j < Neighbors->tail; j++){
      	
      	deltaQtemp = 0.0;
      	edgeWeightVU =  1;
-        __u32 i = graph->sorted_edges_array[j].dest;
+        __u32 i = Neighbors->queue[j];
       	degreeUout = graph->vertices[i].out_degree;
 		degreeUin = graph->vertices[i].in_degree;
 
