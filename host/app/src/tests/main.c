@@ -179,7 +179,7 @@ int main (int argc, char **argv)
       if(cflag)
       {
         Start(timer);
-        fnameb = readEdgeListstxt(fnameb);
+        fnameb = readEdgeListstxt(fnameb, weighted);
         Stop(timer);
         printf("Read Edge List From File converted to binary : %f Seconds \n",Seconds(timer));
       }

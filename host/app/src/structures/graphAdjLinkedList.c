@@ -381,7 +381,7 @@ struct GraphAdjLinkedList* graphAdjLinkedListPreProcessingStep (const char * fna
 
 
     Start(timer);
-    struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
+    struct EdgeList* edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted);
     Stop(timer);
     // edgeListPrint(edgeList);
     graphAdjLinkedListPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));

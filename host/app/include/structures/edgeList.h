@@ -42,9 +42,9 @@ void freeEdgeArray(struct Edge* edges_array);
 
 struct Edge* swapEdgeSrcDest(struct Edge* edge);
 struct Edge* newEdgeArray(__u32 num_edges);
- char *readEdgeListstxt(const char * fname);
-struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse);
-struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse);
+ char *readEdgeListstxt(const char * fname, __u32 weighted);
+struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmetric, __u32 weighted);
+struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse, __u32 symmetric);
 struct EdgeList* newEdgeList(__u32 num_edges);
 
 #endif

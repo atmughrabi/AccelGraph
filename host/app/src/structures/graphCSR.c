@@ -237,7 +237,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
     
 
     Start(timer);
-    struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
+    struct EdgeList* edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted);
     Stop(timer);
     // edgeListPrint(edgeList);
     graphCSRPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
@@ -272,7 +272,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
 
         Start(timer);
         // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-        struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1);
+        struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1 ,symmetric);
         Stop(timer);
        
         graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));

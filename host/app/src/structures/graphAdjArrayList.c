@@ -418,7 +418,7 @@ struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fname
     struct Timer* timer = (struct Timer*) my_malloc(sizeof(struct Timer));
 
     Start(timer);
-    struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
+    struct EdgeList* edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted);
     Stop(timer);
     // edgeListPrint(edgeList);
     graphAdjArrayListPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
@@ -432,7 +432,7 @@ struct GraphAdjArrayList* graphAdjArrayListPreProcessingStep (const char * fname
     #if DIRECTED
         Start(timer);
         // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-        struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1);
+        struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1 ,symmetric);
         Stop(timer);
         // edgeListPrint(inverse_edgeList);
         graphAdjArrayListPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));

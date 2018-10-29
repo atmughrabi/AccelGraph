@@ -86,7 +86,7 @@ void freeEdgeArray(struct Edge* edges_array){
 }
 
 
-char * readEdgeListstxt(const char * fname){
+char * readEdgeListstxt(const char * fname, __u32 weighted){
 
         FILE *pText, *pBinary;
         __u32 size = 0, i;
@@ -134,6 +134,9 @@ char * readEdgeListstxt(const char * fname){
         fwrite(&dest, sizeof (dest), 1, pBinary);
 
         #if WEIGHTED
+                if(weighted){
+                    weight = (genrand_int32() % 255)+1;
+                }
                 fwrite(&weight, sizeof (weight), 1, pBinary);
         #endif
 
@@ -155,7 +158,7 @@ char * readEdgeListstxt(const char * fname){
 
 }
 
-struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
+struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmetric, __u32 weighted){
 
 
         int fd = open(fname, O_RDONLY);
@@ -187,7 +190,10 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         buf_pointer = (__u32 *) buf_addr;
 
         #if WEIGHTED
-         __u32 offset = 3;
+        if(weighted)
+            __u32 offset = 2;
+        else
+            __u32 offset = 3;
         #else
          __u32 offset = 2; 
         #endif
@@ -218,18 +224,32 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
 
                 if(!inverse){
                     
-                    edgeList->edges_array[i].src = src;
-                    edgeList->edges_array[i].dest = dest;
+                    if(symmetric){
+                        edgeList->edges_array[i].src = src;
+                        edgeList->edges_array[i].dest = dest;
+                        edgeList->edges_array[i+(num_edges-1)].src = dest;
+                        edgeList->edges_array[i+(num_edges-1)].dest = src;
+                    }else{
+                        edgeList->edges_array[i].src = src;
+                        edgeList->edges_array[i].dest = dest;
+                    }
 
                 }else{
 
-                    edgeList->edges_array[i].src = dest;
-                    edgeList->edges_array[i].dest = src;
+                    if(symmetric){
+                        edgeList->edges_array[i].src = dest;
+                        edgeList->edges_array[i].dest = src;
+                        edgeList->edges_array[i+(num_edges-1)].src = src;
+                        edgeList->edges_array[i+(num_edges-1)].dest = dest;
+                    }else{
+                        edgeList->edges_array[i].src = dest;
+                        edgeList->edges_array[i].dest = src;
+                    }
+
                 }
-                       
 
                 #else
-                        if(inverse){
+                        if(symmetric){
                             edgeList->edges_array[i].src = src;
                             edgeList->edges_array[i].dest = dest;
                             edgeList->edges_array[i+(num_edges-1)].src = dest;
@@ -243,7 +263,12 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
                 num_vertices = maxTwoIntegers(num_vertices,maxTwoIntegers(edgeList->edges_array[i].src, edgeList->edges_array[i].dest));
                
                  #if WEIGHTED
-                        edgeList->edges_array[i].weight = buf_pointer[((offset)*i)+2];
+                        if(weighted){
+                            edgeList->edges_array[i].weight = (genrand_int32() % 255)+1;
+                        }
+                        else{
+                            edgeList->edges_array[i].weight = buf_pointer[((offset)*i)+2];
+                        }
                  #endif
         }
 
@@ -257,7 +282,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse){
         return edgeList;
 }
 
-struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse){
+struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse, __u32 symmetric){
 
      
         __u32 num_edges = edgeListmem->num_edges;
@@ -280,19 +305,34 @@ struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse){
                 #if DIRECTED
 
                 if(!inverse){
-                    
-                    edgeList->edges_array[i].src = edgeListmem->edges_array[i].src;
-                    edgeList->edges_array[i].dest = edgeListmem->edges_array[i].dest;
+                   
+                    if(symmetric){
+                        edgeList->edges_array[i].src = edgeListmem->edges_array[i].src;
+                        edgeList->edges_array[i].dest = edgeListmem->edges_array[i].dest;
+                        edgeList->edges_array[i+(num_edges)].src = edgeListmem->edges_array[i].dest;
+                        edgeList->edges_array[i+(num_edges)].dest = edgeListmem->edges_array[i].src;
+                    }else{
+                        edgeList->edges_array[i].src = edgeListmem->edges_array[i].src;
+                        edgeList->edges_array[i].dest = edgeListmem->edges_array[i].dest;
+                    }
 
                 }else{
 
-                    edgeList->edges_array[i].src = edgeListmem->edges_array[i].dest;
-                    edgeList->edges_array[i].dest = edgeListmem->edges_array[i].src;
+                    if(symmetric){
+                        edgeList->edges_array[i].src = edgeListmem->edges_array[i].dest;
+                        edgeList->edges_array[i].dest = edgeListmem->edges_array[i].src;
+                        edgeList->edges_array[i+(num_edges)].src = edgeListmem->edges_array[i].src;
+                        edgeList->edges_array[i+(num_edges)].dest = edgeListmem->edges_array[i].dest;
+                    }else{
+                        edgeList->edges_array[i].src = edgeListmem->edges_array[i].dest;
+                        edgeList->edges_array[i].dest = edgeListmem->edges_array[i].src;
+                    }
+
                 }
                        
 
                 #else
-                        if(inverse){
+                        if(symmetric){
                             edgeList->edges_array[i].src = edgeListmem->edges_array[i].src;
                             edgeList->edges_array[i].dest = edgeListmem->edges_array[i].dest;
                             edgeList->edges_array[i+(num_edges)].src = edgeListmem->edges_array[i].dest;

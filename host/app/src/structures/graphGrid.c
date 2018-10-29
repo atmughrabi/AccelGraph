@@ -139,7 +139,7 @@ struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort, _
     
 
     Start(timer);
-    struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
+    struct EdgeList* edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted);
     Stop(timer);
     // edgeListPrint(edgeList);
     graphGridPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
