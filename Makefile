@@ -334,7 +334,7 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 # root = 0
 #app command line arguments
 # fnameb = "../01_GraphDatasets/twitter/twitter_rv.net.bin8"
-fnameb = "../01_GraphDatasets/Rabbit/test.txt"
+fnameb = "../01_GraphDatasets/Rabbit/test.txt.bin"
 # root = 428333 #max out labelless
 # root = 813286 #max in  labelless
 # reorder = 0
@@ -377,7 +377,7 @@ pushpull = 5
 	
 run: test
 	# ulimit -s unlimited 
-	./$(APP_DIR)/test/$(GAPP) -c -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
+	./$(APP_DIR)/test/$(GAPP)  -s -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
 	
 run-bfs: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -i $(iterations) #CSR with Qs

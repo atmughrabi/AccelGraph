@@ -204,7 +204,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
         #if DIRECTED                                    
                      edgeList = newEdgeList(num_edges);
         #else
-                    if(inverse){
+                    if(symmetric){
                          edgeList = newEdgeList((num_edges)*2);
                     }else{
                          edgeList = newEdgeList(num_edges);
@@ -227,8 +227,8 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
                     if(symmetric){
                         edgeList->edges_array[i].src = src;
                         edgeList->edges_array[i].dest = dest;
-                        edgeList->edges_array[i+(num_edges-1)].src = dest;
-                        edgeList->edges_array[i+(num_edges-1)].dest = src;
+                        edgeList->edges_array[i+(num_edges)].src = dest;
+                        edgeList->edges_array[i+(num_edges)].dest = src;
                     }else{
                         edgeList->edges_array[i].src = src;
                         edgeList->edges_array[i].dest = dest;
@@ -239,8 +239,8 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
                     if(symmetric){
                         edgeList->edges_array[i].src = dest;
                         edgeList->edges_array[i].dest = src;
-                        edgeList->edges_array[i+(num_edges-1)].src = src;
-                        edgeList->edges_array[i+(num_edges-1)].dest = dest;
+                        edgeList->edges_array[i+(num_edges)].src = src;
+                        edgeList->edges_array[i+(num_edges)].dest = dest;
                     }else{
                         edgeList->edges_array[i].src = dest;
                         edgeList->edges_array[i].dest = src;
@@ -252,8 +252,8 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
                         if(symmetric){
                             edgeList->edges_array[i].src = src;
                             edgeList->edges_array[i].dest = dest;
-                            edgeList->edges_array[i+(num_edges-1)].src = dest;
-                            edgeList->edges_array[i+(num_edges-1)].dest = src;
+                            edgeList->edges_array[i+(num_edges)].src = dest;
+                            edgeList->edges_array[i+(num_edges)].dest = src;
                         }else{
                             edgeList->edges_array[i].src = src;
                             edgeList->edges_array[i].dest = dest;
@@ -290,7 +290,7 @@ struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse, _
         #if DIRECTED                                    
                     edgeList = newEdgeList(num_edges);
         #else
-                    if(inverse){
+                    if(symmetric){
                         edgeList = newEdgeList((num_edges)*2);
                     }else{
                         edgeList = newEdgeList(num_edges);

@@ -13,7 +13,8 @@
 int numThreads;
 
 static void usage(void) {
-  printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -u -s -w]\n");
+  printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]\n");
+  printf("\t-h [Help] \n");
   printf("\t-a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP, [3]-DFS [4]-IncrementalAggregation\n");
   printf("\t-d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers\n");
   printf("\t-r [root]: BFS, DFS, SSSP root\n");
@@ -26,7 +27,7 @@ static void usage(void) {
   printf("\t-l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  \n");
   printf("\t-c: read text format convert to bin file on load example:-f <graph file> -c\n");
   // printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
-  printf("\t-w: Weight generate or load from file graph check graphConfig.h #define WEIGHTED 1 then recompile\n");
+  printf("\t-w: Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 before hand then recompile with using this option\n");
   printf("\t-s: Symmetric graph, if not given set of incoming edges will be created \n"); 
   _exit(-1);
 }
@@ -72,7 +73,7 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:chs")) != -1)
+  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:chsw")) != -1)
     switch (c)
       {
       case 'h':
@@ -125,11 +126,11 @@ int main (int argc, char **argv)
         break;
       case 's':
         sflag = 1;
-        symmetric = sflag;
+        symmetric = 1;
         break;
       case 'w':
         wflag = 1;
-        weighted = wflag;
+        weighted = 1;
         break;
       case 'c':
         cflag = 1;
