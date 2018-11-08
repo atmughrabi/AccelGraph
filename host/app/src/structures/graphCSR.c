@@ -237,15 +237,15 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
     
 
     Start(timer);
-    struct EdgeList* edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted);
+    struct EdgeList* edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted); // read edglist from binary file
     Stop(timer);
-    edgeListPrint(edgeList);
+    // edgeListPrint(edgeList);
     graphCSRPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
 
 
 
     if(lmode)
-        edgeList = reorderGraphProcess(sort, edgeList, lmode);
+        edgeList = reorderGraphProcess(sort, edgeList, lmode, symmetric);
 
 
     #if DIRECTED
@@ -272,7 +272,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
 
         Start(timer);
         // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-        struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1 ,symmetric);
+        struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1 ,symmetric); // read edglist from memory since we pre loaded it
         Stop(timer);
        
         graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));

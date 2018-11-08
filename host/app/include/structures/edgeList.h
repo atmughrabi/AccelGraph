@@ -5,7 +5,7 @@
 #include "graphConfig.h"
 
 // A structure to represent an edge
-struct   Edge {
+struct  Edge {
 
 	__u32 src;
 	__u32 dest;

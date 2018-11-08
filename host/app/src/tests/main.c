@@ -26,7 +26,6 @@ static void usage(void) {
   printf("\t-e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]\n");
   printf("\t-l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  \n");
   printf("\t-c: read text format convert to bin file on load example:-f <graph file> -c\n");
-  // printf("\t-u: create undirected on load => check graphConfig.h #define DIRECTED 0 then recompile\n");
   printf("\t-w: Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 before hand then recompile with using this option\n");
   printf("\t-s: Symmetric graph, if not given set of incoming edges will be created \n"); 
   _exit(-1);

@@ -31,6 +31,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 	__u32 v;
 	__u32 u;
 	__u32 n;
+	__u32 t;
 	__u32 * vertices;
 	__u32 * degrees;
 
@@ -39,6 +40,8 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 	__u32 * atomChild;
 	__u32 * sibling;
 	__u32 * dest;
+	__u32 * weightSum;
+
 
 	float deltaQ = -1.0;
 	double totalQ = 0.0;
@@ -51,6 +54,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
         vertices = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
         degrees = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
 
+        weightSum = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
         atomDegree = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
         atomChild = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
         sibling = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
@@ -59,6 +63,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
         vertices = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         degrees = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
 
+        weightSum  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         atomDegree = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         atomChild = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         sibling = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
@@ -90,16 +95,29 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
     	atomChild[u] = UINT_MAX;
     	sibling[u] = UINT_MAX;
     	dest[u] = u;
+    	weightSum[v] = 0;
     }
 	
 
-    for(v = 0; v < graph->num_vertices; v++){
-     u = vertices[v];
-   	 printf("[u] %u child %u sibling %u deg %u dest %u\n",u,atomChild[u],sibling[u],atomDegree[u],dest[u]);
- 	}
+	
+
 
 	//incrementally aggregate vertices
     for(v=0 ; v < graph->num_vertices; v++){
+
+    	#pragma omp parallel for
+		    for(t=0 ; t < graph->num_vertices; t++){
+		    	weightSum[t] = 0;
+		    }
+
+    	__u32 x,y;
+    	for(x = 0; x < graph->num_vertices; x++){
+			     y = vertices[x];
+			   	 printf("[u] %u child %u sibling %u deg %u dest %u\n",y,atomChild[y],sibling[y],atomDegree[y],dest[y]);
+		}
+
+		printf("\n");
+
     	deltaQ = -1.0;
     	__u32 atomVchild;
     	__u32 atomVdegree;
@@ -110,12 +128,12 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 
     	//atomic swap
     	__u32 degreeUtemp = atomDegree[u];
-    	atomDegree[u] = degreeU;
+    	// atomDegree[u] = degreeU;
     	degreeU = degreeUtemp;
     	
-    	calculateModularityGain(&deltaQ, &n, u, dest, atomChild, sibling, graph);
+    	findBestDestination(&deltaQ, &n, u, weightSum, dest, atomDegree, atomChild, sibling, graph);
     	printf("n %u u %u deltaQ %f\n",n,u,deltaQ );
-
+    	atomDegree[u] = degreeU;
     	if(deltaQ <= 0){
     		atomDegree[u] = degreeU;
     		enArrayQueueAtomic(topLevelSet, u);
@@ -123,24 +141,26 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
     	}
 
     	//atomic load
-    	#pragma omp atomic read
+    	// #pragma omp atomic read
     		atomVchild = atomChild[n];
 
-    	#pragma omp atomic read
+    	// #pragma omp atomic read
     		atomVdegree = atomDegree[n];
+    		printf("atomVdegree %u \n",atomVdegree );
 
     	if(atomVdegree != UINT_MAX){
     		sibling[u] = atomVchild;
     	
 	    	__u32 atomVdegreep = atomVdegree + degreeU;
-	    	__u32 atomVchildp = atomChild[u];
+	    	__u32 atomVchildp = u;
 
-	    	if(__sync_bool_compare_and_swap(&atomChild[n],atomVchild,atomVchildp) && __sync_bool_compare_and_swap(&atomDegree[n],atomVdegree,atomVdegreep)){ 
-	    		dest[u] = n;
-				continue;
-			}
+	    	atomChild[n] = atomVchildp;
+	    	atomDegree[n] = atomVdegreep;
+	    	dest[u] = n;
+			continue;
 
     	}
+
 
     	atomDegree[u] = degreeU;
 		sibling[u] = UINT_MAX;
@@ -155,6 +175,8 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
    	 printf("[u] %u child %u sibling %u deg %u dest %u\n",u,atomChild[u],sibling[u],atomDegree[u],dest[u]);
  	}
 
+ 	printSet(topLevelSet);
+
 	Stop(timer);
 	printf(" -----------------------------------------------------\n");
 	printf("| %-15s | %-15u | %-15f | \n","No OverHead", graph->processed_nodes,  Seconds(timer));
@@ -167,6 +189,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 	freeArrayQueue(topLevelSet);
 	free(vertices);
 	free(degrees);
+	free(weightSum);
 	free(atomDegree);
 	free(atomChild);
 	free(sibling);
@@ -175,7 +198,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 }
 
 
-void calculateModularityGain(float *deltaQ, __u32 *u, __u32 v, __u32* dest, __u32* atomChild,__u32* sibling, struct GraphCSR* graph){
+void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u32* dest, __u32* atomDegree, __u32* atomChild,__u32* sibling, struct GraphCSR* graph){
 
 
 	__u32 j;
@@ -221,70 +244,54 @@ void calculateModularityGain(float *deltaQ, __u32 *u, __u32 v, __u32* dest, __u3
 
 	for(j = reachableSet->head ; j < reachableSet->tail; j++){
 		__u32 tempt = reachableSet->queue[j];
-		__u32 tempn = dest[tempt];
+		__u32 tempn = tempt;
 
 		__u32 degreeTemp = graph->vertices[tempn].out_degree;
 		__u32 edgeTemp = graph->vertices[tempn].edges_idx;
 
-		for(j = edgeTemp ; j < (edgeTemp + degreeTemp) ; j++){
-			__u32 t = graph->sorted_edges_array[j].dest;
-			enArrayQueue(Neighbors, t);	
+		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
+			__u32 t = graph->sorted_edges_array[k].dest;
+			weightSum[t]++;
+			printf("tempt %u  t %u  dest[t] %u \n", tempt, t ,dest[t]);
+
+			if(!isEnArrayQueued(Neighbors, dest[t]) )
+				enArrayQueueWithBitmap(Neighbors, dest[t]);	
 		}
 	}
 
 
+	for(j = Neighbors->head ; j < Neighbors->tail; j++){
+
+		__u32 m = Neighbors->queue[j];
+		printf("dest %u  weightSum %u \n", dest[m] ,weightSum[m]);
+
+	}
 
 	edge_idv = graph->vertices[v].edges_idx;
-	degreeVout = graph->vertices[v].out_degree;
-	degreeVin = graph->vertices[v].in_degree;
+				
+	// degreeVout = graph->vertices[v].out_degree;
+	// degreeVin = graph->vertices[v].out_degree;
+	degreeVout = atomDegree[dest[v]];
+	degreeVin = atomDegree[dest[v]];
 
 	for(j = Neighbors->head ; j < Neighbors->tail; j++){
      	
      	deltaQtemp = 0.0;
-     	edgeWeightVU =  1;
+     	// edgeWeightVU =   weightSum[dest[v]];
         __u32 i = Neighbors->queue[j];
-      	degreeUout = graph->vertices[i].out_degree;
-		degreeUin = graph->vertices[i].in_degree;
+      	degreeUout = atomDegree[dest[i]];
+      	if(degreeUout == UINT_MAX)
+      		continue;
+		degreeUin = atomDegree[dest[i]];
+		
 
-		//check if there is an opposite edge when directed graph is chosen
-		#if DIRECTED
-			edge_idu = vertices[i].edges_idx;
-			for(k = edge_idu ; k < (edge_idu + degreeUin) ; k++){
-	     
-		        __u32 n = sorted_edges_array[k].dest;
-		      	edgeWeightUV = 0;
-
-			        #if WEIGHTED
-		        		if(n == v){
-	      					edgeWeightUV =  sorted_edges_array[k].weight;
-	      					break;
-	      				}
-	      			#else
-	      				if(n == v){
-	      					edgeWeightUV =  1;
-	      					break;
-	      				}
-					#endif
-
-
-				 
-			}
-		#else
-			#if WEIGHTED
-      			edgeWeightVU =  graph->sorted_edges_array[j].weight;
-      			edgeWeightUV =  graph->sorted_edges_array[j].weight;
-	    	#else
-				edgeWeightVU = 1;
-				edgeWeightUV = 1;
-			#endif
-		#endif
-
-
+		edgeWeightUV = weightSum[dest[i]];
+		edgeWeightVU = weightSum[dest[i]];
 
       	deltaQtemp = ((edgeWeightVU*numEdgesm) - (float)(degreeVin*degreeUout*numEdgesm2)) + ((edgeWeightUV*numEdgesm) - (float)(degreeUin*degreeVout*numEdgesm2));
 
 
-      	if((*deltaQ) <= deltaQtemp){
+      	if((*deltaQ) < deltaQtemp){
       		(*deltaQ) = deltaQtemp;
       		(*u) = i;
       	}
@@ -314,13 +321,15 @@ struct ArrayQueue* returnReachableSetOfNodesFromDendrogram(__u32 v,__u32* atomCh
 
 void traversDendrogramReachableSetDFS(__u32 v,__u32* atomChild,__u32* sibling,struct ArrayQueue* reachableSet){
 
-	if(atomChild[v] == UINT_MAX)
-		enArrayQueue(reachableSet, v);
-	else
+	if(atomChild[v] != UINT_MAX)
 		traversDendrogramReachableSetDFS(atomChild[v],atomChild,sibling,reachableSet);
-
+	
+	enArrayQueue(reachableSet, v);
+	
 	if(sibling[v] != UINT_MAX)
 		traversDendrogramReachableSetDFS(sibling[v],atomChild,sibling,reachableSet);
+		
+	
 
 }
 

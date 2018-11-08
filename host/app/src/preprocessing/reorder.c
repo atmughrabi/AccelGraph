@@ -276,7 +276,7 @@ __u32* radixSortEdgesByDegree (__u32* degrees, __u32* labels, __u32 num_vertices
 
 }
 
-struct EdgeList* reorderGraphProcessPageRank( __u32 sort, struct EdgeList* edgeList, __u32 lmode){
+struct EdgeList* reorderGraphProcessPageRank( __u32 sort, struct EdgeList* edgeList, __u32 lmode , __u32 symmetric){
     
   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
@@ -304,7 +304,7 @@ struct EdgeList* reorderGraphProcessPageRank( __u32 sort, struct EdgeList* edgeL
 
         Start(timer);
         // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-        struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1);
+        struct EdgeList* inverse_edgeList = readEdgeListsMem(edgeList,1, symmetric);
         Stop(timer);
         // edgeListPrint(inverse_edgeList);
         graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)",Seconds(timer));
@@ -421,7 +421,7 @@ __u32* reorderGraphProcessInOutDegrees(__u32* degrees , struct EdgeList* edgeLis
 
 
 
-struct EdgeList* reorderGraphProcess( __u32 sort, struct EdgeList* edgeList, __u32 lmode){
+struct EdgeList* reorderGraphProcess( __u32 sort, struct EdgeList* edgeList, __u32 lmode, __u32 symmetric){
 
  
 
@@ -439,7 +439,7 @@ struct EdgeList* reorderGraphProcess( __u32 sort, struct EdgeList* edgeList, __u
 
     
     if(lmode == 1) // pageRank
-      edgeList = reorderGraphProcessPageRank( sort, edgeList, lmode);
+      edgeList = reorderGraphProcessPageRank( sort, edgeList, lmode, symmetric);
     else if(lmode == 2)
       edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// in-degree
     else if(lmode == 3)

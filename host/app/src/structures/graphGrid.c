@@ -147,7 +147,7 @@ struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort, _
 
    
     if(lmode)
-        edgeList = reorderGraphProcess(sort, edgeList, lmode);
+        edgeList = reorderGraphProcess(sort, edgeList, lmode, symmetric);
 
     // Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);

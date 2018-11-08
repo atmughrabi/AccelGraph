@@ -5,7 +5,9 @@
 
 
 struct EdgeList* relabelEdgeList(struct EdgeList* edgeList, __u32* labels);
-struct EdgeList* reorderGraphProcess(__u32 sort, struct EdgeList* edgeList,  __u32 lmode);
+struct EdgeList* reorderGraphProcess(__u32 sort, struct EdgeList* edgeList,  __u32 lmode, __u32 symmetric);
+struct EdgeList* reorderGraphProcessPageRank( __u32 sort, struct EdgeList* edgeList, __u32 lmode , __u32 symmetric);
+struct EdgeList* reorderGraphProcessDegree( __u32 sort, struct EdgeList* edgeList, __u32 lmode);
 struct EdgeList* reorderGraphListDegree(struct EdgeList* edgeList, __u32* degrees, __u32 lmode);
 struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph);
 __u32* reorderGraphProcessInOutDegrees(__u32* degrees , struct EdgeList* edgeList, __u32 lmode);

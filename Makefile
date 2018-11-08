@@ -343,7 +343,7 @@ fnameb = "../01_GraphDatasets/Rabbit/test.txt.bin"
 # root = 3 #max in  label
 # reorder = 1
 
-root = 5576448 #max out label
+# root = 5576448 #max out label
 # root = 0 #max in  label
 reorder = 0
 
@@ -360,31 +360,31 @@ reorder = 0
 # root  = 6
 # root  = 19
 
-# fnameb = "../01_GraphDatasets/facebook/facebook_combined.txt.bin"
+fnameb = "../01_GraphDatasets/facebook/facebook_combined.txt.bin"
 # root = 107
-
+root = 3120
 # fnameb = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 0
-algorithm = 4
-numThreads  = 8
+datastructure = 5
+algorithm = 0
+numThreads  = 1
 iterations = 20
 trials = 1
 tolerance = 1e-5
 sort = 0
-pushpull = 5
+pushpull = 0
 
 	
 run: test
 	# ulimit -s unlimited 
-	./$(APP_DIR)/test/$(GAPP)  -s -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
+	./$(APP_DIR)/test/$(GAPP)   -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
 	
 run-bfs: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -i $(iterations) #CSR with Qs
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 0 -n $(numThreads) -i $(iterations) #Grid with Qs
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 0 -n $(numThreads) -i $(iterations) #Linked array
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 4 -a 0 -n $(numThreads) -i $(iterations) #CSR with bitmap
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 5 -a 0 -n $(numThreads) -i $(iterations) #Grid with bitmaps
+	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -t $(trials) #CSR with Qs
+	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 0 -n $(numThreads) -t $(trials) #Grid with Qs
+	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 0 -n $(numThreads) -t $(trials) #Linked array
+	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 4 -a 0 -n $(numThreads) -t $(trials) #CSR with bitmap
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 5 -a 0 -n $(numThreads) -t $(trials) #Grid with bitmaps
 
 run-pr: test
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p 0

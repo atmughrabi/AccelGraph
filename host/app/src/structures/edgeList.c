@@ -202,7 +202,11 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
         struct EdgeList* edgeList;
 
         #if DIRECTED                                    
-                     edgeList = newEdgeList(num_edges);
+                    if(symmetric){
+                        edgeList = newEdgeList((num_edges)*2);
+                    }else{
+                        edgeList = newEdgeList(num_edges);
+                    }
         #else
                     if(symmetric){
                          edgeList = newEdgeList((num_edges)*2);
@@ -288,7 +292,11 @@ struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse, _
         __u32 num_edges = edgeListmem->num_edges;
         struct EdgeList* edgeList;
         #if DIRECTED                                    
-                    edgeList = newEdgeList(num_edges);
+                    if(symmetric){
+                        edgeList = newEdgeList((num_edges)*2);
+                    }else{
+                        edgeList = newEdgeList(num_edges);
+                    }
         #else
                     if(symmetric){
                         edgeList = newEdgeList((num_edges)*2);
@@ -319,10 +327,10 @@ struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse, _
                 }else{
 
                     if(symmetric){
-                        edgeList->edges_array[i].src = edgeListmem->edges_array[i].dest;
-                        edgeList->edges_array[i].dest = edgeListmem->edges_array[i].src;
-                        edgeList->edges_array[i+(num_edges)].src = edgeListmem->edges_array[i].src;
-                        edgeList->edges_array[i+(num_edges)].dest = edgeListmem->edges_array[i].dest;
+                        edgeList->edges_array[i].src = edgeListmem->edges_array[i].src;
+                        edgeList->edges_array[i].dest = edgeListmem->edges_array[i].dest;
+                        edgeList->edges_array[i+(num_edges)].src = edgeListmem->edges_array[i].dest;
+                        edgeList->edges_array[i+(num_edges)].dest = edgeListmem->edges_array[i].src;
                     }else{
                         edgeList->edges_array[i].src = edgeListmem->edges_array[i].dest;
                         edgeList->edges_array[i].dest = edgeListmem->edges_array[i].src;

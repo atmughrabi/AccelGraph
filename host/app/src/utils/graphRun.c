@@ -42,12 +42,14 @@ void * generateGraphDataStructure(const char *fnameb, __u32 datastructure, __u32
     switch (datastructure)
       { 
         case 0: // CSR
+        case 4:
             Start(timer);
             graph = (void *)graphCSRPreProcessingStep (fnameb, sort, lmode, symmetric,weighted);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)",Seconds(timer));
           break;
         case 1: // Grid
+        case 5:
             Start(timer);
             graph = (void *)graphGridPreProcessingStep (fnameb, sort, lmode, symmetric, weighted);
             Stop(timer);
