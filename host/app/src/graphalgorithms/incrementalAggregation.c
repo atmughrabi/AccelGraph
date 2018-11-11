@@ -95,7 +95,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
     	atomChild[u] = UINT_MAX;
     	sibling[u] = UINT_MAX;
     	dest[u] = u;
-    	weightSum[v] = 0;
+    	weightSum[u] = 0;
     }
 	
 
@@ -106,17 +106,17 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
     for(v=0 ; v < graph->num_vertices; v++){
 
     	#pragma omp parallel for
-		    for(t=0 ; t < graph->num_vertices; t++){
-		    	weightSum[t] = 0;
-		    }
+	    for(t=0 ; t < graph->num_vertices; t++){
+	    	weightSum[t] = 0;
+	    }
 
-    	__u32 x,y;
-    	for(x = 0; x < graph->num_vertices; x++){
-			     y = vertices[x];
-			   	 printf("[u] %u child %u sibling %u deg %u dest %u\n",y,atomChild[y],sibling[y],atomDegree[y],dest[y]);
-		}
+  //   	__u32 x,y;
+  //   	for(x = 0; x < graph->num_vertices; x++){
+		// 	     y = vertices[x];
+		// 	   	 printf("[u] %u child %u sibling %u deg %u dest %u\n",y,atomChild[y],sibling[y],atomDegree[y],dest[y]);
+		// }
 
-		printf("\n");
+		// printf("\n");
 
     	deltaQ = -1.0;
     	__u32 atomVchild;
@@ -132,7 +132,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
     	degreeU = degreeUtemp;
     	
     	findBestDestination(&deltaQ, &n, u, weightSum, dest, atomDegree, atomChild, sibling, graph);
-    	printf("n %u u %u deltaQ %f\n",n,u,deltaQ );
+    	// printf("n %u u %u deltaQ %f\n",n,u,deltaQ );
     	atomDegree[u] = degreeU;
     	if(deltaQ <= 0){
     		atomDegree[u] = degreeU;
@@ -146,7 +146,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 
     	// #pragma omp atomic read
     		atomVdegree = atomDegree[n];
-    		printf("atomVdegree %u \n",atomVdegree );
+    		// printf("atomVdegree %u \n",atomVdegree );
 
     	if(atomVdegree != UINT_MAX){
     		sibling[u] = atomVchild;
@@ -172,10 +172,10 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 
     for(v = 0; v < graph->num_vertices; v++){
      u = vertices[v];
-   	 printf("[u] %u child %u sibling %u deg %u dest %u\n",u,atomChild[u],sibling[u],atomDegree[u],dest[u]);
+   	 // printf("[u] %u child %u sibling %u deg %u dest %u\n",u,atomChild[u],sibling[u],atomDegree[u],dest[u]);
  	}
 
- 	printSet(topLevelSet);
+ 	// printSet(topLevelSet);
 
 	Stop(timer);
 	printf(" -----------------------------------------------------\n");
@@ -205,13 +205,21 @@ void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u
 	__u32 k;
 	__u32 edge_idv;
 	__u32 edge_idu;
-	float deltaQtemp = 0.0;
+
+	__u32 tempV;
+	__u32 tempU;
+	__u32 degreeTemp;
+	__u32 edgeTemp;
+
 	__u32 edgeWeightVU = 0;
 	__u32 edgeWeightUV = 0;
 	__u32 degreeVout = 0;
 	__u32 degreeVin = 0;
 	__u32 degreeUout = 0;
 	__u32 degreeUin = 0;
+	float deltaQtemp = 0.0;
+	float numEdgesm = 1.0/((graph->num_edges));
+	float numEdgesm2 = numEdgesm*numEdgesm;
 
 	struct Vertex* vertices = NULL;
 	struct Edge*  sorted_edges_array = NULL;
@@ -223,54 +231,45 @@ void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u
 		vertices = graph->vertices;
 		sorted_edges_array = graph->sorted_edges_array;
 	#endif
-
-	float numEdgesm = 1.0/((graph->num_edges));
-	float numEdgesm2 = numEdgesm*numEdgesm;
-
 	
 	struct ArrayQueue* Neighbors = newArrayQueue(graph->num_vertices);
 	struct ArrayQueue* reachableSet = returnReachableSetOfNodesFromDendrogram(v, atomChild, sibling, graph);
-	for(j = reachableSet->head ; j < reachableSet->tail; j++){
-			__u32 tempV = reachableSet->queue[j];
-
-			while(dest[dest[tempV]]!= dest[tempV]){
-				dest[tempV] = dest[dest[tempV]];
-			}
-
-			printf("|%u|",tempV);
-
-	}
-	printf("\n");
 
 	for(j = reachableSet->head ; j < reachableSet->tail; j++){
-		__u32 tempt = reachableSet->queue[j];
-		__u32 tempn = tempt;
+		tempV = reachableSet->queue[j];
 
-		__u32 degreeTemp = graph->vertices[tempn].out_degree;
-		__u32 edgeTemp = graph->vertices[tempn].edges_idx;
+		degreeTemp = graph->vertices[tempV].out_degree;
+		edgeTemp = graph->vertices[tempV].edges_idx;
 
 		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
-			__u32 t = graph->sorted_edges_array[k].dest;
-			weightSum[t]++;
-			printf("tempt %u  t %u  dest[t] %u \n", tempt, t ,dest[t]);
+			tempU = graph->sorted_edges_array[k].dest;
+			
+			while(dest[dest[tempU]]!= dest[tempU]){
+				dest[tempU] = dest[dest[tempU]];
+			}
 
-			if(!isEnArrayQueued(Neighbors, dest[t]) )
-				enArrayQueueWithBitmap(Neighbors, dest[t]);	
+			weightSum[dest[tempU]]++;
 		}
 	}
 
 
-	for(j = Neighbors->head ; j < Neighbors->tail; j++){
+	for(j = reachableSet->head ; j < reachableSet->tail; j++){
+		tempV = reachableSet->queue[j];
 
-		__u32 m = Neighbors->queue[j];
-		printf("dest %u  weightSum %u \n", dest[m] ,weightSum[m]);
+		degreeTemp = graph->vertices[tempV].out_degree;
+		edgeTemp = graph->vertices[tempV].edges_idx;
 
+		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
+			tempU = graph->sorted_edges_array[k].dest;
+
+			if(!isEnArrayQueued(Neighbors, dest[tempU]) &&  dest[tempV] != dest[tempU]){
+				enArrayQueueWithBitmap(Neighbors, dest[tempU]);	
+			}
+		}
 	}
 
-	edge_idv = graph->vertices[v].edges_idx;
-				
-	// degreeVout = graph->vertices[v].out_degree;
-	// degreeVin = graph->vertices[v].out_degree;
+
+	// edge_idv = graph->vertices[v].edges_idx;
 	degreeVout = atomDegree[dest[v]];
 	degreeVin = atomDegree[dest[v]];
 
@@ -297,7 +296,7 @@ void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u
       	}
 
       	
-      	printf("v %u u %u q %lf\n", v, i, deltaQtemp);
+      	// printf("v %u u %u q %lf\n", v, i, deltaQtemp);
 
     }
 
