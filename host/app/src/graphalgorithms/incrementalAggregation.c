@@ -139,8 +139,8 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
     		continue;
     	}
 
-    	if(graphCluster->clusters[v].sizeOutNodes == 0)
-    		initClusterGraphCSR(graph, graphCluster, v);
+    	if(graphCluster->clusters[u].sizeOutNodes == 0)
+    		initClusterGraphCSR(graph, graphCluster, u);
     	if(graphCluster->clusters[n].sizeOutNodes == 0)
     		initClusterGraphCSR(graph, graphCluster, n);
     	
@@ -149,8 +149,10 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 
     	printf("UC%u ",n );
     	clusterPrint(&graphCluster->clusters[n]);
-    	// mergeCluster(&graphCluster->clusters[v], &graphCluster->clusters[n], mergeEdgeBitmap, dest);
+    	mergeCluster(&graphCluster->clusters[u], &graphCluster->clusters[n], mergeEdgeBitmap, dest);
     	// graphClusterPrint(graphCluster);
+    	printf("*UC%u ",n );
+    	clusterPrint(&graphCluster->clusters[n]);
 
     	printf("\n");
     	clearBitmap(mergeEdgeBitmap);

@@ -101,6 +101,7 @@ void initClusterGraphCSR(struct GraphCSR* graph, struct GraphCluster* graphClust
 	#endif
 
 
+
 }
 
 void mergeCluster(struct Cluster* cluster1, struct Cluster* cluster2, struct Bitmap * mergeEdgeBitmap, __u32* dest){
