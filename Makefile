@@ -115,6 +115,10 @@ $(APP_DIR)/$(OBJ_DIR)/adjArrayList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjArr
 	@echo 'making $(GAPP) <- adjLinkedList.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjArrayList.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjArrayList.c
 
+$(APP_DIR)/$(OBJ_DIR)/cluster.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/cluster.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/cluster.h
+	@echo 'making $(GAPP) <- cluster.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/cluster.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/cluster.c
+
 $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicQueue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/dynamicQueue.h
 	@echo 'making $(GAPP) <- dynamicQueue.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicQueue.c
@@ -233,6 +237,8 @@ mt19937: $(APP_DIR)/$(OBJ_DIR)/mt19937.o
 
 dynamicQueue: $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o
 
+cluster: $(APP_DIR)/$(OBJ_DIR)/cluster.o
+
 graphRun: $(APP_DIR)/$(OBJ_DIR)/graphRun.o
 
 BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
@@ -243,7 +249,7 @@ pageRank: $(APP_DIR)/$(OBJ_DIR)/pageRank.o
 
 incrementalAggregation : $(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o
 	
-test: incrementalAggregation DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+test: incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
 	@echo 'linking $(GAPP) <- DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
@@ -253,6 +259,7 @@ test: incrementalAggregation DFS arrayStack reorder fixedPoint sortRun mt19937 g
 	$(APP_DIR)/$(OBJ_DIR)/DFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/cluster.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/arrayStack.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
@@ -282,9 +289,14 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP)-capi.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/DFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/cluster.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/arrayStack.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/graphCSR.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/grid.o 			\
@@ -329,7 +341,7 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 # fnameb = "../01_GraphDatasets/RMAT/RMAT19.txt"
 # fnameb = "../01_GraphDatasets/RMAT/RMAT20.txt"
 # fnameb = "../01_GraphDatasets/RMAT/RMAT21.bin"
-# fnameb = "../01_GraphDatasets/RMAT/RMAT22.bin"
+fnameb = "../01_GraphDatasets/RMAT/RMAT22.bin"
 # root = 3009230
 # root = 0
 #app command line arguments
@@ -377,7 +389,7 @@ pushpull = 0
 	
 run: test
 	# ulimit -s unlimited 
-	./$(APP_DIR)/test/$(GAPP)  -s -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
+	./$(APP_DIR)/test/$(GAPP)  -s -w -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
 	
 run-bfs: test
 	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -t $(trials) #CSR with Qs

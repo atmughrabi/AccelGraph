@@ -397,8 +397,11 @@ void graphAdjArrayListFree(struct GraphAdjArrayList* graphAdjArrayList){
     {
         pCrawl = &(graphAdjArrayList->vertices[v]);
         
-        freeEdgeArray(pCrawl->outNodes);
+        if(pCrawl->outNodes)
+            freeEdgeArray(pCrawl->outNodes);
+        
         #if DIRECTED
+        if(pCrawl->inNodes)
             freeEdgeArray(pCrawl->inNodes);
         #endif
        

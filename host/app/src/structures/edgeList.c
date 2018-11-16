@@ -82,6 +82,7 @@ struct Edge* newEdgeArray(__u32 num_edges){
 void freeEdgeArray(struct Edge* edges_array){
 
         free(edges_array);
+        // printf("edges_array freed \n");
 
 }
 
@@ -134,10 +135,13 @@ char * readEdgeListstxt(const char * fname, __u32 weighted){
         fwrite(&dest, sizeof (dest), 1, pBinary);
 
         #if WEIGHTED
-                if(weighted){
-                    weight = (genrand_int32() % 255)+1;
+                // if(weighted){
+                //     // weight = (genrand_int32() % 255)+1;
+                //     weight = 1;
+                // }
+                if(!weighted){
+                 fwrite(&weight, sizeof (weight), 1, pBinary);
                 }
-                fwrite(&weight, sizeof (weight), 1, pBinary);
         #endif
 
         size++;
@@ -166,6 +170,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
         char *buf_addr;
         __u32  *buf_pointer;
         __u32  src=0 ,dest=0;
+        __u32 offset;
  
         if (fd == -1) {
                 err(1, "open: %s", fname);
@@ -191,11 +196,11 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
 
         #if WEIGHTED
         if(weighted)
-            __u32 offset = 2;
+             offset = 2;
         else
-            __u32 offset = 3;
+             offset = 3;
         #else
-         __u32 offset = 2; 
+             offset = 2; 
         #endif
 
         __u32 num_edges = (__u64)fs.st_size/((offset)*sizeof(__u32));
@@ -253,22 +258,27 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
                 }
 
                 #else
-                        if(symmetric){
-                            edgeList->edges_array[i].src = src;
-                            edgeList->edges_array[i].dest = dest;
-                            edgeList->edges_array[i+(num_edges)].src = dest;
-                            edgeList->edges_array[i+(num_edges)].dest = src;
-                        }else{
-                            edgeList->edges_array[i].src = src;
-                            edgeList->edges_array[i].dest = dest;
-                        }
+                    if(symmetric){
+                        edgeList->edges_array[i].src = src;
+                        edgeList->edges_array[i].dest = dest;
+                        edgeList->edges_array[i+(num_edges)].src = dest;
+                        edgeList->edges_array[i+(num_edges)].dest = src;
+                    }else{
+                        edgeList->edges_array[i].src = src;
+                        edgeList->edges_array[i].dest = dest;
+                    }
                 #endif
                 
                 num_vertices = maxTwoIntegers(num_vertices,maxTwoIntegers(edgeList->edges_array[i].src, edgeList->edges_array[i].dest));
                
                  #if WEIGHTED
                         if(weighted){
-                            edgeList->edges_array[i].weight = (genrand_int32() % 255)+1;
+                            // edgeList->edges_array[i].weight = (genrand_int32() % 255)+1;
+                            edgeList->edges_array[i].weight = 1;
+
+                            if(symmetric){
+                                edgeList->edges_array[i+(num_edges)].weight = 1;
+                            }
                         }
                         else{
                             edgeList->edges_array[i].weight = buf_pointer[((offset)*i)+2];

@@ -277,9 +277,7 @@ void adjLinkedListAddEdge(struct GraphAdjLinkedList* graphAdjLinkedList, struct 
     graphAdjLinkedList->vertices[edge->src].out_degree++;
     graphAdjLinkedList->vertices[edge->src].visited = 0;
     graphAdjLinkedList->vertices[edge->src].outNodes = newNode;
-    #if WEIGHTED
-        graphAdjLinkedList->vertices[edge->src].weight = edge->weight;
-    #endif
+   
     omp_unset_lock((&vertex_lock[edge->src]));
 
     // omp_set_lock(&(vertex_lock[edge->dest]));
@@ -300,9 +298,6 @@ void adjLinkedListAddEdge(struct GraphAdjLinkedList* graphAdjLinkedList, struct 
         graphAdjLinkedList->vertices[edge->dest].outNodes = newNode;
     #endif
 
-    #if WEIGHTED
-        graphAdjLinkedList->vertices[edge->dest].weight = edge->weight;
-    #endif
     omp_unset_lock((&vertex_lock[edge->dest]));
 
 }
@@ -318,9 +313,7 @@ void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedLis
     graphAdjLinkedList->vertices[edge->src].out_degree++;
     graphAdjLinkedList->vertices[edge->src].visited = 0;
     graphAdjLinkedList->vertices[edge->src].outNodes = newNode;
-    #if WEIGHTED
-        graphAdjLinkedList->vertices[edge->src].weight = edge->weight;
-    #endif
+   
 
     // Since graphAdjLinkedList is undirected, add an edge from
     // dest to src also
@@ -329,9 +322,7 @@ void adjLinkedListAddEdgeUndirected(struct GraphAdjLinkedList* graphAdjLinkedLis
     graphAdjLinkedList->vertices[edge->dest].out_degree++;  
     graphAdjLinkedList->vertices[edge->dest].visited = 0;
     graphAdjLinkedList->vertices[edge->dest].outNodes = newNode;
-    #if WEIGHTED
-        graphAdjLinkedList->vertices[edge->dest].weight = edge->weight;
-    #endif
+  
 
 }
 // Adds an edge to a directed graphAdjLinkedList
@@ -345,9 +336,7 @@ void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList,
     graphAdjLinkedList->vertices[edge->src].out_degree++;  
     graphAdjLinkedList->vertices[edge->src].visited = 0;   
     graphAdjLinkedList->vertices[edge->src].outNodes = newNode;
-    #if WEIGHTED
-        graphAdjLinkedList->vertices[edge->src].weight = weight;
-    #endif
+   
 
     #if DIRECTED
         newNode = newAdjLinkedListInNode(edge);
@@ -355,10 +344,6 @@ void adjLinkedListAddEdgeDirected(struct GraphAdjLinkedList* graphAdjLinkedList,
         graphAdjLinkedList->vertices[edge->dest].in_degree++;  
         graphAdjLinkedList->vertices[edge->dest].visited = 0;  
         graphAdjLinkedList->vertices[edge->dest].inNodes = newNode;
-
-         #if WEIGHTED
-            graphAdjLinkedList->vertices[edge->dest].weight = edge->weight;
-        #endif
     #endif
 
 

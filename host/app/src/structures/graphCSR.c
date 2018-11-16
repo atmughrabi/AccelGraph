@@ -262,7 +262,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
     // graphCSRPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
     Start(timer);
-    graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
+        graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
     Stop(timer);
 
 
@@ -286,7 +286,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
          // edgeListPrint(inverse_edgeList);
 
         Start(timer);
-        graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);
+            graphCSR = graphCSRAssignEdgeList (graphCSR,inverse_edgeList, 1);
         Stop(timer);
         graphCSRPrintMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)",Seconds(timer));
 
