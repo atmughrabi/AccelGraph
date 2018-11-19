@@ -115,6 +115,7 @@ void mergeCluster(struct Cluster* cluster1, struct Cluster* cluster2, struct Bit
 	__u32 newClusterSize = newClusterOutdegree;
 	__u32 out_degree = 0;
 
+	
     newOutNodes = newEdgeArray(newClusterSize);
 
     __u32 i;
@@ -165,14 +166,16 @@ void mergeCluster(struct Cluster* cluster1, struct Cluster* cluster2, struct Bit
     	}
     }
 
-    cluster1->out_degree = 0;
-	cluster1->sizeOutNodes = 0;
+   
 
-	if(cluster1->outNodes != NULL)
+	if(cluster1->out_degree != 0)
 		freeEdgeArray(cluster1->outNodes);
 
-	if(cluster2->outNodes != NULL)
+	if(cluster2->out_degree != 0)
 		freeEdgeArray(cluster2->outNodes);
+
+	cluster1->out_degree = 0;
+	cluster1->sizeOutNodes = 0;
 
 	cluster2->out_degree = out_degree;
 	cluster2->sizeOutNodes = newClusterSize;
@@ -190,10 +193,10 @@ void graphClusterFree(struct GraphCluster* graphCluster){
     {
         pCrawl = &(graphCluster->clusters[v]);
         
-        if(pCrawl->outNodes)
+        if(pCrawl->out_degree  != 0)
         	freeEdgeArray(pCrawl->outNodes);
         #if DIRECTED
-        if(pCrawl->inNodes)
+        if(pCrawl->in_degree  != 0)
             freeEdgeArray(pCrawl->inNodes);
         #endif
        
@@ -209,12 +212,22 @@ void graphClusterPrint(struct GraphCluster* graphCluster){
         struct Edge* pCrawlEdge;
     	__u32 v;
     	struct Cluster* pCrawlCluster;
+    	 __u32 in_degree = 1;
+    	__u32 out_degree;
 
     	for (v = 0; v < graphCluster->num_vertices; ++v){
     		
 		    pCrawlCluster = &(graphCluster->clusters[v]);
-		    printf("C%u ",v);
-		   	clusterPrint(pCrawlCluster);
+
+		    out_degree = pCrawlCluster->out_degree;
+		    #if DIRECTED
+		        in_degree = pCrawlCluster->in_degree;
+		    #endif
+
+		    if(out_degree && in_degree){
+			    printf("C%u ",v);
+			   	clusterPrint(pCrawlCluster);
+		   }
 		    
 		}
 }

@@ -346,7 +346,7 @@ fnameb = "../01_GraphDatasets/RMAT/RMAT22.bin"
 # root = 0
 #app command line arguments
 # fnameb = "../01_GraphDatasets/twitter/twitter_rv.net.bin8"
-fnameb = "../01_GraphDatasets/Rabbit/test.txt.bin"
+# fnameb = "../01_GraphDatasets/Rabbit/test.txt.bin"
 # root = 428333 #max out labelless
 # root = 813286 #max in  labelless
 # reorder = 0
@@ -378,7 +378,7 @@ root = 3120
 # fnameb = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
 datastructure = 0
-algorithm = 4
+algorithm = 0
 numThreads  = 8
 iterations = 20
 trials = 1
