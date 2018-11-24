@@ -66,16 +66,16 @@ void initClusterGraphCSR(struct GraphCSR* graph, struct GraphCluster* graphClust
 
 
 	 if(graph->vertices[v].out_degree){
-        graphCluster->clusters[v].outNodes = newEdgeArray(graph->vertices[v].out_degree);
+        graphCluster->clusters[v].outNodes = newEdgeArray(graph->vertices[v].out_degree*2);
         graphCluster->clusters[v].out_degree = graph->vertices[v].out_degree;
-        graphCluster->clusters[v].sizeOutNodes = graph->vertices[v].out_degree;
+        graphCluster->clusters[v].sizeOutNodes = graph->vertices[v].out_degree*2;
 	 }
         
     #if DIRECTED
     if(graph->vertices[v].in_degree){
-        graphCluster->clusters[v].inNodes = newEdgeArray(graph->vertices[v].in_degree);
+        graphCluster->clusters[v].inNodes = newEdgeArray(graph->vertices[v].in_degree*2);
         graphCluster->clusters[v].in_degree = graph->vertices[v].in_degree;
-        graphCluster->clusters[v].sizeInNodes = graph->vertices[v].in_degree;
+        graphCluster->clusters[v].sizeInNodes = graph->vertices[v].in_degree*2;
     }
     #endif
 
@@ -116,42 +116,25 @@ void mergeCluster(struct Cluster* cluster1, struct Cluster* cluster2, struct Bit
 	__u32 out_degree = 0;
 
 	
-    newOutNodes = newEdgeArray(newClusterSize);
+	if(newClusterOutdegree > cluster2->sizeOutNodes){
+    	newOutNodes = newEdgeArray(newClusterSize*2);
+	}
+    else{
+    	newOutNodes = cluster2->outNodes;
+    }
 
     __u32 i;
     __u32 j;
     __u32 k;
      j =0;
-    for(i = 0 ; i < cluster1->out_degree; i++){
-    	cluster1->outNodes[i].dest = dest[cluster1->outNodes[i].dest];
-    	if(!getBit(mergeEdgeBitmap ,cluster1->outNodes[i].dest)){
 
-    		newOutNodes[j].src = cluster1->outNodes[i].src;
-    		newOutNodes[j].dest = cluster1->outNodes[i].dest;
-    		newOutNodes[j].weight += cluster1->outNodes[i].weight;
-    		out_degree++;
-    		j++;
-    		setBit(mergeEdgeBitmap ,cluster1->outNodes[i].dest);
-    	}
-    	else{
-    		for(k = 0; k < i; k++){
-    			if(newOutNodes[k].dest == cluster1->outNodes[i].dest){
-    				newOutNodes[k].weight += cluster1->outNodes[i].weight;
-    				break;
-    			}
-    		}
-    	}
-    }
-
-    i = 0;
-    // j = cluster1->out_degree;
-    for(i = 0 ; i < cluster2->out_degree; i++){
+     for(i = 0 ; i < cluster2->out_degree; i++){
     	cluster2->outNodes[i].dest = dest[cluster2->outNodes[i].dest];
 		if(!getBit(mergeEdgeBitmap ,cluster2->outNodes[i].dest)){
 
 		newOutNodes[j].src = cluster2->outNodes[i].src;
     	newOutNodes[j].dest = cluster2->outNodes[i].dest;
-    	newOutNodes[j].weight += cluster2->outNodes[i].weight;
+    	newOutNodes[j].weight = cluster2->outNodes[i].weight;
 		out_degree++;
 		j++;
 		setBit(mergeEdgeBitmap ,cluster2->outNodes[i].dest);
@@ -166,12 +149,34 @@ void mergeCluster(struct Cluster* cluster1, struct Cluster* cluster2, struct Bit
     	}
     }
 
+
+    for(i = 0 ; i < cluster1->out_degree; i++){
+    	cluster1->outNodes[i].dest = dest[cluster1->outNodes[i].dest];
+    	if(!getBit(mergeEdgeBitmap ,cluster1->outNodes[i].dest)){
+
+    		newOutNodes[j].src = cluster1->outNodes[i].src;
+    		newOutNodes[j].dest = cluster1->outNodes[i].dest;
+    		newOutNodes[j].weight = cluster1->outNodes[i].weight;
+    		out_degree++;
+    		j++;
+    		setBit(mergeEdgeBitmap ,cluster1->outNodes[i].dest);
+    	}
+    	else{
+    		for(k = 0; k < i; k++){
+    			if(newOutNodes[k].dest == cluster1->outNodes[i].dest){
+    				newOutNodes[k].weight += cluster1->outNodes[i].weight;
+    				break;
+    			}
+    		}
+    	}
+    }
+
    
 
 	if(cluster1->out_degree != 0)
 		freeEdgeArray(cluster1->outNodes);
 
-	if(cluster2->out_degree != 0)
+	if(newClusterOutdegree > cluster2->sizeOutNodes)
 		freeEdgeArray(cluster2->outNodes);
 
 	cluster1->out_degree = 0;

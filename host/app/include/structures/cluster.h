@@ -8,6 +8,16 @@
 // ********************************************************************************************
 
 
+// struct  Edge {
+
+//     __u32 src;
+//     __u32 dest;
+//     #if WEIGHTED
+//     __u32 weight;
+//     #endif
+
+// };
+
 struct  Cluster{
 
     __u32 out_degree;
@@ -28,6 +38,14 @@ struct GraphCluster{
     __u32 num_edges;
     
     struct Cluster* clusters;
+
+    struct Vertex* vertices;
+    struct Edge* sorted_edges_array; // sorted edge array
+
+    #if DIRECTED
+        struct Vertex* inverse_vertices;
+        struct Edge* inverse_sorted_edges_array; // sorted edge array
+    #endif
 };
 
 struct GraphCluster * graphClusterNew(__u32 V);
