@@ -125,11 +125,11 @@ int main (int argc, char **argv)
         break;
       case 's':
         sflag = 1;
-        symmetric = 1;
+        symmetric = sflag;
         break;
       case 'w':
         wflag = 1;
-        weighted = 1;
+        weighted = wflag;
         break;
       case 'c':
         cflag = 1;
