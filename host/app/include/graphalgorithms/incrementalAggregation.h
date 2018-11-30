@@ -29,6 +29,11 @@ void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u
 void traversDendrogramReachableSetDFS(__u32 v,__u32* atomChild,__u32* sibling,struct ArrayQueue* reachableSet);
 void printSet(struct ArrayQueue* Set);
 void returnReachableSetOfNodesFromDendrogram(__u32 v,__u32* atomChild,__u32* sibling, struct ArrayQueue* reachableSet);
-void modularityGain(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u32* dest, __u32* atomDegree, struct ArrayQueue* Neighbors, struct GraphCSR* graph);
+void modularityGain(float *deltaQ, __u32 *u, __u32 v, __u32* dest, __u32* atomDegree, struct GraphCSR* graph);
+
 void mergeClusters(__u32 v, __u32 u, struct GraphCSR* graph, struct GraphCluster* graphCluster,  __u32* dest);
+void mergeClustersExtra(__u32 v,  __u32 n, __u32 u, struct GraphCSR* graph, struct GraphCluster* graphCluster,  __u32* dest);
+void compressCluster( __u32 u, struct GraphCSR* graph, struct GraphCluster* graphCluster,  __u32* dest);
+
+
 #endif

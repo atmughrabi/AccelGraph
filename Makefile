@@ -29,7 +29,7 @@ UTIL_DIR		  = utils
 # compilers
 # CPP               = c++
 # CC				  = clang
-CC				  = gcc
+CC				  = gcc 
 
 CAPI = 	-I$(PSLSE_COMMON_DIR) 					\
 		-I$(PSLSE_LIBCXL_DIR) 					\
@@ -39,9 +39,13 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(ALGO_DIR)/ 	\
 		-I$(APP_DIR)/include/$(TEST_DIR)/ 	\
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
-		-I$(APP_DIR)/include/$(UTIL_DIR)/   \
+		-I$(APP_DIR)/include/$(UTIL_DIR)/ 	\
+		
+
+
+
 # flags
-CFLAGS            = -O3 -Wall -m64 -fopenmp -g 
+CFLAGS            = -O3 -Wall -m64 -fopenmp -g
 
 all: test
 
@@ -118,6 +122,10 @@ $(APP_DIR)/$(OBJ_DIR)/adjArrayList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjArr
 $(APP_DIR)/$(OBJ_DIR)/cluster.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/cluster.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/cluster.h
 	@echo 'making $(GAPP) <- cluster.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/cluster.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/cluster.c
+
+$(APP_DIR)/$(OBJ_DIR)/libchash.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/libchash.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/libchash.h
+	@echo 'making $(GAPP) <- libchash.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/libchash.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/libchash.c
 
 $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicQueue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/dynamicQueue.h
 	@echo 'making $(GAPP) <- dynamicQueue.o'
@@ -221,6 +229,8 @@ edgeList: $(APP_DIR)/$(OBJ_DIR)/edgeList.o
 
 graphCSR: $(APP_DIR)/$(OBJ_DIR)/graphCSR.o
 
+libchash: $(APP_DIR)/$(OBJ_DIR)/libchash.o
+
 grid: $(APP_DIR)/$(OBJ_DIR)/grid.o
 
 graphAdjLinkedList: $(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o
@@ -249,12 +259,13 @@ pageRank: $(APP_DIR)/$(OBJ_DIR)/pageRank.o
 
 incrementalAggregation : $(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o
 	
-test: incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
-	@echo 'linking $(GAPP) <- DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
+test: libchash incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+	@echo 'linking $(GAPP) <- libchash.o DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/libchash.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/DFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 		\

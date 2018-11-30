@@ -5,12 +5,13 @@
 #include <omp.h>
 #include <limits.h> //UINT_MAX
 
+#include "libchash.h"
 #include "timer.h"
 #include "myMalloc.h"
 #include "boolean.h"
 #include "incrementalAggregation.h"
 #include "reorder.h"
-#include "uthash.h"
+
 
 
 #include "arrayQueue.h"
@@ -148,7 +149,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
     	findBestDestination(&deltaQ, &n, u, weightSum, dest, atomDegree, atomChild, sibling, graph, reachableSet, Neighbors, mergeEdgeBitmap, graphCluster);
     	
     	// totalQ += deltaQ;
-
+    	printf("%lf\n", deltaQ);
     	if(deltaQ <= 0){
     		atomDegree[u] = degreeU;
     		enArrayQueueAtomic(topLevelSet, u);
@@ -171,7 +172,8 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 	    	atomChild[n] = atomVchildp;
 	    	atomDegree[n] = atomVdegreep;
 	    	dest[u] = n;
-
+ 
+ 			printf("%u <- %u \n",n,u );
 	    	mergeClusters(u, n, graph, graphCluster, dest);
 			continue;
     	}
@@ -183,8 +185,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
     	
     }
 
-  //   graphClusterPrint(graphCluster);
- 	// printSet(topLevelSet);
+ 	printSet(topLevelSet);
 
 	Stop(timer);
 	printf("| %-15s | %-15u | %-15f | \n","Clusters", sizeArrayQueueCurr(topLevelSet),  Seconds(timer));
@@ -211,63 +212,43 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 
 void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u32* dest, __u32* atomDegree, __u32* atomChild,__u32* sibling, struct GraphCSR* graph, struct ArrayQueue* reachableSet, struct ArrayQueue* Neighbors, struct Bitmap * mergeEdgeBitmap, struct GraphCluster* graphCluster){
 
-	__u32 i;
-	__u32 j;
 	__u32 k;
 
 	__u32 tempV;
 	__u32 tempU;
 	__u32 degreeTemp;
 	__u32 edgeTemp;
+
+
+	struct GraphCSR* graphPtr = NULL;
+
+	if(graphCluster->mergedCluster[v]){
+		graphPtr = graphCluster->clustersCSR;
+	} 
+	else{
+		graphPtr = graph;
+	}
+
+	tempV = v;
 	
-	returnReachableSetOfNodesFromDendrogram(v, atomChild, sibling, reachableSet);
+	degreeTemp = graphPtr->vertices[tempV].out_degree;
+	edgeTemp = graphPtr->vertices[tempV].edges_idx;
 
-	for(i = reachableSet->head ; i < reachableSet->tail; i++){
-		tempV = reachableSet->queue[i];
+	for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
+		tempU = graphPtr->sorted_edges_array[k].dest;
 
-		degreeTemp = graph->vertices[tempV].out_degree;
-		edgeTemp = graph->vertices[tempV].edges_idx;
-
-		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
-			tempU = graph->sorted_edges_array[k].dest;
-			
-			while(dest[dest[tempU]]!= dest[tempU]){
-				dest[tempU] = dest[dest[tempU]];
-			}
-
-			weightSum[dest[tempU]]++;
-			// printf("%u %u - ",dest[tempV], dest[tempU]);
-			if(!isEnArrayQueued(Neighbors, dest[tempU]) &&  dest[dest[tempV]] != dest[tempU]){
-				enArrayQueueWithBitmap(Neighbors, dest[tempU]);	
-				// printf("->%u %u - ",dest[tempV], dest[tempU]);
-			}
+		while(dest[dest[tempU]]!= dest[tempU]){
+			dest[tempU] = dest[dest[tempU]];	
 		}
 	}
 
-	// printSet(Neighbors);
-	modularityGain(deltaQ, u, v, weightSum, dest, atomDegree, Neighbors, graph);
+	compressCluster( tempV, graph, graphCluster, dest);
 
-  	for(j = reachableSet->head ; j < reachableSet->tail; j++){
-		tempV = reachableSet->queue[j];
-
-		degreeTemp = graph->vertices[tempV].out_degree;
-		edgeTemp = graph->vertices[tempV].edges_idx;
-
-		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
-			tempU = graph->sorted_edges_array[k].dest;
-
-			weightSum[dest[tempU]] = 0;
-		}
-	}
-
-
-	resetArrayQueue(reachableSet);
-    resetArrayQueue(Neighbors);
+	modularityGain(deltaQ, u, v, dest, atomDegree, graphPtr);
 
 }
 
-
-void modularityGain(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u32* dest, __u32* atomDegree, struct ArrayQueue* Neighbors, struct GraphCSR* graph){
+void modularityGain(float *deltaQ, __u32 *u, __u32 v, __u32* dest, __u32* atomDegree, struct GraphCSR* graph){
 
 	__u32 edgeWeightVU = 0;
 	__u32 edgeWeightUV = 0;
@@ -282,32 +263,41 @@ void modularityGain(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u32* d
 	degreeVout = atomDegree[v];
 	degreeVin = atomDegree[v];
 
-	__u32 j;
-	__u32 i ;
-	for(j = Neighbors->head ; j < Neighbors->tail; j++){
-     	
-     	deltaQtemp = 0.0;
-        i = Neighbors->queue[j];
-      	degreeUout = atomDegree[dest[i]];
+	__u32 k;
 
-      	if(degreeUout == UINT_MAX){
+	__u32 tempV;
+	__u32 tempU;
+	__u32 degreeTemp;
+	__u32 edgeTemp;
+
+	tempV = v;
+		
+	degreeTemp = graph->vertices[tempV].out_degree;
+	edgeTemp = graph->vertices[tempV].edges_idx;
+
+	for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
+		tempU = graph->sorted_edges_array[k].dest;
+		deltaQtemp = 0.0;
+		degreeUout = atomDegree[tempU];
+		degreeUin = atomDegree[tempU];
+
+		if(degreeUout == UINT_MAX || tempU == tempV){
       		continue;
       	}
+		
+      	edgeWeightUV = graph->sorted_edges_array[k].weight;
+		edgeWeightVU = graph->sorted_edges_array[k].weight;
 
-		degreeUin = atomDegree[dest[i]];
-
-		edgeWeightUV = weightSum[dest[i]];
-		edgeWeightVU = weightSum[dest[i]];
-
-      	deltaQtemp = ((edgeWeightVU*numEdgesm) - (float)(degreeVin*degreeUout*numEdgesm2)) + ((edgeWeightUV*numEdgesm) - (float)(degreeUin*degreeVout*numEdgesm2));
+		deltaQtemp = ((edgeWeightVU*numEdgesm) - (float)(degreeVin*degreeUout*numEdgesm2)) + ((edgeWeightUV*numEdgesm) - (float)(degreeUin*degreeVout*numEdgesm2));
 
       	if((*deltaQ) < deltaQtemp){
       		(*deltaQ) = deltaQtemp;
-      		(*u) = i;
+      		(*u) = tempU;
       	}
-    }
-}
 
+	}
+
+}
 
 
 void returnReachableSetOfNodesFromDendrogram(__u32 v,__u32* atomChild,__u32* sibling, struct ArrayQueue* reachableSet){
@@ -341,61 +331,267 @@ void printSet(struct ArrayQueue* Set){
 
 }
 
+void compressCluster( __u32 u, struct GraphCSR* graph, struct GraphCluster* graphCluster,  __u32* dest){
 
+		__u32 degreeTemp;
+		__u32 edgeTemp;
+		__u32 k;
+		// __u32 max_out_degree = 0;
+		// graphCluster->edgesHash;
+		__u32 tempU;
+		HTItem* bck = NULL;
+
+
+		ClearHashTable(graphCluster->edgesHash);
+
+		struct GraphCSR* graphPtr = NULL;
+	
+		if(graphCluster->mergedCluster[u]){
+			graphPtr = graphCluster->clustersCSR;
+		} 
+		else{
+			graphPtr = graph;
+		}
+
+		degreeTemp = graphPtr->vertices[u].out_degree;
+		edgeTemp = graphPtr->vertices[u].edges_idx;
+
+		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
+			tempU = dest[graphPtr->sorted_edges_array[k].dest];
+			// printf("%u-dest %u: w %u\n", u, tempU, graphPtr->sorted_edges_array[k].weight);
+			bck = HashFindOrInsert(graphCluster->edgesHash, tempU, 0);     /* initialize to 0 */
+    		bck->data += graphPtr->sorted_edges_array[k].weight;
+
+		}
+
+		
+		__u32 edge_index = graphPtr->vertices[u].edges_idx;
+		graphPtr->vertices[u].out_degree = HashSize(graphCluster->edgesHash);
+		
+
+    	for(bck = HashFirstBucket(graphCluster->edgesHash); bck!= NULL ; bck = HashNextBucket(graphCluster->edgesHash)){
+
+			graphPtr->sorted_edges_array[edge_index].dest = bck->key;
+       	 	graphPtr->sorted_edges_array[edge_index].weight = bck->data;
+       	 	edge_index++;
+
+		}
+
+    	
+
+}
 
 void mergeClusters(__u32 v, __u32 u, struct GraphCSR* graph, struct GraphCluster* graphCluster,  __u32* dest){
 
 		__u32 degreeTemp;
 		__u32 edgeTemp;
 		__u32 k;
+		__u32 out_degree = 0;
+		// __u32 max_out_degree = 0;
 		// graphCluster->edgesHash;
 		__u32 tempU;
 
-		struct EdgeH *edge = NULL;
+		HTItem* bck = NULL;
 
-		degreeTemp = graph->vertices[v].out_degree;
-		edgeTemp = graph->vertices[v].edges_idx;
+		ClearHashTable(graphCluster->edgesHash);
+
+		struct GraphCSR* graphPtr = NULL;
+		// printf("** \n");
+		if(graphCluster->mergedCluster[v]){
+			graphPtr = graphCluster->clustersCSR;
+		} 
+		else{
+			graphPtr = graph;
+		}
+
+		degreeTemp = graphPtr->vertices[v].out_degree;
+		edgeTemp = graphPtr->vertices[v].edges_idx;
 
 		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
-			tempU = dest[graph->sorted_edges_array[k].dest];
-			printf("%u-dest %u: w %u\n", v, tempU, graph->sorted_edges_array[k].weight);
-			HASH_FIND_INT(graphCluster->edgesHash, &tempU, edge);  /* id already in the hash? */
-		    if (edge==NULL) {
-		      edge = (struct EdgeH *)malloc(sizeof (struct EdgeH));
-		      edge->id = tempU;
-		      edge->weight = 0;
-		      HASH_ADD_INT(graphCluster->edgesHash, id, edge);  /* id: name of key field */
-		    }
-		    edge->weight += graph->sorted_edges_array[k].weight;
+			tempU = dest[graphPtr->sorted_edges_array[k].dest];
+			// printf("%u-dest %u: w %u\n", v, tempU, graphPtr->sorted_edges_array[k].weight);
+			
+			bck = HashFindOrInsert(graphCluster->edgesHash, tempU, 0);     /* initialize to 0 */
+    		bck->data += graphPtr->sorted_edges_array[k].weight;
 
 		}
 
+		
 
-		degreeTemp = graph->vertices[u].out_degree;
-		edgeTemp = graph->vertices[u].edges_idx;
+		if(graphCluster->mergedCluster[u]){
+			graphPtr = graphCluster->clustersCSR;
+		} 
+		else{
+			graphPtr = graph;
+		}
+
+		degreeTemp = graphPtr->vertices[u].out_degree;
+		edgeTemp = graphPtr->vertices[u].edges_idx;
 
 		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
-			tempU = dest[graph->sorted_edges_array[k].dest];
-			printf("%u-dest %u: w %u\n", u, tempU, graph->sorted_edges_array[k].weight);
-			HASH_FIND_INT(graphCluster->edgesHash, &tempU, edge);  /* id already in the hash? */
-		    if (edge==NULL) {
-		      edge = (struct EdgeH *)malloc(sizeof (struct EdgeH));
-		      edge->id = tempU;
-		      edge->weight = 0;
-		      HASH_ADD_INT((graphCluster->edgesHash), id, edge);  /* id: name of key field */
-		    }
-		    edge->weight += graph->sorted_edges_array[k].weight;
+			tempU = dest[graphPtr->sorted_edges_array[k].dest];
+			// printf("%u-dest %u: w %u\n", u, tempU, graphPtr->sorted_edges_array[k].weight);
+			bck = HashFindOrInsert(graphCluster->edgesHash, tempU, 0);     /* initialize to 0 */
+    		bck->data += graphPtr->sorted_edges_array[k].weight;
 
 		}
 
-		printf("\n");
+		// printf("\n");
+		out_degree = HashSize(graphCluster->edgesHash);
+		graphCluster->mergedCluster[v] = 1;
+		graphCluster->mergedCluster[u] = 1;
+		__u32 edge_index = 0;
+		
 
-		for(edge=graphCluster->edgesHash; edge != NULL; edge=(struct EdgeH*)(edge->hh.next)) {
-       	 	printf("dest %u: w %u\n", edge->id, edge->weight);
-    	}
+		if(out_degree > graphCluster->clustersCSR->vertices[u].out_degree){
+			edge_index = graphCluster->edge_index;
+			graphCluster->clustersCSR->vertices[u].edges_idx = graphCluster->edge_index;
+			graphCluster->clustersCSR->vertices[u].out_degree = out_degree;
+			graphCluster->edge_index += out_degree;
+				// printf("new cluster %u/%u \n", graphCluster->edge_index,graphCluster->num_edges );
+		}
+		else{
 
-    	printf("\n");
+			edge_index = graphCluster->clustersCSR->vertices[u].edges_idx;
+			graphCluster->clustersCSR->vertices[u].out_degree = out_degree;
+		}
 
-    	HASH_CLEAR(hh,graphCluster->edgesHash);
+		for(bck = HashFirstBucket(graphCluster->edgesHash); bck!= NULL ; bck = HashNextBucket(graphCluster->edgesHash)){
+
+			graphCluster->clustersCSR->sorted_edges_array[edge_index].src = u;
+       	 	graphCluster->clustersCSR->sorted_edges_array[edge_index].dest = bck->key;
+       	 	graphCluster->clustersCSR->sorted_edges_array[edge_index].weight = bck->data;
+       	 	edge_index++;
+
+		}
+
+    	// printf("***\n");
 
 }
+
+// void mergeClustersExtra(__u32 v,  __u32 n, __u32 u, struct GraphCSR* graph, struct GraphCluster* graphCluster,  __u32* dest){
+
+// 		__u32 degreeTemp;
+// 		__u32 edgeTemp;
+// 		__u32 k;
+// 		// graphCluster->edgesHash;
+// 		__u32 tempU;
+// 		__u32 out_degree = 0;
+
+// 		struct EdgeH *edge = NULL;
+
+// 		HASH_CLEAR(hh,graphCluster->edgesHash);
+// 		struct GraphCSR* graphPtr = NULL;
+
+// 		if(graphCluster->mergedCluster[v]){
+// 			graphPtr = graphCluster->clustersCSR;
+// 		} 
+// 		else{
+// 			graphPtr = graph;
+// 		}
+
+// 		degreeTemp = graphPtr->vertices[v].out_degree;
+// 		edgeTemp = graphPtr->vertices[v].edges_idx;
+
+// 		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
+// 			tempU = dest[graphPtr->sorted_edges_array[k].dest];
+// 			// printf("%u-dest %u: w %u\n", v, tempU, graphPtr->sorted_edges_array[k].weight);
+// 			HASH_FIND_INT(graphCluster->edgesHash, &tempU, edge);  /* id already in the hash? */
+// 		    if (edge==NULL) {
+// 		      edge = (struct EdgeH *)malloc(sizeof (struct EdgeH));
+// 		      edge->id = tempU;
+// 		      edge->weight = 0;
+// 		      HASH_ADD_INT(graphCluster->edgesHash, id, edge);  /* id: name of key field */
+// 		      out_degree++;
+// 		    }
+// 		    edge->weight += graphPtr->sorted_edges_array[k].weight;
+
+// 		}
+
+// 		edge = NULL;
+
+// 		if(graphCluster->mergedCluster[n]){
+// 			graphPtr = graphCluster->clustersCSR;
+// 		} 
+// 		else{
+// 			graphPtr = graph;
+// 		}
+
+// 		degreeTemp = graphPtr->vertices[n].out_degree;
+// 		edgeTemp = graphPtr->vertices[n].edges_idx;
+
+// 		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
+// 			tempU = dest[graphPtr->sorted_edges_array[k].dest];
+// 			// printf("%u-dest %u: w %u\n", n, tempU, graphPtr->sorted_edges_array[k].weight);
+// 			HASH_FIND_INT(graphCluster->edgesHash, &tempU, edge);  /* id already in the hash? */
+// 		    if (edge==NULL) {
+// 		      edge = (struct EdgeH *)malloc(sizeof (struct EdgeH));
+// 		      edge->id = tempU;
+// 		      edge->weight = 0;
+// 		      HASH_ADD_INT(graphCluster->edgesHash, id, edge);  /* id: name of key field */
+// 		      out_degree++;
+// 		    }
+// 		    edge->weight += graphPtr->sorted_edges_array[k].weight;
+
+// 		}
+
+// 		edge = NULL;
+
+// 		if(graphCluster->mergedCluster[u]){
+// 			graphPtr = graphCluster->clustersCSR;
+// 		} 
+// 		else{
+// 			graphPtr = graph;
+// 		}
+
+// 		degreeTemp = graphPtr->vertices[u].out_degree;
+// 		edgeTemp = graphPtr->vertices[u].edges_idx;
+
+// 		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
+// 			tempU = dest[graphPtr->sorted_edges_array[k].dest];
+// 			// printf("%u-dest %u: w %u\n", u, tempU, graphPtr->sorted_edges_array[k].weight);
+// 			HASH_FIND_INT(graphCluster->edgesHash, &tempU, edge);  /* id already in the hash? */
+// 		    if (edge==NULL) {
+// 		      edge = (struct EdgeH *)malloc(sizeof (struct EdgeH));
+// 		      edge->id = tempU;
+// 		      edge->weight = 0;
+// 		      HASH_ADD_INT((graphCluster->edgesHash), id, edge);  /* id: name of key field */
+// 		      out_degree++;
+// 		    }
+// 		    edge->weight += graphPtr->sorted_edges_array[k].weight;
+
+// 		}
+
+// 		// printf("\n");
+
+// 		graphCluster->mergedCluster[n] = 1;
+// 		graphCluster->mergedCluster[v] = 1;
+// 		graphCluster->mergedCluster[u] = 1;
+
+// 		__u32 edge_index = 0;
+		
+
+// 		if(out_degree > graphCluster->clustersCSR->vertices[u].out_degree){
+// 			edge_index = graphCluster->edge_index;
+// 			graphCluster->clustersCSR->vertices[u].edges_idx = graphCluster->edge_index;
+// 			graphCluster->clustersCSR->vertices[u].out_degree = out_degree;
+// 			graphCluster->edge_index += out_degree;
+// 				// printf("new cluster %u/%u \n", graphCluster->edge_index,graphCluster->num_edges );
+// 		}
+// 		else{
+
+// 			edge_index = graphCluster->clustersCSR->vertices[u].edges_idx;
+// 			graphCluster->clustersCSR->vertices[u].out_degree = out_degree;
+// 		}
+	
+// 		for(edge=graphCluster->edgesHash; edge != NULL; edge=(struct EdgeH*)(edge->hh.next)) {
+//        	 	// printf("%u dest %u: w %u\n",u, edge->id, edge->weight);
+//        	 	graphCluster->clustersCSR->sorted_edges_array[edge_index].src = u;
+//        	 	graphCluster->clustersCSR->sorted_edges_array[edge_index].dest = edge->id;
+//        	 	graphCluster->clustersCSR->sorted_edges_array[edge_index].weight = edge->weight;
+//        	 	edge_index++;
+//     	}
+
+//     	// printf("\n");
+
+// }

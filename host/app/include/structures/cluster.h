@@ -3,27 +3,12 @@
 
 #include <linux/types.h>
 #include "graphCSR.h"
-#include "uthash.h"
+#include "libchash.h"
 // ********************************************************************************************
 // ***************                  Clustered Graph DataStructure                **************
 // ********************************************************************************************
 
 
-// struct  Edge {
-
-//     __u32 src;
-//     __u32 dest;
-//     #if WEIGHTED
-//     __u32 weight;
-//     #endif
-
-// };
-
-struct EdgeH {                   
-    __u32 id; /* key */
-    __u32 weight;
-    UT_hash_handle hh;         /* makes this structure hashable */
-};
 
 struct  Cluster{
 
@@ -44,10 +29,11 @@ struct GraphCluster{
     __u32 num_vertices;
     __u32 num_edges;
 
-    
+    __u32* mergedCluster;
     struct Cluster* clusters;
     struct GraphCSR* clustersCSR;
-    struct EdgeH* edgesHash;
+    __u32  edge_index;
+    struct HashTable* edgesHash;
 
 };
 

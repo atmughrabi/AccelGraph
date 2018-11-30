@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <omp.h>
-#include "uthash.h"
+#include "libchash.h"
 
 #include "timer.h"
 #include "myMalloc.h"
@@ -33,16 +33,31 @@ struct GraphCluster * graphClusterNew(__u32 V, __u32 E){
 
 	#if DIRECTED
 		graphCluster->clustersCSR = graphCSRNew(V, E, 1);
+		struct EdgeList* edgeList = newEdgeList(E);
+		struct EdgeList* inv_edgeList = newEdgeList(E);
+	    graphCluster->clustersCSR->inverse_sorted_edges_array = inv_edgeList->edges_array;
+	    graphCluster->clustersCSR->sorted_edges_array = edgeList->edges_array;
 	#else
 		graphCluster->clustersCSR = graphCSRNew(V, E, 0);
+		struct EdgeList* edgeList = newEdgeList(E);
+		graphCluster->clustersCSR->sorted_edges_array = edgeList->edges_array;
 	#endif
 
-	graphCluster->edgesHash = NULL;
+	
+
+	graphCluster->edgesHash =  AllocateHashTable(4, 0);
+	graphCluster->edge_index = 0;
 
     #if ALIGNED
         graphCluster->clusters = (struct Cluster*) my_aligned_malloc( V * sizeof(struct Cluster));
     #else
         graphCluster->clusters = (struct Cluster*) my_malloc( V * sizeof(struct Cluster));
+    #endif
+
+    #if ALIGNED
+        graphCluster->mergedCluster = (__u32*) my_aligned_malloc( V * sizeof(__u32));
+    #else
+        graphCluster->mergedCluster = (__u32*) my_malloc( V * sizeof(__u32));
     #endif
 
 
@@ -52,6 +67,7 @@ struct GraphCluster * graphClusterNew(__u32 V, __u32 E){
         graphCluster->clusters[i].sizeOutNodes = 0;
         graphCluster->clusters[i].out_degree = 0;
         graphCluster->clusters[i].outNodes = NULL;
+        graphCluster->mergedCluster[i] = 0;
 
         #if DIRECTED
         	graphCluster->clusters[i].sizeInNodes = 0;
@@ -269,65 +285,3 @@ void clusterPrint(struct Cluster* cluster){
 	#endif
 }
 
-
-
-
-
-// struct my_struct *users = NULL;
-
-// void addEdgeToHashTable(int user_id, char *name) {
-//     struct my_struct *s;
-
-//     HASH_FIND_INT(users, &user_id, s);  /* id already in the hash? */
-//     if (s==NULL) {
-//       s = (struct my_struct *)malloc(sizeof *s);
-//       s->id = user_id;
-//       HASH_ADD_INT( users, id, s );  /* id: name of key field */
-//     }
-//     strcpy(s->name, name);
-// }
-
-// struct my_struct *find_user(int user_id) {
-//     struct my_struct *s;
-
-//     HASH_FIND_INT( users, &user_id, s );  /* s: output pointer */
-//     return s;
-// }
-
-// void delete_user(struct my_struct *user) {
-//     HASH_DEL(users, user);  /* user: pointer to deletee */
-//     free(user);
-// }
-
-// void delete_all() {
-//   struct my_struct *current_user, *tmp;
-
-//   HASH_ITER(hh, users, current_user, tmp) {
-//     HASH_DEL(users, current_user);  /* delete it (users advances to next) */
-//     free(current_user);             /* free it */
-//   }
-// }
-
-// void print_users() {
-//     struct my_struct *s;
-
-//     for(s=users; s != NULL; s=(struct my_struct*)(s->hh.next)) {
-//         printf("user id %d: name %s\n", s->id, s->name);
-//     }
-// }
-
-// int name_sort(struct my_struct *a, struct my_struct *b) {
-//     return strcmp(a->name,b->name);
-// }
-
-// int id_sort(struct my_struct *a, struct my_struct *b) {
-//     return (a->id - b->id);
-// }
-
-// void sort_by_name() {
-//     HASH_SORT(users, name_sort);
-// }
-
-// void sort_by_id() {
-//     HASH_SORT(users, id_sort);
-// }
