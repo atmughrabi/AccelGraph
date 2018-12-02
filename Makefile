@@ -352,7 +352,7 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 # fnameb = "../01_GraphDatasets/RMAT/RMAT19.txt"
 # fnameb = "../01_GraphDatasets/RMAT/RMAT20.txt"
 # fnameb = "../01_GraphDatasets/RMAT/RMAT21.bin"
-fnameb = "../01_GraphDatasets/RMAT/RMAT22.bin"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT22.bin"
 # root = 3009230
 # root = 0
 #app command line arguments
