@@ -11,6 +11,9 @@
 struct BellmanFordStats{
 	__u32* Distances;
 	__u32* parents;
+	__u32  processed_nodes;
+	__u32 num_vertices;
+	double time_total;
 };
 
 // ********************************************************************************************
@@ -18,7 +21,8 @@ struct BellmanFordStats{
 // ********************************************************************************************
 
 struct BellmanFordStats* newBellmanFordStatst( __u32 num_vertices);
-void bellmanFordRelax(struct Edge*, struct BellmanFordStats* stats);
+void bellmanFordRelax(struct Edge* edge, struct BellmanFordStats* stats);
+void durstenfeldShuffle(__u32* vertices);
 
 // ********************************************************************************************
 // ***************					GRID DataStructure							 **************

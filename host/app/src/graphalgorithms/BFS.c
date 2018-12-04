@@ -74,7 +74,7 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices){
+    if(source > graph->num_vertices){
 		printf(" -----------------------------------------------------\n");
     	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
     	printf(" -----------------------------------------------------\n");
@@ -323,7 +323,7 @@ void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR* graph
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices){
+    if(source > graph->num_vertices){
 		printf(" -----------------------------------------------------\n");
     	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
     	printf(" -----------------------------------------------------\n");
@@ -537,7 +537,7 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices){
+    if(source > graph->num_vertices){
 		printf(" -----------------------------------------------------\n");
     	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
     	printf(" -----------------------------------------------------\n");
@@ -743,7 +743,7 @@ void breadthFirstSearchGraphGridBitmap(__u32 source, struct GraphGrid* graph){
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices){
+    if(source > graph->num_vertices){
 		printf(" -----------------------------------------------------\n");
     	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
     	printf(" -----------------------------------------------------\n");
@@ -931,7 +931,7 @@ void breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList*
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices){
+    if(source > graph->num_vertices){
 		printf(" -----------------------------------------------------\n");
     	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
     	printf(" -----------------------------------------------------\n");
@@ -1195,7 +1195,7 @@ void breadthFirstSearchGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedLis
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices){
+    if(source > graph->num_vertices){
 		printf(" -----------------------------------------------------\n");
     	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
     	printf(" -----------------------------------------------------\n");

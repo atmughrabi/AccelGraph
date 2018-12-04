@@ -167,12 +167,16 @@ $(APP_DIR)/$(OBJ_DIR)/arrayStack.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arraySta
 	@echo 'making $(GAPP) <- arrayStack.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/arrayStack.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/arrayStack.c
 
+$(APP_DIR)/$(OBJ_DIR)/bellmanFord.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/bellmanFord.c $(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/bellmanFord.h
+	@echo 'making $(GAPP) <- bellmanFord.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/bellmanFord.o $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/bellmanFord.c
+
 $(APP_DIR)/$(OBJ_DIR)/BFS.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/BFS.c $(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/BFS.h
 	@echo 'making $(GAPP) <- BFS.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/BFS.o $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/BFS.c
 
 $(APP_DIR)/$(OBJ_DIR)/DFS.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/DFS.c $(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/DFS.h
-	@echo 'making $(GAPP) <- BFS.o'
+	@echo 'making $(GAPP) <- DFS.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/DFS.o $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/DFS.c
 
 $(APP_DIR)/$(OBJ_DIR)/pageRank.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/pageRank.c $(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/pageRank.h
@@ -253,19 +257,22 @@ graphRun: $(APP_DIR)/$(OBJ_DIR)/graphRun.o
 
 BFS: $(APP_DIR)/$(OBJ_DIR)/BFS.o
 
+bellmanFord: $(APP_DIR)/$(OBJ_DIR)/bellmanFord.o
+
 DFS: $(APP_DIR)/$(OBJ_DIR)/DFS.o
 
 pageRank: $(APP_DIR)/$(OBJ_DIR)/pageRank.o
 
 incrementalAggregation : $(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o
 	
-test: libchash incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+test: libchash bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
 	@echo 'linking $(GAPP) <- libchash.o DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/libchash.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/bellmanFord.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/DFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 		\
@@ -348,16 +355,20 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 
 
 
-# fnameb = "../01_GraphDatasets/RMAT/RMAT-26.bin"
-# fnameb = "../01_GraphDatasets/RMAT/RMAT19.txt"
-# fnameb = "../01_GraphDatasets/RMAT/RMAT20.txt"
-# fnameb = "../01_GraphDatasets/RMAT/RMAT21.bin"
-# fnameb = "../01_GraphDatasets/RMAT/RMAT22.bin"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT-26"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT19"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT20"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT21"
+# fnameb = "../01_GraphDatasets/RMAT/RMAT22"
+
+fnameb = "../01_GraphDatasets/RMAT/RMAT22.wbin"
+root = 3009230
+
 # root = 3009230
 # root = 0
 #app command line arguments
 # fnameb = "../01_GraphDatasets/twitter/twitter_rv.net.bin8"
-fnameb = "../01_GraphDatasets/Rabbit/test.txt.bin"
+# fnameb = "../01_GraphDatasets/Rabbit/test.txt.bin"
 # root = 428333 #max out labelless
 # root = 813286 #max in  labelless
 # reorder = 0
@@ -385,22 +396,25 @@ reorder = 0
 
 # fnameb = "../01_GraphDatasets/facebook/facebook_combined.txt.bin"
 # root = 107
-root = 3120
+# root = 3120
 # fnameb = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
 datastructure = 0
-algorithm = 4
-numThreads  = 8
+algorithm = 3
+numThreads  = 1
 iterations = 20
 trials = 1
 tolerance = 1e-5
 sort = 0
 pushpull = 0
 
-	
+
+convert: test
+	./$(APP_DIR)/test/$(GAPP) -c -w -f $(fnameb)
+
 run: test
 	# ulimit -s unlimited 
-	./$(APP_DIR)/test/$(GAPP) -s -w -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
 	
 run-bfs: test
 	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -t $(trials) #CSR with Qs

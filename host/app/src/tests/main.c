@@ -15,18 +15,18 @@ int numThreads;
 static void usage(void) {
   printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]\n");
   printf("\t-h [Help] \n");
-  printf("\t-a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP, [3]-DFS [4]-IncrementalAggregation\n");
+  printf("\t-a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP-Dijkstra, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation\n");
   printf("\t-d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers\n");
   printf("\t-r [root]: BFS, DFS, SSSP root\n");
   printf("\t-p [algorithm direction] [0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-6]-same order but using data driven\n");
   printf("\t-o [sorting algorithm] [0]-radix-src [1]-radix-src-dest [2]-count-src [3]-count-src-dst.\n");
   printf("\t-n [num threads] default:max number of threads the system has\n");
-  printf("\t-i [num iterations] number of iterations for pagerank to converge [default:20]\n");
+  printf("\t-i [num iterations] number of iterations for pagerank to converge [default:20] SSSP-BellmanFord [default:V-1] \n");
   printf("\t-t [num trials] number of random trials for each whole run [default:0]\n");
   printf("\t-e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]\n");
   printf("\t-l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  \n");
   printf("\t-c: read text format convert to bin file on load example:-f <graph file> -c\n");
-  printf("\t-w: Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 before hand then recompile with using this option\n");
+  printf("\t-w: Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 beforehand then recompile with using this option\n");
   printf("\t-s: Symmetric graph, if not given set of incoming edges will be created \n"); 
   _exit(-1);
 }
@@ -183,10 +183,13 @@ int main (int argc, char **argv)
         Stop(timer);
         printf("Read Edge List From File converted to binary : %f Seconds \n",Seconds(timer));
       }
+      else{
+        graph = generateGraphDataStructure(fnameb, datastructure, sort, lmode, symmetric, weighted);
+        runGraphAlgorithms(graph, datastructure, algorithm, root, iterations, epsilon, trials, pushpull);
+      }
 
      
-      graph = generateGraphDataStructure(fnameb, datastructure, sort, lmode, symmetric, weighted);
-      runGraphAlgorithms(graph, datastructure, algorithm, root, iterations, epsilon, trials, pushpull);
+     
 
 
       free(timer);

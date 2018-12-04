@@ -1479,7 +1479,7 @@ float* pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct 
   __u8* workListNext = NULL;
   int activeVertices = 0;
 
-   #if ALIGNED
+  #if ALIGNED
         workListCurr = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
         workListNext = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
   #else

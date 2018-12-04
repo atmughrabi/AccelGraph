@@ -97,12 +97,18 @@ char * readEdgeListstxt(const char * fname, __u32 weighted){
                 __u32 weight = 1;
         #endif
 
-        char * fname_txt = (char *) malloc((strlen(fname)+5)*sizeof(char));
-        char * fname_bin = (char *) malloc((strlen(fname)+5)*sizeof(char));
+        char * fname_txt = (char *) malloc((strlen(fname)+10)*sizeof(char));
+        char * fname_bin = (char *) malloc((strlen(fname)+10)*sizeof(char));
+
+        fname_txt = strcpy (fname_txt, fname);
+        
+        #if WEIGHTED
+            fname_bin = strcat (fname_txt, ".wbin");
+        #else
+            fname_bin = strcat (fname_txt, ".bin");
+        #endif
 
         
-        fname_txt = strcpy (fname_txt, fname);
-        fname_bin = strcat (fname_txt, ".bin");
 
         // printf("Filename : %s \n",fname);
         // printf("Filename : %s \n",fname_bin);
@@ -125,8 +131,19 @@ char * readEdgeListstxt(const char * fname, __u32 weighted){
 
         while (1)
         {
-       
-        i = fscanf(pText, "%u\t%u\n", &src, &dest);
+        
+        #if WEIGHTED
+                if(weighted){ 
+                    i = fscanf(pText, "%u\t%u\n", &src, &dest);
+                    weight = (genrand_int31() % 512)+1;
+                }
+                else{
+                    i = fscanf(pText, "%u\t%u\t%u\n", &src, &dest, &weight);
+                }
+        #else
+                i = fscanf(pText, "%u\t%u\n", &src, &dest);   
+        #endif
+
         if( i == EOF ) 
            break;
       
@@ -135,13 +152,8 @@ char * readEdgeListstxt(const char * fname, __u32 weighted){
         fwrite(&dest, sizeof (dest), 1, pBinary);
 
         #if WEIGHTED
-                // if(weighted){
-                //     // weight = (genrand_int32() % 255)+1;
-                //     weight = 1;
-                // }
-                if(!weighted){
                  fwrite(&weight, sizeof (weight), 1, pBinary);
-                }
+                
         #endif
 
         size++;
@@ -282,6 +294,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
                         }
                         else{
                             edgeList->edges_array[i].weight = buf_pointer[((offset)*i)+2];
+
                         }
                  #endif
         }
