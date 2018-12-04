@@ -339,12 +339,14 @@ void traversDendrogramReachableSetDFS(__u32 v,__u32* atomChild,__u32* sibling,st
 		traversDendrogramReachableSetDFS(atomChild[v],atomChild,sibling,reachableSet);
 	
 	enArrayQueue(reachableSet, v);
+
+	// if(!isEnArrayQueued(reachableSet, dest[v])){
+	// 			enArrayQueue(reachableSet, dest[v]);
+	// }
 	
 	if(sibling[v] != UINT_MAX)
 		traversDendrogramReachableSetDFS(sibling[v],atomChild,sibling,reachableSet);
 		
-	
-
 }
 
 void printSet(struct ArrayQueue* Set){
@@ -356,3 +358,49 @@ void printSet(struct ArrayQueue* Set){
 	printf("\n");
 
 }
+
+// void compressCluster( __u32 u, struct GraphCSR* graph, struct GraphCluster* graphCluster,  __u32* dest, struct ArrayQueue* Neighbors){
+//  		__u32 degreeTemp;			__u32 degreeTemp;
+// 		__u32 edgeTemp;			__u32 edgeTemp;
+// 		__u32 k;			__u32 k;
+// 		// __u32 max_out_degree = 0;			__u32 j;
+// 		__u32 out_degree = 0;
+// 		// graphCluster->edgesHash;
+// 		__u32 tempU;
+// 		HTItem* bck = NULL;
+//  		ClearHashTable(graphCluster->edgesHash);
+//  		degreeTemp = graph->vertices[u].out_degree;
+// 		edgeTemp = graph->vertices[u].edges_idx;
+//  		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
+// 			tempU = dest[graph->sorted_edges_array[k].dest];
+			
+// 			bck = HashFindOrInsert(graphCluster->edgesHash, tempU, 0);     /* initialize to 0 */
+// 			if(!bck->data ){
+// 				out_degree++;
+// 				enArrayQueueWithBitmap(Neighbors, tempU);	
+// 			}
+//  			// printf("c %u-dest %u: w %u d %u \n", u, tempU, graphPtr->sorted_edges_array[k].weight, bck->data);
+//     		bck->data += graph->sorted_edges_array[k].weight;
+// 		}
+ 		
+// 		__u32 edge_index = graph->vertices[u].edges_idx;
+// 		// graphPtr->vertices[u].out_degree = HashSize(graphCluster->edgesHash);
+// 		graph->vertices[u].out_degree = out_degree;
+//  		// printf("Clusters | ");
+//     		for(j = Neighbors->head ; j < Neighbors->tail; j++){
+// 			bck = HashFind(graphCluster->edgesHash, Neighbors->queue[j]);
+// 			// printf(" %u |", bck->key);
+// 			graph->sorted_edges_array[edge_index].dest = bck->key;
+//   	     	graph->sorted_edges_array[edge_index].weight = bck->data;
+//   	     	edge_index++;
+// 		}
+//    	//   	for(bck = HashFirstBucket(graphCluster->edgesHash); bck!= NULL ; bck = HashNextBucket(graphCluster->edgesHash)){
+//   	//   		printf(" %u |",bck->key);
+// 			// 	graphPtr->sorted_edges_array[edge_index].dest = bck->key;
+//   	//      	graphPtr->sorted_edges_array[edge_index].weight = bck->data;
+//   	//      	edge_index++;
+// 			// }
+//  		// printf("\n");
+// 		resetArrayQueue(Neighbors);
+    	
+//  }
