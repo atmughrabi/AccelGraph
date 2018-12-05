@@ -21,7 +21,8 @@ struct BellmanFordStats{
 // ********************************************************************************************
 
 struct BellmanFordStats* newBellmanFordStatst( __u32 num_vertices);
-void bellmanFordRelax(struct Edge* edge, struct BellmanFordStats* stats);
+int bellmanFordAtomicRelax(struct Edge* edge, struct BellmanFordStats* stats, struct Bitmap* bitmapNext);
+int bellmanFordRelax(struct Edge* edge, struct BellmanFordStats* stats, struct Bitmap* bitmapNext);
 void durstenfeldShuffle(__u32* vertices);
 
 // ********************************************************************************************

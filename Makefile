@@ -363,7 +363,8 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 
 fnameb = "../01_GraphDatasets/RMAT/RMAT22.wbin"
 root = 3009230
-
+# root = 2169295
+# root = 502357
 # root = 3009230
 # root = 0
 #app command line arguments
@@ -390,7 +391,7 @@ reorder = 0
 # reorder = 4
 
 
-# fnameb = "../01_GraphDatasets/test/test.txt"
+# fnameb = "../01_GraphDatasets/test/test.txt.wbin"
 # root  = 6
 # root  = 19
 
@@ -403,7 +404,7 @@ datastructure = 0
 algorithm = 3
 numThreads  = 1
 iterations = 20
-trials = 1
+trials = 10
 tolerance = 1e-5
 sort = 0
 pushpull = 0

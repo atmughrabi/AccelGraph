@@ -28,8 +28,80 @@ struct BellmanFordStats* newBellmanFordStatst( __u32 num_vertices){
 
 
 }
-void bellmanFordRelax(struct Edge* edge, struct BellmanFordStats* stats){
 
+int bellmanFordAtomicRelax(struct Edge* edge, struct BellmanFordStats* stats, struct Bitmap* bitmapNext){
+	__u32 oldParent, newParent;
+	__u32 oldDistanceV = UINT_MAX/2;
+	__u32 oldDistanceU = UINT_MAX/2;
+	__u32 newDistance = UINT_MAX/2;
+	__u32 flagu = 0;
+	__u32 flagv = 0;
+	__u32 flagp = 0;
+	__u32 activeVertices = 0;
+
+    do {
+
+    flagu = 0;
+	flagv = 0;
+	flagp = 0;
+
+     
+    oldDistanceV = stats->Distances[edge->src];
+    oldDistanceU = stats->Distances[edge->dest];
+    oldParent = stats->parents[edge->dest];
+    newDistance = oldDistanceV + edge->weight;
+
+	    if( oldDistanceU > newDistance ){
+
+	    	newParent = edge->src;
+	    	newDistance = oldDistanceV + edge->weight;
+
+	    	if(__sync_bool_compare_and_swap(&(stats->Distances[edge->src]), oldDistanceV, oldDistanceV)){
+	    		flagv = 1;
+	    	}
+
+	    	if(__sync_bool_compare_and_swap(&(stats->Distances[edge->dest]), oldDistanceU, newDistance) && flagv){
+	    		flagu = 1;
+	    	}
+
+	    	if(__sync_bool_compare_and_swap(&(stats->parents[edge->dest]), oldParent, newParent) && flagv && flagu){
+	    		flagp = 1;
+	    	}
+	    	
+    		if(!getBit(bitmapNext, edge->dest) && flagv && flagu && flagp){
+			 	setBitAtomic(bitmapNext, edge->dest);
+			 	activeVertices++; 	
+			}
+
+	    }
+	    else{
+	    	return activeVertices;
+	    }
+
+    } while (!flagu || !flagv || !flagp);
+
+
+    return activeVertices;
+
+}
+
+int bellmanFordRelax(struct Edge* edge, struct BellmanFordStats* stats, struct Bitmap* bitmapNext){
+	
+	__u32 activeVertices = 0;
+
+  	if( stats->Distances[edge->dest] > stats->Distances[edge->src] + edge->weight ){
+
+		stats->Distances[edge->dest] = stats->Distances[edge->src] + edge->weight;
+		stats->parents[edge->dest] = edge->src;	
+		
+		if(!getBit(bitmapNext, edge->dest)){
+			activeVertices++;
+		 	setBitAtomic(bitmapNext, edge->dest);	 	
+		}
+	}
+
+
+    return activeVertices;
 
 }
 
@@ -218,6 +290,18 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
     #endif
+
+    #if ALIGNED
+        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graph->num_vertices * sizeof(omp_lock_t));
+    #else
+        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
+    #endif
+
+
+    #pragma omp parallel for default(none) private(v) shared(graph,vertex_lock)
+    for (v=0; v<graph->num_vertices; v++){
+        omp_init_lock(&(vertex_lock[v]));
+    }
 	
   	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Push DD (Source)");
@@ -270,7 +354,7 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
 		activeVertices = 0;
     	
 
-    	#pragma omp parallel for private(v) shared(graph,stats,bitmapNext,bitmapCurr) reduction(+ : activeVertices) schedule (dynamic,128)
+    	#pragma omp parallel for private(v) shared(vertex_lock,graph,stats,bitmapNext,bitmapCurr) reduction(+ : activeVertices) schedule (dynamic,128)
     	for(v = 0; v < graph->num_vertices; v++){
 
     		if(getBit(bitmapCurr, v)){
@@ -281,28 +365,14 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
 		      	 for(j = edge_idx ; j < (edge_idx + degree) ; j++){
 		      	 	__u32 u = graph->sorted_edges_array[j].dest;
 		      	 	__u32 w = graph->sorted_edges_array[j].weight;
-		        	// relax step
-		        	__u32 newDistance = UINT_MAX;
 
-		        	#pragma omp atomic read
-		        		newDistance = stats->Distances[v];
-		        	
-		        	newDistance += w;
+		      	 	// graph->sorted_edges_array[j].weight = 1;
+		        	if(numThreads == 1)
+		        		activeVertices += bellmanFordRelax(&(graph->sorted_edges_array[j]), stats, bitmapNext);
+		        	else
+		        		activeVertices += bellmanFordAtomicRelax(&(graph->sorted_edges_array[j]), stats, bitmapNext);
+		        }
 
-		        	if(stats->Distances[u] > (newDistance)){
-
-		        		#pragma omp atomic write
-		        			stats->Distances[u] = newDistance;
-
-		        		#pragma omp atomic write
-		        			stats->parents[u] = v;
-		        		
-		        		activeVertices++;
-		        		if(!getBit(bitmapNext, u)){
-		    			 	setBitAtomic(bitmapNext, u);
-		    			}
-		        	}
-		     	}
     		}  
 		}
 
@@ -311,6 +381,8 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
 		clearBitmap(bitmapNext);
 
 		Stop(timer_inner);
+
+
 
     	printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
 	    if(activeVertices == 0)
@@ -328,15 +400,14 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
   // printf(" -----------------------------------------------------\n");
   // printf("| %-10s | %-8lf | %-15s | %-9s | \n","PR Sum ",sum, iter, Seconds(timer));
   // printf(" -----------------------------------------------------\n");
-
-  
+ 
   free(timer);
   free(timer_inner);
   free(vertices);
   free(degrees);
 
 
-  // bellmanFordPrintStats(stats);
+  bellmanFordPrintStats(stats);
   return stats;
 }
 
