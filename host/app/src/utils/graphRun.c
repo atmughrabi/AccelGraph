@@ -524,7 +524,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
 
 }
 
-void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 source, __u32 iterations, __u32 trials, __u32 pushpull){
+void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 trials, __u32 pushpull){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
     struct GraphCSR* graphCSR = NULL;
@@ -537,16 +537,32 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 source, __u
       { 
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
-            bellmanFordGraphCSR(source , iterations, pushpull, graphCSR);
+            if(root <= graphCSR->num_vertices){
+              bellmanFordGraphCSR(root , iterations, pushpull, graphCSR);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int31();
+                  if(root < graphCSR->num_vertices){
+                    if(graphCSR->vertices[root].out_degree > 0)
+                     break;
+                  }
+              }
+              if(root >= 0 && root <= graphCSR->num_vertices){
+                bellmanFordGraphCSR(root , iterations, pushpull, graphCSR);
+              }   
+               trials--;
+            }
             Start(timer);
             graphCSRFree(graphCSR);
             Stop(timer);
             generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
+
           break;
 
         case 1: // Grid
             graphGrid = (struct GraphGrid*)graph;
-            bellmanFordGraphGrid(source , iterations, pushpull, graphGrid);
+            bellmanFordGraphGrid(root , iterations, pushpull, graphGrid);
             Start(timer); 
             graphGridFree(graphGrid);
             Stop(timer);
@@ -555,7 +571,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 source, __u
 
         case 2: // Adj Linked List
             graphAdjLinkedList = (struct GraphAdjLinkedList*)graph;
-            bellmanFordGraphAdjLinkedList(source , iterations, pushpull, graphAdjLinkedList);
+            bellmanFordGraphAdjLinkedList(root , iterations, pushpull, graphAdjLinkedList);
             Start(timer); 
             graphAdjLinkedListFree(graphAdjLinkedList);
             Stop(timer);
@@ -565,7 +581,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 source, __u
         case 3: // Adj Array List
             graphAdjArrayList = (struct GraphAdjArrayList*)graph;
             
-            bellmanFordGraphAdjArrayList(source , iterations, pushpull, graphAdjArrayList);
+            bellmanFordGraphAdjArrayList(root , iterations, pushpull, graphAdjArrayList);
 
             Start(timer); 
             graphAdjArrayListFree(graphAdjArrayList);
@@ -575,7 +591,22 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 source, __u
           
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
-            bellmanFordGraphCSR(source , iterations, pushpull, graphCSR);
+            if(root <= graphCSR->num_vertices){
+              bellmanFordGraphCSR(root , iterations, pushpull, graphCSR);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int31();
+                  if(root < graphCSR->num_vertices){
+                    if(graphCSR->vertices[root].out_degree > 0)
+                     break;
+                  }
+              }
+              if(root >= 0 && root <= graphCSR->num_vertices){
+                bellmanFordGraphCSR(root , iterations, pushpull, graphCSR);
+              }   
+               trials--;
+            }
             Start(timer);
             graphCSRFree(graphCSR);
             Stop(timer);
