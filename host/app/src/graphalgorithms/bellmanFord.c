@@ -24,7 +24,28 @@
 // ***************					Auxiliary functions  	  					 **************
 // ********************************************************************************************
 
-__u32 compareDistanceArrays(struct BellmanFordStats* stats1,struct BellmanFordStats* stats2){
+__u32 bellmanFordAtomicMin(__u32 *dist , __u32 newValue){
+
+	__u32 oldValue;
+	__u32 flag = 0;
+
+	do{
+
+		oldValue = *dist;
+		if(oldValue > newValue){
+			if(__sync_bool_compare_and_swap(dist, oldValue, newValue)){
+	    		flag = 1;
+	    	}
+		}
+		else{
+			return 0;
+		}
+	}while(!flag);
+
+	return 1;
+}
+
+__u32 bellmanFordCompareDistanceArrays(struct BellmanFordStats* stats1, struct BellmanFordStats* stats2){
 
 	__u32 v=0;
 
@@ -37,7 +58,6 @@ __u32 compareDistanceArrays(struct BellmanFordStats* stats1,struct BellmanFordSt
 		}
 		// else if(stats1->Distances[v] != UINT_MAX/2)
 
-		// printf("%u %u %u \n",v,stats1->Distances[v], stats2->Distances[v] );
 
 	}
 
@@ -106,10 +126,12 @@ int bellmanFordAtomicRelax(struct Edge* edge, struct BellmanFordStats* stats, st
 int bellmanFordRelax(struct Edge* edge, struct BellmanFordStats* stats, struct Bitmap* bitmapNext){
 	
 	__u32 activeVertices = 0;
+	__u32 newDistance = stats->Distances[edge->src] + edge->weight;
 
-  	if( stats->Distances[edge->dest] > stats->Distances[edge->src] + edge->weight ){
+  	if( stats->Distances[edge->dest] > newDistance ){
 
-		stats->Distances[edge->dest] = stats->Distances[edge->src] + edge->weight;
+
+		stats->Distances[edge->dest] = newDistance;
 		stats->parents[edge->dest] = edge->src;	
 		
 		if(!getBit(bitmapNext, edge->dest)){
@@ -181,25 +203,25 @@ void bellmanFordGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct
 	struct BellmanFordStats* stats1 = bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
 	struct BellmanFordStats* stats2 = bellmanFordDataDrivenPullGraphCSR(source, iterations, graph);
 
-	if(compareDistanceArrays( stats1, stats2)){
+	if(bellmanFordCompareDistanceArrays( stats1, stats2)){
 		printf("Match!!\n");
 	}else{
 		printf("NOT Match!!\n");
 	}
 
 
-	// switch (pushpull)
- //      { 
- //        case 0: // push
- //        	bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
- //        break;
- //        case 1: // pull
- //            bellmanFordDataDrivenPullGraphCSR(source, iterations, graph);
- //        break;
- //        default:// push
- //           	bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
- //        break;          
- //      }
+	switch (pushpull)
+      { 
+        case 0: // push
+        	bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
+        break;
+        case 1: // pull
+            bellmanFordDataDrivenPullGraphCSR(source, iterations, graph);
+        break;
+        default:// push
+           	bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
+        break;          
+      }
 
 
 }
@@ -318,7 +340,7 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
 		activeVertices = 0;
     	
 
-    	// #pragma omp parallel for private(v) shared(vertices,sorted_edges_array,graph,stats,bitmapNext,bitmapCurr) reduction(+ : activeVertices) schedule (dynamic,128)
+    	#pragma omp parallel for private(v) shared(vertices,sorted_edges_array,graph,stats,bitmapNext,bitmapCurr) reduction(+ : activeVertices) schedule (dynamic,128)
     	for(v = 0; v < graph->num_vertices; v++){
 
     		__u32 minDistance = UINT_MAX/2;
@@ -340,8 +362,11 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
 		      	 	}
 		        }
 
-		        if(stats->Distances[v] > minDistance){
-		        	stats->Distances[v] = minDistance;
+
+
+
+		        if(bellmanFordAtomicMin(&(stats->Distances[v]) , minDistance)){
+		        	// stats->Distances[v] = minDistance;
 
 		        	degree = graph->vertices[v].out_degree;
 			      	edge_idx = graph->vertices[v].edges_idx;
@@ -381,9 +406,6 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
 	printf(" -----------------------------------------------------\n");
 
 
-  // printf(" -----------------------------------------------------\n");
-  // printf("| %-10s | %-8lf | %-15s | %-9s | \n","PR Sum ",sum, iter, Seconds(timer));
-  // printf(" -----------------------------------------------------\n");
  
   free(timer);
   free(timer_inner);
@@ -500,10 +522,10 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
 		      	 	__u32 w = graph->sorted_edges_array[j].weight;
 
 		      	 	// graph->sorted_edges_array[j].weight = 1;
-		        	// if(numThreads == 1)
+		        	if(numThreads == 1)
 		        		activeVertices += bellmanFordRelax(&(graph->sorted_edges_array[j]), stats, bitmapNext);
-		        	// else
-		        		// activeVertices += bellmanFordAtomicRelax(&(graph->sorted_edges_array[j]), stats, bitmapNext);
+		        	else
+		        		activeVertices += bellmanFordAtomicRelax(&(graph->sorted_edges_array[j]), stats, bitmapNext);
 		        }
 
     		}  
@@ -528,9 +550,6 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
 	printf(" -----------------------------------------------------\n");
 
 
-  // printf(" -----------------------------------------------------\n");
-  // printf("| %-10s | %-8lf | %-15s | %-9s | \n","PR Sum ",sum, iter, Seconds(timer));
-  // printf(" -----------------------------------------------------\n");
  
   free(timer);
   free(timer_inner);

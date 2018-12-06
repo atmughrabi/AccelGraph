@@ -19,8 +19,8 @@ struct BellmanFordStats{
 // ********************************************************************************************
 // ***************					Auxiliary functions  	  					 **************
 // ********************************************************************************************
-
-struct BellmanFordStats* newBellmanFordStatst( __u32 num_vertices);
+__u32 bellmanFordAtomicMin(__u32 *dist , __u32 new);
+__u32 bellmanFordCompareDistanceArrays(struct BellmanFordStats* stats1, struct BellmanFordStats* stats2);
 int bellmanFordAtomicRelax(struct Edge* edge, struct BellmanFordStats* stats, struct Bitmap* bitmapNext);
 int bellmanFordRelax(struct Edge* edge, struct BellmanFordStats* stats, struct Bitmap* bitmapNext);
 void durstenfeldShuffle(__u32* vertices);
