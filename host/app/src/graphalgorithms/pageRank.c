@@ -12,6 +12,7 @@
 #include "bitmap.h"
 #include "pageRank.h"
 #include "fixedPoint.h"
+#include "reorder.h"
 
 #include "graphCSR.h"
 #include "graphGrid.h"
@@ -221,9 +222,10 @@ float* pageRankPullRowGraphGrid(double epsilon,  __u32 iterations, struct GraphG
     // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
    
       __u32 i;
+      #pragma omp parallel for private(i) 
       for (i = 0; i < totalPartitions; ++i){ // iterate over partitions rowwise
         __u32 j;
-        #pragma omp for private(j) 
+        // #pragma omp parallel for private(j) 
         for (j = 0; j < totalPartitions; ++j){
             __u32 k;
             __u32 src;
@@ -233,7 +235,12 @@ float* pageRankPullRowGraphGrid(double epsilon,  __u32 iterations, struct GraphG
                 src  = partition->edgeList->edges_array[k].src;
                 dest = partition->edgeList->edges_array[k].dest;
 
-                pageRanksNext[dest] +=  riDividedOnDiClause[src];
+                // #pragma omp atomic update
+                // __sync_fetch_and_add(&pageRanksNext[dest],riDividedOnDiClause[src]);
+                // addAtomicFloat(float *num, float value)
+
+                 #pragma omp atomic update
+                  pageRanksNext[dest] +=  riDividedOnDiClause[src];
           }
         }
       }
@@ -347,9 +354,9 @@ float* pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 iterations, str
     // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
    
       __u32 i;
+      #pragma omp parallel for private(i) 
       for (i = 0; i < totalPartitions; ++i){ // iterate over partitions rowwise
         __u32 j;
-        #pragma omp for private(j) 
         for (j = 0; j < totalPartitions; ++j){
             __u32 k;
             __u32 src;
@@ -358,6 +365,8 @@ float* pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 iterations, str
             for (k = 0; k < partition->num_edges; ++k){
                 src  = partition->edgeList->edges_array[k].src;
                 dest = partition->edgeList->edges_array[k].dest;
+
+                #pragma omp atomic update
                 pageRanksNext[dest] +=  riDividedOnDiClause[src];
           }
         }
@@ -475,9 +484,10 @@ float* pageRankPushColumnGraphGrid(double epsilon,  __u32 iterations, struct Gra
     // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
    
       __u32 j;
-      for (j = 0; j < totalPartitions; ++j){ // iterate over partitions rowwise
+      #pragma omp parallel for private(j) 
+      for (j = 0; j < totalPartitions; ++j){ // iterate over partitions columnwise
         __u32 i;
-        #pragma omp for private(i) 
+       
         for (i = 0; i < totalPartitions; ++i){
             __u32 k;
             __u32 src;
@@ -602,9 +612,9 @@ float* pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, 
     // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
    
       __u32 j;
-      for (j = 0; j < totalPartitions; ++j){ // iterate over partitions rowwise
+       #pragma omp parallel for private(j) 
+      for (j = 0; j < totalPartitions; ++j){ // iterate over partitions columnwise
         __u32 i;
-        #pragma omp for private(i) 
         for (i = 0; i < totalPartitions; ++i){
             __u32 k;
             __u32 src;
