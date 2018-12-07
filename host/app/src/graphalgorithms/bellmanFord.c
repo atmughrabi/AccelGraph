@@ -173,8 +173,17 @@ void bellmanFordPrintStats(struct BellmanFordStats* stats){
 
 // used with Bannister, M. J.; Eppstein, D. (2012). Randomized speedup of the Bellman–Ford algorithm
 
-void durstenfeldShuffle(__u32* vertices){
+void durstenfeldShuffle(__u32* vertices, __u32 size){
 
+	__u32 v;
+	for(v = 0; v < size; v++){
+   		
+   		__u32 idx = (genrand_int31() % (size-1));
+   		__u32 temp = vertices[v];
+   		vertices[v] = vertices[idx];
+   		vertices[idx] = temp;
+
+ 	}
 
 }
 
@@ -216,10 +225,12 @@ void bellmanFordSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlu
 
 		 src  = graph->sorted_edges_array[e].src;
 		 dest = graph->sorted_edges_array[e].dest;
-		if(src <= dest)
+		if(src <= dest){
 			edgesPlusCounter++;
-		else if (src > dest)
+		}
+		else if (src > dest){
 			edgesMinusCounter++;
+		}
 	}
 
 	*graphPlus = graphCSRNew(graph->num_vertices, edgesPlusCounter, 1);
@@ -266,9 +277,9 @@ void bellmanFordGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct
 	// struct BellmanFordStats* stats3 = bellmanFordRandomizedDataDrivenPushGraphCSR(source, iterations, graph);
 
 	// if(bellmanFordCompareDistanceArrays( stats1, stats3) && bellmanFordCompareDistanceArrays( stats1, stats2)){
-	// 	printf("Match!!\n");
+	// 	// printf("Match!!\n");
 	// }else{
-	// 	printf("NOT Match!!\n");
+	// 	// printf("NOT Match!!\n");
 	// }
 
 
@@ -695,7 +706,7 @@ struct BellmanFordStats* bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
     Stop(timer_inner);
     printf("| %-51f | \n",  Seconds(timer_inner));
     printf(" -----------------------------------------------------\n");
-  
+
     printf(" -----------------------------------------------------\n");
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
@@ -725,6 +736,10 @@ struct BellmanFordStats* bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
 
  	}
 
+ 	//randomize iteratiing accross verticess
+
+ 	durstenfeldShuffle(vertices, graph->num_vertices);
+
  	setBit(bitmapNext,source);
     bitmapNext->numSetBits = 1;
 	stats->parents[source] = source;
@@ -745,23 +760,49 @@ struct BellmanFordStats* bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
 		activeVertices = 0;
     	
 
-    	#pragma omp parallel for private(v) shared(graph,stats,bitmapNext,bitmapCurr) reduction(+ : activeVertices) schedule (dynamic,128)
-    	for(v = 0; v < graph->num_vertices; v++){
+    	#pragma omp parallel for private(v,n) shared(vertices,graphPlus,stats,bitmapNext,bitmapCurr) reduction(+ : activeVertices) schedule (dynamic,128)
+    	for(n = 0; n < graphPlus->num_vertices; n++){
+
+    		v = vertices[n];
 
     		if(getBit(bitmapCurr, v)){
 
-    			__u32 degree = graph->vertices[v].out_degree;
-		      	__u32 edge_idx = graph->vertices[v].edges_idx;
+    			__u32 degree = graphPlus->vertices[v].out_degree;
+		      	__u32 edge_idx = graphPlus->vertices[v].edges_idx;
 		      	__u32 j;
 		      	 for(j = edge_idx ; j < (edge_idx + degree) ; j++){
-		      	 	__u32 u = graph->sorted_edges_array[j].dest;
-		      	 	__u32 w = graph->sorted_edges_array[j].weight;
+		      	 	__u32 u = graphPlus->sorted_edges_array[j].dest;
+		      	 	__u32 w = graphPlus->sorted_edges_array[j].weight;
 
 		      	 	// graph->sorted_edges_array[j].weight = 1;
 		        	if(numThreads == 1)
-		        		activeVertices += bellmanFordRelax(&(graph->sorted_edges_array[j]), stats, bitmapNext);
+		        		activeVertices += bellmanFordRelax(&(graphPlus->sorted_edges_array[j]), stats, bitmapNext);
 		        	else
-		        		activeVertices += bellmanFordAtomicRelax(&(graph->sorted_edges_array[j]), stats, bitmapNext);
+		        		activeVertices += bellmanFordAtomicRelax(&(graphPlus->sorted_edges_array[j]), stats, bitmapNext);
+		        }
+
+    		}  
+		}
+
+		#pragma omp parallel for private(v,n) shared(vertices,graphMinus,stats,bitmapNext,bitmapCurr) reduction(+ : activeVertices) schedule (dynamic,128)
+    	for(n = 0; n < graphMinus->num_vertices; n++){
+
+    		v = vertices[n];
+
+    		if(getBit(bitmapCurr, v)){
+
+    			__u32 degree = graphMinus->vertices[v].out_degree;
+		      	__u32 edge_idx = graphMinus->vertices[v].edges_idx;
+		      	__u32 j;
+		      	 for(j = edge_idx ; j < (edge_idx + degree) ; j++){
+		      	 	__u32 u = graphMinus->sorted_edges_array[j].dest;
+		      	 	__u32 w = graphMinus->sorted_edges_array[j].weight;
+
+		      	 	// graph->sorted_edges_array[j].weight = 1;
+		        	if(numThreads == 1)
+		        		activeVertices += bellmanFordRelax(&(graphMinus->sorted_edges_array[j]), stats, bitmapNext);
+		        	else
+		        		activeVertices += bellmanFordAtomicRelax(&(graphMinus->sorted_edges_array[j]), stats, bitmapNext);
 		        }
 
     		}  
@@ -791,8 +832,8 @@ struct BellmanFordStats* bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
   free(timer_inner);
   free(vertices);
   free(degrees);
-  graphCSRFree(graphPlus);
-  graphCSRFree(graphMinus);
+  // graphCSRFree(graphPlus);
+  // graphCSRFree(graphMinus);
 
 
   // bellmanFordPrintStats(stats);
