@@ -33,6 +33,8 @@ void bellmanFordGraphGrid(__u32 source,  __u32 iterations, __u32 pushpull, struc
 struct BellmanFordStats* bellmanFordPullRowGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid* graph);
 struct BellmanFordStats* bellmanFordPushColumnGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid* graph);
 
+
+
 // ********************************************************************************************
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
@@ -41,6 +43,8 @@ void bellmanFordGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct
 
 struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph);
 struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph);
+struct BellmanFordStats* bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph);
+void bellmanFordSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, struct GraphCSR** graphMinus);
 
 // ********************************************************************************************
 // ***************					ArrayList DataStructure					     **************

@@ -402,12 +402,12 @@ reorder = 0
 # root = 428333
 datastructure = 0
 algorithm = 3
-numThreads  = 8
+numThreads  = 1
 iterations = 20
 trials = 0
 tolerance = 1e-5
 sort = 0
-pushpull = 1
+pushpull = 2
 
 
 convert: test
