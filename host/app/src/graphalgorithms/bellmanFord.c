@@ -154,7 +154,7 @@ void bellmanFordPrintStats(struct BellmanFordStats* stats){
    	
    	 if(stats->Distances[v] != UINT_MAX/2){
 
-   	 	printf("d %u \n", stats->Distances[v]);
+   	 	// printf("d %u \n", stats->Distances[v]);
 
    	 }
    	 
@@ -195,12 +195,295 @@ void durstenfeldShuffle(__u32* vertices, __u32 size){
 void bellmanFordGraphGrid(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphGrid* graph){
 
 
+	struct BellmanFordStats* stats1 = bellmanFordPushColumnGraphGrid(source, iterations, graph);
+	struct BellmanFordStats* stats2 = bellmanFordPullRowGraphGrid(source, iterations, graph);
+	// struct BellmanFordStats* stats3 = bellmanFordRandomizedDataDrivenPushGraphCSR(source, iterations, graph);
+
+	if(bellmanFordCompareDistanceArrays( stats1, stats2)){
+		printf("Match!!\n");
+	}else{
+		printf("NOT Match!!\n");
+	}
+
+	switch (pushpull)
+      { 
+        case 0: // push
+        	bellmanFordPushColumnGraphGrid(source, iterations, graph);
+        break;
+        case 1: // pull
+            bellmanFordPullRowGraphGrid(source, iterations, graph);
+        break;
+        default:// push
+           	bellmanFordPushColumnGraphGrid(source, iterations, graph);
+        break;          
+      }
+
 }
 struct BellmanFordStats* bellmanFordPullRowGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid* graph){
+
+	__u32 v;
+	__u32 u;
+	__u32 n;
+	__u32 * vertices;
+	__u32 * degrees;
+	__u32 iter = 0;
+	__u32 totalPartitions  = graph->grid->num_partitions;
+	iterations = graph->num_vertices - 1;
+
+
+	struct BellmanFordStats* stats = (struct BellmanFordStats*) malloc(sizeof(struct BellmanFordStats));
+	stats->processed_nodes = 0;
+	stats->time_total = 0.0;
+	stats->num_vertices = graph->num_vertices;
+
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+  	struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
+
+	struct Bitmap* bitmapCurr = newBitmap(graph->num_vertices);
+    struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
+    int activeVertices = 0;
+
+	#if ALIGNED
+        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+    #else
+        stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+        stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    #endif
+	
+  	// printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Starting Bellman-Ford Algorithm ROW-WISE DD (Source)");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51u | \n", source);
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
+    // printf(" -----------------------------------------------------\n");
+
+    if(source > graph->num_vertices){
+		// printf(" -----------------------------------------------------\n");
+    	// printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	// printf(" -----------------------------------------------------\n");
+		return;
+	}
+
+    graphCSRReset(graph);
+
+    Start(timer);
+
+    Start(timer_inner);
+    //order vertices according to degree
+  	#pragma omp parallel for
+ 	for(v = 0; v < graph->num_vertices; v++){
+   	
+   	 stats->Distances[v] = UINT_MAX/2;
+   	 stats->parents[v] = UINT_MAX;
+
+ 	}
+
+ 	setBit(bitmapNext,source);
+    bitmapNext->numSetBits = 1;
+	stats->parents[source] = source;
+	stats->Distances[source] = 0;
+
+	swapBitmaps(&bitmapCurr, &bitmapNext);
+	clearBitmap(bitmapNext);
+	activeVertices++;
+
+	Stop(timer_inner);
+
+	// printf("| %-15s | %-15u | %-15f | \n","Init", activeVertices,  Seconds(timer_inner));
+	// printf(" -----------------------------------------------------\n");
+
+	for(iter = 0; iter < iterations; iter++){
+		Start(timer_inner);
+		stats->processed_nodes += activeVertices;
+		activeVertices = 0;
+    	
+	 __u32 i;
+      #pragma omp parallel for private(i) reduction(+ : activeVertices) schedule (dynamic,8)
+      for (i = 0; i < totalPartitions; ++i){ // iterate over partitions rowwise
+        __u32 j;
+        // #pragma omp parallel for private(j) 
+        for (j = 0; j < totalPartitions; ++j){
+            __u32 k;
+            __u32 src;
+            // __u32 dest;
+            // __u32 weight;
+            struct Partition* partition = &graph->grid->partitions[(i*totalPartitions)+j];
+            for (k = 0; k < partition->num_edges; ++k){
+                src  = partition->edgeList->edges_array[k].src;
+                // dest = partition->edgeList->edges_array[k].dest;
+                // weight = partition->edgeList->edges_array[k].weight;
+
+                if(getBit(bitmapCurr, src)){
+                if(numThreads == 1)
+	        		activeVertices += bellmanFordRelax(&(partition->edgeList->edges_array[k]), stats, bitmapNext);
+	        	else
+	        		activeVertices += bellmanFordAtomicRelax(&(partition->edgeList->edges_array[k]), stats, bitmapNext);
+            	}
+          	}
+        }
+      }
+
+
+		swapBitmaps(&bitmapCurr, &bitmapNext);
+		clearBitmap(bitmapNext);
+
+		Stop(timer_inner);
+		
+    	// printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
+	    if(activeVertices == 0)
+	      break;
+	}
+  	
+	
+	Stop(timer);
+	stats->time_total += Seconds(timer);
+	// printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
+	// printf(" -----------------------------------------------------\n");
+
+
+ 
+  free(timer);
+  free(timer_inner);
+
+  // bellmanFordPrintStats(stats);
+  return stats;
 
 
 }
 struct BellmanFordStats* bellmanFordPushColumnGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid* graph){
+
+	__u32 v;
+	__u32 u;
+	__u32 n;
+	__u32 * vertices;
+	__u32 * degrees;
+	__u32 iter = 0;
+	__u32 totalPartitions  = graph->grid->num_partitions;
+	iterations = graph->num_vertices - 1;
+
+
+	struct BellmanFordStats* stats = (struct BellmanFordStats*) malloc(sizeof(struct BellmanFordStats));
+	stats->processed_nodes = 0;
+	stats->time_total = 0.0;
+	stats->num_vertices = graph->num_vertices;
+
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+  	struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
+
+	struct Bitmap* bitmapCurr = newBitmap(graph->num_vertices);
+    struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
+    int activeVertices = 0;
+
+	#if ALIGNED
+        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+    #else
+        stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+        stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    #endif
+	
+  	// printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Starting Bellman-Ford Algorithm COL-WISE DD (Source)");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51u | \n", source);
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
+    // printf(" -----------------------------------------------------\n");
+
+    if(source > graph->num_vertices){
+		// printf(" -----------------------------------------------------\n");
+    	// printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	// printf(" -----------------------------------------------------\n");
+		return;
+	}
+
+    graphCSRReset(graph);
+
+    Start(timer);
+
+    Start(timer_inner);
+    //order vertices according to degree
+  	#pragma omp parallel for
+ 	for(v = 0; v < graph->num_vertices; v++){
+   	
+   	 stats->Distances[v] = UINT_MAX/2;
+   	 stats->parents[v] = UINT_MAX;
+
+ 	}
+
+ 	setBit(bitmapNext,source);
+    bitmapNext->numSetBits = 1;
+	stats->parents[source] = source;
+	stats->Distances[source] = 0;
+
+	swapBitmaps(&bitmapCurr, &bitmapNext);
+	clearBitmap(bitmapNext);
+	activeVertices++;
+
+	Stop(timer_inner);
+
+	// printf("| %-15s | %-15u | %-15f | \n","Init", activeVertices,  Seconds(timer_inner));
+	// printf(" -----------------------------------------------------\n");
+
+	for(iter = 0; iter < iterations; iter++){
+		Start(timer_inner);
+		stats->processed_nodes += activeVertices;
+		activeVertices = 0;
+    	
+	 __u32 j;
+      #pragma omp parallel for private(j) reduction(+ : activeVertices) schedule (dynamic,8)
+      for (j = 0; j < totalPartitions; ++j){ // iterate over partitions colwise
+        __u32 i;
+        // #pragma omp parallel for private(j) 
+        for (i = 0; i < totalPartitions; ++i){
+            __u32 k;
+            __u32 src;
+            // __u32 dest;
+            // __u32 weight;
+            struct Partition* partition = &graph->grid->partitions[(i*totalPartitions)+j];
+            for (k = 0; k < partition->num_edges; ++k){
+                src  = partition->edgeList->edges_array[k].src;
+                // dest = partition->edgeList->edges_array[k].dest;
+                // weight = partition->edgeList->edges_array[k].weight;
+
+                if(getBit(bitmapCurr, src)){
+                if(numThreads == 1)
+	        		activeVertices += bellmanFordRelax(&(partition->edgeList->edges_array[k]), stats, bitmapNext);
+	        	else
+	        		activeVertices += bellmanFordAtomicRelax(&(partition->edgeList->edges_array[k]), stats, bitmapNext);
+            	}
+          	}
+        }
+      }
+
+
+		swapBitmaps(&bitmapCurr, &bitmapNext);
+		clearBitmap(bitmapNext);
+
+		Stop(timer_inner);
+		
+    	// printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
+	    if(activeVertices == 0)
+	      break;
+	}
+  	
+	
+	Stop(timer);
+	stats->time_total += Seconds(timer);
+	// printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
+	// printf(" -----------------------------------------------------\n");
+
+
+ 
+  free(timer);
+  free(timer_inner);
+
+  // bellmanFordPrintStats(stats);
+  return stats;
 
 
 }
@@ -277,9 +560,9 @@ void bellmanFordGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct
 	// struct BellmanFordStats* stats3 = bellmanFordRandomizedDataDrivenPushGraphCSR(source, iterations, graph);
 
 	// if(bellmanFordCompareDistanceArrays( stats1, stats3) && bellmanFordCompareDistanceArrays( stats1, stats2)){
-	// 	// printf("Match!!\n");
+		// printf("Match!!\n");
 	// }else{
-	// 	// printf("NOT Match!!\n");
+		// printf("NOT Match!!\n");
 	// }
 
 
@@ -308,8 +591,6 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
 	__u32 v;
 	__u32 u;
 	__u32 n;
-	__u32 * vertices_id;
-	__u32 * degrees;
 	__u32 iter = 0;
 	iterations = graph->num_vertices - 1;
 
@@ -326,15 +607,9 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
     int activeVertices = 0;
 
 	#if ALIGNED
-        vertices_id = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        degrees = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-
         stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
     #else
-        vertices_id = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        degrees = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
     #endif
@@ -352,18 +627,18 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
 	#endif
 
 	
-  	printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Pull DD (Source)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", source);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
+  	// printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Pull DD (Source)");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51u | \n", source);
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
+    // printf(" -----------------------------------------------------\n");
 
     if(source > graph->num_vertices){
-		printf(" -----------------------------------------------------\n");
-    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
-    	printf(" -----------------------------------------------------\n");
+		// printf(" -----------------------------------------------------\n");
+    	// printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	// printf(" -----------------------------------------------------\n");
 		return;
 	}
 
@@ -375,9 +650,7 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
     //order vertices according to degree
   	#pragma omp parallel for
  	for(v = 0; v < graph->num_vertices; v++){
-   	 vertices_id[v]= v;
-   	 degrees[v] = graph->vertices[v].out_degree;
-
+   
    	 stats->Distances[v] = UINT_MAX/2;
    	 stats->parents[v] = UINT_MAX;
 
@@ -407,8 +680,8 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
 
 	Stop(timer_inner);
 
-	printf("| %-15s | %-15u | %-15f | \n","Init", activeVertices,  Seconds(timer_inner));
-	printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","Init", activeVertices,  Seconds(timer_inner));
+	// printf(" -----------------------------------------------------\n");
 
 	for(iter = 0; iter < iterations; iter++){
 		Start(timer_inner);
@@ -469,7 +742,7 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
 
 
 
-    	printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
+    	// printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
 	    if(activeVertices == 0)
 	      break;
 	}
@@ -477,16 +750,15 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
 	
 	Stop(timer);
 	stats->time_total = Seconds(timer);
-	printf(" -----------------------------------------------------\n");
-	printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
-	printf(" -----------------------------------------------------\n");
+	// printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
+	// printf(" -----------------------------------------------------\n");
 
 
  
   free(timer);
   free(timer_inner);
-  free(vertices_id);
-  free(degrees);
+
 
 
   // bellmanFordPrintStats(stats);
@@ -502,8 +774,7 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
 	__u32 v;
 	__u32 u;
 	__u32 n;
-	__u32 * vertices;
-	__u32 * degrees;
+
 	__u32 iter = 0;
 	iterations = graph->num_vertices - 1;
 
@@ -521,31 +792,29 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
     int activeVertices = 0;
 
 	#if ALIGNED
-        vertices = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        degrees = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+   
 
         stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
     #else
-        vertices = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        degrees = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+     
 
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
     #endif
 	
-  	printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Push DD (Source)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", source);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
+  	// printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Push DD (Source)");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51u | \n", source);
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
+    // printf(" -----------------------------------------------------\n");
 
     if(source > graph->num_vertices){
-		printf(" -----------------------------------------------------\n");
-    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
-    	printf(" -----------------------------------------------------\n");
+		// printf(" -----------------------------------------------------\n");
+    	// printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	// printf(" -----------------------------------------------------\n");
 		return;
 	}
 
@@ -557,9 +826,7 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
     //order vertices according to degree
   	#pragma omp parallel for
  	for(v = 0; v < graph->num_vertices; v++){
-   	 vertices[v]= v;
-   	 degrees[v] = graph->vertices[v].out_degree;
-
+  
    	 stats->Distances[v] = UINT_MAX/2;
    	 stats->parents[v] = UINT_MAX;
 
@@ -576,8 +843,8 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
 
 	Stop(timer_inner);
 
-	printf("| %-15s | %-15u | %-15f | \n","Init", activeVertices,  Seconds(timer_inner));
-	printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","Init", activeVertices,  Seconds(timer_inner));
+	// printf(" -----------------------------------------------------\n");
 
 	for(iter = 0; iter < iterations; iter++){
 		Start(timer_inner);
@@ -613,7 +880,7 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
 
 		Stop(timer_inner);
 		
-    	printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
+    	// printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
 	    if(activeVertices == 0)
 	      break;
 	}
@@ -621,16 +888,15 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
 	
 	Stop(timer);
 	stats->time_total += Seconds(timer);
-	printf(" -----------------------------------------------------\n");
-	printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
-	printf(" -----------------------------------------------------\n");
+	// printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
+	// printf(" -----------------------------------------------------\n");
 
 
  
   free(timer);
   free(timer_inner);
-  free(vertices);
-  free(degrees);
+ 
 
 
   // bellmanFordPrintStats(stats);
@@ -693,28 +959,28 @@ struct BellmanFordStats* bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
     #endif
 	
-  	printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Push DD");
-    printf("| %-51s | \n", "Randomized G+/G- optimization (Source)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", source);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Start Split G+/G-");
-    printf(" -----------------------------------------------------\n");
+  	// printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Push DD");
+    // printf("| %-51s | \n", "Randomized G+/G- optimization (Source)");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51u | \n", source);
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Start Split G+/G-");
+    // printf(" -----------------------------------------------------\n");
     Start(timer_inner);
     bellmanFordSpiltGraphCSR(graph, &graphPlus, &graphMinus);
     Stop(timer_inner);
-    printf("| %-51f | \n",  Seconds(timer_inner));
-    printf(" -----------------------------------------------------\n");
+    // printf("| %-51f | \n",  Seconds(timer_inner));
+    // printf(" -----------------------------------------------------\n");
 
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
+    // printf(" -----------------------------------------------------\n");
 
     if(source > graph->num_vertices){
-		printf(" -----------------------------------------------------\n");
-    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
-    	printf(" -----------------------------------------------------\n");
+		// printf(" -----------------------------------------------------\n");
+    	// printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	// printf(" -----------------------------------------------------\n");
 		return;
 	}
 
@@ -751,8 +1017,8 @@ struct BellmanFordStats* bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
 
 	Stop(timer_inner);
 
-	printf("| %-15s | %-15u | %-15f | \n","Init", activeVertices,  Seconds(timer_inner));
-	printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","Init", activeVertices,  Seconds(timer_inner));
+	// printf(" -----------------------------------------------------\n");
 
 	for(iter = 0; iter < iterations; iter++){
 		Start(timer_inner);
@@ -814,7 +1080,7 @@ struct BellmanFordStats* bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
 
 		Stop(timer_inner);
 		
-    	printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
+    	// printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
 	    if(activeVertices == 0)
 	      break;
 	}
@@ -822,9 +1088,9 @@ struct BellmanFordStats* bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
 	
 	Stop(timer);
 	stats->time_total += Seconds(timer);
-	printf(" -----------------------------------------------------\n");
-	printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
-	printf(" -----------------------------------------------------\n");
+	// printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
+	// printf(" -----------------------------------------------------\n");
 
 
  

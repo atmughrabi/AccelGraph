@@ -400,14 +400,14 @@ reorder = 0
 # root = 3120
 # fnameb = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
-datastructure = 0
-algorithm = 1
+datastructure = 1
+algorithm = 3
 numThreads  = 8
 iterations = 20
-trials = 0
+trials = 40
 tolerance = 1e-8
 sort = 0
-pushpull = 1
+pushpull = 0
 
 
 convert: test

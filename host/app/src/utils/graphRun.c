@@ -127,7 +127,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
       { 
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
-            if(root >= 0 && root <= graphCSR->num_vertices){
+            if(root < graphCSR->num_vertices){
               breadthFirstSearchGraphCSR(root, graphCSR);
             } 
             while(trials){
@@ -138,7 +138,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
                      break;
                   }
               }
-              if(root >= 0 && root <= graphCSR->num_vertices){
+              if(root < graphCSR->num_vertices){
                 breadthFirstSearchGraphCSR(root, graphCSR);
               }   
                trials--;
@@ -151,7 +151,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
 
         case 1: // Grid
             graphGrid = (struct GraphGrid*)graph;
-            if(root >= 0 && root <= graphGrid->num_vertices){
+            if(root < graphGrid->num_vertices){
               breadthFirstSearchGraphGrid(root, graphGrid);
             } 
             while(trials){
@@ -162,7 +162,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
                      break;
                   }
               }
-              if(root >= 0 && root <= graphGrid->num_vertices){
+              if(root < graphGrid->num_vertices){
                 breadthFirstSearchGraphGrid(root, graphGrid);
               }   
                trials--;
@@ -175,7 +175,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
 
         case 2: // Adj Linked List
             graphAdjLinkedList = (struct GraphAdjLinkedList*)graph;
-              if(root >= 0 && root <= graphAdjLinkedList->num_vertices){
+              if(root < graphAdjLinkedList->num_vertices){
               breadthFirstSearchGraphAdjLinkedList(root, graphAdjLinkedList);
             } 
             while(trials){
@@ -186,7 +186,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
                      break;
                   }
               }
-              if(root >= 0 && root <= graphAdjLinkedList->num_vertices){
+              if(root < graphAdjLinkedList->num_vertices){
                 breadthFirstSearchGraphAdjLinkedList(root, graphAdjLinkedList);
               }   
                trials--;
@@ -199,7 +199,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
 
         case 3: // Adj Array List
             graphAdjArrayList = (struct GraphAdjArrayList*)graph;
-            if(root >= 0 && root <= graphAdjArrayList->num_vertices){
+            if(root < graphAdjArrayList->num_vertices){
               breadthFirstSearchGraphAdjArrayList(root, graphAdjArrayList);
             } 
             while(trials){
@@ -210,7 +210,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
                      break;
                   }
               }
-              if(root >= 0 && root <= graphAdjArrayList->num_vertices){
+              if(root < graphAdjArrayList->num_vertices){
                 breadthFirstSearchGraphAdjArrayList(root, graphAdjArrayList);
               }   
                trials--;
@@ -223,7 +223,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
 
         case 4: // CSR with no frontier only Bitmaps
             graphCSR = (struct GraphCSR*)graph;
-            if(root >= 0 && root <= graphCSR->num_vertices){
+            if(root < graphCSR->num_vertices){
               breadthFirstSearchUsingBitmapsGraphCSR(root, graphCSR);
             } 
             while(trials){
@@ -234,7 +234,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
                      break;
                   }
               }
-              if(root >= 0 && root <= graphCSR->num_vertices){
+              if(root < graphCSR->num_vertices){
                 breadthFirstSearchUsingBitmapsGraphCSR(root, graphCSR);
               }   
                trials--;
@@ -247,7 +247,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
 
          case 5: // Grid with no frontiers only Bitmaps
             graphGrid = (struct GraphGrid*)graph;
-            if(root >= 0 && root <= graphGrid->num_vertices){
+            if(root < graphGrid->num_vertices){
               breadthFirstSearchGraphGridBitmap(root, graphGrid);
             } 
             while(trials){
@@ -258,7 +258,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
                      break;
                   }
               }
-              if(root >= 0 && root <= graphGrid->num_vertices){
+              if(root < graphGrid->num_vertices){
                 breadthFirstSearchGraphGridBitmap(root, graphGrid);
               }   
                trials--;
@@ -273,7 +273,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
 
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
-            if(root >= 0 && root <= graphCSR->num_vertices){
+            if(root < graphCSR->num_vertices){
               breadthFirstSearchGraphCSR(root, graphCSR);
             } 
             while(trials){
@@ -284,7 +284,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
                      break;
                   }
               }
-              if(root >= 0 && root <= graphCSR->num_vertices){
+              if(root < graphCSR->num_vertices){
                 breadthFirstSearchGraphCSR(root, graphCSR);
               }   
                trials--;
@@ -312,7 +312,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
       { 
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
-            if(root >= 0 && root <= graphCSR->num_vertices){
+            if(root < graphCSR->num_vertices){
               depthFirstSearchGraphCSR(root, graphCSR);
             } 
             while(trials){
@@ -323,7 +323,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
                      break;
                   }
               }
-              if(root >= 0 && root <= graphCSR->num_vertices){
+              if(root < graphCSR->num_vertices){
                 depthFirstSearchGraphCSR(root, graphCSR);
               }   
                trials--;
@@ -364,7 +364,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
 
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
-            if(root >= 0 && root <= graphCSR->num_vertices){
+            if(root < graphCSR->num_vertices){
               breadthFirstSearchGraphCSR(root, graphCSR);
             } 
             while(trials){
@@ -375,7 +375,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
                      break;
                   }
               }
-              if(root >= 0 && root <= graphCSR->num_vertices){
+              if(root < graphCSR->num_vertices){
                 breadthFirstSearchGraphCSR(root, graphCSR);
               }   
                trials--;
@@ -537,7 +537,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
       { 
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
-            if(root <= graphCSR->num_vertices){
+            if(root < graphCSR->num_vertices){
               bellmanFordGraphCSR(root , iterations, pushpull, graphCSR);
             } 
             while(trials){
@@ -548,7 +548,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
                      break;
                   }
               }
-              if(root >= 0 && root <= graphCSR->num_vertices){
+              if(root < graphCSR->num_vertices){
                 bellmanFordGraphCSR(root , iterations, pushpull, graphCSR);
               }   
                trials--;
@@ -562,7 +562,22 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
 
         case 1: // Grid
             graphGrid = (struct GraphGrid*)graph;
-            bellmanFordGraphGrid(root , iterations, pushpull, graphGrid);
+            if(root < graphGrid->num_vertices){
+              bellmanFordGraphGrid(root , iterations, pushpull, graphGrid);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int31();
+                  if(root < graphGrid->num_vertices){
+                    if(graphGrid->grid->out_degree[root] > 0)
+                     break;
+                  }
+              }
+              if(root < graphGrid->num_vertices){
+                bellmanFordGraphGrid(root , iterations, pushpull, graphGrid);
+              }   
+               trials--;
+            }
             Start(timer); 
             graphGridFree(graphGrid);
             Stop(timer);
@@ -591,7 +606,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
           
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
-            if(root <= graphCSR->num_vertices){
+            if(root < graphCSR->num_vertices){
               bellmanFordGraphCSR(root , iterations, pushpull, graphCSR);
             } 
             while(trials){
@@ -602,7 +617,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
                      break;
                   }
               }
-              if(root >= 0 && root <= graphCSR->num_vertices){
+              if(root < graphCSR->num_vertices){
                 bellmanFordGraphCSR(root , iterations, pushpull, graphCSR);
               }   
                trials--;
