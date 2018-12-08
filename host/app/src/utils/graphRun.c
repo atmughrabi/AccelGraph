@@ -595,13 +595,27 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
 
         case 3: // Adj Array List
             graphAdjArrayList = (struct GraphAdjArrayList*)graph;
-            
-            bellmanFordGraphAdjArrayList(root , iterations, pushpull, graphAdjArrayList);
-
+            if(root < graphAdjArrayList->num_vertices){
+              bellmanFordGraphAdjArrayList(root , iterations, pushpull, graphAdjArrayList);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int31();
+                  if(root < graphAdjArrayList->num_vertices){
+                    if(graphAdjArrayList->vertices[root].out_degree > 0)
+                     break;
+                  }
+              }
+              if(root < graphAdjArrayList->num_vertices){
+                bellmanFordGraphAdjArrayList(root , iterations, pushpull, graphAdjArrayList);
+              }   
+               trials--;
+            }
             Start(timer); 
             graphAdjArrayListFree(graphAdjArrayList);
             Stop(timer);
             generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)",Seconds(timer));
+
           break;
           
         default:// CSR
