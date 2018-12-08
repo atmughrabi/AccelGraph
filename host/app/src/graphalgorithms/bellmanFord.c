@@ -1427,6 +1427,16 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphAdjArrayList(__u32 source
 
 void bellmanFordGraphAdjLinkedList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList* graph){
 
+	// struct BellmanFordStats* stats1 = bellmanFordPushGraphAdjLinkedList(source, iterations, graph);
+	// struct BellmanFordStats* stats2 = bellmanFordPullGraphAdjLinkedList(source, iterations, graph);
+	// // // // struct BellmanFordStats* stats3 = bellmanFordRandomizedDataDrivenPushGraphCSR(source, iterations, graph);
+
+	// if( bellmanFordCompareDistanceArrays( stats1, stats2)){
+		// printf("Match!!\n");
+	// }else{
+		// printf("NOT Match!!\n");
+	// }
+
 	switch (pushpull)
       { 
         case 0: // push

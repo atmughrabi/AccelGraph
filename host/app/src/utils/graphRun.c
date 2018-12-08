@@ -586,11 +586,26 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
 
         case 2: // Adj Linked List
             graphAdjLinkedList = (struct GraphAdjLinkedList*)graph;
-            bellmanFordGraphAdjLinkedList(root , iterations, pushpull, graphAdjLinkedList);
+              if(root < graphAdjLinkedList->num_vertices){
+               bellmanFordGraphAdjLinkedList(root , iterations, pushpull, graphAdjLinkedList);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int31();
+                  if(root < graphAdjLinkedList->num_vertices){
+                    if(graphAdjLinkedList->vertices[root].out_degree > 0)
+                     break;
+                  }
+              }
+              if(root < graphAdjLinkedList->num_vertices){
+                 bellmanFordGraphAdjLinkedList(root , iterations, pushpull, graphAdjLinkedList);
+              }   
+               trials--;
+            }
             Start(timer); 
             graphAdjLinkedListFree(graphAdjLinkedList);
             Stop(timer);
-            generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)",Seconds(timer));   
+            generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)",Seconds(timer));  
             break;
 
         case 3: // Adj Array List

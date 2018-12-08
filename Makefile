@@ -404,10 +404,10 @@ datastructure = 2
 algorithm = 3
 numThreads  = 8
 iterations = 20
-trials = 20
+trials = 0
 tolerance = 1e-8
 sort = 0
-pushpull = 1
+pushpull = 0
 
 
 convert: test
