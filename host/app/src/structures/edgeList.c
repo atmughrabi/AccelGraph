@@ -11,6 +11,8 @@
 #include <linux/types.h>
 #include <omp.h>
 
+
+#include "mt19937.h"
 #include "edgeList.h"
 #include "progressbar.h"
 #include "myMalloc.h"
@@ -135,7 +137,7 @@ char * readEdgeListstxt(const char * fname, __u32 weighted){
         #if WEIGHTED
                 if(weighted){ 
                     i = fscanf(pText, "%u\t%u\n", &src, &dest);
-                    weight = (genrand_int31() % 512)+1;
+                    weight = (genrand_int31() % 256)+1;
                 }
                 else{
                     i = fscanf(pText, "%u\t%u\t%u\n", &src, &dest, &weight);

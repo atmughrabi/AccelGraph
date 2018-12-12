@@ -3,7 +3,7 @@
 
 #include <linux/types.h>
 #include "graphCSR.h"
-#include "libchash.h"
+
 // ********************************************************************************************
 // ***************                  Clustered Graph DataStructure                **************
 // ********************************************************************************************
@@ -14,12 +14,12 @@ struct  Cluster{
 
     __u32 out_degree;
     __u32 sizeOutNodes;
-    struct HashTable* outNodes;
+    // struct HashTable* outNodes;
 
     #if DIRECTED
         __u32 in_degree;
         __u32 sizeInNodes;
-        struct HashTable* inNodes;
+        // struct HashTable* inNodes;
     #endif
 
 };

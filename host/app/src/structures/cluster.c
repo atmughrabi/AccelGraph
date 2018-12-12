@@ -9,7 +9,6 @@
 #include "myMalloc.h"
 #include "boolean.h"
 #include "bitmap.h"
-#include "libchash.h"
 #include "arrayQueue.h"
 #include "graphCSR.h"
 // #include "graphGrid.h"
@@ -49,13 +48,13 @@ struct GraphCluster * graphClusterNew(__u32 V){
 
         graphCluster->clusters[i].sizeOutNodes = 0;
         graphCluster->clusters[i].out_degree = 0;
-        graphCluster->clusters[i].outNodes =  AllocateHashTable(4, 0);
+        // graphCluster->clusters[i].outNodes =  AllocateHashTable(4, 0);
         graphCluster->mergedCluster[i] = 0;
 
         #if DIRECTED
         	graphCluster->clusters[i].sizeInNodes = 0;
             graphCluster->clusters[i].in_degree = 0;
-            graphCluster->clusters[i].inNodes =  AllocateHashTable(4, 0);
+            // graphCluster->clusters[i].inNodes =  AllocateHashTable(4, 0);
         #endif
 	}
 
@@ -73,18 +72,18 @@ void graphClusterFree(struct GraphCluster* graphCluster){
     __u32 v;
     struct Cluster* pCrawl;
 
-    for (v = 0; v < graphCluster->num_vertices; ++v)
-    {
-        pCrawl = &(graphCluster->clusters[v]);
+    // for (v = 0; v < graphCluster->num_vertices; ++v)
+    // {
+    //     pCrawl = &(graphCluster->clusters[v]);
         
-        if(pCrawl->out_degree  != 0)
-        	FreeHashTable(pCrawl->outNodes);
-        #if DIRECTED
-        if(pCrawl->in_degree  != 0)
-            FreeHashTable(pCrawl->inNodes);
-        #endif
+    //     if(pCrawl->out_degree  != 0)
+    //     	// FreeHashTable(pCrawl->outNodes);
+    //     #if DIRECTED
+    //     if(pCrawl->in_degree  != 0)
+    //         // FreeHashTable(pCrawl->inNodes);
+    //     #endif
        
-    }
+    // }
 
     
     free(graphCluster->clusters);

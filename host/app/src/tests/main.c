@@ -15,7 +15,7 @@ int numThreads;
 static void usage(void) {
   printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]\n");
   printf("\t-h [Help] \n");
-  printf("\t-a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP-Dijkstra, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation\n");
+  printf("\t-a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation\n");
   printf("\t-d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers\n");
   printf("\t-r [root]: BFS, DFS, SSSP root\n");
   printf("\t-p [algorithm direction] [0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-6]-same order but using data driven\n");

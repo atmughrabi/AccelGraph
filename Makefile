@@ -123,9 +123,13 @@ $(APP_DIR)/$(OBJ_DIR)/cluster.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/cluster.c $
 	@echo 'making $(GAPP) <- cluster.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/cluster.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/cluster.c
 
-$(APP_DIR)/$(OBJ_DIR)/libchash.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/libchash.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/libchash.h
-	@echo 'making $(GAPP) <- libchash.o'
-	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/libchash.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/libchash.c
+$(APP_DIR)/$(OBJ_DIR)/qvector.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/qvector.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/qvector.h
+	@echo 'making $(GAPP) <- qvector.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/qvector.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/qvector.c
+
+$(APP_DIR)/$(OBJ_DIR)/qinternal.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/qinternal.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/qinternal.h
+	@echo 'making $(GAPP) <- qinternal.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/qinternal.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/qinternal.c
 
 $(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/dynamicQueue.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/dynamicQueue.h
 	@echo 'making $(GAPP) <- dynamicQueue.o'
@@ -233,7 +237,9 @@ edgeList: $(APP_DIR)/$(OBJ_DIR)/edgeList.o
 
 graphCSR: $(APP_DIR)/$(OBJ_DIR)/graphCSR.o
 
-libchash: $(APP_DIR)/$(OBJ_DIR)/libchash.o
+qvector: $(APP_DIR)/$(OBJ_DIR)/qvector.o
+
+qinternal : $(APP_DIR)/$(OBJ_DIR)/qinternal.o
 
 grid: $(APP_DIR)/$(OBJ_DIR)/grid.o
 
@@ -265,13 +271,14 @@ pageRank: $(APP_DIR)/$(OBJ_DIR)/pageRank.o
 
 incrementalAggregation : $(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o
 	
-test: libchash bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
-	@echo 'linking $(GAPP) <- libchash.o DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
+test: qinternal qvector bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+	@echo 'linking $(GAPP) <- qinternal.o qvector.o DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
 	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/libchash.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/qvector.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/qinternal.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/bellmanFord.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/DFS.o 			\
@@ -361,7 +368,7 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 # fnameb = "../01_GraphDatasets/RMAT/RMAT21"
 # fnameb = "../01_GraphDatasets/RMAT/RMAT22"
 
-fnameb = "../01_GraphDatasets/RMAT/RMAT20.wbin"
+fnameb = "../01_GraphDatasets/RMAT/RMAT22.wbin"
 root = 690969
 # root = 2169295
 # root = 502357
@@ -407,7 +414,7 @@ iterations = 20
 trials = 0
 tolerance = 1e-8
 sort = 0
-pushpull = 0
+pushpull = 2
 
 
 convert: test

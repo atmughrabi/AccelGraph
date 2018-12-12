@@ -5,7 +5,6 @@
 #include <omp.h>
 #include <limits.h> //UINT_MAX
 
-#include "libchash.h"
 #include "timer.h"
 #include "myMalloc.h"
 #include "boolean.h"
