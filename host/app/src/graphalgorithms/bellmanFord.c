@@ -518,7 +518,7 @@ void bellmanFordSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlu
 	__u32 src;
 	__u32 dest;
 
-	#pragma omp parallel for private(e) shared(graph) reduction(+:edgesPlusCounter,edgesMinusCounter)
+	#pragma omp parallel for private(e,src,dest) shared(graph) reduction(+:edgesPlusCounter,edgesMinusCounter)
 	for(e =0 ; e < graph->num_edges ; e++){
 
 		 src  = graph->sorted_edges_array[e].src;
@@ -544,7 +544,7 @@ void bellmanFordSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlu
 	__u32 edgesPlus_idx = 0;
 	__u32 edgesMinus_idx = 0;
 
-	#pragma omp parallel for private(e) shared(edgesMinus_idx,edgesPlus_idx, edgesPlus,edgesMinus,graph)
+	#pragma omp parallel for private(e,src,dest) shared(edgesMinus_idx,edgesPlus_idx, edgesPlus,edgesMinus,graph)
 	for(e =0 ; e < graph->num_edges ; e++){
 
 		 src  = graph->sorted_edges_array[e].src;

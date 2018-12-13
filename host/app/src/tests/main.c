@@ -28,7 +28,7 @@ static void usage(void) {
   printf("\t-c: read text format convert to bin file on load example:-f <graph file> -c\n");
   printf("\t-w: Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 beforehand then recompile with using this option\n");
   printf("\t-s: Symmetric graph, if not given set of incoming edges will be created \n");
-  printf("\t-b: SSSP Delta value Default [1] \n"); 
+  printf("\t-b: SSSP Delta value [Default:1] \n"); 
   _exit(-1);
 }
 

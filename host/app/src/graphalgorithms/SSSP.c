@@ -210,18 +210,16 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 	__u32 edgesPlusCounter = 0;
 	__u32 edgesMinusCounter = 0;
 	__u32 e;
-	__u32 src;
-	__u32 dest;
+	__u32 weight;
 
-	#pragma omp parallel for private(e) shared(graph) reduction(+:edgesPlusCounter,edgesMinusCounter)
+	#pragma omp parallel for private(e,weight) shared(graph,delta) reduction(+:edgesPlusCounter,edgesMinusCounter)
 	for(e =0 ; e < graph->num_edges ; e++){
 
-		 src  = graph->sorted_edges_array[e].src;
-		 dest = graph->sorted_edges_array[e].dest;
-		if(src <= dest){
+		 weight =  graph->sorted_edges_array[e].weight;
+		if(weight > delta){
 			edgesPlusCounter++;
 		}
-		else if (src > dest){
+		else if (weight <= delta){
 			edgesMinusCounter++;
 		}
 	}
@@ -239,15 +237,14 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 	__u32 edgesPlus_idx = 0;
 	__u32 edgesMinus_idx = 0;
 
-	#pragma omp parallel for private(e) shared(edgesMinus_idx,edgesPlus_idx, edgesPlus,edgesMinus,graph)
+	#pragma omp parallel for private(e,weight) shared(edgesMinus_idx,edgesPlus_idx, delta,edgesPlus,edgesMinus,graph)
 	for(e =0 ; e < graph->num_edges ; e++){
 
-		 src  = graph->sorted_edges_array[e].src;
-		 dest = graph->sorted_edges_array[e].dest;
-		if(src <= dest){
+		 weight =  graph->sorted_edges_array[e].weight;
+		if(weight > delta){
 			edgesPlus->edges_array[__sync_fetch_and_add(&edgesPlus_idx,1)] = graph->sorted_edges_array[e];
 		}
-		else if (src > dest){
+		else if (weight <= delta){
 			edgesMinus->edges_array[__sync_fetch_and_add(&edgesMinus_idx,1)] = graph->sorted_edges_array[e];
 		}
 	}
