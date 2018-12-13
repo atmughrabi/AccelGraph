@@ -17,6 +17,7 @@
 #include "pageRank.h"
 #include "incrementalAggregation.h"
 #include "bellmanFord.h"
+#include "SSSP.h"
 
 
 void generateGraphPrintMessageWithtime(const char * msg, double time){
@@ -95,7 +96,7 @@ void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int r
           runPageRankAlgorithm(graph, datastructure, epsilon, iterations, trials, pushpull);
           break;
         case 2: // SSSP-Dijkstra file name root
-          printf(" SSSP-Dijkstra to be implemented \n");
+          runSSSPAlgorithm(graph, datastructure, root, iterations, trials, pushpull);
           break;
         case 3: // SSSP-Bellmanford file name root
           runBellmanFordAlgorithm(graph, datastructure, root, iterations, trials, pushpull);
@@ -648,6 +649,145 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
               }
               if(root < graphCSR->num_vertices){
                 bellmanFordGraphCSR(root , iterations, pushpull, graphCSR);
+              }   
+               trials--;
+            }
+            Start(timer);
+            graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
+          break;          
+      }
+
+     free(timer);
+
+}
+
+
+void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 trials, __u32 pushpull){
+
+    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    struct GraphCSR* graphCSR = NULL;
+    struct GraphGrid* graphGrid = NULL;
+    struct GraphAdjLinkedList* graphAdjLinkedList = NULL;
+    struct GraphAdjArrayList* graphAdjArrayList = NULL;
+
+            
+    switch (datastructure)
+      { 
+        case 0: // CSR
+            graphCSR = (struct GraphCSR*)graph;
+            if(root < graphCSR->num_vertices){
+              SSSPGraphCSR(root , iterations, pushpull, graphCSR);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int31();
+                  if(root < graphCSR->num_vertices){
+                    if(graphCSR->vertices[root].out_degree > 0)
+                     break;
+                  }
+              }
+              if(root < graphCSR->num_vertices){
+                SSSPGraphCSR(root , iterations, pushpull, graphCSR);
+              }   
+               trials--;
+            }
+            Start(timer);
+            graphCSRFree(graphCSR);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)",Seconds(timer));
+
+          break;
+
+        case 1: // Grid
+            graphGrid = (struct GraphGrid*)graph;
+            if(root < graphGrid->num_vertices){
+              // bellmanFordGraphGrid(root , iterations, pushpull, graphGrid);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int31();
+                  if(root < graphGrid->num_vertices){
+                    if(graphGrid->grid->out_degree[root] > 0)
+                     break;
+                  }
+              }
+              if(root < graphGrid->num_vertices){
+                // bellmanFordGraphGrid(root , iterations, pushpull, graphGrid);
+              }   
+               trials--;
+            }
+            Start(timer); 
+            graphGridFree(graphGrid);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)",Seconds(timer));
+          break;
+
+        case 2: // Adj Linked List
+            graphAdjLinkedList = (struct GraphAdjLinkedList*)graph;
+              if(root < graphAdjLinkedList->num_vertices){
+               // bellmanFordGraphAdjLinkedList(root , iterations, pushpull, graphAdjLinkedList);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int31();
+                  if(root < graphAdjLinkedList->num_vertices){
+                    if(graphAdjLinkedList->vertices[root].out_degree > 0)
+                     break;
+                  }
+              }
+              if(root < graphAdjLinkedList->num_vertices){
+                 // bellmanFordGraphAdjLinkedList(root , iterations, pushpull, graphAdjLinkedList);
+              }   
+               trials--;
+            }
+            Start(timer); 
+            graphAdjLinkedListFree(graphAdjLinkedList);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)",Seconds(timer));  
+            break;
+
+        case 3: // Adj Array List
+            graphAdjArrayList = (struct GraphAdjArrayList*)graph;
+            if(root < graphAdjArrayList->num_vertices){
+              // bellmanFordGraphAdjArrayList(root , iterations, pushpull, graphAdjArrayList);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int31();
+                  if(root < graphAdjArrayList->num_vertices){
+                    if(graphAdjArrayList->vertices[root].out_degree > 0)
+                     break;
+                  }
+              }
+              if(root < graphAdjArrayList->num_vertices){
+                // bellmanFordGraphAdjArrayList(root , iterations, pushpull, graphAdjArrayList);
+              }   
+               trials--;
+            }
+            Start(timer); 
+            graphAdjArrayListFree(graphAdjArrayList);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)",Seconds(timer));
+
+          break;
+          
+        default:// CSR
+            graphCSR = (struct GraphCSR*)graph;
+            if(root < graphCSR->num_vertices){
+              SSSPGraphCSR(root , iterations, pushpull, graphCSR);
+            } 
+            while(trials){
+              while(1){
+                root = genrand_int31();
+                  if(root < graphCSR->num_vertices){
+                    if(graphCSR->vertices[root].out_degree > 0)
+                     break;
+                  }
+              }
+              if(root < graphCSR->num_vertices){
+                SSSPGraphCSR(root , iterations, pushpull, graphCSR);
               }   
                trials--;
             }

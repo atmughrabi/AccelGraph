@@ -44,6 +44,8 @@
 #include <stdio.h>
 #include "mt19937.h"
 
+
+
 /* initializes mt[N] with a seed */
 void init_genrand(unsigned long s)
 {
