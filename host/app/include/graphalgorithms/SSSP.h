@@ -29,9 +29,9 @@ void durstenfeldShuffle(__u32* vertices, __u32 size);
 // ***************					GRID DataStructure							 **************
 // ********************************************************************************************
 
-void SSSPGraphGrid(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphGrid* graph);
-struct SSSPStats* SSSPPullRowGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid* graph);
-struct SSSPStats* SSSPPushColumnGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid* graph);
+void SSSPGraphGrid(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphGrid* graph, __u32 delta);
+struct SSSPStats* SSSPPullRowGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid* graph, __u32 delta);
+struct SSSPStats* SSSPPushColumnGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid* graph, __u32 delta);
 
 
 
@@ -39,30 +39,29 @@ struct SSSPStats* SSSPPushColumnGraphGrid(__u32 source,  __u32 iterations, struc
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph);
+void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph, __u32 delta);
 
-struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph);
-struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph);
-struct SSSPStats* SSSPRandomizedDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph);
-void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, struct GraphCSR** graphMinus);
+struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta);
+struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta);
+void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, struct GraphCSR** graphMinus, __u32 delta);
 
 // ********************************************************************************************
 // ***************					ArrayList DataStructure					     **************
 // ********************************************************************************************
 
-void SSSPGraphAdjArrayList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList* graph);
+void SSSPGraphAdjArrayList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList* graph, __u32 delta);
 
-struct SSSPStats* SSSPDataDrivenPullGraphAdjArrayList(__u32 source,  __u32 iterations, struct GraphAdjArrayList* graph);
-struct SSSPStats* SSSPDataDrivenPushGraphAdjArrayList(__u32 source,  __u32 iterations, struct GraphAdjArrayList* graph);
+struct SSSPStats* SSSPDataDrivenPullGraphAdjArrayList(__u32 source,  __u32 iterations, struct GraphAdjArrayList* graph ,__u32 delta);
+struct SSSPStats* SSSPDataDrivenPushGraphAdjArrayList(__u32 source,  __u32 iterations, struct GraphAdjArrayList* graph, __u32 delta);
 
 // ********************************************************************************************
 // ***************					LinkedList DataStructure					 **************
 // ********************************************************************************************
 
-void SSSPGraphAdjLinkedList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList* graph);
+void SSSPGraphAdjLinkedList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList* graph, __u32 delta);
 
-struct SSSPStats* SSSPPullGraphAdjLinkedList(__u32 source,  __u32 iterations, struct GraphAdjLinkedList* graph);
-struct SSSPStats* SSSPPushGraphAdjLinkedList(__u32 source,  __u32 iterations, struct GraphAdjLinkedList* graph);
+struct SSSPStats* SSSPPullGraphAdjLinkedList(__u32 source,  __u32 iterations, struct GraphAdjLinkedList* graph,__u32 delta);
+struct SSSPStats* SSSPPushGraphAdjLinkedList(__u32 source,  __u32 iterations, struct GraphAdjLinkedList* graph,__u32 delta);
 
 
 #endif

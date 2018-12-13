@@ -202,7 +202,7 @@ void SSSPPrintStatsDetails(struct SSSPStats* stats){
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, struct GraphCSR** graphMinus){
+void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, struct GraphCSR** graphMinus, __u32 delta){
 
 // The first subset, Ef, contains all edges (vi, vj) such that i < j; the second, Eb, contains edges (vi, vj) such that i > j.
 
@@ -263,25 +263,25 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 
 }
 
-void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph){
+void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph, __u32 delta){
 
 	switch (pushpull)
       { 
         case 0: // push
-        	SSSPDataDrivenPushGraphCSR(source, iterations, graph);
+        	SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
         break;
         case 1: // pull
-            SSSPDataDrivenPullGraphCSR(source, iterations, graph);
+            SSSPDataDrivenPullGraphCSR(source, iterations, graph, delta);
         break;
         default:// push
-           	SSSPDataDrivenPushGraphCSR(source, iterations, graph);
+           	SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
         break;          
       }
 
 
 }
 
-struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph){
+struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta){
 
 	
 	__u32 v;
@@ -462,7 +462,7 @@ struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, st
 
 
 
-struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph){
+struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta){
 
 	__u32 v;
 

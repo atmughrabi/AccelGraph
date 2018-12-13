@@ -27,7 +27,8 @@ static void usage(void) {
   printf("\t-l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  \n");
   printf("\t-c: read text format convert to bin file on load example:-f <graph file> -c\n");
   printf("\t-w: Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 beforehand then recompile with using this option\n");
-  printf("\t-s: Symmetric graph, if not given set of incoming edges will be created \n"); 
+  printf("\t-s: Symmetric graph, if not given set of incoming edges will be created \n");
+  printf("\t-b: SSSP Delta value Default [1] \n"); 
   _exit(-1);
 }
 
@@ -49,6 +50,7 @@ int main (int argc, char **argv)
   char *pvalue = NULL;
   char *ovalue = NULL;
   char *lvalue = NULL;
+  char *bvalue = NULL;
 
   __u32 iterations = 20;
   __u32 trials = 0;
@@ -61,6 +63,7 @@ int main (int argc, char **argv)
   __u32 lmode = 0;
   __u32 symmetric = 0;
   __u32 weighted = 0;
+  __u32 delta = 1;
 
 
   numThreads = omp_get_max_threads();
@@ -72,7 +75,7 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:chsw")) != -1)
+  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:b:chsw")) != -1)
     switch (c)
       {
       case 'h':
@@ -113,15 +116,19 @@ int main (int argc, char **argv)
         break;
       case 'p':
         pvalue = optarg;
-        pushpull = atof(pvalue);
+        pushpull = atoi(pvalue);
         break;
       case 'o':
         ovalue = optarg;
-        sort = atof(ovalue);
+        sort = atoi(ovalue);
         break;
       case 'l':
         lvalue = optarg;
-        lmode = atof(lvalue);
+        lmode = atoi(lvalue);
+        break;
+      case 'b':
+        bvalue = optarg;
+        delta = atoi(bvalue);
         break;
       case 's':
         sflag = 1;
@@ -157,6 +164,8 @@ int main (int argc, char **argv)
           fprintf (stderr, "Option -%c [radix/count] requires an argument.\n", optopt);
         else if (optopt == 'l')
           fprintf (stderr, "Option -%c [mode] lightweight reordering requires an argument.\n", optopt);
+        else if (optopt == 'b')
+          fprintf (stderr, "Option -%c [delta] SSSP delta stepping value requires an argument.\n", optopt);
         else if (isprint (optopt))
           fprintf (stderr, "Unknown option `-%c'.\n", optopt);
         else
@@ -185,7 +194,7 @@ int main (int argc, char **argv)
       }
       else{
         graph = generateGraphDataStructure(fnameb, datastructure, sort, lmode, symmetric, weighted);
-        runGraphAlgorithms(graph, datastructure, algorithm, root, iterations, epsilon, trials, pushpull);
+        runGraphAlgorithms(graph, datastructure, algorithm, root, iterations, epsilon, trials, pushpull,delta);
       }
 
      

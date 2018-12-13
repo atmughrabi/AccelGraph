@@ -85,7 +85,7 @@ void * generateGraphDataStructure(const char *fnameb, __u32 datastructure, __u32
 }
 
 
-void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int root, __u32 iterations, double epsilon, __u32 trials, __u32 pushpull){
+void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int root, __u32 iterations, double epsilon, __u32 trials, __u32 pushpull,  __u32 delta){
 
   switch (algorithm)
       {
@@ -96,7 +96,7 @@ void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int r
           runPageRankAlgorithm(graph, datastructure, epsilon, iterations, trials, pushpull);
           break;
         case 2: // SSSP-Dijkstra file name root
-          runSSSPAlgorithm(graph, datastructure, root, iterations, trials, pushpull);
+          runSSSPAlgorithm(graph, datastructure, root, iterations, trials, pushpull,delta);
           break;
         case 3: // SSSP-Bellmanford file name root
           runBellmanFordAlgorithm(graph, datastructure, root, iterations, trials, pushpull);
@@ -664,7 +664,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
 }
 
 
-void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 trials, __u32 pushpull){
+void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 trials, __u32 pushpull, __u32 delta){
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
     struct GraphCSR* graphCSR = NULL;
@@ -678,7 +678,7 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
             if(root < graphCSR->num_vertices){
-              SSSPGraphCSR(root , iterations, pushpull, graphCSR);
+              SSSPGraphCSR(root , iterations, pushpull, graphCSR, delta);
             } 
             while(trials){
               while(1){
@@ -689,7 +689,7 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
                   }
               }
               if(root < graphCSR->num_vertices){
-                SSSPGraphCSR(root , iterations, pushpull, graphCSR);
+                SSSPGraphCSR(root , iterations, pushpull, graphCSR, delta);
               }   
                trials--;
             }
@@ -776,7 +776,7 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
             if(root < graphCSR->num_vertices){
-              SSSPGraphCSR(root , iterations, pushpull, graphCSR);
+              SSSPGraphCSR(root , iterations, pushpull, graphCSR, delta);
             } 
             while(trials){
               while(1){
@@ -787,7 +787,7 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
                   }
               }
               if(root < graphCSR->num_vertices){
-                SSSPGraphCSR(root , iterations, pushpull, graphCSR);
+                SSSPGraphCSR(root , iterations, pushpull, graphCSR, delta);
               }   
                trials--;
             }
