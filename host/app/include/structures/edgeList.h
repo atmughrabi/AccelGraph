@@ -20,6 +20,9 @@ struct  EdgeList {
 
 	__u32 num_edges;
 	__u32 num_vertices;
+	#if WEIGHTED
+	__u32 max_weight;
+	#endif
 	struct Edge* edges_array;
 	// struct Edge* edges_sorted;
 

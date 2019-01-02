@@ -12,7 +12,7 @@
 struct SSSPStats{
 	__u32* Distances;
 	__u32* parents;
-	qvector_t* buckets;
+	qvector_t** buckets;
 	__u32  processed_nodes;
 	__u32 num_vertices;
 	double time_total;

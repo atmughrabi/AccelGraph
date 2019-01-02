@@ -462,8 +462,6 @@ struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, st
 struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta){
 
 	__u32 v;
-
-
 	__u32 iter = 0;
 	iterations = graph->num_vertices - 1;
 
@@ -478,16 +476,18 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
 	struct Bitmap* bitmapCurr = newBitmap(graph->num_vertices);
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
-    int activeVertices = 0;
+    __u32 activeVertices = 0;
+    __u32 numBuckets = ((graph->max_weight + delta - 1)/ delta)+1;
+
 
 	#if ALIGNED
         stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->buckets = (qvector_t*) my_aligned_malloc(graph->num_vertices*sizeof(qvector_t));
+        stats->buckets = (qvector_t**) my_aligned_malloc(numBuckets*sizeof(qvector_t*));
     #else
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        stats->buckets = (qvector_t*) my_malloc(graph->num_vertices*sizeof(qvector_t));
+        stats->buckets = (qvector_t**) my_malloc(numBuckets*sizeof(qvector_t*));
     #endif
 
     struct GraphCSR* graphHeavy = NULL;
@@ -497,6 +497,10 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     printf("| %-51s | \n", "Starting Delta-Stepping Algorithm Push DD (Source)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51u | \n", source);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Number of Buckets");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51u | \n", numBuckets);
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Start Split Heavy/Light");
     printf(" -----------------------------------------------------\n");
@@ -522,18 +526,10 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 	}
 
 	//create a vector
- 	qvector_t *vector_bins = qvector(0, sizeof(qvector_t *), QVECTOR_THREADSAFE);
- 	qvector_t *vector_nodes = qvector(0, sizeof(__u32), QVECTOR_THREADSAFE);
-
- 	vector_bins->addlast(vector_bins, vector_nodes);
- 	//add bin
- 	__u32 vad = 4;
- 	
-  	void *vector_nodes_temp = vector_bins->getfirst(vector_bins, false);
-
-  	// ((qvector_t*)vector_nodes_temp)->addlast((qvector_t*)vector_nodes_temp, &vad);
-
-  
+	__u32 b;
+	for(b = 0; b < numBuckets ; b++){
+		stats->buckets[b] = qvector(0, sizeof(__u32), QVECTOR_THREADSAFE);
+	}
 
 
     Start(timer);
@@ -552,6 +548,10 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     bitmapNext->numSetBits = 1;
 	stats->parents[source] = source;
 	stats->Distances[source] = 0;
+
+	stats->buckets[0]->addlast(stats->buckets[0], &source);
+
+	// printf("| %-51u | \n", *((__u32 *)stats->buckets[0]->getfirst(stats->buckets[0], false)));
 
 	swapBitmaps(&bitmapCurr, &bitmapNext);
 	clearBitmap(bitmapNext);

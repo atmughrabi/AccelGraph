@@ -43,6 +43,10 @@ struct EdgeList* newEdgeList( __u32 num_edges){
         newEdgeList->num_vertices = 0;
         newEdgeList->edges_array = newEdgeArray(num_edges);
 
+        #if WEIGHTED
+            newEdgeList->max_weight = 0;
+        #endif
+
         return newEdgeList;
 
 }
@@ -237,6 +241,10 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
         __u32 i;
         __u32 num_vertices = 0;
 
+        #if WEIGHTED
+            __u32 max_weight = 0;
+        #endif
+        
         // #pragma omp parallel for reduction(max:num_vertices) 
         for(i = 0; i < num_edges; i++){
 
@@ -298,10 +306,17 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
                             edgeList->edges_array[i].weight = buf_pointer[((offset)*i)+2];
 
                         }
+
+                        max_weight = maxTwoIntegers(max_weight, edgeList->edges_array[i].weight);
+               
                  #endif
         }
 
         edgeList->num_vertices = num_vertices+1; // max number of veritices Array[0-max]
+
+        #if WEIGHTED
+            edgeList->max_weight = max_weight;
+        #endif
         // printf("DONE Reading EdgeList from file %s \n", fname);
         // edgeListPrint(edgeList);
 
@@ -383,6 +398,10 @@ struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse, _
 
         edgeList->num_vertices = edgeListmem->num_vertices; // max number of veritices Array[0-max]
 
+        #if WEIGHTED
+            edgeList->max_weight =  edgeListmem->max_weight;
+        #endif
+
         return edgeList;
 }
 
@@ -390,7 +409,12 @@ void edgeListPrint(struct EdgeList* edgeList){
 
         
         printf("number of vertices (V) : %u \n", edgeList->num_vertices);
-        printf("number of edges    (E) : %u \n", edgeList->num_edges);   
+        printf("number of edges    (E) : %u \n", edgeList->num_edges); 
+
+        #if WEIGHTED  
+        
+
+        #endif
 
         __u32 i;
         for(i = 0; i < edgeList->num_edges; i++){

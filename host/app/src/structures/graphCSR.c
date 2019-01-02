@@ -99,6 +99,8 @@ void graphCSRPrint(struct GraphCSR* graphCSR){
     printf(" -----------------------------------------------------\n");
     #if WEIGHTED       
                 printf("| %-51s | \n", "WEIGHTED");
+                printf("| %-51s | \n", "MAX WEIGHT");
+                printf("| %-51u | \n", graphCSR->max_weight);
     #else
                 printf("| %-51s | \n", "UN-WEIGHTED");
     #endif
@@ -115,6 +117,9 @@ void graphCSRPrint(struct GraphCSR* graphCSR){
     printf("| %-51s | \n", "Number of Edges (E)");
     printf("| %-51u | \n", graphCSR->num_edges);  
     printf(" -----------------------------------------------------\n");
+
+
+
     vertexArrayMaxOutdegree(graphCSR->vertices, graphCSR->num_vertices);
     #if DIRECTED
  	  vertexArrayMaxInDegree(graphCSR->inverse_vertices, graphCSR->num_vertices);
@@ -220,6 +225,10 @@ struct GraphCSR* graphCSRAssignEdgeList (struct GraphCSR* graphCSR, struct EdgeL
 
       	graphCSR->sorted_edges_array = edgeList->edges_array;
     
+    #endif
+
+    #if WEIGHTED
+        graphCSR->max_weight =  edgeList->max_weight;
     #endif
 
     
