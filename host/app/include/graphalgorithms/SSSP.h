@@ -7,10 +7,12 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 #include "edgeList.h"
+#include "qvector.h"
 
 struct SSSPStats{
 	__u32* Distances;
 	__u32* parents;
+	qvector_t* buckets;
 	__u32  processed_nodes;
 	__u32 num_vertices;
 	double time_total;
@@ -43,7 +45,7 @@ void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphC
 
 struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta);
 struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta);
-void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, struct GraphCSR** graphMinus, __u32 delta);
+void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR* graphPlus, struct GraphCSR* graphMinus, __u32 delta);
 
 // ********************************************************************************************
 // ***************					ArrayList DataStructure					     **************

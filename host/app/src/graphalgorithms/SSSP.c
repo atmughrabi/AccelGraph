@@ -202,7 +202,7 @@ void SSSPPrintStatsDetails(struct SSSPStats* stats){
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, struct GraphCSR** graphMinus, __u32 delta){
+void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR* graphPlus, struct GraphCSR* graphMinus, __u32 delta){
 
 // The first subset, Ef, contains all edges (vi, vj) such that i < j; the second, Eb, contains edges (vi, vj) such that i > j.
 
@@ -224,8 +224,8 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 		}
 	}
 
-	*graphPlus = graphCSRNew(graph->num_vertices, edgesPlusCounter, 1);
-	*graphMinus =  graphCSRNew(graph->num_vertices, edgesMinusCounter, 1);
+	graphPlus = graphCSRNew(graph->num_vertices, edgesPlusCounter, 1);
+	graphMinus =  graphCSRNew(graph->num_vertices, edgesMinusCounter, 1);
 
 	struct EdgeList* edgesPlus = newEdgeList(edgesPlusCounter);
 	struct EdgeList* edgesMinus = newEdgeList(edgesMinusCounter);
@@ -254,8 +254,8 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 	edgesPlus = sortRunAlgorithms(edgesPlus ,0);
 	edgesMinus = sortRunAlgorithms(edgesMinus ,0);
 
-	graphCSRAssignEdgeList ((*graphPlus),edgesPlus,0); 
-	graphCSRAssignEdgeList ((*graphMinus),edgesMinus,0); 
+	graphCSRAssignEdgeList ((graphPlus),edgesPlus,0); 
+	graphCSRAssignEdgeList ((graphMinus),edgesMinus,0); 
 
 
 }
@@ -481,21 +481,35 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     int activeVertices = 0;
 
 	#if ALIGNED
-   
-
         stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+        stats->buckets = (qvector_t*) my_aligned_malloc(graph->num_vertices*sizeof(qvector_t));
     #else
-     
-
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+        stats->buckets = (qvector_t*) my_malloc(graph->num_vertices*sizeof(qvector_t));
     #endif
+
+    struct GraphCSR* graphHeavy = NULL;
+	struct GraphCSR* graphLight = NULL;
 	
   	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Delta-Stepping Algorithm Push DD (Source)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51u | \n", source);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Start Split Heavy/Light");
+    printf(" -----------------------------------------------------\n");
+    Start(timer_inner);
+    SSSPSpiltGraphCSR(graph, graphHeavy, graphLight, delta);
+    Stop(timer_inner);
+	printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "END Split Heavy/Light");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n",  Seconds(timer_inner));
+    printf(" -----------------------------------------------------\n");
+
+
     printf(" -----------------------------------------------------\n");
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
@@ -506,6 +520,20 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     	printf(" -----------------------------------------------------\n");
 		return NULL;
 	}
+
+	//create a vector
+ 	qvector_t *vector_bins = qvector(0, sizeof(qvector_t *), QVECTOR_THREADSAFE);
+ 	qvector_t *vector_nodes = qvector(0, sizeof(__u32), QVECTOR_THREADSAFE);
+
+ 	vector_bins->addlast(vector_bins, vector_nodes);
+ 	//add bin
+ 	__u32 vad = 4;
+ 	
+  	void *vector_nodes_temp = vector_bins->getfirst(vector_bins, false);
+
+  	// ((qvector_t*)vector_nodes_temp)->addlast((qvector_t*)vector_nodes_temp, &vad);
+
+  
 
 
     Start(timer);
@@ -579,8 +607,8 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
  
   free(timer);
   free(timer_inner);
- 
-
+  // graphCSRFree(graphHeavy);
+  // graphCSRFree(graphLight);
 
   // SSSPPrintStats(stats);
   return stats;
