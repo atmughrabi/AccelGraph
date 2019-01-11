@@ -135,7 +135,14 @@ int SSSPRelax(struct Edge* edge, struct SSSPStats* stats, struct Bitmap* bitmapN
 
 		stats->Distances[edge->dest] = newDistance;
 		stats->parents[edge->dest] = edge->src;	
+
+		__u32 bucket = newDistance / stats->delta;
+		stats->Distances[edge->dest] = bucket;
 		
+		if (bucket ==  stats->bucket_current)
+			 stats->bucket_counter = 1;
+
+
 		if(!getBit(bitmapNext, edge->dest)){
 			activeVertices++;
 		 	setBit(bitmapNext, edge->dest);	 
@@ -468,9 +475,10 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
 
 	struct SSSPStats* stats = (struct SSSPStats*) malloc(sizeof(struct SSSPStats));
-	__u32* buckets_map;
-	__u32  bucket_counter = 0;
-	__u32  bucket_current = 0;
+	
+	stats->bucket_counter = 0;
+	stats->delta = delta;
+	stats->bucket_current = 0;
 	stats->processed_nodes = 0;
 	stats->time_total = 0.0;
 	stats->num_vertices = graph->num_vertices;
@@ -486,11 +494,11 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 	#if ALIGNED
         stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        buckets_map = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+        stats->buckets_map = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
     #else
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        buckets_map = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+        stats->buckets_map = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
     #endif
 
     struct GraphCSR* graphHeavy = NULL;
@@ -531,7 +539,7 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
   	#pragma omp parallel for
  	for(v = 0; v < graph->num_vertices; v++){
   
-  	 buckets_map[v] = UINT_MAX/2;
+  	 stats->buckets_map[v] = UINT_MAX/2;
    	 stats->Distances[v] = UINT_MAX/2;
    	 stats->parents[v] = UINT_MAX;
 
@@ -542,9 +550,9 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 	stats->parents[source] = source;
 	stats->Distances[source] = 0;
 
-	buckets_map[source] = 0; // maps to bucket zero
-	bucket_counter++;
-	bucket_current = 0;
+	stats->buckets_map[source] = 0; // maps to bucket zero
+	stats->bucket_counter++;
+	stats->bucket_current = 0;
 
 	swapBitmaps(&bitmapCurr, &bitmapNext);
 	clearBitmap(bitmapNext);
@@ -560,28 +568,48 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 		Start(timer_inner);
 		stats->processed_nodes += activeVertices;
 		activeVertices = 0;
-		clearBitmap(bitmapSet);
+		
 
-		while(bucket_counter){
+		while(stats->bucket_counter){
 
+			stats->bucket_counter = 0;
 			// process light edges
+			printf("num_v %u \n", graphLight->num_vertices);
 			for(v = 0; v < graphLight->num_vertices; v++){
-    			if(buckets_map[source] == bucket_current){
+    			if(stats->buckets_map[v] == stats->bucket_current && getBit(bitmapCurr, v)){
 	    			__u32 degree = graphLight->vertices[v].out_degree;
 			      	__u32 edge_idx = graphLight->vertices[v].edges_idx;
 			      	__u32 j;
 			      	 for(j = edge_idx ; j < (edge_idx + degree) ; j++){
-			        	if(numThreads == 1)
+			        	// if(numThreads == 1)
 			        		activeVertices += SSSPRelax(&(graphLight->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
-			        	else
-			        		activeVertices += SSSPAtomicRelax(&(graphLight->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
+			        	// else
+			        	// 	activeVertices += SSSPAtomicRelax(&(graphLight->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
 			        }
 	    		}  
 			}
+
+			swapBitmaps(&bitmapCurr, &bitmapNext);
+			clearBitmap(bitmapNext);
 		}
 
-		swapBitmaps(&bitmapCurr, &bitmapNext);
-		clearBitmap(bitmapNext);
+		for(v = 0; v < graphHeavy->num_vertices; v++){
+    		if(getBit(bitmapSet, v)){
+    			__u32 degree = graphHeavy->vertices[v].out_degree;
+		      	__u32 edge_idx = graphHeavy->vertices[v].edges_idx;
+		      	__u32 j;
+		      	 for(j = edge_idx ; j < (edge_idx + degree) ; j++){
+						// if(numThreads == 1)
+			        		activeVertices += SSSPRelax(&(graphHeavy->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
+			        	// else
+			        	// 	activeVertices += SSSPAtomicRelax(&(graphHeavy->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
+		        }
+    		}  
+		}
+
+
+		clearBitmap(bitmapSet);
+		stats->bucket_current++;
 
 		Stop(timer_inner);
 		

@@ -11,7 +11,11 @@
 struct SSSPStats{
 	__u32* Distances;
 	__u32* parents;
+	__u32* buckets_map;
+	__u32  bucket_counter;
+	__u32  bucket_current;
 	__u32  processed_nodes;
+	__u32  delta;
 	__u32 num_vertices;
 	double time_total;
 };
