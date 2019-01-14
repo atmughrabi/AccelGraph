@@ -210,30 +210,43 @@ void SSSPPrintStatsDetails(struct SSSPStats* stats){
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR* graphPlus, struct GraphCSR* graphMinus, __u32 delta){
+void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, struct GraphCSR** graphMinus, __u32 delta){
 
 // The first subset, Ef, contains all edges (vi, vj) such that i < j; the second, Eb, contains edges (vi, vj) such that i > j.
 
 	//calculate the size of each edge array
 	__u32 edgesPlusCounter = 0;
 	__u32 edgesMinusCounter = 0;
+	__u32 numVerticesPlusCounter = 0;
+	__u32 numVerticesMinusCounter = 0;
 	__u32 e;
 	__u32 weight;
+	__u32 src;
+	__u32 dest;
 
-	#pragma omp parallel for private(e,weight) shared(graph,delta) reduction(+:edgesPlusCounter,edgesMinusCounter)
+	#pragma omp parallel for private(e,weight,src,dest) shared(graph,delta) reduction(+:edgesPlusCounter,edgesMinusCounter) reduction(max:numVerticesMinusCounter,numVerticesPlusCounter)
 	for(e =0 ; e < graph->num_edges ; e++){
 
+		 src  = graph->sorted_edges_array[e].src;
+		 dest = graph->sorted_edges_array[e].dest;
 		 weight =  graph->sorted_edges_array[e].weight;
+
+		
+               
+
 		if(weight > delta){
 			edgesPlusCounter++;
+			numVerticesPlusCounter = maxTwoIntegers(numVerticesPlusCounter,maxTwoIntegers(src, dest));
 		}
 		else if (weight <= delta){
 			edgesMinusCounter++;
+			numVerticesMinusCounter = maxTwoIntegers(numVerticesMinusCounter,maxTwoIntegers(src, dest));
+	
 		}
 	}
 
-	graphPlus = graphCSRNew(graph->num_vertices, edgesPlusCounter, 1);
-	graphMinus =  graphCSRNew(graph->num_vertices, edgesMinusCounter, 1);
+	*graphPlus = graphCSRNew(numVerticesPlusCounter+1, edgesPlusCounter, 1);
+	*graphMinus =  graphCSRNew(numVerticesMinusCounter+1, edgesMinusCounter, 1);
 
 	struct EdgeList* edgesPlus = newEdgeList(edgesPlusCounter);
 	struct EdgeList* edgesMinus = newEdgeList(edgesMinusCounter);
@@ -262,8 +275,8 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR* graphPlus, struc
 	edgesPlus = sortRunAlgorithms(edgesPlus ,0);
 	edgesMinus = sortRunAlgorithms(edgesMinus ,0);
 
-	graphCSRAssignEdgeList ((graphPlus),edgesPlus,0); 
-	graphCSRAssignEdgeList ((graphMinus),edgesMinus,0); 
+	graphCSRAssignEdgeList ((*graphPlus),edgesPlus,0); 
+	graphCSRAssignEdgeList ((*graphMinus),edgesMinus,0); 
 
 
 }
@@ -512,7 +525,7 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     printf("| %-51s | \n", "Start Split Heavy/Light");
     printf(" -----------------------------------------------------\n");
     Start(timer_inner);
-    SSSPSpiltGraphCSR(graph, graphHeavy, graphLight, delta);
+    SSSPSpiltGraphCSR(graph, &graphHeavy, &graphLight, delta);
     Stop(timer_inner);
 	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "END Split Heavy/Light");
@@ -574,7 +587,6 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
 			stats->bucket_counter = 0;
 			// process light edges
-			printf("num_v %u \n", graphLight->num_vertices);
 			for(v = 0; v < graphLight->num_vertices; v++){
     			if(stats->buckets_map[v] == stats->bucket_current && getBit(bitmapCurr, v)){
 	    			__u32 degree = graphLight->vertices[v].out_degree;

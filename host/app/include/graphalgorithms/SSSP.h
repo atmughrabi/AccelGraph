@@ -47,7 +47,7 @@ void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphC
 
 struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta);
 struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta);
-void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR* graphPlus, struct GraphCSR* graphMinus, __u32 delta);
+void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, struct GraphCSR** graphMinus, __u32 delta);
 
 // ********************************************************************************************
 // ***************					ArrayList DataStructure					     **************
