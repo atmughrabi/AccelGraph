@@ -137,7 +137,7 @@ int SSSPRelax(struct Edge* edge, struct SSSPStats* stats, struct Bitmap* bitmapN
 		stats->parents[edge->dest] = edge->src;	
 
 		__u32 bucket = newDistance / stats->delta;
-		stats->Distances[edge->dest] = bucket;
+		stats->buckets_map[edge->dest] = bucket;
 		
 		if (bucket ==  stats->bucket_current)
 			 stats->bucket_counter = 1;
@@ -499,7 +499,8 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
   	struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
-  	struct Bitmap* bitmapSet = newBitmap(graph->num_vertices);
+  	struct Bitmap* bitmapSetCurr = newBitmap(graph->num_vertices);
+  	struct Bitmap* bitmapSetNext = newBitmap(graph->num_vertices);
 	struct Bitmap* bitmapCurr = newBitmap(graph->num_vertices);
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
     __u32 activeVertices = 0;
@@ -559,6 +560,8 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
  	}
 
  	setBit(bitmapNext,source);
+ 	setBit(bitmapSetNext,source);
+
     bitmapNext->numSetBits = 1;
 	stats->parents[source] = source;
 	stats->Distances[source] = 0;
@@ -569,6 +572,10 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
 	swapBitmaps(&bitmapCurr, &bitmapNext);
 	clearBitmap(bitmapNext);
+
+	swapBitmaps(&bitmapSetCurr, &bitmapSetNext);
+	clearBitmap(bitmapSetNext);
+
 	activeVertices++;
 
 	Stop(timer_inner);
@@ -578,23 +585,26 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
 
 	while (activeVertices){
-		Start(timer_inner);
+		// Start(timer_inner);
 		stats->processed_nodes += activeVertices;
 		activeVertices = 0;
 		
 
 		while(stats->bucket_counter){
-
+			Start(timer_inner);
 			stats->bucket_counter = 0;
 			// process light edges
 			for(v = 0; v < graphLight->num_vertices; v++){
+
+				
     			if(stats->buckets_map[v] == stats->bucket_current && getBit(bitmapCurr, v)){
+    				
 	    			__u32 degree = graphLight->vertices[v].out_degree;
 			      	__u32 edge_idx = graphLight->vertices[v].edges_idx;
 			      	__u32 j;
 			      	 for(j = edge_idx ; j < (edge_idx + degree) ; j++){
 			        	// if(numThreads == 1)
-			        		activeVertices += SSSPRelax(&(graphLight->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
+			        		activeVertices += SSSPRelax(&(graphLight->sorted_edges_array[j]), stats, bitmapNext, bitmapSetNext);
 			        	// else
 			        	// 	activeVertices += SSSPAtomicRelax(&(graphLight->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
 			        }
@@ -603,16 +613,22 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
 			swapBitmaps(&bitmapCurr, &bitmapNext);
 			clearBitmap(bitmapNext);
+
+			Stop(timer_inner);
+
+			if(activeVertices)
+    			printf("| L%-14u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
 		}
 
+		Start(timer_inner);
 		for(v = 0; v < graphHeavy->num_vertices; v++){
-    		if(getBit(bitmapSet, v)){
+    		if(getBit(bitmapSetCurr, v)){
     			__u32 degree = graphHeavy->vertices[v].out_degree;
 		      	__u32 edge_idx = graphHeavy->vertices[v].edges_idx;
 		      	__u32 j;
 		      	 for(j = edge_idx ; j < (edge_idx + degree) ; j++){
 						// if(numThreads == 1)
-			        		activeVertices += SSSPRelax(&(graphHeavy->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
+			        		activeVertices += SSSPRelax(&(graphHeavy->sorted_edges_array[j]), stats, bitmapNext, bitmapSetNext);
 			        	// else
 			        	// 	activeVertices += SSSPAtomicRelax(&(graphHeavy->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
 		        }
@@ -620,14 +636,19 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 		}
 
 
-		clearBitmap(bitmapSet);
-		stats->bucket_current++;
-
-		Stop(timer_inner);
+		swapBitmaps(&bitmapSetCurr, &bitmapSetNext);
+		clearBitmap(bitmapSetNext);
 		
-    	printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
-	    if(activeVertices == 0)
-	      break;
+		stats->bucket_current++;
+		Stop(timer_inner);
+    	printf("| H%-14u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
+
+    	iter++;
+		// Stop(timer_inner);
+		
+  //   	printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
+	    // if(activeVertices == 0)
+	    //   break;
 	}
 	
 	Stop(timer);
