@@ -83,7 +83,7 @@ void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted
     __u32 j;
     __u32 P = numThreads;
 
-    if(P >  graph->num_edges)
+    if(P >  graph->num_edges && graph->num_edges != 0)
         P = graph->num_edges;
  
 
@@ -96,6 +96,8 @@ void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted
 
     offset_start[0] = 0;
     offset_end[0] = offset_start[0] + (graph->num_edges/P);
+
+
 
       if(1 == (P)){
             offset_end[0] = graph->num_edges;
