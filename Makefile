@@ -377,8 +377,8 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 # fnameb = "../01_GraphDatasets/RMAT/RMAT21"
 # fnameb = "../01_GraphDatasets/RMAT/RMAT22"
 
-# fnameb = "../01_GraphDatasets/RMAT/RMAT22.wbin"
-# root = 690969
+fnameb = "../01_GraphDatasets/RMAT/RMAT22.wbin"
+root = 690969
 # root = 2169295
 # root = 502357
 # root = 3009230
@@ -407,8 +407,8 @@ reorder = 0
 # reorder = 4
 
 
-fnameb = "../01_GraphDatasets/test/test.txt.wbin"
-root  = 6
+# fnameb = "../01_GraphDatasets/test/test.txt.wbin"
+# root  = 6
 # root  = 19
 
 # fnameb = "../01_GraphDatasets/facebook/facebook_combined.txt.wbin"
