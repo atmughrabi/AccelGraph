@@ -135,8 +135,8 @@ int SSSPRelax(struct Edge* edge, struct SSSPStats* stats){
   	if( stats->Distances[edge->dest] > newDistance ){
 
   		
-  		if(stats->Distances[edge->dest] == UINT_MAX/2) // if bucket not assigned
-  				stats->buckets_total++;
+  		if(stats->buckets_map[edge->dest] == UINT_MAX/2)
+  			stats->buckets_total++;
 
 		stats->Distances[edge->dest] = newDistance;
 		stats->parents[edge->dest] = edge->src;	
@@ -149,12 +149,10 @@ int SSSPRelax(struct Edge* edge, struct SSSPStats* stats){
 		if (bucket ==  stats->bucket_current)
 			 stats->bucket_counter = 1;
 
+		return 1;
+
 	}
-
-	// printf(" d %u b %u bc %u bt %u dist %u \n", edge->dest, stats->buckets_map[edge->dest], stats->bucket_current, stats->buckets_total, stats->Distances[edge->dest]);
-
-    return stats->buckets_total;
-
+    return 0;
 }
 
 void SSSPPrintStats(struct SSSPStats* stats){
@@ -492,8 +490,8 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 	struct SSSPStats* stats = (struct SSSPStats*) malloc(sizeof(struct SSSPStats));
 	
 	stats->bucket_counter = 0;
-	stats->delta = graph->max_weight ;
-	// stats->delta = 1;
+	// stats->delta = graph->max_weight ;
+	stats->delta = 1;
 	stats->bucket_current = 0;
 	stats->processed_nodes = 0;
 	stats->buckets_total = 0;
@@ -546,7 +544,7 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Buckets", "Time (Seconds)");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active vertices", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
     if(source > graph->num_vertices){
@@ -598,8 +596,7 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 			// process light edges
 			for(v = 0; v < graphLight->num_vertices; v++){
 
-				// if(stats->buckets_map[v] != UINT_MAX/2)
-					// printf("iter %u v %u b %u bc %u bt %u \n",iter, v, stats->buckets_map[v], stats->bucket_current, stats->buckets_total);
+						// printf("iter %u v %u b %u bc %u bt %u \n",iter, v, stats->buckets_map[v], stats->bucket_current, stats->buckets_total);
     			if(stats->buckets_map[v] == stats->bucket_current) {
     				
     				// pop vertex from bucket list
@@ -612,21 +609,20 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 			      	__u32 j;
 			      	 for(j = edge_idx ; j < (edge_idx + degree) ; j++){
 			        	// if(numThreads == 1)
-
-
 			        		activeVertices += SSSPRelax(&(graphLight->sorted_edges_array[j]), stats);
 			        	// else
 			        	// 	activeVertices += SSSPAtomicRelax(&(graphLight->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
 			        }
 
-			        // printf("v %u b %u bc %u bt %u \n", v, stats->buckets_map[v], stats->bucket_current, stats->buckets_total);
+			        // if(activeVertices)
+			       	//  printf("v %u b %u bc %u bt %u \n", v, stats->buckets_map[v], stats->bucket_current, stats->buckets_total);
 	    		}  
 			}
 
 			Stop(timer_inner);
 
 				if(activeVertices)
-    				printf("| L%-14u | %-15u | %-15f \n",iter, stats->buckets_total, Seconds(timer_inner));
+    				printf("| L%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
 		}
 
 		Start(timer_inner);
@@ -653,7 +649,7 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 		stats->bucket_current++;
 		Stop(timer_inner);
 		if(activeVertices)
-    		printf("| H%-14u | %-15u | %-15f | \n",iter, stats->buckets_total, Seconds(timer_inner));
+    		printf("| H%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
 
 
     }
