@@ -420,10 +420,10 @@ datastructure = 0
 algorithm = 3
 numThreads  = 8
 iterations = 20
-trials = 1
+trials = 10
 tolerance = 1e-8
 sort = 0
-pushpull = 1
+pushpull = 0
 delta = 80
 
 

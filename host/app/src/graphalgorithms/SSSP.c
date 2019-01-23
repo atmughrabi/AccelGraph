@@ -236,11 +236,10 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 
 		if(weight > delta){
 			edgesPlusCounter++;
-			// numVerticesPlusCounter = maxTwoIntegers(numVerticesPlusCounter,maxTwoIntegers(src, dest));
+			
 		}
 		else if (weight <= delta){
 			edgesMinusCounter++;
-			// numVerticesMinusCounter = maxTwoIntegers(numVerticesMinusCounter,maxTwoIntegers(src, dest));
 	
 		}
 	}
@@ -251,9 +250,10 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 	struct EdgeList* edgesPlus = newEdgeList(edgesPlusCounter);
 	struct EdgeList* edgesMinus = newEdgeList(edgesMinusCounter);
 
-	
-	edgesPlus->num_vertices = graph->num_vertices;
-	edgesMinus->num_vertices = graph->num_vertices;
+	#if DIRECTED	
+		struct EdgeList* edgesPlusInverse = newEdgeList(edgesPlusCounter);
+		struct EdgeList* edgesMinusInverse = newEdgeList(edgesMinusCounter);
+	#endif
 
 	__u32 edgesPlus_idx = 0;
 	__u32 edgesMinus_idx = 0;
@@ -262,21 +262,40 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 	for(e =0 ; e < graph->num_edges ; e++){
 
 		 weight =  graph->sorted_edges_array[e].weight;
+		 __u32 index = 0;
+
 		if(weight > delta){
-			edgesPlus->edges_array[__sync_fetch_and_add(&edgesPlus_idx,1)] = graph->sorted_edges_array[e];
+			index = __sync_fetch_and_add(&edgesPlus_idx,1);
+			edgesPlus->edges_array[index] = graph->sorted_edges_array[e];
+			edgesPlusInverse->edges_array[index].dest = graph->sorted_edges_array[e].src;
+			edgesPlusInverse->edges_array[index].src = graph->sorted_edges_array[e].dest;
+			edgesPlusInverse->edges_array[index].weight = graph->sorted_edges_array[e].weight;
 		}
 		else if (weight <= delta){
-			edgesMinus->edges_array[__sync_fetch_and_add(&edgesMinus_idx,1)] = graph->sorted_edges_array[e];
+			index = __sync_fetch_and_add(&edgesMinus_idx,1);
+			edgesMinus->edges_array[index] = graph->sorted_edges_array[e];
+			edgesMinusInverse->edges_array[index].dest = graph->sorted_edges_array[e].src;
+			edgesMinusInverse->edges_array[index].src = graph->sorted_edges_array[e].dest;
+			edgesMinusInverse->edges_array[index].weight = graph->sorted_edges_array[e].weight;
 		}
 	}
 
-	
 
 	edgesPlus = sortRunAlgorithms(edgesPlus ,0);
 	edgesMinus = sortRunAlgorithms(edgesMinus ,0);
 
+	#if DIRECTED
+		edgesPlusInverse = sortRunAlgorithms(edgesPlusInverse ,0);
+		edgesMinusInverse = sortRunAlgorithms(edgesMinusInverse ,0);
+	#endif
+
 	graphCSRAssignEdgeList ((*graphPlus),edgesPlus,0); 
 	graphCSRAssignEdgeList ((*graphMinus),edgesMinus,0); 
+
+	#if DIRECTED
+		graphCSRAssignEdgeList ((*graphPlus),edgesPlusInverse,1); 
+		graphCSRAssignEdgeList ((*graphMinus),edgesMinusInverse,1); 
+	#endif
 
 
 }
@@ -669,14 +688,45 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 	printf(" -----------------------------------------------------\n");
 	SSSPPrintStatsDetails(stats);
 
- 
+  // free resources
   free(timer);
   free(timer_inner);
   freeBitmap(bitmapSetCurr);
 
 
-  // graphCSRFree(graphHeavy);
-  // graphCSRFree(graphLight);
+    if(graphHeavy->vertices)
+		freeVertexArray(graphHeavy->vertices);
+	if(graphHeavy->parents)
+		free(graphHeavy->parents);
+	if(graphHeavy->sorted_edges_array)
+		freeEdgeArray(graphHeavy->sorted_edges_array);
+	if(graphHeavy)
+		free(graphHeavy);
+
+	#if DIRECTED
+		if(graphHeavy->inverse_vertices)
+			freeVertexArray(graphHeavy->inverse_vertices);
+		if(graphHeavy->inverse_sorted_edges_array)
+			freeEdgeArray(graphHeavy->inverse_sorted_edges_array);
+	#endif
+
+	if(graphLight->vertices)
+		freeVertexArray(graphLight->vertices);
+	if(graphLight->parents)
+		free(graphLight->parents);
+	if(graphLight->sorted_edges_array)
+		freeEdgeArray(graphLight->sorted_edges_array);
+	if(graphLight)
+		free(graphLight);
+
+
+	#if DIRECTED
+		if(graphLight->inverse_vertices)
+			freeVertexArray(graphLight->inverse_vertices);
+		if(graphLight->inverse_sorted_edges_array)
+			freeEdgeArray(graphLight->inverse_sorted_edges_array);
+	#endif
+
 
   // SSSPPrintStats(stats);
   return stats;

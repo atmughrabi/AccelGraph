@@ -89,6 +89,30 @@ void graphCSRFree (struct GraphCSR* graphCSR){
 	if(graphCSR)
 		free(graphCSR);
 
+
+    
+}
+
+void graphCSRFreeDoublePointer (struct GraphCSR** graphCSR){
+
+    if((*graphCSR)->vertices)
+        freeVertexArray((*graphCSR)->vertices);
+    if((*graphCSR)->parents)
+        free((*graphCSR)->parents);
+    if((*graphCSR)->sorted_edges_array)
+        freeEdgeArray((*graphCSR)->sorted_edges_array);
+
+    #if DIRECTED
+        if((*graphCSR)->inverse_vertices)
+            freeVertexArray((*graphCSR)->inverse_vertices);
+        if((*graphCSR)->inverse_sorted_edges_array)
+            freeEdgeArray((*graphCSR)->inverse_sorted_edges_array);
+    #endif
+
+
+    if((*graphCSR))
+        free((*graphCSR));
+
 }
 
 void graphCSRPrint(struct GraphCSR* graphCSR){
