@@ -14,6 +14,7 @@ struct SSSPStats{
 	__u32* buckets_map;
 	__u32  bucket_counter;
 	__u32  bucket_current;
+	__u32  buckets_total;
 	__u32  processed_nodes;
 	__u32  delta;
 	__u32 num_vertices;
@@ -26,7 +27,7 @@ struct SSSPStats{
 __u32 SSSPAtomicMin(__u32 *dist , __u32 new);
 __u32 SSSPCompareDistanceArrays(struct SSSPStats* stats1, struct SSSPStats* stats2);
 int SSSPAtomicRelax(struct Edge* edge, struct SSSPStats* stats, struct Bitmap* bitmapNext, struct Bitmap* bitmapSet);
-int SSSPRelax(struct Edge* edge, struct SSSPStats* stats, struct Bitmap* bitmapNext, struct Bitmap* bitmapSet);
+int SSSPRelax(struct Edge* edge, struct SSSPStats* stats);
 void durstenfeldShuffle(__u32* vertices, __u32 size);
 
 // ********************************************************************************************
