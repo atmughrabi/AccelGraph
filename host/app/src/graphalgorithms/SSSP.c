@@ -283,6 +283,18 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 
 void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph, __u32 delta){
 
+	// delta = graph->max_weight;
+
+	// struct SSSPStats* stats1 = SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
+	// struct SSSPStats* stats2 = SSSPDataDrivenPullGraphCSR(source, iterations, graph, delta);
+
+	// if( SSSPCompareDistanceArrays( stats1, stats2)){
+		// printf("Match!!\n");
+	// }else{
+		// printf("NOT Match!!\n");
+	// }
+
+
 	switch (pushpull)
       { 
         case 0: // push
@@ -490,8 +502,7 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 	struct SSSPStats* stats = (struct SSSPStats*) malloc(sizeof(struct SSSPStats));
 	
 	stats->bucket_counter = 0;
-	// stats->delta = graph->max_weight ;
-	stats->delta = 1;
+	stats->delta = delta;
 	stats->bucket_current = 0;
 	stats->processed_nodes = 0;
 	stats->buckets_total = 0;
@@ -596,8 +607,7 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 			// process light edges
 			for(v = 0; v < graphLight->num_vertices; v++){
 
-						// printf("iter %u v %u b %u bc %u bt %u \n",iter, v, stats->buckets_map[v], stats->bucket_current, stats->buckets_total);
-    			if(stats->buckets_map[v] == stats->bucket_current) {
+							if(stats->buckets_map[v] == stats->bucket_current) {
     				
     				// pop vertex from bucket list
     				setBit(bitmapSetCurr, v);	 
@@ -614,8 +624,7 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 			        	// 	activeVertices += SSSPAtomicRelax(&(graphLight->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
 			        }
 
-			        // if(activeVertices)
-			       	//  printf("v %u b %u bc %u bt %u \n", v, stats->buckets_map[v], stats->bucket_current, stats->buckets_total);
+			   
 	    		}  
 			}
 
@@ -641,7 +650,6 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 			        	// 	activeVertices += SSSPAtomicRelax(&(graphHeavy->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
 		        }
 
-		         // printf("*v %u b %u bc %u bt %u \n", v, stats->buckets_map[v], stats->bucket_current, stats->buckets_total);
     		}  
 		}
 
@@ -664,6 +672,9 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
  
   free(timer);
   free(timer_inner);
+  freeBitmap(bitmapSetCurr);
+
+
   // graphCSRFree(graphHeavy);
   // graphCSRFree(graphLight);
 

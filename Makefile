@@ -417,13 +417,15 @@ reorder = 0
 # fnameb = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
 datastructure = 0
-algorithm = 2
+algorithm = 3
 numThreads  = 8
 iterations = 20
-trials = 0
+trials = 1
 tolerance = 1e-8
 sort = 0
-pushpull = 0
+pushpull = 1
+delta = 80
+
 
 
 convert: test
@@ -431,7 +433,7 @@ convert: test
 
 run: test
 	# ulimit -s unlimited 
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder)
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder) -b $(delta)
 	
 run-bfs: test
 	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -t $(trials) #CSR with Qs
