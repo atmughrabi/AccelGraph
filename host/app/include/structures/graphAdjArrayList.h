@@ -42,6 +42,9 @@ struct  GraphAdjArrayList
 	__u32 num_edges;
 	__u32 iteration;
 	__u32 processed_nodes;
+	#if WEIGHTED
+	__u32 max_weight;
+	#endif
 	int* parents;
 	struct AdjArrayList* vertices;
 
