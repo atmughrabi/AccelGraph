@@ -108,6 +108,9 @@ struct GraphGrid * graphGridNew(struct EdgeList* edgeList){
                 graphGrid->parents[i] = -1;
      }
     
+    #if WEIGHTED
+        graphGrid->max_weight =  edgeList->max_weight;
+    #endif
 
      graphGrid->num_edges = edgeList->num_edges;
      graphGrid->num_vertices = edgeList->num_vertices;

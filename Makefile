@@ -285,7 +285,7 @@ test: SSSP qinternal qvector bellmanFord incrementalAggregation cluster DFS arra
 	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/qvector.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/qinternal.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/bellmanFord.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/bellmanFord.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/SSSP.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/DFS.o 			\
@@ -411,20 +411,21 @@ reorder = 0
 # root  = 6
 # root  = 19
 
-# fnameb = "../01_GraphDatasets/facebook/facebook_combined.txt.wbin"
-# root = 107
+fnameb = "../01_GraphDatasets/facebook/facebook_combined.txt.wbin"
+root = 107
 # root = 3120
 # fnameb = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
 # root = 428333
 datastructure = 0
 algorithm = 2
-numThreads  = 8
+numThreads  = 1
 iterations = 20
 trials = 0
 tolerance = 1e-8
 sort = 0
 pushpull = 0
-delta = 80
+# delta = 250
+delta = 300
 
 
 

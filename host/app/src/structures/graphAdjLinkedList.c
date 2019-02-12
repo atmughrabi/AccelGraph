@@ -109,6 +109,12 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
         graphAdjLinkedList->parents  = (int*) my_malloc( graphAdjLinkedList->num_vertices *sizeof(int));
     #endif
 
+     
+    #if WEIGHTED
+        graphAdjLinkedList->max_weight =  edgeList->max_weight;
+    #endif
+
+
 
     __u32 i;
     #pragma omp parallel for

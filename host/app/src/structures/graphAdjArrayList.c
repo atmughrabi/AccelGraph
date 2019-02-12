@@ -113,6 +113,10 @@ struct GraphAdjArrayList* graphAdjArrayListEdgeListNew(struct EdgeList* edgeList
     
     graphAdjArrayList->num_edges = edgeList->num_edges;
 
+    #if WEIGHTED
+        graphAdjArrayList->max_weight =  edgeList->max_weight;
+    #endif
+
     graphAdjArrayList = graphAdjArrayListEdgeListProcessInOutDegree(graphAdjArrayList, edgeList);
 
     graphAdjArrayList = graphAdjArrayListEdgeAllocate(graphAdjArrayList);

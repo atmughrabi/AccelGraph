@@ -66,32 +66,42 @@ __u32 SSSPCompareDistanceArrays(struct SSSPStats* stats1, struct SSSPStats* stat
 
 }
 
-int SSSPAtomicRelax(struct Edge* edge, struct SSSPStats* stats, struct Bitmap* bitmapNext, struct Bitmap* bitmapSet){
+int SSSPAtomicRelax(struct Edge* edge, struct SSSPStats* stats){
 	__u32 oldParent, newParent;
+	__u32 MAX = UINT_MAX/2;
 	__u32 oldDistanceV = UINT_MAX/2;
 	__u32 oldDistanceU = UINT_MAX/2;
 	__u32 newDistance = UINT_MAX/2;
+	__u32 oldBucket = UINT_MAX/2;
+	__u32 newBucket = UINT_MAX/2;
 	__u32 flagu = 0;
 	__u32 flagv = 0;
 	__u32 flagp = 0;
-	__u32 activeVertices = 0;
+	__u32 flagb = 0;
+	__u32 flagc = 0;
 
     do {
 
     flagu = 0;
 	flagv = 0;
 	flagp = 0;
-
+	flagb = 0;
+	flagc = 0;
+	
      
     oldDistanceV = stats->Distances[edge->src];
     oldDistanceU = stats->Distances[edge->dest];
     oldParent = stats->parents[edge->dest];
+    oldBucket = stats->buckets_map[edge->dest];
     newDistance = oldDistanceV + edge->weight;
 
 	    if( oldDistanceU > newDistance ){
 
 	    	newParent = edge->src;
 	    	newDistance = oldDistanceV + edge->weight;
+	    	newBucket = newDistance / stats->delta;
+	    	
+	    	
 
 	    	if(__sync_bool_compare_and_swap(&(stats->Distances[edge->src]), oldDistanceV, oldDistanceV)){
 	    		flagv = 1;
@@ -101,25 +111,31 @@ int SSSPAtomicRelax(struct Edge* edge, struct SSSPStats* stats, struct Bitmap* b
 	    		flagu = 1;
 	    	}
 
-	    	if(__sync_bool_compare_and_swap(&(stats->parents[edge->dest]), oldParent, newParent) && flagv && flagu){
-	    		flagp = 1;
-	    	}
-	    	
-    		if(!getBit(bitmapNext, edge->dest) && flagv && flagu && flagp){
-			 	setBitAtomic(bitmapNext, edge->dest);
-			 	setBitAtomic(bitmapSet, edge->dest);
-			 	activeVertices++; 	
-			}
 
 	    }
 	    else{
-	    	return activeVertices;
+	    	
+
+	    	return 0;
 	    }
 
-    } while (!flagu || !flagv || !flagp);
+    } while (!flagu);
+
+	    	__sync_bool_compare_and_swap(&(stats->parents[edge->dest]), oldParent, newParent);
+
+	    	if(__sync_bool_compare_and_swap(&(stats->buckets_map[edge->dest]), oldBucket, newBucket)){
+	    		if(oldBucket == UINT_MAX/2)
+	    			#pragma omp atomic update
+  					stats->buckets_total++;
+	    	}
+
+   			if(__sync_bool_compare_and_swap(&(stats->bucket_current), newBucket, stats->bucket_current)){
+   				stats->bucket_counter = 1;
+   			}
 
 
-    return activeVertices;
+
+    return 1;
 
 }
 
@@ -131,10 +147,9 @@ int SSSPRelax(struct Edge* edge, struct SSSPStats* stats){
 	__u32 newDistance = stats->Distances[edge->src] + edge->weight;
 	__u32 bucket = UINT_MAX/2;
 	
-
+	
   	if( stats->Distances[edge->dest] > newDistance ){
 
-  		
   		if(stats->buckets_map[edge->dest] == UINT_MAX/2)
   			stats->buckets_total++;
 
@@ -149,9 +164,12 @@ int SSSPRelax(struct Edge* edge, struct SSSPStats* stats){
 		if (bucket ==  stats->bucket_current)
 			 stats->bucket_counter = 1;
 
+			
 		return 1;
 
 	}
+
+	
     return 0;
 }
 
@@ -623,27 +641,32 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 		while(stats->bucket_counter){
 			Start(timer_inner);
 			stats->bucket_counter = 0;
+			// __u32 buckets_total_local = 
 			// process light edges
+			#pragma omp parallel for private(v) shared(bitmapSetCurr, graphLight, stats) reduction(+ : activeVertices)
 			for(v = 0; v < graphLight->num_vertices; v++){
 
-							if(stats->buckets_map[v] == stats->bucket_current) {
+				if(__sync_bool_compare_and_swap(&(stats->buckets_map[v]), stats->bucket_current, (UINT_MAX/2))){
+				// if(stats->buckets_map[v] == stats->bucket_current) {
     				
     				// pop vertex from bucket list
-    				setBit(bitmapSetCurr, v);	 
-    				stats->buckets_total--;
-    				stats->buckets_map[v] = UINT_MAX/2;
+    				setBitAtomic(bitmapSetCurr, v);	
+
+    				#pragma omp atomic update
+    					stats->buckets_total--;
+
+    					// stats->buckets_map[v] = UINT_MAX/2;
 
 	    			__u32 degree = graphLight->vertices[v].out_degree;
 			      	__u32 edge_idx = graphLight->vertices[v].edges_idx;
 			      	__u32 j;
 			      	 for(j = edge_idx ; j < (edge_idx + degree) ; j++){
-			        	// if(numThreads == 1)
+			        	if(numThreads == 1)
 			        		activeVertices += SSSPRelax(&(graphLight->sorted_edges_array[j]), stats);
-			        	// else
-			        	// 	activeVertices += SSSPAtomicRelax(&(graphLight->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
+			        	else
+			        		activeVertices += SSSPAtomicRelax(&(graphLight->sorted_edges_array[j]), stats);
 			        }
 
-			   
 	    		}  
 			}
 
@@ -654,6 +677,8 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 		}
 
 		Start(timer_inner);
+
+		#pragma omp parallel for private(v) shared(bitmapSetCurr, graphHeavy, stats) reduction(+ : activeVertices)
 		for(v = 0; v < graphHeavy->num_vertices; v++){
     		if(getBit(bitmapSetCurr, v)){
 
@@ -663,12 +688,11 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
 		      	
 		      	for(j = edge_idx ; j < (edge_idx + degree) ; j++){
-						// if(numThreads == 1)
+						if(numThreads == 1)
 			        		activeVertices += SSSPRelax(&(graphHeavy->sorted_edges_array[j]), stats);
-			        	// else
-			        	// 	activeVertices += SSSPAtomicRelax(&(graphHeavy->sorted_edges_array[j]), stats, bitmapNext, bitmapSet);
+			        	else
+			        		activeVertices += SSSPAtomicRelax(&(graphHeavy->sorted_edges_array[j]), stats);
 		        }
-
     		}  
 		}
 
@@ -677,9 +701,9 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 		Stop(timer_inner);
 		if(activeVertices)
     		printf("| H%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
-
-
     }
+
+
 	
 	Stop(timer);
 	stats->time_total += Seconds(timer);
