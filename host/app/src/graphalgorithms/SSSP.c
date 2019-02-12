@@ -53,9 +53,10 @@ __u32 SSSPCompareDistanceArrays(struct SSSPStats* stats1, struct SSSPStats* stat
 
 	for(v =0 ; v< stats1->num_vertices ; v++){
 
-		if(stats1->Distances[v] != stats2->Distances[v]){
+		if(stats1->Distances[v] != stats2->Distances[v] && stats2->Distances[v] != ( UINT_MAX/2) ){
 
-			return 0;
+			printf("v %u s1 %u s2 %u \n",v,stats1->Distances[v],stats2->Distances[v]);
+			// return 0;
 		}
 		// else if(stats1->Distances[v] != UINT_MAX/2)
 
@@ -98,16 +99,15 @@ int SSSPAtomicRelax(struct Edge* edge, struct SSSPStats* stats){
 	    if( oldDistanceU > newDistance ){
 
 	    	newParent = edge->src;
-	    	newDistance = oldDistanceV + edge->weight;
+	    	// newDistance = oldDistanceV + edge->weight;
 	    	newBucket = newDistance / stats->delta;
-	    	
-	    	
 
-	    	if(__sync_bool_compare_and_swap(&(stats->Distances[edge->src]), oldDistanceV, oldDistanceV)){
-	    		flagv = 1;
-	    	}
+	    	// if(__sync_bool_compare_and_swap(&(stats->Distances[edge->src]), oldDistanceV, oldDistanceV)){
+	    	// 	flagv = 1;
+	    	// }
 
-	    	if(__sync_bool_compare_and_swap(&(stats->Distances[edge->dest]), oldDistanceU, newDistance) && flagv){
+	    	if(__sync_bool_compare_and_swap(&(stats->Distances[edge->dest]), oldDistanceU, newDistance)){
+
 	    		flagu = 1;
 	    	}
 
@@ -180,7 +180,7 @@ void SSSPPrintStats(struct SSSPStats* stats){
    	
    	 if(stats->Distances[v] != UINT_MAX/2){
 
-   	 	printf("d %u \n", stats->Distances[v]);
+   	 	// printf("d %u \n", stats->Distances[v]);
 
    	 }
    	 
@@ -215,11 +215,11 @@ void SSSPPrintStatsDetails(struct SSSPStats* stats){
    	
  	}
 
- 	printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Min Dist", "Max Dist", " Discovered");
-    printf(" -----------------------------------------------------\n");
-	printf("| %-15u | %-15u | %-15u | \n",minDistance, maxDistance, numberOfDiscoverNodes);
-	printf(" -----------------------------------------------------\n");
+ 	// printf(" -----------------------------------------------------\n");
+    // printf("| %-15s | %-15s | %-15s | \n", "Min Dist", "Max Dist", " Discovered");
+    // printf(" -----------------------------------------------------\n");
+	// printf("| %-15u | %-15u | %-15u | \n",minDistance, maxDistance, numberOfDiscoverNodes);
+	// printf(" -----------------------------------------------------\n");
 
 
 }
@@ -320,30 +320,30 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 
 void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph, __u32 delta){
 
-	// delta = graph->max_weight;
+	delta = graph->max_weight;
 
-	// struct SSSPStats* stats1 = SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
-	// struct SSSPStats* stats2 = SSSPDataDrivenPullGraphCSR(source, iterations, graph, delta);
+	struct SSSPStats* stats1 = SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
+	struct SSSPStats* stats2 = SSSPDataDrivenPullGraphCSR(source, iterations, graph, delta);
 
-	// if( SSSPCompareDistanceArrays( stats1, stats2)){
-		// printf("Match!!\n");
-	// }else{
-		// printf("NOT Match!!\n");
-	// }
+	if( SSSPCompareDistanceArrays( stats1, stats2)){
+		printf("Match!!\n");
+	}else{
+		printf("NOT Match!!\n");
+	}
 
 
-	switch (pushpull)
-      { 
-        case 0: // push
-        	SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
-        break;
-        case 1: // pull
-            SSSPDataDrivenPullGraphCSR(source, iterations, graph, delta);
-        break;
-        default:// push
-           	SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
-        break;          
-      }
+	// switch (pushpull)
+ //      { 
+ //        case 0: // push
+ //        	SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
+ //        break;
+ //        case 1: // pull
+ //            SSSPDataDrivenPullGraphCSR(source, iterations, graph, delta);
+ //        break;
+ //        default:// push
+ //           	SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
+ //        break;          
+ //      }
 
 
 }
@@ -388,18 +388,18 @@ struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, st
 	#endif
 
 	
-  	printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Delta-Stepping Algorithm Pull DD (Source)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", source);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
+  	// printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Starting Delta-Stepping Algorithm Pull DD (Source)");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51u | \n", source);
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active Nodes", "Time (Seconds)");
+    // printf(" -----------------------------------------------------\n");
 
     if(source > graph->num_vertices){
-		printf(" -----------------------------------------------------\n");
-    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
-    	printf(" -----------------------------------------------------\n");
+		// printf(" -----------------------------------------------------\n");
+    	// printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	// printf(" -----------------------------------------------------\n");
 		return NULL;
 	}
 
@@ -439,8 +439,8 @@ struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, st
 
 	Stop(timer_inner);
 
-	printf("| %-15s | %-15u | %-15f | \n","Init", activeVertices,  Seconds(timer_inner));
-	printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","Init", activeVertices,  Seconds(timer_inner));
+	// printf(" -----------------------------------------------------\n");
 
 	for(iter = 0; iter < iterations; iter++){
 		Start(timer_inner);
@@ -501,7 +501,7 @@ struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, st
 
 
 
-    	printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
+    	// printf("| %-15u | %-15u | %-15f | \n",iter, activeVertices, Seconds(timer_inner));
 	    if(activeVertices == 0)
 	      break;
 	}
@@ -509,9 +509,9 @@ struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, st
 	
 	Stop(timer);
 	stats->time_total = Seconds(timer);
-	printf(" -----------------------------------------------------\n");
-	printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
-	printf(" -----------------------------------------------------\n");
+	// printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
+	// printf(" -----------------------------------------------------\n");
 	SSSPPrintStatsDetails(stats);
 
 
@@ -566,39 +566,39 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     struct GraphCSR* graphHeavy = NULL;
 	struct GraphCSR* graphLight = NULL;
 	
-  	printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Delta-Stepping Algorithm Push DD (Source)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", source);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Start Split Heavy/Light");
-    printf(" -----------------------------------------------------\n");
+  	// printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Starting Delta-Stepping Algorithm Push DD (Source)");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51u | \n", source);
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Start Split Heavy/Light");
+    // printf(" -----------------------------------------------------\n");
     Start(timer_inner);
     SSSPSpiltGraphCSR(graph, &graphHeavy, &graphLight, stats->delta);
     Stop(timer_inner);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Graph Light Edges (Number)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", graphLight->num_edges );
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Graph Heavy Edges (Number)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", graphHeavy->num_edges);
-	printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "END Split Heavy/Light");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51f | \n",  Seconds(timer_inner));
-    printf(" -----------------------------------------------------\n");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Graph Light Edges (Number)");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51u | \n", graphLight->num_edges );
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "Graph Heavy Edges (Number)");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51u | \n", graphHeavy->num_edges);
+	// printf(" -----------------------------------------------------\n");
+    // printf("| %-51s | \n", "END Split Heavy/Light");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-51f | \n",  Seconds(timer_inner));
+    // printf(" -----------------------------------------------------\n");
 
 
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active vertices", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
+    // printf(" -----------------------------------------------------\n");
+    // printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active vertices", "Time (Seconds)");
+    // printf(" -----------------------------------------------------\n");
 
     if(source > graph->num_vertices){
-		printf(" -----------------------------------------------------\n");
-    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
-    	printf(" -----------------------------------------------------\n");
+		// printf(" -----------------------------------------------------\n");
+    	// printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+    	// printf(" -----------------------------------------------------\n");
 		return NULL;
 	}
 
@@ -627,8 +627,8 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
 	Stop(timer_inner);
 
-	printf("| %-15s | %-15u | %-15f | \n","Init", stats->buckets_total ,  Seconds(timer_inner));
-	printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","Init", stats->buckets_total ,  Seconds(timer_inner));
+	// printf(" -----------------------------------------------------\n");
 
 
 	while (stats->buckets_total){
@@ -672,8 +672,8 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
 			Stop(timer_inner);
 
-				if(activeVertices)
-    				printf("| L%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
+				// if(activeVertices)
+    				// printf("| L%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
 		}
 
 		Start(timer_inner);
@@ -699,17 +699,17 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 		iter++;
 		stats->bucket_current++;
 		Stop(timer_inner);
-		if(activeVertices)
-    		printf("| H%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
+		// if(activeVertices)
+    		// printf("| H%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
     }
 
 
 	
 	Stop(timer);
 	stats->time_total += Seconds(timer);
-	printf(" -----------------------------------------------------\n");
-	printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
-	printf(" -----------------------------------------------------\n");
+	// printf(" -----------------------------------------------------\n");
+	// printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
+	// printf(" -----------------------------------------------------\n");
 	SSSPPrintStatsDetails(stats);
 
   // free resources
