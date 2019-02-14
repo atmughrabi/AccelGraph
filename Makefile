@@ -407,8 +407,8 @@ reorder = 0
 # reorder = 4
 
 
-# fnameb = "../01_GraphDatasets/test/test.txt.wbin"
-# root  = 6
+fnameb = "../01_GraphDatasets/test/test.txt.wbin"
+root  = 6
 # root  = 19
 
 # fnameb = "../01_GraphDatasets/facebook/facebook_combined.txt.wbin"
@@ -418,15 +418,15 @@ reorder = 0
 # root = 428333
 datastructure = 0
 algorithm = 2
-numThreads  = 8
+numThreads  = 1
 iterations = 20
-trials = 100
+trials = 0
 tolerance = 1e-8
 sort = 0
-pushpull = 0
-# delta = 250
-delta = 300
-
+pushpull = 1
+delta = 800
+# delta = 400
+delta = 1
 
 
 convert: test
