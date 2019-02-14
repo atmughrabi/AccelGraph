@@ -353,6 +353,45 @@ test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjA
 	$(CAPI) \
 	$(CFLAGS) \
 
+
+test-opencl : SSSP qinternal qvector bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+	@echo 'linking $(GAPP) <- SSSP.o qinternal.o qvector.o DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
+	@mkdir -p $(APP_DIR)/test
+	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
+	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/qvector.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/qinternal.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/bellmanFord.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/SSSP.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/DFS.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/cluster.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/arrayStack.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/graphCSR.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/grid.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/graphGrid.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/fixedPoint.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/myMalloc.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/sortRun.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/adjArrayList.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o 	\
+	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
+	$(APP_DIR)/$(OBJ_DIR)/edgeList.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/mt19937.o 		\
+	 -o $(APP_DIR)/test/$(GAPP)				\
+	 $(CFLAGS)
 # Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]
 #   -h [Help] 
 #   -a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation
@@ -407,9 +446,9 @@ reorder = 0
 # reorder = 4
 
 
-fnameb = "../01_GraphDatasets/test/test.txt.wbin"
-root  = 6
-# root  = 19
+# fnameb = "../01_GraphDatasets/test/test.txt.wbin"
+# root  = 6
+# # root  = 19
 
 # fnameb = "../01_GraphDatasets/facebook/facebook_combined.txt.wbin"
 # root = 107
@@ -418,48 +457,30 @@ root  = 6
 # root = 428333
 datastructure = 0
 algorithm = 2
-numThreads  = 1
+numThreads  = 8
 iterations = 20
 trials = 0
 tolerance = 1e-8
 sort = 0
-pushpull = 1
+pushpull = 0
 delta = 800
 # delta = 400
-delta = 1
+# delta = 1
 
 
 convert: test
 	./$(APP_DIR)/test/$(GAPP) -c -w -f $(fnameb)
 
 run: test
-	# ulimit -s unlimited 
+
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder) -b $(delta)
 	
-run-bfs: test
-	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a 0 -n $(numThreads) -t $(trials) #CSR with Qs
-	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 1 -a 0 -n $(numThreads) -t $(trials) #Grid with Qs
-	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 3 -a 0 -n $(numThreads) -t $(trials) #Linked array
-	# ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 4 -a 0 -n $(numThreads) -t $(trials) #CSR with bitmap
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 5 -a 0 -n $(numThreads) -t $(trials) #Grid with bitmaps
-
-run-pr: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p 0
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p 1
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p 2
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p 3
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p 4
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p 5
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a 1 -n $(numThreads) -i $(iterations) -e $(tolerance) -t $(trials) -p 6
-
-run-sort: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 0 #radix src
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 1 #radix src-dst
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 2 #count src
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d 0 -a -1 -n $(numThreads) -i 0 -o 3 #count src-dst
-
 run-capi: test-capi
 	./$(APP_DIR)/test/$(GAPP)-capi -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
+
+
+run-ocl: test-opencl
+	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder) -b $(delta)
 
 debug: test	
 	gdb ./$(APP_DIR)/test/$(GAPP)
@@ -467,10 +488,6 @@ debug: test
 debug-memory: test	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
 	
-
-profile: 
-
-
 clean:
 	@rm -fr $(APP_DIR)/graphCSR-build
 	@rm -fr $(APP_DIR)/test

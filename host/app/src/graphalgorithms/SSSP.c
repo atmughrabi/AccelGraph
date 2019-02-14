@@ -525,11 +525,15 @@ struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, st
 				      	 	u = graphLight->sorted_edges_array[j].dest;
 				      	 	w = graphLight->sorted_edges_array[j].weight;
 
+				      	 		__u32 oldBucket = stats->buckets_map[u];
+				      	 	__u32 newBucket = (minDistance+w)/stats->delta;
+
 				      	 		// if (stats->buckets_map[u] ==  UINT_MAX/2){
-				      	 	if(__sync_bool_compare_and_swap(&(stats->buckets_map[u]), (UINT_MAX/2), stats->buckets_map[v])){
-				      	 				// stats->buckets_map[u] = stats->bucket_current+1;
-				      	 				#pragma omp atomic update
-				  							stats->buckets_total++;
+				      	 	if(__sync_bool_compare_and_swap(&(stats->buckets_map[u]), oldBucket, newBucket)){
+				      	 				
+				      	 				if(oldBucket == UINT_MAX/2)
+							    			#pragma omp atomic update
+						  					stats->buckets_total++;
 				      	 	}
 				        }
 					   		activeVertices++;
@@ -590,11 +594,18 @@ struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, st
 				      	 	u = graphHeavy->sorted_edges_array[j].dest;
 				      	 	w = graphHeavy->sorted_edges_array[j].weight;
 
+				      	 	
+
+				      	 	__u32 oldBucket = stats->buckets_map[u];
+				      	 	__u32 newBucket = (minDistance+w)/stats->delta;
+
 				      	 		// if (stats->buckets_map[u] ==  UINT_MAX/2){
-				      	 	if(__sync_bool_compare_and_swap(&(stats->buckets_map[u]), (UINT_MAX/2), stats->buckets_map[v])){
-				      	 				// stats->buckets_map[u] = stats->bucket_current+1;
-				      	 				#pragma omp atomic update
-				  							stats->buckets_total++;
+				      	 	if(__sync_bool_compare_and_swap(&(stats->buckets_map[u]), oldBucket, newBucket)){
+				      	 				stats->buckets_map[u] = stats->bucket_current+1;
+
+				      	 				if(oldBucket == UINT_MAX/2)
+							    			#pragma omp atomic update
+						  					stats->buckets_total++;
 				      	 	}
 				        }
 					   		activeVertices++;
