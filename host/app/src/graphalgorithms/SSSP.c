@@ -335,7 +335,8 @@ void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphC
         	SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
         break;
         case 1: // pull
-            SSSPDataDrivenPullGraphCSR(source, iterations, graph, delta);
+        	printf("Commented out due to race conflicts\n");
+        //     SSSPDataDrivenPullGraphCSR(source, iterations, graph, delta);
         break;
         default:// push
            	SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
@@ -345,337 +346,339 @@ void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphC
 
 }
 
-struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta){
+// struct SSSPStats* SSSPDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR* graph, __u32 delta){
 
-	__u32 v;
-	__u32 iter = 0;
-	iterations = graph->num_vertices - 1;
+// 	__u32 v;
+// 	__u32 iter = 0;
+// 	iterations = graph->num_vertices - 1;
 
 
-	struct SSSPStats* stats = (struct SSSPStats*) malloc(sizeof(struct SSSPStats));
+// 	struct SSSPStats* stats = (struct SSSPStats*) malloc(sizeof(struct SSSPStats));
 	
-	stats->bucket_counter = 0;
-	stats->delta = delta;
-	stats->bucket_current = 0;
-	stats->processed_nodes = 0;
-	stats->buckets_total = 0;
-	stats->time_total = 0.0;
-	stats->num_vertices = graph->num_vertices;
+// 	stats->bucket_counter = 0;
+// 	stats->delta = delta;
+// 	stats->bucket_current = 0;
+// 	stats->processed_nodes = 0;
+// 	stats->buckets_total = 0;
+// 	stats->time_total = 0.0;
+// 	stats->num_vertices = graph->num_vertices;
 
-	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-  	struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
+// 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+//   	struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
-  	struct Bitmap* bitmapSetCurr = newBitmap(graph->num_vertices);
+//   	struct Bitmap* bitmapSetCurr = newBitmap(graph->num_vertices);
   	
-    __u32 activeVertices = 0;
+//     __u32 activeVertices = 0;
 
-	#if ALIGNED
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->buckets_map = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
-        stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        stats->buckets_map = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+// 	#if ALIGNED
+//         stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+//         stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+//         stats->buckets_map = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+//     #else
+//         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+//         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+//         stats->buckets_map = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+//     #endif
 
-    struct GraphCSR* graphHeavy = NULL;
-	struct GraphCSR* graphLight = NULL;
+//     struct GraphCSR* graphHeavy = NULL;
+// 	struct GraphCSR* graphLight = NULL;
 	
-  	printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Delta-Stepping Algorithm Pull DD (Source)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", source);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Start Split Heavy/Light");
-    printf(" -----------------------------------------------------\n");
-    Start(timer_inner);
-    SSSPSpiltGraphCSR(graph, &graphHeavy, &graphLight, stats->delta);
-    Stop(timer_inner);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Graph Light Edges (Number)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", graphLight->num_edges );
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Graph Heavy Edges (Number)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", graphHeavy->num_edges);
-	printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "END Split Heavy/Light");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51f | \n",  Seconds(timer_inner));
-    printf(" -----------------------------------------------------\n");
+//   	printf(" -----------------------------------------------------\n");
+//     printf("| %-51s | \n", "Starting Delta-Stepping Algorithm Pull DD (Source)");
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-51u | \n", source);
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-51s | \n", "Start Split Heavy/Light");
+//     printf(" -----------------------------------------------------\n");
+//     Start(timer_inner);
+//     SSSPSpiltGraphCSR(graph, &graphHeavy, &graphLight, stats->delta);
+//     Stop(timer_inner);
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-51s | \n", "Graph Light Edges (Number)");
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-51u | \n", graphLight->num_edges );
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-51s | \n", "Graph Heavy Edges (Number)");
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-51u | \n", graphHeavy->num_edges);
+// 	printf(" -----------------------------------------------------\n");
+//     printf("| %-51s | \n", "END Split Heavy/Light");
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-51f | \n",  Seconds(timer_inner));
+//     printf(" -----------------------------------------------------\n");
 
 
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active vertices", "Time (Seconds)");
-    printf(" -----------------------------------------------------\n");
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active vertices", "Time (Seconds)");
+//     printf(" -----------------------------------------------------\n");
 
-    if(source > graph->num_vertices){
-		printf(" -----------------------------------------------------\n");
-    	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
-    	printf(" -----------------------------------------------------\n");
-		return NULL;
-	}
+//     if(source > graph->num_vertices){
+// 		printf(" -----------------------------------------------------\n");
+//     	printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+//     	printf(" -----------------------------------------------------\n");
+// 		return NULL;
+// 	}
 
-    Start(timer);
+//     Start(timer);
 
-    Start(timer_inner);
-    //order vertices according to degree
-  	#pragma omp parallel for
- 	for(v = 0; v < graph->num_vertices; v++){
+//     Start(timer_inner);
+//     //order vertices according to degree
+//   	#pragma omp parallel for
+//  	for(v = 0; v < graph->num_vertices; v++){
   
-  	 stats->buckets_map[v] = UINT_MAX/2;
-   	 stats->Distances[v] = UINT_MAX/2;
-   	 stats->parents[v] = UINT_MAX;
+//   	 stats->buckets_map[v] = UINT_MAX/2;
+//    	 stats->Distances[v] = UINT_MAX/2;
+//    	 stats->parents[v] = UINT_MAX;
 
- 	}
+//  	}
 
-	stats->parents[source] = source;
-	stats->Distances[source] = 0;
+// 	stats->parents[source] = source;
+// 	stats->Distances[source] = 0;
 
-	stats->buckets_map[source] = 0; // maps to bucket zero
-	stats->bucket_counter = 1;
-	stats->buckets_total = 1;
-	stats->bucket_current = 0;
+// 	stats->buckets_map[source] = 0; // maps to bucket zero
+// 	stats->bucket_counter = 1;
+// 	stats->buckets_total = 1;
+// 	stats->bucket_current = 0;
 
-	activeVertices = 1;
+// 	activeVertices = 1;
 
-	__u32 degree = graph->vertices[source].out_degree;
-  	__u32 edge_idx = graph->vertices[source].edges_idx;
-  	 for(v = edge_idx ; v < (edge_idx + degree) ; v++){
+// 	__u32 degree = graph->vertices[source].out_degree;
+//   	__u32 edge_idx = graph->vertices[source].edges_idx;
 
-  	 __u32 t = graph->sorted_edges_array[v].dest;
-  	 stats->buckets_map[t] = graph->sorted_edges_array[v].weight / stats->delta;
-  	 stats->parents[t] = source;
-  	 setBit(bitmapSetCurr,t);
-  	 // activeVertices++;
-  	 stats->buckets_total++;
+//   	 for(v = edge_idx ; v < (edge_idx + degree) ; v++){
 
-  	 }
+//   	 __u32 t = graph->sorted_edges_array[v].dest;
+//   	 stats->buckets_map[t] = stats->bucket_current;
+//   	 stats->parents[t] = source;
+//   	 setBit(bitmapSetCurr,t);
+//   	 // activeVertices++;
+//   	 stats->buckets_total++;
 
-	Stop(timer_inner);
+//   	 // printf("tb : %u v: %u cb %u \n",stats->buckets_total,  t, stats->bucket_current);
 
-	printf("| %-15s | %-15u | %-15f | \n","Init", stats->buckets_total ,  Seconds(timer_inner));
-	printf(" -----------------------------------------------------\n");
+//   	 }
+
+// 	Stop(timer_inner);
+
+// 	printf("| %-15s | %-15u | %-15f | \n","Init", stats->buckets_total ,  Seconds(timer_inner));
+// 	printf(" -----------------------------------------------------\n");
 
 
-	while (stats->buckets_total){
-		// Start(timer_inner);
-		stats->processed_nodes += activeVertices;
-		activeVertices = 0;
-		stats->bucket_counter = 1;
-		clearBitmap(bitmapSetCurr);
+// 	while (stats->buckets_total){
+// 		// Start(timer_inner);
+// 		stats->processed_nodes += activeVertices;
+// 		activeVertices = 0;
+// 		stats->bucket_counter = 1;
+// 		clearBitmap(bitmapSetCurr);
 
-		while(stats->bucket_counter){
-			Start(timer_inner);
-			stats->bucket_counter = 0;
-			// __u32 buckets_total_local = 
-			// process light edges
-			#pragma omp parallel for private(v) shared(bitmapSetCurr, graphLight, stats) reduction(+ : activeVertices)
-			for(v = 0; v < graphLight->num_vertices; v++){
+// 		while(stats->bucket_counter){
+// 			Start(timer_inner);
+// 			stats->bucket_counter = 0;
+// 			// __u32 buckets_total_local = 
+// 			// process light edges
+// 			#pragma omp parallel for private(v) shared(bitmapSetCurr, graphLight, stats) reduction(+ : activeVertices)
+// 			for(v = 0; v < graphLight->num_vertices; v++){
 
-				__u32 minDistance = UINT_MAX/2;
-	    		__u32 degree;
-	    		__u32 j,u,w;
-	    		__u32 edge_idx;
-				__u32 src = UINT_MAX;
-				struct Edge* edge = (struct Edge*) my_malloc(sizeof(struct Edge));
+// 				__u32 minDistance = UINT_MAX/2;
+// 	    		__u32 degree;
+// 	    		__u32 j,u,w;
+// 	    		__u32 edge_idx;
+// 				__u32 src = UINT_MAX;
+// 				struct Edge* edge = (struct Edge*) my_malloc(sizeof(struct Edge));
 
-				if(__sync_bool_compare_and_swap(&(stats->buckets_map[v]), stats->bucket_current, (UINT_MAX/2))){
-				// if(stats->buckets_map[v] == stats->bucket_current) {
+// 				if(__sync_bool_compare_and_swap(&(stats->buckets_map[v]), stats->bucket_current, (UINT_MAX/2))){
+//     				// pop vertex from bucket list
+//     				setBitAtomic(bitmapSetCurr, v);	
     				
-    				// pop vertex from bucket list
-    				setBitAtomic(bitmapSetCurr, v);	
+//     				#pragma omp atomic update
+//     					stats->buckets_total--;
 
-    				#pragma omp atomic update
-    					stats->buckets_total--;
 
-    					// stats->buckets_map[v] = UINT_MAX/2;
+//     				// printf("light tb : %u v: %u cb %u \n",stats->buckets_total,  v, stats->bucket_current);
 
-	    			 degree = graphLight->inverse_vertices[v].out_degree;
-			      	 edge_idx = graphLight->inverse_vertices[v].edges_idx;
+// 	    			 degree = graphLight->inverse_vertices[v].out_degree;
+// 			      	 edge_idx = graphLight->inverse_vertices[v].edges_idx;
 	
-			      		for(j = edge_idx ; j < (edge_idx + degree) ; j++){
-			      	 	u = graphLight->inverse_sorted_edges_array[j].dest;
-			      	 	w = graphLight->inverse_sorted_edges_array[j].weight;
+// 			      		for(j = edge_idx ; j < (edge_idx + degree) ; j++){
+// 			      	 	u = graphLight->inverse_sorted_edges_array[j].dest;
+// 			      	 	w = graphLight->inverse_sorted_edges_array[j].weight;
+
+// 			      	 	if (minDistance > (stats->Distances[u] + w)){
+// 			      	 		minDistance = (stats->Distances[u] + w);
+// 			      	 		src = u;
+
+// 			      	 		edge->dest = v;
+// 			      	 		edge->weight = w;
+// 			      	 		edge->src = u;
+// 			      	 	}
+// 			        }
+
+// 			         if(src != UINT_MAX)
+// 		        	 if(SSSPAtomicRelax(edge,stats)){
 
 
-			      	 	
-			      	 	if (minDistance > (stats->Distances[u] + w)){
-			      	 		minDistance = (stats->Distances[u] + w);
-			      	 		src = u;
-
-			      	 		edge->dest = v;
-			      	 		edge->weight = w;
-			      	 		edge->src = u;
-			      	 	}
-			        }
-
-
-			       	
-
-			         if(src != UINT_MAX){
-		        	 if(SSSPAtomicRelax(edge,stats)){
+// 		        	 	// printf("relax tb : %u v: %u u: %u dis %u \n",stats->buckets_total,  edge->dest, edge->src,stats->Distances[edge->dest]);
 		        	 		 
-			  			 degree = graphLight->vertices[v].out_degree;
-		     			 edge_idx = graphLight->vertices[v].edges_idx;
+// 			  			 degree = graph->vertices[v].out_degree;
+// 		     			 edge_idx = graph->vertices[v].edges_idx;
 		      	
-				      	for(j = edge_idx ; j < (edge_idx + degree) ; j++){
-				      	 	u = graphLight->sorted_edges_array[j].dest;
-				      	 	w = graphLight->sorted_edges_array[j].weight;
+// 				      	for(j = edge_idx ; j < (edge_idx + degree) ; j++){
+// 				      	 	u = graph->sorted_edges_array[j].dest;
+// 				      	 	w = graph->sorted_edges_array[j].weight;
 
-				      	 		__u32 oldBucket = stats->buckets_map[u];
-				      	 	__u32 newBucket = (minDistance+w)/stats->delta;
+// 				      	 	__u32 oldBucket = stats->buckets_map[u];
+// 				      	 	__u32 newBucket = stats->bucket_current;
 
-				      	 		// if (stats->buckets_map[u] ==  UINT_MAX/2){
-				      	 	if(__sync_bool_compare_and_swap(&(stats->buckets_map[u]), oldBucket, newBucket)){
-				      	 				
-				      	 				if(oldBucket == UINT_MAX/2)
-							    			#pragma omp atomic update
-						  					stats->buckets_total++;
-				      	 	}
-				        }
-					   		activeVertices++;
-		        	 }
-    			}  
-    		}
-		}
+// 				      	 	if(__sync_bool_compare_and_swap(&(stats->buckets_map[u]), oldBucket, newBucket)){
+// 		      	 				if(oldBucket == UINT_MAX/2)
+// 					    			#pragma omp atomic update
+// 				  						stats->buckets_total++;
 
-			Stop(timer_inner);
+// 				  						stats->bucket_counter = 1;
+// 				      	 	}
+// 				        }
+// 					   		activeVertices++;
+// 		        	 }
+    			
+//     		}
+// 		}
 
-				if(activeVertices)
-    				printf("| L%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
-		}
+// 			Stop(timer_inner);
 
-		Start(timer_inner);
+// 				if(activeVertices)
+//     				printf("| L%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
+// 		}
 
-		#pragma omp parallel for private(v) shared(bitmapSetCurr, graphHeavy, stats) reduction(+ : activeVertices)
-		for(v = 0; v < graphHeavy->num_vertices; v++){
+// 		Start(timer_inner);
 
-				__u32 minDistance = UINT_MAX/2;
-	    		__u32 degree;
-	    		__u32 j,u,w;
-	    		__u32 edge_idx;
-				__u32 src = UINT_MAX;
-				struct Edge* edge = (struct Edge*) my_malloc(sizeof(struct Edge));
+// 		#pragma omp parallel for private(v) shared(bitmapSetCurr, graphHeavy, stats) reduction(+ : activeVertices)
+// 		for(v = 0; v < graphHeavy->num_vertices; v++){
 
+// 				__u32 minDistance = UINT_MAX/2;
+// 	    		__u32 degree;
+// 	    		__u32 j,u,w;
+// 	    		__u32 edge_idx;
+// 				__u32 src = UINT_MAX;
+// 				struct Edge* edge = (struct Edge*) my_malloc(sizeof(struct Edge));
 
-    		if(getBit(bitmapSetCurr, v)){
+//     		if(getBit(bitmapSetCurr, v)){
 
-    		
+//     			// printf("heavy tb : %u v: %u cb %u \n",stats->buckets_total,  v, stats->bucket_current);
 
-    				 degree = graphHeavy->inverse_vertices[v].out_degree;
-			      	 edge_idx = graphHeavy->inverse_vertices[v].edges_idx;
+//     				 degree = graphHeavy->inverse_vertices[v].out_degree;
+// 			      	 edge_idx = graphHeavy->inverse_vertices[v].edges_idx;
 	
-			      		for(j = edge_idx ; j < (edge_idx + degree) ; j++){
-			      	 	u = graphHeavy->inverse_sorted_edges_array[j].dest;
-			      	 	w = graphHeavy->inverse_sorted_edges_array[j].weight;
+// 			      	for(j = edge_idx ; j < (edge_idx + degree) ; j++){
+// 			      	 	u = graphHeavy->inverse_sorted_edges_array[j].dest;
+// 			      	 	w = graphHeavy->inverse_sorted_edges_array[j].weight;
 
-			      	 
+// 			      	 	if (minDistance > (stats->Distances[u] + w)){
+// 			      	 		minDistance = (stats->Distances[u] + w);
+// 			      	 		src = u;
 
-			      	 	if (minDistance > (stats->Distances[u] + w)){
-			      	 		minDistance = (stats->Distances[u] + w);
-			      	 		src = u;
+// 			      	 		edge->dest = v;
+// 			      	 		edge->weight = w;
+// 			      	 		edge->src = u;
+// 			      	 	}
+// 			        }
 
-			      	 		edge->dest = v;
-			      	 		edge->weight = w;
-			      	 		edge->src = u;
-			      	 	}
-			        }
 
-		        	 if(src != UINT_MAX){
-		        	 if(SSSPAtomicRelax(edge,stats)){
+// 		        	 if(src != UINT_MAX)
+// 		        	 if(SSSPAtomicRelax(edge,stats)){
 		        	 		 
-			  			 degree = graphHeavy->vertices[v].out_degree;
-		     			 edge_idx = graphHeavy->vertices[v].edges_idx;
+// 			  			 degree = graph->vertices[v].out_degree;
+// 		     			 edge_idx = graph->vertices[v].edges_idx;
+
+// 		     			 // printf("relax tb : %u v: %u u: %u dis %u \n",stats->buckets_total,  edge->dest, edge->src,stats->Distances[edge->dest]);
+		        	 	
 		      	
-				      	for(j = edge_idx ; j < (edge_idx + degree) ; j++){
-				      	 	u = graphHeavy->sorted_edges_array[j].dest;
-				      	 	w = graphHeavy->sorted_edges_array[j].weight;
+// 				      	// for(j = edge_idx ; j < (edge_idx + degree) ; j++){
+// 				      	//  	u = graph->sorted_edges_array[j].dest;
+// 				      	//  	w = graph->sorted_edges_array[j].weight;
 
-				      	 	
+// 				      	//  	__u32 oldBucket = stats->buckets_map[u];
+// 				      	//  	__u32 newBucket;
 
-				      	 	__u32 oldBucket = stats->buckets_map[u];
-				      	 	__u32 newBucket = (minDistance+w)/stats->delta;
+// 				      	//  	if(stats->bucket_counter)
+// 				      	//  	 newBucket = stats->bucket_current;
+// 				      	//  	else
+// 				      	//  	 newBucket = stats->bucket_current+1;
 
-				      	 		// if (stats->buckets_map[u] ==  UINT_MAX/2){
-				      	 	if(__sync_bool_compare_and_swap(&(stats->buckets_map[u]), oldBucket, newBucket)){
-				      	 				stats->buckets_map[u] = stats->bucket_current+1;
+// 				      	//  	if(__sync_bool_compare_and_swap(&(stats->buckets_map[u]), oldBucket, newBucket)){
+// 		      	 	// 			if(oldBucket == UINT_MAX/2)
+// 					    		// 	#pragma omp atomic update
+// 				  					// 	stats->buckets_total++;
 
-				      	 				if(oldBucket == UINT_MAX/2)
-							    			#pragma omp atomic update
-						  					stats->buckets_total++;
-				      	 	}
-				        }
-					   		activeVertices++;
-		        	 }
-    			}  
-    		}  
-		}
+// 				      	//  	}
+// 				       //  }
+// 					   		activeVertices++;
+// 		        	 }
+    			
+//     		}  
+// 		}
 
-		iter++;
-		stats->bucket_current++;
-		// clearBitmap(bitmapSetCurr);
-		Stop(timer_inner);
-		if(activeVertices)
-    		printf("| H%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
+// 		iter++;
+// 		stats->bucket_current++;
+// 		// clearBitmap(bitmapSetCurr);
+// 		Stop(timer_inner);
+// 		if(activeVertices)
+//     		printf("| H%-14u | %-15u | %-15f |\n",iter, stats->buckets_total, Seconds(timer_inner));
 
 
-    }
+//     }
 
 
 	
-	Stop(timer);
-	stats->time_total += Seconds(timer);
-	printf(" -----------------------------------------------------\n");
-	printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
-	printf(" -----------------------------------------------------\n");
-	SSSPPrintStatsDetails(stats);
+// 	Stop(timer);
+// 	stats->time_total += Seconds(timer);
+// 	printf(" -----------------------------------------------------\n");
+// 	printf("| %-15s | %-15u | %-15f | \n","total", stats->processed_nodes, stats->time_total);
+// 	printf(" -----------------------------------------------------\n");
+// 	SSSPPrintStatsDetails(stats);
 
-  // free resources
-  free(timer);
-  free(timer_inner);
-  freeBitmap(bitmapSetCurr);
-
-
-    if(graphHeavy->vertices)
-		freeVertexArray(graphHeavy->vertices);
-	if(graphHeavy->parents)
-		free(graphHeavy->parents);
-	if(graphHeavy->sorted_edges_array)
-		freeEdgeArray(graphHeavy->sorted_edges_array);
-	if(graphHeavy)
-		free(graphHeavy);
-
-	#if DIRECTED
-		if(graphHeavy->inverse_vertices)
-			freeVertexArray(graphHeavy->inverse_vertices);
-		if(graphHeavy->inverse_sorted_edges_array)
-			freeEdgeArray(graphHeavy->inverse_sorted_edges_array);
-	#endif
-
-	if(graphLight->vertices)
-		freeVertexArray(graphLight->vertices);
-	if(graphLight->parents)
-		free(graphLight->parents);
-	if(graphLight->sorted_edges_array)
-		freeEdgeArray(graphLight->sorted_edges_array);
-	if(graphLight)
-		free(graphLight);
+//   // free resources
+//   free(timer);
+//   free(timer_inner);
+//   freeBitmap(bitmapSetCurr);
 
 
-	#if DIRECTED
-		if(graphLight->inverse_vertices)
-			freeVertexArray(graphLight->inverse_vertices);
-		if(graphLight->inverse_sorted_edges_array)
-			freeEdgeArray(graphLight->inverse_sorted_edges_array);
-	#endif
+//     if(graphHeavy->vertices)
+// 		freeVertexArray(graphHeavy->vertices);
+// 	if(graphHeavy->parents)
+// 		free(graphHeavy->parents);
+// 	if(graphHeavy->sorted_edges_array)
+// 		freeEdgeArray(graphHeavy->sorted_edges_array);
+// 	if(graphHeavy)
+// 		free(graphHeavy);
+
+// 	#if DIRECTED
+// 		if(graphHeavy->inverse_vertices)
+// 			freeVertexArray(graphHeavy->inverse_vertices);
+// 		if(graphHeavy->inverse_sorted_edges_array)
+// 			freeEdgeArray(graphHeavy->inverse_sorted_edges_array);
+// 	#endif
+
+// 	if(graphLight->vertices)
+// 		freeVertexArray(graphLight->vertices);
+// 	if(graphLight->parents)
+// 		free(graphLight->parents);
+// 	if(graphLight->sorted_edges_array)
+// 		freeEdgeArray(graphLight->sorted_edges_array);
+// 	if(graphLight)
+// 		free(graphLight);
 
 
-  // SSSPPrintStats(stats);
-  return stats;
-}
+// 	#if DIRECTED
+// 		if(graphLight->inverse_vertices)
+// 			freeVertexArray(graphLight->inverse_vertices);
+// 		if(graphLight->inverse_sorted_edges_array)
+// 			freeEdgeArray(graphLight->inverse_sorted_edges_array);
+// 	#endif
+
+
+//   // SSSPPrintStats(stats);
+//   return stats;
+// }
 
 
 
@@ -905,3 +908,7 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
   // SSSPPrintStats(stats);
   return stats;
 }
+
+
+
+
