@@ -313,6 +313,14 @@ void SSSPSpiltGraphCSR(struct GraphCSR* graph, struct GraphCSR** graphPlus, stru
 
 }
 
+int test_13(int x)
+{
+  int *i;
+  i = &x;
+  *i = x+1;
+  return x;
+}
+
 void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph, __u32 delta){
 
 	// delta = graph->max_weight/2;
@@ -328,6 +336,10 @@ void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphC
 
 
 	// SSSPPrintStats();
+
+
+	printf(" %u \n",test_13(3) );
+
 
 	switch (pushpull)
       { 
