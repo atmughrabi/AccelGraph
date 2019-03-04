@@ -23,11 +23,6 @@ This will be added later.
 ## Organization
 
 * `accelerator`
-  * `lib` - System Verilog global packages
-    * `functions.sv` - Helper functions
-    * `psl.sv` - PSL constants and interface records
-    * `wed.sv` - WED record and parse procedure
-  * `pkg` - System Verilog packages
   * `rtl` - System Verilog architectures
     * `afu.sv` - PSL to AFU wrapper
     * `control.sv` - Framework control
@@ -39,6 +34,8 @@ This will be added later.
     * `ram.sv` - Random-Access-Memory
 * `host`
 	* `app` - Host application sources
+    * `include` - same as src
+    * `src` - Graph processing framework
 * `sim`
   * `pslse` - [PSL Simulation Engine](https://github.com/ibm-capi/pslse) sources
   * *`pslse.parms`* - PSLSE parameter file
