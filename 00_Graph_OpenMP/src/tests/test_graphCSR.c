@@ -38,18 +38,18 @@ int main()
 
 
     // const char * fnameb = "/home/atmughra/12_Github/1_Graph_Benchmark_Tools/gapbs/benchmark/graphs/raw/twitter_rv.net";
-    // const char * fname = "host/app/datasets/test/test.txt";
-    // const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
-    // const char * fname = "host/app/datasets/twitter/twitter_rv.txt";
-    // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
+    // const char * fname = "00_Graph_OpenMP/datasets/test/test.txt";
+    // const char * fname = "00_Graph_OpenMP/datasets/wiki-vote/wiki-Vote.txt";
+    // const char * fname = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt";
+    // const char * fname = "00_Graph_OpenMP/datasets/facebook/facebook_combined.txt";
 
                            
     // const char * fnameb = "/home/atmughra/12_Github/1_Graph_Benchmark_Tools/gapbs/benchmark/graphs/bin/twitter_rv.net.bin8";
-    const char * fnameb = "host/app/datasets/test/test.txt.bin";
-    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
-    // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
-    // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
+    const char * fnameb = "00_Graph_OpenMP/datasets/test/test.txt.bin";
+    // const char * fnameb = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt.bin";
+    // const char * fnameb = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt.bin8";
+    // const char * fnameb = "00_Graph_OpenMP/datasets/facebook/facebook_combined.txt.bin";
+    // const char * fnameb = "00_Graph_OpenMP/datasets/wiki-vote/wiki-Vote.txt.bin";
 
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));

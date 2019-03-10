@@ -15,7 +15,7 @@ TEST               = test
 PSLSE_DIR         = sim/pslse
 PSLSE_COMMON_DIR  = sim/pslse/common
 PSLSE_LIBCXL_DIR  = sim/pslse/libcxl
-APP_DIR           = host/app
+APP_DIR           = 00_Graph_OpenMP
 SRC_DIR           = src
 OBJ_DIR			  = obj
 INC_DIR			  = include
@@ -276,10 +276,14 @@ DFS: $(APP_DIR)/$(OBJ_DIR)/DFS.o
 pageRank: $(APP_DIR)/$(OBJ_DIR)/pageRank.o
 
 incrementalAggregation : $(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o
+
+createdir:
+	@mkdir -p $(APP_DIR)/test
+	@mkdir -p $(APP_DIR)/obj
+
 	
-test: SSSP qinternal qvector bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+test: createdir SSSP qinternal qvector bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
 	@echo 'linking $(GAPP) <- SSSP.o qinternal.o qvector.o DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
-	@mkdir -p $(APP_DIR)/test
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
@@ -316,82 +320,6 @@ test: SSSP qinternal qvector bellmanFord incrementalAggregation cluster DFS arra
 	 -o $(APP_DIR)/test/$(GAPP)				\
 	 $(CFLAGS)
 
-test-capi: app-capi fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc bitmap arrayQueue BFS
-	@echo 'linking $(GAPP) <- fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o'
-	@mkdir -p $(APP_DIR)/test
-	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP)-capi.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/DFS.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/cluster.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/arrayStack.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/graphCSR.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/grid.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/graphGrid.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/fixedPoint.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/myMalloc.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/sortRun.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/adjArrayList.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/edgeList.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/mt19937.o 		\
-	$(PSLSE_LIBCXL_DIR)/libcxl.a 			\
-	 -o $(APP_DIR)/test/$(GAPP)-capi		\
-	$(CAPI) \
-	$(CFLAGS) \
-
-
-test-opencl : SSSP qinternal qvector bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
-	@echo 'linking $(GAPP) <- SSSP.o qinternal.o qvector.o DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
-	@mkdir -p $(APP_DIR)/test
-	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
-	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/qvector.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/qinternal.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/bellmanFord.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/SSSP.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/BFS.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/DFS.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/pageRank.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/cluster.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/arrayQueue.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/arrayStack.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/bitmap.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/graphCSR.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/grid.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/graphAdjLinkedList.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/graphAdjArrayList.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/graphGrid.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/fixedPoint.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/myMalloc.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/radixsort.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/sortRun.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/adjArrayList.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/dynamicQueue.o 	\
-	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
-	$(APP_DIR)/$(OBJ_DIR)/edgeList.o 		\
-	$(APP_DIR)/$(OBJ_DIR)/mt19937.o 		\
-	 -o $(APP_DIR)/test/$(GAPP)				\
-	 $(CFLAGS)
 # Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]
 #   -h [Help] 
 #   -a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation
@@ -492,7 +420,7 @@ clean:
 	@rm -fr $(APP_DIR)/graphCSR-build
 	@rm -fr $(APP_DIR)/test
 	@rm -fr $(APP_DIR)/sim-build
-	@rm -f $(APP_DIR)/$(OBJ_DIR)/*
+	@rm -fr $(APP_DIR)/$(OBJ_DIR)
 	@rm -f sim/modelsim.ini
 	@rm -f sim/transcript
 	@rm -f sim/vsim_stacktrace.vstf

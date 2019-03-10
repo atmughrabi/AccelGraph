@@ -41,17 +41,17 @@ int main()
     // create the graph given in above fugure
     // int V = 5;
 
-    // const char * fname = "host/app/datasets/test/test.txt";
-    // const char * fname = "host/app/datasets/wiki-vote/wiki-Vote.txt";
-    // const char * fname = "host/app/datasets/twitter/twitter_rv.txt";
-    // const char * fname = "host/app/datasets/facebook/facebook_combined.txt";
+    // const char * fname = "00_Graph_OpenMP/datasets/test/test.txt";
+    // const char * fname = "00_Graph_OpenMP/datasets/wiki-vote/wiki-Vote.txt";
+    // const char * fname = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt";
+    // const char * fname = "00_Graph_OpenMP/datasets/facebook/facebook_combined.txt";
 
 // /
-    const char * fnameb = "host/app/datasets/test/test.txt.bin";
-    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin";
-    // const char * fnameb = "host/app/datasets/twitter/twitter_rv.txt.bin8";
-    // const char * fnameb = "host/app/datasets/facebook/facebook_combined.txt.bin";
-    // const char * fnameb = "host/app/datasets/wiki-vote/wiki-Vote.txt.bin";
+    const char * fnameb = "00_Graph_OpenMP/datasets/test/test.txt.bin";
+    // const char * fnameb = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt.bin";
+    // const char * fnameb = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt.bin8";
+    // const char * fnameb = "00_Graph_OpenMP/datasets/facebook/facebook_combined.txt.bin";
+    // const char * fnameb = "00_Graph_OpenMP/datasets/wiki-vote/wiki-Vote.txt.bin";
 
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
