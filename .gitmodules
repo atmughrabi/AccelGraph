@@ -7,3 +7,6 @@
 [submodule "01_CAPI_Integration/pslse"]
 	path = 01_CAPI_Integration/pslse
 	url = https://github.com/ibm-capi/pslse.git
+[submodule "01_CAPI_Integration/libcxl"]
+	path = 01_CAPI_Integration/libcxl
+	url = https://github.com/ibm-capi/libcxl.git
