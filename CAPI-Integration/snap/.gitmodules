@@ -1,3 +1,0 @@
-[submodule "hardware/capi2-bsp"]
-	path = hardware/capi2-bsp
-	url = https://github.com/open-power/capi2-bsp
