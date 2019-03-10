@@ -1,3 +1,6 @@
 [submodule "sim/pslse"]
 	path = sim/pslse
 	url = https://github.com/ibm-capi/pslse.git
+[submodule "snap"]
+	path = snap
+	url = https://github.com/open-power/snap.git
