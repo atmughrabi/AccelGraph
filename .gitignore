@@ -1,6 +1,6 @@
 00_Graph_OpenMP/build
 00_Graph_OpenMP/build-graph
 00_Graph_OpenMP/test
-00_Graph_OpenMPobj
+00_Graph_OpenMP/obj
 
 02_Reading/
