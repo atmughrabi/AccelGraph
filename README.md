@@ -5,7 +5,7 @@ AFU framework for Graph Processing algorithms with CAPI connected FGPAs With Ver
 
 ## Overview
 
-![End-to-End Acceleration](./02_slides/fig/fig-4 "AccelGraph")
+![End-to-End Acceleration](./02_slides/fig/fig-4.png "AccelGraph")
 
 AccelGraph is an open source Graph processing framework, it is designed to be a portable benchmarking suit for various graph processing algorithms. The OpenMP part has been tested on Ubuntu 18.04 with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with coding data structures and other algorithmic optimizations. Furthermore this benchmarking tool has been fully integrated with CAPI, demonstrating the contrast in performance between using shared memory FPGA with parallel processors.
 
