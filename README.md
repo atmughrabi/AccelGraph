@@ -1,48 +1,34 @@
 # AccelGraph
-## Graph Processing Framework With OpenMP/CAPI VHDL/SNAP HLS
+## Graph Processing Framework With OpenMP/CAPI-SNAP/Verilog
 
-AFU framework for Graph Processing algorithms with CAPI connected FGPAs With OpenCL/Verilog/OpenMP
-
-More info
-* ~~Webinar: TO BE ADDED ~~  
-
-* Slides: [ TO BE ADDED ]( TO BE ADDED )
-
-**Please note the following;**
-
-* **It is recommended to read the [CAPI Users Guide](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf) before using this framework.**
-
-* **For now there is very limited instructions and documentation, but this will all be added later. An example project file for the Nallatech P385-A7 card with the Altera Stratix V GX A7 FPGA will also be added later. The current Computing Unit (CU) implements a simple memcpy function.**
-
-* **This framework runs in dedicated mode and was developed to be used with Ubuntu-Linux.**
+AFU framework for Graph Processing algorithms with CAPI connected FGPAs With Verilog/OpenMP/Shared Memory Accelerator CAPI
 
 ## Overview
 
-This will be added later.
+AccelGraph is an open source Graph processing framework, it is designed to be a portable benchmarking suit for various graph processing algorithms. The OpenMP part has been tested on Ubuntu 18.04 with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with coding data structures and other algorithmic optimizations. Furthermore this benchmarking tool has been fully integrated with CAPI. With machines that support such technology (IBM Power 8/9), it demonstrates the contrast in performance between using shared memory FPGA with parallel processors.
 
 ## Organization
 
-* `accelerator`
-  * `rtl` - System Verilog architectures
-    * `afu.sv` - PSL to AFU wrapper
-    * `control.sv` - Framework control
-    * `cu.sv` - Computing Unit - implements the actual AFU functionality
-    * `dma.sv` - Direct Memory Access
-    * `fifo.sv` - First-In-First-Out
-    * `frame.sv` - AFU top level
-    * `mmio.sv` - Memory-Mapped-Input-Output
-    * `ram.sv` - Random-Access-Memory
-* `host`
-	* `app` - Host application sources
-    * `include` - same as src
-    * `src` - Graph processing framework
-* `sim`
-  * `pslse` - [PSL Simulation Engine](https://github.com/ibm-capi/pslse) sources
-  * *`pslse.parms`* - PSLSE parameter file
-  * *`pslse_server.dat`* - PSLSE server used by the host application to attach
-  * *`shim_host.dat`* - Simulation host used by the PSLSE
-  * *`vsim.tcl`* - Compilation and simulation script for vsim
-  * *`wave.do`* - Wave script for vsim
+* `00_Graph_OpenMP`
+  * `include` - System Verilog architectures
+    * `graphalgorithms` - PSL to AFU wrapper
+      * `BFS.h` - Breadth First Search
+      * `DFS.h` - Depth First Search
+      * `SSSP.h` - Single Source Shortest Path
+      * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
+      * `incrementalAgreggation.h` - Incremental Aggregation for clustering
+      * `pageRank.h` - Page Rank Algorithm
+    * `preprocessing` - preprocessing graph algorithms (transform the edge list into data structures in memory)
+      * `countsort.h` - sort edge list using count sort
+      * `radixsort.h` - sort edge list using radix sort
+      * `reorder.h` - cluster reorder the graph for better cache locality
+      * `sortRun.h` - chose which sorting algorithm to use
+    * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
+      * `graphAdjArrayList.h` - graph using adjacency list array with arrays
+      * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
+      * `graphCSR.h` - graph using compressed sparse matrix
+      * `graphGrid.h` - graph using Grid
+
 * *`Makefile`* - Global makefile
 
 ## Details
@@ -75,101 +61,8 @@ Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [n
   -b: SSSP Delta value [Default:1]  
 ```
 
-### AFU wrapper and Frame
+### SNAP
 
-### Control
-
-### Memory-Mapped-Input-Output (MMIO)
-
-### Direct Memory Access (DMA)
-
-### Computing Unit (CU)
-
-The Computing Unit (CU) implements the actual function of the AFU.
-
-#### Work-Element-Descriptor (WED)
-
-#### DMA procedures
-
-The `dma_package` defines a number of procedures that can be used to communicate with the DMA. They will be updated soon to match the specifications in the slides.
-
-##### Read procedures
-
-##### Write procedures
-
-## Simulation
-
-The following instructions target ModelSim (vsim).
-
-Starting from release 15.0 of Quartus II, the included [ModelSim-Altera Starter Edition](https://www.altera.com/products/design-software/model---simulation/modelsim-altera-software.html) (free) has mixed-language support, which is required for simulation of this framework with the current PSLSE.
-
-It is assumed that the 32-bit version of vsim is installed in `/opt/altera/15.0/modelsim_ase/` and `/opt/altera/15.0/modelsim_ase/bin` is added to your PATH.
-
-Please note that all listed `make` commands should be executed from the root of this project.
-
-### Initial setup For FPGA Development With CAPI
-
-1. Clone the repository. enter the directory and initialize the submodules
-  ```bash
-  git clone https://github.ncsu.edu/atmughra/CAPI-Graph.git
-  cd CAPI-Graph
-  git submodule update --init
-  ```
-
-2. Set your `VPI_USER_H_DIR` environment variable to point to the `include` directory of your simulator e.g.:
-  ```bash
-  export VPI_USER_H_DIR=/opt/altera/15.0/modelsim_ase/include
-  ```
-
-3. Build the [`PSLSE`](https://github.com/ibm-capi/pslse):
-  ```bash
-  make pslse-build
-  ```
-  This will build the PSLSE with the DEBUG flag and the AFU driver for a 32-bit simulator.
-
-4. Build the host application for simulation:
-  ```bash
-  make sim-build
-  ```
-
-### Run simulation
-
-1. Start the simulator:
-  ```bash
-  make vsim-run 
-  ```
-
-  This will start vsim and execute the `vsim.tcl` script, which will automatically compile the sources.
-
-2. Start simulation:
-
-  Use the following command in the vsim console to start the simulation.
-  ```bash
-  s
-  ```
-
-3. Open a new terminal and start the PSLSE:
-  ```bash
-  make pslse-run
-  ```
-
-4. Open a new terminal and run your host application. This will run your host application from the `sim` directory:
-  ```bash
-  make sim-run ARGS="<Algorithm>"
-  ```
-
-5. Wait for your host application to terminate then switch to the PSLSE terminal and kill (`CTRL+C`) the running PSLSE process to inspect the wave.
-
-
-### Development
-
-During development `vsim` can be kept running.
-
-The `vsim.tcl` script also allows to quickly run the following commands again from the `vsim` console:
-* `r` - Recompile the `HDL` source files
-* `s` - Start the simulation
-* `rs` - Recompile the `HDL` source files and restart the simulation
-
-## FPGA build
-
-This will be added later. A timing issue needs to be resolved first.
+* CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
+* [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
+* [Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
