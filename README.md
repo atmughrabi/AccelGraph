@@ -7,7 +7,7 @@ AFU framework for Graph Processing algorithms with OpenMP/Shared Memory Accelera
 
 ![End-to-End Acceleration](./02_slides/fig/fig-4.png "AccelGraph")
 
-AccelGraph is an open source Graph processing framework, it is designed to be a portable benchmarking suite for various graph processing algorithms. Graph processing usually involves preprocessing step that builds the graph structure, and the graph algorithm. both steps can be evaluated using this framework. The OpenMP part of AccelGraph has been tested on Ubuntu 18.04 with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking tool has been fully integrated with IBM Coherent Accelerator Processing Interface (CAPI), demonstrating the contrast in performance between shared memory FPGAs with parallel processors.
+AccelGraph is an open source Graph processing framework, it is designed to be a portable benchmarking suite for various graph processing algorithms. Graph processing usually involves preprocessing step that builds the graph structure, and the graph algorithm. both steps can be evaluated using this framework. The OpenMP part of AccelGraph has been tested on Ubuntu 18.04 with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking tool has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between shared memory FPGAs with parallel processors.
 
 ## Organization
 
@@ -20,7 +20,7 @@ AccelGraph is an open source Graph processing framework, it is designed to be a 
       * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
       * `incrementalAgreggation.h` - Incremental Aggregation for clustering
       * `pageRank.h` - Page Rank Algorithm
-    * `preprocessing` - preprocessing graph algorithms [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
+    * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
       * `countsort.h` - sort edge list using count sort
       * `radixsort.h` - sort edge list using radix sort
       * `reorder.h` - cluster reorder the graph for better cache locality
