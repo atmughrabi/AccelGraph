@@ -13,14 +13,14 @@ AccelGraph is an open source Graph processing framework, it is designed to be a 
 
 * `00_Graph_OpenMP`
   * `include` - System Verilog architectures
-    * `graphalgorithms` - PSL to AFU wrapper
+    * `graphalgorithms` - \Implemented Graph algorithm
       * `BFS.h` - Breadth First Search
       * `DFS.h` - Depth First Search
       * `SSSP.h` - Single Source Shortest Path
       * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
       * `incrementalAgreggation.h` - Incremental Aggregation for clustering
       * `pageRank.h` - Page Rank Algorithm
-    * `preprocessing` - preprocessing graph algorithms (transform the edge list into data structures in memory) [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
+    * `preprocessing` - preprocessing graph algorithms [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
       * `countsort.h` - sort edge list using count sort
       * `radixsort.h` - sort edge list using radix sort
       * `reorder.h` - cluster reorder the graph for better cache locality
@@ -34,6 +34,8 @@ AccelGraph is an open source Graph processing framework, it is designed to be a 
 * *`Makefile`* - Global makefile
 
 ## Details
+
+### Graph Algorithm Supported Implementations
 
 ### Initial compilation for the Graph frame work with OpenMP
 
@@ -63,8 +65,9 @@ Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [n
   -b: SSSP Delta value [Default:1]  
 ```
 
-### SNAP
+### CAPI SNAP
 
+* For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
 * CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
 * [Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
