@@ -1,7 +1,7 @@
 # AccelGraph
 ## Graph Processing Framework With OpenMP/CAPI-SNAP/Verilog
 
-AFU framework for Graph Processing algorithms with CAPI connected FGPAs With Verilog/OpenMP/Shared Memory Accelerator CAPI
+AFU framework for Graph Processing algorithms with OpenMP/Shared Memory Accelerator CAPI
 
 ## Overview
 
@@ -35,7 +35,7 @@ AccelGraph is an open source Graph processing framework, it is designed to be a 
 
 ## Details
 
-### Graph Algorithm Supported Implementations
+### Graph Algorithms Supported Implementations
 
 ### Initial compilation for the Graph frame work with OpenMP
 
