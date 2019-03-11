@@ -3,7 +3,7 @@
 00_Graph_OpenMP/test
 00_Graph_OpenMP/obj
 
-# 01_CAPI_Integration/CAPI-PSL9-WRAP-2.00
-# 01_CAPI_Integration/CAPI-PSL9-WRAP-2.00
+01_CAPI_Integration/CAPI-PSL9-WRAP-2.00
+01_CAPI_Integration/CAPI_1.00_DCP
 
 03_Reading/
