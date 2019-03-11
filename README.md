@@ -5,7 +5,9 @@ AFU framework for Graph Processing algorithms with CAPI connected FGPAs With Ver
 
 ## Overview
 
-AccelGraph is an open source Graph processing framework, it is designed to be a portable benchmarking suit for various graph processing algorithms. The OpenMP part has been tested on Ubuntu 18.04 with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with coding data structures and other algorithmic optimizations. Furthermore this benchmarking tool has been fully integrated with CAPI. With machines that support such technology (IBM Power 8/9), it demonstrates the contrast in performance between using shared memory FPGA with parallel processors.
+![End-to-End Acceleration](./02_slides/fig/fig-4 "AccelGraph")
+
+AccelGraph is an open source Graph processing framework, it is designed to be a portable benchmarking suit for various graph processing algorithms. The OpenMP part has been tested on Ubuntu 18.04 with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with coding data structures and other algorithmic optimizations. Furthermore this benchmarking tool has been fully integrated with CAPI, demonstrating the contrast in performance between using shared memory FPGA with parallel processors.
 
 ## Organization
 
@@ -18,7 +20,7 @@ AccelGraph is an open source Graph processing framework, it is designed to be a 
       * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
       * `incrementalAgreggation.h` - Incremental Aggregation for clustering
       * `pageRank.h` - Page Rank Algorithm
-    * `preprocessing` - preprocessing graph algorithms (transform the edge list into data structures in memory)
+    * `preprocessing` - preprocessing graph algorithms (transform the edge list into data structures in memory) [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
       * `countsort.h` - sort edge list using count sort
       * `radixsort.h` - sort edge list using radix sort
       * `reorder.h` - cluster reorder the graph for better cache locality
