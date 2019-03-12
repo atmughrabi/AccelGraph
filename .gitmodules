@@ -1,12 +1,16 @@
 [submodule "01_CAPI_Integration/snap"]
 	path = 01_CAPI_Integration/snap
 	url = https://github.com/open-power/snap.git
+	ignore = dirty
 [submodule "01_CAPI_Integration/capi-utils"]
 	path = 01_CAPI_Integration/capi-utils
 	url = https://github.com/ibm-capi/capi-utils.git
+	ignore = dirty
 [submodule "01_CAPI_Integration/pslse"]
 	path = 01_CAPI_Integration/pslse
 	url = https://github.com/ibm-capi/pslse.git
+	ignore = dirty
 [submodule "01_CAPI_Integration/libcxl"]
 	path = 01_CAPI_Integration/libcxl
 	url = https://github.com/ibm-capi/libcxl.git
+	ignore = dirty
