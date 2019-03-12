@@ -1,5 +1,4 @@
 # globals
-APP                = test_afu
 GAPP               = main
 # GAPP               = test_fixedpoint
 # GAPP               = test
@@ -8,13 +7,8 @@ GAPP               = main
 # GAPP               = test_graphAdjLinkedList
 # GAPP               = test_graphAdjArray
 # GAPP               = test_grid
-TEST               = test
-
 
 # dirs
-PSLSE_DIR         = sim/pslse
-PSLSE_COMMON_DIR  = sim/pslse/common
-PSLSE_LIBCXL_DIR  = sim/pslse/libcxl
 APP_DIR           = 00_Graph_OpenMP
 SRC_DIR           = src
 OBJ_DIR			  = obj
@@ -25,15 +19,10 @@ ALGO_DIR		  = graphalgorithms
 TEST_DIR		  = tests
 UTIL_DIR		  = utils
 
-
 # compilers
 # CPP               = c++
-# CC				  = clang
+# CC				= clang
 CC				  = gcc 
-
-CAPI = 	-I$(PSLSE_COMMON_DIR) 					\
-		-I$(PSLSE_LIBCXL_DIR) 					\
-	 	-lrt -lpthread -D SIM
 
 INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(ALGO_DIR)/ 	\
@@ -41,31 +30,10 @@ INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 		-I$(APP_DIR)/include/$(UTIL_DIR)/ 	\
 		
-
-
-
 # flags
 CFLAGS            = -O3 -Wall -m64 -fopenmp -g
 
 all: test
-
-pslse-build:
-	cd $(PSLSE_DIR)/afu_driver/src && make clean && BIT32=y make
-	cd $(PSLSE_DIR)/pslse && make clean && make DEBUG=1
-	cd $(PSLSE_LIBCXL_DIR) && make clean && make
-
-pslse-run:
-	cd sim && ./pslse/pslse/pslse
-
-sim-build:
-	mkdir -p $(APP_DIR)/sim-build
-	$(CC) $(APP_DIR)/$(SRC_DIR)/$(APP).c  -o $(APP_DIR)/sim-build/$(APP) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CFLAGS) $(INC) -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -lrt -lpthread -D SIM
-
-sim-run:
-	cd sim && ../$(APP_DIR)/sim-build/$(APP) $(ARGS)
-
-vsim-run:
-	cd sim && vsim -do vsim.tcl
 
 $(APP_DIR)/$(OBJ_DIR)/mt19937.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/mt19937.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/mt19937.h
 	@echo 'making $(GAPP) <- mt19937.o'
@@ -201,13 +169,6 @@ $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o: $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).c
 	$(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).c \
 	$(INC) \
 
-$(APP_DIR)/$(OBJ_DIR)/$(GAPP)-capi.o: $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).c
-	@echo 'making $(GAPP) <- $(GAPP)-capi.o'
-	@$(CC) $(CFLAGS) -c -o $(APP_DIR)/$(OBJ_DIR)/$(GAPP)-capi.o \
-	$(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).c \
-	$(INC) \
-	$(CAPI)
-	
 
 arrayQueue: $(APP_DIR)/$(OBJ_DIR)/arrayQueue.o
 
@@ -281,7 +242,6 @@ createdir:
 	@mkdir -p $(APP_DIR)/test
 	@mkdir -p $(APP_DIR)/obj
 
-	
 test: createdir SSSP qinternal qvector bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
 	@echo 'linking $(GAPP) <- SSSP.o qinternal.o qvector.o DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
@@ -395,12 +355,10 @@ delta = 800
 # delta = 400
 # delta = 1
 
-
 convert: test
 	./$(APP_DIR)/test/$(GAPP) -c -w -f $(fnameb)
 
 run: test
-
 	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder) -b $(delta)
 	
 run-capi: test-capi
