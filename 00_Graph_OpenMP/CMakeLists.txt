@@ -1,12 +1,23 @@
 cmake_minimum_required(VERSION "3.3.2")
 project("Graph_OpenMP")
 
-# add_compile_options(-O3 -Wall -W -Werror -m64 -fopenmp -g)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # Put binaries into root of build tree
 
-set(CMAKE_C_FLAGS "-O3 -Wall -m64 -fopenmp -g")
+# add_compile_options(-O3 -Wall -m64 -fopenmp -g)
 
-add_subdirectory(include)
-add_subdirectory(src)
+set(CMAKE_C_FLAGS "-O3 -Wall -m64 -g")
+
+find_package(OpenMP REQUIRED)
+# find_package(snap REQUIRED)
+# find_package(cxl REQUIRED)
+
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+endif()
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 
 # add_library(

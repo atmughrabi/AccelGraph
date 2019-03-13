@@ -1,5 +1,6 @@
 # globals
-GAPP               = main
+# GAPP               = main
+GAPP               = test_quantization
 # GAPP               = test_fixedpoint
 # GAPP               = test
 # GAPP               = test_graphCSR
@@ -18,7 +19,8 @@ PREPRO_DIR		  = preprocessing
 ALGO_DIR		  = graphalgorithms
 TEST_DIR		  = tests
 BIN_DIR			  = bin
-MAIN_DIR		  = main
+MAIN_DIR		  = tests
+# MAIN_DIR		  = main
 UTIL_DIR		  = utils
 
 # compilers
@@ -28,13 +30,11 @@ CC				  = gcc
 
 INC = 	-I$(APP_DIR)/include/$(STRUCT_DIR)/ \
 		-I$(APP_DIR)/include/$(ALGO_DIR)/ 	\
-		-I$(APP_DIR)/include/$(TEST_DIR)/ 	\
 		-I$(APP_DIR)/include/$(PREPRO_DIR)/ \
 		-I$(APP_DIR)/include/$(UTIL_DIR)/ 	\
 		
 # flags
 CFLAGS            = -O3 -Wall -m64 -fopenmp -g
-
 all: test
 
 $(APP_DIR)/$(OBJ_DIR)/mt19937.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/mt19937.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/mt19937.h
@@ -56,6 +56,10 @@ $(APP_DIR)/$(OBJ_DIR)/progressbar.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/progressb
 $(APP_DIR)/$(OBJ_DIR)/fixedPoint.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/fixedPoint.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/fixedPoint.h
 	@echo 'making $(GAPP) <- fixedPoint.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/fixedPoint.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/fixedPoint.c
+
+$(APP_DIR)/$(OBJ_DIR)/quantization.o: $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/quantization.c $(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)/quantization.h
+	@echo 'making $(GAPP) <- quantization.o'
+	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/quantization.o $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/quantization.c
 
 $(APP_DIR)/$(OBJ_DIR)/radixsort.o: $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/radixsort.c $(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)/radixsort.h
 	@echo 'making $(GAPP) <- radixsort.o'
@@ -86,7 +90,7 @@ $(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjLi
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjLinkedList.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjLinkedList.c
 
 $(APP_DIR)/$(OBJ_DIR)/adjArrayList.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjArrayList.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/adjArrayList.h
-	@echo 'making $(GAPP) <- adjLinkedList.o'
+	@echo 'making $(GAPP) <- adjArrayList.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/adjArrayList.o $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/adjArrayList.c
 
 $(APP_DIR)/$(OBJ_DIR)/cluster.o: $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/cluster.c $(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)/cluster.h
@@ -184,6 +188,8 @@ progressbar: $(APP_DIR)/$(OBJ_DIR)/progressbar.o
 
 fixedPoint: $(APP_DIR)/$(OBJ_DIR)/fixedPoint.o
 
+quantization: $(APP_DIR)/$(OBJ_DIR)/quantization.o
+
 timer: $(APP_DIR)/$(OBJ_DIR)/timer.o
 
 app: $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o
@@ -244,8 +250,8 @@ createdir:
 	@mkdir -p $(APP_DIR)/bin
 	@mkdir -p $(APP_DIR)/obj
 
-test: createdir SSSP qinternal qvector bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
-	@echo 'linking $(GAPP) <- SSSP.o qinternal.o qvector.o DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
+test: createdir SSSP qinternal qvector bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint quantization sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
+	@echo 'linking $(GAPP) <- SSSP.o qinternal.o qvector.o quantization.o DFS.o arrayStack.o reorder.o fixedPoint.o sortRun.o mt19937.o graphRun.o graphGrid.o grid.o graphAdjArrayList.o adjArrayList.o adjLinkedList.o graphCSR.o graphAdjLinkedList.o dynamicQueue.o edgeList.o countsort.o radixsort.o vertex.o timer.o bitmap.o progressbar.o arrayQueue.o BFS.o pageRank.o'
 	@$(CC) $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o 	\
 	$(APP_DIR)/$(OBJ_DIR)/graphRun.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/reorder.o 		\
@@ -268,6 +274,7 @@ test: createdir SSSP qinternal qvector bellmanFord incrementalAggregation cluste
 	$(APP_DIR)/$(OBJ_DIR)/graphGrid.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/progressbar.o 	\
 	$(APP_DIR)/$(OBJ_DIR)/fixedPoint.o 		\
+	$(APP_DIR)/$(OBJ_DIR)/quantization.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/myMalloc.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/vertex.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/countsort.o 		\
@@ -370,16 +377,6 @@ debug-memory: test
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
 	
 clean:
-	@rm -fr $(APP_DIR)/graphCSR-build
 	@rm -fr $(APP_DIR)/test
-	@rm -fr $(APP_DIR)/sim-build
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
-	@rm -f sim/modelsim.ini
-	@rm -f sim/transcript
-	@rm -f sim/vsim_stacktrace.vstf
-	@rm -f sim/vsim.wlf
-	@rm -rf sim/work
-	@rm -f sim/debug.log
-	@rm -f sim/gmon.out	 
-
