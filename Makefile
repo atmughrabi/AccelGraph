@@ -369,6 +369,9 @@ convert: test
 
 run: test
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder) -b $(delta)
+
+run-test: test
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) 
 	
 debug: test	
 	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)
