@@ -1,7 +1,5 @@
-00_Graph_OpenMP/build
-00_Graph_OpenMP/build-graph
-00_Graph_OpenMP/test
 00_Graph_OpenMP/obj
+00_Graph_OpenMP/bin
 
 01_CAPI_Integration/CAPI-PSL9-WRAP-2.00
 01_CAPI_Integration/CAPI_1.00_DCP

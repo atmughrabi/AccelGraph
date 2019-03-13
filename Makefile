@@ -17,6 +17,8 @@ STRUCT_DIR		  = structures
 PREPRO_DIR		  = preprocessing
 ALGO_DIR		  = graphalgorithms
 TEST_DIR		  = tests
+BIN_DIR			  = bin
+MAIN_DIR		  = main
 UTIL_DIR		  = utils
 
 # compilers
@@ -163,10 +165,10 @@ $(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o: $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR
 	@echo 'making $(GAPP) <- incrementalAggregation.o'
 	@$(CC) $(CFLAGS) $(INC) -c -o $(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/incrementalAggregation.c
 
-$(APP_DIR)/$(OBJ_DIR)/$(GAPP).o: $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).c
+$(APP_DIR)/$(OBJ_DIR)/$(GAPP).o: $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/$(GAPP).c
 	@echo 'making $(GAPP) <- $(GAPP).o'
 	@$(CC) $(CFLAGS) -c -o $(APP_DIR)/$(OBJ_DIR)/$(GAPP).o \
-	$(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP).c \
+	$(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/$(GAPP).c \
 	$(INC) \
 
 
@@ -239,7 +241,7 @@ pageRank: $(APP_DIR)/$(OBJ_DIR)/pageRank.o
 incrementalAggregation : $(APP_DIR)/$(OBJ_DIR)/incrementalAggregation.o
 
 createdir:
-	@mkdir -p $(APP_DIR)/test
+	@mkdir -p $(APP_DIR)/bin
 	@mkdir -p $(APP_DIR)/obj
 
 test: createdir SSSP qinternal qvector bellmanFord incrementalAggregation cluster DFS arrayStack reorder fixedPoint sortRun mt19937 graphRun graphGrid grid graphAdjArrayList adjArrayList adjLinkedList dynamicQueue edgeList countsort radixsort vertex graphCSR graphAdjLinkedList timer progressbar myMalloc app bitmap arrayQueue BFS pageRank
@@ -277,7 +279,7 @@ test: createdir SSSP qinternal qvector bellmanFord incrementalAggregation cluste
 	$(APP_DIR)/$(OBJ_DIR)/timer.o 			\
 	$(APP_DIR)/$(OBJ_DIR)/edgeList.o 		\
 	$(APP_DIR)/$(OBJ_DIR)/mt19937.o 		\
-	 -o $(APP_DIR)/test/$(GAPP)				\
+	 -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)				\
 	 $(CFLAGS)
 
 # Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]
@@ -356,29 +358,23 @@ delta = 800
 # delta = 1
 
 convert: test
-	./$(APP_DIR)/test/$(GAPP) -c -w -f $(fnameb)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -c -w -f $(fnameb)
 
 run: test
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder) -b $(delta)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder) -b $(delta)
 	
-run-capi: test-capi
-	./$(APP_DIR)/test/$(GAPP)-capi -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
-
-
-run-ocl: test-opencl
-	./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder) -b $(delta)
-
 debug: test	
-	gdb ./$(APP_DIR)/test/$(GAPP)
+	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)
 
 debug-memory: test	
-	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/test/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
+	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
 	
 clean:
 	@rm -fr $(APP_DIR)/graphCSR-build
 	@rm -fr $(APP_DIR)/test
 	@rm -fr $(APP_DIR)/sim-build
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)
+	@rm -fr $(APP_DIR)/$(BIN_DIR)
 	@rm -f sim/modelsim.ini
 	@rm -f sim/transcript
 	@rm -f sim/vsim_stacktrace.vstf
