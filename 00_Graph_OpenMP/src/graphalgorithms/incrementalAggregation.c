@@ -14,7 +14,6 @@
 
 
 #include "arrayQueue.h"
-#include "cluster.h"
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
@@ -53,7 +52,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 	struct ArrayQueue* topLevelSet = newArrayQueue(graph->num_vertices);
 	struct ArrayQueue* reachableSet = newArrayQueue(graph->num_vertices);
 	struct ArrayQueue* Neighbors = newArrayQueue(graph->num_vertices);
-	struct GraphCluster * graphCluster =  graphClusterNew(graph->num_vertices);
+
 
 	struct Bitmap * mergeEdgeBitmap = newBitmap(graph->num_vertices);
 
@@ -145,7 +144,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
     	degreeU = degreeUtemp;
     	atomDegree[u] = degreeU;
 
-    	findBestDestination(&deltaQ, &v, u, weightSum, dest, atomDegree, atomChild, sibling, graph, reachableSet, Neighbors, mergeEdgeBitmap, graphCluster);
+    	findBestDestination(&deltaQ, &v, u, weightSum, dest, atomDegree, atomChild, sibling, graph, reachableSet, Neighbors, mergeEdgeBitmap);
     	
     	// totalQ += deltaQ;
     	// printf("%lf\n", deltaQ);
@@ -196,7 +195,6 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
     freeArrayQueue(Neighbors);
     freeArrayQueue(reachableSet);
     freeBitmap(mergeEdgeBitmap);
-    graphClusterFree(graphCluster);
 	free(vertices);
 	free(degrees);
 	free(weightSum);
@@ -209,14 +207,12 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 
 
 
-void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u32* dest, __u32* atomDegree, __u32* atomChild,__u32* sibling, struct GraphCSR* graph, struct ArrayQueue* reachableSet, struct ArrayQueue* Neighbors, struct Bitmap * mergeEdgeBitmap, struct GraphCluster* graphCluster){
+void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u32* dest, __u32* atomDegree, __u32* atomChild,__u32* sibling, struct GraphCSR* graph, struct ArrayQueue* reachableSet, struct ArrayQueue* Neighbors, struct Bitmap * mergeEdgeBitmap){
 
 	__u32 i;
 	__u32 j;
 	__u32 k;
-	__u32 edge_idv;
-	__u32 edge_idu;
-
+	
 	__u32 tempV;
 	__u32 tempU;
 	__u32 degreeTemp;
@@ -233,19 +229,16 @@ void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u
 	float numEdgesm2 = numEdgesm*numEdgesm;
 
 	
-	struct Vertex* vertices = NULL;
-	struct Edge*  sorted_edges_array = NULL;
+	// struct Vertex* vertices = NULL;
+	// struct Edge*  sorted_edges_array = NULL;
 
-	struct Edge* outNodes;
-    __u32 out_degree;
-
- 	#if DIRECTED
-		vertices = graph->inverse_vertices;
-		sorted_edges_array = graph->inverse_sorted_edges_array;
-	#else
-		vertices = graph->vertices;
-		sorted_edges_array = graph->sorted_edges_array;
-	#endif
+ // 	#if DIRECTED
+	// 	vertices = graph->inverse_vertices;
+	// 	sorted_edges_array = graph->inverse_sorted_edges_array;
+	// #else
+	// 	vertices = graph->vertices;
+	// 	sorted_edges_array = graph->sorted_edges_array;
+	// #endif
 	
 	
 	returnReachableSetOfNodesFromDendrogram(v, atomChild, sibling, reachableSet);
@@ -275,8 +268,7 @@ void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u
 		
 	}
 
-	// printSet(Neighbors);
-	edge_idv = graph->vertices[v].edges_idx;
+	
 	degreeVout = atomDegree[v];
 	degreeVin = atomDegree[v];
 
@@ -286,19 +278,19 @@ void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32* weightSum, __u
    
         __u32 i = Neighbors->queue[j];
       	degreeUout = atomDegree[dest[i]];
-      	if(degreeUout == UINT_MAX)
-      		continue;
-		degreeUin = atomDegree[dest[i]];
-		
+      	
+      	if(degreeUout != UINT_MAX){
+      		
+      		degreeUin = atomDegree[dest[i]];
+			edgeWeightUV = weightSum[dest[i]];
+			edgeWeightVU = weightSum[dest[i]];
 
-		edgeWeightUV = weightSum[dest[i]];
-		edgeWeightVU = weightSum[dest[i]];
+	      	deltaQtemp = ((edgeWeightVU*numEdgesm) - (float)(degreeVin*degreeUout*numEdgesm2)) + ((edgeWeightUV*numEdgesm) - (float)(degreeUin*degreeVout*numEdgesm2));
 
-      	deltaQtemp = ((edgeWeightVU*numEdgesm) - (float)(degreeVin*degreeUout*numEdgesm2)) + ((edgeWeightUV*numEdgesm) - (float)(degreeUin*degreeVout*numEdgesm2));
-
-      	if((*deltaQ) < deltaQtemp){
-      		(*deltaQ) = deltaQtemp;
-      		(*u) = i;
+	      	if((*deltaQ) < deltaQtemp){
+	      		(*deltaQ) = deltaQtemp;
+	      		(*u) = i;
+	      	}
       	}
 
     }
@@ -358,48 +350,3 @@ void printSet(struct ArrayQueue* Set){
 
 }
 
-// void compressCluster( __u32 u, struct GraphCSR* graph, struct GraphCluster* graphCluster,  __u32* dest, struct ArrayQueue* Neighbors){
-//  		__u32 degreeTemp;			__u32 degreeTemp;
-// 		__u32 edgeTemp;			__u32 edgeTemp;
-// 		__u32 k;			__u32 k;
-// 		// __u32 max_out_degree = 0;			__u32 j;
-// 		__u32 out_degree = 0;
-// 		// graphCluster->edgesHash;
-// 		__u32 tempU;
-// 		HTItem* bck = NULL;
-//  		ClearHashTable(graphCluster->edgesHash);
-//  		degreeTemp = graph->vertices[u].out_degree;
-// 		edgeTemp = graph->vertices[u].edges_idx;
-//  		for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++){
-// 			tempU = dest[graph->sorted_edges_array[k].dest];
-			
-// 			bck = HashFindOrInsert(graphCluster->edgesHash, tempU, 0);     /* initialize to 0 */
-// 			if(!bck->data ){
-// 				out_degree++;
-// 				enArrayQueueWithBitmap(Neighbors, tempU);	
-// 			}
-//  			// printf("c %u-dest %u: w %u d %u \n", u, tempU, graphPtr->sorted_edges_array[k].weight, bck->data);
-//     		bck->data += graph->sorted_edges_array[k].weight;
-// 		}
- 		
-// 		__u32 edge_index = graph->vertices[u].edges_idx;
-// 		// graphPtr->vertices[u].out_degree = HashSize(graphCluster->edgesHash);
-// 		graph->vertices[u].out_degree = out_degree;
-//  		// printf("Clusters | ");
-//     		for(j = Neighbors->head ; j < Neighbors->tail; j++){
-// 			bck = HashFind(graphCluster->edgesHash, Neighbors->queue[j]);
-// 			// printf(" %u |", bck->key);
-// 			graph->sorted_edges_array[edge_index].dest = bck->key;
-//   	     	graph->sorted_edges_array[edge_index].weight = bck->data;
-//   	     	edge_index++;
-// 		}
-//    	//   	for(bck = HashFirstBucket(graphCluster->edgesHash); bck!= NULL ; bck = HashNextBucket(graphCluster->edgesHash)){
-//   	//   		printf(" %u |",bck->key);
-// 			// 	graphPtr->sorted_edges_array[edge_index].dest = bck->key;
-//   	//      	graphPtr->sorted_edges_array[edge_index].weight = bck->data;
-//   	//      	edge_index++;
-// 			// }
-//  		// printf("\n");
-// 		resetArrayQueue(Neighbors);
-    	
-//  }

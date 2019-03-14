@@ -1,9 +1,7 @@
 
 
-FILE(GLOB MyCSources *.c)
+AUX_SOURCE_DIRECTORY(${CMAKE_CURRENT_SOURCE_DIR} MyCSources)
 
-add_library(
-	GRAPH_MAIN STATIC
-	${CMAKE_CURRENT_SOURCE_DIR}/${MyCSources}
-	)
+add_executable(main main.c)
 
+target_link_libraries(main LINK_PUBLIC  GRAPH_UTILS GRAPH_ALGORITHMS GRAPH_PREPROCESSING GRAPH_STRUCTURES)

@@ -1,7 +1,11 @@
 
-FILE(GLOB MyCSources *.c)
+# FILE(GLOB MyCSources *.c)
+
+AUX_SOURCE_DIRECTORY(${CMAKE_CURRENT_SOURCE_DIR} MyCSources)
 
 add_library(
 	GRAPH_PREPROCESSING STATIC
-	${CMAKE_CURRENT_SOURCE_DIR}/${MyCSources}
+	${MyCSources}
 	)
+
+# target_link_libraries(GRAPH_PREPROCESSING PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
