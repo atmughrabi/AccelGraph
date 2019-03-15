@@ -10,6 +10,7 @@
 
 # dirs Root app 
 APP_DIR           = .
+BENCHMARKS_DIR    = ../../01_GraphDatasets
 
 #dir root/managed_folders
 SRC_DIR           = src
@@ -131,70 +132,72 @@ clean:
 #   -b: SSSP Delta value [Default:1]  
 
 
-# fnameb = "../01_GraphDatasets/RMAT/RMAT-26"
-# fnameb = "../01_GraphDatasets/RMAT/RMAT19"
-# fnameb = "../01_GraphDatasets/RMAT/RMAT20"
-# fnameb = "../01_GraphDatasets/RMAT/RMAT21"
-# fnameb = "../01_GraphDatasets/RMAT/RMAT22"
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT26
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT19
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT21
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22
 
-fnameb = "../../01_GraphDatasets/RMAT/RMAT22.wbin"
-root = 690969
-# root = 2169295
-# root = 502357
-# root = 3009230
-# root = 0
+FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
+ROOT = 690969
+# ROOT = 2169295
+# ROOT = 502357
+# ROOT = 3009230
+# ROOT = 0
+
+
 #app command line arguments
-# fnameb = "../01_GraphDatasets/twitter/twitter_rv.net.bin8"
-# fnameb = "../01_GraphDatasets/Rabbit/test.txt.bin"
-# root = 428333 #max out labelless
-# root = 813286 #max in  labelless
-# reorder = 0
+# FILE_BIN = "../01_GraphDatasets/twitter/twitter_rv.net.bin8"
+# FILE_BIN = "../01_GraphDatasets/Rabbit/test.txt.bin"
+# ROOT = 428333 #max out labelless
+# ROOT = 813286 #max in  labelless
+# REORDER = 0
 
-# root = 19144663 #max out label
-# root = 3 #max in  label
+# ROOT = 19144663 #max out label
+# ROOT = 3 #max in  label
 # reorder = 1
 
-# root = 5576448 #max out label
-# root = 0 #max in  label
-reorder = 0
+# ROOT = 5576448 #max out label
+# ROOT = 0 #max in  label
+REORDER = 0
 
-# root = 0 #max out label
-# root = 2 #max in  label
-# reorder = 3
+# ROOT = 0 #max out label
+# ROOT = 2 #max in  label
+# REORDER = 3
 
-# root = 0 #max out label
-# root = 2 #max in  label
-# reorder = 4
+# ROOT = 0 #max out label
+# ROOT = 2 #max in  label
+# REORDER = 4
 
 
-# fnameb = "../01_GraphDatasets/test/test.txt.wbin"
-# root  = 6
-# # root  = 19
+# FILE_BIN = "../01_GraphDatasets/test/test.txt.wbin"
+# ROOT  = 6
+# ROOT  = 19
 
-# fnameb = "../01_GraphDatasets/facebook/facebook_combined.txt.wbin"
-# root = 107
-# root = 3120
-# fnameb = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
-# root = 428333
-datastructure = 0
-algorithm = 1
-numThreads  = 8
-iterations = 100
-trials = 0
-tolerance = 1e-6
-sort = 0
-pushpull = 3
-delta = 800
-# delta = 400
-# delta = 1
+# FILE_BIN = "../01_GraphDatasets/facebook/facebook_combined.txt.wbin"
+# ROOT = 107
+# ROOT = 3120
+# FILE_BIN = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
+# ROOT = 428333
+DATA_STRUCTURES = 0
+ALGORITHMS = 1
+NUM_THREADS  = 8
+NUM_ITERATIONS = 100
+NUM_TRIALS = 0
+TOLERANCE = 1e-6
+SORT_TYPE = 0
+PUSH_PULL = 3
+DELTA = 800
+# DELTA = 400
+# DELTA = 1
 
 .PHONY: convert
 convert: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -c -w -f $(fnameb)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -c -w -f $(FILE_BIN)
 
 .PHONY: run
 run: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations) -o $(sort) -p $(pushpull) -t $(trials) -e $(tolerance) -l $(reorder) -b $(delta)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(sort) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 .PHONY: debug
 debug: all	
@@ -202,7 +205,7 @@ debug: all
 
 .PHONY: debug-memory
 debug-memory: main	
-	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(fnameb) -d $(datastructure) -a $(algorithm) -r $(root) -n $(numThreads) -i $(iterations)
+	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS)
 
 .PHONY: run-test
 run-test: test
