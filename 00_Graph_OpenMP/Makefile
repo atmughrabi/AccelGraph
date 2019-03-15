@@ -8,19 +8,32 @@
 # GAPP_TEST               = graphAdjArray
 # GAPP_TEST               = grid
 
-# dirs
+# dirs Root app 
 APP_DIR           = .
+
+#dir root/managed_folders
 SRC_DIR           = src
 OBJ_DIR			  = obj
 INC_DIR			  = include
+BIN_DIR			  = bin
+
+#if you want to compile from cmake you need this directory
+#cd build
+#cmake ..
+BUILD_DIR		  = build
+
+# relative directories used for managing src/obj files
 STRUCT_DIR		  = structures
 PREPRO_DIR		  = preprocessing
 ALGO_DIR		  = graphalgorithms
-TEST_DIR		  = tests
-BIN_DIR			  = bin
-MAIN_DIR		  = main
 UTIL_DIR		  = utils
-BUILD_DIR		  = build
+
+#contains the tests use make run-test to compile what in this directory
+TEST_DIR		  = tests
+
+#contains the main for the graph processing framework
+MAIN_DIR		  = main
+
 
 SRC_FILES_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/*.c) 
 SRC_FILES_ALGO		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/*.c) 
