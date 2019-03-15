@@ -15,7 +15,7 @@ project(Graph_OpenMP	VERSION 1.0
 						LANGUAGES C)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) # Put binaries into root of build tree
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin) # Put binaries into root of build tree
 
 # add_compile_options(-O3 -Wall -m64 -fopenmp -g)
 
