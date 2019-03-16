@@ -119,7 +119,7 @@ clean:
 #   -a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation
 #   -d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers
 #   -r [root]: BFS, DFS, SSSP root
-#   -p [algorithm direction] [0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-6]-same order but using data driven
+#   -p [algorithm direction] [0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-5]-push/pull fixed point arithmetic [6-8]-same order but using data driven 
 #   -o [sorting algorithm] [0]-radix-src [1]-radix-src-dest [2]-count-src [3]-count-src-dst.
 #   -n [num threads] default:max number of threads the system has
 #   -i [num iterations] number of iterations for pagerank to converge [default:20] SSSP-BellmanFord [default:V-1] 
@@ -186,7 +186,7 @@ NUM_ITERATIONS = 100
 NUM_TRIALS = 0
 TOLERANCE = 1e-6
 SORT_TYPE = 0
-PUSH_PULL = 3
+PUSH_PULL = 4
 DELTA = 800
 # DELTA = 400
 # DELTA = 1

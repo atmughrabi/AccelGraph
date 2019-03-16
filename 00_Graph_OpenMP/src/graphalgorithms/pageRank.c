@@ -11,7 +11,10 @@
 #include "arrayQueue.h"
 #include "bitmap.h"
 #include "pageRank.h"
+
 #include "fixedPoint.h"
+#include "quantization.h"
+
 #include "reorder.h"
 
 #include "graphCSR.h"
@@ -712,18 +715,23 @@ void pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct 
             pageRankPushFixedPointGraphCSR(epsilon, iterations, graph);
         break;
 
-        
         case 4: // pull
-            pageRankDataDrivenPullGraphCSR(epsilon, iterations, graph);
+            pageRankPullQuantizationGraphCSR(epsilon, iterations, graph);
         break;
         case 5: // push
+            pageRankPushQuantizationGraphCSR(epsilon, iterations, graph);
+        break;
+
+        case 6: // pull
+            pageRankDataDrivenPullGraphCSR(epsilon, iterations, graph);
+        break;
+        case 7: // push
             pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
         break;
-        case 6: // pullpush
+        case 8: // pullpush
             pageRankDataDrivenPullPushGraphCSR(epsilon, iterations, graph);
         break;
 
-       
         // case 7: // push
         //     pageRankDataDrivenPullFixedPointGraphCSR(epsilon, iterations, graph);
         // break;
@@ -1309,6 +1317,303 @@ float* pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct 
    return pageRanks;
 }
 
+// topoligy driven approach
+float* pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+
+ __u32 iter;
+  __u32 j;
+  __u32 v;
+  __u32 u;
+  __u32 degree;
+  __u32 edge_idx;
+  __u32 activeVertices = 0;
+  double error_total = 0;
+  // float init_pr = 1.0f / (float)graph->num_vertices;
+  float base_pr = (1.0f - Damp);
+
+  // __u64 base_pr_fp = FloatToFixed64(base_pr);
+  // __u64 epsilon_fp = DoubleToFixed64(epsilon);
+  // __u64 num_vertices_fp = UInt32ToFixed64();
+
+  struct Vertex* vertices = NULL;
+  __u32* sorted_edges_array = NULL;
+  struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+  struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
+
+  #if DIRECTED
+    vertices = graph->inverse_vertices;
+    sorted_edges_array = graph->inverse_sorted_edge_array;
+  #else
+    vertices = graph->vertices;
+    sorted_edges_array = graph->sorted_edge_array;
+  #endif
+
+  #if ALIGNED
+        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
+        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
+        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
+        // __u64* outDegreesFP = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
+        // __u64* pageRanksFP = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
+  #else
+        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+        // __u64* outDegreesFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+        // __u64* pageRanksFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+  #endif
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Page Rank Pull Quant (tolerance/epsilon)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51.13lf | \n", epsilon);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iteration","Active", "Error", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+  Start(timer);
+    
+
+  #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext,pageRanks,base_pr)
+  for(v = 0; v < graph->num_vertices; v++){
+     pageRanks[v] = base_pr;
+     pageRanksNext[v] = 0;
+  }
+
+  for(iter = 0; iter < iterations; iter++){
+    error_total = 0;
+    activeVertices = 0;
+    Start(timer_inner);
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++){
+      if(graph->vertices[v].out_degree)
+        riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v]/graph->vertices[v].out_degree);
+      else
+        riDividedOnDiClause[v] = 0;
+    }
+
+    // Stop(timer_inner);
+    // printf("|A %-9u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
+
+    //  Start(timer_inner);
+    #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
+    for(v = 0; v < graph->num_vertices; v++){
+      degree = vertices[v].out_degree;
+      edge_idx = vertices[v].edges_idx;
+      for(j = edge_idx ; j < (edge_idx + degree) ; j++){
+        u = sorted_edges_array[j];
+        pageRanksNext[v] += riDividedOnDiClause[u];
+      }
+
+    }
+    // Stop(timer_inner);
+    // printf("|B %-9u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
+
+    // Start(timer_inner);
+    #pragma omp parallel for private(v) shared(epsilon, pageRanks,pageRanksNext,base_pr) reduction(+ : error_total, activeVertices) 
+    for(v = 0; v < graph->num_vertices; v++){
+      float prevPageRank =  pageRanks[v];
+      float nextPageRank =  base_pr + (Damp * Fixed64ToDouble(pageRanksNext[v]));
+      pageRanks[v] = nextPageRank;
+      // pageRanksFP[v] = FloatToFixed(nextPageRank);
+      pageRanksNext[v] = 0;
+      double error = fabs( nextPageRank - prevPageRank);
+      error_total += (error/graph->num_vertices);
+
+      if(error >= epsilon){
+        activeVertices++;
+      }
+    }
+
+    // Stop(timer_inner);
+    // printf("|C %-9u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
+
+
+    Stop(timer_inner);
+    printf("| %-10u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
+    if(activeVertices == 0)
+      break;
+
+  }// end iteration loop
+
+   double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
+  for(v = 0; v < graph->num_vertices; v++){
+    pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    sum += pageRanks[v];
+  }
+
+  Stop(timer);
+
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",iter, sum, error_total, Seconds(timer));
+  printf(" -----------------------------------------------------\n");
+
+  // pageRankPrint(pageRanks, graph->num_vertices);
+  free(timer);
+  free(timer_inner);
+  free(riDividedOnDiClause);
+
+   return pageRanks;
+
+}
+
+float* pageRankPushQuantizationGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+
+  __u32 iter;
+  __u32 i;
+  __u32 v;
+ 
+  // double error = 0;
+  __u32 activeVertices = 0;
+  double error_total = 0;
+  // float init_pr = 1.0f / (float)graph->num_vertices;
+  float base_pr = (1.0f - Damp);
+  // __u64 base_prFP = DoubleToFixed(base_pr);
+  // __u64 DampFP = DoubleToFixed(Damp);
+  struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+  struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
+
+    #if ALIGNED
+        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graph->num_vertices * sizeof(omp_lock_t));
+    #else
+        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
+
+    #endif
+
+
+    #pragma omp parallel for default(none) private(i) shared(graph,vertex_lock)
+    for (i=0; i<graph->num_vertices; i++){
+        omp_init_lock(&(vertex_lock[i]));
+    }
+
+  #if ALIGNED
+        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
+        // __u32* pageRanksFP = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
+        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
+  #else
+        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+        // __u32* pageRanksFP = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+  #endif
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Page Rank Push Quant (tolerance/epsilon)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51.13lf | \n", epsilon);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iteration","Active", "Error", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+  Start(timer);
+    
+
+  #pragma omp parallel for default(none) private(v) shared(base_pr,pageRanksNext,graph,pageRanks)
+  for(v = 0; v < graph->num_vertices; v++){
+    pageRanks[v] = base_pr;
+    // pageRanksFP[v]=base_prFP;
+    pageRanksNext[v] = 0;
+  }
+
+  for(iter = 0; iter < iterations; iter++){
+    Start(timer_inner);
+    error_total = 0;
+    activeVertices = 0;
+    #pragma omp parallel for private(v) shared(riDividedOnDiClause,pageRanks,graph)
+    for(v = 0; v < graph->num_vertices; v++){
+      if(graph->vertices[v].out_degree){
+        riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v]/graph->vertices[v].out_degree);
+         // riDividedOnDiClause[v] = DIVFixed64V1(pageRanksFP[v],UInt64ToFixed(graph->vertices[v].out_degree));
+       }
+      else
+        riDividedOnDiClause[v] = 0;
+      
+    }
+    // Stop(timer_inner);
+    // printf("|A%-10u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
+    // Start(timer_inner);
+    #pragma omp parallel for default(none) schedule(dynamic, 1024) private(v) shared(graph,pageRanksNext,riDividedOnDiClause)
+    for(v = 0; v < graph->num_vertices; v++){
+
+
+
+      __u32 degree = graph->vertices[v].out_degree;
+      __u32 edge_idx = graph->vertices[v].edges_idx;
+      // __u32 tid = omp_get_thread_num();
+      __u32 j;
+
+      for(j = edge_idx ; j < (edge_idx + degree) ; j++){
+       __u32 u = graph->sorted_edge_array[j];
+      
+        // omp_set_lock(&(vertex_lock[u]));
+        //   pageRanksNext[u] += riDividedOnDiClause[v];
+        // omp_unset_lock((&vertex_lock[u]));
+
+        #pragma omp atomic update
+         pageRanksNext[u] += riDividedOnDiClause[v];
+
+        // addAtomicFixedPoint(&pageRanksNext[u] , riDividedOnDiClause[v]);
+      }
+    }
+    // Stop(timer_inner);
+    // printf("|B%-10u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
+    // Start(timer_inner);
+    #pragma omp parallel for private(v) shared(epsilon, pageRanks,pageRanksNext,base_pr) reduction(+ : error_total, activeVertices) 
+    for(v = 0; v < graph->num_vertices; v++){
+      float prevPageRank =  pageRanks[v];
+      float nextPageRank =  base_pr + (Damp * Fixed64ToDouble(pageRanksNext[v]));
+      pageRanks[v] = nextPageRank;
+      // pageRanksFP[v] = FloatToFixed(nextPageRank);
+      pageRanksNext[v] = 0;
+      double error = fabs( nextPageRank - prevPageRank);
+      error_total += (error/graph->num_vertices);
+
+      if(error >= epsilon){
+        activeVertices++;
+      }
+    }
+
+    Stop(timer_inner);
+    printf("| %-10u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
+    if(activeVertices == 0)
+      break;
+
+  }// end iteration loop
+
+
+   double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
+  for(v = 0; v < graph->num_vertices; v++){
+    pageRanks[v] = pageRanks[v]/graph->num_vertices;
+    sum += pageRanks[v];
+  }
+
+  Stop(timer);
+
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",iter, sum, error_total, Seconds(timer));
+  printf(" -----------------------------------------------------\n");
+
+  // pageRankPrint(pageRanks, graph->num_vertices);
+
+  #pragma omp parallel for
+    for (i=0; i<graph->num_vertices; i++){
+        omp_destroy_lock(&(vertex_lock[i]));
+    }
+
+  free(timer);
+  free(timer_inner);
+  free(vertex_lock);
+  free(pageRanksNext);
+  free(riDividedOnDiClause);
+
+   return pageRanks;
+}
 
 float* pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
 
