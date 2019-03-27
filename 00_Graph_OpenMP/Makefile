@@ -11,6 +11,7 @@
 # dirs Root app 
 APP_DIR           = .
 BENCHMARKS_DIR    = ../../01_GraphDatasets
+SNIPER_DIR		  = ../../sniper
 
 #dir root/managed_folders
 SRC_DIR           = src
@@ -57,7 +58,8 @@ CC				  = gcc
 INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
 		-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR) 	\
 		-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
-		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)
+		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)  	\
+		-I$(SNIPER_DIR)/include
 
 # flags
 CFLAGS   = -O3 -Wall -m64 -fopenmp -g
@@ -174,7 +176,7 @@ REORDER = 0
 # ROOT  = 6
 # ROOT  = 19
 
-# FILE_BIN = "../01_GraphDatasets/facebook/facebook_combined.txt.wbin"
+# FILE_BIN =  $(BENCHMARKS_DIR)/facebook/facebook_combined.txt.wbin
 # ROOT = 107
 # ROOT = 3120
 # FILE_BIN = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
@@ -197,7 +199,7 @@ convert: all
 
 .PHONY: run
 run: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(sort) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 .PHONY: debug
 debug: all	
@@ -218,3 +220,7 @@ debug-test: test
 .PHONY: debug-memory-test
 debug-memory-test: test	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
+
+.PHONY: sniper
+sniper: all	
+	./$(SNIPER_DIR)/run-sniper -n 8 --roi  -ccacheonly -gperf_model/branch_predictor/type=none -ggeneral/enable_icache_modeling=false -c ./$(SNIPER_DIR)/config/cacheonly.cfg -- $(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
