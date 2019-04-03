@@ -4,6 +4,7 @@
 #include <linux/types.h>
 #include "bloomFilter.h"
 #include "bitmap.h"
+#include "hash.h"
 #include "myMalloc.h"
 
 struct BloomFilter * newBloomFilter(__u32 size){
