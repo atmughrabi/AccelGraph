@@ -35,9 +35,11 @@ struct Bitmap* newBitmap( __u32 size){
 
 void freeBitmap( struct Bitmap* bitmap){
 
-        free(bitmap->bitarray);
-        free(bitmap);
-	
+
+		if(bitmap){
+        	free(bitmap->bitarray);
+        	free(bitmap);
+		}
 }
 
 void clearBitmap(struct Bitmap* bitmap){
