@@ -29,3 +29,4 @@ __u64 magicHash64Reverse(__u64 x) {
     x = x ^ (x >> 30) ^ (x >> 60);
     return x;
 }
+

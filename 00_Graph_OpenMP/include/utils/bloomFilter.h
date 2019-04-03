@@ -7,7 +7,9 @@
 
 struct BloomFilter {
    	struct Bitmap* bloom;
-   __u32 size;
+   __u32 size; // size of bloom filter
+   __u32 partition; // partition m/k as a prime number
+   __u32 k; // number of hash function
 };
 
 
