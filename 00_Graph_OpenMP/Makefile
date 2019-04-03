@@ -1,6 +1,9 @@
+
+
 # globals
   GAPP               = main
-  GAPP_TEST          = test_quantization
+#   GAPP_TEST          = test_quantization
+  GAPP_TEST          = test_bloomfilter
 # GAPP_TEST               = fixedpoint
 # GAPP_TEST               = graphCSR
 # GAPP_TEST               = graphGrid
@@ -161,7 +164,7 @@ ROOT = 690969
 
 # ROOT = 5576448 #max out label
 # ROOT = 0 #max in  label
-REORDER = 0
+
 
 # ROOT = 0 #max out label
 # ROOT = 2 #max in  label
@@ -172,7 +175,7 @@ REORDER = 0
 # REORDER = 4
 
 
-# FILE_BIN = "../01_GraphDatasets/test/test.txt.wbin"
+# FILE_BIN = "$(BENCHMARKS_DIR)/test/test.txt.wbin"
 # ROOT  = 6
 # ROOT  = 19
 
@@ -190,6 +193,7 @@ TOLERANCE = 1e-6
 SORT_TYPE = 0
 PUSH_PULL = 4
 DELTA = 800
+REORDER = 0
 # DELTA = 400
 # DELTA = 1
 
@@ -223,4 +227,12 @@ debug-memory-test: test
 
 .PHONY: sniper
 sniper: all	
-	./$(SNIPER_DIR)/run-sniper -n 8 --roi  -ccacheonly -gperf_model/branch_predictor/type=none -ggeneral/enable_icache_modeling=false -c ./$(SNIPER_DIR)/config/cacheonly.cfg -- $(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+	./$(SNIPER_DIR)/run-sniper --roi  -ccacheonly -gperf_model/branch_predictor/type=none -ggeneral/enable_icache_modeling=false -c ./$(SNIPER_DIR)/config/base.cfg -- $(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
+.PHONY: sst
+sst: all
+	$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
+.PHONY: pin
+pin: all	
+	 ../../../pin-3.7/pin  -t ../../../pin-3.7/source/tools/SimpleExamples/obj-intel64/pinatrace.so -- $(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
