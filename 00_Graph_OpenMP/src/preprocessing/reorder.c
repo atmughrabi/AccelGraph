@@ -19,8 +19,8 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
 
 	float* pageRanks = NULL;
 	__u32 v;
-	double epsilon = 0.0001;
-	__u32 iterations = 10;
+	double epsilon = 1e-6;
+	__u32 iterations = 100;
 	
 	__u32* labelsInverse;
 	__u32* labels;
@@ -69,8 +69,11 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
 
   #pragma omp parallel for
   for(v = 0; v < graph->num_vertices; v++){
-    labels[labelsInverse[v]] = graph->num_vertices -1 - v;
+
+     labels[labelsInverse[v]] = graph->num_vertices -1 - v;
   }
+
+
 
 
   edgeList->num_vertices = graph->num_vertices;

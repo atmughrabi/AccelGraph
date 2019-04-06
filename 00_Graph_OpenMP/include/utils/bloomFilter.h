@@ -14,7 +14,7 @@ struct BloomFilter {
 
 
 
-struct BloomFilter * newBloomFilter(__u32 size);
+struct BloomFilter * newBloomFilter(__u32 size, __u32 k);
 void freeBloomFilter( struct BloomFilter * bloomFilter);
 void clearBloomFilter( struct BloomFilter * bloomFilter);
 void addToBloomFilter(struct BloomFilter * bloomFilter, __u32 item);

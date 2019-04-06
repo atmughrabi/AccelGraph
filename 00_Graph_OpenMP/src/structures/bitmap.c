@@ -63,6 +63,13 @@ void setBit(struct Bitmap* bitmap, __u32 pos){
 
 }
 
+void setBitXOR(struct Bitmap* bitmap, __u32 pos){
+
+	bitmap->bitarray[word_offset(pos)] ^= (__u32) (1 << bit_offset(pos));
+
+}
+
+
 void setBitRange(struct Bitmap* bitmap, __u32 start,__u32 end){
 
  __u32 pos;

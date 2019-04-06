@@ -7,7 +7,7 @@
 #include "hash.h"
 #include "myMalloc.h"
 
-struct BloomFilter * newBloomFilter(__u32 size){
+struct BloomFilter * newBloomFilter(__u32 size, __u32 k){
 
 
 	#if ALIGNED
@@ -17,8 +17,8 @@ struct BloomFilter * newBloomFilter(__u32 size){
 	#endif
 
      bloomFilter->bloom = newBitmap(size);
-     bloomFilter->size = (size+kBitsPerWord - 1)/kBitsPerWord;
-     bloomFilter->k = 4;
+     bloomFilter->size = ((size+kBitsPerWord - 1)/kBitsPerWord)*kBitsPerWord;
+     bloomFilter->k = k;
      bloomFilter->partition = bloomFilter->size/bloomFilter->k;
 
      return bloomFilter;
@@ -70,7 +70,6 @@ __u32 findInBloomFilter(struct BloomFilter * bloomFilter, __u32 item){
     for (i = 0; i < bloomFilter->k; ++i) {
         __u64 k = (h1 + i * h2) % bloomFilter->partition; // bit to set
         __u64 j = k + (i * bloomFilter->partition);       // in parition 'i'
-
         if(!getBit(bloomFilter->bloom, (__u32)j))
         	return 0;
 
