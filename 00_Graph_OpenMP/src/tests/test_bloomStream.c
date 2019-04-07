@@ -56,17 +56,21 @@ int main(int argc, char *argv[])
 
 	}
 
+	aggregateBloomFilterToHistory(bloomStream);
+
 	for(i=0; i < 10 ; i++ ){
 
 	 addToBloomStream(bloomStream,i);
 
 	}
 
-	for(i=0; i<25 ; i++ ){
+	aggregateBloomFilterToHistory(bloomStream);
+
+	printf("%s\n","FIND ONLY Operation *****************************" );
+
+	for(i=0; i<100 ; i++ ){
 
 		found = findInBloomStream(bloomStream,i);
-
-
 		
 	}
 
