@@ -36,7 +36,7 @@ void clearBloomStream( struct BloomStream * bloomStream);
 void addToBloomStream(struct BloomStream * bloomStream, __u32 item);
 __u32 findInBloomStream(struct BloomStream * bloomStream, __u32 item);
 void aggregateBloomFilterToHistory(struct BloomStream * bloomStream);
-__u32 findNextPrime(__u32 item);
+
 
 
 #endif

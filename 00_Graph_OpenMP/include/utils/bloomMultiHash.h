@@ -1,11 +1,11 @@
-#ifndef BLOOMSTREAM_H
-#define BLOOMSTREAM_H
+#ifndef BLOOMMULTIHASH_H
+#define BLOOMMULTIHASH_H
 
 
 #include <linux/types.h>
 #include "bitmap.h"
 
-struct BloomStream{
+struct BloomMultiHash{
    	struct Bitmap* bloom;
    	struct Bitmap* bloomPrime;
    	struct Bitmap* bloomHistory;
@@ -30,13 +30,13 @@ struct BloomStream{
 };
 
 
-struct BloomStream * newBloomStream(__u32 size, __u32 k);
-void freeBloomStream( struct BloomStream * bloomStream);
-void clearBloomStream( struct BloomStream * bloomStream);
-void addToBloomStream(struct BloomStream * bloomStream, __u32 item);
-__u32 findInBloomStream(struct BloomStream * bloomStream, __u32 item);
-void aggregateBloomFilterToHistory(struct BloomStream * bloomStream);
-__u32 findNextPrime(__u32 item);
+struct BloomMultiHash * newBloomMultiHash(__u32 size, __u32 k);
+void freeBloomMultiHash( struct BloomMultiHash * bloomMultiHash);
+void clearBloomMultiHash( struct BloomMultiHash * bloomMultiHash);
+void addToBloomMultiHash(struct BloomMultiHash * bloomMultiHash, __u32 item);
+__u32 findInBloomMultiHash(struct BloomMultiHash * bloomMultiHash, __u32 item);
+
+
 
 
 #endif

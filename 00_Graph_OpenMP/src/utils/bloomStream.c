@@ -55,29 +55,6 @@ struct BloomStream * newBloomStream(__u32 size, __u32 k){
 
 }
 
-__u32 findNextPrime(__u32 item){
-
-    __u32 n,i,j;
-
-    n = item;
-
-   for(i=n+1;;i++)
-    {
-        for(j=2;j<i;j++)
-        {
-            if(i%j==0)
-                break;
-        }
-
-        if(j==i)
-        {
-            printf("The next prime number is :%d",i);
-            break;
-        }
-    }
-
-    return i;
-}
 
 void freeBloomStream( struct BloomStream * bloomStream){
 
