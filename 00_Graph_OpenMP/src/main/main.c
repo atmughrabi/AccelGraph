@@ -5,6 +5,7 @@
 #include <omp.h>
 
 #include "graphRun.h"
+#include "graphStats.h"
 #include "edgeList.h"
 #include "myMalloc.h"
 #include "timer.h"
@@ -28,6 +29,7 @@ static void usage(void) {
   printf("\t-c [convert to bin] read text format convert to bin file on load example:-f <graph file> -c\n");
   printf("\t-w [Weight generate] Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 beforehand then recompile with using this option\n");
   printf("\t-s [Symmetric] Symmetric graph, if not given set of incoming edges will be created \n");
+  printf("\t-x [Collect stats] dump a histogram to file based on in-out degree count bins / sorted according to in/out-degree or pageranks \n");
   printf("\t-b [Delta] SSSP Delta value [Default:1] \n"); 
   _exit(-1);
 }
@@ -36,6 +38,7 @@ int main (int argc, char **argv)
 {
   // int uflag = 0;
   int wflag = 0;
+  int xflag = 0;
   int sflag = 0;
   int cflag = 0;
 
@@ -75,7 +78,7 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:b:chsw")) != -1)
+  while ((c = getopt (argc, argv, "h:f:d:a:r:n:i:t:e:p:o:l:b:chswx")) != -1)
     switch (c)
       {
       case 'h':
@@ -138,6 +141,9 @@ int main (int argc, char **argv)
         wflag = 1;
         weighted = wflag;
         break;
+      case 'x':
+        xflag = 1;
+         break;
       case 'c':
         cflag = 1;
         break;
@@ -185,6 +191,16 @@ int main (int argc, char **argv)
       omp_set_nested(1);
       omp_set_num_threads(numThreads);
 
+      __u32 binSize = iterations;
+      __u32 inout_degree = pushpull;
+      __u32 inout_lmode = lmode;
+
+
+      if(xflag){
+           collectStats(binSize, fnameb, sort, inout_lmode, symmetric, weighted, inout_degree);
+      } 
+      else{
+
       if(cflag)
       {
         Start(timer);
@@ -196,7 +212,7 @@ int main (int argc, char **argv)
         graph = generateGraphDataStructure(fnameb, datastructure, sort, lmode, symmetric, weighted);
         runGraphAlgorithms(graph, datastructure, algorithm, root, iterations, epsilon, trials, pushpull,delta);
       }
-
+    }
      
      
 

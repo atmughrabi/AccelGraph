@@ -143,8 +143,9 @@ clean:
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT21
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22
+# FILE_BIN = $(BENCHMARKS_DIR)/twitter/twitter_rv.net.bin8
 
-FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
 ROOT = 690969
 # ROOT = 2169295
 # ROOT = 502357
@@ -187,20 +188,29 @@ ROOT = 690969
 # ROOT = 428333
 DATA_STRUCTURES = 0
 ALGORITHMS = 1
-NUM_THREADS  = 8
+NUM_THREADS  = 1
 NUM_ITERATIONS = 100
 NUM_TRIALS = 0
 TOLERANCE = 1e-6
 SORT_TYPE = 0
 PUSH_PULL = 0
 DELTA = 800
-REORDER = 2
+REORDER = 0
 # DELTA = 400
 # DELTA = 1
+
+BIN_SIZE = 8192
+INOUT_STATS = 2
 
 .PHONY: convert
 convert: all
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -c -w -f $(FILE_BIN)
+
+.PHONY: stats
+stats: all
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p 1
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p 2
+
 
 .PHONY: run
 run: all
@@ -237,3 +247,7 @@ sst: all
 .PHONY: pin
 pin: all	
 	 ../../../pin-3.7/pin  -t ../../../pin-3.7/source/tools/SimpleExamples/obj-intel64/pinatrace.so -- $(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
+.PHONY: cache-perf
+cache-perf: all
+	valgrind --tool=cachegrind ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -w -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)

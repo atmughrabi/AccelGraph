@@ -20,7 +20,7 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
 	float* pageRanks = NULL;
 	__u32 v;
 	double epsilon = 1e-6;
-	__u32 iterations = 100;
+	__u32 iterations = 10;
 	
 	__u32* labelsInverse;
 	__u32* labels;
@@ -91,6 +91,7 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
     printf(" -----------------------------------------------------\n");
 
 	free(timer);
+  free(labelsInverse);
 
 	return edgeList;
 }

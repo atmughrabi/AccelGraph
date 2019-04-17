@@ -77,10 +77,11 @@ void clearBloomStream( struct BloomStream * bloomStream){
 }
 
 
-void addToBloomStream(struct BloomStream * bloomStream, __u32 item){
+void addToBloomStream(struct BloomStream * bloomStream, __u64 item){
 
-
-	__u64 z = magicHash64((__u64)item);
+    
+    printf("add- %lx %lu \n", item,item);
+	__u64 z = magicHash64(item);
 	__u64 h1 = z & 0xffffffff;
     __u64 h2 = z >> 32;
     __u64 i;
@@ -125,11 +126,11 @@ void addToBloomStream(struct BloomStream * bloomStream, __u32 item){
 
 }
 
-__u32 findInBloomStream(struct BloomStream * bloomStream, __u32 item){
+__u32 findInBloomStream(struct BloomStream * bloomStream, __u64 item){
 
 
 	// MitzenmacherKirsch optimization
-	__u64 z = magicHash64((__u64)item);
+	__u64 z = magicHash64(item);
 	__u64 h1 = z & 0xffffffff;
     __u64 h2 = z >> 32;
     __u64 i;

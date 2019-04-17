@@ -33,8 +33,8 @@ struct BloomStream{
 struct BloomStream * newBloomStream(__u32 size, __u32 k);
 void freeBloomStream( struct BloomStream * bloomStream);
 void clearBloomStream( struct BloomStream * bloomStream);
-void addToBloomStream(struct BloomStream * bloomStream, __u32 item);
-__u32 findInBloomStream(struct BloomStream * bloomStream, __u32 item);
+void addToBloomStream(struct BloomStream * bloomStream, __u64 item);
+__u32 findInBloomStream(struct BloomStream * bloomStream, __u64 item);
 void aggregateBloomFilterToHistory(struct BloomStream * bloomStream);
 
 

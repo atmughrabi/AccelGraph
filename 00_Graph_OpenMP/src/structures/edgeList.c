@@ -217,6 +217,7 @@ struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmet
              offset = 2;
         else
              offset = 3;
+         
         #else
              offset = 2; 
         #endif
