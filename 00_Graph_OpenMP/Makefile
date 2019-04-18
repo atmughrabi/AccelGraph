@@ -139,25 +139,22 @@ clean:
 
 
 #synthetic graphs
-# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT26
-# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT19
-# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20
-# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT21
-# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22
-# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
 
 #real world large graphs text format
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph
+# FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph
 
 
 #real world large graphs binary format
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
 
 
 
@@ -168,15 +165,15 @@ ALGORITHMS = 1
 NUM_THREADS  = 8
 NUM_ITERATIONS = 100
 NUM_TRIALS = 0
-TOLERANCE = 1e-6
+TOLERANCE = 1e-8
 SORT_TYPE = 0
 PUSH_PULL = 0
 DELTA = 800
-REORDER = 4
+REORDER = 0
 
 
 #STATS COLLECTION VARIABLES
-BIN_SIZE = 8192
+BIN_SIZE = 32768
 INOUT_STATS = 2
 
 .PHONY: convert
@@ -185,8 +182,7 @@ convert: all
 
 .PHONY: stats
 stats: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p 1
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p 2
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p $(INOUT_STATS)
 
 .PHONY: run
 run: all

@@ -1397,7 +1397,7 @@ float* pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
     
 
   // FILE *fptr;
-  // fptr = fopen("./twitter.best.out","w");
+  // fptr = fopen("./RMAT20.accum.all.out","w");
     // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
     for(v = 0; v < graph->num_vertices; v++){
       degree = vertices[v].out_degree;
@@ -1413,10 +1413,10 @@ float* pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
         u = sorted_edges_array[j];
 
-        // if(u<8192){
-        //   fprintf(fptr,"r %016x\n", &(sorted_edges_array[j]));
-        //   fprintf(fptr,"r %016x\n", &(riDividedOnDiClause[u]));
-        // }
+       // if(u<(8192)){
+       //    // fprintf(fptr,"r %016x\n", &(sorted_edges_array[j]));
+       //    fprintf(fptr,"r %016x\n", &(riDividedOnDiClause[u]));
+       //  }
 
         // if(v<8192){
         //   fprintf(fptr,"r %016x\n", &(pageRanksNext[v]));

@@ -80,7 +80,7 @@ void clearBloomStream( struct BloomStream * bloomStream){
 void addToBloomStream(struct BloomStream * bloomStream, __u64 item){
 
     
-    printf("add- %lx %lu \n", item,item);
+    // printf("add- %lx %lu \n", item,item);
 	__u64 z = magicHash64(item);
 	__u64 h1 = z & 0xffffffff;
     __u64 h2 = z >> 32;
@@ -171,14 +171,14 @@ __u32 findInBloomStream(struct BloomStream * bloomStream, __u64 item){
         bloomStream->temperature = bloomStream->counterHistory[index];
         
 
-        printf("FOUND item : %u counter : %u \n", item, bloomStream->counterHistory[index]);
+        // printf("FOUND item : %u counter : %u \n", item, bloomStream->counterHistory[index]);
     }
     else{
         bloomStream->membership = 0;
         bloomStream->temperature = 0;
 
 
-        printf("NOT FOUND\n");
+        // printf("NOT FOUND\n");
     }
 
 	return bloomStream->membership;

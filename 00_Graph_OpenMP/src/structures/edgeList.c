@@ -134,17 +134,17 @@ char * readEdgeListstxt(const char * fname, __u32 weighted){
                 return NULL;
         }
 
-        char type;
-        __u32 time =0;
-         char * buffer = (char *) malloc(200*sizeof(char));
+        // char type;
+        // __u32 time =0;
+        //  char * buffer = (char *) malloc(200*sizeof(char));
 
         while (1)
         {
             
-        // if(size > 49){
+        // if(size > 48){
         #if WEIGHTED
                 if(weighted){ 
-                    i = fscanf(pText, "%u\t%u\n", &src, &dest,&time);
+                    i = fscanf(pText, "%u\t%u\n", &src, &dest);
                     weight = (genrand_int31() % 256)+1;
                 }
                 else{
@@ -170,10 +170,10 @@ char * readEdgeListstxt(const char * fname, __u32 weighted){
                 // else{
                 //     i = fscanf(pText, "%[^\n]",buffer);
                 //     fgetc(pText);
-                //     printf("%s\n",buffer);
+                //     // printf("%s\n",buffer);
                 // }
         size++;
-        // if( size == 20 ) 
+        // if( size == 70 ) 
         //      break;
 
        
