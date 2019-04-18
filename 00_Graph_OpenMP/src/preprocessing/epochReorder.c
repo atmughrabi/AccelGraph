@@ -28,6 +28,9 @@ struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, _
                 struct EpochReorder* epochReorder = (struct EpochReorder*) my_malloc(sizeof(struct EpochReorder));
         #endif
 
+        epochReorder->rrIndex = 0;
+        epochReorder->softcounter = 0;
+        epochReorder->hardcounter = 0;
 		epochReorder->softThreshold = softThreshold;
         epochReorder->hardThreshold = hardThreshold;
         epochReorder->numCounters = numCounters;
@@ -187,6 +190,7 @@ void epochReorderRecordBFS(struct EpochReorder* epochReorder, struct GraphCSR* g
 	__u32 source = 0;
 
 	epochReorderBreadthFirstSearchGraphCSR( epochReorder, source, graph);
+
 
 
 }
@@ -481,6 +485,27 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 	//create labels
 
 	return labels;
+
+
+}
+
+void epochReorderIncrementCounters(struct EpochReorder* epochReorder, __u32 v){
+
+	if(epochReorder->hardcounter > epochReorder->hardThreshold){
+		epochReorder->hardcounter = 0;
+		epochReorder->rrIndex = (epochReorder->rrIndex + 1 ) % epochReorder->numCounters;
+	}
+
+	if(epochReorder->softcounter > epochReorder->softThreshold){
+		clearBitmap(epochReorder->recencyBits);
+		epochReorder->softcounter = 0;
+	}
+
+	__u32 histogramIndex = epochReorder->rrIndex;
+
+	epochReorder->frequency[(histogramIndex*epochReorder->numVertices)+v]++;
+	epochReorder->hardcounter++;
+	epochReorder->softcounter++;
 
 
 }
