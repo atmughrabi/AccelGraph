@@ -46,7 +46,7 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
     printf(" -----------------------------------------------------\n");
 
     Start(timer);
-    #pragma omp parallel for
+  #pragma omp parallel for
 	for(v = 0; v < graph->num_vertices; v++){
 		labelsInverse[v]= v;
 	}
