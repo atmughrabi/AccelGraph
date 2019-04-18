@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <omp.h>
+#include <limits.h>
 
 #include "arrayQueue.h"
 #include "graphCSR.h"
@@ -48,15 +49,23 @@ struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, _
 
 }
 
+void epochReorderPageRank(struct GraphCSR* graph){
 
-void epochReorderRecordPageRank(struct EpochReorder* epochReorder, struct GraphCSR* graph){
-
-	double epsilon = 0.00001;
+	 __u32 numCounters = 10;
+	 __u32 hardThreshold = 32987;
+	 __u32 softThreshold = 8192;
+	 double epsilon = 1e-6;
 	__u32 iterations = 10;
+
+	struct EpochReorder* epochReorder = newEpochReoder(softThreshold, hardThreshold, numCounters, graph->num_vertices);
 
 	epochReorderPageRankPullGraphCSR(epochReorder, epsilon, iterations, graph);
 
+	epochReorderCreateLabels(epochReorder);
+
+	freeEpochReorder(epochReorder);
 }
+
 
 
 float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, double epsilon,  __u32 iterations, struct GraphCSR* graph){
@@ -121,15 +130,20 @@ float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, doubl
         riDividedOnDiClause[v] = 0.0f;
     }
  
-    #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
+    // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
     for(v = 0; v < graph->num_vertices; v++){
       float nodeIncomingPR = 0.0f;
       degree = vertices[v].out_degree;
       edge_idx = vertices[v].edges_idx;
+      epochReorderIncrementCounters(epochReorder,v);
+
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
         u = sorted_edges_array[j];
         nodeIncomingPR += riDividedOnDiClause[u]; // pageRanks[v]/graph->vertices[v].out_degree;
+        epochReorderIncrementCounters( epochReorder, u);
       }
+
+      epochReorderIncrementCounters(epochReorder,v);
       pageRanksNext[v] = nodeIncomingPR;
     }
 
@@ -466,26 +480,55 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 
 	__u32* labelsInverse;
 	__u32* labels;
+	__u32* histMaps;
 	__u32 v;
+	__u32 h;
 
 	#if ALIGNED
       labels = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
       labelsInverse = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
+      histMaps = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
+
 	#else
       labels = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       labelsInverse = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
+      histMaps = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
+
 	#endif
 
     #pragma omp parallel for
 		for(v = 0; v < epochReorder->numVertices; v++){
 			labelsInverse[v]= v;
+			histMaps[v]=0;
 		}
 
 
-	//create labels
+	//find max histogram values
+	#pragma omp parallel for private(h) shared(histMaps,epochReorder)
+		for(v = 0; v < epochReorder->numVertices; v++){
+			__u32 maxValue = 0;
+			__u32 maxIndex = UINT_MAX;
+			for(h = 0; h < epochReorder->numCounters; h++ ){
+				if(epochReorder->frequency[(h*epochReorder->numVertices)+v] > maxValue){
+					maxValue = epochReorder->frequency[h];
+					maxIndex = h;
+				}
+			}
+
+			histMaps[v] = maxIndex;
+		}
+
+	__u32 label = 0;
+	for(h = 0; h < epochReorder->numCounters; h++ ){
+		for(v = 0; v < epochReorder->numVertices; v++){
+			if(histMaps[v] == h){
+				labels[v] = label;
+				label++;
+			}
+		}
+	}
 
 	return labels;
-
 
 }
 
@@ -506,7 +549,6 @@ void epochReorderIncrementCounters(struct EpochReorder* epochReorder, __u32 v){
 	epochReorder->frequency[(histogramIndex*epochReorder->numVertices)+v]++;
 	epochReorder->hardcounter++;
 	epochReorder->softcounter++;
-
 
 }
 

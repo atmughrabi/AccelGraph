@@ -12,6 +12,7 @@
 #include "myMalloc.h"
 #include "graphCSR.h"
 #include "reorder.h"
+#include "epochReorder.h"
 #include "edgeList.h"
 #include "pageRank.h"
 
@@ -450,7 +451,7 @@ struct EdgeList* reorderGraphProcess( __u32 sort, struct EdgeList* edgeList, __u
       edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// out-degree
     else if(lmode == 4)
       edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// in/out-degree
-
+ 
 
     Stop(timer);
    

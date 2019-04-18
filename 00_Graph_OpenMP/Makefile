@@ -131,7 +131,7 @@ clean:
 #   -i [num iterations] number of iterations for pagerank to converge [default:20] SSSP-BellmanFord [default:V-1] 
 #   -t [num trials] number of random trials for each whole run [default:0]
 #   -e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]
-#   -l [mode reordering] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  
+#   -l [mode reordering] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  [6]-Epoch Reordering
 #   -c: read text format convert to bin file on load example:-f <graph file> -c
 #   -w: Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 beforehand then recompile with using this option
 #   -s: Symmetric graph, if not given set of incoming edges will be created 

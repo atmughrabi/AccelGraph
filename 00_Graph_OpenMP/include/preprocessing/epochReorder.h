@@ -25,7 +25,7 @@ struct EpochReorder
 struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, __u32 numCounters, __u32 numVertices);
 void freeEpochReorder(struct EpochReorder* epochReorder);
 
-void epochReorderRecordPageRank(struct EpochReorder* epochReorder, struct GraphCSR* graph);
+void epochReorderPageRank(struct GraphCSR* graph);
 float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, double epsilon,  __u32 iterations, struct GraphCSR* graph);
 
 void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder* epochReorder, __u32 source, struct GraphCSR* graph);
