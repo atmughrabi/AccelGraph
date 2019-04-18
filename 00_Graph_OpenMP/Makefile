@@ -138,67 +138,44 @@ clean:
 #   -b: SSSP Delta value [Default:1]  
 
 
+#synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT26
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT19
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT21
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22
-# FILE_BIN = $(BENCHMARKS_DIR)/twitter/twitter_rv.net.bin8
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
 
-FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
+#real world large graphs text format
+# FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph
+# FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph
+# FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph
+# FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph
+
+
+#real world large graphs binary format
+# FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
+
+
+
+#GRAPH RUN
 ROOT = 690969
-# ROOT = 2169295
-# ROOT = 502357
-# ROOT = 3009230
-# ROOT = 0
-
-
-#app command line arguments
-# FILE_BIN = "../01_GraphDatasets/twitter/twitter_rv.net.bin8"
-# FILE_BIN = "../01_GraphDatasets/Rabbit/test.txt.bin"
-# ROOT = 428333 #max out labelless
-# ROOT = 813286 #max in  labelless
-# REORDER = 0
-
-# ROOT = 19144663 #max out label
-# ROOT = 3 #max in  label
-# reorder = 1
-
-# ROOT = 5576448 #max out label
-# ROOT = 0 #max in  label
-
-
-# ROOT = 0 #max out label
-# ROOT = 2 #max in  label
-# REORDER = 3
-
-# ROOT = 0 #max out label
-# ROOT = 2 #max in  label
-# REORDER = 4
-
-
-# FILE_BIN = "$(BENCHMARKS_DIR)/test/test.txt.wbin"
-# ROOT  = 6
-# ROOT  = 19
-
-# FILE_BIN =  $(BENCHMARKS_DIR)/facebook/facebook_combined.txt.wbin
-# ROOT = 107
-# ROOT = 3120
-# FILE_BIN = "../01_GraphDatasets/wiki-vote/wiki-Vote.txt.bin"
-# ROOT = 428333
 DATA_STRUCTURES = 0
 ALGORITHMS = 1
-NUM_THREADS  = 1
+NUM_THREADS  = 8
 NUM_ITERATIONS = 100
 NUM_TRIALS = 0
 TOLERANCE = 1e-6
 SORT_TYPE = 0
 PUSH_PULL = 0
 DELTA = 800
-REORDER = 0
-# DELTA = 400
-# DELTA = 1
+REORDER = 4
 
+
+#STATS COLLECTION VARIABLES
 BIN_SIZE = 8192
 INOUT_STATS = 2
 
@@ -210,7 +187,6 @@ convert: all
 stats: all
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p 1
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p 2
-
 
 .PHONY: run
 run: all
@@ -235,18 +211,6 @@ debug-test: test
 .PHONY: debug-memory-test
 debug-memory-test: test	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
-
-.PHONY: sniper
-sniper: all	
-	./$(SNIPER_DIR)/run-sniper --roi  -ccacheonly -gperf_model/branch_predictor/type=none -ggeneral/enable_icache_modeling=false -c ./$(SNIPER_DIR)/config/base.cfg -- $(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
-
-.PHONY: sst
-sst: all
-	$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
-
-.PHONY: pin
-pin: all	
-	 ../../../pin-3.7/pin  -t ../../../pin-3.7/source/tools/SimpleExamples/obj-intel64/pinatrace.so -- $(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 .PHONY: cache-perf
 cache-perf: all

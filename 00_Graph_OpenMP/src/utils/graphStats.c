@@ -54,8 +54,7 @@ void collectStats( __u32 binSize, const char * fnameb,  __u32 sort,  __u32 lmode
   countHistogram(graphStats, histogram, binSize, inout_degree);
   printHistogram(fname_stats, histogram, binSize, histSize);
 
-  graphCSRFree(graphStats);
-  free(histogram);
+ 
 
 
    Stop(timer);
@@ -69,6 +68,8 @@ void collectStats( __u32 binSize, const char * fnameb,  __u32 sort,  __u32 lmode
     printf(" *****************************************************\n");
 
     free(timer);
+    graphCSRFree(graphStats);
+  	free(histogram);
 
 }
 
