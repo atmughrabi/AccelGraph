@@ -51,17 +51,19 @@ struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, _
 
 void epochReorderPageRank(struct GraphCSR* graph){
 
+	float* pageRanks = NULL;
 	 __u32 numCounters = 10;
 	 __u32 hardThreshold = 32987;
 	 __u32 softThreshold = 8192;
 	 double epsilon = 1e-6;
 	__u32 iterations = 10;
+	__u32* labels;
 
 	struct EpochReorder* epochReorder = newEpochReoder(softThreshold, hardThreshold, numCounters, graph->num_vertices);
 
-	epochReorderPageRankPullGraphCSR(epochReorder, epsilon, iterations, graph);
+	pageRanks = epochReorderPageRankPullGraphCSR(epochReorder, epsilon, iterations, graph);
 
-	epochReorderCreateLabels(epochReorder);
+	labels = epochReorderCreateLabels(epochReorder);
 
 	freeEpochReorder(epochReorder);
 }
@@ -478,33 +480,37 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder* epochReorder, struct
 
 __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 
-	__u32* labelsInverse;
-	__u32* labels;
-	__u32* histMaps;
-	__u32 v;
-	__u32 h;
+	__u32* labelsInverse = NULL;
+	__u32* labels = NULL;
+	__u32* histMaps = NULL;
+	__u32* histValues = NULL;
+	__u32 v = 0;
+	__u32 h = 0;
 
 	#if ALIGNED
       labels = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
       labelsInverse = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
       histMaps = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
+      histValues = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
+
 
 	#else
       labels = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       labelsInverse = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       histMaps = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
-
+      histValues = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
 	#endif
 
     #pragma omp parallel for
 		for(v = 0; v < epochReorder->numVertices; v++){
 			labelsInverse[v]= v;
 			histMaps[v]=0;
+			histValues[v]=0;
 		}
 
 
 	//find max histogram values
-	#pragma omp parallel for private(h) shared(histMaps,epochReorder)
+	#pragma omp parallel for private(h) shared(histValues, histMaps, epochReorder)
 		for(v = 0; v < epochReorder->numVertices; v++){
 			__u32 maxValue = 0;
 			__u32 maxIndex = UINT_MAX;
@@ -516,17 +522,13 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 			}
 
 			histMaps[v] = maxIndex;
+			histValues[v] = maxValue;
 		}
 
-	__u32 label = 0;
-	for(h = 0; h < epochReorder->numCounters; h++ ){
-		for(v = 0; v < epochReorder->numVertices; v++){
-			if(histMaps[v] == h){
-				labels[v] = label;
-				label++;
-			}
-		}
-	}
+
+
+	labelsInverse = radixSortEdgesByEpochs(histValues, histMaps, labelsInverse, epochReorder->numVertices);
+
 
 	return labels;
 
@@ -562,3 +564,148 @@ void freeEpochReorder(struct EpochReorder* epochReorder){
 }
 
 
+
+
+void radixSortCountSortEdgesByEpochs (__u32** histValues, __u32** histValuesTemp,__u32** histMaps, __u32** histMapsTemp, __u32** labels, __u32** labelsTemp,__u32 radix, __u32 buckets, __u32* buckets_count, __u32 num_vertices){
+
+	__u32* tempPointer = NULL; 
+    __u32 t = 0;
+    __u32 o = 0;
+    __u32 u = 0;
+    __u32 i = 0;
+    __u32 j = 0;
+    __u32 P = numThreads;  // 32/8 8 bit radix needs 4 iterations
+    __u32 t_id = 0;
+    __u32 offset_start = 0;
+    __u32 offset_end = 0;
+    __u32 base = 0;
+
+    #pragma omp parallel default(none) shared(histValues, histValuesTemp,histMaps,histMapsTemp,radix,labels,labelsTemp,buckets,buckets_count, num_vertices) firstprivate(t_id, P, offset_end,offset_start,base,i,j,t,u,o) 
+    {
+        P = omp_get_num_threads();
+        t_id = omp_get_thread_num();
+        offset_start = t_id*(num_vertices/P);
+
+
+        if(t_id == (P-1)){
+            offset_end = offset_start+(num_vertices/P) + (num_vertices%P) ;
+        }
+        else{
+            offset_end = offset_start+(num_vertices/P);
+        }
+        
+
+        //HISTOGRAM-KEYS 
+        for(i=0; i < buckets; i++){ 
+            buckets_count[(t_id*buckets)+i] = 0;
+        }
+
+       
+        for (i = offset_start; i < offset_end; i++) {      
+            u = (*histMaps)[i];
+            t = (u >> (radix*8)) & 0xff;
+            buckets_count[(t_id*buckets)+t]++;
+        }
+
+
+        #pragma omp barrier
+
+       
+        // SCAN BUCKETS
+        if(t_id == 0){
+            for(i=0; i < buckets; i++){
+                 for(j=0 ; j < P; j++){
+                 t = buckets_count[(j*buckets)+i];
+                 buckets_count[(j*buckets)+i] = base;
+                 base += t;
+                }
+            }
+        }
+
+
+        #pragma omp barrier
+
+        //RANK-AND-PERMUTE
+        for (i = offset_start; i < offset_end; i++) {       /* radix sort */
+            u = (*histMaps)[i];
+            t = (u >> (radix*8)) & 0xff;
+            o = buckets_count[(t_id*buckets)+t];
+            (*histMapsTemp)[o] = (*histMaps)[i];
+            (*histValuesTemp)[o] = (*histValues)[i];
+            (*labelsTemp)[o] = (*labels)[i];
+            buckets_count[(t_id*buckets)+t]++;
+
+        }
+
+    }
+
+    tempPointer = *labels;
+    *labels = *labelsTemp;
+    *labelsTemp = tempPointer;
+
+
+    tempPointer = *histValues;
+    *histValues = *histValuesTemp;
+    *histValuesTemp = tempPointer;
+
+    tempPointer = *histMaps;
+    *histMaps = *histMapsTemp;
+    *histMapsTemp = tempPointer;
+    
+}
+
+
+__u32* radixSortEdgesByEpochs (__u32* histValues,__u32* histMaps, __u32* labels, __u32 num_vertices){
+
+	
+	    // printf("*** START Radix Sort Edges By Source *** \n");
+
+    // struct Graph* graph = graphNew(edgeList->num_vertices, edgeList->num_edges, inverse);
+
+    // Do counting sort for every digit. Note that instead
+    // of passing digit number, exp is passed. exp is 10^i
+    // where i is current digit number
+    __u32 radix = 4;  // 32/8 8 bit radix needs 4 iterations
+    __u32 P = numThreads;  // 32/8 8 bit radix needs 4 iterations
+    __u32 buckets = 256; // 2^radix = 256 buckets
+    __u32* buckets_count = NULL;
+
+    // omp_set_num_threads(P);
+   	
+    __u32 j = 0; //1,2,3 iteration
+
+
+    __u32* histValuesTemp = NULL;
+    __u32* histMapsTemp = NULL;
+    __u32* labelsTemp = NULL;
+  
+
+    #if ALIGNED
+        buckets_count = (__u32*) my_aligned_malloc(P * buckets * sizeof(__u32));
+        histValuesTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
+        histMapsTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
+        labelsTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
+    #else
+        buckets_count = (__u32*) my_malloc(P * buckets * sizeof(__u32));
+        histValuesTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+        histMapsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+        labelsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+    #endif
+
+    for(j=0 ; j < radix ; j++){
+        radixSortCountSortEdgesByEpochs (&histMaps, &histMapsTemp, &histValues, &histValuesTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
+    }
+
+    for(j=0 ; j < radix ; j++){
+        radixSortCountSortEdgesByEpochs (&histValues, &histValuesTemp, &histMaps, &histMapsTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
+    }
+
+
+    free(buckets_count);
+    free(histValuesTemp);
+    free(histMapsTemp);
+    free(labelsTemp);
+
+    return labels;
+
+}

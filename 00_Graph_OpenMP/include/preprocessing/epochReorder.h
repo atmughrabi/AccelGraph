@@ -35,4 +35,8 @@ __u32 epochReorderTopDownStepGraphCSR(struct EpochReorder* epochReorder, struct 
 __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder);
 void epochReorderIncrementCounters(struct EpochReorder* epochReorder, __u32 v);
 
+
+void radixSortCountSortEdgesByEpochs (__u32** histValues, __u32** histValuesTemp,__u32** histMaps, __u32** histMapsTemp, __u32** labels, __u32** labelsTemp,__u32 radix, __u32 buckets, __u32* buckets_count, __u32 num_vertices);
+__u32* radixSortEdgesByEpochs (__u32* histValues,__u32* histMaps, __u32* labels, __u32 num_vertices);
+
 #endif

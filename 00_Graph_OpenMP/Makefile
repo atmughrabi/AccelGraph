@@ -139,7 +139,7 @@ clean:
 
 
 #synthetic graphs
-FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
 
 #real world large graphs text format
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph
@@ -153,7 +153,7 @@ FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
 
 
@@ -163,7 +163,7 @@ ROOT = 690969
 DATA_STRUCTURES = 0
 ALGORITHMS = 1
 NUM_THREADS  = 8
-NUM_ITERATIONS = 100
+NUM_ITERATIONS = 200
 NUM_TRIALS = 0
 TOLERANCE = 1e-8
 SORT_TYPE = 0
