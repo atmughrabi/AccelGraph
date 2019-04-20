@@ -131,12 +131,15 @@ clean:
 #   -i [num iterations] number of iterations for pagerank to converge [default:20] SSSP-BellmanFord [default:V-1] 
 #   -t [num trials] number of random trials for each whole run [default:0]
 #   -e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]
-#   -l [mode reordering] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  [6]-Epoch Reordering
+#   -l [mode reordering] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  [6]-Epoch-pageRank [7]-Epoch-BFS
 #   -c: read text format convert to bin file on load example:-f <graph file> -c
 #   -w: Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 beforehand then recompile with using this option
 #   -s: Symmetric graph, if not given set of incoming edges will be created 
 #   -b: SSSP Delta value [Default:1]  
 
+
+#small test graphs
+FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
 
 #synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
@@ -153,7 +156,7 @@ clean:
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
 
 
@@ -169,7 +172,7 @@ TOLERANCE = 1e-8
 SORT_TYPE = 0
 PUSH_PULL = 0
 DELTA = 800
-REORDER = 0
+REORDER = 6
 
 
 #STATS COLLECTION VARIABLES

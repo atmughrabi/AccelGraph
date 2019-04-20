@@ -43,7 +43,7 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
 
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting PageRank Reording/Relabeling");
+    printf("| %-51s | \n", "Starting PageRank Reordering/Relabeling");
     printf(" -----------------------------------------------------\n");
 
     Start(timer);
@@ -86,7 +86,7 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
 	Stop(timer);
 
 	  printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "PageRank Reording/Relabeling Complete");
+    printf("| %-51s | \n", "PageRank Reordering/Relabeling Complete");
     printf(" -----------------------------------------------------\n");
     printf("| %-51f | \n", Seconds(timer));
     printf(" -----------------------------------------------------\n");
@@ -95,6 +95,60 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
   free(labelsInverse);
 
 	return edgeList;
+}
+
+
+struct EdgeList* reorderGraphListEpochPageRank(struct GraphCSR* graph){
+
+  __u32 v;  
+  __u32* labelsInverse;
+  __u32* labels;
+   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+
+
+  #if ALIGNED
+      struct EdgeList* edgeList = (struct EdgeList*) my_aligned_malloc(sizeof(struct EdgeList));
+      labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+  #else
+      struct EdgeList* edgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
+      labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+  #endif
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting PageRank Epoch Reordering/Relabeling");
+    printf(" -----------------------------------------------------\n");
+
+    Start(timer);
+  
+
+  labelsInverse = epochReorderPageRank(graph);
+
+  #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++){
+       labels[labelsInverse[v]] = graph->num_vertices -1 - v;
+    }
+
+
+
+
+  edgeList->num_vertices = graph->num_vertices;
+  edgeList->num_edges = graph->num_edges;
+  edgeList->edges_array = graph->sorted_edges_array;
+
+  edgeList = relabelEdgeList(edgeList ,labels);
+
+  Stop(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "PageRank Epoch Reordering/Relabeling Complete");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", Seconds(timer));
+    printf(" -----------------------------------------------------\n");
+
+  free(timer);
+  free(labelsInverse);
+
+  return edgeList;
 }
 
 
@@ -328,8 +382,10 @@ struct EdgeList* reorderGraphProcessPageRank( __u32 sort, struct EdgeList* edgeL
 
     #endif
     
-
-    edgeList = reorderGraphListPageRank(graph);
+    if(lmode == 1) // pageRank
+      edgeList =  reorderGraphListPageRank(graph);
+    else if(lmode == 6)
+      edgeList = reorderGraphListEpochPageRank(graph); // in-degree
 
   if(graph->vertices)
     freeVertexArray(graph->vertices);
@@ -443,7 +499,7 @@ struct EdgeList* reorderGraphProcess( __u32 sort, struct EdgeList* edgeList, __u
 	  
 
     
-    if(lmode == 1) // pageRank
+    if(lmode == 1 || lmode == 6 || lmode == 7 ) // pageRank
       edgeList = reorderGraphProcessPageRank( sort, edgeList, lmode, symmetric);
     else if(lmode == 2)
       edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// in-degree

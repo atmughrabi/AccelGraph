@@ -7,6 +7,7 @@
 #include <omp.h>
 #include <limits.h>
 
+#include "reorder.h"
 #include "arrayQueue.h"
 #include "graphCSR.h"
 #include "myMalloc.h"
@@ -43,6 +44,7 @@ __u32 epochAtomicMin(__u32 *dist , __u32 newValue){
 
 struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, __u32 numCounters, __u32 numVertices){
 
+		__u32 v =0;
         // struct EdgeList* newEdgeList = (struct EdgeList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct EdgeList));
 		#if ALIGNED
                 struct EpochReorder* epochReorder = (struct EpochReorder*) my_aligned_malloc(sizeof(struct EpochReorder));  
@@ -65,6 +67,12 @@ struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, _
         #else
                 epochReorder->frequency = (__u32*) my_malloc(sizeof(__u32)*numCounters*numVertices);
         #endif
+
+
+        #pragma omp parallel for
+		  for(v = 0; v < (numCounters*numVertices); v++){
+		     epochReorder->frequency[v] = 0;
+		  }
         
         return epochReorder;
 
@@ -74,8 +82,8 @@ __u32* epochReorderPageRank(struct GraphCSR* graph){
 
 	
 	 __u32 numCounters = 10;
-	 __u32 hardThreshold = 32987;
-	 __u32 softThreshold = 8192;
+	 __u32 hardThreshold = 3;
+	 __u32 softThreshold = 2;
 	 double epsilon = 1e-6;
 	__u32 iterations = 10;
 	__u32* labels;
@@ -130,7 +138,7 @@ float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, doubl
   #endif
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Page Rank Pull (tolerance/epsilon)");
+    printf("| %-51s | \n", "Starting Page Rank Epoch Pull (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51.13lf | \n", epsilon);
     printf(" -----------------------------------------------------\n");
@@ -161,7 +169,7 @@ float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, doubl
       float nodeIncomingPR = 0.0f;
       degree = vertices[v].out_degree;
       edge_idx = vertices[v].edges_idx;
-      epochReorderIncrementCounters(epochReorder,v);
+      // epochReorderIncrementCounters(epochReorder,v);
 
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
         u = sorted_edges_array[j];
@@ -169,7 +177,7 @@ float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, doubl
         epochReorderIncrementCounters( epochReorder, u);
       }
 
-      epochReorderIncrementCounters(epochReorder,v);
+      // epochReorderIncrementCounters(epochReorder,v);
       pageRanksNext[v] = nodeIncomingPR;
     }
 
@@ -204,6 +212,7 @@ float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, doubl
 
   Stop(timer);
 
+  
   printf(" -----------------------------------------------------\n");
   printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
   printf(" -----------------------------------------------------\n");
@@ -510,16 +519,22 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 	__u32* histValues = NULL;
 	__u32 v = 0;
 	__u32 h = 0;
+	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Epoch Create Labels");
+    printf(" -----------------------------------------------------\n");
+
+    Start(timer);
+
 
 	#if ALIGNED
-      labels = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
       labelsInverse = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
       histMaps = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
       histValues = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
 
 
 	#else
-      labels = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       labelsInverse = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       histMaps = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       histValues = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
@@ -537,10 +552,10 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 	#pragma omp parallel for private(h) shared(histValues, histMaps, epochReorder)
 		for(v = 0; v < epochReorder->numVertices; v++){
 			__u32 maxValue = 0;
-			__u32 maxIndex = UINT_MAX;
+			__u32 maxIndex = UINT_MAX/2;
 			for(h = 0; h < epochReorder->numCounters; h++ ){
 				if(epochReorder->frequency[(h*epochReorder->numVertices)+v] > maxValue){
-					maxValue = epochReorder->frequency[h];
+					maxValue = epochReorder->frequency[(h*epochReorder->numVertices)+v];
 					maxIndex = h;
 				}
 			}
@@ -553,8 +568,16 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 
 	labelsInverse = radixSortEdgesByEpochs(histValues, histMaps, labelsInverse, epochReorder->numVertices);
 
+	Stop(timer);
 
-	return labels;
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Epoch Create Labels Complete");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", Seconds(timer));
+    printf(" -----------------------------------------------------\n");
+
+  	free(timer);
+	return labelsInverse;
 
 }
 
@@ -624,7 +647,9 @@ void freeEpochReorder(struct EpochReorder* epochReorder){
 
 void radixSortCountSortEdgesByEpochs (__u32** histValues, __u32** histValuesTemp,__u32** histMaps, __u32** histMapsTemp, __u32** labels, __u32** labelsTemp,__u32 radix, __u32 buckets, __u32* buckets_count, __u32 num_vertices){
 
-	__u32* tempPointer = NULL; 
+	__u32* tempPointer1 = NULL;
+	__u32* tempPointer2 = NULL; 
+	__u32* tempPointer3 = NULL; 
     __u32 t = 0;
     __u32 o = 0;
     __u32 u = 0;
@@ -636,7 +661,7 @@ void radixSortCountSortEdgesByEpochs (__u32** histValues, __u32** histValuesTemp
     __u32 offset_end = 0;
     __u32 base = 0;
 
-    #pragma omp parallel default(none) shared(histValues, histValuesTemp,histMaps,histMapsTemp,radix,labels,labelsTemp,buckets,buckets_count, num_vertices) firstprivate(t_id, P, offset_end,offset_start,base,i,j,t,u,o) 
+    #pragma omp parallel default(none) shared(histValues, histValuesTemp, histMaps, histMapsTemp,radix,labels,labelsTemp,buckets,buckets_count, num_vertices) firstprivate(t_id, P, offset_end,offset_start,base,i,j,t,u,o) 
     {
         P = omp_get_num_threads();
         t_id = omp_get_thread_num();
@@ -695,18 +720,18 @@ void radixSortCountSortEdgesByEpochs (__u32** histValues, __u32** histValuesTemp
 
     }
 
-    tempPointer = *labels;
+    tempPointer1 = *labels;
     *labels = *labelsTemp;
-    *labelsTemp = tempPointer;
+    *labelsTemp = tempPointer1;
 
 
-    tempPointer = *histValues;
+    tempPointer2 = *histValues;
     *histValues = *histValuesTemp;
-    *histValuesTemp = tempPointer;
+    *histValuesTemp = tempPointer2;
 
-    tempPointer = *histMaps;
+    tempPointer3 = *histMaps;
     *histMaps = *histMapsTemp;
-    *histMapsTemp = tempPointer;
+    *histMapsTemp = tempPointer3;
     
 }
 
@@ -729,6 +754,7 @@ __u32* radixSortEdgesByEpochs (__u32* histValues,__u32* histMaps, __u32* labels,
     // omp_set_num_threads(P);
    	
     __u32 j = 0; //1,2,3 iteration
+    __u32 v = 0;
 
 
     __u32* histValuesTemp = NULL;
@@ -748,14 +774,40 @@ __u32* radixSortEdgesByEpochs (__u32* histValues,__u32* histMaps, __u32* labels,
         labelsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
     #endif
 
+    #pragma omp parallel for
+	for(v = 0; v < num_vertices; v++){
+		histValuesTemp[v]=0;
+		histMapsTemp[v]=UINT_MAX/2;
+	}
+
+	for(v = 0; v < num_vertices; v++){
+	  printf(" radix rank %u label %u epoch %u values %u \n", v,labels[v], histMaps[v], histValues[v]);  
+	}
+	 printf("\n"); 
+
     for(j=0 ; j < radix ; j++){
         radixSortCountSortEdgesByEpochs (&histMaps, &histMapsTemp, &histValues, &histValuesTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
+    	// radixSortCountSortEdgesByEpochs (&histValues, &histValuesTemp, &histMaps, &histMapsTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
+ 		
+ 		// radixSortCountSortEdgesByRanks (&histValues, &histValuesTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
+
     }
 
+
+
+
+	for(v = 0; v < num_vertices; v++){
+	    printf(" radix2 rank %u label %u epoch %u values %u \n", v,labels[v], histMaps[v], histValues[v]);  
+	}
+	 printf("\n"); 
     for(j=0 ; j < radix ; j++){
         radixSortCountSortEdgesByEpochs (&histValues, &histValuesTemp, &histMaps, &histMapsTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
     }
 
+	for(v = 0; v < num_vertices; v++){
+	    printf(" radix2 rank %u label %u epoch %u values %u \n", v,labels[v], histMaps[v], histValues[v]);  
+	}
+	 printf("\n"); 
 
     free(buckets_count);
     free(histValuesTemp);
