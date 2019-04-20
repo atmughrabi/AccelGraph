@@ -18,6 +18,27 @@
 #include "BFS.h"
 
 
+__u32 epochAtomicMin(__u32 *dist , __u32 newValue){
+
+	__u32 oldValue;
+	__u32 flag = 0;
+
+	do{
+
+		oldValue = *dist;
+		if(oldValue > newValue){
+			if(__sync_bool_compare_and_swap(dist, oldValue, 0)){
+	    		flag = 1;
+	    	}
+		}
+		else{
+			return 0;
+		}
+	}while(!flag);
+
+	return 1;
+}
+
 
 
 struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, __u32 numCounters, __u32 numVertices){
@@ -49,9 +70,9 @@ struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, _
 
 }
 
-void epochReorderPageRank(struct GraphCSR* graph){
+__u32* epochReorderPageRank(struct GraphCSR* graph){
 
-	float* pageRanks = NULL;
+	
 	 __u32 numCounters = 10;
 	 __u32 hardThreshold = 32987;
 	 __u32 softThreshold = 8192;
@@ -61,11 +82,14 @@ void epochReorderPageRank(struct GraphCSR* graph){
 
 	struct EpochReorder* epochReorder = newEpochReoder(softThreshold, hardThreshold, numCounters, graph->num_vertices);
 
-	pageRanks = epochReorderPageRankPullGraphCSR(epochReorder, epsilon, iterations, graph);
+	epochReorderPageRankPullGraphCSR(epochReorder, epsilon, iterations, graph);
 
 	labels = epochReorderCreateLabels(epochReorder);
 
 	freeEpochReorder(epochReorder);
+
+	return labels;
+
 }
 
 
@@ -536,21 +560,53 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 
 void epochReorderIncrementCounters(struct EpochReorder* epochReorder, __u32 v){
 
+	__u32 histogramIndex = 0;
+
+
 	if(epochReorder->hardcounter > epochReorder->hardThreshold){
 		epochReorder->hardcounter = 0;
 		epochReorder->rrIndex = (epochReorder->rrIndex + 1 ) % epochReorder->numCounters;
 	}
+	
 
 	if(epochReorder->softcounter > epochReorder->softThreshold){
-		clearBitmap(epochReorder->recencyBits);
 		epochReorder->softcounter = 0;
+		clearBitmap(epochReorder->recencyBits);
+		
 	}
 
-	__u32 histogramIndex = epochReorder->rrIndex;
+		histogramIndex = epochReorder->rrIndex;
+		epochReorder->frequency[(histogramIndex*epochReorder->numVertices)+v]++;
+		epochReorder->hardcounter++;
+		epochReorder->softcounter++;
 
-	epochReorder->frequency[(histogramIndex*epochReorder->numVertices)+v]++;
-	epochReorder->hardcounter++;
-	epochReorder->softcounter++;
+}
+
+void atomicEpochReorderIncrementCounters(struct EpochReorder* epochReorder, __u32 v){
+
+
+	__u32 histogramIndex = 0;
+
+	if(epochAtomicMin(&(epochReorder->hardcounter),epochReorder->hardThreshold)){
+		epochReorder->rrIndex = (epochReorder->rrIndex + 1 ) % epochReorder->numCounters;
+	}
+
+	if(epochAtomicMin(&(epochReorder->softcounter),epochReorder->softThreshold)){
+		clearBitmap(epochReorder->recencyBits);
+		
+	}
+
+	#pragma omp atomic read
+		histogramIndex = epochReorder->rrIndex;
+
+	#pragma omp atomic update
+		epochReorder->frequency[(histogramIndex*epochReorder->numVertices)+v]++;
+	
+	#pragma omp atomic update
+		epochReorder->hardcounter++;
+	
+	#pragma omp atomic update
+		epochReorder->softcounter++;
 
 }
 
