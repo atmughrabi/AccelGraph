@@ -6,11 +6,11 @@
 #include <omp.h>
 #include <linux/types.h>
 
+#include "graphCSR.h"
 #include "sortRun.h"
 #include "fixedPoint.h"
 #include "timer.h"
 #include "myMalloc.h"
-#include "graphCSR.h"
 #include "reorder.h"
 #include "epochReorder.h"
 #include "edgeList.h"
@@ -151,6 +151,56 @@ struct EdgeList* reorderGraphListEpochPageRank(struct GraphCSR* graph){
   return edgeList;
 }
 
+struct EdgeList* reorderGraphListEpochBFS(struct GraphCSR* graph){
+
+  __u32 v;  
+  __u32* labelsInverse;
+  __u32* labels;
+   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+
+
+  #if ALIGNED
+      struct EdgeList* edgeList = (struct EdgeList*) my_aligned_malloc(sizeof(struct EdgeList));
+      labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
+  #else
+      struct EdgeList* edgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
+      labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+  #endif
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting BFS Epoch Reordering/Relabeling");
+    printf(" -----------------------------------------------------\n");
+
+    Start(timer);
+  
+
+  labelsInverse = epochReorderRecordBFS(graph);
+
+  #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++){
+       labels[labelsInverse[v]] = graph->num_vertices -1 - v;
+    }
+
+
+  edgeList->num_vertices = graph->num_vertices;
+  edgeList->num_edges = graph->num_edges;
+  edgeList->edges_array = graph->sorted_edges_array;
+
+  edgeList = relabelEdgeList(edgeList ,labels);
+
+  Stop(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "BFS Epoch Reordering/Relabeling Complete");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", Seconds(timer));
+    printf(" -----------------------------------------------------\n");
+
+  free(timer);
+  free(labelsInverse);
+
+  return edgeList;
+}
 
 void radixSortCountSortEdgesByRanks (__u32** pageRanksFP, __u32** pageRanksFPTemp, __u32** labels, __u32** labelsTemp,__u32 radix, __u32 buckets, __u32* buckets_count, __u32 num_vertices){
 
@@ -384,8 +434,11 @@ struct EdgeList* reorderGraphProcessPageRank( __u32 sort, struct EdgeList* edgeL
     
     if(lmode == 1) // pageRank
       edgeList =  reorderGraphListPageRank(graph);
-    else if(lmode == 6)
+    else if(lmode == 6) //epoch pagerank
       edgeList = reorderGraphListEpochPageRank(graph); // in-degree
+    else if(lmode == 7) //epoch BFS
+      edgeList = reorderGraphListEpochBFS(graph); // in-degree
+
 
   if(graph->vertices)
     freeVertexArray(graph->vertices);

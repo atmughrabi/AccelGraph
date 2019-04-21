@@ -7,9 +7,10 @@
 #include <omp.h>
 #include <limits.h>
 
+#include "graphCSR.h"
+#include "mt19937.h"
 #include "reorder.h"
 #include "arrayQueue.h"
-#include "graphCSR.h"
 #include "myMalloc.h"
 #include "epochReorder.h"
 #include "bitmap.h"
@@ -81,11 +82,11 @@ struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, _
 __u32* epochReorderPageRank(struct GraphCSR* graph){
 
 	
-	 __u32 numCounters = 10;
-	 __u32 hardThreshold = 3;
-	 __u32 softThreshold = 2;
+	 __u32 numCounters = 100;
+	 __u32 hardThreshold = 4096;
+	 __u32 softThreshold = 8192;
 	 double epsilon = 1e-6;
-	__u32 iterations = 10;
+	__u32 iterations = 2;
 	__u32* labels;
 
 	struct EpochReorder* epochReorder = newEpochReoder(softThreshold, hardThreshold, numCounters, graph->num_vertices);
@@ -164,7 +165,7 @@ float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, doubl
         riDividedOnDiClause[v] = 0.0f;
     }
  
-    // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
+    #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
     for(v = 0; v < graph->num_vertices; v++){
       float nodeIncomingPR = 0.0f;
       degree = vertices[v].out_degree;
@@ -174,7 +175,7 @@ float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, doubl
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
         u = sorted_edges_array[j];
         nodeIncomingPR += riDividedOnDiClause[u]; // pageRanks[v]/graph->vertices[v].out_degree;
-        epochReorderIncrementCounters( epochReorder, u);
+        atomicEpochReorderIncrementCounters( epochReorder, u);
       }
 
       // epochReorderIncrementCounters(epochReorder,v);
@@ -234,12 +235,36 @@ float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, doubl
 }
 
 
-void epochReorderRecordBFS(struct EpochReorder* epochReorder, struct GraphCSR* graph){
+__u32* epochReorderRecordBFS(struct GraphCSR* graph){
 
-	__u32 source = 0;
+	 __u32 numCounters = 100;
+	 __u32 hardThreshold = 4096;
+	 __u32 softThreshold = 8192;
+	 __u32* labels;
+	 __u32 root = 0;
 
-	epochReorderBreadthFirstSearchGraphCSR( epochReorder, source, graph);
 
+	struct EpochReorder* epochReorder = newEpochReoder(softThreshold, hardThreshold, numCounters, graph->num_vertices);
+
+		while(1){
+    		
+              if(root < graph->num_vertices){
+                epochReorderBreadthFirstSearchGraphCSR( epochReorder, root, graph);
+              }   
+              root++;
+
+              if(root >= graph->num_vertices)
+				break;
+            }
+        
+	
+
+
+	labels = epochReorderCreateLabels(epochReorder);
+
+	freeEpochReorder(epochReorder);
+
+	return labels;
 
 
 }
@@ -383,7 +408,7 @@ void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder* epochReorder, _
 	printf("| %-15s | %-15u | %-15f | \n","total", graph->processed_nodes, Seconds(timer));
 	printf(" -----------------------------------------------------\n");
 
-	graphCSRReset(graph);
+	// graphCSRReset(graph); no need to recet once processed_nodes = num vertices we traveresed the whole graph
 	for(i=0 ; i < P ; i++){
 		freeArrayQueue(localFrontierQueues[i]);		
    	}
@@ -418,7 +443,7 @@ __u32 epochReorderTopDownStepGraphCSR(struct EpochReorder* epochReorder, struct 
 	__u32 mf = 0;
 
 
-	#pragma omp parallel default (none) private(u,v,j,i,edge_idx) shared(localFrontierQueues,graph,sharedFrontierQueue,mf)
+	#pragma omp parallel default (none) private(u,v,j,i,edge_idx) shared(epochReorder,localFrontierQueues,graph,sharedFrontierQueue,mf)
   	{
   		__u32 t_id = omp_get_thread_num();
   		struct ArrayQueue* localFrontierQueue = localFrontierQueues[t_id];
@@ -432,11 +457,13 @@ __u32 epochReorderTopDownStepGraphCSR(struct EpochReorder* epochReorder, struct 
 	    	for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++){
 	         
 	            u = graph->sorted_edge_array[j];
-	            int u_parent = graph->parents[u]; 
+	            int u_parent = graph->parents[u];
+	            atomicEpochReorderIncrementCounters( epochReorder, u);
 	            if(u_parent < 0 ){
 				if(__sync_bool_compare_and_swap(&graph->parents[u],u_parent,v))
 					{ 
 	                enArrayQueue(localFrontierQueue, u);
+	                atomicEpochReorderIncrementCounters( epochReorder, u);
 	                mf +=  -(u_parent);
 	          	  }
 	        	}
@@ -487,7 +514,7 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder* epochReorder, struct
 		sorted_edges_array = graph->sorted_edge_array;
 	#endif
 
-	#pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
+	#pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(epochReorder,bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
 	for(v=0 ; v < graph->num_vertices ; v++){
 				out_degree = vertices[v].out_degree;
 				if(graph->parents[v] < 0){ // optmization 
@@ -495,8 +522,11 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder* epochReorder, struct
 
 		    		for(j = edge_idx ; j < (edge_idx + out_degree) ; j++){
 		    			 u = sorted_edges_array[j];
+		    			 atomicEpochReorderIncrementCounters( epochReorder, u);
 		    			 if(getBit(bitmapCurr, u)){
 		    			 	graph->parents[v] = u;
+
+		    			 	atomicEpochReorderIncrementCounters( epochReorder, v);
 		    			 	setBitAtomic(bitmapNext, v);
 		    			 	nf++;
 		    			 	break;
@@ -514,7 +544,6 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder* epochReorder, struct
 __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 
 	__u32* labelsInverse = NULL;
-	__u32* labels = NULL;
 	__u32* histMaps = NULL;
 	__u32* histValues = NULL;
 	__u32 v = 0;
@@ -614,10 +643,10 @@ void atomicEpochReorderIncrementCounters(struct EpochReorder* epochReorder, __u3
 		epochReorder->rrIndex = (epochReorder->rrIndex + 1 ) % epochReorder->numCounters;
 	}
 
-	if(epochAtomicMin(&(epochReorder->softcounter),epochReorder->softThreshold)){
-		clearBitmap(epochReorder->recencyBits);
+	// if(epochAtomicMin(&(epochReorder->softcounter),epochReorder->softThreshold)){
+	// 	clearBitmap(epochReorder->recencyBits);
 		
-	}
+	// }
 
 	#pragma omp atomic read
 		histogramIndex = epochReorder->rrIndex;
@@ -780,34 +809,13 @@ __u32* radixSortEdgesByEpochs (__u32* histValues,__u32* histMaps, __u32* labels,
 		histMapsTemp[v]=UINT_MAX/2;
 	}
 
-	for(v = 0; v < num_vertices; v++){
-	  printf(" radix rank %u label %u epoch %u values %u \n", v,labels[v], histMaps[v], histValues[v]);  
-	}
-	 printf("\n"); 
-
     for(j=0 ; j < radix ; j++){
         radixSortCountSortEdgesByEpochs (&histMaps, &histMapsTemp, &histValues, &histValuesTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
-    	// radixSortCountSortEdgesByEpochs (&histValues, &histValuesTemp, &histMaps, &histMapsTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
- 		
- 		// radixSortCountSortEdgesByRanks (&histValues, &histValuesTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
-
     }
 
-
-
-
-	for(v = 0; v < num_vertices; v++){
-	    printf(" radix2 rank %u label %u epoch %u values %u \n", v,labels[v], histMaps[v], histValues[v]);  
-	}
-	 printf("\n"); 
     for(j=0 ; j < radix ; j++){
         radixSortCountSortEdgesByEpochs (&histValues, &histValuesTemp, &histMaps, &histMapsTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
     }
-
-	for(v = 0; v < num_vertices; v++){
-	    printf(" radix2 rank %u label %u epoch %u values %u \n", v,labels[v], histMaps[v], histValues[v]);  
-	}
-	 printf("\n"); 
 
     free(buckets_count);
     free(histValuesTemp);

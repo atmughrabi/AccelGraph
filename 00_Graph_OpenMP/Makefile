@@ -139,21 +139,13 @@ clean:
 
 
 #small test graphs
-FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
 
 #synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
 
-#real world large graphs text format
-# FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph
-# FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph
-# FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph
-# FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph
-# FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph
-
-
 #real world large graphs binary format
-# FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
