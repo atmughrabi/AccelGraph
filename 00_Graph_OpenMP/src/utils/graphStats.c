@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <linux/types.h>
 #include <string.h>
+#include <omp.h>
 
 #include "graphStats.h"
 #include "myMalloc.h"
@@ -19,7 +20,7 @@ void collectStats( __u32 binSize, const char * fnameb,  __u32 sort,  __u32 lmode
     // printf("Filename : %s \n",fnameb);
     
     printf(" *****************************************************\n");
-	printf(" -----------------------------------------------------\n");
+	  printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Collect Stats Process");
     printf(" -----------------------------------------------------\n");
     Start(timer);
@@ -31,7 +32,7 @@ void collectStats( __u32 binSize, const char * fnameb,  __u32 sort,  __u32 lmode
 	#if ALIGNED
 		__u32* histogram =  (__u32*) my_aligned_malloc(sizeof(__u32)*histSize);
 	#else
-        __u32* histogram = (__u32*) my_malloc(sizeof(__u32)*histSize);
+    __u32* histogram = (__u32*) my_malloc(sizeof(__u32)*histSize);
 	#endif
 
        __u32 i = 0;
@@ -86,7 +87,6 @@ for(v = 0; v < graphStats->num_vertices; v++){
        histogram[index] += graphStats->vertices[v].in_degree;
     else if(inout_degree == 2)
        histogram[index] += graphStats->vertices[v].out_degree;
-
    }
 
 }
@@ -96,19 +96,57 @@ void printHistogram(const char * fname_stats, __u32* histogram, __u32 binSize, _
 
 	__u32 index;
 	FILE *fptr;
-  	fptr = fopen(fname_stats,"w");
-	for(index = 0; index < histSize; index++){
-
-		
+  fptr = fopen(fname_stats,"w");
+	for(index = 0; index < histSize; index++){	
 	    fprintf(fptr,"%u %u \n", index, histogram[index]);
-
-
 	   }
-
-	  fclose(fptr);
-
+	fclose(fptr);
 }
 
 
+void printSparseMatrixList(const char * fname_stats, struct EdgeList* edgeList, __u32 binSize){
 
+  #if ALIGNED
+    __u32* SparseMatrix =  (__u32*) my_aligned_malloc(sizeof(__u32)*binSize*binSize);
+  #else
+    __u32* SparseMatrix = (__u32*) my_malloc(sizeof(__u32)*binSize*binSize);
+  #endif
+
+  __u32 x;
+  __u32 y;
+  #pragma omp parallel for private(y) shared(SparseMatrix)
+    for(x = 0; x < binSize; x++){
+      for(y = 0; y < binSize; y++){
+        SparseMatrix[(binSize*y)+x] = 0;
+      }
+    }
+
+
+  __u32 i;
+   
+    #pragma omp parallel for
+    for(i = 0; i < edgeList->num_edges; i++){
+      __u32 src;
+      __u32 dest;
+      src = edgeList->edges_array[i].src/binSize;
+      dest = edgeList->edges_array[i].dest/binSize;
+
+      #pragma omp atomic update
+       SparseMatrix[(binSize*dest)+src]++;
+
+    }
+
+  FILE *fptr;
+  fptr = fopen(fname_stats,"w");
+  for(x = 0; x < binSize; x++){
+      for(y = 0; y < binSize; y++){
+        if(SparseMatrix[(binSize*y)+x])
+          fprintf(fptr,"%u %u %u\n", x, y, SparseMatrix[(binSize*y)+x]);
+      }
+  }
+
+  fclose(fptr);
+  free(SparseMatrix); 
+
+}
 

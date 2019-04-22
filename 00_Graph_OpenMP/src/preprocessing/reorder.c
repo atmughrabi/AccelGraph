@@ -71,7 +71,7 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
   #pragma omp parallel for
   for(v = 0; v < graph->num_vertices; v++){
 
-     labels[labelsInverse[v]] = graph->num_vertices -1 - v;
+     labels[labelsInverse[v]] = v;
   }
 
 
@@ -125,7 +125,7 @@ struct EdgeList* reorderGraphListEpochPageRank(struct GraphCSR* graph){
 
   #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++){
-       labels[labelsInverse[v]] = graph->num_vertices -1 - v;
+       labels[labelsInverse[v]] = v;
     }
 
 
@@ -178,7 +178,7 @@ struct EdgeList* reorderGraphListEpochBFS(struct GraphCSR* graph){
 
   #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++){
-       labels[labelsInverse[v]] = graph->num_vertices -1 - v;
+       labels[labelsInverse[v]] = v;
     }
 
 
@@ -623,8 +623,10 @@ struct EdgeList* reorderGraphListDegree(struct EdgeList* edgeList, __u32* degree
   //decending order mapping
   #pragma omp parallel for
   for(v = 0; v < edgeList->num_vertices; v++){
-    labels[labelsInverse[v]] = edgeList->num_vertices -1 - v;
+    labels[labelsInverse[v]] = v;
   }
+
+
 
   edgeList = relabelEdgeList(edgeList,labels);
 

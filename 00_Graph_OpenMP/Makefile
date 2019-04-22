@@ -141,11 +141,12 @@ clean:
 #small test graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
 
-#synthetic graphs
+# synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
 
-#real world large graphs binary format
-FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
+# real world large graphs binary format
+# FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
@@ -158,13 +159,13 @@ ROOT = 690969
 DATA_STRUCTURES = 0
 ALGORITHMS = 1
 NUM_THREADS  = 8
-NUM_ITERATIONS = 200
+NUM_ITERATIONS =200
 NUM_TRIALS = 0
 TOLERANCE = 1e-8
 SORT_TYPE = 0
 PUSH_PULL = 0
 DELTA = 800
-REORDER = 6
+REORDER = 0
 
 
 #STATS COLLECTION VARIABLES

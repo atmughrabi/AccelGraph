@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/types.h>
+#include <string.h>
 
 #include "edgeList.h"
 #include "vertex.h"
 #include "myMalloc.h"
 #include "graphCSR.h"
 #include "graphConfig.h"
+#include "graphStats.h"
 #include "reorder.h"
 
 //edgelist prerpcessing
@@ -289,6 +291,16 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
 
     // Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);
+
+    char * fname_txt = (char *) malloc((strlen(fnameb)+20)*sizeof(char));
+    char * fname_stats = (char *) malloc((strlen(fnameb)+20)*sizeof(char));
+
+    fname_txt = strcpy (fname_txt, fnameb);
+
+    fname_stats = strcat (fname_txt, ".matrix.dat");// in-degree
+    __u32 binSize = 8192;
+    printSparseMatrixList(fname_stats,  edgeList, binSize);
+
     // edgeList = radixSortEdgesBySourceOptimized(edgeList);
     // edgeListPrint(edgeList);
     // Stop(timer);
@@ -298,7 +310,8 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
         graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);
     Stop(timer);
 
-
+  
+  
     graphCSRPrintMessageWithtime("Process In/Out degrees of Nodes (Seconds)",Seconds(timer));
 
      #if DIRECTED
