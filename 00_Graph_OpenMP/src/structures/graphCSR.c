@@ -292,15 +292,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
     // Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);
 
-    char * fname_txt = (char *) malloc((strlen(fnameb)+20)*sizeof(char));
-    char * fname_stats = (char *) malloc((strlen(fnameb)+20)*sizeof(char));
-
-    fname_txt = strcpy (fname_txt, fnameb);
-
-    fname_stats = strcat (fname_txt, ".matrix.dat");// in-degree
-    __u32 binSize = 8192;
-    printSparseMatrixList(fname_stats,  edgeList, binSize);
-
+   
     // edgeList = radixSortEdgesBySourceOptimized(edgeList);
     // edgeListPrint(edgeList);
     // Stop(timer);

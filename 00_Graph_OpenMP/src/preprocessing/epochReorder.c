@@ -616,14 +616,12 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
       labelsInverse = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
       histMaps = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
       histValues = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
-      labels = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
-
+     
 	#else
       labelsInverse = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       histMaps = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       histValues = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
-      labels = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
-	#endif
+  	#endif
 
     #pragma omp parallel for
 		for(v = 0; v < epochReorder->numVertices; v++){

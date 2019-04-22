@@ -56,6 +56,14 @@ void collectStats( __u32 binSize, const char * fnameb,  __u32 sort,  __u32 lmode
   printHistogram(fname_stats, histogram, binSize, histSize);
 
  
+ // char * fname_txt = (char *) malloc((strlen(fnameb)+20)*sizeof(char));
+ //    char * fname_stats = (char *) malloc((strlen(fnameb)+20)*sizeof(char));
+
+ //    fname_txt = strcpy (fname_txt, fnameb);
+
+ //    fname_stats = strcat (fname_txt, ".epoch.matrix.dat");// in-degree
+ //    __u32 binSize = 8192;
+ //    printSparseMatrixList(fname_stats,  edgeList, binSize);
 
 
    Stop(timer);
