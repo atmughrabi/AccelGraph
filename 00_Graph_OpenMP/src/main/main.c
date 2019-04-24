@@ -25,7 +25,7 @@ static void usage(void) {
   printf("\t-i [num iterations] number of iterations for pagerank to converge [default:20] SSSP-BellmanFord [default:V-1] \n");
   printf("\t-t [num trials] number of random trials for each whole run [default:0]\n");
   printf("\t-e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]\n");
-  printf("\t-l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  \n");
+  printf("\t-l [mode] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS 8-LoadFromFile \n");
   printf("\t-c [convert to bin] read text format convert to bin file on load example:-f <graph file> -c\n");
   printf("\t-w [Weight generate] Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 beforehand then recompile with using this option\n");
   printf("\t-s [Symmetric] Symmetric graph, if not given set of incoming edges will be created \n");
