@@ -276,7 +276,7 @@ __u32* epochReorderRecordBFS(struct GraphCSR* graph){
   //   // printf("%u %u \n",labelsInverse[v],degrees[v] );
   // }
 
-  	 __u32 numCounters = 50;
+  	 __u32 numCounters = 100;
 	 __u32 hardThreshold = graph->num_edges/numCounters;
 	 __u32 softThreshold = graph->num_edges/degrees[graph->num_vertices-1];
 	

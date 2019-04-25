@@ -535,7 +535,7 @@ __u32* reorderGraphProcessInOutDegrees(__u32* degrees , struct EdgeList* edgeLis
 
 
 
-struct EdgeList* reorderGraphProcess( __u32 sort, struct EdgeList* edgeList, __u32 lmode, __u32 symmetric){
+struct EdgeList* reorderGraphProcess( __u32 sort, struct EdgeList* edgeList, __u32 lmode, __u32 symmetric, const char * fnameb){
 
  
 
@@ -560,6 +560,8 @@ struct EdgeList* reorderGraphProcess( __u32 sort, struct EdgeList* edgeList, __u
       edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// out-degree
     else if(lmode == 4)
       edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// in/out-degree
+    else if(lmode == 8)
+      edgeList = relabelEdgeListFromFile(edgeList, fnameb, edgeList->num_vertices);// load from file
  
 
     Stop(timer);
@@ -663,5 +665,68 @@ struct EdgeList* relabelEdgeList(struct EdgeList* edgeList, __u32* labels){
    
 
     return edgeList;
+
+}
+
+
+struct EdgeList* relabelEdgeListFromFile(struct EdgeList* edgeList, const char * fnameb , __u32 size){
+
+      FILE *pText;
+        __u32 i;
+        __u32 src = 0, dest = 0;
+
+        __u32* labels;
+   
+        #if ALIGNED
+            labels = (__u32*) my_aligned_malloc(edgeList->num_vertices*sizeof(__u32)); 
+        #else
+            labels = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
+        #endif
+
+        char * fname_txt = (char *) malloc((strlen(fnameb)+10)*sizeof(char));
+      
+        fname_txt = strcpy (fname_txt, fnameb);
+        fname_txt = strcat (fname_txt, ".labels");
+   
+        pText = fopen(fname_txt, "r");
+  
+        if (pText == NULL) {
+                 return NULL;
+        }
+   
+        while (1)
+        {
+            
+          i = fscanf(pText, "%u\t%u\n", &src, &dest);  
+          labels[src] = dest;
+
+        if( i == EOF ) 
+           break;
+
+        }
+        fclose(pText);
+
+
+
+        edgeList = relabelEdgeList(edgeList, labels);
+
+  
+        free(labels);
+    
+  return edgeList;
+}
+
+
+void writeLabelsToFile(const char * fnameb, __u32* labels, __u32 size){
+
+  FILE *fptr;
+  __u32 x;
+  fptr = fopen(fnameb,"w");
+  for(x = 0; x < size; x++){
+          fprintf(fptr,"%u %u\n", x,labels[x]);
+  }
+
+  fclose(fptr);
+
 
 }

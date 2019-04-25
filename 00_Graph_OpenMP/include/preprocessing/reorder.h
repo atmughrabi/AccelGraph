@@ -4,8 +4,10 @@
 #include <linux/types.h>
 
 
+struct EdgeList* relabelEdgeListFromFile(struct EdgeList* edgeList, const char * fnameb, __u32 size);
+void writeLabelsToFile(const char * fnameb, __u32* labels, __u32 size);
 struct EdgeList* relabelEdgeList(struct EdgeList* edgeList, __u32* labels);
-struct EdgeList* reorderGraphProcess(__u32 sort, struct EdgeList* edgeList,  __u32 lmode, __u32 symmetric);
+struct EdgeList* reorderGraphProcess(__u32 sort, struct EdgeList* edgeList,  __u32 lmode, __u32 symmetric, const char * fnameb);
 struct EdgeList* reorderGraphProcessPageRank( __u32 sort, struct EdgeList* edgeList, __u32 lmode , __u32 symmetric);
 struct EdgeList* reorderGraphProcessDegree( __u32 sort, struct EdgeList* edgeList, __u32 lmode);
 struct EdgeList* reorderGraphListDegree(struct EdgeList* edgeList, __u32* degrees, __u32 lmode);

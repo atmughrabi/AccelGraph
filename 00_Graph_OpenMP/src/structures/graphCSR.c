@@ -280,7 +280,7 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
 
 
     if(lmode)
-        edgeList = reorderGraphProcess(sort, edgeList, lmode, symmetric);
+        edgeList = reorderGraphProcess(sort, edgeList, lmode, symmetric,fnameb);
 
 
     #if DIRECTED
@@ -289,14 +289,14 @@ struct GraphCSR* graphCSRPreProcessingStep (const char * fnameb, __u32 sort,  __
         struct GraphCSR* graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
     #endif
 
-    // Start(timer);
+    Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);
 
    
     // edgeList = radixSortEdgesBySourceOptimized(edgeList);
     // edgeListPrint(edgeList);
     // Stop(timer);
-    // graphCSRPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+    // graphCSRPrintMessageWithtime("Sort Edges (Seconds)",Seconds(timer));
 
     Start(timer);
         graphCSR = graphCSRAssignEdgeList (graphCSR,edgeList, 0);

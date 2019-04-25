@@ -143,13 +143,13 @@ clean:
 
 # synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
 
 # real world large graphs binary format
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
 
 
@@ -165,7 +165,7 @@ TOLERANCE = 1e-8
 SORT_TYPE = 0
 PUSH_PULL = 0
 DELTA = 800
-REORDER = 2
+REORDER = 0
 
 
 #STATS COLLECTION VARIABLES

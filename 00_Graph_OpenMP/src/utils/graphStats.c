@@ -27,8 +27,6 @@ void collectStats( __u32 binSize, const char * fnameb,  __u32 sort,  __u32 lmode
 
 	struct GraphCSR* graphStats = graphCSRPreProcessingStep (fnameb, sort, lmode, symmetric, weighted);
 
-	__u32 histSize = (graphStats->num_vertices/binSize) + 1;
-
 	#if ALIGNED
 		__u32* histogram_in =  (__u32*) my_aligned_malloc(sizeof(__u32)*binSize);
     __u32* histogram_out =  (__u32*) my_aligned_malloc(sizeof(__u32)*binSize);

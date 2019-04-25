@@ -56,10 +56,10 @@ struct EdgeList* sortRunAlgorithms(struct EdgeList* edgeList, __u32 sort){
 
 void sortRunPrintMessageWithtime(const char * msg, double time){
 
-    // printf(" -----------------------------------------------------\n");
-    // printf("| %-51s | \n", msg);
-    // printf(" -----------------------------------------------------\n");
-    // printf("| %-51f | \n", time);
-    // printf(" -----------------------------------------------------\n");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", msg);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", time);
+    printf(" -----------------------------------------------------\n");
 
 }
