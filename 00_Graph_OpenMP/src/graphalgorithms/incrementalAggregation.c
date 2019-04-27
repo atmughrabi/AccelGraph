@@ -56,16 +56,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
 
 	struct Bitmap * mergeEdgeBitmap = newBitmap(graph->num_vertices);
 
-	#if ALIGNED
-        vertices = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        degrees = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-
-        weightSum = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        atomDegree = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        atomChild = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        sibling = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        dest = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
+	
         vertices = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         degrees = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
 
@@ -74,7 +65,7 @@ void incrementalAggregationGraphCSR( struct GraphCSR* graph){
         atomChild = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         sibling = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         dest = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+   
 	
   	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Incremental Aggregation");

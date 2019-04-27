@@ -26,7 +26,8 @@ struct GraphCSR{
 	#if DIRECTED
 		struct Vertex* inverse_vertices;
 		struct Edge* inverse_sorted_edges_array; // sorted edge array
-		__u32* inverse_sorted_edge_array; // sorted edge array
+		__u32* inverse_sorted_edge_array; // sorted edge array dest
+		struct EdgeList* graphCSR_edgelist;
 	#endif
 
 };

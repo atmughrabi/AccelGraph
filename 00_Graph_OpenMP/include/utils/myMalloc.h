@@ -7,7 +7,8 @@
 #define CACHELINE_BYTES 128
 
 char * strerror(int errnum);
-void * my_aligned_malloc( size_t size );
+void * aligned_malloc( size_t size );
 void * my_malloc( size_t size );
+void * regular_malloc( size_t size );
 
 #endif

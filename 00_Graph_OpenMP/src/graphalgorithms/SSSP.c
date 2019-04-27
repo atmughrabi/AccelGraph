@@ -718,15 +718,11 @@ struct SSSPStats* SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
   	
     __u32 activeVertices = 0;
 
-	#if ALIGNED
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->buckets_map = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
-        stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        stats->buckets_map = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+	
+    stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    stats->buckets_map = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    
 
     struct GraphCSR* graphHeavy = NULL;
 	struct GraphCSR* graphLight = NULL;

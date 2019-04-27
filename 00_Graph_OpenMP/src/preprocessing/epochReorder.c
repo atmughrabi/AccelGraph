@@ -48,12 +48,10 @@ __u32 epochAtomicMin(__u32 *dist , __u32 newValue){
 struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, __u32 numCounters, __u32 numVertices){
 
 		__u32 v =0;
-        // struct EdgeList* newEdgeList = (struct EdgeList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct EdgeList));
-		#if ALIGNED
-                struct EpochReorder* epochReorder = (struct EpochReorder*) my_aligned_malloc(sizeof(struct EpochReorder));  
-        #else
-                struct EpochReorder* epochReorder = (struct EpochReorder*) my_malloc(sizeof(struct EpochReorder));
-        #endif
+		__u32 n =0;
+   
+        struct EpochReorder* epochReorder = (struct EpochReorder*) my_malloc(sizeof(struct EpochReorder));
+        
 
         epochReorder->rrIndex = 0;
         epochReorder->softcounter = 0;
@@ -65,17 +63,20 @@ struct EpochReorder* newEpochReoder( __u32 softThreshold, __u32 hardThreshold, _
 
         epochReorder->recencyBits = newBitmap(numVertices);
 
-        #if ALIGNED
-                epochReorder->frequency = (__u32*) my_aligned_malloc(sizeof(__u32)*numCounters*numVertices);
-        #else
-                epochReorder->frequency = (__u32*) my_malloc(sizeof(__u32)*numCounters*numVertices);
-        #endif
+        
+        epochReorder->frequency = (__u32*) my_malloc(sizeof(__u32)*numCounters*numVertices);
+        for(v=0; v<numCounters; v++){
+        	  epochReorder->frequency[v] = (__u32*) my_malloc(sizeof(__u32)*numVertices);
+        }
+
 
 
         #pragma omp parallel for
-		  for(v = 0; v < (numCounters*numVertices); v++){
-		     epochReorder->frequency[v] = 0;
-		  }
+		 for(v = 0; v < numCounters; v++){
+		  	for(n = 0; n < numVertices; n++){
+		    	epochReorder->frequency[v][n] = 0;
+			}
+		 }
         
         return epochReorder;
 
@@ -130,15 +131,11 @@ float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, doubl
     sorted_edges_array = graph->sorted_edge_array;
   #endif
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+ 
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Epoch Pull (tolerance/epsilon)");
@@ -172,7 +169,7 @@ float* epochReorderPageRankPullGraphCSR(struct EpochReorder* epochReorder, doubl
       float nodeIncomingPR = 0.0f;
       degree = vertices[v].out_degree;
       edge_idx = vertices[v].edges_idx;
-      // epochReorderIncrementCounters(epochReorder,v);
+      epochReorderIncrementCounters(epochReorder,v);
 
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
         u = sorted_edges_array[j];
@@ -246,22 +243,17 @@ __u32* epochReorderRecordBFS(struct GraphCSR* graph){
 	 __u32 root = genrand_int31();
 	 __u32 v;
 
-    #if ALIGNED
-        labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        labelsInverse = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    	degrees = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    
-    #else
-        labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        labelsInverse = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        degrees = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+   
+    labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    labelsInverse = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    degrees = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
 
-    #endif
+  
 	 
 	 #pragma omp parallel for
 	  for(v = 0; v < graph->num_vertices; v++){
 	    labelsInverse[v]= v;
-	    degrees[v]= graph->vertices[v].out_degree;
+	    degrees[v]= graph->vertices[v].in_degree;
 
 	    // printf("%u %u \n",labelsInverse[v],degrees[v] );
 	  }
@@ -276,38 +268,23 @@ __u32* epochReorderRecordBFS(struct GraphCSR* graph){
   //   // printf("%u %u \n",labelsInverse[v],degrees[v] );
   // }
 
-  	 __u32 numCounters = 100;
+  	 __u32 numCounters = 50;
 	 __u32 hardThreshold = graph->num_edges/numCounters;
-	 __u32 softThreshold = graph->num_edges/degrees[graph->num_vertices-1];
+	 __u32 softThreshold = hardThreshold/4;
 	
 
 	struct EpochReorder* epochReorder = newEpochReoder(softThreshold, hardThreshold, numCounters, graph->num_vertices);
 
 	  // #pragma omp parallel for
-		for(v = graph->num_vertices-1 ; v > 0; v--){
+		for(v = graph->num_vertices-1 ;v > (graph->num_vertices-10); v--){
     		root = labelsInverse[v];
-
-    		// printf("soft %u hard %u root %u degree %u \n",softThreshold, hardThreshold, root, degrees[v] );
-
-              // if(graph->parents[root] < 0){
-
                 epochReorderBreadthFirstSearchGraphCSR( epochReorder, root, graph);
-              // }   
-              // root = genrand_int31();
-
-    //           if(((graph->processed_nodes*100.0f)/graph->num_vertices) > 50.0)
-				// break;
-
-				if(v < graph->num_vertices-10)
-					break;
-
-			printf(" -----------------------------------------------------\n");
-			printf("| %-15s | %-30f | \n","SUM total", (graph->processed_nodes*100.0f)/graph->num_vertices);
-			printf(" -----------------------------------------------------\n");
-			printf(" -----------------------------------------------------\n");
-			printf("| %-15s | %-30u | \n","EPOCH ", epochReorder->rrIndex);
-			printf(" -----------------------------------------------------\n");
-
+			// printf(" -----------------------------------------------------\n");
+			// printf("| %-15s | %-30f | \n","SUM total", (graph->processed_nodes*100.0f)/graph->num_vertices);
+			// printf(" -----------------------------------------------------\n");
+			// printf(" -----------------------------------------------------\n");
+			// printf("| %-15s | %-30u | \n","EPOCH ", epochReorder->rrIndex);
+			// printf(" -----------------------------------------------------\n");
             }
         
     // printEpochs(epochReorder);
@@ -366,11 +343,9 @@ void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder* epochReorder, _
 	__u32 alpha = 15;
 	__u32 beta = 18;
 
-	#if ALIGNED
-		struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_malloc( P * sizeof(struct ArrayQueue*));
-	#else
+	
         struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_malloc( P * sizeof(struct ArrayQueue*));
-    #endif
+   
 
    __u32 i;
    for(i=0 ; i < P ; i++){
@@ -598,9 +573,11 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder* epochReorder, struct
 
 __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 
+	__u32* labels;
 	__u32* labelsInverse = NULL;
 	__u32* histMaps = NULL;
 	__u32* histValues = NULL;
+	__u32* histDegree = NULL;
 	__u32 v = 0;
 	__u32 h = 0;
 	struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
@@ -612,22 +589,24 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
     Start(timer);
 
 
-	#if ALIGNED
-      labelsInverse = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
-      histMaps = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
-      histValues = (__u32*) my_aligned_malloc(epochReorder->numVertices*sizeof(__u32));
-     
-	#else
+
+      labels = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       labelsInverse = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       histMaps = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
       histValues = (__u32*) my_malloc(epochReorder->numVertices*sizeof(__u32));
-  	#endif
+      histDegree = (__u32*) my_malloc((epochReorder->numCounters+1)*sizeof(__u32));
+  	
 
     #pragma omp parallel for
 		for(v = 0; v < epochReorder->numVertices; v++){
 			labelsInverse[v]= v;
 			histMaps[v]=0;
 			histValues[v]=0;
+		}
+
+	 #pragma omp parallel for
+		for(v = 0; v < (epochReorder->numCounters+1); v++){
+			histDegree[v]=0;
 		}
 
 
@@ -637,18 +616,36 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
 			__u32 maxValue = 0;
 			__u32 maxIndex = UINT_MAX/2;
 			for(h = 0; h < epochReorder->numCounters; h++ ){
-				if(epochReorder->frequency[(h*epochReorder->numVertices)+v] > maxValue){
-					maxValue = epochReorder->frequency[(h*epochReorder->numVertices)+v];
+				if(epochReorder->frequency[h][v] > maxValue){
+					maxValue = epochReorder->frequency[h][v];
 					maxIndex = h;
+
 				}
+			}
+
+			if(maxIndex != UINT_MAX)
+				histDegree[maxIndex]++;
+			else{
+				histDegree[epochReorder->numCounters]++;
+				maxIndex = epochReorder->numCounters;
 			}
 
 			histMaps[v] = maxIndex;
 			histValues[v] = maxValue;
 		}
 
-
 	labelsInverse = radixSortEdgesByEpochs(histValues, histMaps, labelsInverse, epochReorder->numVertices);
+
+	// #pragma omp parallel for
+	//  for(v = 0; v < epochReorder->numVertices; v++){
+	//     labels[labelsInverse[v]] = v;
+	//  }
+
+	// __u32 Accume = histMaps[0];
+	// for(v = 0; v < (epochReorder->numVertices); v++){
+	// 	printf("EPOCH[%u] %u %u %u \n",v, histMaps[v], histValues[v], labels[v]);
+	// }
+
 
 	Stop(timer);
 
@@ -659,6 +656,10 @@ __u32* epochReorderCreateLabels(struct EpochReorder* epochReorder){
     printf(" -----------------------------------------------------\n");
 
   	free(timer);
+  	free(histMaps);
+  	free(histValues);
+  	free(histDegree);
+
 	return labelsInverse;
 
 }
@@ -668,10 +669,10 @@ void printEpochs(struct EpochReorder* epochReorder){
 	__u32 v = 0;
 	__u32 h = 0;
 
-	for(v = 0; v < epochReorder->numVertices; v++){
+	for(v = 0; v < 10; v++){
 		printf("v[%u] ",v);
 			for(h = 0; h < epochReorder->numCounters; h++ ){
-				printf("%u[%u] ", h,epochReorder->frequency[(h*epochReorder->numVertices)+v]);
+				printf("%u[%u] ", h,epochReorder->frequency[h][v]);
 			}
 		printf("\n");
 		}
@@ -698,7 +699,7 @@ void epochReorderIncrementCounters(struct EpochReorder* epochReorder, __u32 v){
 	}
 
 		histogramIndex = epochReorder->rrIndex;
-		epochReorder->frequency[(histogramIndex*epochReorder->numVertices)+v]++;
+		epochReorder->frequency[histogramIndex][v]++;
 		epochReorder->hardcounter++;
 		epochReorder->softcounter++;
 
@@ -733,12 +734,12 @@ void atomicEpochReorderIncrementCounters(struct EpochReorder* epochReorder, __u3
 	
 	// if(!getBit(epochReorder->recencyBits, v)){
 	//  	setBitAtomic(epochReorder->recencyBits, v);
-	//  	#pragma omp atomic update
-			epochReorder->frequency[(histogramIndex*epochReorder->numVertices)+v]++;
+ 	#pragma omp atomic update
+		epochReorder->frequency[histogramIndex][v]++;
 	// }
 	// else{
 	// 	#pragma omp atomic update
-	// 		epochReorder->frequency[(histogramIndex*epochReorder->numVertices)+v] += 2;
+	// 		epochReorder->frequency[histogramIndex][v] += 2;
 	// }
 	
 	
@@ -747,8 +748,13 @@ void atomicEpochReorderIncrementCounters(struct EpochReorder* epochReorder, __u3
 
 void freeEpochReorder(struct EpochReorder* epochReorder){
 
+	__u32 v;
+
 	if(epochReorder){
 	freeBitmap(epochReorder->recencyBits);
+	    for(v=0; v<epochReorder->numCounters; v++){
+	    	  free(epochReorder->frequency[v]);
+	    }
 	free( epochReorder->frequency);
 	free( epochReorder);
 	}
@@ -873,19 +879,11 @@ __u32* radixSortEdgesByEpochs (__u32* histValues,__u32* histMaps, __u32* labels,
     __u32* histMapsTemp = NULL;
     __u32* labelsTemp = NULL;
   
-
-    #if ALIGNED
-        buckets_count = (__u32*) my_aligned_malloc(P * buckets * sizeof(__u32));
-        histValuesTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
-        histMapsTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
-        labelsTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
-    #else
-        buckets_count = (__u32*) my_malloc(P * buckets * sizeof(__u32));
-        histValuesTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
-        histMapsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
-        labelsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
-    #endif
-
+    buckets_count = (__u32*) my_malloc(P * buckets * sizeof(__u32));
+    histValuesTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+    histMapsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+    labelsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+    
     #pragma omp parallel for
 	for(v = 0; v < num_vertices; v++){
 		histValuesTemp[v]=0;

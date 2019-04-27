@@ -139,31 +139,31 @@ clean:
 
 
 #small test graphs
-# FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
 
 # synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
 
 # real world large graphs binary format
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
-
+# FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
 
 
 #GRAPH RUN
 ROOT = 690969
 DATA_STRUCTURES = 0
-ALGORITHMS = 1
+ALGORITHMS = 3
 NUM_THREADS  = 8
-NUM_ITERATIONS =200
-NUM_TRIALS = 0
+NUM_ITERATIONS =100
+NUM_TRIALS = 10
 TOLERANCE = 1e-8
 SORT_TYPE = 0
-PUSH_PULL = 0
+PUSH_PULL = 2
 DELTA = 800
 REORDER = 0
 
@@ -189,7 +189,7 @@ debug: all
 	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)
 
 .PHONY: debug-memory
-debug-memory: main	
+debug-memory: all	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS)
 
 .PHONY: run-test
@@ -207,3 +207,7 @@ debug-memory-test: test
 .PHONY: cache-perf
 cache-perf: all
 	valgrind --tool=cachegrind ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -w -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
+.PHONY: graph-perf
+graph-perf: all
+	sudo perf stat -d $(APP_DIR)/$(BIN_DIR)/$(GAPP) -w -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)

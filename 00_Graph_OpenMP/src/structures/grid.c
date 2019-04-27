@@ -136,11 +136,9 @@ struct Grid * gridNew(struct EdgeList* edgeList){
 	
 	__u32 totalPartitions = 0;
 
-	#if ALIGNED
-		struct Grid* grid = (struct Grid*) my_aligned_malloc(sizeof(struct Grid));
-	#else
-        struct Grid* grid = (struct Grid*) my_malloc( sizeof(struct Grid));
-    #endif
+	
+    struct Grid* grid = (struct Grid*) my_malloc( sizeof(struct Grid));
+    
 
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
@@ -149,30 +147,11 @@ struct Grid * gridNew(struct EdgeList* edgeList){
     grid->num_partitions = gridCalculatePartitions(edgeList);
     totalPartitions = grid->num_partitions * grid->num_partitions;
 
-    #if ALIGNED
-		grid->partitions = (struct Partition*) my_aligned_malloc(totalPartitions * sizeof(struct Partition));
-	#else
-        grid->partitions = (struct Partition*) my_malloc(totalPartitions * sizeof(struct Partition));
-    #endif
-
-    #if ALIGNED
-        grid->activePartitions = (__u32*) my_aligned_malloc(totalPartitions * sizeof(__u32));
-    #else
-        grid->activePartitions = (__u32*) my_malloc(totalPartitions * sizeof(__u32));
-    #endif
-
-    #if ALIGNED
-        grid->out_degree = (__u32*) my_aligned_malloc(grid->num_vertices * sizeof(__u32));
-    #else
-        grid->out_degree = (__u32*) my_malloc(grid->num_vertices * sizeof(__u32));
-    #endif
-
-    #if ALIGNED
-        grid->in_degree = (__u32*) my_aligned_malloc(grid->num_vertices * sizeof(__u32));
-    #else
-        grid->in_degree = (__u32*) my_malloc(grid->num_vertices * sizeof(__u32));
-    #endif
-
+    grid->partitions = (struct Partition*) my_malloc(totalPartitions * sizeof(struct Partition));
+    grid->activePartitions = (__u32*) my_malloc(totalPartitions * sizeof(__u32));
+    grid->out_degree = (__u32*) my_malloc(grid->num_vertices * sizeof(__u32));
+    grid->in_degree = (__u32*) my_malloc(grid->num_vertices * sizeof(__u32));
+   
         // grid->activeVertices = newBitmap(grid->num_vertices);
         grid->activePartitionsMap = newBitmap(totalPartitions);
 

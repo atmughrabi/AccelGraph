@@ -148,26 +148,30 @@ void pageRankPrint(float *pageRankArray , __u32 num_vertices){
 // end function
 //we assume that the edges are not sorted in each partition
 
-void pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphGrid* graph){
+float*  pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphGrid* graph){
+
+  float* pageRanks = NULL;
 
 	switch (pushpull)
       { 
         case 0: // push
-        	  pageRankPullRowGraphGrid(epsilon, iterations, graph);
+        	  pageRanks = pageRankPullRowGraphGrid(epsilon, iterations, graph);
         break;
         case 1: // pull
-            pageRankPushColumnGraphGrid(epsilon, iterations, graph);
+            pageRanks = pageRankPushColumnGraphGrid(epsilon, iterations, graph);
         break;
         case 2: // pull
-            pageRankPullRowFixedPointGraphGrid(epsilon, iterations, graph);
+            pageRanks = pageRankPullRowFixedPointGraphGrid(epsilon, iterations, graph);
         break;
         case 3: // push
-            pageRankPushColumnFixedPointGraphGrid(epsilon, iterations, graph);
+            pageRanks = pageRankPushColumnFixedPointGraphGrid(epsilon, iterations, graph);
         break;        
         default:// push
-           	pageRankPullRowGraphGrid(epsilon, iterations, graph);
+           	pageRanks = pageRankPullRowGraphGrid(epsilon, iterations, graph);
         break;          
       }
+
+    return pageRanks;
 
 }
 
@@ -184,23 +188,19 @@ float* pageRankPullRowGraphGrid(double epsilon,  __u32 iterations, struct GraphG
   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+  
+  float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
 
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Page Rank Pull-Row (tolerance/epsilon)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51.13lf | \n", epsilon);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iteration","Active", "Error", "Time (S)");
-    printf(" -----------------------------------------------------\n");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-51s | \n", "Starting Page Rank Pull-Row (tolerance/epsilon)");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-51.13lf | \n", epsilon);
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iteration","Active", "Error", "Time (S)");
+  printf(" -----------------------------------------------------\n");
 
   Start(timer);
   
@@ -315,15 +315,10 @@ float* pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 iterations, str
   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-  #endif
+  float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+  __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull-Row FP (tolerance/epsilon)");
@@ -446,15 +441,10 @@ float* pageRankPushColumnGraphGrid(double epsilon,  __u32 iterations, struct Gra
   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+  float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push-Col (tolerance/epsilon)");
@@ -574,16 +564,11 @@ float* pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, 
   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
-
+  
+  float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push-Col FP (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
@@ -696,40 +681,42 @@ float* pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, 
 // ********************************************************************************************
 
 
-void pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph){
-       
+float* pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph){
+    
+  float* pageRanks = NULL;
+
     switch (pushpull)
       { 
         
         case 0: // pull
-          	pageRankPullGraphCSR(epsilon, iterations, graph);
+          	pageRanks = pageRankPullGraphCSR(epsilon, iterations, graph);
         break;
         case 1: // push
-            pageRankPushGraphCSR(epsilon, iterations, graph);
+            pageRanks = pageRankPushGraphCSR(epsilon, iterations, graph);
         break;
        
         case 2: // pull
-            pageRankPullFixedPointGraphCSR(epsilon, iterations, graph);
+            pageRanks = pageRankPullFixedPointGraphCSR(epsilon, iterations, graph);
         break;
         case 3: // push
-            pageRankPushFixedPointGraphCSR(epsilon, iterations, graph);
+            pageRanks = pageRankPushFixedPointGraphCSR(epsilon, iterations, graph);
         break;
 
         case 4: // pull
-            pageRankPullQuantizationGraphCSR(epsilon, iterations, graph);
+            pageRanks = pageRankPullQuantizationGraphCSR(epsilon, iterations, graph);
         break;
         case 5: // push
-            pageRankPushQuantizationGraphCSR(epsilon, iterations, graph);
+            pageRanks = pageRankPushQuantizationGraphCSR(epsilon, iterations, graph);
         break;
 
         case 6: // pull
-            pageRankDataDrivenPullGraphCSR(epsilon, iterations, graph);
+            pageRanks = pageRankDataDrivenPullGraphCSR(epsilon, iterations, graph);
         break;
         case 7: // push
-            pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
+            pageRanks = pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
         break;
         case 8: // pullpush
-            pageRankDataDrivenPullPushGraphCSR(epsilon, iterations, graph);
+           pageRanks = pageRankDataDrivenPullPushGraphCSR(epsilon, iterations, graph);
         break;
 
         // case 9: // push
@@ -740,9 +727,11 @@ void pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct 
         // break;
         
         default:// pull
-           	pageRankPullGraphCSR(epsilon, iterations, graph);
+           	pageRanks = pageRankPullGraphCSR(epsilon, iterations, graph);
         break;          
       }
+
+      return pageRanks;
 
 }
 
@@ -772,15 +761,10 @@ float* pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* 
     sorted_edges_array = graph->sorted_edge_array;
   #endif
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+  float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull (tolerance/epsilon)");
@@ -886,12 +870,10 @@ float* pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* 
   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
-    #if ALIGNED
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graph->num_vertices * sizeof(omp_lock_t));
-    #else
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
+   
+  omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
 
-    #endif
+    
 
 
     #pragma omp parallel for default(none) private(i) shared(graph,vertex_lock)
@@ -899,15 +881,11 @@ float* pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* 
         omp_init_lock(&(vertex_lock[i]));
     }
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+ 
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+ 
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push (tolerance/epsilon)");
@@ -1050,19 +1028,13 @@ float* pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct 
     sorted_edges_array = graph->sorted_edge_array;
   #endif
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        // __u64* outDegreesFP = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        // __u64* pageRanksFP = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        // __u64* outDegreesFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        // __u64* pageRanksFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-  #endif
+ 
+  float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+  __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+  // __u64* outDegreesFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+  // __u64* pageRanksFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+ 
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull FP (tolerance/epsilon)");
@@ -1177,12 +1149,9 @@ float* pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct 
   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
-    #if ALIGNED
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graph->num_vertices * sizeof(omp_lock_t));
-    #else
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
+    
+  omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
 
-    #endif
 
 
     #pragma omp parallel for default(none) private(i) shared(graph,vertex_lock)
@@ -1190,17 +1159,12 @@ float* pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct 
         omp_init_lock(&(vertex_lock[i]));
     }
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        // __u32* pageRanksFP = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        // __u32* pageRanksFP = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-  #endif
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    // __u32* pageRanksFP = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+    __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push FP (tolerance/epsilon)");
@@ -1348,19 +1312,13 @@ float* pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
     sorted_edges_array = graph->sorted_edge_array;
   #endif
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        // __u64* outDegreesFP = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        // __u64* pageRanksFP = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        // __u64* outDegreesFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        // __u64* pageRanksFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-  #endif
+ 
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+    __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+    // __u64* outDegreesFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+    // __u64* pageRanksFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull Quant (tolerance/epsilon)");
@@ -1396,31 +1354,31 @@ float* pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
     //  Start(timer_inner);
     
 
-  // FILE *fptr;
-  // fptr = fopen("./RMAT20.accum.all.out","w");
+  FILE *fptr;
+  fptr = fopen("./gplus.out","w");
     // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
     for(v = 0; v < graph->num_vertices; v++){
       degree = vertices[v].out_degree;
 
-      // if(v<8192)
-      //   fprintf(fptr,"r %016x\n", &(vertices[v].out_degree));
+      // if(v > (graph->num_vertices - 32768))
+        fprintf(fptr,"r %016x\n", &(vertices[v].out_degree));
 
       edge_idx = vertices[v].edges_idx;
 
-      // if(v<8192)
-      //   fprintf(fptr,"r %016x\n", &(vertices[v].edges_idx));
+      // if(v> (graph->num_vertices - 32768))
+        fprintf(fptr,"r %016x\n", &(vertices[v].edges_idx));
 
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
         u = sorted_edges_array[j];
 
-       // if(u<(8192)){
-       //    // fprintf(fptr,"r %016x\n", &(sorted_edges_array[j]));
-       //    fprintf(fptr,"r %016x\n", &(riDividedOnDiClause[u]));
-       //  }
+       // if(u > (graph->num_vertices - 32768)){
+          fprintf(fptr,"r %016x\n", &(sorted_edges_array[j]));
+          fprintf(fptr,"r %016x\n", &(riDividedOnDiClause[u]));
+        // }
 
-        // if(v<8192){
-        //   fprintf(fptr,"r %016x\n", &(pageRanksNext[v]));
-        //   fprintf(fptr,"w %016x\n", &(pageRanksNext[v]));
+        // if(v> (graph->num_vertices - 32768)){
+          fprintf(fptr,"r %016x\n", &(pageRanksNext[v]));
+          fprintf(fptr,"w %016x\n", &(pageRanksNext[v]));
         // }
 
         pageRanksNext[v] += riDividedOnDiClause[u];
@@ -1428,7 +1386,7 @@ float* pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
 
     }
 
-    // fclose(fptr);
+    fclose(fptr);
     // Stop(timer_inner);
     // printf("|B %-9u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
     // Start(timer_inner);
@@ -1476,6 +1434,7 @@ float* pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
   // pageRankPrint(pageRanks, graph->num_vertices);
   free(timer);
   free(timer_inner);
+  free(pageRanksNext);
   free(riDividedOnDiClause);
 
    return pageRanks;
@@ -1498,12 +1457,10 @@ float* pageRankPushQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
-    #if ALIGNED
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graph->num_vertices * sizeof(omp_lock_t));
-    #else
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
+   
+    omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
 
-    #endif
+   
 
 
     #pragma omp parallel for default(none) private(i) shared(graph,vertex_lock)
@@ -1511,17 +1468,12 @@ float* pageRankPushQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
         omp_init_lock(&(vertex_lock[i]));
     }
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        // __u32* pageRanksFP = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        // __u32* pageRanksFP = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-  #endif
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    // __u32* pageRanksFP = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+    __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push Quant (tolerance/epsilon)");
@@ -1659,13 +1611,10 @@ float* pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct 
   __u8* workListNext = NULL;
   int activeVertices = 0;
 
-   #if ALIGNED
-        workListCurr = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-  #else
-        workListCurr  = (__u8*) my_malloc(sizeof(__u8));
-        workListNext  = (__u8*) my_malloc(sizeof(__u8));
-  #endif
+ 
+        workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+        workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+ 
 
   resetWorkList(workListNext, graph->num_vertices);
   resetWorkList(workListCurr, graph->num_vertices);
@@ -1678,13 +1627,10 @@ float* pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct 
     sorted_edges_array = graph->sorted_edge_array;
   #endif
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+ 
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull DD (tolerance/epsilon)");
@@ -1817,13 +1763,10 @@ float* pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct 
   __u8* workListNext = NULL;
   int activeVertices = 0;
 
-  #if ALIGNED
-        workListCurr = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-  #else
-        workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-  #endif
+  
+    workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+    workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+ 
 
   resetWorkList(workListNext, graph->num_vertices);
   resetWorkList(workListCurr, graph->num_vertices);
@@ -1836,16 +1779,12 @@ float* pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct 
     sorted_edges_array = graph->sorted_edge_array;
   #endif
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
 
-  #endif
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push DD (tolerance/epsilon)");
@@ -1983,13 +1922,10 @@ float* pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, str
   __u8* workListNext = NULL;
   int activeVertices = 0;
 
-   #if ALIGNED
-        workListCurr = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-  #else
-        workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-  #endif
+  
+  workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+
 
   resetWorkList(workListNext, graph->num_vertices);
   resetWorkList(workListCurr, graph->num_vertices);
@@ -2002,16 +1938,12 @@ float* pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, str
     sorted_edges_array = graph->sorted_edge_array;
   #endif
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
+ 
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
 
-  #endif
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull-Push DD (tolerance/epsilon)");
@@ -2156,36 +2088,40 @@ float* pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, str
 // ********************************************************************************************
 
 
-void pageRankGraphAdjArrayList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList* graph){
+float* pageRankGraphAdjArrayList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList* graph){
+
+  float* pageRanks = NULL;
 
 	switch (pushpull)
       { 
-       
+
         case 0: // pull
-            pageRankPullGraphAdjArrayList(epsilon, iterations, graph);
+            pageRanks = pageRankPullGraphAdjArrayList(epsilon, iterations, graph);
         break;
         case 1: // push
-            pageRankPushGraphAdjArrayList(epsilon, iterations, graph);
+            pageRanks = pageRankPushGraphAdjArrayList(epsilon, iterations, graph);
         break;
         case 2: // pull
-            pageRankPullFixedPointGraphAdjArrayList(epsilon, iterations, graph);
+            pageRanks = pageRankPullFixedPointGraphAdjArrayList(epsilon, iterations, graph);
         break;
         case 3: // push
-            pageRankPushFixedPointGraphAdjArrayList(epsilon, iterations, graph);
+            pageRanks = pageRankPushFixedPointGraphAdjArrayList(epsilon, iterations, graph);
         break;
         case 4: // pull
-            pageRankDataDrivenPullGraphAdjArrayList(epsilon, iterations, graph);
+            pageRanks = pageRankDataDrivenPullGraphAdjArrayList(epsilon, iterations, graph);
         break;
         case 5: // push
-            pageRankDataDrivenPushGraphAdjArrayList(epsilon, iterations, graph);
+            pageRanks = pageRankDataDrivenPushGraphAdjArrayList(epsilon, iterations, graph);
         break;
         case 6: // pullpush
-            pageRankDataDrivenPullPushGraphAdjArrayList(epsilon, iterations, graph);
+            pageRanks = pageRankDataDrivenPullPushGraphAdjArrayList(epsilon, iterations, graph);
         break;
         default:// push
-           	pageRankPullGraphAdjArrayList(epsilon, iterations, graph);
+           	pageRanks = pageRankPullGraphAdjArrayList(epsilon, iterations, graph);
         break;          
       }
+
+    return pageRanks;
 
 }
 
@@ -2206,15 +2142,11 @@ float* pageRankPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct G
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull (tolerance/epsilon)");
@@ -2328,12 +2260,10 @@ float* pageRankPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct G
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
   struct Edge* Nodes;
 
-    #if ALIGNED
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graph->num_vertices * sizeof(omp_lock_t));
-    #else
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
+   
+    omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
 
-    #endif
+  
 
 
     #pragma omp parallel for default(none) private(i) shared(graph,vertex_lock)
@@ -2341,15 +2271,11 @@ float* pageRankPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct G
         omp_init_lock(&(vertex_lock[i]));
     }
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+ 
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+ 
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push (tolerance/epsilon)");
@@ -2481,15 +2407,11 @@ float* pageRankPullFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-  #endif
+ 
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+    __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull FP (tolerance/epsilon)");
@@ -2603,12 +2525,9 @@ float* pageRankPushFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
   struct Edge* Nodes;
 
-    #if ALIGNED
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graph->num_vertices * sizeof(omp_lock_t));
-    #else
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
+    
+    omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
 
-    #endif
 
 
     #pragma omp parallel for default(none) private(i) shared(graph,vertex_lock)
@@ -2616,15 +2535,11 @@ float* pageRankPushFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations
         omp_init_lock(&(vertex_lock[i]));
     }
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-  #endif
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+    __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push FP (tolerance/epsilon)");
@@ -2756,26 +2671,20 @@ float* pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  __u32 iterations
   int activeVertices = 0;
   struct Edge* Nodes;
 
-   #if ALIGNED
-        workListCurr = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-  #else
-        workListCurr  = (__u8*) my_malloc(sizeof(__u8));
-        workListNext  = (__u8*) my_malloc(sizeof(__u8));
-  #endif
+ 
+  workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  
 
   resetWorkList(workListNext, graph->num_vertices);
   resetWorkList(workListCurr, graph->num_vertices);
 
  
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull DD (tolerance/epsilon)");
@@ -2914,28 +2823,21 @@ float* pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  __u32 iterations
   struct Edge* Nodes;
 
 
-   #if ALIGNED
-        workListCurr = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-  #else
-        workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-  #endif
+  
+  workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  
 
   resetWorkList(workListNext, graph->num_vertices);
   resetWorkList(workListCurr, graph->num_vertices);
 
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
 
-  #endif
+ 
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push DD (tolerance/epsilon)");
@@ -3077,27 +2979,19 @@ float* pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon,  __u32 iterat
   __u8* workListNext = NULL;
   int activeVertices = 0;
 
-   #if ALIGNED
-        workListCurr = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-  #else
-        workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-  #endif
+  workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  
 
   resetWorkList(workListNext, graph->num_vertices);
   resetWorkList(workListCurr, graph->num_vertices);
 
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull-Push DD (tolerance/epsilon)");
@@ -3243,35 +3137,39 @@ float* pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon,  __u32 iterat
 // ********************************************************************************************
 
 
-void pageRankGraphAdjLinkedList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList* graph){
+float* pageRankGraphAdjLinkedList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList* graph){
+
+  float* pageRanks = NULL;
 
 	switch (pushpull)
       { 
         case 0: // pull
-            pageRankPullGraphAdjLinkedList(epsilon, iterations, graph);
+            pageRanks = pageRankPullGraphAdjLinkedList(epsilon, iterations, graph);
         break;
         case 1: // push
-            pageRankPushGraphAdjLinkedList(epsilon, iterations, graph);
+            pageRanks = pageRankPushGraphAdjLinkedList(epsilon, iterations, graph);
         break;
         case 2: // pull
-            pageRankPullFixedPointGraphAdjLinkedList(epsilon, iterations, graph);
+            pageRanks = pageRankPullFixedPointGraphAdjLinkedList(epsilon, iterations, graph);
         break;
         case 3: // push
-            pageRankPushFixedPointGraphAdjLinkedList(epsilon, iterations, graph);
+            pageRanks = pageRankPushFixedPointGraphAdjLinkedList(epsilon, iterations, graph);
         break;
         case 4: // pull
-            pageRankDataDrivenPullGraphAdjLinkedList(epsilon, iterations, graph);
+            pageRanks = pageRankDataDrivenPullGraphAdjLinkedList(epsilon, iterations, graph);
         break;
         case 5: // push
-            pageRankDataDrivenPushGraphAdjLinkedList(epsilon, iterations, graph);
+            pageRanks = pageRankDataDrivenPushGraphAdjLinkedList(epsilon, iterations, graph);
         break;
         case 6: // pullpush
-            pageRankDataDrivenPullPushGraphAdjLinkedList(epsilon, iterations, graph);
+            pageRanks = pageRankDataDrivenPullPushGraphAdjLinkedList(epsilon, iterations, graph);
         break;
         default:// push
-           	pageRankPullGraphAdjLinkedList(epsilon, iterations, graph);
+           	pageRanks = pageRankPullGraphAdjLinkedList(epsilon, iterations, graph);
         break;          
       }
+
+  return pageRanks;
 
 }
 
@@ -3292,15 +3190,11 @@ float* pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct 
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+ 
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull (tolerance/epsilon)");
@@ -3416,12 +3310,10 @@ float* pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct 
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
   struct AdjLinkedListNode* Nodes;
 
-    #if ALIGNED
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graph->num_vertices * sizeof(omp_lock_t));
-    #else
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
+   
+  omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
 
-    #endif
+    
 
 
     #pragma omp parallel for default(none) private(i) shared(graph,vertex_lock)
@@ -3429,15 +3321,11 @@ float* pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct 
         omp_init_lock(&(vertex_lock[i]));
     }
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+ 
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push (tolerance/epsilon)");
@@ -3570,15 +3458,11 @@ float* pageRankPullFixedPointGraphAdjLinkedList(double epsilon,  __u32 iteration
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
 
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-  #endif
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+    __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+ 
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull FP (tolerance/epsilon)");
@@ -3694,12 +3578,10 @@ float* pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  __u32 iteration
   struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
   struct AdjLinkedListNode* Nodes;
 
-    #if ALIGNED
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graph->num_vertices * sizeof(omp_lock_t));
-    #else
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
+   
+  omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
 
-    #endif
+   
 
 
     #pragma omp parallel for default(none) private(i) shared(graph,vertex_lock)
@@ -3707,15 +3589,11 @@ float* pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  __u32 iteration
         omp_init_lock(&(vertex_lock[i]));
     }
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_aligned_malloc(graph->num_vertices*sizeof(__u64));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-        __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-  #endif
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    __u64* pageRanksNext = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+    __u64* riDividedOnDiClause = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push FP (tolerance/epsilon)");
@@ -3848,26 +3726,20 @@ float* pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  __u32 iteration
   int activeVertices = 0;
   struct AdjLinkedListNode* Nodes;
 
-   #if ALIGNED
-        workListCurr = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-  #else
-        workListCurr  = (__u8*) my_malloc(sizeof(__u8));
-        workListNext  = (__u8*) my_malloc(sizeof(__u8));
-  #endif
+   
+    workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+    workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+ 
 
   resetWorkList(workListNext, graph->num_vertices);
   resetWorkList(workListCurr, graph->num_vertices);
 
  
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+ 
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull DD (tolerance/epsilon)");
@@ -4008,28 +3880,21 @@ float* pageRankDataDrivenPushGraphAdjLinkedList(double epsilon,  __u32 iteration
   struct AdjLinkedListNode* Nodes;
 
 
-   #if ALIGNED
-        workListCurr = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-  #else
-        workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-  #endif
+ 
+  workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  
 
   resetWorkList(workListNext, graph->num_vertices);
   resetWorkList(workListCurr, graph->num_vertices);
 
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
 
-  #endif
+ 
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push DD (tolerance/epsilon)");
@@ -4175,28 +4040,20 @@ float* pageRankDataDrivenPullPushGraphAdjLinkedList(double epsilon,  __u32 itera
   __u8* workListNext = NULL;
   int activeVertices = 0;
 
-   #if ALIGNED
-        workListCurr = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext = (__u8*) my_aligned_malloc(graph->num_vertices*sizeof(__u8));
-  #else
-        workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-        workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
-  #endif
+  
+  workListCurr  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  workListNext  = (__u8*) my_malloc(graph->num_vertices*sizeof(__u8));
+  
 
   resetWorkList(workListNext, graph->num_vertices);
   resetWorkList(workListCurr, graph->num_vertices);
 
 
-  #if ALIGNED
-        float* pageRanks = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_aligned_malloc(graph->num_vertices*sizeof(float));
-  #else
-        float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
-        float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
-  #endif
-
+ 
+    float* pageRanks = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+    float* aResiduals = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull-Push DD (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");

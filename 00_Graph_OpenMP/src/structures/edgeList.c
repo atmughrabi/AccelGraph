@@ -31,13 +31,24 @@ __u32 maxTwoIntegers(__u32 num1, __u32 num2){
 // read edge file to edge_array in memory
 struct EdgeList* newEdgeList( __u32 num_edges){
 
-        // struct EdgeList* newEdgeList = (struct EdgeList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct EdgeList));
-        #if ALIGNED
-                struct EdgeList* newEdgeList = (struct EdgeList*) my_aligned_malloc(sizeof(struct EdgeList));
-        #else
-                struct EdgeList* newEdgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
-        #endif
-
+     
+        struct EdgeList* newEdgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
+        // newEdgeList->edges_array_src = (__u32*) my_malloc(num_edges * sizeof(__u32));
+        // newEdgeList->edges_array_dest = (__u32*) my_malloc(num_edges * sizeof(__u32));
+        
+        // #if WEIGHTED
+        //     newEdgeList->edges_array_weight = (__u32*) my_malloc(num_edges * sizeof(__u32));
+        // #endif
+       
+         __u32 i;
+        // #pragma omp parallel for
+        // for(i = 0; i < num_edges; i++){
+        //         newEdgeList->edges_array_dest[i] = 0;
+        //         newEdgeList->edges_array_src[i] = 0;        
+        //         #if WEIGHTED
+        //            newEdgeList->edges_array_weight[i]= 0;
+        //         #endif
+        // }
 
         newEdgeList->num_edges = num_edges;
         newEdgeList->num_vertices = 0;
@@ -53,8 +64,11 @@ struct EdgeList* newEdgeList( __u32 num_edges){
 
  void freeEdgeList( struct EdgeList* edgeList){
 
-        freeEdgeArray(edgeList->edges_array);
-        free(edgeList);
+        if(edgeList){
+            freeEdgeArray(edgeList->edges_array);
+            free(edgeList);
+        }
+        
 
 }
 
@@ -63,12 +77,8 @@ struct EdgeList* newEdgeList( __u32 num_edges){
 struct Edge* newEdgeArray(__u32 num_edges){
 
         // struct Edge* edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));
-        #if ALIGNED
-                struct Edge* edges_array = (struct Edge*) my_aligned_malloc( num_edges * sizeof(struct Edge));
-        #else
-                struct Edge* edges_array = (struct Edge*) my_malloc( num_edges * sizeof(struct Edge));
-        #endif
-
+        struct Edge* edges_array = (struct Edge*) my_malloc( num_edges * sizeof(struct Edge));
+    
         __u32 i;
 
         for(i = 0; i < num_edges; i++){
@@ -87,7 +97,8 @@ struct Edge* newEdgeArray(__u32 num_edges){
 
 void freeEdgeArray(struct Edge* edges_array){
 
-        free(edges_array);
+        if(edges_array)
+            free(edges_array);
         // printf("edges_array freed \n");
 
 }

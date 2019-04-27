@@ -10,11 +10,8 @@
 // A utility function to create a new linked list node.
 struct QNode* newQNode(__u32 k)
 {
-    #if ALIGNED
-        struct QNode *temp = (struct QNode*)  my_aligned_malloc(sizeof(struct QNode));
-    #else
-        struct QNode *temp = (struct QNode*)  my_malloc(sizeof(struct QNode));
-    #endif
+    struct QNode *temp = (struct QNode*)  my_malloc(sizeof(struct QNode));
+    
     temp->key = k;
     temp->next = NULL;
     return temp; 
@@ -23,11 +20,8 @@ struct QNode* newQNode(__u32 k)
 // A utility function to create an empty DynamicQueue
 struct DynamicQueue *newDynamicQueue()
 {
-    #if ALIGNED
-        struct DynamicQueue *q = (struct DynamicQueue*) my_aligned_malloc(sizeof(struct DynamicQueue));
-    #else
-        struct DynamicQueue *q = (struct DynamicQueue*) my_malloc(sizeof(struct DynamicQueue));
-    #endif
+    struct DynamicQueue *q = (struct DynamicQueue*) my_malloc(sizeof(struct DynamicQueue));
+    
 
     q->size = 0;
     q->front = q->rear = NULL;

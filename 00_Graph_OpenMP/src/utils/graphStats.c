@@ -27,13 +27,10 @@ void collectStats( __u32 binSize, const char * fnameb,  __u32 sort,  __u32 lmode
 
 	struct GraphCSR* graphStats = graphCSRPreProcessingStep (fnameb, sort, lmode, symmetric, weighted);
 
-	#if ALIGNED
-		__u32* histogram_in =  (__u32*) my_aligned_malloc(sizeof(__u32)*binSize);
-    __u32* histogram_out =  (__u32*) my_aligned_malloc(sizeof(__u32)*binSize);
-	#else
+	
     __u32* histogram_in = (__u32*) my_malloc(sizeof(__u32)*binSize);
     __u32* histogram_out = (__u32*) my_malloc(sizeof(__u32)*binSize);
-	#endif
+	
 
     __u32 i = 0;
     #pragma omp parallel for
@@ -127,11 +124,9 @@ void printHistogram(const char * fname_stats, __u32* histogram, __u32 binSize){
 
 void printSparseMatrixList(const char * fname_stats, struct GraphCSR* graphStats, __u32 binSize){
 
-  #if ALIGNED
-    __u32* SparseMatrix =  (__u32*) my_aligned_malloc(sizeof(__u32)*binSize*binSize);
-  #else
+ 
     __u32* SparseMatrix = (__u32*) my_malloc(sizeof(__u32)*binSize*binSize);
-  #endif
+  
 
   __u32 x;
   __u32 y;

@@ -54,11 +54,9 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph){
 	__u32 alpha = 15;
 	__u32 beta = 18;
 
-	#if ALIGNED
-		struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_malloc( P * sizeof(struct ArrayQueue*));
-	#else
-        struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_malloc( P * sizeof(struct ArrayQueue*));
-    #endif
+	
+     struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_malloc( P * sizeof(struct ArrayQueue*));
+    
 
    __u32 i;
    for(i=0 ; i < P ; i++){
@@ -505,11 +503,9 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 	__u32 P = numThreads;
 	double inner_time = 0;
 
-	#if ALIGNED
-		struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_malloc( P * sizeof(struct ArrayQueue*));
-	#else
-        struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_malloc( P * sizeof(struct ArrayQueue*));
-    #endif
+	
+    struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_malloc( P * sizeof(struct ArrayQueue*));
+   
 
    __u32 i;
    #pragma omp parallel for
@@ -517,18 +513,7 @@ void breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid* graph){
 		localFrontierQueues[i] = newArrayQueue(graph->num_vertices);
 	}
 
-	// #if ALIGNED
-	// 	struct ArrayQueue** localFrontierQueuesL2 = (struct ArrayQueue**) my_aligned_malloc( P * P * sizeof(struct ArrayQueue*));
-	// #else
- //        struct ArrayQueue** localFrontierQueuesL2 = (struct ArrayQueue**) my_aligned_malloc( P * P *  sizeof(struct ArrayQueue*));
- //    #endif
-
-  
- //   #pragma omp parallel for
- //   for(i=0 ; i < P*P ; i++){
-	// 	localFrontierQueuesL2[i] = newArrayQueue(graph->num_vertices);
-	// }
-
+	
 	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Breadth First Search (SOURCE NODE)");
     printf(" -----------------------------------------------------\n");
@@ -911,11 +896,9 @@ void breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList*
 	__u32 alpha = 15;
 	__u32 beta = 18;
 
-	#if ALIGNED
-		struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_malloc( P * sizeof(struct ArrayQueue*));
-	#else
-        struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_malloc( P * sizeof(struct ArrayQueue*));
-    #endif
+	
+    struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_malloc( P * sizeof(struct ArrayQueue*));
+   
 
    __u32 i;
    for(i=0 ; i < P ; i++){
@@ -1175,11 +1158,9 @@ void breadthFirstSearchGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedLis
 	__u32 alpha = 15;
 	__u32 beta = 18;
 
-	#if ALIGNED
-		struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_aligned_malloc( P * sizeof(struct ArrayQueue*));
-	#else
-        struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_malloc( P * sizeof(struct ArrayQueue*));
-    #endif
+	
+    struct ArrayQueue** localFrontierQueues = (struct ArrayQueue**) my_malloc( P * sizeof(struct ArrayQueue*));
+   
 
    __u32 i;
    for(i=0 ; i < P ; i++){

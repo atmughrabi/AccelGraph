@@ -11,24 +11,15 @@
 
 struct ArrayQueue *newArrayQueue(__u32 size){
 
-	#if ALIGNED
-		struct ArrayQueue* arrayQueue = (struct ArrayQueue*) my_aligned_malloc( sizeof(struct ArrayQueue));
-	#else
-        struct ArrayQueue* arrayQueue = (struct ArrayQueue*) my_malloc( sizeof(struct ArrayQueue));
-	#endif
+	struct ArrayQueue* arrayQueue = (struct ArrayQueue*) my_malloc( sizeof(struct ArrayQueue));
+	
 
     arrayQueue->head = 0;
     arrayQueue->tail = 0;
     arrayQueue->tail_next = 0;
     arrayQueue->size = size;
   
-
-
-    #if ALIGNED
-		arrayQueue->queue = (__u32*) my_aligned_malloc(size*sizeof(__u32));
-	#else
-        arrayQueue->queue = (__u32*) my_malloc(size*sizeof(__u32));
-	#endif
+    arrayQueue->queue = (__u32*) my_malloc(size*sizeof(__u32));
 
     arrayQueue->q_bitmap = newBitmap(size);
 

@@ -18,16 +18,11 @@ struct BloomMultiHash * newBloomMultiHash(__u32 size, __u32 k){
     // alignedSize = (((nextPrimePartition*k)+kBitsPerWord - 1)/kBitsPerWord)*kBitsPerWord;
 
 
-	#if ALIGNED
-		struct BloomMultiHash * bloomMultiHash = (struct BloomMultiHash *) my_aligned_malloc( sizeof(struct BloomMultiHash));
-        bloomMultiHash->counter = (__u32*) my_aligned_malloc(alignedSize *sizeof(__u32));
-        bloomMultiHash->counterHistory = (__u32*) my_aligned_malloc(alignedSize *sizeof(__u32));
-	#else
-        struct BloomMultiHash * bloomMultiHash = (struct BloomMultiHash *) my_malloc( sizeof(struct BloomMultiHash));
-        bloomMultiHash->counter = (__u32*) my_malloc(alignedSize *sizeof(__u32));
-        bloomMultiHash->counterHistory = (__u32*) my_malloc(alignedSize *sizeof(__u32));
-	#endif
-
+	
+    struct BloomMultiHash * bloomMultiHash = (struct BloomMultiHash *) my_malloc( sizeof(struct BloomMultiHash));
+    bloomMultiHash->counter = (__u32*) my_malloc(alignedSize *sizeof(__u32));
+    bloomMultiHash->counterHistory = (__u32*) my_malloc(alignedSize *sizeof(__u32));
+	
     for(i=0 ; i< alignedSize; i++){
         bloomMultiHash->counter[i] = 0;
         bloomMultiHash->counterHistory[i] = 0;

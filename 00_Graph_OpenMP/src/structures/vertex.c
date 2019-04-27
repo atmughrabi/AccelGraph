@@ -12,11 +12,9 @@ struct Vertex* newVertexArray(__u32 num_vertices){
 
         // struct Vertex* vertex_array = (struct Vertex*) aligned_alloc(CACHELINE_BYTES, num_vertices * sizeof(struct Vertex));
 		
-	#if ALIGNED
-        struct Vertex* vertex_array = (struct Vertex*) my_aligned_malloc( num_vertices * sizeof(struct Vertex));
-    #else
+	
         struct Vertex* vertex_array = (struct Vertex*) my_malloc( num_vertices * sizeof(struct Vertex));
-    #endif
+    
 
 
         __u32 i;
@@ -163,17 +161,9 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
      struct Vertex* vertices;
      struct Edge* sorted_edges_array;
     
-
-    #if ALIGNED
-        __u32* offset_start_arr = (__u32*) my_aligned_malloc( P * sizeof(__u32));
-        __u32* offset_end_arr = (__u32*) my_aligned_malloc( P * sizeof(__u32));
-        __u32* sorted_edge_array = (__u32*) my_aligned_malloc( graph->num_edges * sizeof(__u32));
-    #else
-        __u32* offset_start_arr = (__u32*) my_malloc( P * sizeof(__u32));
-        __u32* offset_end_arr = (__u32*) my_malloc( P * sizeof(__u32));
-        __u32* sorted_edge_array = (__u32*) my_malloc( graph->num_edges * sizeof(__u32));
-    #endif
-
+    __u32* offset_start_arr = (__u32*) my_malloc( P * sizeof(__u32));
+    __u32* offset_end_arr = (__u32*) my_malloc( P * sizeof(__u32));
+    __u32* sorted_edge_array = (__u32*) my_malloc( graph->num_edges * sizeof(__u32));
    
     
     #if DIRECTED
@@ -277,6 +267,9 @@ struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 invers
 // printVertexArray(graph->vertices, graph->num_vertices);
 // printVertexArray(graph->inverse_vertices, graph->num_vertices);
 // printVertexArray(graph->vertices,graph->num_vertices);
+
+    free(offset_start_arr);
+    free(offset_end_arr);
 return graph;
 
 }

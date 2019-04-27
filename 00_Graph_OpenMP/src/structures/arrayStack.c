@@ -11,22 +11,15 @@
 
 struct ArrayStack *newArrayStack(__u32 size){
 
-	#if ALIGNED
-		struct ArrayStack* arrayStack = (struct ArrayStack*) my_aligned_malloc( sizeof(struct ArrayStack));
-	#else
-        struct ArrayStack* arrayStack = (struct ArrayStack*) my_malloc( sizeof(struct ArrayStack));
-	#endif
-
+	struct ArrayStack* arrayStack = (struct ArrayStack*) my_malloc( sizeof(struct ArrayStack));
+	
     arrayStack->head = 0;
     arrayStack->tail = 0;
     arrayStack->tail_next = 0;
     arrayStack->size = size;
   
-    #if ALIGNED
-		arrayStack->Stack = (__u32*) my_aligned_malloc(size*sizeof(__u32));
-	#else
-        arrayStack->Stack = (__u32*) my_malloc(size*sizeof(__u32));
-	#endif
+    arrayStack->Stack = (__u32*) my_malloc(size*sizeof(__u32));
+	
 
     arrayStack->q_bitmap = newBitmap(size);
 

@@ -37,11 +37,8 @@ void adjArrayListPrint(struct AdjArrayList *adjArrayList){
 
 struct AdjArrayList * adjArrayListNew(){
 
-    #if ALIGNED
-        struct AdjArrayList* newNode = (struct AdjArrayList*) my_aligned_malloc(sizeof(struct AdjArrayList));
-    #else
         struct AdjArrayList* newNode = (struct AdjArrayList*) my_malloc(sizeof(struct AdjArrayList));
-    #endif
+    
 
 
         newNode->visited = 0;

@@ -90,18 +90,9 @@ void  graphGridPrint(struct GraphGrid *graphGrid){
 struct GraphGrid * graphGridNew(struct EdgeList* edgeList){
 
 
-    #if ALIGNED
-        struct GraphGrid* graphGrid = (struct GraphGrid*) my_aligned_malloc(sizeof(struct GraphGrid));
-    #else
-        struct GraphGrid* graphGrid = (struct GraphGrid*) my_malloc( sizeof(struct GraphGrid));
-    #endif
-
-    #if ALIGNED
-        graphGrid->parents  = (int*) my_aligned_malloc( edgeList->num_vertices * sizeof(int));
-    #else
-        graphGrid->parents  = (int*) my_malloc( edgeList->num_vertices *sizeof(int));
-    #endif
-
+    struct GraphGrid* graphGrid = (struct GraphGrid*) my_malloc( sizeof(struct GraphGrid));
+    graphGrid->parents  = (int*) my_malloc( edgeList->num_vertices *sizeof(int));
+    
     __u32 i;
     #pragma omp parallel for default(none) private(i) shared(edgeList,graphGrid)
      for(i = 0; i < edgeList->num_vertices; i++){

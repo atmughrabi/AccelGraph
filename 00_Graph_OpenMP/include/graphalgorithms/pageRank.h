@@ -35,7 +35,7 @@ void setWorkList(__u8* workList,  __u32 size);
 // ***************					GRID DataStructure							 **************
 // ********************************************************************************************
 
-void pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphGrid* graph);
+float* pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphGrid* graph);
 float* pageRankPullRowGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 float* pageRankPushColumnGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
 float* pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid* graph);
@@ -45,7 +45,7 @@ float* pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, 
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-void pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph);
+float* pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphCSR* graph);
 float* pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
 float* pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph);
 
@@ -67,7 +67,7 @@ float* pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, str
 // ***************					ArrayList DataStructure					     **************
 // ********************************************************************************************
 
-void pageRankGraphAdjArrayList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList* graph);
+float* pageRankGraphAdjArrayList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList* graph);
 float* pageRankPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph);
 float* pageRankPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList* graph);
 
@@ -82,7 +82,7 @@ float* pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon,  __u32 iterat
 // ***************					LinkedList DataStructure					 **************
 // ********************************************************************************************
 
-void pageRankGraphAdjLinkedList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList* graph);
+float* pageRankGraphAdjLinkedList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList* graph);
 float* pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph);
 float* pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList* graph);
 

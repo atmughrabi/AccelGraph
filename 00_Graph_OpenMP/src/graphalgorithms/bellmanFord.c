@@ -262,13 +262,10 @@ struct BellmanFordStats* bellmanFordPullRowGraphGrid(__u32 source,  __u32 iterat
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
     int activeVertices = 0;
 
-	#if ALIGNED
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
+	
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+    
 	
   	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Bellman-Ford Algorithm ROW-WISE DD (Source)");
@@ -392,13 +389,10 @@ struct BellmanFordStats* bellmanFordPushColumnGraphGrid(__u32 source,  __u32 ite
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
     int activeVertices = 0;
 
-	#if ALIGNED
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
-        stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+	
+    stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+     stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    
 	
   	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Bellman-Ford Algorithm COL-WISE DD (Source)");
@@ -608,13 +602,10 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
     int activeVertices = 0;
 
-	#if ALIGNED
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
+	
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+    
 
   
     struct Vertex* vertices = NULL;
@@ -791,17 +782,11 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
     int activeVertices = 0;
 
-	#if ALIGNED
-   
-
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
-     
+	
 
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+   
 	
   	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Push DD (Source)");
@@ -939,19 +924,13 @@ struct BellmanFordStats* bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
     int activeVertices = 0;
 
-	#if ALIGNED
-        vertices = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        degrees = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
+	
         vertices = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         degrees = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
 
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+   
 	
   	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Push DD");
@@ -1151,13 +1130,10 @@ struct BellmanFordStats* bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
     int activeVertices = 0;
 
-	#if ALIGNED
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
+	
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+    
 
  
 	
@@ -1326,17 +1302,11 @@ struct BellmanFordStats* bellmanFordDataDrivenPushGraphAdjArrayList(__u32 source
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
     int activeVertices = 0;
 
-	#if ALIGNED
-   
-
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
-     
+	
 
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+   
 	
   	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Push DD (Source)");
@@ -1488,13 +1458,10 @@ struct BellmanFordStats* bellmanFordPullGraphAdjLinkedList(__u32 source,  __u32 
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
     int activeVertices = 0;
 
-	#if ALIGNED
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
+	
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+   
 
  
 	
@@ -1665,17 +1632,11 @@ struct BellmanFordStats* bellmanFordPushGraphAdjLinkedList(__u32 source,  __u32 
     struct Bitmap* bitmapNext = newBitmap(graph->num_vertices);
     int activeVertices = 0;
 
-	#if ALIGNED
-   
-
-        stats->Distances = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-        stats->parents = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-    #else
-     
+	
 
         stats->Distances  = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
         stats->parents = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    #endif
+   
 	
   	printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Bellman-Ford Algorithm Push DD (Source)");

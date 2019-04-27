@@ -87,6 +87,8 @@ void graphCSRFree (struct GraphCSR* graphCSR){
 			freeEdgeArray(graphCSR->inverse_sorted_edges_array);
 	#endif
 
+     // if(graphCSR->parents)
+     //    free(graphCSR->parents);
 
 	if(graphCSR)
 		free(graphCSR);
@@ -111,6 +113,8 @@ void graphCSRFreeDoublePointer (struct GraphCSR** graphCSR){
             freeEdgeArray((*graphCSR)->inverse_sorted_edges_array);
     #endif
 
+    if((*graphCSR)->parents)
+        free((*graphCSR)->parents);
 
     if((*graphCSR))
         free((*graphCSR));
@@ -182,11 +186,9 @@ void graphCSRPrint(struct GraphCSR* graphCSR){
 struct GraphCSR* graphCSRNew(__u32 V, __u32 E, __u8 inverse){
 	int i;
 	// struct GraphCSR* graphCSR = (struct GraphCSR*) aligned_alloc(CACHELINE_BYTES, sizeof(struct GraphCSR));
-	#if ALIGNED
-		struct GraphCSR* graphCSR = (struct GraphCSR*) my_aligned_malloc( sizeof(struct GraphCSR));
-	#else
-        struct GraphCSR* graphCSR = (struct GraphCSR*) my_malloc( sizeof(struct GraphCSR));
-    #endif
+	
+    struct GraphCSR* graphCSR = (struct GraphCSR*) my_malloc( sizeof(struct GraphCSR));
+   
 
 	graphCSR->num_vertices = V;
 	graphCSR->num_edges = E;
@@ -200,11 +202,9 @@ struct GraphCSR* graphCSRNew(__u32 V, __u32 E, __u8 inverse){
         }
 	#endif
 
-	#if ALIGNED
-		graphCSR->parents  = (int*) my_aligned_malloc( V * sizeof(int));
-	#else
-        graphCSR->parents  = (int*) my_malloc( V *sizeof(int));
-    #endif
+	
+     graphCSR->parents  = (int*) my_malloc( V *sizeof(int));
+    
 
 
 

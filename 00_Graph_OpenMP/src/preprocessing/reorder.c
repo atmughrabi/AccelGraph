@@ -27,19 +27,10 @@ struct EdgeList* reorderGraphListPageRank(struct GraphCSR* graph){
 	__u32* labels;
 	 struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
-	#if ALIGNED
-      labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-      labelsInverse = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-	#else
-      labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-      labelsInverse = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-	#endif
-
-  #if ALIGNED
-      struct EdgeList* edgeList = (struct EdgeList*) my_aligned_malloc(sizeof(struct EdgeList));
-  #else
-      struct EdgeList* edgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
-  #endif
+	  labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    labelsInverse = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
+    struct EdgeList* edgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
+ 
 
 
     printf(" -----------------------------------------------------\n");
@@ -106,13 +97,9 @@ struct EdgeList* reorderGraphListEpochPageRank(struct GraphCSR* graph){
    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
 
-  #if ALIGNED
-      struct EdgeList* edgeList = (struct EdgeList*) my_aligned_malloc(sizeof(struct EdgeList));
-      labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-  #else
-      struct EdgeList* edgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
+       struct EdgeList* edgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
       labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-  #endif
+ 
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting PageRank Epoch Reordering/Relabeling");
@@ -159,13 +146,9 @@ struct EdgeList* reorderGraphListEpochBFS(struct GraphCSR* graph){
    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
 
-  #if ALIGNED
-      struct EdgeList* edgeList = (struct EdgeList*) my_aligned_malloc(sizeof(struct EdgeList));
-      labels = (__u32*) my_aligned_malloc(graph->num_vertices*sizeof(__u32));
-  #else
-      struct EdgeList* edgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
+     struct EdgeList* edgeList = (struct EdgeList*) my_malloc(sizeof(struct EdgeList));
       labels = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-  #endif
+ 
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting BFS Epoch Reordering/Relabeling");
@@ -310,17 +293,11 @@ __u32* radixSortEdgesByPageRank (float* pageRanks, __u32* labels, __u32 num_vert
     __u32* labelsTemp = NULL;
   
 
-    #if ALIGNED
-        buckets_count = (__u32*) my_aligned_malloc(P * buckets * sizeof(__u32));
-        pageRanksFP = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
-        pageRanksFPTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
-        labelsTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
-    #else
         buckets_count = (__u32*) my_malloc(P * buckets * sizeof(__u32));
         pageRanksFP = (__u32*) my_malloc(num_vertices * sizeof(__u32));
         pageRanksFPTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
         labelsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
-    #endif
+    
 
    	#pragma omp parallel for
 	for(v = 0; v < num_vertices; v++){
@@ -362,15 +339,10 @@ __u32* radixSortEdgesByDegree (__u32* degrees, __u32* labels, __u32 num_vertices
     __u32* degreesTemp = NULL;
     __u32* labelsTemp = NULL;
   
-    #if ALIGNED
-        buckets_count = (__u32*) my_aligned_malloc(P * buckets * sizeof(__u32));
-        degreesTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
-        labelsTemp = (__u32*) my_aligned_malloc(num_vertices * sizeof(__u32));
-    #else
-        buckets_count = (__u32*) my_malloc(P * buckets * sizeof(__u32));
-        degreesTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
-        labelsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
-    #endif
+      buckets_count = (__u32*) my_malloc(P * buckets * sizeof(__u32));
+      degreesTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+      labelsTemp = (__u32*) my_malloc(num_vertices * sizeof(__u32));
+   
 
     for(j=0 ; j < radix ; j++){
         radixSortCountSortEdgesByRanks (&degrees, &degreesTemp, &labels, &labelsTemp,j, buckets, buckets_count, num_vertices);
@@ -468,11 +440,8 @@ struct EdgeList* reorderGraphProcessDegree( __u32 sort, struct EdgeList* edgeLis
 
      __u32* degrees;
 
-    #if ALIGNED
-        degrees = (__u32*) my_aligned_malloc(edgeList->num_vertices*sizeof(__u32));
-    #else
-        degrees = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
-    #endif
+         degrees = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
+    
 
     degrees = reorderGraphProcessInOutDegrees( degrees , edgeList, lmode);
 
@@ -588,15 +557,10 @@ struct EdgeList* reorderGraphListDegree(struct EdgeList* edgeList, __u32* degree
   __u32* labels;
    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
 
-    #if ALIGNED
-        labels = (__u32*) my_aligned_malloc(edgeList->num_vertices*sizeof(__u32));
-        labelsInverse = (__u32*) my_aligned_malloc(edgeList->num_vertices*sizeof(__u32));
     
-    #else
-        labels = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
-        labelsInverse = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
-    #endif
-
+    labels = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
+    labelsInverse = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
+    
     
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Degree Reording/Relabeling");
@@ -673,21 +637,20 @@ struct EdgeList* relabelEdgeListFromFile(struct EdgeList* edgeList, const char *
 
       FILE *pText;
         __u32 i;
-        __u32 src = 0, dest = 0;
+        __u32 dest = 0;
+        __u32 x = 0;
 
         __u32* labels;
    
-        #if ALIGNED
-            labels = (__u32*) my_aligned_malloc(edgeList->num_vertices*sizeof(__u32)); 
-        #else
-            labels = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
-        #endif
+        labels = (__u32*) my_malloc(edgeList->num_vertices*sizeof(__u32));
+        
 
         char * fname_txt = (char *) malloc((strlen(fnameb)+10)*sizeof(char));
       
         fname_txt = strcpy (fname_txt, fnameb);
         fname_txt = strcat (fname_txt, ".labels");
    
+        printf("%s\n",fname_txt );
         pText = fopen(fname_txt, "r");
   
         if (pText == NULL) {
@@ -697,8 +660,9 @@ struct EdgeList* relabelEdgeListFromFile(struct EdgeList* edgeList, const char *
         while (1)
         {
             
-          i = fscanf(pText, "%u\t%u\n", &src, &dest);  
-          labels[src] = dest;
+          i = fscanf(pText, "%u\n",&dest);  
+          labels[x] = dest;
+          x++;
 
         if( i == EOF ) 
            break;

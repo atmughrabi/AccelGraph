@@ -43,22 +43,10 @@ void graphAdjLinkedListReset(struct GraphAdjLinkedList* graphAdjLinkedList){
 // A utility function that creates a graphAdjLinkedList of V vertices
 struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V){
 
-    // printf("\n Create graphAdjLinkedList #Vertecies: %d\n ", V);
-
-	// struct graphAdjLinkedList* graphAdjLinkedList = (struct graphAdjLinkedList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct graphAdjLinkedList));
-    #if ALIGNED
-        struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_aligned_malloc( sizeof(struct GraphAdjLinkedList));
-    #else
-        struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_malloc( sizeof(struct GraphAdjLinkedList));
-    #endif
-
+    struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_malloc( sizeof(struct GraphAdjLinkedList));
 	graphAdjLinkedList->num_vertices = V;
-	// graphAdjLinkedList->vertices = (struct AdjLinkedList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjLinkedList));
-    #if ALIGNED
-        graphAdjLinkedList->vertices = (struct AdjLinkedList*) my_aligned_malloc( V * sizeof(struct AdjLinkedList));
-    #else
-        graphAdjLinkedList->vertices = (struct AdjLinkedList*) my_malloc( V * sizeof(struct AdjLinkedList));
-    #endif
+	graphAdjLinkedList->vertices = (struct AdjLinkedList*) my_malloc( V * sizeof(struct AdjLinkedList));
+   
 
 	__u32 i;
     #pragma omp parallel for
@@ -86,28 +74,14 @@ struct GraphAdjLinkedList* graphAdjLinkedListGraphNew(__u32 V){
 
 struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeList){
 
-    // struct graphAdjLinkedList* graphAdjLinkedList = (struct graphAdjLinkedList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct graphAdjLinkedList));
-    #if ALIGNED
-        struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_aligned_malloc( sizeof(struct GraphAdjLinkedList));
-    #else
-        struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_malloc( sizeof(struct GraphAdjLinkedList));
-    #endif
+    struct GraphAdjLinkedList* graphAdjLinkedList = (struct GraphAdjLinkedList*) my_malloc( sizeof(struct GraphAdjLinkedList));
+    
 
     graphAdjLinkedList->num_vertices = edgeList->num_vertices;
     graphAdjLinkedList->num_edges = edgeList->num_edges;
-    // graphAdjLinkedList->vertices = (struct AdjLinkedList*) aligned_alloc(CACHELINE_BYTES, graphAdjLinkedList->V * sizeof(struct AdjLinkedList));
-
-    #if ALIGNED
-        graphAdjLinkedList->vertices = (struct AdjLinkedList*) my_aligned_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
-    #else
-        graphAdjLinkedList->vertices = (struct AdjLinkedList*) my_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
-    #endif
-
-    #if ALIGNED
-        graphAdjLinkedList->parents  = (int*) my_aligned_malloc( graphAdjLinkedList->num_vertices * sizeof(int));
-    #else
-        graphAdjLinkedList->parents  = (int*) my_malloc( graphAdjLinkedList->num_vertices *sizeof(int));
-    #endif
+    graphAdjLinkedList->vertices = (struct AdjLinkedList*) my_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
+    graphAdjLinkedList->parents  = (int*) my_malloc( graphAdjLinkedList->num_vertices *sizeof(int));
+    
 
      
     #if WEIGHTED
@@ -133,11 +107,8 @@ struct GraphAdjLinkedList* graphAdjLinkedListEdgeListNew(struct EdgeList* edgeLi
         graphAdjLinkedList->vertices[i].visited = 0;
     }   
 
-     #if ALIGNED
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_aligned_malloc( graphAdjLinkedList->num_vertices * sizeof(omp_lock_t));
-    #else
-        omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graphAdjLinkedList->num_vertices *sizeof(omp_lock_t));
-    #endif
+    omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graphAdjLinkedList->num_vertices *sizeof(omp_lock_t));
+    
 
 
     #pragma omp parallel for

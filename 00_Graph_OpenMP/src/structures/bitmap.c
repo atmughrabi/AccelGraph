@@ -10,21 +10,11 @@
 struct Bitmap* newBitmap( __u32 size){
 
 
-	#if ALIGNED
-		struct Bitmap* bitmap = (struct Bitmap*) my_aligned_malloc( sizeof(struct Bitmap));
-	#else
-        struct Bitmap* bitmap = (struct Bitmap*) my_malloc( sizeof(struct Bitmap));
-	#endif
+	struct Bitmap* bitmap = (struct Bitmap*) my_malloc( sizeof(struct Bitmap));
+    bitmap->bitarray = (__u32*) my_malloc(sizeof(__u32)*((size+kBitsPerWord - 1)/kBitsPerWord));
+	
 
-
-    #if ALIGNED
-		bitmap->bitarray = (__u32*) my_aligned_malloc(sizeof(__u32)*((size+kBitsPerWord - 1)/kBitsPerWord));
-	#else
-        bitmap->bitarray = (__u32*) my_malloc(sizeof(__u32)*((size+kBitsPerWord - 1)/kBitsPerWord));
-	#endif
-
-      
-
+ 
     memset(bitmap->bitarray, 0, (sizeof(__u32)*((size+kBitsPerWord - 1)/kBitsPerWord)));
 	bitmap->size =  size;
 	bitmap->numSetBits =  0;

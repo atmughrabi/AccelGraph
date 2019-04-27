@@ -26,11 +26,9 @@ struct EdgeList*  countSortEdgesBySource (struct EdgeList* edgeList){
     __u32 offset_end = 0;
     __u32 base = 0;
 
-  	#if ALIGNED
-		__u32* vertex_count = (__u32*) my_aligned_malloc( P * num_vertices * sizeof(__u32));
-	#else
-        __u32* vertex_count = (__u32*) my_malloc( P * num_vertices * sizeof(__u32));
-    #endif
+  
+    __u32* vertex_count = (__u32*) my_malloc( P * num_vertices * sizeof(__u32));
+    
 
 
 	struct Edge* sorted_edges_array = newEdgeArray(num_edges);
@@ -111,11 +109,9 @@ struct EdgeList* countSortEdgesByDestination (struct EdgeList* edgeList){
     __u32 offset_end = 0;
     __u32 base = 0;
 
-  	#if ALIGNED
-		__u32* vertex_count = (__u32*) my_aligned_malloc( P * num_vertices * sizeof(__u32));
-	#else
+  
         __u32* vertex_count = (__u32*) my_malloc( P * num_vertices * sizeof(__u32));
-    #endif
+   
 
 
 	struct Edge* sorted_edges_array = newEdgeArray(num_edges);

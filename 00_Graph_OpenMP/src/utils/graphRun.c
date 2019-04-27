@@ -469,13 +469,13 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
     struct GraphGrid* graphGrid = NULL;
     struct GraphAdjLinkedList* graphAdjLinkedList = NULL;
     struct GraphAdjArrayList* graphAdjArrayList = NULL;
-
+    float* pageRanks = NULL;
             
     switch (datastructure)
       { 
         case 0: // CSR
             graphCSR = (struct GraphCSR*)graph;
-            pageRankGraphCSR(epsilon , iterations, pushpull, graphCSR);
+            pageRanks = pageRankGraphCSR(epsilon , iterations, pushpull, graphCSR);
             Start(timer);
             graphCSRFree(graphCSR);
             Stop(timer);
@@ -484,7 +484,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
 
         case 1: // Grid
             graphGrid = (struct GraphGrid*)graph;
-            pageRankGraphGrid(epsilon , iterations, pushpull, graphGrid);
+            pageRanks = pageRankGraphGrid(epsilon , iterations, pushpull, graphGrid);
             Start(timer); 
             graphGridFree(graphGrid);
             Stop(timer);
@@ -493,7 +493,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
 
         case 2: // Adj Linked List
             graphAdjLinkedList = (struct GraphAdjLinkedList*)graph;
-            pageRankGraphAdjLinkedList(epsilon , iterations, pushpull, graphAdjLinkedList);
+            pageRanks = pageRankGraphAdjLinkedList(epsilon , iterations, pushpull, graphAdjLinkedList);
             Start(timer); 
             graphAdjLinkedListFree(graphAdjLinkedList);
             Stop(timer);
@@ -502,9 +502,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
 
         case 3: // Adj Array List
             graphAdjArrayList = (struct GraphAdjArrayList*)graph;
-            
-            pageRankGraphAdjArrayList(epsilon , iterations, pushpull, graphAdjArrayList);
-
+            pageRanks = pageRankGraphAdjArrayList(epsilon , iterations, pushpull, graphAdjArrayList);
             Start(timer); 
             graphAdjArrayListFree(graphAdjArrayList);
             Stop(timer);
@@ -513,7 +511,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
           
         default:// CSR
             graphCSR = (struct GraphCSR*)graph;
-            pageRankGraphCSR(epsilon , iterations, pushpull, graphCSR);
+            pageRanks = pageRankGraphCSR(epsilon , iterations, pushpull, graphCSR);
             Start(timer);
             graphCSRFree(graphCSR);
             Stop(timer);
@@ -521,6 +519,7 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
           break;          
       }
 
+     free(pageRanks);
      free(timer);
 
 }

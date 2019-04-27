@@ -18,15 +18,11 @@ struct BloomStream * newBloomStream(__u32 size, __u32 k){
     // alignedSize = (((nextPrimePartition*k)+kBitsPerWord - 1)/kBitsPerWord)*kBitsPerWord;
 
 
-	#if ALIGNED
-		struct BloomStream * bloomStream = (struct BloomStream *) my_aligned_malloc( sizeof(struct BloomStream));
-        bloomStream->counter = (__u32*) my_aligned_malloc(alignedSize *sizeof(__u32));
-        bloomStream->counterHistory = (__u32*) my_aligned_malloc(alignedSize *sizeof(__u32));
-	#else
-        struct BloomStream * bloomStream = (struct BloomStream *) my_malloc( sizeof(struct BloomStream));
-        bloomStream->counter = (__u32*) my_malloc(alignedSize *sizeof(__u32));
-        bloomStream->counterHistory = (__u32*) my_malloc(alignedSize *sizeof(__u32));
-	#endif
+	
+    struct BloomStream * bloomStream = (struct BloomStream *) my_malloc( sizeof(struct BloomStream));
+    bloomStream->counter = (__u32*) my_malloc(alignedSize *sizeof(__u32));
+    bloomStream->counterHistory = (__u32*) my_malloc(alignedSize *sizeof(__u32));
+	
 
     for(i=0 ; i< alignedSize; i++){
         bloomStream->counter[i] = 0;

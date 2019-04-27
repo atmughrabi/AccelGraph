@@ -10,11 +10,9 @@
 struct BloomFilter * newBloomFilter(__u32 size, __u32 k){
 
 
-	#if ALIGNED
-		struct BloomFilter * bloomFilter = (struct BloomFilter *) my_aligned_malloc( sizeof(struct BloomFilter));
-	#else
-        struct BloomFilter * bloomFilter = (struct BloomFilter *) my_malloc( sizeof(struct BloomFilter));
-	#endif
+	
+    struct BloomFilter * bloomFilter = (struct BloomFilter *) my_malloc( sizeof(struct BloomFilter));
+	
 
      bloomFilter->bloom = newBitmap(size);
      bloomFilter->size = ((size+kBitsPerWord - 1)/kBitsPerWord)*kBitsPerWord;

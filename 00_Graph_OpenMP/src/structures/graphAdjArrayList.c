@@ -58,28 +58,13 @@ void graphAdjArrayListReset(struct GraphAdjArrayList* graphAdjArrayList){
 // A utility function that creates a graphAdjArrayList of V vertices
 struct GraphAdjArrayList* graphAdjArrayListGraphNew(__u32 V){
 
-    // printf("\n Create graphAdjArrayList #Vertecies: %d\n ", V);
-
-	// struct graphAdjArrayList* graphAdjArrayList = (struct graphAdjArrayList*) aligned_alloc(CACHELINE_BYTES, sizeof(struct graphAdjArrayList));
-    #if ALIGNED
-        struct GraphAdjArrayList* graphAdjArrayList = (struct GraphAdjArrayList*) my_aligned_malloc( sizeof(struct GraphAdjArrayList));
-    #else
-        struct GraphAdjArrayList* graphAdjArrayList = (struct GraphAdjArrayList*) my_malloc( sizeof(struct GraphAdjArrayList));
-    #endif
+    struct GraphAdjArrayList* graphAdjArrayList = (struct GraphAdjArrayList*) my_malloc( sizeof(struct GraphAdjArrayList));
 
 	graphAdjArrayList->num_vertices = V;
 	// graphAdjArrayList->vertices = (struct AdjArrayList*) aligned_alloc(CACHELINE_BYTES, V * sizeof(struct AdjArrayList));
-    #if ALIGNED
-        graphAdjArrayList->vertices = (struct AdjArrayList*) my_aligned_malloc( V * sizeof(struct AdjArrayList));
-    #else
         graphAdjArrayList->vertices = (struct AdjArrayList*) my_malloc( V * sizeof(struct AdjArrayList));
-    #endif
-
-    #if ALIGNED
-        graphAdjArrayList->parents  = (int*) my_aligned_malloc( V * sizeof(int));
-    #else
         graphAdjArrayList->parents  = (int*) my_malloc( V *sizeof(int));
-    #endif
+   
 
 
 	__u32 i;
