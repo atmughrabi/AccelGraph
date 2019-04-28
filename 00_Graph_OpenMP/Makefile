@@ -71,7 +71,7 @@ CFLAGS   = -O3 -Wall -m64 -fopenmp -g
 .PHONY: all
 all : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP)
 	@echo "\n ***************************************************************** "
-	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph $(word 2,$^)    *"
+	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph:s$(word 2,$^)    *"
 	@echo " ***************************************************************** \n"
 
 .PHONY: test
@@ -145,6 +145,7 @@ clean:
 
 #small test graphs
 FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/Rabbit/graphs.wbin
 
 # synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
@@ -156,21 +157,21 @@ FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
 
 
 #GRAPH RUN
 ROOT = 690969
 DATA_STRUCTURES = 0
-ALGORITHMS = 0
-NUM_THREADS  = 8
+ALGORITHMS = 5
+NUM_THREADS  = 1
 NUM_ITERATIONS =100
-NUM_TRIALS = 10
+NUM_TRIALS = 1
 TOLERANCE = 1e-6
 SORT_TYPE = 0
 PUSH_PULL = 0
 DELTA = 800
-REORDER = 7
+REORDER = 0
 
 
 #STATS COLLECTION VARIABLES
@@ -187,7 +188,7 @@ stats: all
 
 .PHONY: run
 run: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -s -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 .PHONY: debug
 debug: all	
@@ -209,10 +210,10 @@ debug-test: test
 debug-memory-test: test	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
 
-.PHONY: cache-perf
-cache-perf: all
+.PHONY: cachegrind-perf
+cachegrind-perf: all
 	valgrind --tool=cachegrind ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -w -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
-.PHONY: graph-perf
-graph-perf: all
-	sudo perf stat -d $(APP_DIR)/$(BIN_DIR)/$(GAPP) -w -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+.PHONY: cache-perf
+cache-perf: all
+	sudo perf record -e cache-misses -a ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -w -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)

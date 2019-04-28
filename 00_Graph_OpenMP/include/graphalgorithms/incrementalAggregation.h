@@ -7,17 +7,10 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
-
-// ********************************************************************************************
-// ***************					Incremental Aggregation DataStructures		 **************
-// ********************************************************************************************
-
-// struct Dendrogram
-// {
-// 	__u32 * atomChild;
-// 	__u32 * sibling;
-
-// };
+// struct __attribute__((__packed__)) Atom{
+// 	__u32 degree;
+// 	__u32 child;
+// }
 
 
 // ********************************************************************************************
@@ -25,11 +18,12 @@
 // ********************************************************************************************
 
 void incrementalAggregationGraphCSR(struct GraphCSR *graph);
-void findBestDestination(float *deltaQ, __u32 *u, __u32 v, __u32 *weightSum, __u32 *dest, __u32 *atomDegree, __u32 *atomChild, __u32 *sibling, struct GraphCSR *graph, struct ArrayQueue *reachableSet, struct ArrayQueue *Neighbors, struct Bitmap *mergeEdgeBitmap);
+void findBestDestination(struct ArrayQueue *Neighbors,struct ArrayQueue *reachableSet,float *deltaQ, __u32 *u, __u32 v, __u32 *weightSum, __u32 *dest, __u32 *atomDegree, __u32 *atomChild, __u32 *sibling, struct GraphCSR *graph);
 void traversDendrogramReachableSetDFS(__u32 v, __u32 *atomChild, __u32 *sibling, struct ArrayQueue *reachableSet);
 void printSet(struct ArrayQueue *Set);
 void returnReachableSetOfNodesFromDendrogram(__u32 v, __u32 *atomChild, __u32 *sibling, struct ArrayQueue *reachableSet);
-void modularityGain(float *deltaQ, __u32 *u, __u32 v, __u32 *dest, float numEdgesm, __u32 *atomDegree, struct GraphCSR *graph);
 
+void returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet , __u32 *atomChild, __u32 *sibling);
+void traversDendrogramLabelsDFS(__u32 *newLables, __u32 v, __u32 *atomChild, __u32 *sibling);
 
 #endif

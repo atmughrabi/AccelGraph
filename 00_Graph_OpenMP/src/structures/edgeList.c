@@ -174,7 +174,8 @@ char *readEdgeListstxt(const char *fname, __u32 weighted)
         if(weighted)
         {
             i = fscanf(pText, "%u\t%u\n", &src, &dest);
-            weight = (generateRandInt(mt19937var) % 256) + 1;
+            // weight = (generateRandInt(mt19937var) % 256) + 1;
+            weight = 1;
         }
         else
         {
