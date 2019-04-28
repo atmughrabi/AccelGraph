@@ -1464,33 +1464,33 @@ float *pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
         //  Start(timer_inner);
 
 
-        FILE *fptr;
-        fptr = fopen("./gplus.out", "w");
+        // FILE *fptr;
+        // fptr = fopen("./gplus.out", "w");
         // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
         {
             degree = vertices[v].out_degree;
 
             // if(v > (graph->num_vertices - 32768))
-            fprintf(fptr, "r %016x\n", &(vertices[v].out_degree));
+            // fprintf(fptr, "r %016x\n", &(vertices[v].out_degree));
 
             edge_idx = vertices[v].edges_idx;
 
             // if(v> (graph->num_vertices - 32768))
-            fprintf(fptr, "r %016x\n", &(vertices[v].edges_idx));
+            // fprintf(fptr, "r %016x\n", &(vertices[v].edges_idx));
 
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
                 u = sorted_edges_array[j];
 
                 // if(u > (graph->num_vertices - 32768)){
-                fprintf(fptr, "r %016x\n", &(sorted_edges_array[j]));
-                fprintf(fptr, "r %016x\n", &(riDividedOnDiClause[u]));
+                // fprintf(fptr, "r %016x\n", &(sorted_edges_array[j]));
+                // fprintf(fptr, "r %016x\n", &(riDividedOnDiClause[u]));
                 // }
 
                 // if(v> (graph->num_vertices - 32768)){
-                fprintf(fptr, "r %016x\n", &(pageRanksNext[v]));
-                fprintf(fptr, "w %016x\n", &(pageRanksNext[v]));
+                // fprintf(fptr, "r %016x\n", &(pageRanksNext[v]));
+                // fprintf(fptr, "w %016x\n", &(pageRanksNext[v]));
                 // }
 
                 pageRanksNext[v] += riDividedOnDiClause[u];
@@ -1498,7 +1498,7 @@ float *pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
 
         }
 
-        fclose(fptr);
+        // fclose(fptr);
         // Stop(timer_inner);
         // printf("|B %-9u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
         // Start(timer_inner);
