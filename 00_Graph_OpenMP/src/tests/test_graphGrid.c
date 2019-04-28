@@ -5,7 +5,7 @@
 #include "libcxl.h"
 #include "capienv.h"
 
-#include "adjLinkedList.h" 
+#include "adjLinkedList.h"
 #include "dynamicQueue.h"
 #include "edgeList.h"
 
@@ -25,7 +25,8 @@
 
 
 
-void printMessageWithtime(const char * msg, double time){
+void printMessageWithtime(const char *msg, double time)
+{
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", msg);
@@ -46,20 +47,20 @@ int main()
     // const char * fname = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt";
     // const char * fname = "00_Graph_OpenMP/datasets/facebook/facebook_combined.txt";
 
-// /
-    const char * fnameb = "00_Graph_OpenMP/datasets/test/test.txt.bin";
+    // /
+    const char *fnameb = "00_Graph_OpenMP/datasets/test/test.txt.bin";
     // const char * fnameb = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt.bin";
     // const char * fnameb = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "00_Graph_OpenMP/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "00_Graph_OpenMP/datasets/wiki-vote/wiki-Vote.txt.bin";
 
 
-    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
-    struct GraphGrid* graphGrid = NULL;
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct GraphGrid *graphGrid = NULL;
     __u32 root = 6;
 
     // printf("Filename : %s \n",fnameb);
-    
+
     // // Start(timer);
     // // readEdgeListstxt(fname);
     // // Stop(timer);
@@ -68,24 +69,24 @@ int main()
     Start(timer);
     graphGrid = graphGridPreProcessingStep (fnameb);
     Stop(timer);
-    printMessageWithtime("GraphCSR Preprocessing Step Total Time (Seconds)",Seconds(timer));
+    printMessageWithtime("GraphCSR Preprocessing Step Total Time (Seconds)", Seconds(timer));
 
 
     Start(timer);
     breadthFirstSearchGraphGrid(root, graphGrid);
     Stop(timer);
-    printMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
+    printMessageWithtime("Breadth First Search Total Time (Seconds)", Seconds(timer));
 
 
 
-    Start(timer); 
+    Start(timer);
     graphGridFree(graphGrid);
     Stop(timer);
-    printMessageWithtime("Free Graph Grid (Seconds)",Seconds(timer));
+    printMessageWithtime("Free Graph Grid (Seconds)", Seconds(timer));
 
 
 
-  
+
     free(timer);
     return 0;
 }

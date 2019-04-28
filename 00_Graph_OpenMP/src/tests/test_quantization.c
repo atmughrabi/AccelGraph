@@ -12,7 +12,7 @@ int numThreads;
 int main(int argc, char *argv[])
 {
 
-	printf("%s\n", "Test quantization here" );
-	return 0;	
+    printf("%s\n", "Test quantization here" );
+    return 0;
 
 }

@@ -19,103 +19,109 @@
 #include "timer.h"
 
 
-void  graphGridReset(struct GraphGrid *graphGrid){
+void  graphGridReset(struct GraphGrid *graphGrid)
+{
 
-  __u32 i;
-  graphGrid->iteration = 0;
-  graphGrid->processed_nodes = 0;
+    __u32 i;
+    graphGrid->iteration = 0;
+    graphGrid->processed_nodes = 0;
 
 
-  #pragma omp parallel for default(none) shared(graphGrid) private(i)
-  for(i = 0; i < graphGrid->num_vertices; i++){
+    #pragma omp parallel for default(none) shared(graphGrid) private(i)
+    for(i = 0; i < graphGrid->num_vertices; i++)
+    {
         graphGrid->parents[i] = -1;
-  }
+    }
 
-  graphGridResetActivePartitionsMap(graphGrid->grid);
+    graphGridResetActivePartitionsMap(graphGrid->grid);
 
 }
 
-void  graphGridPrint(struct GraphGrid *graphGrid){
+void  graphGridPrint(struct GraphGrid *graphGrid)
+{
 
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Graph Grid Properties");
     printf(" -----------------------------------------------------\n");
-    #if WEIGHTED       
-                printf("| %-51s | \n", "WEIGHTED");
-    #else
-                printf("| %-51s | \n", "UN-WEIGHTED");
-    #endif
+#if WEIGHTED
+    printf("| %-51s | \n", "WEIGHTED");
+#else
+    printf("| %-51s | \n", "UN-WEIGHTED");
+#endif
 
-    #if DIRECTED
-                printf("| %-51s | \n", "DIRECTED");
-    #else
-                printf("| %-51s | \n", "UN-DIRECTED");
-    #endif
-    printf(" -----------------------------------------------------\n"); 
+#if DIRECTED
+    printf("| %-51s | \n", "DIRECTED");
+#else
+    printf("| %-51s | \n", "UN-DIRECTED");
+#endif
+    printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Number of Vertices (V)");
     printf("| %-51u | \n", graphGrid->grid->num_vertices);
-    printf(" -----------------------------------------------------\n"); 
+    printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Number of Edges (E)");
-    printf("| %-51u | \n", graphGrid->grid->num_edges);  
+    printf("| %-51u | \n", graphGrid->grid->num_edges);
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Number of Partitions (P)");
-    printf("| %-51u | \n", graphGrid->grid->num_partitions);  
+    printf("| %-51u | \n", graphGrid->grid->num_partitions);
     printf(" -----------------------------------------------------\n");
 
-   
 
 
-  //   __u32 i;
-  //    for ( i = 0; i < ( graphGrid->grid->num_partitions*graphGrid->grid->num_partitions); ++i)
-  //       {
 
-  //       __u32 x = i % graphGrid->grid->num_partitions;    // % is the "modulo operator", the remainder of i / width;
-		// __u32 y = i / graphGrid->grid->num_partitions;
-	   
-  //      if(graphGrid->grid->partitions[i].num_edges){
+    //   __u32 i;
+    //    for ( i = 0; i < ( graphGrid->grid->num_partitions*graphGrid->grid->num_partitions); ++i)
+    //       {
 
-  //       printf("| %-11s (%u,%u) \n", "Partition: ", y, x);
-  //  		printf("| %-11s %-40u   \n", "Edges: ", graphGrid->grid->partitions[i].num_edges);  
-  //  		printf("| %-11s %-40u   \n", "Vertices: ", graphGrid->grid->partitions[i].num_vertices);  
-  //  		edgeListPrint(graphGrid->grid->partitions[i].edgeList);
-  //       }
+    //       __u32 x = i % graphGrid->grid->num_partitions;    // % is the "modulo operator", the remainder of i / width;
+    // __u32 y = i / graphGrid->grid->num_partitions;
 
-  //       }
+    //      if(graphGrid->grid->partitions[i].num_edges){
+
+    //       printf("| %-11s (%u,%u) \n", "Partition: ", y, x);
+    //      printf("| %-11s %-40u   \n", "Edges: ", graphGrid->grid->partitions[i].num_edges);
+    //      printf("| %-11s %-40u   \n", "Vertices: ", graphGrid->grid->partitions[i].num_vertices);
+    //      edgeListPrint(graphGrid->grid->partitions[i].edgeList);
+    //       }
+
+    //       }
 
 
 }
 
 
-struct GraphGrid * graphGridNew(struct EdgeList* edgeList){
+struct GraphGrid *graphGridNew(struct EdgeList *edgeList)
+{
 
 
-    struct GraphGrid* graphGrid = (struct GraphGrid*) my_malloc( sizeof(struct GraphGrid));
-    graphGrid->parents  = (int*) my_malloc( edgeList->num_vertices *sizeof(int));
-    
+    struct GraphGrid *graphGrid = (struct GraphGrid *) my_malloc( sizeof(struct GraphGrid));
+    graphGrid->parents  = (int *) my_malloc( edgeList->num_vertices * sizeof(int));
+
     __u32 i;
     #pragma omp parallel for default(none) private(i) shared(edgeList,graphGrid)
-     for(i = 0; i < edgeList->num_vertices; i++){
-                graphGrid->parents[i] = -1;
-     }
-    
-    #if WEIGHTED
-        graphGrid->max_weight =  edgeList->max_weight;
-    #endif
+    for(i = 0; i < edgeList->num_vertices; i++)
+    {
+        graphGrid->parents[i] = -1;
+    }
 
-     graphGrid->num_edges = edgeList->num_edges;
-     graphGrid->num_vertices = edgeList->num_vertices;
+#if WEIGHTED
+    graphGrid->max_weight =  edgeList->max_weight;
+#endif
 
-     graphGrid->grid = gridNew(edgeList); 
+    graphGrid->num_edges = edgeList->num_edges;
+    graphGrid->num_vertices = edgeList->num_vertices;
 
-     graphGrid->iteration = 0;
-     graphGrid->processed_nodes = 0;
+    graphGrid->grid = gridNew(edgeList);
 
-     return graphGrid;
+    graphGrid->iteration = 0;
+    graphGrid->processed_nodes = 0;
+
+    return graphGrid;
 
 }
 
-void   graphGridFree(struct GraphGrid *graphGrid){
+void   graphGridFree(struct GraphGrid *graphGrid)
+{
 
     gridFree(graphGrid->grid);
     free(graphGrid->parents);
@@ -125,21 +131,22 @@ void   graphGridFree(struct GraphGrid *graphGrid){
 
 
 
-struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort, __u32 lmode, __u32 symmetric, __u32 weighted){
+struct GraphGrid *graphGridPreProcessingStep (const char *fnameb, __u32 sort, __u32 lmode, __u32 symmetric, __u32 weighted)
+{
 
-   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
-    printf("Filename : %s \n",fnameb);
-    
+    printf("Filename : %s \n", fnameb);
+
 
     Start(timer);
-    struct EdgeList* edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted);
+    struct EdgeList *edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted);
     Stop(timer);
     // edgeListPrint(edgeList);
-    graphGridPrintMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
+    graphGridPrintMessageWithtime("Read Edge List From File (Seconds)", Seconds(timer));
 
 
-   
+
     if(lmode)
         edgeList = reorderGraphProcess(sort, edgeList, lmode, symmetric, fnameb);
 
@@ -148,11 +155,11 @@ struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort, _
     // Stop(timer);
     // graphGridPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
-    Start(timer); 
-    struct GraphGrid * graphGrid = graphGridNew(edgeList);
+    Start(timer);
+    struct GraphGrid *graphGrid = graphGridNew(edgeList);
     Stop(timer);
-    graphGridPrintMessageWithtime("Create Graph Grid (Seconds)",Seconds(timer));
-  
+    graphGridPrintMessageWithtime("Create Graph Grid (Seconds)", Seconds(timer));
+
 
     graphGridPrint(graphGrid);
 
@@ -166,7 +173,8 @@ struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort, _
 
 
 
-void graphGridPrintMessageWithtime(const char * msg, double time){
+void graphGridPrintMessageWithtime(const char *msg, double time)
+{
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", msg);

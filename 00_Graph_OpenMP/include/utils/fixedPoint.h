@@ -9,13 +9,13 @@
 struct FixedPoint
 {
 
-	__u32 size; // 32 or 64 bits
-	__u32 scale32;
-	__u32 scale64;
-	__u32 fractionMask32;
-	__u64 fractionMask64;
-	__u32 wholeMask32;
-	__u64 wholeMask64;
+    __u32 size; // 32 or 64 bits
+    __u32 scale32;
+    __u32 scale64;
+    __u32 fractionMask32;
+    __u64 fractionMask64;
+    __u32 wholeMask32;
+    __u64 wholeMask64;
 
 };
 
@@ -69,92 +69,92 @@ struct FixedPoint
 #define MUL64U(x,y)          ((__uint128_t)((__uint128_t)(x)*(__uint128_t)(y)))
 #define MULFixed64V1(x,y) (MUL64U(x,y)>>SCALED) // slow
 #define MULFixed64V1ROUND(x,y) (MUL64U(x,y)  + (MUL64U(x,y) & (1<<(SCALED-1))<<1)) // slow
- 
+
 
 #define DIVFixed32V1(x,y) (((__u64)(x) << SCALEF)/(__u64)(y)) // slow
 #define DIVFixed64V1(x,y) (((__uint128_t)(x) << SCALED)/(__uint128_t)(y))
- 
-void initFixedPoint(struct FixedPoint* fp, __u32 size,__u32 scale32,__u32 scale64);
 
-__u32 floatToFixed32(struct FixedPoint* fp, float num);
+void initFixedPoint(struct FixedPoint *fp, __u32 size, __u32 scale32, __u32 scale64);
 
-__u32 doubleToFixed32(struct FixedPoint* fp, double num);
+__u32 floatToFixed32(struct FixedPoint *fp, float num);
 
-__u64 floatToFixed64(struct FixedPoint* fp, float num);
+__u32 doubleToFixed32(struct FixedPoint *fp, double num);
 
-__u64 doubleToFixed64(struct FixedPoint* fp, double num);
+__u64 floatToFixed64(struct FixedPoint *fp, float num);
 
-float fixed32ToFloat(struct FixedPoint* fp, __u32 num);
+__u64 doubleToFixed64(struct FixedPoint *fp, double num);
 
-float fixed32ToDouble(struct FixedPoint* fp, __u32 num);
+float fixed32ToFloat(struct FixedPoint *fp, __u32 num);
 
-float fixed64ToFloat(struct FixedPoint* fp, __u64 num);
+float fixed32ToDouble(struct FixedPoint *fp, __u32 num);
 
-double fixed64ToDouble(struct FixedPoint* fp, __u64 num);
+float fixed64ToFloat(struct FixedPoint *fp, __u64 num);
 
-__u32 uInt32ToFixed32(struct FixedPoint* fp, __u32 num);
+double fixed64ToDouble(struct FixedPoint *fp, __u64 num);
 
-__u32 uInt64ToFixed32(struct FixedPoint* fp, __u64 num);
+__u32 uInt32ToFixed32(struct FixedPoint *fp, __u32 num);
 
-__u64 uInt32ToFixed64(struct FixedPoint* fp, __u32 num);
+__u32 uInt64ToFixed32(struct FixedPoint *fp, __u64 num);
 
-__u64 uInt64ToFixed64(struct FixedPoint* fp, __u64 num);
+__u64 uInt32ToFixed64(struct FixedPoint *fp, __u32 num);
 
-__u32 int32ToFixed32(struct FixedPoint* fp, int num);
+__u64 uInt64ToFixed64(struct FixedPoint *fp, __u64 num);
 
-__u32 int64ToFixed32(struct FixedPoint* fp, long num);
+__u32 int32ToFixed32(struct FixedPoint *fp, int num);
 
-__u64 int32ToFixed64(struct FixedPoint* fp, int num);
+__u32 int64ToFixed32(struct FixedPoint *fp, long num);
 
-__u64 int64ToFixed64(struct FixedPoint* fp, long num);
+__u64 int32ToFixed64(struct FixedPoint *fp, int num);
 
-__u32 fixed32ToUInt32(struct FixedPoint* fp, __u32 num);
+__u64 int64ToFixed64(struct FixedPoint *fp, long num);
 
-__u64 fixed32ToUInt64(struct FixedPoint* fp, __u32 num);
+__u32 fixed32ToUInt32(struct FixedPoint *fp, __u32 num);
 
-__u32 fixed64ToUInt32(struct FixedPoint* fp, __u64 num);
+__u64 fixed32ToUInt64(struct FixedPoint *fp, __u32 num);
 
-__u64 fixed64ToUInt64(struct FixedPoint* fp, __u64 num);
+__u32 fixed64ToUInt32(struct FixedPoint *fp, __u64 num);
 
-int fixed32ToInt32(struct FixedPoint* fp, __u32 num);
+__u64 fixed64ToUInt64(struct FixedPoint *fp, __u64 num);
 
-long fixed32ToInt64(struct FixedPoint* fp, __u32 num);
+int fixed32ToInt32(struct FixedPoint *fp, __u32 num);
 
-int fixed64ToInt32(struct FixedPoint* fp, __u64 num);
+long fixed32ToInt64(struct FixedPoint *fp, __u32 num);
 
-long fixed64ToInt64(struct FixedPoint* fp, __u64 num);
+int fixed64ToInt32(struct FixedPoint *fp, __u64 num);
 
-__u32 fractionPart32(struct FixedPoint* fp, __u32 num);
+long fixed64ToInt64(struct FixedPoint *fp, __u64 num);
 
-__u32 wholePart32(struct FixedPoint* fp, __u32 num);
+__u32 fractionPart32(struct FixedPoint *fp, __u32 num);
 
-__u64 fractionPart64(struct FixedPoint* fp, __u64 num);
+__u32 wholePart32(struct FixedPoint *fp, __u32 num);
 
-__u64 wholePart64(struct FixedPoint* fp, __u64 num);
+__u64 fractionPart64(struct FixedPoint *fp, __u64 num);
 
-__u64 mul32U(struct FixedPoint* fp, __u32 x,__u32 y);
+__u64 wholePart64(struct FixedPoint *fp, __u64 num);
 
-__u32 mulFixed32V1(struct FixedPoint* fp, __u32 x,__u32 y);
+__u64 mul32U(struct FixedPoint *fp, __u32 x, __u32 y);
 
-__u32 mulFixed32V1ROUND(struct FixedPoint* fp, __u32 x,__u32 y);
+__u32 mulFixed32V1(struct FixedPoint *fp, __u32 x, __u32 y);
 
-__uint128_t mul64U(struct FixedPoint* fp, __u64 x,__u64 y);
+__u32 mulFixed32V1ROUND(struct FixedPoint *fp, __u32 x, __u32 y);
 
-__u64 mulFixed64V1(struct FixedPoint* fp, __u64 x,__u64 y);
+__uint128_t mul64U(struct FixedPoint *fp, __u64 x, __u64 y);
 
-__u64 mulFixed64V1ROUND(struct FixedPoint* fp, __u64 x,__u64 y);
- 
-__u32 divFixed32V1(struct FixedPoint* fp, __u32 x,__u32 y);
+__u64 mulFixed64V1(struct FixedPoint *fp, __u64 x, __u64 y);
 
-__u64 divFixed64V1(struct FixedPoint* fp, __u64 x,__u64 y);
+__u64 mulFixed64V1ROUND(struct FixedPoint *fp, __u64 x, __u64 y);
 
-// Adding two fixed points 
+__u32 divFixed32V1(struct FixedPoint *fp, __u32 x, __u32 y);
+
+__u64 divFixed64V1(struct FixedPoint *fp, __u64 x, __u64 y);
+
+// Adding two fixed points
 /*
 sum = FloatToFixed(f1) + FloatToFixed(f2)
 */
 
 
-// subtracting two fixed points 
+// subtracting two fixed points
 /*
 sub = FloatToFixed(f1) - FloatToFixed(f2)
 */

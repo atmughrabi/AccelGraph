@@ -6,10 +6,10 @@
 
 extern int errno ;
 
-void * aligned_malloc( size_t size )
+void *aligned_malloc( size_t size )
 {
 
-	void *dataOut = aligned_alloc(CACHELINE_BYTES, size);
+    void *dataOut = aligned_alloc(CACHELINE_BYTES, size);
     // void *dataOut = malloc ( size ) ;
     if ( !dataOut )
     {
@@ -19,7 +19,7 @@ void * aligned_malloc( size_t size )
     return dataOut ;
 }
 
-void * regular_malloc( size_t size )
+void *regular_malloc( size_t size )
 {
 
     // void *dataOut = aligned_alloc(CACHELINE_BYTES, size);
@@ -32,16 +32,16 @@ void * regular_malloc( size_t size )
     return dataOut ;
 }
 
-void * my_malloc( size_t size )
+void *my_malloc( size_t size )
 {
 
     // void *dataOut = aligned_alloc(CACHELINE_BYTES, size);
     void *dataOut = NULL;
-    #if ALIGNED
-       dataOut =   aligned_malloc(size);
-    #else
-       dataOut =   regular_malloc(size);
-    #endif
+#if ALIGNED
+    dataOut =   aligned_malloc(size);
+#else
+    dataOut =   regular_malloc(size);
+#endif
 
     return dataOut;
 }

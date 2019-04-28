@@ -9,39 +9,25 @@
 
 
 // A structure to represent an adjacency list
-struct  AdjArrayList {
+struct  AdjArrayList
+{
 
-	__u8 visited;
-	__u32 out_degree;
-	struct Edge* outNodes;
+    __u32 out_degree;
+    struct EdgeList *outNodes;
 
-	#if DIRECTED
-		__u32 in_degree;
-		struct Edge* inNodes;
-	#endif
-
+#if DIRECTED
+    __u32 in_degree;
+    struct EdgeList *inNodes;
+#endif
 };
-
-// // A structure to represent a GraphAdjLinkedList. A GraphAdjLinkedList
-// // is an array of adjacency lists.
-// // Size of array will be V (number of vertices 
-// // in GraphAdjLinkedList)
-// struct  GraphAdjLinkedList
-// {
-// 	__u32 num_vertices;
-// 	__u32 num_edges;
-// 	struct AdjLinkedList* vertices;
-	
-// };
-
 
 
 // A utility function to create a new adjacency list node
 void adjArrayListPrint(struct AdjArrayList *adjArrayList);
-struct AdjArrayList * adjArrayListNew();
-struct AdjArrayList * adjArrayListCreateNeighbourList(struct AdjArrayList *adjArrayList);
-struct AdjArrayList * adjArrayListCreateNeighbourListOutNodes(struct AdjArrayList *adjArrayList);
-struct AdjArrayList * adjArrayListCreateNeighbourListInNodes(struct AdjArrayList *adjArrayList);
+struct AdjArrayList *adjArrayListNew();
+struct AdjArrayList *adjArrayListCreateNeighbourList(struct AdjArrayList *adjArrayList);
+struct AdjArrayList *adjArrayListCreateNeighbourListOutNodes(struct AdjArrayList *adjArrayList);
+struct AdjArrayList *adjArrayListCreateNeighbourListInNodes(struct AdjArrayList *adjArrayList);
 void adjArrayListFree(struct AdjArrayList *adjArrayList);
 
 

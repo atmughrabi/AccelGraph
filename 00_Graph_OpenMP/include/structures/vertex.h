@@ -10,24 +10,25 @@
 
 
 
-struct  Vertex {
+struct  Vertex
+{
 
-	__u8 visited;
-	__u32 out_degree;
-	__u32 in_degree;
-	__u32 edges_idx;
+    __u8 visited;
+    __u32 out_degree;
+    __u32 in_degree;
+    __u32 edges_idx;
 };
 
 
-struct GraphCSR* mapVertices (struct GraphCSR* graph, __u8 inverse);
-struct GraphCSR* mapVerticesWithInOutDegree (struct GraphCSR* graph, __u8 inverse);
+struct GraphCSR *mapVertices (struct GraphCSR *graph, __u8 inverse);
+struct GraphCSR *mapVerticesWithInOutDegree (struct GraphCSR *graph, __u8 inverse);
 
-struct Vertex* newVertexArray(__u32 num_vertices);
-void freeVertexArray(struct Vertex* vertices);
-void printVertexArray(struct Vertex* vertex_array, __u32 num_vertices);
-void vertexArrayMaxOutdegree(struct Vertex* vertex_array, __u32 num_vertices);
-void vertexArrayMaxInDegree(struct Vertex* vertex_array, __u32 num_vertices);
-void partitionEdgeListOffsetStartEnd(struct GraphCSR* graph, struct Edge* sorted_edges_array, __u32* offset_start,__u32* offset_end);
+struct Vertex *newVertexArray(__u32 num_vertices);
+void freeVertexArray(struct Vertex *vertices);
+void printVertexArray(struct Vertex *vertex_array, __u32 num_vertices);
+void vertexArrayMaxOutdegree(struct Vertex *vertex_array, __u32 num_vertices);
+void vertexArrayMaxInDegree(struct Vertex *vertex_array, __u32 num_vertices);
+void partitionEdgeListOffsetStartEnd(struct GraphCSR *graph, struct EdgeList *sorted_edges_array, __u32 *offset_start, __u32 *offset_end);
 
 
 #endif

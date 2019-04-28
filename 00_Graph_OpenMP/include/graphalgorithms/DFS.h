@@ -12,9 +12,9 @@
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-void depthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph);
-void depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR* graph);
-void pDepthFirstSearchGraphCSR(__u32 source, struct GraphCSR* graph);
-void pDepthFirstSearchGraphCSRTask(__u32 source, struct GraphCSR* graph);
+void depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph);
+void depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *graph);
+void pDepthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph);
+void pDepthFirstSearchGraphCSRTask(__u32 source, struct GraphCSR *graph);
 
 #endif

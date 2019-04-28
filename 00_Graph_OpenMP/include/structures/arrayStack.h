@@ -6,14 +6,14 @@
 
 struct  ArrayStack
 {
-	__u32 head;
-	__u32 tail;
-	__u32 tail_next;
-	__u32 size;
-	__u32* Stack;
-	struct Bitmap* q_bitmap;
-	struct Bitmap* q_bitmap_next;
-	
+    __u32 head;
+    __u32 tail;
+    __u32 tail_next;
+    __u32 size;
+    __u32 *Stack;
+    struct Bitmap *q_bitmap;
+    struct Bitmap *q_bitmap_next;
+
 };
 
 
@@ -50,8 +50,8 @@ __u8  ispushArrayStackNext 	(struct ArrayStack *q, __u32 k);
 
 void arrayStackGenerateBitmap(struct ArrayStack *q);
 void flushArrayStackToShared(struct ArrayStack *local_q, struct ArrayStack *shared_q);
-void arrayStackToBitmap(struct ArrayStack *q, struct Bitmap* b);
-void bitmapToArrayStack(struct Bitmap* b, struct ArrayStack *q, struct ArrayStack** localFrontierStacks);
+void arrayStackToBitmap(struct ArrayStack *q, struct Bitmap *b);
+void bitmapToArrayStack(struct Bitmap *b, struct ArrayStack *q, struct ArrayStack **localFrontierStacks);
 
 #endif
 
