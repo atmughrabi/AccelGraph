@@ -14,6 +14,7 @@ struct EdgeList *reorderGraphListDegree(struct EdgeList *edgeList, __u32 *degree
 struct EdgeList *reorderGraphListPageRank(struct GraphCSR *graph);
 struct EdgeList *reorderGraphListEpochPageRank(struct GraphCSR *graph);
 struct EdgeList *reorderGraphListEpochBFS(struct GraphCSR *graph);
+struct EdgeList *reorderGraphListEpochRabbit(struct GraphCSR *graph);
 
 __u32 *reorderGraphProcessInOutDegrees(__u32 *degrees, struct EdgeList *edgeList, __u32 lmode);
 __u32 reorderGraphProcessVertexSize( struct EdgeList *edgeList);

@@ -14,7 +14,9 @@
 #include "reorder.h"
 #include "epochReorder.h"
 #include "edgeList.h"
+
 #include "pageRank.h"
+#include "incrementalAggregation.h"
 
 struct EdgeList *reorderGraphListPageRank(struct GraphCSR *graph)
 {
@@ -186,6 +188,55 @@ struct EdgeList *reorderGraphListEpochBFS(struct GraphCSR *graph)
 
     return edgeList;
 }
+
+struct EdgeList *reorderGraphListEpochRabbit(struct GraphCSR *graph)
+{
+
+    // __u32 v;
+    __u32 *labelsInverse;
+    // __u32 *labels;
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+
+
+    struct EdgeList *edgeList = NULL;
+    // labels = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting RABBIT Reordering/Relabeling");
+    printf(" -----------------------------------------------------\n");
+
+    Start(timer);
+
+
+    labelsInverse = incrementalAggregationGraphCSR(graph);
+
+    // #pragma omp parallel for
+    // for(v = 0; v < graph->num_vertices; v++)
+    // {
+    //     labels[labelsInverse[v]] = v;
+    // }
+
+
+    edgeList = graph->sorted_edges_array;
+
+    edgeList = relabelEdgeList(edgeList, labelsInverse);
+
+    Stop(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "RABBIT Reordering/Relabeling Complete");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51f | \n", Seconds(timer));
+    printf(" -----------------------------------------------------\n");
+
+    free(timer);
+    free(labelsInverse);
+    // free(labels);
+
+    return edgeList;
+}
+
 
 void radixSortCountSortEdgesByRanks (__u32 **pageRanksFP, __u32 **pageRanksFPTemp, __u32 **labels, __u32 **labelsTemp, __u32 radix, __u32 buckets, __u32 *buckets_count, __u32 num_vertices)
 {
@@ -423,6 +474,8 @@ struct EdgeList *reorderGraphProcessPageRank( __u32 sort, struct EdgeList *edgeL
 
     if(lmode == 1) // pageRank
         edgeList =  reorderGraphListPageRank(graph);
+    else if(lmode == 5) //epoch RABBIT
+        edgeList =  reorderGraphListEpochRabbit(graph);
     else if(lmode == 6) //epoch pagerank
         edgeList = reorderGraphListEpochPageRank(graph); // in-degree
     else if(lmode == 7) //epoch BFS
@@ -547,7 +600,7 @@ struct EdgeList *reorderGraphProcess( __u32 sort, struct EdgeList *edgeList, __u
 
 
 
-    if(lmode == 1 || lmode == 6 || lmode == 7 ) // pageRank
+    if(lmode == 1 || lmode == 5 || lmode == 6 || lmode == 7 ) // pageRank
         edgeList = reorderGraphProcessPageRank( sort, edgeList, lmode, symmetric);
     else if(lmode == 2)
         edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// in-degree

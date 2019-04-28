@@ -157,7 +157,7 @@ FILE_BIN = $(BENCHMARKS_DIR)/Rabbit/graphs.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
 
 
 #GRAPH RUN
