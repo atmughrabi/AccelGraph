@@ -4,7 +4,7 @@
 #include "libcxl.h"
 
 #include "capienv.h"
-#include "adjLinkedList.h" 
+#include "adjLinkedList.h"
 #include "dynamicQueue.h"
 #include "edgeList.h"
 
@@ -22,7 +22,8 @@
 #include "BFS.h"
 
 
-void printMessageWithtime(const char * msg, double time){
+void printMessageWithtime(const char *msg, double time)
+{
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", msg);
@@ -44,38 +45,38 @@ int main()
     // const char * fname = "00_Graph_OpenMP/datasets/facebook/facebook_combined.txt";
 
 
-    const char * fnameb = "00_Graph_OpenMP/datasets/test/test.txt.bin";
+    const char *fnameb = "00_Graph_OpenMP/datasets/test/test.txt.bin";
     // const char * fnameb = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt.bin";
     // const char * fnameb = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "00_Graph_OpenMP/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "00_Graph_OpenMP/datasets/wiki-vote/wiki-Vote.txt.bin";
 
 
-    struct Timer* timer = (struct Timer*) my_malloc(sizeof(struct Timer));
-    struct GraphAdjArrayList* graphAdjArrayList = NULL;
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct GraphAdjArrayList *graphAdjArrayList = NULL;
     __u32 root = 6;
     // printf("Filename : %s \n",fnameb);
-    
+
     // Start(timer);
     // readEdgeListstxt(fname);
     // Stop(timer);
     // printf("Read Edge List From File converted to binary : %f Seconds \n",Seconds(timer));
-   
+
     Start(timer);
     graphAdjArrayList = graphAdjArrayListPreProcessingStep (fnameb);
     Stop(timer);
-    printMessageWithtime("GraphAdjArrayList Preprocessing Step Total Time (Seconds)",Seconds(timer));
+    printMessageWithtime("GraphAdjArrayList Preprocessing Step Total Time (Seconds)", Seconds(timer));
 
     Start(timer);
     breadthFirstSearchGraphAdjArrayList(root, graphAdjArrayList);
     Stop(timer);
-    printMessageWithtime("Breadth First Search Total Time (Seconds)",Seconds(timer));
+    printMessageWithtime("Breadth First Search Total Time (Seconds)", Seconds(timer));
 
-    Start(timer); 
+    Start(timer);
     graphAdjArrayListFree(graphAdjArrayList);
     Stop(timer);
-    printMessageWithtime("Free Graph Adjacency Array List (Seconds)",Seconds(timer));
-    
+    printMessageWithtime("Free Graph Adjacency Array List (Seconds)", Seconds(timer));
+
 
     free(timer);
     return 0;

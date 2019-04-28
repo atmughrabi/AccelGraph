@@ -8,49 +8,38 @@
 #include "graphCSR.h"
 
 // A structure to represent an adjacency list node
-struct  AdjLinkedListNode {
+struct  AdjLinkedListNode
+{
 
-	__u32 dest;
-	// __u32 src;
+    __u32 dest;
+    // __u32 src;
 
-	#if WEIGHTED
-	__u32 weight;
-	#endif
+#if WEIGHTED
+    __u32 weight;
+#endif
 
-	struct AdjLinkedListNode* next;
+    struct AdjLinkedListNode *next;
 
-}__attribute__((packed));
+};
 
 // A structure to represent an adjacency list
-struct  AdjLinkedList {
+struct  AdjLinkedList
+{
 
-	__u8 visited;
-	__u32 out_degree;
-	struct AdjLinkedListNode* outNodes;
+    __u8 visited;
+    __u32 out_degree;
+    struct AdjLinkedListNode *outNodes;
 
-	#if DIRECTED
-		__u32 in_degree;
-		struct AdjLinkedListNode* inNodes;
-	#endif
+#if DIRECTED
+    __u32 in_degree;
+    struct AdjLinkedListNode *inNodes;
+#endif
 
-}__attribute__((packed));
-
-// // A structure to represent a GraphAdjLinkedList. A GraphAdjLinkedList
-// // is an array of adjacency lists.
-// // Size of array will be V (number of vertices 
-// // in GraphAdjLinkedList)
-// struct  GraphAdjLinkedList
-// {
-// 	__u32 num_vertices;
-// 	__u32 num_edges;
-// 	struct AdjLinkedList* vertices;
-	
-// };
-
+};
 
 
 // A utility function to create a new adjacency list node
-struct AdjLinkedListNode* newAdjLinkedListOutNode(struct Edge * edge);
-struct AdjLinkedListNode* newAdjLinkedListInNode(struct Edge * edge);
+struct AdjLinkedListNode *newAdjLinkedListOutNode(__u32 dest);
+struct AdjLinkedListNode *newAdjLinkedListInNode( __u32 src);
 
 #endif

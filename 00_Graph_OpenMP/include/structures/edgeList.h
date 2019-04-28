@@ -4,52 +4,27 @@
 #include <linux/types.h>
 #include "graphConfig.h"
 
-// A structure to represent an edge
-struct  Edge {
 
-	__u32 src;
-	__u32 dest;
-	#if WEIGHTED
-	__u32 weight;
-	#endif
+struct  EdgeList
+{
 
+    __u32 num_edges;
+    __u32 num_vertices;
+#if WEIGHTED
+    __u32 max_weight;
+    __u32 *edges_array_weight;
+#endif
+    __u32 *edges_array_src;
+    __u32 *edges_array_dest;
 };
 
-
-struct  EdgeList {
-
-	__u32 num_edges;
-	__u32 num_vertices;
-	#if WEIGHTED
-	__u32 max_weight;
-	// __u32* edges_array_weight;
-	#endif
-	struct Edge* edges_array;
-	//better cache locality for ceritan algorithms
-	// __u32* edges_array_src;
-	// __u32* edges_array_dest;
-};
-
-
-// struct EdgeListAttributes {
-
-// 	__u8 WEIGHTED;
-// 	__u8 DIRECTED;
-
-// };
 
 __u32 maxTwoIntegers(__u32 num1, __u32 num2);
-
-void edgeListPrint(struct EdgeList* edgeList);
-void freeEdgeList( struct EdgeList* edgeList);
-void freeEdgeArray(struct Edge* edges_array);
-
-
-struct Edge* swapEdgeSrcDest(struct Edge* edge);
-struct Edge* newEdgeArray(__u32 num_edges);
- char *readEdgeListstxt(const char * fname, __u32 weighted);
-struct EdgeList* readEdgeListsbin(const char * fname, __u8 inverse, __u32 symmetric, __u32 weighted);
-struct EdgeList* readEdgeListsMem( struct EdgeList* edgeListmem, __u8 inverse, __u32 symmetric);
-struct EdgeList* newEdgeList(__u32 num_edges);
+void edgeListPrint(struct EdgeList *edgeList);
+void freeEdgeList( struct EdgeList *edgeList);
+char *readEdgeListstxt(const char *fname, __u32 weighted);
+struct EdgeList *readEdgeListsbin(const char *fname, __u8 inverse, __u32 symmetric, __u32 weighted);
+struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem, __u8 inverse, __u32 symmetric);
+struct EdgeList *newEdgeList(__u32 num_edges);
 
 #endif

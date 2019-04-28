@@ -5,7 +5,7 @@
 #include "libcxl.h"
 #include "capienv.h"
 
-#include "adjLinkedList.h" 
+#include "adjLinkedList.h"
 #include "dynamicQueue.h"
 #include "edgeList.h"
 
@@ -25,7 +25,8 @@
 
 
 
-void printMessageWithtime(const char * msg, double time){
+void printMessageWithtime(const char *msg, double time)
+{
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", msg);
@@ -46,52 +47,52 @@ int main()
     // const char * fname = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt";
     // const char * fname = "00_Graph_OpenMP/datasets/facebook/facebook_combined.txt";
 
-// /
-    const char * fnameb = "00_Graph_OpenMP/datasets/test/test.txt.bin";
+    // /
+    const char *fnameb = "00_Graph_OpenMP/datasets/test/test.txt.bin";
     // const char * fnameb = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt.bin";
     // const char * fnameb = "00_Graph_OpenMP/datasets/twitter/twitter_rv.txt.bin8";
     // const char * fnameb = "00_Graph_OpenMP/datasets/facebook/facebook_combined.txt.bin";
     // const char * fnameb = "00_Graph_OpenMP/datasets/wiki-vote/wiki-Vote.txt.bin";
 
 
-    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
-    printf("Filename : %s \n",fnameb);
-    
+    printf("Filename : %s \n", fnameb);
+
     // Start(timer);
     // readEdgeListstxt(fname);
     // Stop(timer);
     // printf("Read Edge List From File converted to binary : %f Seconds \n",Seconds(timer));
 
     Start(timer);
-    struct EdgeList* edgeList = readEdgeListsbin(fnameb,0);
+    struct EdgeList *edgeList = readEdgeListsbin(fnameb, 0);
     Stop(timer);
     // edgeListPrint(edgeList);
-    printMessageWithtime("Read Edge List From File (Seconds)",Seconds(timer));
+    printMessageWithtime("Read Edge List From File (Seconds)", Seconds(timer));
 
     Start(timer);
     edgeList = radixSortEdgesBySourceAndDestination(edgeList);
     Stop(timer);
-    printMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+    printMessageWithtime("Radix Sort Edges By Source (Seconds)", Seconds(timer));
 
-    Start(timer); 
-    struct GraphGrid * graphGrid = graphGridNew(edgeList);
+    Start(timer);
+    struct GraphGrid *graphGrid = graphGridNew(edgeList);
     Stop(timer);
-    printMessageWithtime("Create Graph Grid (Seconds)",Seconds(timer));
-  
+    printMessageWithtime("Create Graph Grid (Seconds)", Seconds(timer));
+
     freeEdgeList(edgeList);
 
 
     graphGridPrint(graphGrid);
 
-    Start(timer); 
+    Start(timer);
     graphGridFree(graphGrid);
     Stop(timer);
-    printMessageWithtime("Free Graph Grid (Seconds)",Seconds(timer));
+    printMessageWithtime("Free Graph Grid (Seconds)", Seconds(timer));
 
 
 
-  
+
     free(timer);
     return 0;
 }

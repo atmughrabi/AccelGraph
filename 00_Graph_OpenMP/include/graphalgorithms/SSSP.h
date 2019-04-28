@@ -26,8 +26,8 @@ struct SSSPStats{
 // ********************************************************************************************
 __u32 SSSPAtomicMin(__u32 *dist , __u32 new);
 __u32 SSSPCompareDistanceArrays(struct SSSPStats* stats1, struct SSSPStats* stats2);
-int SSSPAtomicRelax(struct Edge* edge, struct SSSPStats* stats);
-int SSSPRelax(struct Edge* edge, struct SSSPStats* stats);
+int SSSPAtomicRelax(__u32 src,__u32 dest, __u32 weight, struct SSSPStats* stats);
+int SSSPRelax(__u32 src,__u32 dest, __u32 weight, struct SSSPStats* stats);
 void durstenfeldShuffle(__u32* vertices, __u32 size);
 
 // ********************************************************************************************

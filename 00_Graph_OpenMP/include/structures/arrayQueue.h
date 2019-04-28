@@ -6,14 +6,14 @@
 
 struct  ArrayQueue
 {
-	__u32 head;
-	__u32 tail;
-	__u32 tail_next;
-	__u32 size;
-	__u32* queue;
-	struct Bitmap* q_bitmap;
-	struct Bitmap* q_bitmap_next;
-	
+    __u32 head;
+    __u32 tail;
+    __u32 tail_next;
+    __u32 size;
+    __u32 *queue;
+    struct Bitmap *q_bitmap;
+    struct Bitmap *q_bitmap_next;
+
 };
 
 
@@ -50,8 +50,8 @@ __u8  isEnArrayQueuedNext 	(struct ArrayQueue *q, __u32 k);
 
 void arrayQueueGenerateBitmap(struct ArrayQueue *q);
 void flushArrayQueueToShared(struct ArrayQueue *local_q, struct ArrayQueue *shared_q);
-void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap* b);
-void bitmapToArrayQueue(struct Bitmap* b, struct ArrayQueue *q, struct ArrayQueue** localFrontierQueues);
+void arrayQueueToBitmap(struct ArrayQueue *q, struct Bitmap *b);
+void bitmapToArrayQueue(struct Bitmap *b, struct ArrayQueue *q, struct ArrayQueue **localFrontierQueues);
 
 #endif
 

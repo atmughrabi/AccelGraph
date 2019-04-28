@@ -12,6 +12,7 @@
 #include "mt19937.h"
 
 int numThreads;
+mt19937state *mt19937var;
 
 static void usage(void) {
   printf("\nUsage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]\n");
@@ -186,8 +187,10 @@ int main (int argc, char **argv)
       }
 
       struct Timer* timer = (struct Timer*) my_malloc(sizeof(struct Timer));
-      
-      init_genrand(27491095);
+
+      mt19937var = (mt19937state*) my_malloc(sizeof(mt19937state));
+      initializeMersenneState (mt19937var, 27491095);
+
       omp_set_nested(1);
       omp_set_num_threads(numThreads);
 

@@ -10,27 +10,27 @@ struct  QNode
     __u32 key;
     struct QNode *next;
 };
- 
+
 // The queue, front stores the front node of LL and rear stores ths
 // last node of LL
 struct  DynamicQueue
 {
-	__u32 size;
+    __u32 size;
     struct QNode *front, *rear;
 };
- 
-// A utility function to create a new linked list node.
-struct QNode* newQNode(__u32 k);
 
- 
+// A utility function to create a new linked list node.
+struct QNode *newQNode(__u32 k);
+
+
 // A utility function to create an empty queue
 struct DynamicQueue *newDynamicQueue();
 
- 
+
 // The function to add a key k to q
 void enQueue(struct DynamicQueue *q, __u32 k);
 
- 
+
 // Function to remove a key from given queue q
 struct QNode *deQueue(struct DynamicQueue *q);
 

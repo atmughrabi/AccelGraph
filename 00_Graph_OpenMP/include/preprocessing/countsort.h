@@ -9,9 +9,9 @@
 
 
 
-struct EdgeList* countSortEdgesBySource (struct EdgeList* edgeList);
-struct EdgeList* countSortEdgesByDestination (struct EdgeList* edgeList);
-struct EdgeList* countSortEdgesBySourceAndDestination (struct EdgeList* edgeList);
+struct EdgeList *countSortEdgesBySource (struct EdgeList *edgeList);
+struct EdgeList *countSortEdgesByDestination (struct EdgeList *edgeList);
+struct EdgeList *countSortEdgesBySourceAndDestination (struct EdgeList *edgeList);
 
 
 #endif

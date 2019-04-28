@@ -29,10 +29,10 @@
 //   for i in indexes(part)
 //     bucket = compute_bucket(a[i])
 //     out[Cnt[part][bucket]++] = a[i]
-void radixSortCountSortEdgesBySource (struct Edge** sorted_edges_array, struct EdgeList* edgeList, __u32 radix, __u32 buckets, __u32* buckets_count){
+void radixSortCountSortEdgesBySource (struct EdgeList** sorted_edges_array, struct EdgeList** edgeList, __u32 radix, __u32 buckets, __u32* buckets_count){
 
-	struct Edge* temp_edges_array = NULL; 
-    __u32 num_edges = edgeList->num_edges;
+	struct EdgeList* temp_edges_array = NULL; 
+    __u32 num_edges = (*edgeList)->num_edges;
     __u32 t = 0;
     __u32 o = 0;
     __u32 u = 0;
@@ -66,7 +66,7 @@ void radixSortCountSortEdgesBySource (struct Edge** sorted_edges_array, struct E
 
        
         for (i = offset_start; i < offset_end; i++) {      
-            u = edgeList->edges_array[i].src;
+            u = (*edgeList)->edges_array_src[i];
             t = (u >> (radix*8)) & 0xff;
             buckets_count[(t_id*buckets)+t]++;
         }
@@ -91,10 +91,14 @@ void radixSortCountSortEdgesBySource (struct Edge** sorted_edges_array, struct E
 
         //RANK-AND-PERMUTE
         for (i = offset_start; i < offset_end; i++) {       /* radix sort */
-            u = edgeList->edges_array[i].src;
+            u = (*edgeList)->edges_array_src[i];
             t = (u >> (radix*8)) & 0xff;
             o = buckets_count[(t_id*buckets)+t];
-            (*sorted_edges_array)[o] = edgeList->edges_array[i];
+            (*sorted_edges_array)->edges_array_dest[o] = (*edgeList)->edges_array_dest[i];
+            (*sorted_edges_array)->edges_array_src[o] = (*edgeList)->edges_array_src[i];        
+            #if WEIGHTED
+               (*sorted_edges_array)->edges_array_weight[o]= (*edgeList)->edges_array_weight[i];
+            #endif
             buckets_count[(t_id*buckets)+t]++;
 
         }
@@ -102,15 +106,15 @@ void radixSortCountSortEdgesBySource (struct Edge** sorted_edges_array, struct E
     }
 
     temp_edges_array = *sorted_edges_array;
-    *sorted_edges_array = edgeList->edges_array;
-    edgeList->edges_array = temp_edges_array;
+    *sorted_edges_array = *edgeList;
+    *edgeList = temp_edges_array;
     
 }
 
-void radixSortCountSortEdgesByDestination (struct Edge** sorted_edges_array, struct EdgeList* edgeList, __u32 radix, __u32 buckets, __u32* buckets_count){
+void radixSortCountSortEdgesByDestination (struct EdgeList** sorted_edges_array, struct EdgeList** edgeList, __u32 radix, __u32 buckets, __u32* buckets_count){
 
-    struct Edge* temp_edges_array = NULL; 
-    __u32 num_edges = edgeList->num_edges;
+    struct EdgeList* temp_edges_array = NULL; 
+    __u32 num_edges = (*edgeList)->num_edges;
     __u32 t = 0;
     __u32 o = 0;
     __u32 u = 0;
@@ -144,7 +148,7 @@ void radixSortCountSortEdgesByDestination (struct Edge** sorted_edges_array, str
 
        
         for (i = offset_start; i < offset_end; i++) {      
-            u = edgeList->edges_array[i].dest;
+            u = (*edgeList)->edges_array_dest[i];
             t = (u >> (radix*8)) & 0xff;
             buckets_count[(t_id*buckets)+t]++;
         }
@@ -170,10 +174,14 @@ void radixSortCountSortEdgesByDestination (struct Edge** sorted_edges_array, str
 
         //RANK-AND-PERMUTE
         for (i = offset_start; i < offset_end; i++) {       /* radix sort */
-            u = edgeList->edges_array[i].dest;
+            u = (*edgeList)->edges_array_dest[i];
             t = (u >> (radix*8)) & 0xff;
             o = buckets_count[(t_id*buckets)+t];
-            (*sorted_edges_array)[o] = edgeList->edges_array[i];
+            (*sorted_edges_array)->edges_array_dest[o] = (*edgeList)->edges_array_dest[i];
+            (*sorted_edges_array)->edges_array_src[o] = (*edgeList)->edges_array_src[i];        
+            #if WEIGHTED
+               (*sorted_edges_array)->edges_array_weight[o]= (*edgeList)->edges_array_weight[i];
+            #endif
             buckets_count[(t_id*buckets)+t]++;
 
         }
@@ -181,8 +189,8 @@ void radixSortCountSortEdgesByDestination (struct Edge** sorted_edges_array, str
     }
 
     temp_edges_array = *sorted_edges_array;
-    *sorted_edges_array = edgeList->edges_array;
-    edgeList->edges_array = temp_edges_array;
+    *sorted_edges_array = *edgeList;
+    *edgeList = temp_edges_array;
     
 }
 
@@ -208,13 +216,15 @@ struct EdgeList* radixSortEdgesBySource (struct EdgeList* edgeList){
    
     __u32 j = 0; //1,2,3 iteration
 
-    struct Edge* sorted_edges_array = newEdgeArray(num_edges);
+    struct EdgeList* sorted_edges_array = newEdgeList(num_edges);
+
+    sorted_edges_array->num_vertices = edgeList->num_vertices;
 
     buckets_count = (__u32*) my_malloc(P * buckets * sizeof(__u32));
     
 
     for(j=0 ; j < radix ; j++){
-        radixSortCountSortEdgesBySource (&sorted_edges_array, edgeList, j, buckets, buckets_count);
+        radixSortCountSortEdgesBySource (&sorted_edges_array, &edgeList, j, buckets, buckets_count);
     }
 
     free(buckets_count);
@@ -246,17 +256,18 @@ struct EdgeList* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList
    
     __u32 j = 0; //1,2,3 iteration
 
-    struct Edge* sorted_edges_array = newEdgeArray(num_edges);
+    struct EdgeList* sorted_edges_array = newEdgeList(num_edges);
 
+    sorted_edges_array->num_vertices = edgeList->num_vertices;
    
     buckets_count = (__u32*) my_malloc(P * buckets * sizeof(__u32));
    
 
     for(j=0 ; j < radix ; j++){
-        radixSortCountSortEdgesByDestination (&sorted_edges_array, edgeList, j, buckets, buckets_count);
+        radixSortCountSortEdgesByDestination (&sorted_edges_array, &edgeList, j, buckets, buckets_count);
     }
     for(j=0 ; j < radix ; j++){
-        radixSortCountSortEdgesBySource (&sorted_edges_array, edgeList, j, buckets, buckets_count);
+        radixSortCountSortEdgesBySource (&sorted_edges_array, &edgeList, j, buckets, buckets_count);
     }
     
 
