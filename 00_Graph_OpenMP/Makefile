@@ -70,11 +70,13 @@ CFLAGS   = -O3 -Wall -m64 -fopenmp -g
 
 .PHONY: all
 all : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP)
-	@echo "\n DONE!! NOTHING ELSE TO COMPILE ---> $(word 2,$^) \n"
+	@echo "\n ***************************************************************** "
+	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph $(word 2,$^)    *"
+	@echo " ***************************************************************** \n"
 
 .PHONY: test
 test : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
-	@echo "\n DONE!! NOTHING ELSE TO COMPILE ---> $(word 2,$^) \n"
+	@echo "\n DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph $(word 2,$^) \n"
 
 .PHONY: directories
 directories :
@@ -146,7 +148,7 @@ FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
 
 # synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
 
 # real world large graphs binary format
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
@@ -159,7 +161,7 @@ FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
 
 #GRAPH RUN
 ROOT = 690969
-DATA_STRUCTURES = 1
+DATA_STRUCTURES = 0
 ALGORITHMS = 0
 NUM_THREADS  = 8
 NUM_ITERATIONS =100
@@ -168,7 +170,7 @@ TOLERANCE = 1e-6
 SORT_TYPE = 0
 PUSH_PULL = 0
 DELTA = 800
-REORDER = 0
+REORDER = 7
 
 
 #STATS COLLECTION VARIABLES
@@ -193,7 +195,7 @@ debug: all
 
 .PHONY: debug-memory
 debug-memory: all	
-	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS)
+	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 .PHONY: run-test
 run-test: test

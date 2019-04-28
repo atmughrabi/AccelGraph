@@ -86,6 +86,7 @@ struct EdgeList *reorderGraphListPageRank(struct GraphCSR *graph)
 
     free(timer);
     free(labelsInverse);
+    free(labels);
 
     return edgeList;
 }
@@ -133,6 +134,7 @@ struct EdgeList *reorderGraphListEpochPageRank(struct GraphCSR *graph)
 
     free(timer);
     free(labelsInverse);
+    free(labels);
 
     return edgeList;
 }
@@ -180,6 +182,7 @@ struct EdgeList *reorderGraphListEpochBFS(struct GraphCSR *graph)
 
     free(timer);
     free(labelsInverse);
+    free(labels);
 
     return edgeList;
 }
@@ -634,6 +637,8 @@ struct EdgeList *reorderGraphListDegree(struct EdgeList *edgeList, __u32 *degree
 
 
     free(timer);
+    free(labelsInverse);
+    free(labels);
 
     return edgeList;
 }
@@ -708,6 +713,7 @@ struct EdgeList *relabelEdgeListFromFile(struct EdgeList *edgeList, const char *
 
 
     free(labels);
+    free(fname_txt);
 
     return edgeList;
 }

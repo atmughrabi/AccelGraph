@@ -228,7 +228,7 @@ struct EdgeList* radixSortEdgesBySource (struct EdgeList* edgeList){
     }
 
     free(buckets_count);
-    free(sorted_edges_array);
+    freeEdgeList(sorted_edges_array);
 
     return edgeList;
 
@@ -272,7 +272,7 @@ struct EdgeList* radixSortEdgesBySourceAndDestination (struct EdgeList* edgeList
     
 
     free(buckets_count);
-    free(sorted_edges_array);
+    freeEdgeList(sorted_edges_array);
 
     return edgeList;
 
