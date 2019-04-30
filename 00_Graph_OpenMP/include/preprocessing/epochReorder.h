@@ -15,8 +15,12 @@ struct EpochReorder
     __u32 rrIndex;
     __u32 numCounters;  //frequncy[numcounters][numverticies]
     __u32 numVertices;
+    __u32 reusecounter;
+ 	 struct Bitmap *recencyBits;
     __u32 **frequency;
-    struct Bitmap *recencyBits;
+    __u32 **reuse;
+    __u32 *base_reuse;
+   
 
 };
 

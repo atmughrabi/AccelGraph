@@ -71,12 +71,14 @@ CFLAGS   = -O3 -Wall -m64 -fopenmp -g
 .PHONY: all
 all : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP)
 	@echo "\n ***************************************************************** "
-	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph:s$(word 2,$^)    *"
+	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph: $(word 2,$^)    *"
 	@echo " ***************************************************************** \n"
 
 .PHONY: test
 test : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
-	@echo "\n DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph $(word 2,$^) \n"
+	@echo "\n ***************************************************************** "
+	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> TESTGraph: $(word 2,$^)     *"
+	@echo " ***************************************************************** \n"
 
 .PHONY: directories
 directories :
@@ -144,17 +146,19 @@ clean:
 
 
 #small test graphs
-FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/Rabbit/graphs.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/Rabbit/graphs.wbin
 
 # synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
 
 # real world large graphs binary format
-# FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/orkut/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
@@ -163,15 +167,15 @@ FILE_BIN = $(BENCHMARKS_DIR)/Rabbit/graphs.wbin
 #GRAPH RUN
 ROOT = 690969
 DATA_STRUCTURES = 0
-ALGORITHMS = 5
-NUM_THREADS  = 1
-NUM_ITERATIONS =100
-NUM_TRIALS = 1
-TOLERANCE = 1e-6
+ALGORITHMS = 1
+NUM_THREADS  = 8
+NUM_ITERATIONS =1
+NUM_TRIALS = 0
+TOLERANCE = 1e-9
 SORT_TYPE = 0
-PUSH_PULL = 0
+PUSH_PULL = 4
 DELTA = 800
-REORDER = 0
+REORDER = 3
 
 
 #STATS COLLECTION VARIABLES
@@ -188,7 +192,7 @@ stats: all
 
 .PHONY: run
 run: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -s -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 .PHONY: debug
 debug: all	
@@ -216,4 +220,4 @@ cachegrind-perf: all
 
 .PHONY: cache-perf
 cache-perf: all
-	sudo perf record -e cache-misses -a ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -w -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+	sudo perf stat -d ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -w -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)

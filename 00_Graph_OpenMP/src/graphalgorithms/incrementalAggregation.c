@@ -60,7 +60,7 @@ __u32*  incrementalAggregationGraphCSR( struct GraphCSR *graph)
     atomDegree = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     atomChild = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
-    struct Atom *atom = (struct Atom *) my_malloc(graph->num_vertices * sizeof(struct Atom));
+    // struct Atom *atom = (struct Atom *) my_malloc(graph->num_vertices * sizeof(struct Atom));
 
     sibling = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     dest = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
@@ -92,8 +92,8 @@ __u32*  incrementalAggregationGraphCSR( struct GraphCSR *graph)
         atomDegree[u] = graph->vertices[u].out_degree;
         atomChild[u] = UINT_MAX;
 
-        atom[v].degree = graph->vertices[u].out_degree;
-        atom[u].child = UINT_MAX;
+        // atom[v].degree = graph->vertices[u].out_degree;
+        // atom[u].child = UINT_MAX;
 
         sibling[u] = UINT_MAX;
         dest[u] = u;
@@ -192,6 +192,14 @@ __u32*  incrementalAggregationGraphCSR( struct GraphCSR *graph)
     free(sibling);
     free(dest);
     free(timer);
+
+
+    //  for(v = 0; v < graph->num_vertices; v++)
+    // {
+
+    //     printf("%u %u \n", v, labels[v]);
+    //     // printf("[u] %u child %u sibling %u deg %u dest %u\n", u, atomChild[u], sibling[u], atomDegree[u], dest[u]);
+    // }
 
 
     return labels;
@@ -359,7 +367,7 @@ __u32 * returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet, __u32
     for(i = reachableSet->head ; i < reachableSet->tail; i++)
     {
         // printf("%u \n", reachableSet->queue[i]);
-        traversDendrogramLabelsDFS(&newLablesCounter,newLables, reachableSet->queue[i], atomChild, sibling);
+        traversDendrogramLabelsDFS(&newLablesCounter, newLables, reachableSet->queue[i], atomChild, sibling);
 
     }
 

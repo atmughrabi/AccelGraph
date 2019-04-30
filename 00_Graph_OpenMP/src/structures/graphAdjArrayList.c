@@ -343,11 +343,13 @@ struct GraphAdjArrayList *graphAdjArrayListEdgePopulateOutNodes(struct GraphAdjA
 struct GraphAdjArrayList *graphAdjArrayListEdgePopulateInNodes(struct GraphAdjArrayList *graphAdjArrayList, struct EdgeList *inverseEdgeList)
 {
 
+  
+
+#if DIRECTED
     __u32 i;
     __u32 dest;
     __u32 in_degree;
-
-#if DIRECTED
+    
     for(i = 0; i < inverseEdgeList->num_edges; i++)
     {
 
