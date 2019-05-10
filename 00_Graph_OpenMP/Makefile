@@ -66,7 +66,8 @@ INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
 		-I$(SNIPER_DIR)/include
 
 # flags
-CFLAGS   = -O3 -Wall -m64 -fopenmp -g
+CFLAGS   =  -O3 -Wall -m64 -fopenmp -g 
+LIBS = -lm
 
 .PHONY: all
 all : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP)
@@ -92,11 +93,11 @@ directories :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)
 
 $(APP_DIR)/$(BIN_DIR)/$(GAPP) : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^
+	@$(CC) $(CFLAGS) -o $@ $^  $(LIBS)
 	
 
 $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST) : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^
+	@$(CC) $(CFLAGS) -o $@ $^  $(LIBS)
 
 $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/$(GAPP).c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
@@ -155,10 +156,10 @@ clean:
 
 # real world large graphs binary format
 # FILE_BIN = $(BENCHMARKS_DIR)/orkut/graph.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
@@ -169,13 +170,13 @@ ROOT = 690969
 DATA_STRUCTURES = 0
 ALGORITHMS = 1
 NUM_THREADS  = 8
-NUM_ITERATIONS =1
+NUM_ITERATIONS =100
 NUM_TRIALS = 0
 TOLERANCE = 1e-9
 SORT_TYPE = 0
-PUSH_PULL = 4
+PUSH_PULL = 0
 DELTA = 800
-REORDER = 3
+REORDER = 8
 
 
 #STATS COLLECTION VARIABLES

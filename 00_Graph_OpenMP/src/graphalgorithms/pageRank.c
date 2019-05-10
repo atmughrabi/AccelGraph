@@ -1445,8 +1445,9 @@ float *pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
     labelsInverse = radixSortEdgesByDegree(degrees, labelsInverse, graph->num_vertices);
 
     #pragma omp parallel for
-    for(v = 0; v < graph->num_vertices; v++){
-      labels[labelsInverse[v]] = v;
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        labels[labelsInverse[v]] = v;
     }
 
     printf(" -----------------------------------------------------\n");
@@ -1485,52 +1486,73 @@ float *pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
         // printf("|A %-9u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
         //  Start(timer_inner);
 
-       
+
         FILE *fptr;
-        fptr = fopen("./gplus.8k.re.outdegree.out", "w");
+        fptr = fopen("./livejournal.32k.outdegree.PR.rabbit.out", "w");
         __u32 top = 32768;
-        printf("top %u \n",graph->vertices[labelsInverse[graph->num_vertices -1]].out_degree);
+        // printf("top %u \n", graph->vertices[labelsInverse[graph->num_vertices - 1]].out_degree);
         // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
         {
             degree = vertices[v].out_degree;
             if(labels[v] > (graph->num_vertices - top))
-                fprintf(fptr, "r %016x %u \n", &(vertices[v].out_degree), 1);
+                fprintf(fptr, "r %016lx %u %u %u\n", &(vertices[v].out_degree), 1, v, 0);
             else
-                fprintf(fptr, "r %016x %u \n", &(vertices[v].out_degree), 0);
-
-            edge_idx = vertices[v].edges_idx;
+                fprintf(fptr, "r %016lx %u %u %u\n", &(vertices[v].out_degree), 0, v, 0);
 
             if(labels[v] > (graph->num_vertices - top))
-                fprintf(fptr, "r %016x %u\n", &(vertices[v].edges_idx), 1);
+                fprintf(fptr, "r %016lx %u %u %u\n", &(vertices[v].edges_idx), 1, v, 0);
             else
-                fprintf(fptr, "r %016x %u\n", &(vertices[v].edges_idx), 0);
+                fprintf(fptr, "r %016lx %u %u %u\n", &(vertices[v].edges_idx), 0, v, 0);
+
+          
+
+            if((v+1) < graph->num_vertices){
+            edge_idx = vertices[v+1].edges_idx;
+            fprintf(fptr, "p %016lx %u %u %u\n", &(sorted_edges_array[edge_idx]), degree, v, 0);
+            for(j = edge_idx ; j < (edge_idx + vertices[v+1].out_degree) ; j+=2)
+            {
+                u = sorted_edges_array[j];
+                if(labels[u] > (graph->num_vertices - top))
+                {
+                    fprintf(fptr, "s %016lx %u %u %u\n", &(riDividedOnDiClause[u]), 1, u, 1);
+                }
+                else
+                {
+                    fprintf(fptr, "s %016lx %u %u %u\n", &(riDividedOnDiClause[u]), 0, u, 1);
+                }
+            }
+        }
+
+
+            edge_idx = vertices[v].edges_idx;
 
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
                 u = sorted_edges_array[j];
-                
 
-                if(labels[u] > (graph->num_vertices - top)){
-                    fprintf(fptr, "r %016x %u\n", &(riDividedOnDiClause[u]), 1);
-                    fprintf(fptr, "r %016x %u\n", &(sorted_edges_array[j]), 1);
+                if(labels[u] > (graph->num_vertices - top))
+                {
+                    fprintf(fptr, "r %016lx %u %u %u\n", &(riDividedOnDiClause[u]), 1, u, 1);
+                    fprintf(fptr, "r %016lx %u %u %u\n", &(sorted_edges_array[j]), 1, v, 0);
                 }
-                else{
-                    fprintf(fptr, "r %016x %u\n", &(riDividedOnDiClause[u]), 0);
-                    fprintf(fptr, "r %016x %u\n", &(sorted_edges_array[j]), 0);
+                else
+                {
+                    fprintf(fptr, "r %016lx %u %u %u\n", &(riDividedOnDiClause[u]), 0, u, 1);
+                    fprintf(fptr, "r %016lx %u %u %u\n", &(sorted_edges_array[j]), 0, v, 0);
                 }
                 pageRanksNext[v] += riDividedOnDiClause[u];
             }
 
             if(labels[v] > (graph->num_vertices - top))
             {
-                fprintf(fptr, "r %016x %u\n", &(pageRanksNext[v]), 1);
-                fprintf(fptr, "w %016x %u\n", &(pageRanksNext[v]), 1);
+                fprintf(fptr, "r %016lx %u %u %u\n", &(pageRanksNext[v]), 1, v, 1);
+                fprintf(fptr, "w %016lx %u %u %u\n", &(pageRanksNext[v]), 1, v, 1);
             }
             else
             {
-                fprintf(fptr, "r %016x %u\n", &(pageRanksNext[v]), 0);
-                fprintf(fptr, "w %016x %u\n", &(pageRanksNext[v]), 0);
+                fprintf(fptr, "r %016lx %u %u %u\n", &(pageRanksNext[v]), 0, v, 1);
+                fprintf(fptr, "w %016lx %u %u %u\n", &(pageRanksNext[v]), 0, v, 1);
             }
 
         }

@@ -301,7 +301,7 @@ __u32 *epochReorderRecordBFS(struct GraphCSR *graph)
 
     // #pragma omp parallel for
     // for(v = graph->num_vertices - 1 ; v > 0; v -= t1)
-    for(v = 0 ; v < graph->num_vertices ; v += t1)
+    for(v = 0 ; v < graph->num_vertices ; v += t1/2)
     {
         root = labelsInverse[v];
 
@@ -538,10 +538,10 @@ __u32 epochReorderTopDownStepGraphCSR(struct EpochReorder *epochReorder, struct 
                 int u_parent = graph->parents[u];
                 if(u_parent < 0 )
                 {
-                    atomicEpochReorderIncrementCounters( epochReorder, u);
+                    // atomicEpochReorderIncrementCounters( epochReorder, u);
                     if(__sync_bool_compare_and_swap(&graph->parents[u], u_parent, v))
                     {
-                        atomicEpochReorderIncrementCounters( epochReorder, v);
+                        atomicEpochReorderIncrementCounters( epochReorder, u);
                         enArrayQueue(localFrontierQueue, u);
                         mf +=  -(u_parent);
                     }
@@ -605,7 +605,7 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder *epochReorder, struct
             for(j = edge_idx ; j < (edge_idx + out_degree) ; j++)
             {
                 u = sorted_edges_array[j];
-                 atomicEpochReorderIncrementCounters( epochReorder, u);
+                 // atomicEpochReorderIncrementCounters( epochReorder, u);
                 if(getBit(bitmapCurr, u))
                 {
                     atomicEpochReorderIncrementCounters( epochReorder, v);
