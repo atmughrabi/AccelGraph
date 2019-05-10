@@ -300,8 +300,8 @@ __u32 *epochReorderRecordBFS(struct GraphCSR *graph)
     struct EpochReorder *epochReorder = newEpochReoder(softThreshold, hardThreshold, numCounters, graph->num_vertices);
 
     // #pragma omp parallel for
-    // for(v = graph->num_vertices - 1 ; v > 0; v -= t1)
-    for(v = 0 ; v < graph->num_vertices ; v += t1/2)
+    for(v = graph->num_vertices - 1 ; v > graph->num_vertices - 10; v--)
+    // for(v = 0 ; v < graph->num_vertices ; v += t1/2)
     {
         root = labelsInverse[v];
 
@@ -314,9 +314,9 @@ __u32 *epochReorderRecordBFS(struct GraphCSR *graph)
         // printf("| %-15s | %-30u | \n","EPOCH ", epochReorder->rrIndex);
         // printf(" -----------------------------------------------------\n");
 
-        nextTerm = t1 + t2;
-        t1 = t2;
-        t2 = nextTerm;
+        // nextTerm = t1 + t2;
+        // t1 = t2;
+        // t2 = nextTerm;
     }
 
 

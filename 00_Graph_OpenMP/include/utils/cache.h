@@ -88,6 +88,6 @@ void updateLRU(struct Cache *cache, struct CacheLine *line);
 struct CacheLine *getLRU(struct Cache *cache, ulong addr);
 struct CacheLine *findLineToReplace(struct Cache *cache, ulong addr);
 struct CacheLine *fillLine(struct Cache *cache, ulong addr, uchar top);
-void printStats(struct Cache *cache, const char *fname);
+void printStats(struct Cache *cache);
 
 #endif

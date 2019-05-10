@@ -377,7 +377,7 @@ struct CacheLine *fillLine(struct Cache *cache, ulong addr, uchar top)
     return victim;
 }
 
-void printStats(struct Cache *cache, const char *fname)
+void printStats(struct Cache *cache)
 {
 
 

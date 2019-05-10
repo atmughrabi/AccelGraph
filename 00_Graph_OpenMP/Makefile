@@ -152,7 +152,7 @@ clean:
 
 # synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
 
 # real world large graphs binary format
 # FILE_BIN = $(BENCHMARKS_DIR)/orkut/graph.wbin

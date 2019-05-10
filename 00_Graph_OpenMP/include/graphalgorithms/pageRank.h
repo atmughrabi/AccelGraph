@@ -53,7 +53,7 @@ float *pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *
 float *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph);
 float *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph);
 
-float *pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph);
+float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph);
 float *pageRankPushQuantizationGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph);
 
 float *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph);

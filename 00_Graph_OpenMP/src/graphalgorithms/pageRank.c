@@ -22,6 +22,8 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
+#include "cache.h"
+
 
 // ********************************************************************************************
 // ***************          Auxilary functions                                   **************
@@ -768,7 +770,7 @@ float *pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struc
         break;
 
     case 4: // pull
-        pageRanks = pageRankPullQuantizationGraphCSR(epsilon, iterations, graph);
+        pageRanks = pageRankPulCacheAnalysisGraphCSR(epsilon, iterations, graph);
         break;
     case 5: // push
         pageRanks = pageRankPushQuantizationGraphCSR(epsilon, iterations, graph);
@@ -1388,8 +1390,40 @@ float *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct 
 }
 
 // topoligy driven approach
-float *pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
 {
+
+    __u32 BLOCKSIZE = 128;
+    __u32 L1_SIZE = 262144;
+    __u32 L1_ASSOC = 8;
+    // __u32 NUM_VERTICES = graph->num_vertices;
+
+    struct Cache *cache = ( struct Cache *) my_malloc(sizeof(struct Cache));
+    cache->verticesMiss = (uint *)my_malloc(sizeof(uint) * graph->num_vertices);
+    cache->numVertices = graph->num_vertices;
+    initCache(cache, L1_SIZE, L1_ASSOC, BLOCKSIZE);
+    // Cache *capi_cache_data = new Cache(cache_size, cache_assoc, blk_size);
+    // capi_cache_data->verticesMiss = (uint *)malloc(sizeof(uint) * numVertices);
+    // capi_cache_data->numVertices = numVertices;
+
+    // Cache *capi_cache_struct = new Cache(cache_size, cache_assoc, blk_size);
+    // capi_cache_struct->verticesMiss = (uint *)malloc(sizeof(uint) * numVertices);
+    // capi_cache_struct->numVertices = numVertices;
+
+
+    // uint *nodesMissMap = (uint *)malloc(sizeof(uint) * graph->num_vertices);
+
+    __u32 i;
+    #pragma omp parallel for
+    for(i = 0; i < graph->num_vertices; i++)
+    {
+        cache->verticesMiss[i] = 0;
+        // capi_cache_data->verticesMiss[i] = 0;
+        // capi_cache_struct->verticesMiss[i] = 0;
+        // nodesMissMap[i] = 0;
+    }
+
+
 
     __u32 iter;
     __u32 j;
@@ -1451,7 +1485,7 @@ float *pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
     }
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Page Rank Pull Quant (tolerance/epsilon)");
+    printf("| %-51s | \n", "Starting Page Rank Pull Cache (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51.13lf | \n", epsilon);
     printf(" -----------------------------------------------------\n");
@@ -1487,42 +1521,43 @@ float *pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
         //  Start(timer_inner);
 
 
-        FILE *fptr;
-        fptr = fopen("./livejournal.32k.outdegree.PR.rabbit.out", "w");
+        // FILE *fptr;
+        // fptr = fopen("./livejournal.32k.outdegree.PR.rabbit.out", "w");
         __u32 top = 32768;
         // printf("top %u \n", graph->vertices[labelsInverse[graph->num_vertices - 1]].out_degree);
         // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
         {
             degree = vertices[v].out_degree;
-            if(labels[v] > (graph->num_vertices - top))
-                fprintf(fptr, "r %016lx %u %u %u\n", &(vertices[v].out_degree), 1, v, 0);
-            else
-                fprintf(fptr, "r %016lx %u %u %u\n", &(vertices[v].out_degree), 0, v, 0);
 
             if(labels[v] > (graph->num_vertices - top))
-                fprintf(fptr, "r %016lx %u %u %u\n", &(vertices[v].edges_idx), 1, v, 0);
+                Access(cache, (__u64) & (vertices[v].out_degree), 'r', (uchar)1, v);
             else
-                fprintf(fptr, "r %016lx %u %u %u\n", &(vertices[v].edges_idx), 0, v, 0);
+                Access(cache, (__u64) & (vertices[v].out_degree), 'r', (uchar)0, v);
 
-          
+            if(labels[v] > (graph->num_vertices - top))
+                Access(cache, (__u64) & (vertices[v].edges_idx), 'r', (uchar)1, v);
+            else
+                Access(cache ,(__u64) & (vertices[v].edges_idx), 'r', (uchar)0, v);
 
-            if((v+1) < graph->num_vertices){
-            edge_idx = vertices[v+1].edges_idx;
-            fprintf(fptr, "p %016lx %u %u %u\n", &(sorted_edges_array[edge_idx]), degree, v, 0);
-            for(j = edge_idx ; j < (edge_idx + vertices[v+1].out_degree) ; j+=2)
+            //prefetcing V+1
+            if((v + 1) < graph->num_vertices)
             {
-                u = sorted_edges_array[j];
-                if(labels[u] > (graph->num_vertices - top))
+                edge_idx = vertices[v + 1].edges_idx;
+                // fprintf(fptr, "p %016lx %u %u %u\n", &(sorted_edges_array[edge_idx]), degree, v, 0);
+                for(j = edge_idx ; j < (edge_idx + vertices[v + 1].out_degree) ; j += 2)
                 {
-                    fprintf(fptr, "s %016lx %u %u %u\n", &(riDividedOnDiClause[u]), 1, u, 1);
-                }
-                else
-                {
-                    fprintf(fptr, "s %016lx %u %u %u\n", &(riDividedOnDiClause[u]), 0, u, 1);
+                    u = sorted_edges_array[j];
+                    if(labels[u] > (graph->num_vertices - top))
+                    {
+                        Prefetch(cache ,(__u64) & (riDividedOnDiClause[u]), 's', (uchar)1, u);
+                    }
+                    else
+                    {
+                        Prefetch(cache ,(__u64) & (riDividedOnDiClause[u]), 's', (uchar)0, u);
+                    }
                 }
             }
-        }
 
 
             edge_idx = vertices[v].edges_idx;
@@ -1533,31 +1568,31 @@ float *pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
 
                 if(labels[u] > (graph->num_vertices - top))
                 {
-                    fprintf(fptr, "r %016lx %u %u %u\n", &(riDividedOnDiClause[u]), 1, u, 1);
-                    fprintf(fptr, "r %016lx %u %u %u\n", &(sorted_edges_array[j]), 1, v, 0);
+                    Access(cache, (__u64) &(riDividedOnDiClause[u]), 'r', (uchar)1, u);
+                    Access(cache, (__u64) &(sorted_edges_array[j]), 'r', (uchar)1, v);
                 }
                 else
                 {
-                    fprintf(fptr, "r %016lx %u %u %u\n", &(riDividedOnDiClause[u]), 0, u, 1);
-                    fprintf(fptr, "r %016lx %u %u %u\n", &(sorted_edges_array[j]), 0, v, 0);
+                    Access(cache, (__u64) &(riDividedOnDiClause[u]), 'r', (uchar)0, u);
+                    Access(cache, (__u64) &(sorted_edges_array[j]), 'r', (uchar)0, v);
                 }
                 pageRanksNext[v] += riDividedOnDiClause[u];
             }
 
             if(labels[v] > (graph->num_vertices - top))
             {
-                fprintf(fptr, "r %016lx %u %u %u\n", &(pageRanksNext[v]), 1, v, 1);
-                fprintf(fptr, "w %016lx %u %u %u\n", &(pageRanksNext[v]), 1, v, 1);
+                Access(cache, (__u64) &(pageRanksNext[v]), 'r', (uchar)1, v);
+                Access(cache, (__u64) &(pageRanksNext[v]), 'w', (uchar)1, v);
             }
             else
             {
-                fprintf(fptr, "r %016lx %u %u %u\n", &(pageRanksNext[v]), 0, v, 1);
-                fprintf(fptr, "w %016lx %u %u %u\n", &(pageRanksNext[v]), 0, v, 1);
+                Access(cache, (__u64) &(pageRanksNext[v]), 'r', (uchar)0, v);
+                Access(cache, (__u64) &(pageRanksNext[v]), 'w', (uchar)0, v);
             }
 
         }
 
-        fclose(fptr);
+        // fclose(fptr);
         // Stop(timer_inner);
         // printf("|B %-9u | %-8u | %-15.13lf | %-9f | \n",iter, activeVertices,error_total, Seconds(timer_inner));
         // Start(timer_inner);
@@ -1606,6 +1641,9 @@ float *pageRankPullQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
     printf(" -----------------------------------------------------\n");
 
     // pageRankPrint(pageRanks, graph->num_vertices);
+
+    printStats(cache);
+
     free(timer);
     free(timer_inner);
     free(pageRanksNext);
