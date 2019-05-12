@@ -9,14 +9,11 @@ struct BloomMultiHash
 {
 
     __u32 *counter;
+    struct Bitmap *frequency;
+
     __u32 size; // size of bloom filter
     __u32 partition; // partition m/k as a prime number
     __u32 k; // number of hash function
-
-
-    //pass these variables after find in bloomfilter
-    __u32 membership;
-    __u32 temperature;
 
 
     //pass these variables after find in bloomfilter

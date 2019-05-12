@@ -14,22 +14,20 @@ struct BloomMultiHash *newBloomMultiHash(__u32 size, __u32 k, double error)
 
     __u32 i;
     __u32 alignedSize = ((size + kBitsPerWord - 1) / kBitsPerWord) * kBitsPerWord;
-   
+    
 
 
     struct BloomMultiHash *bloomMultiHash = (struct BloomMultiHash *) my_malloc( sizeof(struct BloomMultiHash));
     bloomMultiHash->counter = (__u32 *) my_malloc(alignedSize * sizeof(__u32));
-   
+    bloomMultiHash->frequency = newBitmap(alignedSize);
+
+
     for(i = 0 ; i < alignedSize; i++)
     {
         bloomMultiHash->counter[i] = 0;
     }
 
-    bloomMultiHash->size = alignedSize;
-    bloomMultiHash->k = k;
-    bloomMultiHash->partition = bloomMultiHash->size / bloomMultiHash->k;
-    bloomMultiHash->membership = 0;
-    bloomMultiHash->temperature  = 0;
+    bloomMultiHash->size = alignedSize;    
 
     bloomMultiHash->threashold = 0;
     bloomMultiHash->decayPeriod  = 0;
@@ -42,7 +40,7 @@ struct BloomMultiHash *newBloomMultiHash(__u32 size, __u32 k, double error)
   bloomMultiHash->bpe = -(num / denom);
   
   bloomMultiHash->k = (__u32)ceil(0.693147180559945 * bloomMultiHash->bpe);  // ln(2)
-
+  bloomMultiHash->partition = bloomMultiHash->size / bloomMultiHash->k;
 
 
     return bloomMultiHash;
@@ -53,6 +51,7 @@ void freeBloomMultiHash( struct BloomMultiHash *bloomMultiHash)
 {
     if(bloomMultiHash)
     {
+        freeBitmap(bloomMultiHash->frequency);
         free(bloomMultiHash->counter);
         free(bloomMultiHash);
     }
@@ -108,3 +107,12 @@ __u32 findInBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u32 item)
 }
 
 
+void decayBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u32 item)
+{
+    __u64 i;
+    for(i = 0 ; i < bloomMultiHash->size; i++)
+    {
+        bloomMultiHash->counter[i] >>= 1;
+    }
+
+}

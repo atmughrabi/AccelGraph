@@ -6,6 +6,8 @@
 
 #include "bloomFilter.h"
 
+#include "bloomMultiHash.h"
+
 int numThreads;
 
 int main(int argc, char *argv[])
