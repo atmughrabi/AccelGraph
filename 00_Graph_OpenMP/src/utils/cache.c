@@ -197,9 +197,6 @@ void initCache(struct Cache *cache, int s, int a, int b )
     }
 }
 
-/**you might add other parameters to Access()
-since this function is an entry point
-to the memory hierarchy (i.e. caches)**/
 void Access(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)
 {
     cache->currentCycle++;/*per cache global counter to maintain LRU order

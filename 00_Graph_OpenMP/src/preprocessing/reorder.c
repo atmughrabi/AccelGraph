@@ -48,7 +48,9 @@ struct EdgeList *reorderGraphListPageRank(struct GraphCSR *graph)
     }
 
 
-    pageRanks = pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
+    // pageRanks = pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
+     pageRanks = pageRankPulCacheAnalysisGraphCSR(epsilon, iterations, graph);
+    
 
     // make sure that nodes with no in/out degrees have zero scores
     #pragma omp parallel for

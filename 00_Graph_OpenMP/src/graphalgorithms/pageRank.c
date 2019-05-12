@@ -1395,6 +1395,10 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
 
     __u32 BLOCKSIZE = 128;
     __u32 L1_SIZE = 262144;
+
+    // __u32 BLOCKSIZE = 64;
+    // __u32 L1_SIZE = 32768;
+
     __u32 L1_ASSOC = 8;
     // __u32 NUM_VERTICES = graph->num_vertices;
 
@@ -1402,6 +1406,11 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
     cache->verticesMiss = (uint *)my_malloc(sizeof(uint) * graph->num_vertices);
     cache->numVertices = graph->num_vertices;
     initCache(cache, L1_SIZE, L1_ASSOC, BLOCKSIZE);
+
+    // struct Cache *cache_top = ( struct Cache *) my_malloc(sizeof(struct Cache));
+    // cache_top->verticesMiss = (uint *)my_malloc(sizeof(uint) * graph->num_vertices);
+    // cache_top->numVertices = graph->num_vertices;
+    // initCache(cache_top, L1_SIZE, L1_ASSOC, BLOCKSIZE);
     // Cache *capi_cache_data = new Cache(cache_size, cache_assoc, blk_size);
     // capi_cache_data->verticesMiss = (uint *)malloc(sizeof(uint) * numVertices);
     // capi_cache_data->numVertices = numVertices;
@@ -1418,6 +1427,7 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
     for(i = 0; i < graph->num_vertices; i++)
     {
         cache->verticesMiss[i] = 0;
+        // cache_top->verticesMiss[i] = 0;
         // capi_cache_data->verticesMiss[i] = 0;
         // capi_cache_struct->verticesMiss[i] = 0;
         // nodesMissMap[i] = 0;
@@ -1523,41 +1533,41 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
 
         // FILE *fptr;
         // fptr = fopen("./livejournal.32k.outdegree.PR.rabbit.out", "w");
-        __u32 top = 32768;
-        // printf("top %u \n", graph->vertices[labelsInverse[graph->num_vertices - 1]].out_degree);
+        __u32 top = 8192;
+        // printf("top %u \n", graph->vertices[37356].out_degree);
         // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
         {
             degree = vertices[v].out_degree;
 
-            if(labels[v] > (graph->num_vertices - top))
-                Access(cache, (__u64) & (vertices[v].out_degree), 'r', (uchar)1, v);
-            else
-                Access(cache, (__u64) & (vertices[v].out_degree), 'r', (uchar)0, v);
+            // if(labels[v] > (graph->num_vertices - top))
+            //     Access(cache_top, (__u64) & (vertices[v].out_degree), 'r', '1', v);
+            // else
+            //     Access(cache, (__u64) & (vertices[v].out_degree), 'r', '0', v);
 
-            if(labels[v] > (graph->num_vertices - top))
-                Access(cache, (__u64) & (vertices[v].edges_idx), 'r', (uchar)1, v);
-            else
-                Access(cache ,(__u64) & (vertices[v].edges_idx), 'r', (uchar)0, v);
+            // if(labels[v] > (graph->num_vertices - top))
+            //     Access(cache_top, (__u64) & (vertices[v].edges_idx), 'r', '1', v);
+            // else
+            //     Access(cache ,(__u64) & (vertices[v].edges_idx), 'r', '0', v);
 
             //prefetcing V+1
-            if((v + 1) < graph->num_vertices)
-            {
-                edge_idx = vertices[v + 1].edges_idx;
-                // fprintf(fptr, "p %016lx %u %u %u\n", &(sorted_edges_array[edge_idx]), degree, v, 0);
-                for(j = edge_idx ; j < (edge_idx + vertices[v + 1].out_degree) ; j += 2)
-                {
-                    u = sorted_edges_array[j];
-                    if(labels[u] > (graph->num_vertices - top))
-                    {
-                        Prefetch(cache ,(__u64) & (riDividedOnDiClause[u]), 's', (uchar)1, u);
-                    }
-                    else
-                    {
-                        Prefetch(cache ,(__u64) & (riDividedOnDiClause[u]), 's', (uchar)0, u);
-                    }
-                }
-            }
+            // if((v + 1) < graph->num_vertices)
+            // {
+            //     edge_idx = vertices[v + 1].edges_idx;
+            //     // fprintf(fptr, "p %016lx %u %u %u\n", &(sorted_edges_array[edge_idx]), degree, v, 0);
+            //     for(j = edge_idx ; j < (edge_idx + vertices[v + 1].out_degree) ; j += 2)
+            //     {
+            //         u = sorted_edges_array[j];
+            //         if(labels[u] > (graph->num_vertices - top))
+            //         {
+            //             Prefetch(cache ,(__u64) & (riDividedOnDiClause[u]), 's', '1', u);
+            //         }
+            //         else
+            //         {
+            //             Prefetch(cache ,(__u64) & (riDividedOnDiClause[u]), 's', '0', u);
+            //         }
+            //     }
+            // }
 
 
             edge_idx = vertices[v].edges_idx;
@@ -1568,26 +1578,26 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
 
                 if(labels[u] > (graph->num_vertices - top))
                 {
-                    Access(cache, (__u64) &(riDividedOnDiClause[u]), 'r', (uchar)1, u);
-                    Access(cache, (__u64) &(sorted_edges_array[j]), 'r', (uchar)1, v);
+                    Access(cache, (__u64) &(riDividedOnDiClause[u]), 'r', '1', u);
+                    // Access(cache_top, (__u64) &(sorted_edges_array[j]), 'r', '1', v);
                 }
                 else
                 {
-                    Access(cache, (__u64) &(riDividedOnDiClause[u]), 'r', (uchar)0, u);
-                    Access(cache, (__u64) &(sorted_edges_array[j]), 'r', (uchar)0, v);
+                    Access(cache, (__u64) &(riDividedOnDiClause[u]), 'r', '0', u);
+                    // Access(cache, (__u64) &(sorted_edges_array[j]), 'r', '0', v);
                 }
                 pageRanksNext[v] += riDividedOnDiClause[u];
             }
 
             if(labels[v] > (graph->num_vertices - top))
             {
-                Access(cache, (__u64) &(pageRanksNext[v]), 'r', (uchar)1, v);
-                Access(cache, (__u64) &(pageRanksNext[v]), 'w', (uchar)1, v);
+                Access(cache, (__u64) &(pageRanksNext[v]), 'r', '1', v);
+                Access(cache, (__u64) &(pageRanksNext[v]), 'w', '1', v);
             }
             else
             {
-                Access(cache, (__u64) &(pageRanksNext[v]), 'r', (uchar)0, v);
-                Access(cache, (__u64) &(pageRanksNext[v]), 'w', (uchar)0, v);
+                Access(cache, (__u64) &(pageRanksNext[v]), 'r', '0', v);
+                Access(cache, (__u64) &(pageRanksNext[v]), 'w', '0', v);
             }
 
         }
@@ -1628,7 +1638,8 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
     #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
-        pageRanks[v] = pageRanks[v] / graph->num_vertices;
+        // pageRanks[v] = pageRanks[v] / graph->num_vertices;
+        pageRanks[v] = cache->verticesMiss[v];
         sum += pageRanks[v];
     }
 
@@ -1788,6 +1799,7 @@ float *pageRankPushQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
         pageRanks[v] = pageRanks[v] / graph->num_vertices;
         sum += pageRanks[v];
     }
+
 
     Stop(timer);
 

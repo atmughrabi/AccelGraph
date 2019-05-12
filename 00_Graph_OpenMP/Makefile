@@ -147,12 +147,12 @@ clean:
 
 
 #small test graphs
-# FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/Rabbit/graphs.wbin
 
 # synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
 
 # real world large graphs binary format
 # FILE_BIN = $(BENCHMARKS_DIR)/orkut/graph.wbin
@@ -170,11 +170,11 @@ ROOT = 690969
 DATA_STRUCTURES = 0
 ALGORITHMS = 1
 NUM_THREADS  = 8
-NUM_ITERATIONS =100
+NUM_ITERATIONS =10
 NUM_TRIALS = 0
 TOLERANCE = 1e-9
 SORT_TYPE = 0
-PUSH_PULL = 0
+PUSH_PULL = 4
 DELTA = 800
 REORDER = 8
 

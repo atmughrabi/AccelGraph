@@ -71,10 +71,15 @@ struct EpochReorder *newEpochReoder( __u32 softThreshold, __u32 hardThreshold, _
     epochReorder->recencyBits = newBitmap(numVertices);
 
 
-    epochReorder->frequency = (__u32 **) my_malloc(sizeof(__u32) * numCounters * numVertices);
+    epochReorder->frequency = (__u32 **) my_malloc(sizeof(__u32 *) * numCounters);
+    epochReorder->reuse = (__u32 **) my_malloc(sizeof(__u32 *) * numCounters);
+
+    epochReorder->base_reuse = (__u32 *) my_malloc(sizeof(__u32) * numVertices);
+
     for(v = 0; v < numCounters; v++)
     {
         epochReorder->frequency[v] = (__u32 *) my_malloc(sizeof(__u32) * numVertices);
+        epochReorder->reuse[v] = (__u32 *) my_malloc(sizeof(__u32) * numVertices);
     }
 
 
@@ -85,7 +90,14 @@ struct EpochReorder *newEpochReoder( __u32 softThreshold, __u32 hardThreshold, _
         for(n = 0; n < numVertices; n++)
         {
             epochReorder->frequency[v][n] = 0;
+            epochReorder->reuse[v][n] = 0;
         }
+    }
+
+    #pragma omp parallel for
+    for(n = 0; n < numVertices; n++)
+    {
+        epochReorder->base_reuse[n] = UINT_MAX;
     }
 
     return epochReorder;
@@ -290,8 +302,8 @@ __u32 *epochReorderRecordBFS(struct GraphCSR *graph)
     //   // printf("%u %u \n",labelsInverse[v],degrees[v] );
     // }
 
-    __u32 numCounters = 20;
-    __u32 hardThreshold = degrees[graph->num_vertices -1 ];
+    __u32 numCounters = 32;
+    __u32 hardThreshold = degrees[graph->num_vertices - 1 ];
     __u32 softThreshold = hardThreshold / 4;
     __u32 t1 = 0;
     __u32 t2 = 1;
@@ -300,8 +312,8 @@ __u32 *epochReorderRecordBFS(struct GraphCSR *graph)
     struct EpochReorder *epochReorder = newEpochReoder(softThreshold, hardThreshold, numCounters, graph->num_vertices);
 
     // #pragma omp parallel for
-    for(v = graph->num_vertices - 1 ; v > graph->num_vertices - 10; v--)
-    // for(v = 0 ; v < graph->num_vertices ; v += t1/2)
+    // for(v = graph->num_vertices - 1 ; v > graph->num_vertices - 10; v--)
+    for(v = 0 ; v < graph->num_vertices ; v += t1 / 2)
     {
         root = labelsInverse[v];
 
@@ -314,9 +326,9 @@ __u32 *epochReorderRecordBFS(struct GraphCSR *graph)
         // printf("| %-15s | %-30u | \n","EPOCH ", epochReorder->rrIndex);
         // printf(" -----------------------------------------------------\n");
 
-        // nextTerm = t1 + t2;
-        // t1 = t2;
-        // t2 = nextTerm;
+        nextTerm = t1 + t2;
+        t1 = t2;
+        t2 = nextTerm;
     }
 
 
@@ -538,7 +550,7 @@ __u32 epochReorderTopDownStepGraphCSR(struct EpochReorder *epochReorder, struct 
                 int u_parent = graph->parents[u];
                 if(u_parent < 0 )
                 {
-                    // atomicEpochReorderIncrementCounters( epochReorder, u);
+                    atomicEpochReorderIncrementCounters( epochReorder, u);
                     if(__sync_bool_compare_and_swap(&graph->parents[u], u_parent, v))
                     {
                         atomicEpochReorderIncrementCounters( epochReorder, u);
@@ -601,11 +613,11 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder *epochReorder, struct
         if(graph->parents[v] < 0)  // optmization
         {
             edge_idx = vertices[v].edges_idx;
-           
+
             for(j = edge_idx ; j < (edge_idx + out_degree) ; j++)
             {
                 u = sorted_edges_array[j];
-                 // atomicEpochReorderIncrementCounters( epochReorder, u);
+                atomicEpochReorderIncrementCounters( epochReorder, u);
                 if(getBit(bitmapCurr, u))
                 {
                     atomicEpochReorderIncrementCounters( epochReorder, v);
@@ -674,22 +686,23 @@ __u32 *epochReorderCreateLabels(struct EpochReorder *epochReorder)
         __u32 maxIndex = UINT_MAX;
         for(h = 0; h < epochReorder->numCounters; h++ )
         {
-            if(epochReorder->frequency[h][v] > maxValue)
+            if(epochReorder->reuse[h][v] > maxValue)
             {
-                maxValue = epochReorder->frequency[h][v];
+                maxValue = epochReorder->reuse[h][v];
                 maxIndex = h;
 
             }
         }
 
-        if(maxIndex != UINT_MAX)
-            histDegree[maxIndex]++;
-        else
-        {
-            __u32 random_hist =  generateRandInt(mt19937var) % (epochReorder->numCounters-1);
-            histDegree[random_hist]++;
-            maxIndex = random_hist;
-        }
+        if(maxIndex == UINT_MAX)
+            maxIndex = 0;
+        // histDegree[maxIndex]++;
+        // else
+        // {
+        // __u32 random_hist =  generateRandInt(mt19937var) % (epochReorder->numCounters - 1);
+        // histDegree[random_hist]++;
+
+        // }
 
         histMaps[v] = maxIndex;
         histValues[v] = maxValue;
@@ -703,10 +716,11 @@ __u32 *epochReorderCreateLabels(struct EpochReorder *epochReorder)
     //  }
 
     // __u32 Accume = histMaps[0];
-    // for(v = 0; v < (epochReorder->numVertices); v++){
+    // for(v = 0; v < (epochReorder->numVertices); v++)
+    // {
 
-    // // if(histValues[v])
-    //  printf("Rank[%u] EPOCH[%u] FREQ[%u] V[%u] \n",v, histMaps[v], histValues[v], labelsInverse[v]);
+    //     // if(histValues[v])
+    //     printf("Rank[%u] EPOCH[%u] FREQ[%u] V[%u] \n", v, histMaps[v], histValues[v], labelsInverse[v]);
     // }
 
 
@@ -760,17 +774,22 @@ void epochReorderIncrementCounters(struct EpochReorder *epochReorder, __u32 v)
     }
 
 
-    if(epochReorder->softcounter > epochReorder->softThreshold)
-    {
-        epochReorder->softcounter = 0;
-        clearBitmap(epochReorder->recencyBits);
-
-    }
-
     histogramIndex = epochReorder->rrIndex;
     epochReorder->frequency[histogramIndex][v]++;
     epochReorder->hardcounter++;
     epochReorder->softcounter++;
+
+    if(epochReorder->base_reuse[v] != UINT_MAX)
+    {
+        epochReorder->reuse[histogramIndex][v] += (epochReorder->softcounter - epochReorder->base_reuse[v]);
+                epochReorder->base_reuse[v] = epochReorder->softcounter;
+    }
+    else
+    {
+        epochReorder->base_reuse[v] = epochReorder->softcounter;
+    }
+
+
 
 }
 
@@ -791,28 +810,49 @@ void atomicEpochReorderIncrementCounters(struct EpochReorder *epochReorder, __u3
     {
         #pragma omp atomic update
         epochReorder->hardcounter++;
+
+        #pragma omp atomic update
+        epochReorder->softcounter++;
     }
 
-    if(epochAtomicMin(&(epochReorder->softcounter),epochReorder->softThreshold)){
-     clearBitmap(epochReorder->recencyBits);
-    }
-    else{
-     #pragma omp atomic update
-         epochReorder->softcounter++;
-    }
+    // if(epochAtomicMin(&(epochReorder->softcounter), epochReorder->softThreshold))
+    // {
+    //     clearBitmap(epochReorder->recencyBits);
+    // }
+    // else
+    // {
+    //     #pragma omp atomic update
+    //     epochReorder->softcounter++;
+    // }
 
     #pragma omp atomic read
     histogramIndex = epochReorder->rrIndex;
 
-    if(!getBit(epochReorder->recencyBits, v)){
-         setBitAtomic(epochReorder->recencyBits, v);
+    // if(!getBit(epochReorder->recencyBits, v))
+    // {
+    //     setBitAtomic(epochReorder->recencyBits, v);
     #pragma omp atomic update
     epochReorder->frequency[histogramIndex][v]++;
+
+
+
+    if(!__sync_bool_compare_and_swap(&(epochReorder->base_reuse[v]), UINT_MAX, epochReorder->base_reuse[v]))
+    {
+
+        #pragma omp atomic update
+        epochReorder->reuse[histogramIndex][v] += (epochReorder->softcounter - epochReorder->base_reuse[v]);
+
+        #pragma omp atomic write
+        epochReorder->base_reuse[v] = epochReorder->softcounter;
+
     }
-    else{
-     #pragma omp atomic update
-         epochReorder->frequency[histogramIndex][v] += 2;
+    else
+    {
+
+        epochReorder->base_reuse[v] = epochReorder->softcounter;
+
     }
+
 
 
 
@@ -829,8 +869,11 @@ void freeEpochReorder(struct EpochReorder *epochReorder)
         for(v = 0; v < epochReorder->numCounters; v++)
         {
             free(epochReorder->frequency[v]);
+            free(epochReorder->reuse[v]);
         }
         free( epochReorder->frequency);
+        free( epochReorder->reuse);
+        free( epochReorder->base_reuse);
         free( epochReorder);
     }
 }
