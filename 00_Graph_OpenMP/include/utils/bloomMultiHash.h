@@ -26,11 +26,11 @@ struct BloomMultiHash
 };
 
 
-struct BloomMultiHash *newBloomMultiHash(__u32 size, __u32 k, double error);
+struct BloomMultiHash *newBloomMultiHash(__u32 size, double error);
 void freeBloomMultiHash( struct BloomMultiHash *bloomMultiHash);
 void addToBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u32 item);
 __u32 findInBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u32 item);
-
+void decayBloomMultiHash(struct BloomMultiHash *bloomMultiHash);
 
 
 
