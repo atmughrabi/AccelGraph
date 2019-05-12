@@ -9,7 +9,7 @@ struct BloomMultiHash
 {
 
     __u32 *counter;
-    struct Bitmap *frequency;
+    struct Bitmap *recency;
 
     __u32 size; // size of bloom filter
     __u32 partition; // partition m/k as a prime number

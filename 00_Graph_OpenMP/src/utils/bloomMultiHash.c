@@ -19,7 +19,7 @@ struct BloomMultiHash *newBloomMultiHash(__u32 size, __u32 k, double error)
 
     struct BloomMultiHash *bloomMultiHash = (struct BloomMultiHash *) my_malloc( sizeof(struct BloomMultiHash));
     bloomMultiHash->counter = (__u32 *) my_malloc(alignedSize * sizeof(__u32));
-    bloomMultiHash->frequency = newBitmap(alignedSize);
+    bloomMultiHash->recency = newBitmap(alignedSize);
 
 
     for(i = 0 ; i < alignedSize; i++)
@@ -51,7 +51,7 @@ void freeBloomMultiHash( struct BloomMultiHash *bloomMultiHash)
 {
     if(bloomMultiHash)
     {
-        freeBitmap(bloomMultiHash->frequency);
+        freeBitmap(bloomMultiHash->recency);
         free(bloomMultiHash->counter);
         free(bloomMultiHash);
     }
@@ -64,13 +64,15 @@ void addToBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u32 item)
     __u64 h1 = z & 0xffffffff;
     __u64 h2 = z >> 32;
     __u64 i;
+
+   
    
         for (i = 0; i < bloomMultiHash->k; ++i)
         {
             __u64 k = (h1 + i * h2) % bloomMultiHash->partition; // bit to set
             __u64 j = k + (i * bloomMultiHash->partition);       // in parition 'i'
             bloomMultiHash->counter[(__u32)j]++;
-
+             setBit(bloomMultiHash->recency, j);
         }
 
 }
