@@ -24,7 +24,7 @@ struct EdgeList *reorderGraphListPageRank(struct GraphCSR *graph)
     float *pageRanks = NULL;
     __u32 v;
     double epsilon = 1e-6;
-    __u32 iterations = 10;
+    __u32 iterations = 100;
 
     __u32 *labelsInverse;
     __u32 *labels;
@@ -48,8 +48,8 @@ struct EdgeList *reorderGraphListPageRank(struct GraphCSR *graph)
     }
 
 
-    // pageRanks = pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
-     pageRanks = pageRankPulCacheAnalysisGraphCSR(epsilon, iterations, graph);
+    pageRanks = pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
+     // pageRanks = pageRankPulCacheAnalysisGraphCSR(epsilon, iterations, graph);
     
 
     // make sure that nodes with no in/out degrees have zero scores
@@ -380,6 +380,11 @@ __u32 *radixSortEdgesByPageRank (float *pageRanks, __u32 *labels, __u32 num_vert
     free(pageRanksFP);
     free(pageRanksFPTemp);
     free(labelsTemp);
+
+    //  for(v = 0; v < num_vertices; v++)
+    // {
+    //     printf("rank %u label %u pr %.22f \n",v, labels[v], pageRanks[labels[v]]);
+    // }
 
     return labels;
 
