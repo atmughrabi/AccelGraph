@@ -208,7 +208,7 @@ void Access(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)
         if(top == '1')
             cache->writesTop++;
     }
-    else
+    else if(op == 'r')
     {
         cache->reads++;
         if(top == '1')
@@ -246,6 +246,24 @@ void Access(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)
         if(op == 'w')
             setFlags(line, DIRTY);
     }
+}
+
+__u32 checkPrefetch(struct Cache *cache, ulong addr, uchar top)
+{
+    struct CacheLine *line = findLine(cache, addr, top);
+
+    if(line == NULL)
+        return 1;
+    // else
+    // {
+    //     struct CacheLine *lineLRU = getLRU(cache, addr);
+    //     if(lineLRU == line)
+    //         return 1;
+    //     else
+    //         return 0;
+    // }
+
+    return 0;
 }
 
 void Prefetch(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)

@@ -83,6 +83,7 @@ void writeBack(struct Cache *cache, ulong addr);
 void initCache(struct Cache *cache, int s, int a, int b );
 void Access(struct Cache *cache, ulong addr, uchar op, uchar top, uint node);
 void Prefetch(struct Cache *cache, ulong addr, uchar op, uchar top, uint node);
+__u32 checkPrefetch(struct Cache *cache, ulong addr,  uchar top);
 struct CacheLine *findLine(struct Cache *cache, ulong addr, uchar top);
 void updateLRU(struct Cache *cache, struct CacheLine *line);
 struct CacheLine *getLRU(struct Cache *cache, ulong addr);

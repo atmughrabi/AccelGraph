@@ -3,8 +3,8 @@
 # globals
   GAPP               = main
 #   GAPP_TEST          = test_quantization
-#   GAPP_TEST          = test_bloomfilter
-GAPP_TEST          = test_bloomStream
+  GAPP_TEST          = test_bloomfilter
+# GAPP_TEST          = test_bloomStream
 # GAPP_TEST               = fixedpoint
 # GAPP_TEST               = graphCSR
 # GAPP_TEST               = graphGrid
@@ -78,7 +78,7 @@ all : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP)
 .PHONY: test
 test : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
 	@echo "\n ***************************************************************** "
-	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> TESTGraph: $(word 2,$^)     *"
+	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> TEST: $(word 2,$^)     *"
 	@echo " ***************************************************************** \n"
 
 .PHONY: directories
@@ -159,10 +159,10 @@ FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
 
 
 #GRAPH RUN
@@ -170,13 +170,13 @@ ROOT = 690969
 DATA_STRUCTURES = 0
 ALGORITHMS = 1
 NUM_THREADS  = 8
-NUM_ITERATIONS =10
+NUM_ITERATIONS = 1
 NUM_TRIALS = 0
 TOLERANCE = 1e-9
 SORT_TYPE = 0
 PUSH_PULL = 4
 DELTA = 800
-REORDER = 8
+REORDER = 0
 
 
 #STATS COLLECTION VARIABLES

@@ -28,8 +28,8 @@ struct BloomMultiHash
 
 struct BloomMultiHash *newBloomMultiHash(__u32 size, double error);
 void freeBloomMultiHash( struct BloomMultiHash *bloomMultiHash);
-void addToBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u32 item);
-__u32 findInBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u32 item);
+void addToBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u64 item);
+__u32 findInBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u64 item);
 void decayBloomMultiHash(struct BloomMultiHash *bloomMultiHash);
 
 
