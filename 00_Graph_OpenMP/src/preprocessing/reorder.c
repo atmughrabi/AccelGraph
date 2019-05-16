@@ -367,7 +367,7 @@ __u32 *radixSortEdgesByPageRank (float *pageRanks, __u32 *labels, __u32 num_vert
     #pragma omp parallel for
     for(v = 0; v < num_vertices; v++)
     {
-        pageRanksFP[v] = FloatToFixed32(pageRanks[v]);
+        pageRanksFP[v] = FLOAT_2_U(*(__u32*)&pageRanks[v]);
     }
 
     for(j = 0 ; j < radix ; j++)

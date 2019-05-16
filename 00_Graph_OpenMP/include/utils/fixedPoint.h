@@ -19,6 +19,9 @@ struct FixedPoint
 
 };
 
+#define FLOAT_2_U(x) ((x)^(((~(x) >> 31)-1) | 0x80000000))
+#define U_2_FLOAT(x) ((x)^((( (x) >> 31)-1) | 0x80000000))
+
 #define WHOLEW 16
 #define SCALEF 30 // 1/2^16
 #define SCALED 32 // 1/2^32
