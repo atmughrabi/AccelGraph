@@ -1,0 +1,399 @@
+
+
+# globals
+  GAPP               = main
+#   GAPP_TEST          = test_quantization
+  GAPP_TEST          = test_bloomfilter
+# GAPP_TEST          = test_bloomStream
+# GAPP_TEST               = fixedpoint
+# GAPP_TEST               = graphCSR
+# GAPP_TEST               = graphGrid
+# GAPP_TEST               = graphAdjLinkedList
+# GAPP_TEST               = graphAdjArray
+# GAPP_TEST               = grid
+
+# dirs Root app 
+APP_DIR           = .
+BENCHMARKS_DIR    = ../../../../../GraphDatasets
+SNIPER_DIR		  = ../../sniper
+
+#dir root/managed_folders
+SRC_DIR           = src
+OBJ_DIR			  = obj
+INC_DIR			  = include
+BIN_DIR			  = bin
+
+#if you want to compile from cmake you need this directory
+#cd build
+#cmake ..
+BUILD_DIR		  = build
+
+# relative directories used for managing src/obj files
+STRUCT_DIR		  = structures
+PREPRO_DIR		  = preprocessing
+ALGO_DIR		  = graphalgorithms
+UTIL_DIR		  = utils
+
+#contains the tests use make run-test to compile what in this directory
+TEST_DIR		  = tests
+
+#contains the main for the graph processing framework
+MAIN_DIR		  = main
+
+
+SRC_FILES_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/*.c) 
+SRC_FILES_ALGO		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/*.c) 
+SRC_FILES_PREPRO	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/*.c) 
+SRC_FILES_STRUCT	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/*.c)
+SRC_FILES_MAIN		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/*.c)
+SRC_FILES_TEST		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/*.c)
+
+OBJ_FILES_UTIL 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o,$(SRC_FILES_UTIL)) 
+OBJ_FILES_ALGO 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/%.o,$(SRC_FILES_ALGO)) 
+OBJ_FILES_PREPRO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o,$(SRC_FILES_PREPRO)) 
+OBJ_FILES_STRUCT 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o,$(SRC_FILES_STRUCT)) 
+OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%.o,$(SRC_FILES_MAIN)) 
+OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%.o,$(SRC_FILES_TEST)) 
+# compilers
+# CPP               = c++
+# CC				= clang
+CC				  = gcc 
+MODE = LLVM_TRACE
+
+INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
+		-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR) 	\
+		-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
+		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)  	\
+		-I$(SNIPER_DIR)/include \
+		-I$(ALADDIN_HOME)/gem5 -I$(ALADDIN_HOME) -I$(COMMON_DIR) -D$(MODE)
+
+# flags
+CFLAGS   =  -O3 -Wall -m64 -fopenmp -g 
+LFLAGS = -lm
+
+.PHONY: all
+all : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP)
+	@echo "\n ***************************************************************** "
+	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph: $(word 2,$^)    *"
+	@echo " ***************************************************************** \n"
+
+.PHONY: test
+test : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
+	@echo "\n ***************************************************************** "
+	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> TEST: $(word 2,$^)     *"
+	@echo " ***************************************************************** \n"
+
+.PHONY: directories
+directories :
+	@mkdir -p $(APP_DIR)/$(BIN_DIR)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)
+
+$(APP_DIR)/$(BIN_DIR)/$(GAPP) : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
+	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
+	
+
+$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST) : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
+	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
+
+$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/$(GAPP).c
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP_TEST).c 
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/%.c
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+
+
+
+.PHONY: clean
+clean: clean-gem5 clean-trace
+	@rm -fr $(APP_DIR)/$(OBJ_DIR)
+	@rm -fr $(APP_DIR)/$(BIN_DIR)
+	@rm -fr $(APP_DIR)/$(BUILD_DIR)/*
+
+
+
+# Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]
+#   -h [Help] 
+#   -a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation
+#   -d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers
+#   -r [root]: BFS, DFS, SSSP root
+#   -p [algorithm direction] [0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-5]-push/pull fixed point arithmetic [6-8]-same order but using data driven 
+#   -o [sorting algorithm] [0]-radix-src [1]-radix-src-dest [2]-count-src [3]-count-src-dst.
+#   -n [num threads] default:max number of threads the system has
+#   -i [num iterations] number of iterations for pagerank to converge [default:20] SSSP-BellmanFord [default:V-1] 
+#   -t [num trials] number of random trials for each whole run [default:0]
+#   -e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]
+#   -l [mode reordering] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  [6]-Epoch-pageRank [7]-Epoch-BFS
+#   -c: read text format convert to bin file on load example:-f <graph file> -c
+#   -w: Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 beforehand then recompile with using this option
+#   -s: Symmetric graph, if not given set of incoming edges will be created 
+#   -b: SSSP Delta value [Default:1]  
+
+
+#small test graphs
+FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/Rabbit/graphs.wbin
+
+# synthetic graphs
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin
+
+# real world large graphs binary format
+# FILE_BIN = $(BENCHMARKS_DIR)/orkut/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013.wbin
+
+
+#GRAPH RUN
+ROOT = 690969
+DATA_STRUCTURES = 0
+ALGORITHMS = 1
+NUM_THREADS  = 1
+NUM_ITERATIONS = 100
+NUM_TRIALS = 0
+TOLERANCE = 1e-9
+SORT_TYPE = 0
+PUSH_PULL = 0
+DELTA = 800
+REORDER = 0
+
+
+#STATS COLLECTION VARIABLES
+BIN_SIZE = 512
+INOUT_STATS = 2
+
+
+ARGS = -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
+
+.PHONY: convert
+convert: all
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -c -w -f $(FILE_BIN)
+
+.PHONY: stats
+stats: all
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p $(INOUT_STATS)
+
+.PHONY: run
+run: all
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
+.PHONY: debug
+debug: all	
+	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)
+
+.PHONY: debug-memory
+debug-memory: all	
+	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
+.PHONY: run-test
+run-test: test
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST) 
+
+.PHONY: debug-test
+debug-test: test	
+	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
+
+.PHONY: debug-memory-test
+debug-memory-test: test	
+	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
+
+.PHONY: cachegrind-perf
+cachegrind-perf: all
+	valgrind --tool=cachegrind ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -w -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
+.PHONY: cache-perf
+cache-perf: all
+	sudo perf stat -d ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -w -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
+
+
+
+ACCEL_NAME = $(GAPP)
+
+SRCS = 	$(SRC_FILES_UTIL)   \
+		$(SRC_FILES_ALGO)   \
+		$(SRC_FILES_PREPRO)	\
+		$(SRC_FILES_STRUCT)	\
+		$(SRC_FILES_MAIN)
+
+export WORKLOAD=pageRankKernelPull
+
+# include ../../common/Makefile.tracer
+# include ../../common/Makefile.gem5
+
+
+#### NOTES ####
+# Define ACCEL_NAME, TRACER_HOME, ALADDIN_HOME, WORKLOAD, SRCS before including
+# this.
+###############
+
+CURRENT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+COMMON_DIR := $(CURRENT_DIR)
+EXEC = $(ACCEL_NAME)
+
+.PHONY: trace-binary dma-trace-binary run-trace clean check-env
+
+##################################
+#         TOP LEVEL RULES        #
+##################################
+
+trace-binary: ./$(EXEC)-instrumented
+
+dma-trace-binary:
+	$(MAKE) -C . DMA_MODE=1 trace-binary
+
+run-trace: trace-binary
+	./$(EXEC)-instrumented $(ARGS)
+
+check-env:
+ifeq ($(TRACE_OUTPUT_DIR),)
+	$(error TRACE_OUTPUT_DIR is not set!)
+endif
+
+##################################
+#      COMPILATION FLAGS         #
+##################################
+
+TRACER = $(TRACER_HOME)/lib/full_trace.so
+LOGGER = $(TRACER_HOME)/lib/trace_logger.llvm
+GET_LABELED_STMTS = $(TRACER_HOME)/bin/get-labeled-stmts
+
+MODE = LLVM_TRACE
+
+ALL_SRCS = $(SRCS)
+CPPFLAGS = -I$(ALADDIN_HOME) -I$(COMMON_DIR) -D$(MODE)
+
+ifeq ($(DMA_MODE),1)
+	ALL_SRCS += $(ALADDIN_HOME)/gem5/dma_interface.c
+	CPPFLAGS += -DDMA_MODE -I$(ALADDIN_HOME)/gem5
+endif
+
+LLVM_VERSION = $(shell clang --version | grep -o -m 1 "[0-9\.]\+" | head -n 1)
+LLVM_OBJS = $(patsubst %.c, %-opt.llvm, $(ALL_SRCS))
+
+#########################################################
+#        INSTRUMENTATION AND TRACE FILE GENERATION      #
+#########################################################
+
+labelmap: $(ALL_SRCS)
+	$(GET_LABELED_STMTS) $(ALL_SRCS) -- -I$(INC) -I$(LLVM_HOME)/lib/clang/$(LLVM_VERSION)/include $(CPPFLAGS) $(BMARK_SPECIFIC_CFLAGS)
+
+full.llvm: $(LLVM_OBJS)
+	llvm-link -o $@ $^ $(LOGGER)
+
+full.s: full.llvm
+	llc -O0 -disable-fp-elim -filetype=asm -o $@ $<
+
+./$(EXEC)-instrumented: full.s
+	$(CXX) -static -O0 -fno-inline -o $@ $< -lm -lz -lpthread -fopenmp
+
+%-opt.llvm: %.c labelmap
+	clang 	-static -g -O1 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loops \
+	        -fno-inline -fno-builtin -emit-llvm \
+			$(CPPFLAGS) $(INC) \
+	        -I$(ALADDIN_HOME)/gem5 \
+	        -D$(MODE) \
+	        $(BMARK_SPECIFIC_CFLAGS) \
+	        -o $*.llvm $<
+	opt 	-S -load=$(TRACER) -fulltrace -labelmapwriter $*.llvm -o $@
+
+clean-trace:
+	rm -f *.llvm
+	rm -f *.o
+	rm -f dynamic_trace.gz
+	rm -f *-instrumented
+	rm -f full.s
+	rm -f labelmap
+	rm -f $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/*.llvm  
+	rm -f $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/*.llvm 
+	rm -f $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/*.llvm  
+	rm -f $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/*.llvm 
+	rm -f $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/*.llvm 
+	rm -f $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/*.llvm 
+
+
+
+# Common Make targets for simulating MachSuite in gem5.
+#
+# ALADDIN_HOME needs to be defined as an environment variable.
+# The gem5 dependencies are listed as .cpp files for compatibility with gem5.
+# To compile them with C code, we need to explicitly use gcc.
+
+.PHONY: gem5 gem5-cpu gem5-accel clean-gem5
+
+GEM5_SRCS = aladdin_sys_connection.cpp aladdin_sys_constants.cpp dma_interface.c
+GEM5_FULL_SRCS = $(GEM5_SRCS:%=$(ALADDIN_HOME)/gem5/%)
+
+# For the MachSuite harness and support system.
+CFLAGS += -O3 -Wall -Wno-unused-label -I../../common
+
+# -mno-sse
+GEM5_CFLAGS = -static -O3 \
+              -msse -mfpmath=sse \
+              -fno-exceptions \
+              -std=gnu99
+
+INCLUDES += -I$(ALADDIN_HOME)/gem5 $(INC)
+LFLAGS = -lm
+BMARK = $(ACCEL_NAME)
+
+bmk_home=.
+gem5_dir=$(ALADDIN_HOME)/../..
+
+# Builds both standalone CPU version and the HW accelerated version.
+gem5: gem5-cpu gem5-accel
+
+# Builds the standalone CPU version only.
+gem5-cpu: $(SRCS) $(GEM5_FULL_SRCS)
+	@echo Building benchmark $(BMARK) for gem5.
+	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) $(GEM5_FULL_SRCS) $(SRCS) $(INCLUDES) $(BMARK_SPECIFIC_CFLAGS) -o $(BMARK)-gem5 $(LFLAGS)
+
+# Builds the gem5 version with HW acceleration turned on.
+gem5-accel: $(SRCS) $(GEM5_FULL_SRCS)
+	@echo Building benchmark $(BMARK) for gem5 with HW acceleration.
+	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) -DGEM5_HARNESS $(SRCS) $(GEM5_FULL_SRCS) $(INCLUDES) $(BMARK_SPECIFIC_CFLAGS) -o $(BMARK)-gem5-accel $(LFLAGS)
+
+clean-gem5:
+	rm -rf $(BMARK)-gem5 $(BMARK)-gem5-accel
+
+run-gem5:
+	${gem5_dir}/build/X86/gem5.opt \
+	  --debug-flags=HybridDatapath,Aladdin \
+	  --outdir=${bmk_home}/outputs \
+	  --stats-db-file=stats.db \
+	  ${gem5_dir}/configs/aladdin/aladdin_se.py \
+	  --num-cpus=1 \
+	  --enable_prefetchers \
+	  --mem-size=4GB \
+	  --mem-type=DDR3_1600_8x8  \
+	  --sys-clock=1GHz \
+	  --cpu-type=DerivO3CPU \
+	  --caches \
+	  --cacheline_size=128 \
+	  --accel_cfg_file=${bmk_home}/gem5.cfg \
+	  -c ${bmk_home}/main-gem5 -o "$(ARGS)" \
+	  | gzip -c > stdout.gz
