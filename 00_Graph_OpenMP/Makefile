@@ -156,22 +156,22 @@ FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
 
 # real world large graphs binary format
 # FILE_BIN = $(BENCHMARKS_DIR)/orkut/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
 
 
 #GRAPH RUN
 ROOT = 0
 DATA_STRUCTURES = 0
-ALGORITHMS = 0
+ALGORITHMS = 1
 NUM_THREADS  = 8
 NUM_ITERATIONS = 100
-NUM_TRIALS = 20
+NUM_TRIALS = 0
 TOLERANCE = 1e-9
 SORT_TYPE = 0
 PUSH_PULL = 0

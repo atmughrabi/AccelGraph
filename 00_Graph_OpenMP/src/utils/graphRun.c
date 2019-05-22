@@ -31,49 +31,56 @@ void generateGraphPrintMessageWithtime(const char *msg, double time)
 
 }
 
+void serializeGraphDataStructure(struct arguments *arguments){
 
 
-void *generateGraphDataStructure(const char *fnameb, __u32 datastructure, __u32 sort,  __u32 lmode, __u32 symmetric, __u32 weighted)
+}
+
+
+void *generateGraphDataStructure(struct arguments *arguments)
 {
 
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     void *graph = NULL;
 
-    printf("*-----------------------------------------------------*\n");
-    printf("| %-20s %-30u | \n", "Number of Threads :", numThreads);
-    printf(" -----------------------------------------------------\n");
+    if(!arguments->fnameb_format){
+        Start(timer);
+        arguments->fnameb = readEdgeListstxt(arguments->fnameb, arguments->weighted);
+        Stop(timer);
+        printf("Read Edge List From File converted to binary : %f Seconds \n", Seconds(timer));
+    }
 
-    switch (datastructure)
+    switch ( arguments->datastructure)
     {
     case 0: // CSR
     case 4:
         Start(timer);
-        graph = (void *)graphCSRPreProcessingStep (fnameb, sort, lmode, symmetric, weighted);
+        graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
         Stop(timer);
         generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
         break;
     case 1: // Grid
     case 5:
         Start(timer);
-        graph = (void *)graphGridPreProcessingStep (fnameb, sort, lmode, symmetric, weighted);
+        graph = (void *)graphGridPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
         Stop(timer);
         generateGraphPrintMessageWithtime("GraphGrid Preprocessing Step Time (Seconds)", Seconds(timer));
         break;
     case 2: // Adj Linked List
         Start(timer);
-        graph = (void *)graphAdjLinkedListPreProcessingStep (fnameb, lmode, symmetric, weighted);
+        graph = (void *)graphAdjLinkedListPreProcessingStep ( arguments->fnameb,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
         Stop(timer);
         generateGraphPrintMessageWithtime("GraphAdjLinkedList Preprocessing Step Time (Seconds)", Seconds(timer));
         break;
     case 3: // Adj Array List
         Start(timer);
-        graph = (void *)graphAdjArrayListPreProcessingStep (fnameb, sort, lmode, symmetric, weighted);
+        graph = (void *)graphAdjArrayListPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
         Stop(timer);
         generateGraphPrintMessageWithtime("GraphAdjArrayList Preprocessing Step Time (Seconds)", Seconds(timer));
         break;
     default:// CSR
         Start(timer);
-        graph = (void *)graphCSRPreProcessingStep (fnameb, sort, lmode, symmetric, weighted);
+        graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
         Stop(timer);
         generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
 
@@ -87,31 +94,31 @@ void *generateGraphDataStructure(const char *fnameb, __u32 datastructure, __u32 
 }
 
 
-void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int root, __u32 iterations, double epsilon, __u32 trials, __u32 pushpull,  __u32 delta)
+void runGraphAlgorithms(void *graph, struct arguments *arguments)
 {
 
-    switch (algorithm)
+    switch ( arguments->algorithm)
     {
     case 0: // bfs filename root
-        runBreadthFirstSearchAlgorithm(graph, datastructure, root, trials);
+        runBreadthFirstSearchAlgorithm( graph,  arguments->datastructure,  arguments->root,  arguments->trials);
         break;
     case 1: // pagerank filename
-        runPageRankAlgorithm(graph, datastructure, epsilon, iterations, trials, pushpull);
+        runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->trials,  arguments->pushpull);
         break;
     case 2: // SSSP-Dijkstra file name root
-        runSSSPAlgorithm(graph, datastructure, root, iterations, trials, pushpull, delta);
+        runSSSPAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations,  arguments->trials,  arguments->pushpull,  arguments->delta);
         break;
     case 3: // SSSP-Bellmanford file name root
-        runBellmanFordAlgorithm(graph, datastructure, root, iterations, trials, pushpull);
+        runBellmanFordAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations,  arguments->trials,  arguments->pushpull);
         break;
     case 4: // DFS file name root
-        runDepthFirstSearchAlgorithm(graph, datastructure, root, trials);
+        runDepthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->trials);
         break;
     case 5: // incremental Aggregation file name root
-        runIncrementalAggregationAlgorithm(graph, datastructure, trials);
+        runIncrementalAggregationAlgorithm(graph,  arguments->datastructure,  arguments->trials);
         break;
     default:// bfs file name root
-        runBreadthFirstSearchAlgorithm(graph, datastructure, root, trials);
+        runBreadthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->trials);
         break;
     }
 

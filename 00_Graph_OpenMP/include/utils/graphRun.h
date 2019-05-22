@@ -14,10 +14,35 @@
 #include "timer.h"
 #include "BFS.h"
 
+/* Used by main to communicate with parse_opt. */
+struct arguments
+{
+    int wflag;
+    int xflag;
+    int sflag;
+    int cflag;
 
+    __u32 iterations;
+    __u32 trials;
+    double epsilon;
+    int root;
+    __u32 algorithm;
+    __u32 datastructure;
+    __u32 pushpull;
+    __u32 sort;
+    __u32 lmode;
+    __u32 symmetric;
+    __u32 weighted;
+    __u32 delta;
+    __u32 numThreads;
+    char *fnameb;
+    __u32 fnameb_format;
+};
+
+void serializeGraphDataStructure(struct arguments *arguments);
 void generateGraphPrintMessageWithtime(const char *msg, double time);
-void *generateGraphDataStructure(const char *fnameb, __u32 datastructure, __u32 sort, __u32 lmode, __u32 symmetric, __u32 weighted);
-void runGraphAlgorithms(void *graph, __u32 datastructure, __u32 algorithm, int root, __u32 trials, double epsilon, __u32 iterations, __u32 pushpull,  __u32 delta);
+void *generateGraphDataStructure(struct arguments *arguments);
+void runGraphAlgorithms(void *graph, struct arguments *arguments);
 void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials);
 void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 trials, __u32 pushpull);
 void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials);

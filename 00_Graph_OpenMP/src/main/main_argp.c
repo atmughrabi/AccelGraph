@@ -35,12 +35,12 @@ static struct argp_option options[] =
         "\nEdge list represents the graph binary format to run the algorithm textual format with -convert option"
     },
     {
-        "graph-file-format",  'z', "[TEXT|BIN:1]",      0,
-        "\nSpecify file format is it textual edge list or binray edge list, this is specifically useful if you have Graph CSR/Grid structure already saved in binary format to skip the prerocessing step. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
+        "graph-file-format",  'z', "[TEXT|BIN|CSR:1]",      0,
+        "\nSpecify file format to be read, is it textual edge list, or a binary file edge list. This is specifically useful if you have Graph CSR/Grid structure already saved in a binary file format to skip the prerocessing step. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
     },
     {
         "algorithm",         'a', "[ALGORITHM #]",      0,
-        "\n[0]-BFS, [1]-Pagerank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation"
+        "\n[0]-BFS, [1]-Page-rank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation"
     },
     {
         "data-structure",    'd', "[TYPE #]",      0,
@@ -64,7 +64,7 @@ static struct argp_option options[] =
     },
     {
         "num-iterations",    'i', "[# ITERATIONS]",      0,
-        "\nNumber of iterations for pagerank to converge [default:20] SSSP-BellmanFord [default:V-1] "
+        "\nNumber of iterations for page rank to converge [default:20] SSSP-BellmanFord [default:V-1] "
     },
     {
         "num-trials",        't', "[# TRIALS]",      0,
@@ -83,51 +83,27 @@ static struct argp_option options[] =
     },
     {
         "light-reorder",     'l', "[ORDER:0]",      0,
-        "\nRelabels the graph for better cache performance. [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS [8]-LoadFromFile "
+        "\nRelabels the graph for better cache performance. [default:0]-no-reordering [1]-page-rank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS [8]-LoadFromFile "
     },
     {
-        "convert-bin",       'c', "[STRUCTURE:1]",      0,
-        "\nRead graph text format convert to bin graph file on load example:-f <graph file> -c"
+        "convert-bin",       'c', "[TEXT|BIN|CSR:1]",      0,
+        "\nSerialize graph text format (edge list format) to binary graph file on load example:-f <graph file> -c this is specifically useful if you have Graph CSR/Grid structure and want to save in a binary file format to skip the preprocessing step for future runs. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
     },
     {
         "generate-weights",  'w', 0,      0,
         "\nGenerate random weights don't load from graph file. Check ->graphConfig.h #define WEIGHTED 1 beforehand then recompile using this option"
     },
     {
-        "symmetrise",        's', 0,      0,
+        "symmetries",        's', 0,      0,
         "\nSymmetric graph, create a set of incoming edges"
     },
     {
         "stats",             'x', 0,      0,
-        "\nDump a histogram to file based on in-out degree count bins / sorted according to in/out-degree or pageranks "
+        "\nDump a histogram to file based on in-out degree count bins / sorted according to in/out-degree or page-ranks "
     },
     { 0 }
 };
 
-/* Used by main to communicate with parse_opt. */
-struct arguments
-{
-    int wflag;
-    int xflag;
-    int sflag;
-    int cflag;
-
-    __u32 iterations;
-    __u32 trials;
-    double epsilon;
-    int root;
-    __u32 algorithm;
-    __u32 datastructure;
-    __u32 pushpull;
-    __u32 sort;
-    __u32 lmode;
-    __u32 symmetric;
-    __u32 weighted;
-    __u32 delta;
-    __u32 numThreads;
-    char *fnameb;
-    __u32 fnameb_format;
-};
 
 
 /* Parse a single option. */
@@ -248,6 +224,10 @@ main (int argc, char **argv)
     __u32 inout_lmode = arguments.lmode;
 
 
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-20s %-30u | \n", "Number of Threads :", numThreads);
+    printf(" -----------------------------------------------------\n");
+
     if(arguments.xflag)
     {
         collectStats(binSize, arguments.fnameb, arguments.sort, inout_lmode, arguments.symmetric, arguments.weighted, inout_degree);
@@ -257,6 +237,11 @@ main (int argc, char **argv)
 
         if(arguments.cflag)
         {
+
+          if(arguments.fnameb_format){
+
+
+          }
             Start(timer);
             arguments.fnameb = readEdgeListstxt(arguments.fnameb, arguments.weighted);
             Stop(timer);
@@ -264,8 +249,8 @@ main (int argc, char **argv)
         }
         else
         {
-            graph = generateGraphDataStructure(arguments.fnameb, arguments.datastructure, arguments.sort, arguments.lmode, arguments.symmetric, arguments.weighted);
-            runGraphAlgorithms(graph, arguments.datastructure, arguments.algorithm, arguments.root, arguments.iterations, arguments.epsilon, arguments.trials, arguments.pushpull, arguments.delta);
+            graph = generateGraphDataStructure(&arguments);
+            runGraphAlgorithms(graph, &arguments);
         }
     }
 
