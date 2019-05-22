@@ -39,7 +39,8 @@ struct arguments
     __u32 fnameb_format;
 };
 
-void serializeGraphDataStructure(struct arguments *arguments);
+void writeSerializedGraphDataStructure(struct arguments *arguments);
+void readSerializeGraphDataStructure(struct arguments *arguments);
 void generateGraphPrintMessageWithtime(const char *msg, double time);
 void *generateGraphDataStructure(struct arguments *arguments);
 void runGraphAlgorithms(void *graph, struct arguments *arguments);

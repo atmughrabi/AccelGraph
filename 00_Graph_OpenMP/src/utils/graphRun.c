@@ -31,8 +31,17 @@ void generateGraphPrintMessageWithtime(const char *msg, double time)
 
 }
 
-void serializeGraphDataStructure(struct arguments *arguments){
+void writeSerializedGraphDataStructure(struct arguments *arguments){ // for now this only support graph CSR
 
+    // check input type edgelist text/bin or graph csr
+    // read input file create CSR graph then write to binaryfile
+
+}
+
+void readSerializeGraphDataStructure(struct arguments *arguments){ // for now this only support graph CSR
+
+    // check input type edgelist text/bin or graph csr
+    // read input file create to the correct structure without preprocessing
 
 }
 
@@ -43,14 +52,14 @@ void *generateGraphDataStructure(struct arguments *arguments)
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     void *graph = NULL;
 
-    if(!arguments->fnameb_format){
+    if(!arguments->fnameb_format){ // for now it edge list is text only convert to binary
         Start(timer);
         arguments->fnameb = readEdgeListstxt(arguments->fnameb, arguments->weighted);
         Stop(timer);
         printf("Read Edge List From File converted to binary : %f Seconds \n", Seconds(timer));
     }
 
-    switch ( arguments->datastructure)
+    switch (arguments->datastructure)
     {
     case 0: // CSR
     case 4:
