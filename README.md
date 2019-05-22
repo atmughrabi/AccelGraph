@@ -46,7 +46,7 @@ AccelGraph is an open source Graph processing framework, it is designed to be a 
   ```
 
 2. Run the algorithm with the data structure and other settings you need
-  ```bash
+  ```
 Usage: main_argp [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
