@@ -20,7 +20,7 @@ Also support for Gem5-Aladdin has been included, for system emulation. With a si
 1. Clone Accel-Graph.
 
   ```
-  git clone https://github.com/harvard-acc/gem5-aladdin
+  git clone https://github.com/atmughrabi/AccelGraph.git
   ```
 
 2. Setup the CAPI submodules.
