@@ -7,7 +7,7 @@ AFU framework for Graph Processing algorithms with OpenMP/Shared Memory Accelera
 
 ![End-to-End Acceleration](./02_slides/fig/fig-4.png "Accel-Graph")
 
-AccelGraph is an open source Graph processing framework, it is designed to be a portable benchmarking suite for various graph processing algorithms. It provides an end to end evaluation infrastructure. End to end involves performance bottleneck that includes the preprocessing stage of graph processing.
+Accel-Graph is an open source Graph processing framework, it is designed to be a portable benchmarking suite for various graph processing algorithms. It provides an end to end evaluation infrastructure. End to end involves performance bottleneck that includes the preprocessing stage of graph processing.
 The OpenMP part of AccelGraph has been tested on Ubuntu 18.04 with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking tool has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between shared memory FPGAs with parallel processors.
 Also support for Gem5-Aladdin has been included, for system emulation. With a simple cache model hard coded into our base code for quick and dirty cache performance evaluation.
 
@@ -171,14 +171,14 @@ Report bugs to <atmughra@ncsu.edu>.
       * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
     * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
-      * `countsort.h` - sort edge list using count sort
-      * `radixsort.h` - sort edge list using radix sort
-      * `reorder.h` - cluster reorder the graph for better cache locality
-      * `sortRun.h` - chose which sorting algorithm to use
+      * `countsort.c` - sort edge list using count sort
+      * `radixsort.c` - sort edge list using radix sort
+      * `reorder.c` - cluster reorder the graph for better cache locality
+      * `sortRun.c` - chose which sorting algorithm to use
     * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
-      * `graphAdjArrayList.h` - graph using adjacency list array with arrays
-      * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
-      * `graphCSR.h` - graph using compressed sparse matrix
-      * `graphGrid.h` - graph using Grid
+      * `graphAdjArrayList.c` - graph using adjacency list array with arrays
+      * `graphAdjLinkeList.c` - graph using adjacency list array with linked lists
+      * `graphCSR.c` - graph using compressed sparse matrix
+      * `graphGrid.c` - graph using Grid
 
 * *`Makefile`* - Global makefile
