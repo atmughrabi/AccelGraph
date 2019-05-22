@@ -15,7 +15,6 @@
 # dirs Root app 
 APP_DIR           = .
 BENCHMARKS_DIR    = ../../01_GraphDatasets
-SNIPER_DIR		  = ../../sniper
 
 #dir root/managed_folders
 SRC_DIR           = src
@@ -62,8 +61,8 @@ CC				  = gcc
 INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
 		-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR) 	\
 		-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
-		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)  	\
-		-I$(SNIPER_DIR)/include
+		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)  	
+		
 
 # flags
 CFLAGS   =  -O3 -Wall -m64 -fopenmp -g 
@@ -216,7 +215,7 @@ clean:
 # FILE_BIN = $(BENCHMARKS_DIR)/orkut/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
@@ -225,7 +224,7 @@ FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
 
 # real world small graphs binary format
 
-# FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/com-youtube.ungraph.trunc.wbin  
+FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/com-youtube.ungraph.trunc.wbin  
 # FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/p2p-Gnutella31.trunc.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/web-BerkStan.trunc.wbin 
 # FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/web-Google.trunc.wbin
@@ -240,7 +239,7 @@ NUM_ITERATIONS = 20
 NUM_TRIALS = 0
 TOLERANCE = 1e-9
 SORT_TYPE = 0
-PUSH_PULL = 4
+PUSH_PULL = 0
 DELTA = 800
 REORDER = 0
 FILE_FORMAT = 1
