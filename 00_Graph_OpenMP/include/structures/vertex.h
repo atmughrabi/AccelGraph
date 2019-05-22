@@ -13,7 +13,7 @@
 struct  Vertex
 {
 
-    __u8 visited;
+    // __u8 visited;
     __u32 out_degree;
     __u32 in_degree;
     __u32 edges_idx;

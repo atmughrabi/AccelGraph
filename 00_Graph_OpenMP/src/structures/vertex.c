@@ -20,7 +20,6 @@ struct Vertex *newVertexArray(__u32 num_vertices)
     {
 
         vertex_array[i].edges_idx  = 0;
-        vertex_array[i].visited    = 0;
         vertex_array[i].out_degree = 0;
         vertex_array[i].in_degree  = 0;
 
@@ -345,13 +344,13 @@ void printVertexArray(struct Vertex *vertex_array, __u32 num_vertices)
 
     __u32 i;
 
-    printf("| %-15s | %-15s | %-15s | %-15s | \n", "Node", "out_degree", "in_degree", "visited");
+    printf("| %-15s | %-15s | %-15s |\n", "Node", "out_degree", "in_degree");
 
     for(i = 0; i < num_vertices; i++)
     {
 
         if((vertex_array[i].out_degree > 0) )
-            printf("| %-15u | %-15u | %-15u | %-15u | \n", i,  vertex_array[i].out_degree, vertex_array[i].in_degree, vertex_array[i].visited);
+            printf("| %-15u | %-15u | %-15u | \n", i,  vertex_array[i].out_degree, vertex_array[i].in_degree);
 
     }
 

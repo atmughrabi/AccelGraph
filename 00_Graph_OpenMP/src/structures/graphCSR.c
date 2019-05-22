@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/types.h>
+#include <err.h>
 #include <string.h>
 
 #include "edgeList.h"
@@ -206,13 +207,13 @@ void graphCSRPrintParentsArray(struct GraphCSR *graphCSR)
 
     __u32 i;
 
-    printf("| %-15s | %-15s | %-15s | %-15s | \n", "Node", "out_degree", "Parent", "Visited");
+    printf("| %-15s | %-15s | %-15s |  \n", "Node", "out_degree", "Parent");
 
     for(i = 0; i < graphCSR->num_vertices; i++)
     {
 
         if((graphCSR->vertices[i].out_degree > 0) || (graphCSR->vertices[i].in_degree > 0))
-            printf("| %-15u | %-15u | %-15d | %-15u | \n", i,  graphCSR->vertices[i].out_degree, graphCSR->parents[i], graphCSR->vertices[i].visited);
+            printf("| %-15u | %-15u | %-15d | \n", i,  graphCSR->vertices[i].out_degree, graphCSR->parents[i]);
 
     }
 
@@ -272,7 +273,7 @@ struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u
     Start(timer);
     edgeList = sortRunAlgorithms(edgeList, sort);
 
-      // edgeListPrint(edgeList);
+    // edgeListPrint(edgeList);
     Start(timer);
     graphCSR = graphCSRAssignEdgeList (graphCSR, edgeList, 0);
     Stop(timer);
@@ -309,23 +310,94 @@ struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u
 
 }
 
-// void writeGraphCSRToBinFile (const char *fnameb, struct GraphCSR *graph){
+void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graph)
+{
 
-// //     struct  Vertex
-// // {
+    //     struct  Vertex
+    // {
 
-// //     __u8 visited;
-// //     __u32 out_degree;
-// //     __u32 in_degree;
-// //     __u32 edges_idx;
-// // };
+    //     __u8 visited;
+    //     __u32 out_degree;
+    //     __u32 in_degree;
+    //     __u32 edges_idx;
+    // };
+
+    // struct  EdgeList
+    // {
+
+    //     __u32 num_edges;
+    //     __u32 num_vertices;
+    // #if WEIGHTED
+    //     __u32 max_weight;
+    //     __u32 *edges_array_weight;
+    // #endif
+    //     __u32 *edges_array_src;
+    //     __u32 *edges_array_dest;
+    // };
+
+    // struct GraphCSR
+    // {
+
+    //     __u32 num_edges;
+    //     __u32 num_vertices;
+
+    // #if WEIGHTED
+    //     __u32 max_weight;
+    // #endif
+    //     // __u32* vertex_count; // needed for counting sort
+    //     int *parents;       // specify parent for each vertex // will be removed to stats struct
+    //     __u32 iteration;
+    //     __u32 processed_nodes;
+
+    //     struct Vertex *vertices;
+    //     struct EdgeList *sorted_edges_array; // sorted edge array
+
+    // #if DIRECTED
+    //     struct Vertex *inverse_vertices;
+    //     struct EdgeList *inverse_sorted_edges_array; // sorted edge array
+    // #endif
+    // };
 
 
+    //write data to file binary
+    // num_edges
+    // num_vertices
 
-// }
+    // #if WEIGHTED
+    //      max_weight;
+    // #endif
+
+    FILE  *pBinary;
+
+#if WEIGHTED
+   
+#endif
+
+    char *fname_txt = (char *) malloc((strlen(fname) + 10) * sizeof(char));
+    char *fname_bin = (char *) malloc((strlen(fname) + 10) * sizeof(char));
+
+    fname_txt = strcpy (fname_txt, fname);
+    fname_bin = strcat (fname_txt, ".csr");
+
+    pBinary = fopen(fname_bin, "wb");
+
+    if (pBinary == NULL)
+    {
+        err(1, "open: %s", fname_bin);
+        return ;
+    }
+
+    fwrite(&(graph->num_edges), sizeof (graph->num_edges), 1, pBinary);
+    fwrite(&(graph->num_vertices), sizeof (graph->num_vertices), 1, pBinary);
+    #if WEIGHTED
+    fwrite(&(graph->max_weight), sizeof (graph->max_weight), 1, pBinary);
+    #endif
+
+}
 
 
-// struct GraphCSR *readGraphCSRToBinFile (const char *fnameb){
+// struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
+// {
 
 
 
