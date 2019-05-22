@@ -309,6 +309,27 @@ struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u
 
 }
 
+// void writeGraphCSRToBinFile (const char *fnameb, struct GraphCSR *graph){
+
+// //     struct  Vertex
+// // {
+
+// //     __u8 visited;
+// //     __u32 out_degree;
+// //     __u32 in_degree;
+// //     __u32 edges_idx;
+// // };
+
+
+
+// }
+
+
+// struct GraphCSR *readGraphCSRToBinFile (const char *fnameb){
+
+
+
+// }
 
 void graphCSRPrintMessageWithtime(const char *msg, double time)
 {

@@ -1,7 +1,7 @@
 
 
 # globals
-  GAPP               = main
+  GAPP               = main_argp
 #   GAPP_TEST          = test_quantization
   GAPP_TEST          = test_bloomfilter
 # GAPP_TEST          = test_bloomStream
