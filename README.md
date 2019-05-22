@@ -1,5 +1,5 @@
 # AccelGraph
-## Graph Processing Framework With OpenMP/CAPI-SNAP/Verilog
+## Graph Processing Framework With OpenMP/CAPI-Verilog/Gem5-Aladdin
 
 AFU framework for Graph Processing algorithms with OpenMP/Shared Memory Accelerator CAPI
 
@@ -62,7 +62,7 @@ portable benchmarking suite for various graph processing algorithms.
   -d, --data-structure=[TYPE #]   [0]-CSR, [1]-Grid, [2]-Adj LinkedList,
                              [3]-Adj ArrayList [4-5] same order bitmap
                              frontiers
-  -e,                              --tolerance=[EPSILON:0.0001], --epsilon=[EPSILON:0.0001]
+  -e,                        --tolerance=[EPSILON:0.0001], --epsilon=[EPSILON:0.0001]
                              tolerance value of for page rank [default:0.0001]
 
   -f, --graph-file=<FILE>    edge list represents the graph binary format to
