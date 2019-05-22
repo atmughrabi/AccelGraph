@@ -11,60 +11,8 @@ AccelGraph is an open source Graph processing framework, it is designed to be a 
 The OpenMP part of AccelGraph has been tested on Ubuntu 18.04 with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking tool has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between shared memory FPGAs with parallel processors.
 Also support for Gem5-Aladdin has been included, for system emulation. With a simple cache model hard coded into our base code for quick and dirty cache performance evaluation.
 
-## Organization
-
-* `00_Graph_Bench`
-  * `include` - Major function headers 
-    * `graphalgorithms` - supported Graph algorithms
-      * `openmp`  - OpenMP integration
-        * `BFS.h`   - Breadth First Search
-        * `DFS.h`   - Depth First Search
-        * `SSSP.h`  - Single Source Shortest Path
-        * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
-        * `incrementalAgreggation.h` - Incremental Aggregation for clustering
-        * `pageRank.h` - Page Rank Algorithm
-      * `gem5aladdin`- gem5-aladdin integration
-      * `capi` - CAPI integration
-    * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
-      * `countsort.h` - sort edge list using count sort
-      * `radixsort.h` - sort edge list using radix sort
-      * `reorder.h` - cluster reorder the graph for better cache locality
-      * `sortRun.h` - chose which sorting algorithm to use
-    * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
-      * `graphAdjArrayList.h` - graph using adjacency list array with arrays
-      * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
-      * `graphCSR.h` - graph using compressed sparse matrix
-      * `graphGrid.h` - graph using Grid
-  * `src` - Major function Source files
-    * `graphalgorithms` - supported Graph algorithms
-      * `openmp`  - OpenMP integration
-        * `BFS.c`   - Breadth First Search
-        * `DFS.c`   - Depth First Search
-        * `SSSP.c`  - Single Source Shortest Path
-        * `bellmanFord.c` - Single Source Shortest Path using Bellman Ford
-        * `incrementalAgreggation.c` - Incremental Aggregation for clustering
-        * `pageRank.c` - Page Rank Algorithm
-      * `gem5aladdin`- gem5-aladdin integration
-      * `capi` - CAPI integration
-    * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
-      * `countsort.h` - sort edge list using count sort
-      * `radixsort.h` - sort edge list using radix sort
-      * `reorder.h` - cluster reorder the graph for better cache locality
-      * `sortRun.h` - chose which sorting algorithm to use
-    * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
-      * `graphAdjArrayList.h` - graph using adjacency list array with arrays
-      * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
-      * `graphCSR.h` - graph using compressed sparse matrix
-      * `graphGrid.h` - graph using Grid
-
-* *`Makefile`* - Global makefile
-
-## Details
-
-### Accel-Graph Supported Algorithms
-
-
-
+<!-- ## Details -->
+<!-- ### Accel-Graph Supported Algorithms -->
 ## Installation ##
 
 ### Setting up the source code ###
@@ -180,9 +128,57 @@ Report bugs to <atmughra@ncsu.edu>.
 
 ```
 
-### CAPI SNAP
+## CAPI SNAP
 
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
 * CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
 * [Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
+
+## Organization
+
+* `00_Graph_Bench`
+  * `include` - Major function headers 
+    * `graphalgorithms` - supported Graph algorithms
+      * `openmp`  - OpenMP integration
+        * `BFS.h`   - Breadth First Search
+        * `DFS.h`   - Depth First Search
+        * `SSSP.h`  - Single Source Shortest Path
+        * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
+        * `incrementalAgreggation.h` - Incremental Aggregation for clustering
+        * `pageRank.h` - Page Rank Algorithm
+      * `gem5aladdin`- gem5-aladdin integration
+      * `capi` - CAPI integration
+    * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
+      * `countsort.h` - sort edge list using count sort
+      * `radixsort.h` - sort edge list using radix sort
+      * `reorder.h` - cluster reorder the graph for better cache locality
+      * `sortRun.h` - chose which sorting algorithm to use
+    * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
+      * `graphAdjArrayList.h` - graph using adjacency list array with arrays
+      * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
+      * `graphCSR.h` - graph using compressed sparse matrix
+      * `graphGrid.h` - graph using Grid
+  * `src` - Major function Source files
+    * `graphalgorithms` - supported Graph algorithms
+      * `openmp`  - OpenMP integration
+        * `BFS.c`   - Breadth First Search
+        * `DFS.c`   - Depth First Search
+        * `SSSP.c`  - Single Source Shortest Path
+        * `bellmanFord.c` - Single Source Shortest Path using Bellman Ford
+        * `incrementalAgreggation.c` - Incremental Aggregation for clustering
+        * `pageRank.c` - Page Rank Algorithm
+      * `gem5aladdin`- gem5-aladdin integration
+      * `capi` - CAPI integration
+    * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
+      * `countsort.h` - sort edge list using count sort
+      * `radixsort.h` - sort edge list using radix sort
+      * `reorder.h` - cluster reorder the graph for better cache locality
+      * `sortRun.h` - chose which sorting algorithm to use
+    * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
+      * `graphAdjArrayList.h` - graph using adjacency list array with arrays
+      * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
+      * `graphCSR.h` - graph using compressed sparse matrix
+      * `graphGrid.h` - graph using Grid
+
+* *`Makefile`* - Global makefile
