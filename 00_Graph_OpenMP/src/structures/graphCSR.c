@@ -42,7 +42,7 @@ void graphCSRReset (struct GraphCSR *graphCSR)
     for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
     {
         if(vertices[vertex_id].out_degree)
-            graphCSR->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
+            graphCSR->parents[vertex_id] = vertices->out_degree[vertex_id] * (-1);
         else
             graphCSR->parents[vertex_id] = -1;
     }
@@ -65,12 +65,12 @@ void graphCSRHardReset (struct GraphCSR *graphCSR)
 #if DIRECTED
         if(graphCSR->inverse_vertices)
         {
-            graphCSR->inverse_vertices[vertex_id].in_degree = 0;
-            graphCSR->inverse_vertices[vertex_id].out_degree = 0;
+            graphCSR->inverse_vertices->in_degree[vertex_id] = 0;
+            graphCSR->inverse_vertices->out_degree[vertex_id] = 0;
         }
 #endif
-        graphCSR->vertices[vertex_id].out_degree = 0;
-        graphCSR->vertices[vertex_id].in_degree = 0;
+        graphCSR->vertices->out_degree[vertex_id] = 0;
+        graphCSR->vertices->in_degree[vertex_id] = 0;
         graphCSR->parents[vertex_id] = -1;
     }
 
@@ -212,8 +212,8 @@ void graphCSRPrintParentsArray(struct GraphCSR *graphCSR)
     for(i = 0; i < graphCSR->num_vertices; i++)
     {
 
-        if((graphCSR->vertices[i].out_degree > 0) || (graphCSR->vertices[i].in_degree > 0))
-            printf("| %-15u | %-15u | %-15d | \n", i,  graphCSR->vertices[i].out_degree, graphCSR->parents[i]);
+        if((graphCSR->vertices->out_degree[i] > 0) || (graphCSR->vertices->in_degree[i] > 0))
+            printf("| %-15u | %-15u | %-15d | \n", i,  graphCSR->vertices->out_degree[i], graphCSR->parents[i]);
 
     }
 
@@ -370,7 +370,7 @@ void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graph)
     FILE  *pBinary;
 
 #if WEIGHTED
-   
+
 #endif
 
     char *fname_txt = (char *) malloc((strlen(fname) + 10) * sizeof(char));
@@ -389,9 +389,11 @@ void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graph)
 
     fwrite(&(graph->num_edges), sizeof (graph->num_edges), 1, pBinary);
     fwrite(&(graph->num_vertices), sizeof (graph->num_vertices), 1, pBinary);
-    #if WEIGHTED
+#if WEIGHTED
     fwrite(&(graph->max_weight), sizeof (graph->max_weight), 1, pBinary);
-    #endif
+#endif
+
+
 
 }
 

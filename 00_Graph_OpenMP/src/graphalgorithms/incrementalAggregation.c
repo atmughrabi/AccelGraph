@@ -79,7 +79,7 @@ __u32*  incrementalAggregationGraphCSR( struct GraphCSR *graph)
     for(v = 0; v < graph->num_vertices; v++)
     {
         vertices[v] = v;
-        degrees[v] = graph->vertices[v].out_degree;
+        degrees[v] = graph->vertices->out_degree[v];
     }
 
     vertices = radixSortEdgesByDegree(degrees, vertices, graph->num_vertices);
@@ -89,7 +89,7 @@ __u32*  incrementalAggregationGraphCSR( struct GraphCSR *graph)
     for(v = 0 ; v < graph->num_vertices; v++)
     {
         u = vertices[v];
-        atomDegree[u] = graph->vertices[u].out_degree;
+        atomDegree[u] = graph->vertices->out_degree[u];
         atomChild[u] = UINT_MAX;
 
         // atom[v].degree = graph->vertices[u].out_degree;
@@ -245,8 +245,8 @@ void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reacha
     {
         tempV = reachableSet->queue[j];
 
-        degreeTemp = graph->vertices[tempV].out_degree;
-        edgeTemp = graph->vertices[tempV].edges_idx;
+        degreeTemp = graph->vertices->out_degree[tempV];
+        edgeTemp = graph->vertices->edges_idx[tempV];
 
         for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++)
         {
@@ -314,8 +314,8 @@ void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reacha
     {
         tempV = reachableSet->queue[j];
 
-        degreeTemp = graph->vertices[tempV].out_degree;
-        edgeTemp = graph->vertices[tempV].edges_idx;
+        degreeTemp = graph->vertices->out_degree[tempV];
+        edgeTemp = graph->vertices->edges_idx[tempV];
 
         for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++)
         {

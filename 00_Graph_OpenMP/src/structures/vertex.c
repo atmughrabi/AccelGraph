@@ -12,16 +12,20 @@ struct Vertex *newVertexArray(__u32 num_vertices)
 {
 
 
-    struct Vertex *vertex_array = (struct Vertex *) my_malloc( num_vertices * sizeof(struct Vertex));
+    struct Vertex *vertex_array = (struct Vertex *) my_malloc(sizeof(struct Vertex));
+
+    vertex_array->out_degree = (__u32 *) my_malloc( num_vertices * sizeof(__u32));
+    vertex_array->in_degree = (__u32 *) my_malloc( num_vertices * sizeof(__u32));
+    vertex_array->edges_idx = (__u32 *) my_malloc( num_vertices * sizeof(__u32));
 
     __u32 i;
 
     for(i = 0; i < num_vertices; i++)
     {
 
-        vertex_array[i].edges_idx  = 0;
-        vertex_array[i].out_degree = 0;
-        vertex_array[i].in_degree  = 0;
+        vertex_array->edges_idx[i]  = 0;
+        vertex_array->out_degree[i] = 0;
+        vertex_array->in_degree[i] = 0;
 
     }
 
@@ -58,17 +62,16 @@ struct GraphCSR *mapVertices (struct GraphCSR *graph, __u8 inverse)
 
 
     vertex_id = sorted_edges_array->edges_array_src[0];
-    vertices[vertex_id].edges_idx = 0;
+    vertices->edges_idx[vertex_id] = 0;
 
     for(i = 1; i < graph->num_edges; i++)
     {
-
 
         if(sorted_edges_array->edges_array_src[i] != sorted_edges_array->edges_array_src[i - 1])
         {
 
             vertex_id = sorted_edges_array->edges_array_src[i];
-            vertices[vertex_id].edges_idx = i;
+            vertices->edges_idx[vertex_id] = i;
 
         }
     }
@@ -221,18 +224,18 @@ struct GraphCSR *mapVerticesWithInOutDegree (struct GraphCSR *graph, __u8 invers
         {
 
             vertex_id = sorted_edges_array->edges_array_src[offset_start];
-            vertices[vertex_id].edges_idx = offset_start;
-            vertices[vertex_id].out_degree++;
+            vertices->edges_idx[vertex_id] = offset_start;
+            vertices->out_degree[vertex_id]++;
 
             for(i = offset_start + 1; i < offset_end; i++)
             {
 
                 vertex_id = sorted_edges_array->edges_array_src[i];
-                vertices[vertex_id].out_degree++;
+                vertices->out_degree[vertex_id]++;
 
                 if(sorted_edges_array->edges_array_src[i] != sorted_edges_array->edges_array_src[i - 1])
                 {
-                    vertices[vertex_id].edges_idx = i;
+                    vertices->edges_idx[vertex_id] = i;
                 }
             }
 
@@ -250,10 +253,10 @@ struct GraphCSR *mapVerticesWithInOutDegree (struct GraphCSR *graph, __u8 invers
         for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++)
         {
 #if DIRECTED
-            graph->inverse_vertices[vertex_id].in_degree = vertices[vertex_id].out_degree;
+            graph->inverse_vertices->in_degree[vertex_id] = vertices->out_degree[vertex_id];
 #endif
-            if(vertices[vertex_id].out_degree)
-                graph->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
+            if(vertices->out_degree[vertex_id])
+                graph->parents[vertex_id] = vertices->out_degree[vertex_id] * (-1);
             else
                 graph->parents[vertex_id] = -1;
         }
@@ -266,7 +269,7 @@ struct GraphCSR *mapVerticesWithInOutDegree (struct GraphCSR *graph, __u8 invers
         #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graph)
         for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++)
         {
-            graph->vertices[vertex_id].in_degree = vertices[vertex_id].out_degree;
+            graph->vertices->in_degree[vertex_id] = vertices->out_degree[vertex_id];
         }
 
     }
@@ -297,15 +300,15 @@ void vertexArrayMaxOutdegree(struct Vertex *vertex_array, __u32 num_vertices)
     {
 
 
-        out_degree = maxTwoIntegers(out_degree, vertex_array[i].out_degree);
-        if(vertex_array[i].out_degree == out_degree)
+        out_degree = maxTwoIntegers(out_degree, vertex_array->out_degree[i]);
+        if(vertex_array->out_degree[i] == out_degree)
             index = i;
 
 
     }
 
 
-    printf("| %-15u | %-15u | %-15u | \n", index,  vertex_array[index].out_degree, vertex_array[index].in_degree);
+    printf("| %-15u | %-15u | %-15u | \n", index,  vertex_array->out_degree[index], vertex_array->in_degree[index]);
     printf(" -----------------------------------------------------\n");
 
 }
@@ -325,15 +328,15 @@ void vertexArrayMaxInDegree(struct Vertex *vertex_array, __u32 num_vertices)
     {
 
 
-        in_degree = maxTwoIntegers(in_degree, vertex_array[i].out_degree);
-        if(vertex_array[i].out_degree == in_degree)
+        in_degree = maxTwoIntegers(in_degree, vertex_array->out_degree[i]);
+        if(vertex_array->out_degree[i] == in_degree)
             index = i;
 
 
     }
 
 
-    printf("| %-15u | %-15u | %-15u | \n", index,  vertex_array[index].in_degree, vertex_array[index].out_degree);
+    printf("| %-15u | %-15u | %-15u | \n", index,  vertex_array->in_degree[index], vertex_array->out_degree[index]);
     printf(" -----------------------------------------------------\n");
 
 }
@@ -349,8 +352,8 @@ void printVertexArray(struct Vertex *vertex_array, __u32 num_vertices)
     for(i = 0; i < num_vertices; i++)
     {
 
-        if((vertex_array[i].out_degree > 0) )
-            printf("| %-15u | %-15u | %-15u | \n", i,  vertex_array[i].out_degree, vertex_array[i].in_degree);
+        if((vertex_array->out_degree[i] > 0) )
+            printf("| %-15u | %-15u | %-15u | \n", i,  vertex_array->out_degree[i], vertex_array->in_degree[i]);
 
     }
 
@@ -359,6 +362,9 @@ void printVertexArray(struct Vertex *vertex_array, __u32 num_vertices)
 void freeVertexArray(struct Vertex *vertices)
 {
 
+    free(vertices->edges_idx);
+    free(vertices->out_degree);
+    free(vertices->in_degree);
     free(vertices);
 
 }

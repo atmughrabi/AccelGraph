@@ -107,12 +107,12 @@ void countHistogram(struct GraphCSR *graphStats, __u32 *histogram, __u32 binSize
         if(inout_degree == 1)
         {
             #pragma omp atomic update
-            histogram[index] += graphStats->vertices[v].in_degree;
+            histogram[index] += graphStats->vertices->in_degree[v];
         }
         else if(inout_degree == 2)
         {
             #pragma omp atomic update
-            histogram[index] += graphStats->vertices[v].out_degree;
+            histogram[index] += graphStats->vertices->out_degree[v];
         }
     }
 

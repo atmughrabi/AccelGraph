@@ -48,7 +48,7 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
 
     __u32 P = numThreads;
     __u32 mu = graph->num_edges; // number of edges to check from sharedFrontierQueue
-    __u32 mf = graph->vertices[source].out_degree; // number of edges from unexplored verticies
+    __u32 mf = graph->vertices->out_degree[source]; // number of edges from unexplored verticies
     __u32 nf = 0; // number of vertices in sharedFrontierQueue
     __u32 nf_prev = 0; // number of vertices in sharedFrontierQueue
     __u32 n = graph->num_vertices; // number of nodes
@@ -208,9 +208,9 @@ __u32 topDownStepGraphCSR(struct GraphCSR *graph, struct ArrayQueue *sharedFront
         for(i = sharedFrontierQueue->head ; i < sharedFrontierQueue->tail; i++)
         {
             v = sharedFrontierQueue->queue[i];
-            edge_idx = graph->vertices[v].edges_idx;
+            edge_idx = graph->vertices->edges_idx[v];
 
-            for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++)
+            for(j = edge_idx ; j < (edge_idx + graph->vertices->out_degree[v]) ; j++)
             {
 
                 u = graph->sorted_edges_array->edges_array_dest[j];
@@ -274,10 +274,10 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
     #pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
     for(v = 0 ; v < graph->num_vertices ; v++)
     {
-        out_degree = vertices[v].out_degree;
+        out_degree = vertices->out_degree[v];
         if(graph->parents[v] < 0)  // optmization
         {
-            edge_idx = vertices[v].edges_idx;
+            edge_idx = vertices->edges_idx[v];
 
             for(j = edge_idx ; j < (edge_idx + out_degree) ; j++)
             {
@@ -324,7 +324,7 @@ void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR *graph
     struct ArrayQueue *sharedFrontierQueue = newArrayQueue(graph->num_vertices);
 
     __u32 mu = graph->num_edges; // number of edges to check from sharedFrontierQueue
-    __u32 mf = graph->vertices[source].out_degree; // number of edges from unexplored verticies
+    __u32 mf = graph->vertices->out_degree[source]; // number of edges from unexplored verticies
     __u32 nf = 0; // number of vertices in sharedFrontierQueue
     __u32 nf_prev = 0; // number of vertices in sharedFrontierQueue
     __u32 n = graph->num_vertices; // number of nodes
@@ -461,9 +461,9 @@ __u32 topDownStepUsingBitmapsGraphCSR(struct GraphCSR *graph, struct ArrayQueue 
             {
                 // processed_nodes++;
                 v = i;
-                edge_idx = graph->vertices[v].edges_idx;
+                edge_idx = graph->vertices->edges_idx[v];
 
-                for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++)
+                for(j = edge_idx ; j < (edge_idx + graph->vertices->out_degree[v]) ; j++)
                 {
 
 

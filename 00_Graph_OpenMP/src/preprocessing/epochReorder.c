@@ -185,8 +185,8 @@ float *epochReorderPageRankPullGraphCSR(struct EpochReorder *epochReorder, doubl
         #pragma omp parallel for
         for(v = 0; v < graph->num_vertices; v++)
         {
-            if(graph->vertices[v].out_degree)
-                riDividedOnDiClause[v] = pageRanks[v] / graph->vertices[v].out_degree;
+            if(graph->vertices->out_degree[v])
+                riDividedOnDiClause[v] = pageRanks[v] / graph->vertices->out_degree[v];
             else
                 riDividedOnDiClause[v] = 0.0f;
         }
@@ -195,8 +195,8 @@ float *epochReorderPageRankPullGraphCSR(struct EpochReorder *epochReorder, doubl
         for(v = 0; v < graph->num_vertices; v++)
         {
             float nodeIncomingPR = 0.0f;
-            degree = vertices[v].out_degree;
-            edge_idx = vertices[v].edges_idx;
+            degree = vertices->out_degree[v];
+            edge_idx = vertices->edges_idx[v];
             epochReorderIncrementCounters(epochReorder, v);
 
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
@@ -287,7 +287,7 @@ __u32 *epochReorderRecordBFS(struct GraphCSR *graph)
     for(v = 0; v < graph->num_vertices; v++)
     {
         labelsInverse[v] = v;
-        degrees[v] = graph->vertices[v].out_degree;
+        degrees[v] = graph->vertices->out_degree[v];
 
         // printf("%u %u \n",labelsInverse[v],degrees[v] );
     }
@@ -382,7 +382,7 @@ void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder *epochReorder, _
 
     __u32 P = numThreads;
     __u32 mu = graph->num_edges; // number of edges to check from sharedFrontierQueue
-    __u32 mf = graph->vertices[source].out_degree; // number of edges from unexplored verticies
+    __u32 mf = graph->vertices->out_degree[source]; // number of edges from unexplored verticies
     __u32 nf = 0; // number of vertices in sharedFrontierQueue
     __u32 nf_prev = 0; // number of vertices in sharedFrontierQueue
     __u32 n = graph->num_vertices; // number of nodes
@@ -542,9 +542,9 @@ __u32 epochReorderTopDownStepGraphCSR(struct EpochReorder *epochReorder, struct 
         for(i = sharedFrontierQueue->head ; i < sharedFrontierQueue->tail; i++)
         {
             v = sharedFrontierQueue->queue[i];
-            edge_idx = graph->vertices[v].edges_idx;
+            edge_idx = graph->vertices->edges_idx[v];
             // atomicEpochReorderIncrementCounters( epochReorder, v);
-            for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++)
+            for(j = edge_idx ; j < (edge_idx + graph->vertices->out_degree[v]) ; j++)
             {
                 u = graph->sorted_edges_array->edges_array_dest[j];
                 int u_parent = graph->parents[u];
@@ -609,10 +609,10 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder *epochReorder, struct
     #pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(epochReorder,bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
     for(v = 0 ; v < graph->num_vertices ; v++)
     {
-        out_degree = vertices[v].out_degree;
+        out_degree = vertices->out_degree[v];
         if(graph->parents[v] < 0)  // optmization
         {
-            edge_idx = vertices[v].edges_idx;
+            edge_idx = vertices->edges_idx[v];
 
             for(j = edge_idx ; j < (edge_idx + out_degree) ; j++)
             {

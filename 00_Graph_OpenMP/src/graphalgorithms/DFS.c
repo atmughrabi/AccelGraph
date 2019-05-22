@@ -66,11 +66,11 @@ void depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *graph)
         __u32 v = popArrayStack(sharedFrontierStack);
 
         graph->processed_nodes++;
-        __u32 edge_idx = graph->vertices[v].edges_idx;
+        __u32 edge_idx = graph->vertices->edges_idx[v];
         __u32 j;
 
 
-        for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++)
+        for(j = edge_idx ; j < (edge_idx + graph->vertices->out_degree[v]) ; j++)
         {
 
             __u32 u = graph->sorted_edges_array->edges_array_dest[j];
@@ -138,10 +138,10 @@ void depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
         __u32 v = popArrayStack(sharedFrontierStack);
 
         graph->processed_nodes++;
-        __u32 edge_idx = graph->vertices[v].edges_idx;
+        __u32 edge_idx = graph->vertices->edges_idx[v];
         __u32 j;
 
-        for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++)
+        for(j = edge_idx ; j < (edge_idx + graph->vertices->out_degree[v]) ; j++)
         {
 
             __u32 u = graph->sorted_edges_array->edges_array_dest[j];
@@ -226,10 +226,10 @@ void pDepthFirstSearchGraphCSRTask(__u32 source, struct GraphCSR *graph)
 
     // printf("%u \n", graph->processed_nodes);
 
-    __u32 edge_idx = graph->vertices[v].edges_idx;
+    __u32 edge_idx = graph->vertices->edges_idx[v];
     __u32 j;
 
-    for(j = edge_idx ; j < (edge_idx + graph->vertices[v].out_degree) ; j++)
+    for(j = edge_idx ; j < (edge_idx + graph->vertices->out_degree[v]) ; j++)
     {
 
         __u32 u = graph->sorted_edges_array->edges_array_dest[j];

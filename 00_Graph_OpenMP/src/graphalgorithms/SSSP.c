@@ -873,8 +873,8 @@ struct SSSPStats *SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
 
                     // stats->buckets_map[v] = UINT_MAX/2;
 
-                    __u32 degree = graphLight->vertices[v].out_degree;
-                    __u32 edge_idx = graphLight->vertices[v].edges_idx;
+                    __u32 degree = graphLight->vertices->out_degree[v];
+                    __u32 edge_idx = graphLight->vertices->edges_idx[v];
                     __u32 j;
                     for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                     {
@@ -905,8 +905,8 @@ struct SSSPStats *SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
             if(getBit(bitmapSetCurr, v))
             {
 
-                __u32 degree = graphHeavy->vertices[v].out_degree;
-                __u32 edge_idx = graphHeavy->vertices[v].edges_idx;
+                __u32 degree = graphHeavy->vertices->out_degree[v];
+                __u32 edge_idx = graphHeavy->vertices->edges_idx[v];
                 __u32 j;
 
 

@@ -32,70 +32,74 @@ static struct argp_option options[] =
 {
     {
         "graph-file",         'f', "<FILE>",      0,
-        "edge list represents the graph binary format to run the algorithm textual format with -convert option"
+        "\nEdge list represents the graph binary format to run the algorithm textual format with -convert option"
+    },
+    {
+        "graph-file-format",  'z', "[TEXT|BIN:1]",      0,
+        "\nSpecify file format is it textual edge list or binray edge list, this is specifically useful if you have Graph CSR/Grid structure already saved in binary format to skip the prerocessing step. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
     },
     {
         "algorithm",         'a', "[ALGORITHM #]",      0,
-        "[0]-BFS, [1]-Pagerank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation"
+        "\n[0]-BFS, [1]-Pagerank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation"
     },
     {
         "data-structure",    'd', "[TYPE #]",      0,
-        "[0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers"
+        "\n[0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers"
     },
     {
         "root",              'r', "[SOURCE|ROOT]",      0,
-        "BFS, DFS, SSSP root"
+        "\nBFS, DFS, SSSP root"
     },
     {
         "direction",         'p', "[PUSH|PULL]",      0,
-        "[0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-6]-same order but using data driven"
+        "\n[0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-6]-same order but using data driven"
     },
     {
         "sort",              'o', "[RADIX|COUNT]",      0,
-        "[0]-radix-src [1]-radix-src-dest [2]-count-src [3]-count-src-dst"
+        "\n[0]-radix-src [1]-radix-src-dest [2]-count-src [3]-count-src-dst"
     },
     {
         "num-threads",       'n', "[# THREADS]",      0,
-        "default:max number of threads the system has"
+        "\nDefault:max number of threads the system has"
     },
     {
         "num-iterations",    'i', "[# ITERATIONS]",      0,
-        "number of iterations for pagerank to converge [default:20] SSSP-BellmanFord [default:V-1] "
+        "\nNumber of iterations for pagerank to converge [default:20] SSSP-BellmanFord [default:V-1] "
     },
     {
         "num-trials",        't', "[# TRIALS]",      0,
-        "number of random trials for each whole run (graph algorithm run) [default:0] "
+        "\nNumber of random trials for each whole run (graph algorithm run) [default:0] "
     },
     {
         "tolerance",         'e', "[EPSILON:0.0001]",      0,
-        "tolerance value of for page rank [default:0.0001] "
+        "\nTolerance value of for page rank [default:0.0001] "
     },
     {
         "epsilon",           'e', "[EPSILON:0.0001]",      OPTION_ALIAS
     },
     {
         "delta",             'b', "[DELTA:1]",      0,
-        " SSSP Delta value [Default:1]"
+        "\nSSSP Delta value [Default:1]"
     },
     {
         "light-reorder",     'l', "[ORDER:0]",      0,
-        "Relabels the graph for better cache performance. [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS [8]-LoadFromFile "
+        "\nRelabels the graph for better cache performance. [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS [8]-LoadFromFile "
     },
     {
-        "convert-bin",       'c', 0,      0,
-        "read graph text format convert to bin graph file on load example:-f <graph file> -c"
+        "convert-bin",       'c', "[STRUCTURE:1]",      0,
+        "\nRead graph text format convert to bin graph file on load example:-f <graph file> -c"
     },
     {
         "generate-weights",  'w', 0,      0,
-        "generate random weights don't load from graph file. Check ->graphConfig.h #define WEIGHTED 1 beforehand then recompile using this option"
+        "\nGenerate random weights don't load from graph file. Check ->graphConfig.h #define WEIGHTED 1 beforehand then recompile using this option"
     },
     {
         "symmetrise",        's', 0,      0,
-        "Symmetric graph, create a set of incoming edges"
+        "\nSymmetric graph, create a set of incoming edges"
     },
     {
         "stats",             'x', 0,      0,
-        "dump a histogram to file based on in-out degree count bins / sorted according to in/out-degree or pageranks "
+        "\nDump a histogram to file based on in-out degree count bins / sorted according to in/out-degree or pageranks "
     },
     { 0 }
 };
@@ -122,6 +126,7 @@ struct arguments
     __u32 delta;
     __u32 numThreads;
     char *fnameb;
+    __u32 fnameb_format;
 };
 
 
@@ -137,6 +142,9 @@ parse_opt (int key, char *arg, struct argp_state *state)
     {
     case 'f':
         arguments->fnameb = arg;
+        break;
+    case 'z':
+        arguments->fnameb_format = atoi(arg);
         break;
     case 'd':
         arguments->datastructure = atoi(arg);
@@ -219,7 +227,7 @@ main (int argc, char **argv)
     arguments.delta = 1;
     arguments.numThreads = omp_get_max_threads();
     arguments.fnameb = NULL;
-
+    arguments.fnameb_format = 1;
 
     void *graph = NULL;
 

@@ -859,8 +859,8 @@ float *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *
         #pragma omp parallel for
         for(v = 0; v < graph->num_vertices; v++)
         {
-            if(graph->vertices[v].out_degree)
-                riDividedOnDiClause[v] = pageRanks[v] / graph->vertices[v].out_degree;
+            if(graph->vertices->out_degree[v])
+                riDividedOnDiClause[v] = pageRanks[v] / graph->vertices->out_degree[v];
             else
                 riDividedOnDiClause[v] = 0.0f;
         }
@@ -869,8 +869,8 @@ float *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *
         for(v = 0; v < graph->num_vertices; v++)
         {
             float nodeIncomingPR = 0.0f;
-            degree = vertices[v].out_degree;
-            edge_idx = vertices[v].edges_idx;
+            degree = vertices->out_degree[v];
+            edge_idx = vertices->edges_idx[v];
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
                 u = sorted_edges_array[j];
@@ -992,8 +992,8 @@ float *pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *
         #pragma omp parallel for private(v) shared(riDividedOnDiClause,pageRanks,graph)
         for(v = 0; v < graph->num_vertices; v++)
         {
-            if(graph->vertices[v].out_degree)
-                riDividedOnDiClause[v] = pageRanks[v] / graph->vertices[v].out_degree;
+            if(graph->vertices->out_degree[v])
+                riDividedOnDiClause[v] = pageRanks[v] / graph->vertices->out_degree[v];
             else
                 riDividedOnDiClause[v] = 0;
 
@@ -1003,8 +1003,8 @@ float *pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *
         for(v = 0; v < graph->num_vertices; v++)
         {
 
-            __u32 degree = graph->vertices[v].out_degree;
-            __u32 edge_idx = graph->vertices[v].edges_idx;
+            __u32 degree = graph->vertices->out_degree[v];
+            __u32 edge_idx = graph->vertices->edges_idx[v];
             // __u32 tid = omp_get_thread_num();
             __u32 j;
 
@@ -1151,8 +1151,8 @@ float *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct 
         #pragma omp parallel for
         for(v = 0; v < graph->num_vertices; v++)
         {
-            if(graph->vertices[v].out_degree)
-                riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v] / graph->vertices[v].out_degree);
+            if(graph->vertices->out_degree[v])
+                riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v] / graph->vertices->out_degree[v]);
             else
                 riDividedOnDiClause[v] = 0;
         }
@@ -1164,8 +1164,8 @@ float *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct 
         #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
         {
-            degree = vertices[v].out_degree;
-            edge_idx = vertices[v].edges_idx;
+            degree = vertices->out_degree[v];
+            edge_idx = vertices->edges_idx[v];
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
                 u = sorted_edges_array[j];
@@ -1292,9 +1292,9 @@ float *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct 
         #pragma omp parallel for private(v) shared(riDividedOnDiClause,pageRanks,graph)
         for(v = 0; v < graph->num_vertices; v++)
         {
-            if(graph->vertices[v].out_degree)
+            if(graph->vertices->out_degree[v])
             {
-                riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v] / graph->vertices[v].out_degree);
+                riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v] / graph->vertices->out_degree[v]);
                 // riDividedOnDiClause[v] = DIVFixed64V1(pageRanksFP[v],UInt64ToFixed(graph->vertices[v].out_degree));
             }
             else
@@ -1310,8 +1310,8 @@ float *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct 
 
 
 
-            __u32 degree = graph->vertices[v].out_degree;
-            __u32 edge_idx = graph->vertices[v].edges_idx;
+            __u32 degree = graph->vertices->out_degree[v];
+            __u32 edge_idx = graph->vertices->edges_idx[v];
             // __u32 tid = omp_get_thread_num();
             __u32 j;
 
@@ -1413,7 +1413,7 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
     cache_prefetch->numVertices = graph->num_vertices;
     initCache(cache_prefetch, L1_SIZE, L1_ASSOC, BLOCKSIZE);
 
-    double error = 0.01;
+    // double error = 0.01;
 
     // struct Cache *cache_top = ( struct Cache *) my_malloc(sizeof(struct Cache));
     // cache_top->verticesMiss = (uint *)my_malloc(sizeof(uint) * graph->num_vertices);
@@ -1490,7 +1490,7 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
     for(v = 0; v < graph->num_vertices; v++)
     {
         labelsInverse[v] = v;
-        degrees[v] = graph->vertices[v].out_degree;
+        degrees[v] = graph->vertices->out_degree[v];
 
     }
 
@@ -1502,7 +1502,7 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
         labels[labelsInverse[v]] = v;
     }
 
-    struct BloomMultiHash *bloomMultiHash  = newBloomMultiHash(graph->vertices[labelsInverse[(graph->num_vertices - 1)]].out_degree, error);
+    // struct BloomMultiHash *bloomMultiHash  = newBloomMultiHash(graph->vertices[labelsInverse[(graph->num_vertices - 1)]].out_degree, error);
 
 
     printf(" -----------------------------------------------------\n");
@@ -1531,8 +1531,8 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
         #pragma omp parallel for
         for(v = 0; v < graph->num_vertices; v++)
         {
-            if(graph->vertices[v].out_degree)
-                riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v] / graph->vertices[v].out_degree);
+            if(graph->vertices->out_degree[v])
+                riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v] / graph->vertices->out_degree[v]);
             else
                 riDividedOnDiClause[v] = 0;
         }
@@ -1549,7 +1549,7 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
         // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
         {
-            degree = vertices[v].out_degree;
+            degree = vertices->out_degree[v];
 
             // if(labels[v] > (graph->num_vertices - top))
             //     Access(cache_top, (__u64) & (vertices[v].out_degree), 'r', '1', v);
@@ -1564,9 +1564,9 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
             // prefetcing V+1
             if((v + 1) < graph->num_vertices)
             {
-                edge_idx = vertices[v + 1].edges_idx;
+                edge_idx = vertices->edges_idx[v + 1];
                 // fprintf(fptr, "p %016lx %u %u %u\n", &(sorted_edges_array[edge_idx]), degree, v, 0);
-                for(j = edge_idx ; j < (edge_idx + vertices[v + 1].out_degree) ; j++)
+                for(j = edge_idx ; j < (edge_idx + vertices->out_degree[v + 1]) ; j++)
                 {
                     u = sorted_edges_array[j];
 
@@ -1605,12 +1605,12 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
             }
 
 
-            edge_idx = vertices[v].edges_idx;
+            edge_idx = vertices->edges_idx[v];
 
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
                 u = sorted_edges_array[j];
-                addToBloomMultiHash(bloomMultiHash, (__u64) & (riDividedOnDiClause[u]));
+                // addToBloomMultiHash(bloomMultiHash, (__u64) & (riDividedOnDiClause[u]));
 
                 if(labels[u] > (graph->num_vertices - top))
                 {
@@ -1627,7 +1627,7 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
                 pageRanksNext[v] += riDividedOnDiClause[u];
             }
 
-            addToBloomMultiHash(bloomMultiHash, (__u64) & (pageRanksNext[v]));
+            // addToBloomMultiHash(bloomMultiHash, (__u64) & (pageRanksNext[v]));
             if(labels[v] > (graph->num_vertices - top))
             {
                 Access(cache, (__u64) & (pageRanksNext[v]), 'r', '1', v);
@@ -1779,9 +1779,9 @@ float *pageRankPushQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
         #pragma omp parallel for private(v) shared(riDividedOnDiClause,pageRanks,graph)
         for(v = 0; v < graph->num_vertices; v++)
         {
-            if(graph->vertices[v].out_degree)
+            if(graph->vertices->out_degree[v])
             {
-                riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v] / graph->vertices[v].out_degree);
+                riDividedOnDiClause[v] = DoubleToFixed64(pageRanks[v] / graph->vertices->out_degree[v]);
                 // riDividedOnDiClause[v] = DIVFixed64V1(pageRanksFP[v],UInt64ToFixed(graph->vertices[v].out_degree));
             }
             else
@@ -1797,8 +1797,8 @@ float *pageRankPushQuantizationGraphCSR(double epsilon,  __u32 iterations, struc
 
 
 
-            __u32 degree = graph->vertices[v].out_degree;
-            __u32 edge_idx = graph->vertices[v].edges_idx;
+            __u32 degree = graph->vertices->out_degree[v];
+            __u32 edge_idx = graph->vertices->edges_idx[v];
             // __u32 tid = omp_get_thread_num();
             __u32 j;
 
@@ -1954,8 +1954,8 @@ float *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct 
         #pragma omp parallel for
         for(v = 0; v < graph->num_vertices; v++)
         {
-            if(graph->vertices[v].out_degree)
-                riDividedOnDiClause[v] = pageRanks[v] / graph->vertices[v].out_degree;
+            if(graph->vertices->out_degree[v])
+                riDividedOnDiClause[v] = pageRanks[v] / graph->vertices->out_degree[v];
             else
                 riDividedOnDiClause[v] = 0.0f;
         }
@@ -1971,8 +1971,8 @@ float *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct 
                 __u32 u;
                 double error = 0;
                 float nodeIncomingPR = 0;
-                degree = vertices[v].out_degree; // when directed we use inverse graph out degree means in degree
-                edge_idx = vertices[v].edges_idx;
+                degree = vertices->out_degree[v]; // when directed we use inverse graph out degree means in degree
+                edge_idx = vertices->edges_idx[v];
                 for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                 {
                     u = sorted_edges_array[j];
@@ -1985,8 +1985,8 @@ float *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct 
                 if(error >= epsilon)
                 {
                     pageRanks[v] = newPageRank;
-                    degree = graph->vertices[v].out_degree;
-                    edge_idx = graph->vertices[v].edges_idx;
+                    degree = graph->vertices->out_degree[v];
+                    edge_idx = graph->vertices->edges_idx[v];
                     for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                     {
                         u = graph->sorted_edges_array->edges_array_dest[j];
@@ -2106,13 +2106,13 @@ float *pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct 
         workListCurr[v] = 1;
         workListNext[v] = 0;
         activeVertices++;
-        degree = vertices[v].out_degree; // when directed we use inverse graph out degree means in degree
-        edge_idx = vertices[v].edges_idx;
+        degree = vertices->out_degree[v]; // when directed we use inverse graph out degree means in degree
+        edge_idx = vertices->edges_idx[v];
         for(j = edge_idx ; j < (edge_idx + degree) ; j++)
         {
             u = sorted_edges_array[j];
-            if(graph->vertices[u].out_degree)
-                aResiduals[v] += 1.0f / graph->vertices[u].out_degree; // sum (PRi/outDegree(i))
+            if(graph->vertices->out_degree[u])
+                aResiduals[v] += 1.0f / graph->vertices->out_degree[u]; // sum (PRi/outDegree(i))
         }
         aResiduals[v] = (1.0f - Damp) * Damp * aResiduals[v];
     }
@@ -2138,9 +2138,9 @@ float *pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct 
                 // #pragma omp atomic write
                 pageRanks[v] = newPageRank;
 
-                degree = graph->vertices[v].out_degree;
+                degree = graph->vertices->out_degree[v];
                 float delta = Damp * (aResiduals[v] / degree);
-                edge_idx = graph->vertices[v].edges_idx;
+                edge_idx = graph->vertices->edges_idx[v];
 
                 for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                 {
@@ -2275,13 +2275,13 @@ float *pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, str
         workListCurr[v] = 1;
         workListNext[v] = 0;
         activeVertices++;
-        degree = vertices[v].out_degree; // when directed we use inverse graph out degree means in degree
-        edge_idx = vertices[v].edges_idx;
+        degree = vertices->out_degree[v]; // when directed we use inverse graph out degree means in degree
+        edge_idx = vertices->edges_idx[v];
         for(j = edge_idx ; j < (edge_idx + degree) ; j++)
         {
             u = sorted_edges_array[j];
-            if(graph->vertices[u].out_degree)
-                aResiduals[v] += 1.0f / graph->vertices[u].out_degree; // sum (PRi/outDegree(i))
+            if(graph->vertices->out_degree[u])
+                aResiduals[v] += 1.0f / graph->vertices->out_degree[u]; // sum (PRi/outDegree(i))
         }
         aResiduals[v] = (1.0f - Damp) * Damp * aResiduals[v];
     }
@@ -2302,12 +2302,12 @@ float *pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, str
             {
 
                 float nodeIncomingPR = 0.0f;
-                degree = vertices[v].out_degree;
-                edge_idx = vertices[v].edges_idx;
+                degree = vertices->out_degree[v];
+                edge_idx = vertices->edges_idx[v];
                 for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                 {
                     u = sorted_edges_array[j];
-                    nodeIncomingPR += pageRanks[u] / graph->vertices[u].out_degree;
+                    nodeIncomingPR += pageRanks[u] / graph->vertices->out_degree[u];
                 }
 
                 float newPageRank = base_pr + (Damp * nodeIncomingPR);
@@ -2318,9 +2318,9 @@ float *pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, str
                 #pragma omp atomic write
                 pageRanks[v] = newPageRank;
 
-                degree = graph->vertices[v].out_degree;
+                degree = graph->vertices->out_degree[v];
                 float delta = Damp * (aResiduals[v] / degree);
-                edge_idx = graph->vertices[v].edges_idx;
+                edge_idx = graph->vertices->edges_idx[v];
                 for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                 {
                     u = graph->sorted_edges_array->edges_array_dest[j];

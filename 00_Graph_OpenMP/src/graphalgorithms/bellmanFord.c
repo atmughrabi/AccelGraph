@@ -727,8 +727,8 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
     stats->parents[source] = source;
     stats->Distances[source] = 0;
 
-    __u32 degree = graph->vertices[source].out_degree;
-    __u32 edge_idx = graph->vertices[source].edges_idx;
+    __u32 degree = graph->vertices->out_degree[source];
+    __u32 edge_idx = graph->vertices->edges_idx[source];
     for(v = edge_idx ; v < (edge_idx + degree) ; v++)
     {
 
@@ -768,8 +768,8 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
             if(getBit(bitmapCurr, v))
             {
 
-                degree = vertices[v].out_degree;
-                edge_idx = vertices[v].edges_idx;
+                degree = vertices->out_degree[v];
+                edge_idx = vertices->edges_idx[v];
 
                 for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                 {
@@ -789,8 +789,8 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
                 {
                     // stats->Distances[v] = minDistance;
 
-                    degree = graph->vertices[v].out_degree;
-                    edge_idx = graph->vertices[v].edges_idx;
+                    degree = graph->vertices->out_degree[v];
+                    edge_idx = graph->vertices->edges_idx[v];
 
                     for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                     {
@@ -932,8 +932,8 @@ struct BellmanFordStats *bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
             if(getBit(bitmapCurr, v))
             {
 
-                __u32 degree = graph->vertices[v].out_degree;
-                __u32 edge_idx = graph->vertices[v].edges_idx;
+                __u32 degree = graph->vertices->out_degree[v];
+                __u32 edge_idx = graph->vertices->edges_idx[v];
                 __u32 j;
                 for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                 {
@@ -1068,7 +1068,7 @@ struct BellmanFordStats *bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
     for(v = 0; v < graph->num_vertices; v++)
     {
         vertices[v] = v;
-        degrees[v] = graph->vertices[v].out_degree;
+        degrees[v] = graph->vertices->out_degree[v];
 
         stats->Distances[v] = UINT_MAX / 2;
         stats->parents[v] = UINT_MAX;
@@ -1109,8 +1109,8 @@ struct BellmanFordStats *bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
             if(getBit(bitmapCurr, v))
             {
 
-                __u32 degree = graphPlus->vertices[v].out_degree;
-                __u32 edge_idx = graphPlus->vertices[v].edges_idx;
+                __u32 degree = graphPlus->vertices->out_degree[v];
+                __u32 edge_idx = graphPlus->vertices->edges_idx[v];
                 __u32 j;
                 for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                 {
@@ -1136,8 +1136,8 @@ struct BellmanFordStats *bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
             if(getBit(bitmapCurr, v))
             {
 
-                __u32 degree = graphMinus->vertices[v].out_degree;
-                __u32 edge_idx = graphMinus->vertices[v].edges_idx;
+                __u32 degree = graphMinus->vertices->out_degree[v];
+                __u32 edge_idx = graphMinus->vertices->edges_idx[v];
                 __u32 j;
                 for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                 {
