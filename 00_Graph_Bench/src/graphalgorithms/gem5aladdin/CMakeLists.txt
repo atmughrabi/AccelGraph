@@ -1,0 +1,11 @@
+
+AUX_SOURCE_DIRECTORY(${CMAKE_CURRENT_SOURCE_DIR} MyCSources)
+
+add_library(
+	GRAPH_ALGORITHMS STATIC
+	${MyCSources}
+	)
+
+
+
+

@@ -13,42 +13,45 @@
 # GAPP_TEST               = grid
 
 # dirs Root app 
-APP_DIR           = .
-BENCHMARKS_DIR    = ../../01_GraphDatasets
+APP_DIR           	= .
+BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
-SRC_DIR           = src
-OBJ_DIR			  = obj
-INC_DIR			  = include
-BIN_DIR			  = bin
+SRC_DIR           	= src
+OBJ_DIR			  	= obj
+INC_DIR			  	= include
+BIN_DIR			  	= bin
 
 #if you want to compile from cmake you need this directory
 #cd build
 #cmake ..
-BUILD_DIR		  = build
+BUILD_DIR		  	= build
 
 # relative directories used for managing src/obj files
-STRUCT_DIR		  = structures
-PREPRO_DIR		  = preprocessing
-ALGO_DIR		  = graphalgorithms
-UTIL_DIR		  = utils
+STRUCT_DIR		  	= structures
+PREPRO_DIR		  	= preprocessing
+ALGO_DIR		  	= graphalgorithms
+UTIL_DIR		  	= utils
+
+# Integration Directory you can chose gem5aladdin / openmp / capi
+INTEGRATION_DIR		= openmp
 
 #contains the tests use make run-test to compile what in this directory
-TEST_DIR		  = tests
+TEST_DIR		  	= tests
 
 #contains the main for the graph processing framework
-MAIN_DIR		  = main
+MAIN_DIR		  	= main
 
 
 SRC_FILES_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/*.c) 
-SRC_FILES_ALGO		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/*.c) 
+SRC_FILES_ALGO		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(INTEGRATION_DIR)/$(ALGO_DIR)/*.c) 
 SRC_FILES_PREPRO	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/*.c) 
 SRC_FILES_STRUCT	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/*.c)
 SRC_FILES_MAIN		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/*.c)
 SRC_FILES_TEST		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/*.c)
 
 OBJ_FILES_UTIL 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o,$(SRC_FILES_UTIL)) 
-OBJ_FILES_ALGO 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/%.o,$(SRC_FILES_ALGO)) 
+OBJ_FILES_ALGO 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(INTEGRATION_DIR)/$(ALGO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(INTEGRATION_DIR)/$(ALGO_DIR)/%.o,$(SRC_FILES_ALGO)) 
 OBJ_FILES_PREPRO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o,$(SRC_FILES_PREPRO)) 
 OBJ_FILES_STRUCT 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o,$(SRC_FILES_STRUCT)) 
 OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%.o,$(SRC_FILES_MAIN)) 
@@ -59,7 +62,7 @@ OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$
 CC				  = gcc 
 
 INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
-		-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR) 	\
+		-I$(APP_DIR)/$(INC_DIR)/$(INTEGRATION_DIR)/$(ALGO_DIR) 	\
 		-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
 		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)  	
 		
@@ -85,7 +88,7 @@ directories :
 	@mkdir -p $(APP_DIR)/$(BIN_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)
-	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(INTEGRATION_DIR)/$(ALGO_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)
@@ -106,7 +109,7 @@ $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o : $(APP_DIR)/$(SRC_DIR)/$(TEST_
 $(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(INTEGRATION_DIR)/$(ALGO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(INTEGRATION_DIR)/$(ALGO_DIR)/%.c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
@@ -231,19 +234,22 @@ FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/com-youtube.ungraph.trunc.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/wiki-Talk.trunc.wbin
 
 #GRAPH RUN
-ROOT = 0
+SORT_TYPE 		= 0
+REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS = 1
-NUM_THREADS  = 8
-NUM_ITERATIONS = 20
-NUM_TRIALS = 0
-TOLERANCE = 1e-9
-SORT_TYPE = 0
-PUSH_PULL = 0
-DELTA = 800
-REORDER = 0
-FILE_FORMAT = 1
-CONVERT_FORMAT = 1
+ALGORITHMS 		= 0
+
+ROOT 			= 0
+PUSH_PULL 		= 0
+TOLERANCE 		= 1e-9
+DELTA 			= 800
+
+NUM_THREADS  	= 8
+NUM_ITERATIONS 	= 20
+NUM_TRIALS 		= 0
+
+FILE_FORMAT 	= 1
+CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
 BIN_SIZE = 512
@@ -269,6 +275,8 @@ debug: all
 debug-memory: all	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
+# test files 
+
 .PHONY: run-test
 run-test: test
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST) 
@@ -280,6 +288,9 @@ debug-test: test
 .PHONY: debug-memory-test
 debug-memory-test: test	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
+
+
+# cache performance
 
 .PHONY: cachegrind-perf
 cachegrind-perf: all
