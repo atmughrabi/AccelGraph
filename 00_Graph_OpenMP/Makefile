@@ -148,7 +148,7 @@ clean:
 
 #small test graphs
 FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/Rabbit/graphs.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/Rabbit/graph.wbin
 
 # synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
@@ -162,7 +162,7 @@ FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
 
 
 #GRAPH RUN
@@ -177,7 +177,8 @@ SORT_TYPE = 0
 PUSH_PULL = 0
 DELTA = 800
 REORDER = 0
-
+FILE_FORMAT = 1
+CONVERT_FORMAT = 2
 
 #STATS COLLECTION VARIABLES
 BIN_SIZE = 512
@@ -185,7 +186,7 @@ INOUT_STATS = 2
 
 .PHONY: convert
 convert: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -c -w -f $(FILE_BIN)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -x -c $(CONVERT_FORMAT) -w -f $(FILE_BIN) -z $(FILE_FORMAT)
 
 .PHONY: stats
 stats: all
@@ -193,7 +194,7 @@ stats: all
 
 .PHONY: run
 run: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP) -f $(FILE_BIN) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 .PHONY: debug
 debug: all	

@@ -310,7 +310,7 @@ struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u
 
 }
 
-void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graph)
+void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graphCSR)
 {
 
     //     struct  Vertex
@@ -368,6 +368,7 @@ void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graph)
     // #endif
 
     FILE  *pBinary;
+    __u32 vertex_id;
 
 #if WEIGHTED
 
@@ -387,12 +388,52 @@ void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graph)
         return ;
     }
 
-    fwrite(&(graph->num_edges), sizeof (graph->num_edges), 1, pBinary);
-    fwrite(&(graph->num_vertices), sizeof (graph->num_vertices), 1, pBinary);
+    fwrite(&(graphCSR->num_edges), sizeof (graphCSR->num_edges), 1, pBinary);
+    fwrite(&(graphCSR->num_vertices), sizeof (graphCSR->num_vertices), 1, pBinary);
 #if WEIGHTED
-    fwrite(&(graph->max_weight), sizeof (graph->max_weight), 1, pBinary);
+    fwrite(&(graphCSR->max_weight), sizeof (graphCSR->max_weight), 1, pBinary);
 #endif
 
+    for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
+    {
+
+        fwrite(&(graphCSR->vertices->out_degree[vertex_id]), sizeof (graphCSR->vertices->out_degree[vertex_id]), 1, pBinary);
+        fwrite(&(graphCSR->vertices->in_degree[vertex_id]), sizeof (graphCSR->vertices->in_degree[vertex_id]), 1, pBinary);
+        fwrite(&(graphCSR->vertices->edges_idx[vertex_id]), sizeof (graphCSR->vertices->edges_idx[vertex_id]), 1, pBinary);
+
+#if DIRECTED
+        if(graphCSR->inverse_vertices)
+        {
+            fwrite(&(graphCSR->inverse_vertices->out_degree[vertex_id]), sizeof (graphCSR->inverse_vertices->out_degree[vertex_id]), 1, pBinary);
+            fwrite(&(graphCSR->inverse_vertices->in_degree[vertex_id]), sizeof (graphCSR->inverse_vertices->in_degree[vertex_id]), 1, pBinary);
+            fwrite(&(graphCSR->inverse_vertices->edges_idx[vertex_id]), sizeof (graphCSR->inverse_vertices->edges_idx[vertex_id]), 1, pBinary);
+        }
+#endif
+    }
+
+    for(vertex_id = 0; vertex_id < graphCSR->num_edges ; vertex_id++)
+    {
+
+        fwrite(&(graphCSR->sorted_edges_array->edges_array_src[vertex_id]), sizeof (graphCSR->sorted_edges_array->edges_array_src[vertex_id]), 1, pBinary);
+        fwrite(&(graphCSR->sorted_edges_array->edges_array_dest[vertex_id]), sizeof (graphCSR->sorted_edges_array->edges_array_dest[vertex_id]), 1, pBinary);
+
+#if WEIGHTED
+        fwrite(&(graphCSR->sorted_edges_array->edges_array_weight[vertex_id]), sizeof (graphCSR->sorted_edges_array->edges_array_weight[vertex_id]), 1, pBinary);
+#endif
+
+#if DIRECTED
+        if(graphCSR->inverse_vertices)
+        {
+            fwrite(&(graphCSR->inverse_sorted_edges_array->edges_array_src[vertex_id]), sizeof (graphCSR->inverse_sorted_edges_array->edges_array_src[vertex_id]), 1, pBinary);
+            fwrite(&(graphCSR->inverse_sorted_edges_array->edges_array_dest[vertex_id]), sizeof (graphCSR->inverse_sorted_edges_array->edges_array_dest[vertex_id]), 1, pBinary);
+#if WEIGHTED
+            fwrite(&(graphCSR->inverse_sorted_edges_array->edges_array_weight[vertex_id]), sizeof (graphCSR->inverse_sorted_edges_array->edges_array_weight[vertex_id]), 1, pBinary);
+#endif
+        }
+#endif
+    }
+
+    fclose(pBinary);
 
 
 }
@@ -401,7 +442,7 @@ void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graph)
 struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
 {
 
-    struct GraphCSR * graphCSR = NULL;
+    struct GraphCSR *graphCSR = NULL;
 
 
     return graphCSR;

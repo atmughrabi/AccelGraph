@@ -32,11 +32,11 @@ static struct argp_option options[] =
 {
     {
         "graph-file",         'f', "<FILE>",      0,
-        "\nEdge list represents the graph binary format to run the algorithm textual format with -convert option"
+        "\nEdge list represents the graph binary format to run the algorithm textual format change graph-file-format"
     },
     {
         "graph-file-format",  'z', "[TEXT|BIN|CSR:1]",      0,
-        "\nSpecify file format to be read, is it textual edge list, or a binary file edge list. This is specifically useful if you have Graph CSR/Grid structure already saved in a binary file format to skip the prerocessing step. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
+        "\nSpecify file format to be read, is it textual edge list, or a binary file edge list. This is specifically useful if you have Graph CSR/Grid structure already saved in a binary file format to skip the preprocessing step. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
     },
     {
         "algorithm",         'a', "[ALGORITHM #]",      0,
@@ -86,7 +86,7 @@ static struct argp_option options[] =
         "\nRelabels the graph for better cache performance. [default:0]-no-reordering [1]-page-rank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS [8]-LoadFromFile "
     },
     {
-        "convert-format",       'c', "[TEXT|BIN|CSR:1]",      0,
+        "convert-format",    'c', "[TEXT|BIN|CSR:1]",      0,
         "\n[stats flag must be on --stats to write]Serialize graph text format (edge list format) to binary graph file on load example:-f <graph file> -c this is specifically useful if you have Graph CSR/Grid structure and want to save in a binary file format to skip the preprocessing step for future runs. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
     },
     {
@@ -187,7 +187,7 @@ main (int argc, char **argv)
     arguments.wflag = 0;
     arguments.xflag = 0;
     arguments.sflag = 0;
-   
+
     arguments.iterations = 20;
     arguments.trials = 0;
     arguments.epsilon = 0.0001;
@@ -219,9 +219,7 @@ main (int argc, char **argv)
     omp_set_nested(1);
     omp_set_num_threads(numThreads);
 
-    __u32 binSize = arguments.iterations;
-    __u32 inout_degree = arguments.pushpull;
-    __u32 inout_lmode = arguments.lmode;
+
 
 
     printf("*-----------------------------------------------------*\n");
@@ -230,14 +228,18 @@ main (int argc, char **argv)
 
     if(arguments.xflag)
     {
-        collectStats(binSize, arguments.fnameb, arguments.sort, inout_lmode, arguments.symmetric, arguments.weighted, inout_degree);
+        // __u32 binSize = arguments.iterations;
+        // __u32 inout_degree = arguments.pushpull;
+        // __u32 inout_lmode = arguments.lmode;
+        // collectStats(binSize, arguments.fnameb, arguments.sort, inout_lmode, arguments.symmetric, arguments.weighted, inout_degree);
+        writeSerializedGraphDataStructure(&arguments);
     }
     else
     {
 
         graph = generateGraphDataStructure(&arguments);
         runGraphAlgorithms(graph, &arguments);
-        
+
     }
 
 

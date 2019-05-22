@@ -47,7 +47,7 @@ void writeSerializedGraphDataStructure(struct arguments *arguments)  // for now 
         printf("Read Edge List From File converted to binary : %f Seconds \n", Seconds(timer));
     }
     else if(arguments->fnameb_format == 0 && arguments->convert_format == 2)  // for now it edge list is text only convert to binary
-    {   
+    {
         void *graph = NULL;
         struct GraphCSR *graphCSR = NULL;
 
@@ -78,7 +78,7 @@ void writeSerializedGraphDataStructure(struct arguments *arguments)  // for now 
         void *graph = NULL;
         struct GraphCSR *graphCSR = NULL;
 
-        
+
         Start(timer);
         graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
         Stop(timer);
@@ -95,9 +95,10 @@ void writeSerializedGraphDataStructure(struct arguments *arguments)  // for now 
         graphCSRFree(graphCSR);
         Stop(timer);
         generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
-    }else if(arguments->fnameb_format == arguments->convert_format)   // for now it edge list is text only convert to binary
+    }
+    else if(arguments->fnameb_format == arguments->convert_format)    // for now it edge list is text only convert to binary
     {
-       
+
         Start(timer);
         Stop(timer);
         generateGraphPrintMessageWithtime("INPUT and OUTPUT Same format no need to serialize", Seconds(timer));
