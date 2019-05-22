@@ -313,66 +313,9 @@ struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u
 void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graphCSR)
 {
 
-    //     struct  Vertex
-    // {
-
-    //     __u8 visited;
-    //     __u32 out_degree;
-    //     __u32 in_degree;
-    //     __u32 edges_idx;
-    // };
-
-    // struct  EdgeList
-    // {
-
-    //     __u32 num_edges;
-    //     __u32 num_vertices;
-    // #if WEIGHTED
-    //     __u32 max_weight;
-    //     __u32 *edges_array_weight;
-    // #endif
-    //     __u32 *edges_array_src;
-    //     __u32 *edges_array_dest;
-    // };
-
-    // struct GraphCSR
-    // {
-
-    //     __u32 num_edges;
-    //     __u32 num_vertices;
-
-    // #if WEIGHTED
-    //     __u32 max_weight;
-    // #endif
-    //     // __u32* vertex_count; // needed for counting sort
-    //     int *parents;       // specify parent for each vertex // will be removed to stats struct
-    //     __u32 iteration;
-    //     __u32 processed_nodes;
-
-    //     struct Vertex *vertices;
-    //     struct EdgeList *sorted_edges_array; // sorted edge array
-
-    // #if DIRECTED
-    //     struct Vertex *inverse_vertices;
-    //     struct EdgeList *inverse_sorted_edges_array; // sorted edge array
-    // #endif
-    // };
-
-
-    //write data to file binary
-    // num_edges
-    // num_vertices
-
-    // #if WEIGHTED
-    //      max_weight;
-    // #endif
-
+   
     FILE  *pBinary;
     __u32 vertex_id;
-
-#if WEIGHTED
-
-#endif
 
     char *fname_txt = (char *) malloc((strlen(fname) + 10) * sizeof(char));
     char *fname_bin = (char *) malloc((strlen(fname) + 10) * sizeof(char));
@@ -442,8 +385,96 @@ void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graphCSR)
 struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
 {
 
-    struct GraphCSR *graphCSR = NULL;
+    FILE  *pBinary;
+    __u32 vertex_id;
+    __u32 num_vertices;
+    __u32 num_edges;
+    __u32 max_weight;
+    size_t ret;
 
+    pBinary = fopen(fname, "rb");
+    if (pBinary == NULL)
+    {
+        err(1, "open: %s", fname);
+        return NULL;
+    }
+
+    
+    ret = fread(&num_edges, sizeof(num_edges), 1, pBinary);
+    ret = fread(&num_vertices, sizeof(num_vertices), 1, pBinary);
+
+#if WEIGHTED
+    ret = fread(&max_weight, sizeof(max_weight), 1, pBinary);
+#endif
+
+
+#if DIRECTED
+    struct GraphCSR *graphCSR = graphCSRNew(num_vertices, num_edges, 1);
+#else
+    struct GraphCSR *graphCSR = graphCSRNew(num_vertices, num_edges, 0);
+#endif
+
+    struct EdgeList *sorted_edges_array = newEdgeList(num_edges);
+    sorted_edges_array->num_vertices = num_vertices;
+#if WEIGHTED
+    sorted_edges_array->max_weight = max_weight;
+#endif
+
+#if DIRECTED
+    struct EdgeList *inverse_sorted_edges_array = newEdgeList(num_edges);
+    inverse_sorted_edges_array->num_vertices = num_vertices;
+#if WEIGHTED
+    inverse_sorted_edges_array->max_weight = max_weight;
+#endif
+#endif
+
+ for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
+    {
+
+        ret = fread(&(graphCSR->vertices->out_degree[vertex_id]), sizeof (graphCSR->vertices->out_degree[vertex_id]), 1, pBinary);
+        ret = fread(&(graphCSR->vertices->in_degree[vertex_id]), sizeof (graphCSR->vertices->in_degree[vertex_id]), 1, pBinary);
+        ret = fread(&(graphCSR->vertices->edges_idx[vertex_id]), sizeof (graphCSR->vertices->edges_idx[vertex_id]), 1, pBinary);
+
+#if DIRECTED
+        if(graphCSR->inverse_vertices)
+        {
+            ret = fread(&(graphCSR->inverse_vertices->out_degree[vertex_id]), sizeof (graphCSR->inverse_vertices->out_degree[vertex_id]), 1, pBinary);
+            ret = fread(&(graphCSR->inverse_vertices->in_degree[vertex_id]), sizeof (graphCSR->inverse_vertices->in_degree[vertex_id]), 1, pBinary);
+            ret = fread(&(graphCSR->inverse_vertices->edges_idx[vertex_id]), sizeof (graphCSR->inverse_vertices->edges_idx[vertex_id]), 1, pBinary);
+        }
+#endif
+    }
+
+    for(vertex_id = 0; vertex_id < graphCSR->num_edges ; vertex_id++)
+    {
+
+        ret = fread(&(graphCSR->sorted_edges_array->edges_array_src[vertex_id]), sizeof (graphCSR->sorted_edges_array->edges_array_src[vertex_id]), 1, pBinary);
+        ret = fread(&(graphCSR->sorted_edges_array->edges_array_dest[vertex_id]), sizeof (graphCSR->sorted_edges_array->edges_array_dest[vertex_id]), 1, pBinary);
+
+#if WEIGHTED
+        ret = fread(&(graphCSR->sorted_edges_array->edges_array_weight[vertex_id]), sizeof (graphCSR->sorted_edges_array->edges_array_weight[vertex_id]), 1, pBinary);
+#endif
+
+#if DIRECTED
+        if(graphCSR->inverse_vertices)
+        {
+            ret = fread(&(graphCSR->inverse_sorted_edges_array->edges_array_src[vertex_id]), sizeof (graphCSR->inverse_sorted_edges_array->edges_array_src[vertex_id]), 1, pBinary);
+            ret = fread(&(graphCSR->inverse_sorted_edges_array->edges_array_dest[vertex_id]), sizeof (graphCSR->inverse_sorted_edges_array->edges_array_dest[vertex_id]), 1, pBinary);
+#if WEIGHTED
+            ret = fread(&(graphCSR->inverse_sorted_edges_array->edges_array_weight[vertex_id]), sizeof (graphCSR->inverse_sorted_edges_array->edges_array_weight[vertex_id]), 1, pBinary);
+#endif
+        }
+#endif
+    }
+
+
+
+
+    if(ret){
+        graphCSRPrintMessageWithtime("Read CSRBin Complete", 0);
+    }
+
+    fclose(pBinary);
 
     return graphCSR;
 
