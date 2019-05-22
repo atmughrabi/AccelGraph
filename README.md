@@ -37,11 +37,11 @@ Also support for Gem5-Aladdin has been included, for system emulation. With a si
   ```
   cd 00_Graph_Bench/
   ```
-1. The default compilation is openmp:
+2. The default compilation is openmp:
   ```
   make 
   ```
-1. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
+3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
   ```
   make run
   ```
