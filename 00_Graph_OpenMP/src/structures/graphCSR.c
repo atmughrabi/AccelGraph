@@ -402,7 +402,6 @@ struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
     
     ret = fread(&num_edges, sizeof(num_edges), 1, pBinary);
     ret = fread(&num_vertices, sizeof(num_vertices), 1, pBinary);
-
 #if WEIGHTED
     ret = fread(&max_weight, sizeof(max_weight), 1, pBinary);
 #endif
@@ -414,11 +413,15 @@ struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
     struct GraphCSR *graphCSR = graphCSRNew(num_vertices, num_edges, 0);
 #endif
 
+    graphCSR->max_weight = max_weight;
+
     struct EdgeList *sorted_edges_array = newEdgeList(num_edges);
     sorted_edges_array->num_vertices = num_vertices;
 #if WEIGHTED
     sorted_edges_array->max_weight = max_weight;
 #endif
+
+    graphCSR->sorted_edges_array = sorted_edges_array;
 
 #if DIRECTED
     struct EdgeList *inverse_sorted_edges_array = newEdgeList(num_edges);
@@ -426,6 +429,7 @@ struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
 #if WEIGHTED
     inverse_sorted_edges_array->max_weight = max_weight;
 #endif
+    graphCSR->inverse_sorted_edges_array = inverse_sorted_edges_array;
 #endif
 
  for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
@@ -471,7 +475,7 @@ struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
 
 
     if(ret){
-        graphCSRPrintMessageWithtime("Read CSRBin Complete", 0);
+       graphCSRPrint(graphCSR);
     }
 
     fclose(pBinary);

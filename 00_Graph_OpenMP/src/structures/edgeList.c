@@ -176,11 +176,11 @@ char *readEdgeListstxt(const char *fname, __u32 weighted)
             i = fscanf(pText, "%u\t%u\n", &src, &dest);
             // weight = (generateRandInt(mt19937var) % 256) + 1;
             weight = 1;
+            // printf("\t%u\t%u\t%u\n", src, dest, weight);
         }
         else
         {
-            i = fscanf(pText, "%u\t%u\t%u\n", &src, &dest, &weight);
-            // printf("%c\t%u\t%u\t%u\n",type, src, dest, weight);
+            i = fscanf(pText, "%u\t%u\t%u\n", &src, &dest, &weight);      
         }
 #else
         i = fscanf(pText, "%u\t%u\n", &src, &dest);
@@ -189,13 +189,13 @@ char *readEdgeListstxt(const char *fname, __u32 weighted)
         if( i == EOF )
             break;
 
+        // printf("\t%u\t%u\t%u\n", src, dest, weight);
 
         fwrite(&src, sizeof (src), 1, pBinary);
         fwrite(&dest, sizeof (dest), 1, pBinary);
 
 #if WEIGHTED
         fwrite(&weight, sizeof (weight), 1, pBinary);
-
 #endif
         // }
         // else{

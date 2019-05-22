@@ -43,8 +43,9 @@ void writeSerializedGraphDataStructure(struct arguments *arguments)  // for now 
         Start(timer);
         arguments->fnameb = readEdgeListstxt(arguments->fnameb, arguments->weighted);
         arguments->fnameb_format = 1; // now you have a bin file
+        arguments->weighted = 0; // no need to generate weights again this affects readedgelistbin
         Stop(timer);
-        printf("Read Edge List From File converted to binary : %f Seconds \n", Seconds(timer));
+        generateGraphPrintMessageWithtime("Serialize EdgeList text to binary (Seconds)", Seconds(timer));
     }
     else if(arguments->fnameb_format == 0 && arguments->convert_format == 2)  // for now it edge list is text only convert to binary
     {
@@ -54,8 +55,9 @@ void writeSerializedGraphDataStructure(struct arguments *arguments)  // for now 
         Start(timer);
         arguments->fnameb = readEdgeListstxt(arguments->fnameb, arguments->weighted);
         arguments->fnameb_format = 1; // now you have a bin file
+        arguments->weighted = 0; // no need to generate weights again this affects readedgelistbin
         Stop(timer);
-        printf("Read Edge List From File converted to binary : %f Seconds \n", Seconds(timer));
+        generateGraphPrintMessageWithtime("Serialize EdgeList text to binary (Seconds)", Seconds(timer));
 
         Start(timer);
         graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
@@ -129,8 +131,9 @@ void *generateGraphDataStructure(struct arguments *arguments)
         Start(timer);
         arguments->fnameb = readEdgeListstxt(arguments->fnameb, arguments->weighted);
         arguments->fnameb_format = 1; // now you have a bin file
+        arguments->weighted = 0; // no need to generate weights again this affects readedgelistbin
         Stop(timer);
-        printf("Read Edge List From File converted to binary : %f Seconds \n", Seconds(timer));
+        generateGraphPrintMessageWithtime("Serialize EdgeList text to binary (Seconds)", Seconds(timer));
     }
 
     if(arguments->fnameb_format == 1 ) // if it is a graphCSR binary file
