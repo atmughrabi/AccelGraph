@@ -143,7 +143,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
                 root = generateRandInt(mt19937var);
                 if(root < graphCSR->num_vertices)
                 {
-                    if(graphCSR->vertices[root].out_degree > 0)
+                    if(graphCSR->vertices->out_degree[root] > 0)
                         break;
                 }
             }
@@ -259,7 +259,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
                 root = generateRandInt(mt19937var);
                 if(root < graphCSR->num_vertices)
                 {
-                    if(graphCSR->vertices[root].out_degree > 0)
+                    if(graphCSR->vertices->out_degree[root] > 0)
                         break;
                 }
             }
@@ -319,7 +319,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
                 root = generateRandInt(mt19937var);
                 if(root < graphCSR->num_vertices)
                 {
-                    if(graphCSR->vertices[root].out_degree > 0)
+                    if(graphCSR->vertices->out_degree[root] > 0)
                         break;
                 }
             }
@@ -364,7 +364,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
                 root = generateRandInt(mt19937var);
                 if(root < graphCSR->num_vertices)
                 {
-                    if(graphCSR->vertices[root].out_degree > 0)
+                    if(graphCSR->vertices->out_degree[root] > 0)
                         break;
                 }
             }
@@ -421,7 +421,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
                 root = generateRandInt(mt19937var);
                 if(root < graphCSR->num_vertices)
                 {
-                    if(graphCSR->vertices[root].out_degree > 0)
+                    if(graphCSR->vertices->out_degree[root] > 0)
                         break;
                 }
             }
@@ -603,7 +603,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
                 root = generateRandInt(mt19937var);
                 if(root < graphCSR->num_vertices)
                 {
-                    if(graphCSR->vertices[root].out_degree > 0)
+                    if(graphCSR->vertices->out_degree[root] > 0)
                         break;
                 }
             }
@@ -721,7 +721,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
                 root = generateRandInt(mt19937var);
                 if(root < graphCSR->num_vertices)
                 {
-                    if(graphCSR->vertices[root].out_degree > 0)
+                    if(graphCSR->vertices->out_degree[root] > 0)
                         break;
                 }
             }
@@ -768,7 +768,7 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
                 root = generateRandInt(mt19937var);
                 if(root < graphCSR->num_vertices)
                 {
-                    if(graphCSR->vertices[root].out_degree > 0)
+                    if(graphCSR->vertices->out_degree[root] > 0)
                         break;
                 }
             }
@@ -886,7 +886,7 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
                 root = generateRandInt(mt19937var);
                 if(root < graphCSR->num_vertices)
                 {
-                    if(graphCSR->vertices[root].out_degree > 0)
+                    if(graphCSR->vertices->out_degree[root] > 0)
                         break;
                 }
             }

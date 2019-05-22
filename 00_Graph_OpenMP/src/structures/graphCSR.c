@@ -41,7 +41,7 @@ void graphCSRReset (struct GraphCSR *graphCSR)
     #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graphCSR)
     for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
     {
-        if(vertices[vertex_id].out_degree)
+        if(vertices->out_degree[vertex_id])
             graphCSR->parents[vertex_id] = vertices->out_degree[vertex_id] * (-1);
         else
             graphCSR->parents[vertex_id] = -1;
