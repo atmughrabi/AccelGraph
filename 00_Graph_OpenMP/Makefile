@@ -127,23 +127,85 @@ clean:
 	@rm -fr $(APP_DIR)/$(BUILD_DIR)/*
 
 
+# Usage: main_argp [OPTION...]
+#             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
+#             [num threads] [-h -c -s -w]
+# AccelGraph is an open source graph processing framework, it is designed to be a
+# portable benchmarking suite for various graph processing algorithms.
 
-# Usage: ./main -f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]
-#   -h [Help] 
-#   -a [algorithm] : [0]-BFS, [1]-Pagerank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation
-#   -d [data structure] : [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers
-#   -r [root]: BFS, DFS, SSSP root
-#   -p [algorithm direction] [0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-5]-push/pull fixed point arithmetic [6-8]-same order but using data driven 
-#   -o [sorting algorithm] [0]-radix-src [1]-radix-src-dest [2]-count-src [3]-count-src-dst.
-#   -n [num threads] default:max number of threads the system has
-#   -i [num iterations] number of iterations for pagerank to converge [default:20] SSSP-BellmanFord [default:V-1] 
-#   -t [num trials] number of random trials for each whole run [default:0]
-#   -e [epsilon/tolerance] tolerance value of for page rank [default:0.0001]
-#   -l [mode reordering] lightweight reordering [default:0]-no-reordering [1]-pagerank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit  [6]-Epoch-pageRank [7]-Epoch-BFS
-#   -c: read text format convert to bin file on load example:-f <graph file> -c
-#   -w: Weight generate random or load from file graph check graphConfig.h #define WEIGHTED 1 beforehand then recompile with using this option
-#   -s: Symmetric graph, if not given set of incoming edges will be created 
-#   -b: SSSP Delta value [Default:1]  
+#   -a, --algorithm=[ALGORITHM #]   
+#                              [0]-BFS, [1]-Page-rank, [2]-SSSP-DeltaStepping,
+#                              [3]-SSSP-BellmanFord, [4]-DFS
+#                              [5]-IncrementalAggregation
+#   -b, --delta=[DELTA:1]      
+#                              SSSP Delta value [Default:1]
+#   -c, --convert-format=[TEXT|BIN|CSR:1]
+                             
+#                              [stats flag must be on --stats to write]Serialize
+#                              graph text format (edge list format) to binary
+#                              graph file on load example:-f <graph file> -c this
+#                              is specifically useful if you have Graph CSR/Grid
+#                              structure and want to save in a binary file format
+#                              to skip the preprocessing step for future runs.
+#                              [0]-text edgeList [1]-binary edgeList [2]-graphCSR
+#                              binary
+#   -d, --data-structure=[TYPE #]   
+#                              [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj
+#                              ArrayList [4-5] same order bitmap frontiers
+#   -e, --tolerance=[EPSILON:0.0001],                              --epsilon=[EPSILON:0.0001]
+                             
+#                              Tolerance value of for page rank [default:0.0001]
+
+#   -f, --graph-file=<FILE>    
+#                              Edge list represents the graph binary format to
+#                              run the algorithm textual format change
+#                              graph-file-format
+#   -i, --num-iterations=[# ITERATIONS]
+                             
+#                              Number of iterations for page rank to converge
+#                              [default:20] SSSP-BellmanFord [default:V-1] 
+#   -l, --light-reorder=[ORDER:0]   
+#                              Relabels the graph for better cache performance.
+#                              [default:0]-no-reordering [1]-page-rank-order
+#                              [2]-in-degree [3]-out-degree [4]-in/out degree
+#                              [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS
+#                              [8]-LoadFromFile 
+#   -n, --num-threads=[# THREADS]   
+#                              Default:max number of threads the system has
+#   -o, --sort=[RADIX|COUNT]   
+#                              [0]-radix-src [1]-radix-src-dest [2]-count-src
+#                              [3]-count-src-dst
+#   -p, --direction=[PUSH|PULL]   
+#                              [0-1]-push/pull [2-3]-push/pull fixed point
+#                              arithmetic [4-6]-same order but using data driven
+#   -r, --root=[SOURCE|ROOT]   
+#                              BFS, DFS, SSSP root
+#   -s, --symmetries           
+#                              Symmetric graph, create a set of incoming edges
+#   -t, --num-trials=[# TRIALS]   
+#                              Number of random trials for each whole run (graph
+#                              algorithm run) [default:0] 
+#   -w, --generate-weights     
+#                              Generate random weights don't load from graph
+#                              file. Check ->graphConfig.h #define WEIGHTED 1
+#                              beforehand then recompile using this option
+#   -x, --stats                
+#                              Dump a histogram to file based on in-out degree
+#                              count bins / sorted according to in/out-degree or
+#                              page-ranks 
+#   -z, --graph-file-format=[TEXT|BIN|CSR:1]
+                             
+#                              Specify file format to be read, is it textual edge
+#                              list, or a binary file edge list. This is
+#                              specifically useful if you have Graph CSR/Grid
+#                              structure already saved in a binary file format to
+#                              skip the preprocessing step. [0]-text edgeList
+#                              [1]-binary edgeList [2]-graphCSR binary
+#   -?, --help                 Give this help list
+#       --usage                Give a short usage message
+#   -V, --version              Print program version
+
+# Report bugs to <atmughra@ncsu.edu>.
 
 
 #small test graphs

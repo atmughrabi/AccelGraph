@@ -49,7 +49,7 @@ Also support for Gem5-Aladdin has been included, for system emulation. With a si
 
 2. Run the algorithm with the data structure and other settings you need
   ```
-sage: main_argp [OPTION...]
+Usage: main_argp [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
 AccelGraph is an open source graph processing framework, it is designed to be a
@@ -61,26 +61,27 @@ portable benchmarking suite for various graph processing algorithms.
                              [5]-IncrementalAggregation
   -b, --delta=[DELTA:1]      
                              SSSP Delta value [Default:1]
-  -c, --convert-bin=[TEXT|BIN|CSR:1]
+  -c, --convert-format=[TEXT|BIN|CSR:1]
                              
-                             Serialize graph text format (edge list format) to
-                             binary graph file on load example:-f <graph file>
-                             -c this is specifically useful if you have Graph
-                             CSR/Grid structure and want to save in a binary
-                             file format to skip the preprocessing step for
-                             future runs. [0]-text edgeList [1]-binary edgeList
-                             [2]-graphCSR binary
+                             [stats flag must be on --stats to write]Serialize
+                             graph text format (edge list format) to binary
+                             graph file on load example:-f <graph file> -c this
+                             is specifically useful if you have Graph CSR/Grid
+                             structure and want to save in a binary file format
+                             to skip the preprocessing step for future runs.
+                             [0]-text edgeList [1]-binary edgeList [2]-graphCSR
+                             binary
   -d, --data-structure=[TYPE #]   
                              [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj
                              ArrayList [4-5] same order bitmap frontiers
-  -e, --tolerance=[EPSILON:0.0001], --epsilon=[EPSILON:0.0001]
+  -e, --tolerance=[EPSILON:0.0001],                              --epsilon=[EPSILON:0.0001]
                              
                              Tolerance value of for page rank [default:0.0001]
 
   -f, --graph-file=<FILE>    
                              Edge list represents the graph binary format to
-                             run the algorithm textual format with -convert
-                             option
+                             run the algorithm textual format change
+                             graph-file-format
   -i, --num-iterations=[# ITERATIONS]
                              
                              Number of iterations for page rank to converge
@@ -99,7 +100,7 @@ portable benchmarking suite for various graph processing algorithms.
   -p, --direction=[PUSH|PULL]   
                              [0-1]-push/pull [2-3]-push/pull fixed point
                              arithmetic [4-6]-same order but using data driven
-  -r,                              --root=[SOURCE|ROOT]   
+  -r, --root=[SOURCE|ROOT]   
                              BFS, DFS, SSSP root
   -s, --symmetries           
                              Symmetric graph, create a set of incoming edges
@@ -107,7 +108,7 @@ portable benchmarking suite for various graph processing algorithms.
                              Number of random trials for each whole run (graph
                              algorithm run) [default:0] 
   -w, --generate-weights     
-Generate random weights don't load from graph
+                             Generate random weights don't load from graph
                              file. Check ->graphConfig.h #define WEIGHTED 1
                              beforehand then recompile using this option
   -x, --stats                
@@ -120,7 +121,7 @@ Generate random weights don't load from graph
                              list, or a binary file edge list. This is
                              specifically useful if you have Graph CSR/Grid
                              structure already saved in a binary file format to
-                             skip the prerocessing step. [0]-text edgeList
+                             skip the preprocessing step. [0]-text edgeList
                              [1]-binary edgeList [2]-graphCSR binary
   -?, --help                 Give this help list
       --usage                Give a short usage message
@@ -130,6 +131,7 @@ Mandatory or optional arguments to long options are also mandatory or optional
 for any corresponding short options.
 
 Report bugs to <atmughra@ncsu.edu>.
+
 
 
 ```
