@@ -39,5 +39,7 @@ struct GraphCSR *graphCSRNew(__u32 V, __u32 E,  __u8 inverse);
 struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u32 lmode, __u32 symmetric, __u32 weighted);
 void graphCSRPrintMessageWithtime(const char *msg, double time);
 void graphCSRHardReset (struct GraphCSR *graphCSR);
+struct GraphCSR *readFromBinFileGraphCSR (const char *fname);
+void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graph);
 
 #endif

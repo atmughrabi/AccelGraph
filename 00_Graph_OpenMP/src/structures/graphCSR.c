@@ -398,12 +398,15 @@ void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graph)
 }
 
 
-// struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
-// {
+struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
+{
+
+    struct GraphCSR * graphCSR = NULL;
 
 
+    return graphCSR;
 
-// }
+}
 
 void graphCSRPrintMessageWithtime(const char *msg, double time)
 {

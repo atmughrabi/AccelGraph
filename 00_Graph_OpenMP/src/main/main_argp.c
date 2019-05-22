@@ -86,8 +86,8 @@ static struct argp_option options[] =
         "\nRelabels the graph for better cache performance. [default:0]-no-reordering [1]-page-rank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS [8]-LoadFromFile "
     },
     {
-        "convert-bin",       'c', "[TEXT|BIN|CSR:1]",      0,
-        "\nSerialize graph text format (edge list format) to binary graph file on load example:-f <graph file> -c this is specifically useful if you have Graph CSR/Grid structure and want to save in a binary file format to skip the preprocessing step for future runs. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
+        "convert-format",       'c', "[TEXT|BIN|CSR:1]",      0,
+        "\n[stats flag must be on --stats to write]Serialize graph text format (edge list format) to binary graph file on load example:-f <graph file> -c this is specifically useful if you have Graph CSR/Grid structure and want to save in a binary file format to skip the preprocessing step for future runs. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
     },
     {
         "generate-weights",  'w', 0,      0,
@@ -165,7 +165,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
         arguments->xflag = 1;
         break;
     case 'c':
-        arguments->cflag = 1;
+        arguments->convert_format = atoi(arg);
         break;
 
     default:
@@ -187,8 +187,7 @@ main (int argc, char **argv)
     arguments.wflag = 0;
     arguments.xflag = 0;
     arguments.sflag = 0;
-    arguments.cflag = 0;
-
+   
     arguments.iterations = 20;
     arguments.trials = 0;
     arguments.epsilon = 0.0001;
@@ -204,6 +203,7 @@ main (int argc, char **argv)
     arguments.numThreads = omp_get_max_threads();
     arguments.fnameb = NULL;
     arguments.fnameb_format = 1;
+    arguments.convert_format = 1;
 
     void *graph = NULL;
 
@@ -235,23 +235,9 @@ main (int argc, char **argv)
     else
     {
 
-        if(arguments.cflag)
-        {
-
-          if(arguments.fnameb_format){
-
-
-          }
-            Start(timer);
-            arguments.fnameb = readEdgeListstxt(arguments.fnameb, arguments.weighted);
-            Stop(timer);
-            printf("Read Edge List From File converted to binary : %f Seconds \n", Seconds(timer));
-        }
-        else
-        {
-            graph = generateGraphDataStructure(&arguments);
-            runGraphAlgorithms(graph, &arguments);
-        }
+        graph = generateGraphDataStructure(&arguments);
+        runGraphAlgorithms(graph, &arguments);
+        
     }
 
 

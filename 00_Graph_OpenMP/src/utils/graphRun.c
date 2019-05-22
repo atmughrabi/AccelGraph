@@ -31,14 +31,85 @@ void generateGraphPrintMessageWithtime(const char *msg, double time)
 
 }
 
-void writeSerializedGraphDataStructure(struct arguments *arguments){ // for now this only support graph CSR
+void writeSerializedGraphDataStructure(struct arguments *arguments)  // for now this only support graph CSR
+{
 
     // check input type edgelist text/bin or graph csr
     // read input file create CSR graph then write to binaryfile
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+
+    if(arguments->fnameb_format == 0 && arguments->convert_format == 1)  // for now it edge list is text only convert to binary
+    {
+        Start(timer);
+        arguments->fnameb = readEdgeListstxt(arguments->fnameb, arguments->weighted);
+        arguments->fnameb_format = 1; // now you have a bin file
+        Stop(timer);
+        printf("Read Edge List From File converted to binary : %f Seconds \n", Seconds(timer));
+    }
+    else if(arguments->fnameb_format == 0 && arguments->convert_format == 2)  // for now it edge list is text only convert to binary
+    {   
+        void *graph = NULL;
+        struct GraphCSR *graphCSR = NULL;
+
+        Start(timer);
+        arguments->fnameb = readEdgeListstxt(arguments->fnameb, arguments->weighted);
+        arguments->fnameb_format = 1; // now you have a bin file
+        Stop(timer);
+        printf("Read Edge List From File converted to binary : %f Seconds \n", Seconds(timer));
+
+        Start(timer);
+        graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
+
+        graphCSR = (struct GraphCSR *)graph;
+        Start(timer);
+        writeToBinFileGraphCSR (arguments->fnameb, graphCSR);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
+
+        Start(timer);
+        graphCSRFree(graphCSR);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+    }
+    else if(arguments->fnameb_format == 1 && arguments->convert_format == 2)   // for now it edge list is text only convert to binary
+    {
+        void *graph = NULL;
+        struct GraphCSR *graphCSR = NULL;
+
+        
+        Start(timer);
+        graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
+
+
+        graphCSR = (struct GraphCSR *)graph;
+        Start(timer);
+        writeToBinFileGraphCSR (arguments->fnameb, graph);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
+
+        Start(timer);
+        graphCSRFree(graphCSR);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+    }else if(arguments->fnameb_format == arguments->convert_format)   // for now it edge list is text only convert to binary
+    {
+       
+        Start(timer);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("INPUT and OUTPUT Same format no need to serialize", Seconds(timer));
+    }
+
+
+    free(timer);
 
 }
 
-void readSerializeGraphDataStructure(struct arguments *arguments){ // for now this only support graph CSR
+void readSerializeGraphDataStructure(struct arguments *arguments)  // for now this only support graph CSR
+{
 
     // check input type edgelist text/bin or graph csr
     // read input file create to the correct structure without preprocessing
@@ -52,50 +123,68 @@ void *generateGraphDataStructure(struct arguments *arguments)
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     void *graph = NULL;
 
-    if(!arguments->fnameb_format){ // for now it edge list is text only convert to binary
+    if(arguments->fnameb_format == 0)  // for now it edge list is text only convert to binary
+    {
         Start(timer);
         arguments->fnameb = readEdgeListstxt(arguments->fnameb, arguments->weighted);
+        arguments->fnameb_format = 1; // now you have a bin file
         Stop(timer);
         printf("Read Edge List From File converted to binary : %f Seconds \n", Seconds(timer));
     }
 
-    switch (arguments->datastructure)
+    if(arguments->fnameb_format == 1 ) // if it is a graphCSR binary file
     {
-    case 0: // CSR
-    case 4:
-        Start(timer);
-        graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
-        break;
-    case 1: // Grid
-    case 5:
-        Start(timer);
-        graph = (void *)graphGridPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("GraphGrid Preprocessing Step Time (Seconds)", Seconds(timer));
-        break;
-    case 2: // Adj Linked List
-        Start(timer);
-        graph = (void *)graphAdjLinkedListPreProcessingStep ( arguments->fnameb,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("GraphAdjLinkedList Preprocessing Step Time (Seconds)", Seconds(timer));
-        break;
-    case 3: // Adj Array List
-        Start(timer);
-        graph = (void *)graphAdjArrayListPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("GraphAdjArrayList Preprocessing Step Time (Seconds)", Seconds(timer));
-        break;
-    default:// CSR
-        Start(timer);
-        graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
 
-        break;
+        switch (arguments->datastructure)
+        {
+        case 0: // CSR
+        case 4:
+            Start(timer);
+            graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
+            break;
+        case 1: // Grid
+        case 5:
+            Start(timer);
+            graph = (void *)graphGridPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("GraphGrid Preprocessing Step Time (Seconds)", Seconds(timer));
+            break;
+        case 2: // Adj Linked List
+            Start(timer);
+            graph = (void *)graphAdjLinkedListPreProcessingStep ( arguments->fnameb,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("GraphAdjLinkedList Preprocessing Step Time (Seconds)", Seconds(timer));
+            break;
+        case 3: // Adj Array List
+            Start(timer);
+            graph = (void *)graphAdjArrayListPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("GraphAdjArrayList Preprocessing Step Time (Seconds)", Seconds(timer));
+            break;
+        default:// CSR
+            Start(timer);
+            graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+            Stop(timer);
+            generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
+
+            break;
+        }
     }
-
+    else if(arguments->fnameb_format == 2)
+    {
+        Start(timer);
+        graph = (void *)readFromBinFileGraphCSR (arguments->fnameb);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
+    }
+    else
+    {
+        Start(timer);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("UNKOWN Graph format Preprocessing Step Time (Seconds)", Seconds(timer));
+    }
 
     free(timer);
     return graph;

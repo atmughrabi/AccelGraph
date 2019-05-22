@@ -20,7 +20,6 @@ struct arguments
     int wflag;
     int xflag;
     int sflag;
-    int cflag;
 
     __u32 iterations;
     __u32 trials;
@@ -37,6 +36,7 @@ struct arguments
     __u32 numThreads;
     char *fnameb;
     __u32 fnameb_format;
+    __u32 convert_format;
 };
 
 void writeSerializedGraphDataStructure(struct arguments *arguments);
