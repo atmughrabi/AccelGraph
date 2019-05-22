@@ -14,7 +14,7 @@ Also support for Gem5-Aladdin has been included, for system emulation. With a si
 ## Organization
 
 * `00_Graph_Bench`
-  * `include` - System Verilog architectures
+  * `include` - Major function headers 
     * `graphalgorithms` - supported Graph algorithms
       * `openmp`  - OpenMP integration
         * `BFS.h`   - Breadth First Search
@@ -23,6 +23,27 @@ Also support for Gem5-Aladdin has been included, for system emulation. With a si
         * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
         * `incrementalAgreggation.h` - Incremental Aggregation for clustering
         * `pageRank.h` - Page Rank Algorithm
+      * `gem5aladdin`- gem5-aladdin integration
+      * `capi` - CAPI integration
+    * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
+      * `countsort.h` - sort edge list using count sort
+      * `radixsort.h` - sort edge list using radix sort
+      * `reorder.h` - cluster reorder the graph for better cache locality
+      * `sortRun.h` - chose which sorting algorithm to use
+    * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
+      * `graphAdjArrayList.h` - graph using adjacency list array with arrays
+      * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
+      * `graphCSR.h` - graph using compressed sparse matrix
+      * `graphGrid.h` - graph using Grid
+  * `src` - Major function Source files
+    * `graphalgorithms` - supported Graph algorithms
+      * `openmp`  - OpenMP integration
+        * `BFS.c`   - Breadth First Search
+        * `DFS.c`   - Depth First Search
+        * `SSSP.c`  - Single Source Shortest Path
+        * `bellmanFord.c` - Single Source Shortest Path using Bellman Ford
+        * `incrementalAgreggation.c` - Incremental Aggregation for clustering
+        * `pageRank.c` - Page Rank Algorithm
       * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
     * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
