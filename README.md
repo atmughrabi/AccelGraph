@@ -1,11 +1,11 @@
-# AccelGraph
+# Accel-Graph
 ## Graph Processing Framework With OpenMP/CAPI-Verilog/Gem5-Aladdin
 
 AFU framework for Graph Processing algorithms with OpenMP/Shared Memory Accelerator CAPI
 
 ## Overview
 
-![End-to-End Acceleration](./02_slides/fig/fig-4.png "AccelGraph")
+![End-to-End Acceleration](./02_slides/fig/fig-4.png "Accel-Graph")
 
 AccelGraph is an open source Graph processing framework, it is designed to be a portable benchmarking suite for various graph processing algorithms. It provides an end to end evaluation infrastructure. End to end involves performance bottleneck that includes the preprocessing stage of graph processing.
 The OpenMP part of AccelGraph has been tested on Ubuntu 18.04 with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking tool has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between shared memory FPGAs with parallel processors.
@@ -13,15 +13,18 @@ Also support for Gem5-Aladdin has been included, for system emulation. With a si
 
 ## Organization
 
-* `00_Graph_OpenMP`
+* `00_Graph_Bench`
   * `include` - System Verilog architectures
-    * `graphalgorithms` - \Implemented Graph algorithm
-      * `BFS.h` - Breadth First Search
-      * `DFS.h` - Depth First Search
-      * `SSSP.h` - Single Source Shortest Path
-      * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
-      * `incrementalAgreggation.h` - Incremental Aggregation for clustering
-      * `pageRank.h` - Page Rank Algorithm
+    * `graphalgorithms` - supported Graph algorithms
+      * `openmp`  - OpenMP integration
+        * `BFS.h`   - Breadth First Search
+        * `DFS.h`   - Depth First Search
+        * `SSSP.h`  - Single Source Shortest Path
+        * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
+        * `incrementalAgreggation.h` - Incremental Aggregation for clustering
+        * `pageRank.h` - Page Rank Algorithm
+      * `gem5aladdin`- gem5-aladdin integration
+      * `capi` - CAPI integration
     * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
       * `countsort.h` - sort edge list using count sort
       * `radixsort.h` - sort edge list using radix sort
@@ -37,9 +40,29 @@ Also support for Gem5-Aladdin has been included, for system emulation. With a si
 
 ## Details
 
-### Graph Algorithms Supported Implementations
+### Accel-Graph Supported Algorithms
 
-### Initial compilation for the Graph frame work with OpenMP
+
+
+## Installation ##
+
+### Setting up the source code ###
+
+1. Clone Accel-Graph.
+
+  ```
+  git clone https://github.com/harvard-acc/gem5-aladdin
+  ```
+
+2. Setup the CAPI submodules.
+
+  ```
+  git submodule update --init --recursive
+  ```
+
+## Running Accel-Graph ##
+
+### Initial compilation for the Graph framework with OpenMP
 
 1. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
   ```bash
