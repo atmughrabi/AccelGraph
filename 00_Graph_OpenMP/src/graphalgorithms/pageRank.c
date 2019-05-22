@@ -1565,13 +1565,12 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
             if((v + 1) < graph->num_vertices)
             {
                 edge_idx = vertices->edges_idx[v + 1];
-                // fprintf(fptr, "p %016lx %u %u %u\n", &(sorted_edges_array[edge_idx]), degree, v, 0);
                 for(j = edge_idx ; j < (edge_idx + vertices->out_degree[v + 1]) ; j++)
                 {
                     u = sorted_edges_array[j];
 
-                     // if(findLine(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), '0') == NULL)
-                    // if(checkPrefetch(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), '0'))
+                  
+                    if(checkPrefetch(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), '0'))
                     {
                         if(labels[u] < (graph->num_vertices - top))
                         {
@@ -1585,12 +1584,9 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
                             // Access(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), 's', '0', u);
                         }
                     }
-
-                    // addToBloomMultiHash(bloomMultiHash, (__u64) & (riDividedOnDiClause[u]));
-
                 }
 
-                // if(checkPrefetch(cache_prefetch, (__u64) & (pageRanksNext[v + 1]), '0'))
+                if(checkPrefetch(cache_prefetch, (__u64) & (pageRanksNext[v + 1]), '0'))
                 {
                     if(labels[v + 1] > (graph->num_vertices - top))
                     {
@@ -1610,7 +1606,6 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
                 u = sorted_edges_array[j];
-                // addToBloomMultiHash(bloomMultiHash, (__u64) & (riDividedOnDiClause[u]));
 
                 if(labels[u] > (graph->num_vertices - top))
                 {
@@ -1624,10 +1619,10 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
                     Access(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), 'r', '0', u);
                     // Access(cache, (__u64) &(sorted_edges_array[j]), 'r', '0', v);
                 }
+
                 pageRanksNext[v] += riDividedOnDiClause[u];
             }
 
-            // addToBloomMultiHash(bloomMultiHash, (__u64) & (pageRanksNext[v]));
             if(labels[v] > (graph->num_vertices - top))
             {
                 Access(cache, (__u64) & (pageRanksNext[v]), 'r', '1', v);
@@ -1689,8 +1684,7 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
     #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
-        // pageRanks[v] = pageRanks[v] / graph->num_vertices;
-        pageRanks[v] = cache->verticesMiss[v];
+        pageRanks[v] = pageRanks[v] / graph->num_vertices;
         sum += pageRanks[v];
     }
 

@@ -95,7 +95,6 @@ directories :
 $(APP_DIR)/$(BIN_DIR)/$(GAPP) : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^  $(LIBS)
 	
-
 $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST) : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^  $(LIBS)
 
@@ -116,9 +115,6 @@ $(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.
 
 $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
-
-
-
 
 .PHONY: clean
 clean:
@@ -214,33 +210,41 @@ clean:
 
 # synthetic graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
-FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin.csr
+# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin.csr
 
 # real world large graphs binary format
 # FILE_BIN = $(BENCHMARKS_DIR)/orkut/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
 # FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
 
 
+# real world small graphs binary format
+
+# FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/com-youtube.ungraph.trunc.wbin  
+# FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/p2p-Gnutella31.trunc.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/web-BerkStan.trunc.wbin 
+# FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/web-Google.trunc.wbin
+# FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/wiki-Talk.trunc.wbin
+
 #GRAPH RUN
 ROOT = 0
 DATA_STRUCTURES = 0
 ALGORITHMS = 1
 NUM_THREADS  = 8
-NUM_ITERATIONS = 100
+NUM_ITERATIONS = 20
 NUM_TRIALS = 0
 TOLERANCE = 1e-9
 SORT_TYPE = 0
-PUSH_PULL = 0
+PUSH_PULL = 4
 DELTA = 800
 REORDER = 0
-FILE_FORMAT = 2
-CONVERT_FORMAT = 2
+FILE_FORMAT = 1
+CONVERT_FORMAT = 1
 
 #STATS COLLECTION VARIABLES
 BIN_SIZE = 512
