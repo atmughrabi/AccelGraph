@@ -33,15 +33,22 @@ Also support for Gem5-Aladdin has been included, for system emulation. With a si
 
 ### Initial compilation for the Graph framework with OpenMP
 
-1. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
-  ```bash
+1. From the root directory go to the graph benchmark directory:
+  ```
+  cd 00_Graph_Bench/
+  ```
+1. The default compilation is openmp:
+  ```
   make 
+  ```
+1. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
+  ```
   make run
   ```
 
 2. Run the algorithm with the data structure and other settings you need
   ```
-Usage: main_argp [OPTION...]
+Usage: accel-graph [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
 AccelGraph is an open source graph processing framework, it is designed to be a

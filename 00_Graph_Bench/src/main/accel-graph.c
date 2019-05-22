@@ -226,7 +226,7 @@ main (int argc, char **argv)
     printf("| %-20s %-30u | \n", "Number of Threads :", numThreads);
     printf(" -----------------------------------------------------\n");
 
-    if(arguments.xflag)
+    if(arguments.xflag) // if stats flag is on collect stats or serialize your graph
     {
         // __u32 binSize = arguments.iterations;
         // __u32 inout_degree = arguments.pushpull;

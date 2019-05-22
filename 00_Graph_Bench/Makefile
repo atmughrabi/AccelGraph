@@ -1,7 +1,7 @@
 
 
 # globals
-  GAPP               = main_argp
+  GAPP               = accel-graph
 #   GAPP_TEST          = test_quantization
   GAPP_TEST          = test_bloomfilter
 # GAPP_TEST          = test_bloomStream
@@ -94,7 +94,7 @@ directories :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)
 
-$(APP_DIR)/$(BIN_DIR)/$(GAPP) : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^  $(LIBS)
 	
 $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST) : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
