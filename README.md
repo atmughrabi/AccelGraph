@@ -139,7 +139,7 @@ Report bugs to <atmughra@ncsu.edu>.
 
 ### Initial compilation for the Graph framework with gem5-aladdin
 
-* NOTE: You need gem4-aladdin environment set up on you machine.
+* NOTE: You need gem4-aladdin environment setup on your machine.
 * Please refer to [(gem5-aladdin)](https://github.com/harvard-acc/gem5-aladdin)
 
 1. From the root directory go to the graph benchmark directory:
@@ -157,7 +157,7 @@ Report bugs to <atmughra@ncsu.edu>.
 
 ### Initial compilation for the Graph framework with CAPI
 
-* NOTE: You need CAPI environment set up on you machine.
+* NOTE: You need CAPI environment setup on your machine.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
 * CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
