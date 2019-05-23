@@ -36,8 +36,11 @@ UTIL_DIR		  	= utils
 # Integration Directory you can chose gem5aladdin / openmp / capi
 # INTEGRATION_DIR		= openmp
 # INTEGRATION_DIR		= capi
-INTEGRATION_DIR		= gem5aladdin
-DYNAMIC_DIR		  	= dynamictraces
+
+# Folders needed when using gem5-aladdin
+INTEGRATION_DIR				= gem5aladdin
+ALADDIN_CONFIG_DIR			= aladdin
+DYNAMIC_TRACES_DIR		  	= dynamic_traces
 
 #contains the tests use make run-test to compile what in this directory
 TEST_DIR		  	= tests
@@ -195,7 +198,7 @@ clean: clean-trace
 
 .PHONY: directories-instrumented
 directories-instrumented:
-	@mkdir -p $(APP_DIR)/$(DYNAMIC_DIR)
+	@mkdir -p $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)
 
 # Generate the source code labelmap
 $(APP_DIR)/labelmap: $(ALL_SRCS)
@@ -234,6 +237,8 @@ $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%-opt.llvm : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_
 clean-trace:
 	@rm -f dynamic_trace.gz
 	@rm -f labelmap
+	@rm -fr $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)
+
 ##################################################
 ##################################################
 
@@ -281,8 +286,8 @@ TOLERANCE 		= 1e-9
 DELTA 			= 800
 
 NUM_THREADS  	= 8
-NUM_ITERATIONS 	= 20
-NUM_TRIALS 		= 10
+NUM_ITERATIONS 	= 1
+NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
 CONVERT_FORMAT 	= 1
@@ -341,21 +346,21 @@ cache-perf: all
 #      LLVM TRACER  TOP LEVEL RULES        #
 ############################################
 
-
-
+.PHONY: trace-binary
 trace-binary: directories directories-instrumented ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented
 	@echo "\n ******************************************************************************  "
 	@echo " * DONE!! NOTHING ELSE TO COMPILE"
 	@echo " * ---> AccelGraph: $(word 2,$^)"
 	@echo " ******************************************************************************  \n"
 
-
+.PHONY: dma-trace-binary
 dma-trace-binary:
 	$(MAKE) -C . DMA_MODE=1 trace-binary
 
+.PHONY: run-trace
 run-trace: trace-binary
-	@cd $(APP_DIR)/$(DYNAMIC_DIR) &&\
-	../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented -f ../$(FILE_BIN) $(ARGS) &&\
-	@mv $(APP_DIR)/$(DYNAMIC_DIR)/dynamic_trace.gz $(APP_DIR)/$(DYNAMIC_DIR)/dynamic_trace.gz 
+	cd $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR) &&\
+	../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented -f ../../$(FILE_BIN) $(ARGS)
+	mv $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_dynamic_trace.gz 
 
 

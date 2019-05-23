@@ -917,9 +917,9 @@ float *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *
         mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "pageRanksNext", &(pageRanksNext[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "out_degree", &(vertices->out_degree[0]), graph->num_vertices * sizeof(struct Vertex));
+            ACCELGRAPH_CSR_PAGERANK_PULL, "out_degree", &(vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
          mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "edges_idx", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(struct Vertex));
+            ACCELGRAPH_CSR_PAGERANK_PULL, "edges_idx", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "sorted_edges_array", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
         invokeAcceleratorAndBlock(ACCELGRAPH_CSR_PAGERANK_PULL);
