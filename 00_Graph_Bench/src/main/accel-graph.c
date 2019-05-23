@@ -13,6 +13,14 @@
 #include "timer.h"
 #include "mt19937.h"
 
+// "   mm                        ""#             mmm                       #     \n"
+// "   ##    mmm    mmm    mmm     #           m"   "  m mm   mmm   mmmm   # mm  \n"
+// "  #  #  #"  "  #"  "  #"  #    #           #   mm  #"  " "   #  #" "#  #"  # \n"
+// "  #mm#  #      #      #""""    #     """   #    #  #     m"""#  #   #  #   # \n"
+// " #    # "#mm"  "#mm"  "#mm"    "mm          "mmm"  #     "mm"#  ##m#"  #   # \n"
+// "                                                                #            \n"
+
+
 int numThreads;
 mt19937state *mt19937var;
 
