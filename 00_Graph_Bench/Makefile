@@ -111,7 +111,37 @@ LLVMFLAGS = -static -g -O1 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loop
 ##################################################
 ##################################################
 
+##################################################
+#    		 GEM5 COMPILATION VARIABLES         #
+##################################################
 
+# Common Make targets for simulating MachSuite in gem5.
+#
+# ALADDIN_HOME needs to be defined as an environment variable.
+# The gem5 dependencies are listed as .cpp files for compatibility with gem5.
+# To compile them with C code, we need to explicitly use gcc.
+
+GEM5_SRCS = aladdin_sys_connection.cpp aladdin_sys_constants.cpp dma_interface.c
+GEM5_FULL_SRCS = $(GEM5_SRCS:%=$(ALADDIN_HOME)/gem5/%)
+
+# For the MachSuite harness and support system.
+CFLAGS += -O3 -Wall -Wno-unused-label -I../../common
+
+# -mno-sse
+GEM5_CFLAGS = -static -O3 \
+              -msse -mfpmath=sse \
+              -fno-exceptions \
+              -std=gnu99
+
+INCLUDES += -I$(ALADDIN_HOME)/gem5 $(INC)
+LFLAGS = -lm
+BMARK = $(ACCEL_NAME)
+
+bmk_home=.
+gem5_dir=$(ALADDIN_HOME)/../..
+
+##################################################
+##################################################
 
 # compilers
 # CPP               = c++
@@ -243,6 +273,83 @@ clean-trace:
 ##################################################
 
 #########################################################
+#       		 	GEM5 GENERATION  	  				#
+#########################################################
+
+# Builds the standalone CPU version only.
+.PHONY: gem5-cpu 
+gem5-cpu: $(SRCS) $(GEM5_FULL_SRCS)
+	@echo Building benchmark $(BMARK) for gem5.
+	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) $(GEM5_FULL_SRCS) $(SRCS) $(INCLUDES) $(BMARK_SPECIFIC_CFLAGS) -o $(BMARK)-gem5 $(LFLAGS)
+
+# Builds the gem5 version with HW acceleration turned on.
+.PHONY: gem5-accel 
+gem5-accel: $(SRCS) $(GEM5_FULL_SRCS)
+	@echo Building benchmark $(BMARK) for gem5 with HW acceleration.
+	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) -DGEM5_HARNESS $(SRCS) $(GEM5_FULL_SRCS) $(INCLUDES) $(BMARK_SPECIFIC_CFLAGS) -o $(BMARK)-gem5-accel $(LFLAGS)
+
+.PHONY: clean-gem5 
+clean-gem5:
+	rm -rf $(BMARK)-gem5 $(BMARK)-gem5-accel
+
+##################################################
+##################################################
+
+############################################
+#      LLVM TRACER  TOP LEVEL RULES        #
+############################################
+
+.PHONY: trace-binary
+trace-binary: directories directories-instrumented ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE"
+	@echo " * ---> AccelGraph: $(word 2,$^)"
+	@echo " ******************************************************************************  \n"
+
+.PHONY: dma-trace-binary
+dma-trace-binary:
+	$(MAKE) -C . DMA_MODE=1 trace-binary
+
+.PHONY: run-trace
+run-trace: trace-binary
+	cd $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR) &&\
+	../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented -f ../../$(FILE_BIN) $(ARGS)
+	mv $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_dynamic_trace.gz 
+
+##################################################
+##################################################
+
+############################################
+#      		GEM5  TOP LEVEL RULES          #
+############################################
+
+# Builds both standalone CPU version and the HW accelerated version.
+.PHONY: gem5 
+gem5: gem5-cpu gem5-accel
+
+.PHONY: run-gem5 
+run-gem5:
+	${gem5_dir}/build/X86/gem5.opt \
+	  --debug-flags=HybridDatapath,Aladdin \
+	  --outdir=${bmk_home}/outputs \
+	  --stats-db-file=stats.db \
+	  ${gem5_dir}/configs/aladdin/aladdin_se.py \
+	  --num-cpus=1 \
+	  --enable_prefetchers \
+	  --mem-size=4GB \
+	  --mem-type=DDR3_1600_8x8  \
+	  --sys-clock=1GHz \
+	  --cpu-type=DerivO3CPU \
+	  --caches \
+	  --cacheline_size=128 \
+	  --accel_cfg_file=${bmk_home}/gem5.cfg \
+	  -c ${bmk_home}/main-gem5 -o "$(ARGS)" \
+	  | gzip -c > stdout.gz
+	  
+##################################################
+##################################################
+
+#########################################################
 #       		 ACCEL GRAPH ARGUMENTS    				#
 #########################################################
 
@@ -342,25 +449,7 @@ cachegrind-perf: all
 cache-perf: all
 	sudo perf stat -d ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) -f $(FILE_BIN) $(ARGS)
 
-############################################
-#      LLVM TRACER  TOP LEVEL RULES        #
-############################################
-
-.PHONY: trace-binary
-trace-binary: directories directories-instrumented ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented
-	@echo "\n ******************************************************************************  "
-	@echo " * DONE!! NOTHING ELSE TO COMPILE"
-	@echo " * ---> AccelGraph: $(word 2,$^)"
-	@echo " ******************************************************************************  \n"
-
-.PHONY: dma-trace-binary
-dma-trace-binary:
-	$(MAKE) -C . DMA_MODE=1 trace-binary
-
-.PHONY: run-trace
-run-trace: trace-binary
-	cd $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR) &&\
-	../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented -f ../../$(FILE_BIN) $(ARGS)
-	mv $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_dynamic_trace.gz 
+##################################################
+##################################################
 
 
