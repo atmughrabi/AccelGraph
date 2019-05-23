@@ -37,6 +37,7 @@ UTIL_DIR		  	= utils
 # INTEGRATION_DIR		= openmp
 # INTEGRATION_DIR		= capi
 INTEGRATION_DIR		= gem5aladdin
+DYNAMIC_DIR		  	= dynamictraces
 
 #contains the tests use make run-test to compile what in this directory
 TEST_DIR		  	= tests
@@ -132,7 +133,7 @@ LIBS = -lm
 .PHONY: all
 all : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)
 	@echo "\n ******************************************************************************  "
-	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph: $(word 2,$^)"
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: $(word 2,$^)"
 	@echo " ******************************************************************************  \n"
 
 .PHONY: test
@@ -192,6 +193,10 @@ clean: clean-trace
 #       		 LLVM TRACER GENERATION    				#
 #########################################################
 
+.PHONY: directories-instrumented
+directories-instrumented:
+	@mkdir -p $(APP_DIR)/$(DYNAMIC_DIR)
+
 # Generate the source code labelmap
 $(APP_DIR)/labelmap: $(ALL_SRCS)
 	$(GET_LABELED_STMTS) $(ALL_SRCS) -- -I$(LLVM_HOME)/lib/clang/$(LLVM_VERSION)/include $(LLVM_INC) 
@@ -237,31 +242,32 @@ clean-trace:
 #########################################################
 
 #small test graphs
-# FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/Rabbit/graph.wbin
+# GRAPH_NAME = test.txt
+# GRAPH_NAME = Rabbit
 
 # synthetic graphs
-# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT20.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/RMAT/RMAT22.wbin.csr
+# GRAPH_NAME = RMAT20
+# GRAPH_NAME = RMAT22
 
 # real world large graphs binary format
-# FILE_BIN = $(BENCHMARKS_DIR)/orkut/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/gplus/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/sk-2005/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/twitter/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/livejournal/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/USA-Road/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/arabic-2005/graph.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/enwiki-2013/graph.wbin
+# GRAPH_NAME = orkut
+# GRAPH_NAME = gplus
+# GRAPH_NAME = sk-2005
+# GRAPH_NAME = twitter
+# GRAPH_NAME = livejournal
+# GRAPH_NAME = USA-Road
+# GRAPH_NAME = enwiki-2013
+# GRAPH_NAME = arabic-2005
 
 
 # real world small graphs binary format
+GRAPH_NAME = com-youtube
+# GRAPH_NAME = p2p-Gnutella31
+# GRAPH_NAME = web-BerkStan
+# GRAPH_NAME = web-Google
+# GRAPH_NAME = wiki-Talk
 
-FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/com-youtube.ungraph.trunc.wbin  
-# FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/p2p-Gnutella31.trunc.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/web-BerkStan.trunc.wbin 
-# FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/web-Google.trunc.wbin
-# FILE_BIN = $(BENCHMARKS_DIR)/Aladdin-graphs/wiki-Talk.trunc.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 
 #GRAPH RUN
 SORT_TYPE 		= 0
@@ -285,7 +291,7 @@ CONVERT_FORMAT 	= 1
 BIN_SIZE = 512
 INOUT_STATS = 2
 
-ARGS = -f $(FILE_BIN) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##############################################
 #         ACCEL GRAPH TOP LEVEL RULES        #
@@ -293,7 +299,7 @@ ARGS = -f $(FILE_BIN) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -
 
 .PHONY: run
 run: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: convert
 convert: all
@@ -309,7 +315,7 @@ debug: all
 
 .PHONY: debug-memory
 debug-memory: all	
-	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) $(ARGS)
+	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) -f $(FILE_BIN) $(ARGS)
 # test files 
 
 .PHONY: run-test
@@ -326,10 +332,10 @@ debug-memory-test: test
 # cache performance
 .PHONY: cachegrind-perf
 cachegrind-perf: all
-	valgrind --tool=cachegrind ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) $(ARGS)
+	valgrind --tool=cachegrind ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) -f $(FILE_BIN) $(ARGS)
 .PHONY: cache-perf
 cache-perf: all
-	sudo perf stat -d ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) $(ARGS)
+	sudo perf stat -d ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) -f $(FILE_BIN) $(ARGS)
 
 ############################################
 #      LLVM TRACER  TOP LEVEL RULES        #
@@ -337,12 +343,19 @@ cache-perf: all
 
 
 
-trace-binary: directories ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented
+trace-binary: directories directories-instrumented ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE"
+	@echo " * ---> AccelGraph: $(word 2,$^)"
+	@echo " ******************************************************************************  \n"
+
 
 dma-trace-binary:
 	$(MAKE) -C . DMA_MODE=1 trace-binary
 
 run-trace: trace-binary
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented $(ARGS)
+	@cd $(APP_DIR)/$(DYNAMIC_DIR) &&\
+	../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented -f ../$(FILE_BIN) $(ARGS) &&\
+	@mv $(APP_DIR)/$(DYNAMIC_DIR)/dynamic_trace.gz $(APP_DIR)/$(DYNAMIC_DIR)/dynamic_trace.gz 
 
 
