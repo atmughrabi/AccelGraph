@@ -129,6 +129,19 @@ OBJ_FILES_STRUCT 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR
 OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%.o,$(SRC_FILES_MAIN)) 
 OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%.o,$(SRC_FILES_TEST)) 
 
+CC				  = gcc 
+
+INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
+		-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR) 	\
+		-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
+		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR) 
+
+
+# flags
+CFLAGS   =  -O3 -Wall -m64 -fopenmp -g 
+LFLAGS = -lm
+
+
 ##################################################
 ##################################################
 
@@ -204,22 +217,6 @@ gem5_dir=$(ALADDIN_HOME)/../..
 
 ##################################################
 ##################################################
-
-# compilers
-# CPP               = c++
-# CC				= clang
-CC				  = gcc 
-
-INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
-		-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR) 	\
-		-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
-		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR) 
-
-
-# flags
-CFLAGS   =  -O3 -Wall -m64 -fopenmp -g 
-LFLAGS = -lm
-
 
 #########################################################
 #       		 ACCEL GRAPH GENERATION    				#
@@ -376,20 +373,20 @@ dma-trace-binary :
 	$(MAKE) -C . DMA_MODE=1 trace-binary
 
 .PHONY: run-trace
-run-trace : trace-binary $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_dynamic_trace.gz
+run-trace : trace-binary $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz
 	
-$(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_dynamic_trace.gz :
+$(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz :
 	cd $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR) && \
 	../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented -f ../../$(FILE_BIN) $(ARGS)
 
 	mv $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $@
 
 .PHONY: run-aladdin
-run-aladdin :
+run-aladdin : run-trace
 	cd $(ALADDIN_HOME)/common && make
 
 	cd $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(ALADDIN_STATS_DIR) && \
-	$(ALADDIN_HOME)/common/aladdin $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS) ../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/pagerank.cfg
+	$(ALADDIN_HOME)/common/aladdin $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL) ../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)__$(PUSH_PULL)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PUSH_PULL).cfg
 
 
 ##################################################
