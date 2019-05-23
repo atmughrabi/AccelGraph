@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <assert.h>
 
 #include "myMalloc.h"
 
@@ -11,11 +12,15 @@ void *aligned_malloc( size_t size )
 
     void *dataOut = aligned_alloc(CACHELINE_BYTES, size);
     // void *dataOut = malloc ( size ) ;
-    if ( !dataOut )
-    {
-        fprintf ( stderr, "Error, aligned_alloc: %s\n", strerror ( errno )) ;
-        exit ( EXIT_FAILURE ) ;
-    }
+    int err = posix_memalign(
+      (void**)&dataOut, CACHELINE_BYTES, size);
+
+    assert(err == 0 && "Error, aligned_alloc!");
+    // if ( !dataOut )
+    // {
+    //     fprintf ( stderr, "Error, aligned_alloc: %s\n", strerror ( errno )) ;
+    //     exit ( EXIT_FAILURE ) ;
+    // }
     return dataOut ;
 }
 
