@@ -34,9 +34,9 @@ ALGO_DIR		  	= graphalgorithms
 UTIL_DIR		  	= utils
 
 # Integration Directory you can chose gem5aladdin / openmp / capi
-# INTEGRATION_DIR		= openmp
+INTEGRATION_DIR		= openmp
 # INTEGRATION_DIR		= capi
-INTEGRATION_DIR		= gem5aladdin
+# INTEGRATION_DIR		= gem5aladdin
 
 #contains the tests use make run-test to compile what in this directory
 TEST_DIR		  	= tests
