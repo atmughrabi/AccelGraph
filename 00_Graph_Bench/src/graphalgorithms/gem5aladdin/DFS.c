@@ -39,7 +39,7 @@ void depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *graph)
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices)
+    if(source > graph->num_vertices)
     {
         printf(" -----------------------------------------------------\n");
         printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
@@ -116,7 +116,7 @@ void depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices)
+    if(source > graph->num_vertices)
     {
         printf(" -----------------------------------------------------\n");
         printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
@@ -185,7 +185,7 @@ void pDepthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices)
+    if(source > graph->num_vertices)
     {
         printf(" -----------------------------------------------------\n");
         printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");

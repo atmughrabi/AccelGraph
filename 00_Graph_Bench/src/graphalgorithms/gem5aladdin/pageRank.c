@@ -822,9 +822,10 @@ void pageRankPullGraphCSRKernel(float *riDividedOnDiClause, float *pageRanksNext
 loop : for(v = 0; v < num_vertices; v++)
     {
         float nodeIncomingPR = 0.0f;
-        degree = vertices[v].out_degree;
-        edge_idx = vertices[v].edges_idx;
-        for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+        degree = vertices->out_degree[v];
+        edge_idx = vertices->edges_idx[v];
+
+        for(j = edge_idx ; j <  (edge_idx+degree) ; j++)
         {
             u = sorted_edges_array[j];
             nodeIncomingPR += riDividedOnDiClause[u]; // pageRanks[v]/graph->vertices[v].out_degree;
@@ -839,11 +840,11 @@ float *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *
 {
 
     __u32 iter;
-    __u32 j;
+    // __u32 j;
     __u32 v;
-    __u32 u;
-    __u32 degree;
-    __u32 edge_idx;
+    // __u32 u;
+    // __u32 degree;
+    // __u32 edge_idx;
     __u32 activeVertices = 0;
     double error_total = 0;
     // float init_pr = 1.0f / (float)graph->num_vertices;
@@ -916,7 +917,9 @@ float *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *
         mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "pageRanksNext", &(pageRanksNext[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "vertices", &(vertices[0]), graph->num_vertices * sizeof(struct Vertex));
+            ACCELGRAPH_CSR_PAGERANK_PULL, "out_degree", &(vertices->out_degree[0]), graph->num_vertices * sizeof(struct Vertex));
+         mapArrayToAccelerator(
+            ACCELGRAPH_CSR_PAGERANK_PULL, "edges_idx", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(struct Vertex));
         mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "sorted_edges_array", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
         invokeAcceleratorAndBlock(ACCELGRAPH_CSR_PAGERANK_PULL);
