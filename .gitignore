@@ -9,6 +9,7 @@
 
 00_Graph_Bench/labelmap
 00_Graph_Bench/aladdin/dynamic_traces
+00_Graph_Bench/aladdin/stats_out
 
 labelmap
 dynamictraces
