@@ -34,9 +34,9 @@ ALGO_DIR		  	= graphalgorithms
 UTIL_DIR		  	= utils
 
 # Integration Directory you can chose gem5aladdin / openmp / capi
-INTEGRATION_DIR		= openmp
+# INTEGRATION_DIR		= openmp
 # INTEGRATION_DIR		= capi
-# INTEGRATION_DIR		= gem5aladdin
+INTEGRATION_DIR		= gem5aladdin
 
 #contains the tests use make run-test to compile what in this directory
 TEST_DIR		  	= tests
@@ -44,6 +44,9 @@ TEST_DIR		  	= tests
 #contains the main for the graph processing framework
 MAIN_DIR		  	= main
 
+##############################################
+#      ACCEL GRAPH COMPILATION VARIABLES     #
+##############################################
 
 SRC_FILES_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/*.c) 
 SRC_FILES_ALGO		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/*.c) 
@@ -59,6 +62,12 @@ OBJ_FILES_STRUCT 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR
 OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%.o,$(SRC_FILES_MAIN)) 
 OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%.o,$(SRC_FILES_TEST)) 
 
+##################################################
+##################################################
+
+##################################################
+#      LLVM TRACER COMPILATION VARIABLES         #
+##################################################
 
 LLVM_VERSION = $(shell clang --version | grep -o -m 1 "[0-9\.]\+" | head -n 1)
 
@@ -69,6 +78,37 @@ LLVM_OBJ_FILES_STRUCT 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(AP
 LLVM_OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%-opt.llvm,$(SRC_FILES_MAIN)) 
 LLVM_OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%-opt.llvm,$(SRC_FILES_TEST)) 
 
+TRACER = $(TRACER_HOME)/lib/full_trace.so
+LOGGER = $(TRACER_HOME)/lib/trace_logger.llvm
+GET_LABELED_STMTS = $(TRACER_HOME)/bin/get-labeled-stmts
+
+KERNELS = pageRankPullGraphCSRKernel
+
+export WORKLOAD  = $(KERNELS)
+
+LLVM_LIBS = -lm -lz -lpthread 
+
+LLVM_INC	=	-I$(ALADDIN_HOME)	\
+		   		-I$(COMMON_DIR)		\
+		   		-I$(ALADDIN_HOME)/gem5 \
+				-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
+				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR) 	\
+				-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
+				-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR) 
+
+ALL_SRCS = 	$(SRC_FILES_UTIL)   \
+			$(SRC_FILES_ALGO)   \
+			$(SRC_FILES_PREPRO)	\
+			$(SRC_FILES_STRUCT)	\
+			$(SRC_FILES_MAIN)
+
+LLVMFLAGS = -static -g -O1 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loops -fno-inline -fno-builtin -emit-llvm -fopenmp 
+
+##################################################
+##################################################
+
+
+
 # compilers
 # CPP               = c++
 # CC				= clang
@@ -77,12 +117,17 @@ CC				  = gcc
 INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
 		-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR) 	\
 		-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
-		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR)  	
-		
+		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR) 
+
 
 # flags
 CFLAGS   =  -O3 -Wall -m64 -fopenmp -g 
 LIBS = -lm
+
+
+#########################################################
+#       		 ACCEL GRAPH GENERATION    				#
+#########################################################
 
 .PHONY: all
 all : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)
@@ -140,87 +185,54 @@ clean:
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
 	@rm -fr $(APP_DIR)/$(BUILD_DIR)/*
 
+##################################################
+##################################################
 
-# Usage: main_argp [OPTION...]
-#             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
-#             [num threads] [-h -c -s -w]
-# AccelGraph is an open source graph processing framework, it is designed to be a
-# portable benchmarking suite for various graph processing algorithms.
+#########################################################
+#       		 LLVM TRACER GENERATION    				#
+#########################################################
 
-#   -a, --algorithm=[ALGORITHM #]   
-#                              [0]-BFS, [1]-Page-rank, [2]-SSSP-DeltaStepping,
-#                              [3]-SSSP-BellmanFord, [4]-DFS
-#                              [5]-IncrementalAggregation
-#   -b, --delta=[DELTA:1]      
-#                              SSSP Delta value [Default:1]
-#   -c, --convert-format=[TEXT|BIN|CSR:1]
-                             
-#                              [stats flag must be on --stats to write]Serialize
-#                              graph text format (edge list format) to binary
-#                              graph file on load example:-f <graph file> -c this
-#                              is specifically useful if you have Graph CSR/Grid
-#                              structure and want to save in a binary file format
-#                              to skip the preprocessing step for future runs.
-#                              [0]-text edgeList [1]-binary edgeList [2]-graphCSR
-#                              binary
-#   -d, --data-structure=[TYPE #]   
-#                              [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj
-#                              ArrayList [4-5] same order bitmap frontiers
-#   -e, --tolerance=[EPSILON:0.0001],                              --epsilon=[EPSILON:0.0001]
-                             
-#                              Tolerance value of for page rank [default:0.0001]
+# Generate the source code labelmap
+$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/labelmap: $(ALL_SRCS)
+	@cd $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/ && \
+	$(GET_LABELED_STMTS) $(ALL_SRCS) -- -I$(LLVM_HOME)/lib/clang/$(LLVM_VERSION)/include $(LLVM_INC) 
 
-#   -f, --graph-file=<FILE>    
-#                              Edge list represents the graph binary format to
-#                              run the algorithm textual format change
-#                              graph-file-format
-#   -i, --num-iterations=[# ITERATIONS]
-                             
-#                              Number of iterations for page rank to converge
-#                              [default:20] SSSP-BellmanFord [default:V-1] 
-#   -l, --light-reorder=[ORDER:0]   
-#                              Relabels the graph for better cache performance.
-#                              [default:0]-no-reordering [1]-page-rank-order
-#                              [2]-in-degree [3]-out-degree [4]-in/out degree
-#                              [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS
-#                              [8]-LoadFromFile 
-#   -n, --num-threads=[# THREADS]   
-#                              Default:max number of threads the system has
-#   -o, --sort=[RADIX|COUNT]   
-#                              [0]-radix-src [1]-radix-src-dest [2]-count-src
-#                              [3]-count-src-dst
-#   -p, --direction=[PUSH|PULL]   
-#                              [0-1]-push/pull [2-3]-push/pull fixed point
-#                              arithmetic [4-6]-same order but using data driven
-#   -r, --root=[SOURCE|ROOT]   
-#                              BFS, DFS, SSSP root
-#   -s, --symmetries           
-#                              Symmetric graph, create a set of incoming edges
-#   -t, --num-trials=[# TRIALS]   
-#                              Number of random trials for each whole run (graph
-#                              algorithm run) [default:0] 
-#   -w, --generate-weights     
-#                              Generate random weights don't load from graph
-#                              file. Check ->graphConfig.h #define WEIGHTED 1
-#                              beforehand then recompile using this option
-#   -x, --stats                
-#                              Dump a histogram to file based on in-out degree
-#                              count bins / sorted according to in/out-degree or
-#                              page-ranks 
-#   -z, --graph-file-format=[TEXT|BIN|CSR:1]
-                             
-#                              Specify file format to be read, is it textual edge
-#                              list, or a binary file edge list. This is
-#                              specifically useful if you have Graph CSR/Grid
-#                              structure already saved in a binary file format to
-#                              skip the preprocessing step. [0]-text edgeList
-#                              [1]-binary edgeList [2]-graphCSR binary
-#   -?, --help                 Give this help list
-#       --usage                Give a short usage message
-#   -V, --version              Print program version
+$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/full.llvm: $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-opt.llvm $(LLVM_OBJ_FILES_UTIL) $(LLVM_OBJ_FILES_ALGO) $(LLVM_OBJ_FILES_PREPRO) $(LLVM_OBJ_FILES_STRUCT)
+	llvm-link -o $@ $^ $(LOGGER)
 
-# Report bugs to <atmughra@ncsu.edu>.
+$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/full.s: $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/full.llvm
+	llc -O0 -disable-fp-elim -filetype=asm -o $@ $<
 
+./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented: $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/full.s
+	$(CXX) -static -O0 -fno-inline -o $@ $< $(LLVM_LIBS) -fopenmp
+
+$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-opt.llvm : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/$(GAPP).c $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/labelmap
+	clang 	 $(LLVMFLAGS) $(LLVM_INC) -o $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/$*.llvm $<
+	opt 	-S -load=$(TRACER) -fulltrace -labelmapwriter $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/$*.llvm -o $@ 
+
+$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%-opt.llvm : $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/labelmap
+	clang 	 $(LLVMFLAGS) $(LLVM_INC) -o $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/$*.llvm $<
+	opt 	-S -load=$(TRACER) -fulltrace -labelmapwriter $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/$*.llvm -o $@
+
+$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/%-opt.llvm : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/%.c $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/labelmap
+	clang 	 $(LLVMFLAGS) $(LLVM_INC) -o $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/$*.llvm $<
+	opt 	-S -load=$(TRACER) -fulltrace -labelmapwriter $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/$*.llvm -o $@
+
+$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%-opt.llvm : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/labelmap
+	clang 	 $(LLVMFLAGS) $(LLVM_INC) -o $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/$*.llvm $<
+	opt 	-S -load=$(TRACER) -fulltrace -labelmapwriter $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/$*.llvm -o $@
+
+$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%-opt.llvm : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/labelmap
+	clang 	 $(LLVMFLAGS) $(LLVM_INC) -o $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/$*.llvm $<
+	opt 	-S -load=$(TRACER) -fulltrace -labelmapwriter $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/$*.llvm -o $@
+
+
+##################################################
+##################################################
+
+#########################################################
+#       		 ACCEL GRAPH ARGUMENTS    				#
+#########################################################
 
 #small test graphs
 # FILE_BIN = $(BENCHMARKS_DIR)/test/test.txt.wbin
@@ -273,6 +285,10 @@ INOUT_STATS = 2
 
 ARGS = -f $(FILE_BIN) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
+##############################################
+#         ACCEL GRAPH TOP LEVEL RULES        #
+##############################################
+
 .PHONY: run
 run: all
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) $(ARGS)
@@ -305,8 +321,6 @@ debug-test: test
 .PHONY: debug-memory-test
 debug-memory-test: test	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
-
-
 # cache performance
 .PHONY: cachegrind-perf
 cachegrind-perf: all
@@ -314,3 +328,19 @@ cachegrind-perf: all
 .PHONY: cache-perf
 cache-perf: all
 	sudo perf stat -d ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) $(ARGS)
+
+############################################
+#      LLVM TRACER  TOP LEVEL RULES        #
+############################################
+
+
+
+trace-binary: directories ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented
+
+dma-trace-binary:
+	$(MAKE) -C . DMA_MODE=1 trace-binary
+
+run-trace: trace-binary
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented $(ARGS)
+
+

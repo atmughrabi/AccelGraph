@@ -10,8 +10,8 @@ extern int errno ;
 void *aligned_malloc( size_t size )
 {
 
-    void *dataOut = aligned_alloc(CACHELINE_BYTES, size);
-    // void *dataOut = malloc ( size ) ;
+    // void *dataOut = aligned_alloc(CACHELINE_BYTES, size);
+    void *dataOut = NULL ;
     int err = posix_memalign(
       (void**)&dataOut, CACHELINE_BYTES, size);
 

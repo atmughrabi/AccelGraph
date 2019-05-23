@@ -25,6 +25,14 @@
 #include "cache.h"
 #include "bloomMultiHash.h"
 
+//gem5-aladdin
+#ifdef DMA_MODE
+#include "gem5/dma_interface.h"
+#endif
+
+#ifdef GEM5_HARNESS
+#include "gem5/gem5_harness.h"
+#endif
 
 // ********************************************************************************************
 // ***************          Auxilary functions                                   **************
@@ -803,6 +811,29 @@ float *pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struc
 
 }
 
+void pageRankPullGraphCSRKernel(float *riDividedOnDiClause, float *pageRanksNext, struct Vertex *vertices, __u32 *sorted_edges_array, __u32 num_vertices)
+{
+
+    __u32 j;
+    __u32 v;
+    __u32 u;
+    __u32 degree;
+    __u32 edge_idx;
+loop : for(v = 0; v < num_vertices; v++)
+    {
+        float nodeIncomingPR = 0.0f;
+        degree = vertices[v].out_degree;
+        edge_idx = vertices[v].edges_idx;
+        for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+        {
+            u = sorted_edges_array[j];
+            nodeIncomingPR += riDividedOnDiClause[u]; // pageRanks[v]/graph->vertices[v].out_degree;
+        }
+        pageRanksNext[v] = nodeIncomingPR;
+    }
+
+}
+
 // topoligy driven approach
 float *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
 {
@@ -865,19 +896,33 @@ float *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *
                 riDividedOnDiClause[v] = 0.0f;
         }
 
-        #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            float nodeIncomingPR = 0.0f;
-            degree = vertices->out_degree[v];
-            edge_idx = vertices->edges_idx[v];
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                u = sorted_edges_array[j];
-                nodeIncomingPR += riDividedOnDiClause[u]; // pageRanks[v]/graph->vertices[v].out_degree;
-            }
-            pageRanksNext[v] = nodeIncomingPR;
-        }
+        // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
+        // for(v = 0; v < graph->num_vertices; v++)
+        // {
+        //     float nodeIncomingPR = 0.0f;
+        //     degree = vertices->out_degree[v];
+        //     edge_idx = vertices->edges_idx[v];
+        //     for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+        //     {
+        //         u = sorted_edges_array[j];
+        //         nodeIncomingPR += riDividedOnDiClause[u]; // pageRanks[v]/graph->vertices[v].out_degree;
+        //     }
+        //     pageRanksNext[v] = nodeIncomingPR;
+        // }
+
+#ifdef GEM5_HARNESS
+         mapArrayToAccelerator(
+            ACCELGRAPH_CSR_PAGERANK_PULL, "riDividedOnDiClause", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH_CSR_PAGERANK_PULL, "pageRanksNext", &(pageRanksNext[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH_CSR_PAGERANK_PULL, "vertices", &(vertices[0]), graph->num_vertices * sizeof(struct Vertex));
+        mapArrayToAccelerator(
+            ACCELGRAPH_CSR_PAGERANK_PULL, "sorted_edges_array", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
+        invokeAcceleratorAndBlock(ACCELGRAPH_CSR_PAGERANK_PULL);
+#else
+        pageRankPullGraphCSRKernel(riDividedOnDiClause, pageRanksNext, vertices, sorted_edges_array, graph->num_vertices);
+#endif
 
         #pragma omp parallel for private(v) shared(epsilon, pageRanks,pageRanksNext,base_pr) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
@@ -1569,7 +1614,7 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
                 {
                     u = sorted_edges_array[j];
 
-                  
+
                     if(checkPrefetch(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), '0'))
                     {
                         if(labels[u] < (graph->num_vertices - top))

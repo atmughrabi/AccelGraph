@@ -363,7 +363,7 @@ TRACER = $(TRACER_HOME)/lib/full_trace.so
 LOGGER = $(TRACER_HOME)/lib/trace_logger.llvm
 GET_LABELED_STMTS = $(TRACER_HOME)/bin/get-labeled-stmts
 
-MODE = LLVM_TRACE
+MODE = GEM5_HARNESS
 
 ALL_SRCS = $(SRCS)
 CPPFLAGS = -I$(ALADDIN_HOME) -I$(COMMON_DIR) -D$(MODE)
