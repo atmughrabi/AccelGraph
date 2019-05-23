@@ -48,9 +48,8 @@ float *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, 
 
 float *pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphCSR *graph);
 
-
+void pageRankPullGraphCSRKernel(float *riDividedOnDiClause, float *pageRanksNext, __u32 *out_degree,__u32 *edges_idx, __u32 *sorted_edges_array, __u32 num_vertices);
 float *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph);
-void pageRankPullGraphCSRKernel(float *riDividedOnDiClause, float *pageRanksNext, struct Vertex *vertices, __u32 *sorted_edges_array, __u32 num_vertices);
 
 float *pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph);
 

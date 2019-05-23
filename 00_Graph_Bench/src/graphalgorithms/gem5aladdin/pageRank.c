@@ -811,7 +811,7 @@ float *pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struc
 
 }
 
-void pageRankPullGraphCSRKernel(float *riDividedOnDiClause, float *pageRanksNext, struct Vertex *vertices, __u32 *sorted_edges_array, __u32 num_vertices)
+void pageRankPullGraphCSRKernel(float *riDividedOnDiClause, float *pageRanksNext, __u32 *out_degree,__u32 *edges_idx, __u32 *sorted_edges_array, __u32 num_vertices)
 {
 
     __u32 j;
@@ -822,8 +822,8 @@ void pageRankPullGraphCSRKernel(float *riDividedOnDiClause, float *pageRanksNext
 loop : for(v = 0; v < num_vertices; v++)
     {
         float nodeIncomingPR = 0.0f;
-        degree = vertices->out_degree[v];
-        edge_idx = vertices->edges_idx[v];
+        degree = out_degree[v];
+        edge_idx = edges_idx[v];
 
         for(j = edge_idx ; j <  (edge_idx+degree) ; j++)
         {
@@ -918,13 +918,15 @@ float *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *
             ACCELGRAPH_CSR_PAGERANK_PULL, "pageRanksNext", &(pageRanksNext[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "out_degree", &(vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
-         mapArrayToAccelerator(
+        mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "edges_idx", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "sorted_edges_array", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
-        invokeAcceleratorAndBlock(ACCELGRAPH_CSR_PAGERANK_PULL);
+
+
+        invokeAcceleratorAndBlock(ACCELGRAPH_CSR_PAGERANK_PULL);  
 #else
-        pageRankPullGraphCSRKernel(riDividedOnDiClause, pageRanksNext, vertices, sorted_edges_array, graph->num_vertices);
+        pageRankPullGraphCSRKernel(riDividedOnDiClause, pageRanksNext, vertices->out_degree,vertices->edges_idx, sorted_edges_array, graph->num_vertices);
 #endif
 
         #pragma omp parallel for private(v) shared(epsilon, pageRanks,pageRanksNext,base_pr) reduction(+ : error_total, activeVertices)

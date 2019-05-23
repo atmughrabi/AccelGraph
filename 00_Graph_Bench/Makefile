@@ -40,13 +40,76 @@ UTIL_DIR		  	= utils
 # Folders needed when using gem5-aladdin
 INTEGRATION_DIR				= gem5aladdin
 ALADDIN_CONFIG_DIR			= aladdin
+ALADDIN_CACTI_DIR			= cacti_configs
+ALADDIN_GEM5_DIR			= gem5_configs
+ALADDIN_ALGO_DIR			= algorithms_configs
 DYNAMIC_TRACES_DIR		  	= dynamic_traces
+ALADDIN_STATS_DIR		  	= stats_out
 
 #contains the tests use make run-test to compile what in this directory
 TEST_DIR		  	= tests
 
 #contains the main for the graph processing framework
 MAIN_DIR		  	= main
+
+#########################################################
+#       		 ACCEL RUN GRAPH ARGUMENTS    			#
+#########################################################
+
+#small test graphs
+# GRAPH_NAME = test.txt
+# GRAPH_NAME = Rabbit
+
+# synthetic graphs
+# GRAPH_NAME = RMAT20
+# GRAPH_NAME = RMAT22
+
+# real world large graphs binary format
+# GRAPH_NAME = orkut
+# GRAPH_NAME = gplus
+# GRAPH_NAME = sk-2005
+# GRAPH_NAME = twitter
+# GRAPH_NAME = livejournal
+# GRAPH_NAME = USA-Road
+# GRAPH_NAME = enwiki-2013
+# GRAPH_NAME = arabic-2005
+
+
+# real world small graphs binary format
+# GRAPH_NAME = com-youtube
+GRAPH_NAME = p2p-Gnutella31
+# GRAPH_NAME = web-BerkStan
+# GRAPH_NAME = web-Google
+# GRAPH_NAME = wiki-Talk
+
+FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
+
+#GRAPH RUN
+SORT_TYPE 		= 0
+REORDER 		= 0
+DATA_STRUCTURES = 0
+ALGORITHMS 		= 1
+
+ROOT 			= 0
+PUSH_PULL 		= 0
+TOLERANCE 		= 1e-9
+DELTA 			= 800
+
+NUM_THREADS  	= 8
+NUM_ITERATIONS 	= 1
+NUM_TRIALS 		= 1
+
+FILE_FORMAT 	= 1
+CONVERT_FORMAT 	= 1
+
+#STATS COLLECTION VARIABLES
+BIN_SIZE = 512
+INOUT_STATS = 2
+
+ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
+##################################################
+##################################################
 
 ##############################################
 #      ACCEL GRAPH COMPILATION VARIABLES     #
@@ -133,8 +196,7 @@ GEM5_CFLAGS = -static -O3 \
               -fno-exceptions \
               -std=gnu99
 
-INCLUDES += -I$(ALADDIN_HOME)/gem5 $(INC)
-LFLAGS = -lm
+INCLUDES = $(LLVM_INC) 
 BMARK = $(ACCEL_NAME)
 
 bmk_home=.
@@ -156,7 +218,7 @@ INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
 
 # flags
 CFLAGS   =  -O3 -Wall -m64 -fopenmp -g 
-LIBS = -lm
+LFLAGS = -lm
 
 
 #########################################################
@@ -190,10 +252,10 @@ directories-$(INTEGRATION_DIR) :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)
 
 $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^  $(LIBS)
+	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
 	
 $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST) : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^  $(LIBS)
+	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
 
 $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/$(GAPP).c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
@@ -229,6 +291,8 @@ clean: clean-trace
 .PHONY: directories-instrumented
 directories-instrumented:
 	@mkdir -p $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)
+	@mkdir -p $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(ALADDIN_STATS_DIR)
+	
 
 # Generate the source code labelmap
 $(APP_DIR)/labelmap: $(ALL_SRCS)
@@ -268,6 +332,7 @@ clean-trace:
 	@rm -f dynamic_trace.gz
 	@rm -f labelmap
 	@rm -fr $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)
+	@rm -fr $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(ALADDIN_STATS_DIR)
 
 ##################################################
 ##################################################
@@ -303,18 +368,29 @@ clean-gem5:
 trace-binary: directories directories-instrumented ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented
 	@echo "\n ******************************************************************************  "
 	@echo " * DONE!! NOTHING ELSE TO COMPILE"
-	@echo " * ---> AccelGraph: $(word 2,$^)"
+	@echo " * ---> AccelGraph: $(word 3,$^)"
 	@echo " ******************************************************************************  \n"
 
 .PHONY: dma-trace-binary
-dma-trace-binary:
+dma-trace-binary :
 	$(MAKE) -C . DMA_MODE=1 trace-binary
 
 .PHONY: run-trace
-run-trace: trace-binary
-	cd $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR) &&\
+run-trace : trace-binary $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_dynamic_trace.gz
+	
+$(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_dynamic_trace.gz :
+	cd $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR) && \
 	../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented -f ../../$(FILE_BIN) $(ARGS)
-	mv $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_dynamic_trace.gz 
+
+	mv $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $@
+
+.PHONY: run-aladdin
+run-aladdin :
+	cd $(ALADDIN_HOME)/common && make
+
+	cd $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(ALADDIN_STATS_DIR) && \
+	$(ALADDIN_HOME)/common/aladdin $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS) ../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/pagerank.cfg
+
 
 ##################################################
 ##################################################
@@ -348,62 +424,6 @@ run-gem5:
 	  
 ##################################################
 ##################################################
-
-#########################################################
-#       		 ACCEL GRAPH ARGUMENTS    				#
-#########################################################
-
-#small test graphs
-# GRAPH_NAME = test.txt
-# GRAPH_NAME = Rabbit
-
-# synthetic graphs
-# GRAPH_NAME = RMAT20
-# GRAPH_NAME = RMAT22
-
-# real world large graphs binary format
-# GRAPH_NAME = orkut
-# GRAPH_NAME = gplus
-# GRAPH_NAME = sk-2005
-# GRAPH_NAME = twitter
-# GRAPH_NAME = livejournal
-# GRAPH_NAME = USA-Road
-# GRAPH_NAME = enwiki-2013
-# GRAPH_NAME = arabic-2005
-
-
-# real world small graphs binary format
-GRAPH_NAME = com-youtube
-# GRAPH_NAME = p2p-Gnutella31
-# GRAPH_NAME = web-BerkStan
-# GRAPH_NAME = web-Google
-# GRAPH_NAME = wiki-Talk
-
-FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
-
-#GRAPH RUN
-SORT_TYPE 		= 0
-REORDER 		= 0
-DATA_STRUCTURES = 0
-ALGORITHMS 		= 1
-
-ROOT 			= 0
-PUSH_PULL 		= 0
-TOLERANCE 		= 1e-9
-DELTA 			= 800
-
-NUM_THREADS  	= 8
-NUM_ITERATIONS 	= 1
-NUM_TRIALS 		= 1
-
-FILE_FORMAT 	= 1
-CONVERT_FORMAT 	= 1
-
-#STATS COLLECTION VARIABLES
-BIN_SIZE = 512
-INOUT_STATS = 2
-
-ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PUSH_PULL) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##############################################
 #         ACCEL GRAPH TOP LEVEL RULES        #
