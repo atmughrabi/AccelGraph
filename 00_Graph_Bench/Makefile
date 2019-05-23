@@ -34,7 +34,9 @@ ALGO_DIR		  	= graphalgorithms
 UTIL_DIR		  	= utils
 
 # Integration Directory you can chose gem5aladdin / openmp / capi
-INTEGRATION_DIR		= openmp
+# INTEGRATION_DIR		= openmp
+# INTEGRATION_DIR		= capi
+INTEGRATION_DIR		= gem5aladdin
 
 #contains the tests use make run-test to compile what in this directory
 TEST_DIR		  	= tests
@@ -73,15 +75,15 @@ LIBS = -lm
 
 .PHONY: all
 all : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)
-	@echo "\n ***************************************************************** "
-	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph: $(word 2,$^)    *"
-	@echo " ***************************************************************** \n"
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> ACCELGraph: $(word 2,$^)"
+	@echo " ******************************************************************************  \n"
 
 .PHONY: test
 test : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
-	@echo "\n ***************************************************************** "
-	@echo " *   DONE!! NOTHING ELSE TO COMPILE ---> TEST: $(word 2,$^)     *"
-	@echo " ***************************************************************** \n"
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> TEST: $(word 2,$^)"
+	@echo " ****************************************************************************** \n"
 
 .PHONY: directories
 directories :  directories-$(INTEGRATION_DIR)

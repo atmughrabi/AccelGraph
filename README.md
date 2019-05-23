@@ -46,7 +46,9 @@ Also support for Gem5-Aladdin has been included, for system emulation. With a si
   make run
   ```
 
-2. Run the algorithm with the data structure and other settings you need
+### Options
+
+4. Run the algorithm with the data structure and other settings you need
   ```
 Usage: accel-graph [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
@@ -135,12 +137,44 @@ Report bugs to <atmughra@ncsu.edu>.
 
 ```
 
-## CAPI SNAP
+### Initial compilation for the Graph framework with gem5-aladdin
 
+* NOTE: You need gem4-aladdin environment set up on you machine.
+* Please refer to [(gem5-aladdin)](https://github.com/harvard-acc/gem5-aladdin)
+
+1. From the root directory go to the graph benchmark directory:
+  ```
+  cd 00_Graph_Bench/
+  ```
+2. The default compilation is openmp change it from Makefile or:
+  ```
+  make INTEGRATION_DIR=gem5aladdin
+  ```
+3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
+  ```
+  make run INTEGRATION_DIR=gem5aladdin
+  ```
+
+### Initial compilation for the Graph framework with CAPI
+
+* NOTE: You need CAPI environment set up on you machine.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
 * CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
 * [Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
+
+1. From the root directory go to the graph benchmark directory:
+  ```
+  cd 00_Graph_Bench/
+  ```
+2. The default compilation is openmp change it from Makefile or:
+  ```
+  make INTEGRATION_DIR=capi
+  ```
+3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
+  ```
+  make run INTEGRATION_DIR=capi
+  ```
 
 ## Organization
 
