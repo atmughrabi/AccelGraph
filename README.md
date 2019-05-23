@@ -139,7 +139,7 @@ Report bugs to <atmughra@ncsu.edu>.
 
 ### Initial compilation for the Graph framework with gem5-aladdin
 
-* NOTE: You need gem4-aladdin environment setup on your machine.
+* NOTE: You need gem5-aladdin environment setup on your machine.
 * Please refer to [(gem5-aladdin)](https://github.com/harvard-acc/gem5-aladdin)
 
 1. From the root directory go to the graph benchmark directory:
