@@ -1,6 +1,6 @@
 
 <p align="center">
-<img src="./02_slides/fig/logo.png" width="400" >
+<img src="./02_slides/fig/logo2.png" width="400" >
 </p>
 
 # Accel-Graph
