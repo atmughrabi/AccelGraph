@@ -446,8 +446,8 @@ run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
 	  --caches \
 	  --cacheline_size=64 \
 	  --accel_cfg_file=../../$(ALADDIN_GEM5_DIR)/gem5.cfg \
-	  -c ../../../$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu -o "-f ../../../$(FILE_BIN) $(ARGS)" 
-# 	  | gzip -c > stdout.gz
+	  -c ../../../$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu -o "-f ../../../$(FILE_BIN) $(ARGS)" \
+	  | gzip -c > stdout.gz
 
 .PHONY: run-gem5-accel 
 run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
@@ -466,8 +466,8 @@ run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 	  --caches \
 	  --cacheline_size=64 \
 	  --accel_cfg_file=../../$(ALADDIN_GEM5_DIR)/gem5.cfg \
-	  -c ../../../$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel -o "-f ../../../$(FILE_BIN) $(ARGS)" 
-# 	  | gzip -c > stdout.gz
+	  -c ../../../$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel -o "-f ../../../$(FILE_BIN) $(ARGS)" \
+	  | gzip -c > stdout.gz
 	  
 ##################################################
 ##################################################
