@@ -1,5 +1,7 @@
 
-<img src="./02_slides/fig/logo.png" width="300" align="center" >
+<p align="center">
+<img src="./02_slides/fig/logo.png" width="300" >
+</p>
 
 # Accel-Graph
 <!-- ![Accel-Graph logo](./02_slides/fig/logo.png "Accel-Graph logo") -->
