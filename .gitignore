@@ -8,8 +8,9 @@
 03_Reading/
 
 00_Graph_Bench/labelmap
-00_Graph_Bench/aladdin/dynamic_traces
-00_Graph_Bench/aladdin/stats_out
+00_Graph_Bench/aladdin_common/dynamic_traces
+00_Graph_Bench/aladdin_common/stats_aladdin
+00_Graph_Bench/aladdin_common/stats_gem5
 
 labelmap
 dynamictraces

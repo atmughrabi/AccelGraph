@@ -39,12 +39,13 @@ UTIL_DIR		  	= utils
 
 # Folders needed when using gem5-aladdin
 INTEGRATION_DIR				= gem5aladdin
-ALADDIN_CONFIG_DIR			= aladdin
+ALADDIN_COMMON_DIR			= aladdin_common
 ALADDIN_CACTI_DIR			= cacti_configs
 ALADDIN_GEM5_DIR			= gem5_configs
 ALADDIN_ALGO_DIR			= algorithms_configs
 DYNAMIC_TRACES_DIR		  	= dynamic_traces
-ALADDIN_STATS_DIR		  	= stats_out
+ALADDIN_STATS_DIR		  	= stats_aladdin
+GEM5_STATS_DIR		  		= stats_gem5
 
 #contains the tests use make run-test to compile what in this directory
 TEST_DIR		  	= tests
@@ -200,9 +201,7 @@ LLVMFLAGS = -static -g -O1 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loop
 GEM5_SRCS = aladdin_sys_connection.cpp aladdin_sys_constants.cpp dma_interface.c
 GEM5_FULL_SRCS = $(GEM5_SRCS:%=$(ALADDIN_HOME)/gem5/%)
 
-# For the MachSuite harness and support system.
-CFLAGS += -O3 -Wall -Wno-unused-label -I../../common
-
+CFLAGS += -O3 -Wall -Wno-unused-label
 # -mno-sse
 GEM5_CFLAGS = -static -O3 \
               -msse -mfpmath=sse \
@@ -210,10 +209,8 @@ GEM5_CFLAGS = -static -O3 \
               -std=gnu99
 
 INCLUDES = $(LLVM_INC) 
-BMARK = $(ACCEL_NAME)
 
-bmk_home=.
-gem5_dir=$(ALADDIN_HOME)/../..
+GEM5_DIR = $(ALADDIN_HOME)/../..
 
 ##################################################
 ##################################################
@@ -273,7 +270,7 @@ $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 .PHONY: clean
-clean: clean-trace
+clean: clean-trace clean-gem5
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
 	@rm -fr $(APP_DIR)/$(BUILD_DIR)/*
@@ -285,10 +282,10 @@ clean: clean-trace
 #       		 LLVM TRACER GENERATION    				#
 #########################################################
 
-.PHONY: directories-instrumented
-directories-instrumented:
-	@mkdir -p $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)
-	@mkdir -p $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(ALADDIN_STATS_DIR)
+.PHONY: directories-aladdin
+directories-aladdin:
+	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)
+	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(ALADDIN_STATS_DIR)
 	
 
 # Generate the source code labelmap
@@ -328,8 +325,8 @@ $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%-opt.llvm : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_
 clean-trace:
 	@rm -f dynamic_trace.gz
 	@rm -f labelmap
-	@rm -fr $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)
-	@rm -fr $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(ALADDIN_STATS_DIR)
+	@rm -fr $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)
+	@rm -fr $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(ALADDIN_STATS_DIR)
 
 ##################################################
 ##################################################
@@ -337,22 +334,29 @@ clean-trace:
 #########################################################
 #       		 	GEM5 GENERATION  	  				#
 #########################################################
+.PHONY: directories-gem5
+directories-gem5:
+	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)
+	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel
+	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu
 
 # Builds the standalone CPU version only.
 .PHONY: gem5-cpu 
 gem5-cpu: $(SRCS) $(GEM5_FULL_SRCS)
-	@echo Building benchmark $(BMARK) for gem5.
-	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) $(GEM5_FULL_SRCS) $(SRCS) $(INCLUDES) $(BMARK_SPECIFIC_CFLAGS) -o $(BMARK)-gem5 $(LFLAGS)
+	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) for gem5.
+	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) $(GEM5_FULL_SRCS) $(SRCS) $(INCLUDES) -o ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu $(LFLAGS)
 
 # Builds the gem5 version with HW acceleration turned on.
 .PHONY: gem5-accel 
-gem5-accel: $(SRCS) $(GEM5_FULL_SRCS)
-	@echo Building benchmark $(BMARK) for gem5 with HW acceleration.
-	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) -DGEM5_HARNESS $(SRCS) $(GEM5_FULL_SRCS) $(INCLUDES) $(BMARK_SPECIFIC_CFLAGS) -o $(BMARK)-gem5-accel $(LFLAGS)
+gem5-accel: $(SRCS) $(GEM5_FULL_SRCS) 
+	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) for gem5 with HW acceleration.
+	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) -DGEM5_HARNESS $(SRCS) $(GEM5_FULL_SRCS) $(INCLUDES) -o ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel $(LFLAGS)
 
 .PHONY: clean-gem5 
 clean-gem5:
-	rm -rf $(BMARK)-gem5 $(BMARK)-gem5-accel
+	@rm -rf ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu 
+	@rm -fr ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel
+	@rm -fr $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)
 
 ##################################################
 ##################################################
@@ -362,7 +366,7 @@ clean-gem5:
 ############################################
 
 .PHONY: trace-binary
-trace-binary: directories directories-instrumented ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented
+trace-binary: directories directories-aladdin ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented
 	@echo "\n ******************************************************************************  "
 	@echo " * DONE!! NOTHING ELSE TO COMPILE"
 	@echo " * ---> AccelGraph: $(word 3,$^)"
@@ -373,20 +377,20 @@ dma-trace-binary :
 	$(MAKE) -C . DMA_MODE=1 trace-binary
 
 .PHONY: run-trace
-run-trace : trace-binary $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz
+run-trace : trace-binary $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz
 	
-$(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz :
-	cd $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR) && \
+$(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz :
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR) && \
 	../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-instrumented -f ../../$(FILE_BIN) $(ARGS)
 
-	mv $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $@
+	mv $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $@
 
 .PHONY: run-aladdin
 run-aladdin : run-trace
 	cd $(ALADDIN_HOME)/common && make
 
-	cd $(APP_DIR)/$(ALADDIN_CONFIG_DIR)/$(ALADDIN_STATS_DIR) && \
-	$(ALADDIN_HOME)/common/aladdin $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL) ../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)__$(PUSH_PULL)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PUSH_PULL).cfg
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(ALADDIN_STATS_DIR) && \
+	$(ALADDIN_HOME)/common/aladdin $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL) ../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PUSH_PULL).cfg
 
 
 ##################################################
@@ -400,13 +404,17 @@ run-aladdin : run-trace
 .PHONY: gem5 
 gem5: gem5-cpu gem5-accel
 
-.PHONY: run-gem5 
-run-gem5:
-	${gem5_dir}/build/X86/gem5.opt \
+.PHONY: run-gem5
+run-gem5: run-gem5-cpu run-gem5-accel
+
+.PHONY: run-gem5-cpu 
+run-gem5-cpu: directories-gem5 gem5-cpu
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu && \
+	$(GEM5_DIR)/build/X86/gem5.opt \
 	  --debug-flags=HybridDatapath,Aladdin \
-	  --outdir=${bmk_home}/outputs \
+	  --outdir=./outputs \
 	  --stats-db-file=stats.db \
-	  ${gem5_dir}/configs/aladdin/aladdin_se.py \
+	  $(GEM5_DIR)/configs/aladdin/aladdin_se.py \
 	  --num-cpus=1 \
 	  --enable_prefetchers \
 	  --mem-size=4GB \
@@ -415,8 +423,28 @@ run-gem5:
 	  --cpu-type=DerivO3CPU \
 	  --caches \
 	  --cacheline_size=128 \
-	  --accel_cfg_file=${bmk_home}/gem5.cfg \
-	  -c ${bmk_home}/main-gem5 -o "$(ARGS)" \
+	  --accel_cfg_file=../../$(ALADDIN_GEM5_DIR)/gem5.cfg \
+	  -c ../../../$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
+	  | gzip -c > stdout.gz
+
+.PHONY: run-gem5-accel 
+run-gem5-accel: directories-gem5 gem5-accel
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel && \
+	$(GEM5_DIR)/build/X86/gem5.opt \
+	  --debug-flags=HybridDatapath,Aladdin \
+	  --outdir=./outputs \
+	  --stats-db-file=stats.db \
+	  $(GEM5_DIR)/configs/aladdin/aladdin_se.py \
+	  --num-cpus=1 \
+	  --enable_prefetchers \
+	  --mem-size=4GB \
+	  --mem-type=DDR3_1600_8x8  \
+	  --sys-clock=1GHz \
+	  --cpu-type=DerivO3CPU \
+	  --caches \
+	  --cacheline_size=128 \
+	  --accel_cfg_file=../../$(ALADDIN_GEM5_DIR)/gem5.cfg \
+	  -c ../../../$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
 	  | gzip -c > stdout.gz
 	  
 ##################################################
