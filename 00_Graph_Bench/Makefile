@@ -170,7 +170,7 @@ export WORKLOAD  = $(KERNELS)
 LLVM_LIBS = -lm -lz -lpthread 
 
 LLVM_INC	=	-I$(ALADDIN_HOME)	\
-		   		-I$(COMMON_DIR)		\
+				-I$(ALADDIN_HOME)/common \
 		   		-I$(ALADDIN_HOME)/gem5 \
 				-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
 				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR) 	\
@@ -201,7 +201,7 @@ LLVMFLAGS = -static -g -O1 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loop
 GEM5_SRCS = aladdin_sys_connection.cpp aladdin_sys_constants.cpp dma_interface.c
 GEM5_FULL_SRCS = $(GEM5_SRCS:%=$(ALADDIN_HOME)/gem5/%)
 
-CFLAGS += -O3 -Wall -Wno-unused-label
+CFLAGS += -Wno-unused-label -DDMA_INTERFACE_V3
 # -mno-sse
 GEM5_CFLAGS = -static -O3 \
               -msse -mfpmath=sse \
@@ -336,27 +336,28 @@ clean-trace:
 #########################################################
 .PHONY: directories-gem5
 directories-gem5:
+	@mkdir -p $(APP_DIR)/$(BIN_DIR)
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu
 
 # Builds the standalone CPU version only.
 .PHONY: gem5-cpu 
-gem5-cpu: $(SRCS) $(GEM5_FULL_SRCS)
-	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) for gem5.
-	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) $(GEM5_FULL_SRCS) $(SRCS) $(INCLUDES) -o ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu $(LFLAGS)
+gem5-cpu: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS)
+	echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu for gem5.
+	$(CC) $(GEM5_CFLAGS) $(CFLAGS) $(GEM5_FULL_SRCS) $(ALL_SRCS) $(INCLUDES) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu $(LFLAGS) 
 
 # Builds the gem5 version with HW acceleration turned on.
-.PHONY: gem5-accel 
+.PHONY: directories-gem5 gem5-accel 
 gem5-accel: $(SRCS) $(GEM5_FULL_SRCS) 
-	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) for gem5 with HW acceleration.
-	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) -DGEM5_HARNESS $(SRCS) $(GEM5_FULL_SRCS) $(INCLUDES) -o ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel $(LFLAGS)
+	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel  for gem5 with HW acceleration.
+	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) -DGEM5_HARNESS $(ALL_SRCS) $(GEM5_FULL_SRCS) $(INCLUDES) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel $(LFLAGS)
 
 .PHONY: clean-gem5 
 clean-gem5:
 	@rm -rf ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu 
 	@rm -fr ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel
-	@rm -fr $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)
+	@rm -fr ./$(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)
 
 ##################################################
 ##################################################
@@ -408,7 +409,7 @@ gem5: gem5-cpu gem5-accel
 run-gem5: run-gem5-cpu run-gem5-accel
 
 .PHONY: run-gem5-cpu 
-run-gem5-cpu: directories-gem5 gem5-cpu
+run-gem5-cpu: gem5-cpu
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	  --debug-flags=HybridDatapath,Aladdin \
@@ -428,7 +429,7 @@ run-gem5-cpu: directories-gem5 gem5-cpu
 	  | gzip -c > stdout.gz
 
 .PHONY: run-gem5-accel 
-run-gem5-accel: directories-gem5 gem5-accel
+run-gem5-accel: gem5-accel
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	  --debug-flags=HybridDatapath,Aladdin \
