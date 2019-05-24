@@ -5,7 +5,7 @@
 
 # Accel-Graph
 <!-- ![Accel-Graph logo](./02_slides/fig/logo.png "Accel-Graph logo") -->
-## Graph Processing Framework With OpenMP/CAPI-Verilog/Gem5-Aladdin
+## Graph Processing Framework With OpenMP|CAPI/SystemVerilog|Gem5-Aladdin
 
 AFU framework for Graph Processing algorithms with OpenMP/Shared Memory Accelerator CAPI
 
