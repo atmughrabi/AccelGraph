@@ -1,6 +1,6 @@
 # Accel-Graph
 <!-- ![Accel-Graph logo](./02_slides/fig/logo.png "Accel-Graph logo") -->
-<img src="./02_slides/fig/logo.png" width="100" align=center>
+<img src="./02_slides/fig/logo.png" width="200" align=middle>
 
 ## Graph Processing Framework With OpenMP/CAPI-Verilog/Gem5-Aladdin
 
