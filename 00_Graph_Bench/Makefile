@@ -96,7 +96,7 @@ PUSH_PULL 		= 0
 TOLERANCE 		= 1e-9
 DELTA 			= 800
 
-NUM_THREADS  	= 8
+NUM_THREADS  	= 1
 NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 1
 
@@ -205,8 +205,8 @@ CFLAGS += -Wno-unused-label -DDMA_INTERFACE_V3
 # -mno-sse
 GEM5_CFLAGS = -static -O3 \
               -msse -mfpmath=sse \
-              -fno-exceptions \
-              -std=gnu99
+              -fno-exceptions 
+            
 
 INCLUDES = $(LLVM_INC) 
 
@@ -344,31 +344,29 @@ directories-gem5:
 # These are relative to gem5.cfg file
 .PHONY: config-symlink-gem5-cpu
 config-symlink-gem5-cpu:
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu && \
-	ln -s ../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz ./dynamic_trace.gz &&\
-	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
-	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
-	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
-	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
-	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
-	ln -s ../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PUSH_PULL).cfg ./algorithm.cfg
+	@cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu && \
+	ln -sf ../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz ./dynamic_trace.gz &&\
+	ln -sf ../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
+	ln -sf ../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
+	ln -sf ../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
+	ln -sf ../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
+	ln -sf ../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PUSH_PULL).cfg ./algorithm.cfg
 
 .PHONY: config-symlink-gem5-accel
 config-symlink-gem5-accel:
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel && \
-	ln -s ../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz ./dynamic_trace.gz &&\
-	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
-	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
-	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
-	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
-	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
-	ln -s ../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PUSH_PULL).cfg ./algorithm.cfg
+	@cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel && \
+	ln -sf ../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz ./dynamic_trace.gz &&\
+	ln -sf ../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
+	ln -sf ../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
+	ln -sf ../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
+	ln -sf ../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
+	ln -sf ../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PUSH_PULL).cfg ./algorithm.cfg
 
 # Builds the standalone CPU version only.
 .PHONY: gem5-cpu 
 gem5-cpu: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS)
-	echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu for gem5.
-	$(CC) $(GEM5_CFLAGS) $(CFLAGS) $(GEM5_FULL_SRCS) $(ALL_SRCS) $(INCLUDES) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu $(LFLAGS) 
+	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu for gem5.
+	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) $(GEM5_FULL_SRCS) $(ALL_SRCS) $(INCLUDES) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu $(LFLAGS) 
 
 # Builds the gem5 version with HW acceleration turned on.
 .PHONY: gem5-accel 
@@ -400,8 +398,8 @@ trace-binary: directories directories-aladdin ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(
 dma-trace-binary :
 	$(MAKE) -C . DMA_MODE=1 trace-binary
 
-.PHONY: run-trace
-run-trace : trace-binary $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz
+.PHONY: run-llvm-tracer
+run-llvm-tracer : trace-binary $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz
 	
 $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz :
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR) && \
@@ -410,7 +408,7 @@ $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRU
 	mv $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $@
 
 .PHONY: run-aladdin
-run-aladdin : run-trace
+run-aladdin : run-llvm-tracer
 	cd $(ALADDIN_HOME)/common && make
 
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(ALADDIN_STATS_DIR) && \
@@ -432,44 +430,44 @@ gem5: gem5-cpu gem5-accel
 run-gem5: run-gem5-cpu run-gem5-accel
 
 .PHONY: run-gem5-cpu 
-run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu
+run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	  --debug-flags=HybridDatapath,Aladdin \
 	  --outdir=./outputs \
 	  --stats-db-file=stats.db \
 	  $(GEM5_DIR)/configs/aladdin/aladdin_se.py \
-	  --num-cpus=1 \
+	  --num-cpus=$(NUM_THREADS) \
 	  --enable_prefetchers \
 	  --mem-size=8GB \
 	  --mem-type=DDR3_1600_8x8  \
 	  --sys-clock=1GHz \
 	  --cpu-type=DerivO3CPU \
 	  --caches \
-	  --cacheline_size=128 \
+	  --cacheline_size=64 \
 	  --accel_cfg_file=../../$(ALADDIN_GEM5_DIR)/gem5.cfg \
-	  -c ../../../$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
-	  | gzip -c > stdout.gz
+	  -c ../../../$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu -o "-f ../../../$(FILE_BIN) $(ARGS)" 
+# 	  | gzip -c > stdout.gz
 
 .PHONY: run-gem5-accel 
-run-gem5-accel: gem5-accel config-symlink-gem5-accel
+run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	  --debug-flags=HybridDatapath,Aladdin \
 	  --outdir=./outputs \
 	  --stats-db-file=stats.db \
 	  $(GEM5_DIR)/configs/aladdin/aladdin_se.py \
-	  --num-cpus=1 \
+	  --num-cpus=$(NUM_THREADS) \
 	  --enable_prefetchers \
 	  --mem-size=8GB \
 	  --mem-type=DDR3_1600_8x8  \
 	  --sys-clock=1GHz \
 	  --cpu-type=DerivO3CPU \
 	  --caches \
-	  --cacheline_size=128 \
+	  --cacheline_size=64 \
 	  --accel_cfg_file=../../$(ALADDIN_GEM5_DIR)/gem5.cfg \
-	  -c ../../../$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
-	  | gzip -c > stdout.gz
+	  -c ../../../$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel -o "-f ../../../$(FILE_BIN) $(ARGS)" 
+# 	  | gzip -c > stdout.gz
 	  
 ##################################################
 ##################################################
