@@ -341,6 +341,29 @@ directories-gem5:
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu
 
+# These are relative to gem5.cfg file
+.PHONY: config-symlink-gem5-cpu
+config-symlink-gem5-cpu:
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu && \
+	ln -s ../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz ./dynamic_trace.gz &&\
+	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
+	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
+	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
+	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
+	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
+	ln -s ../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PUSH_PULL).cfg ./algorithm.cfg
+
+.PHONY: config-symlink-gem5-accel
+config-symlink-gem5-accel:
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel && \
+	ln -s ../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PUSH_PULL)_dynamic_trace.gz ./dynamic_trace.gz &&\
+	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
+	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
+	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
+	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
+	ln -s ../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
+	ln -s ../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PUSH_PULL).cfg ./algorithm.cfg
+
 # Builds the standalone CPU version only.
 .PHONY: gem5-cpu 
 gem5-cpu: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS)
@@ -348,8 +371,8 @@ gem5-cpu: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS)
 	$(CC) $(GEM5_CFLAGS) $(CFLAGS) $(GEM5_FULL_SRCS) $(ALL_SRCS) $(INCLUDES) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu $(LFLAGS) 
 
 # Builds the gem5 version with HW acceleration turned on.
-.PHONY: directories-gem5 gem5-accel 
-gem5-accel: $(SRCS) $(GEM5_FULL_SRCS) 
+.PHONY: gem5-accel 
+gem5-accel: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS) 
 	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel  for gem5 with HW acceleration.
 	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) -DGEM5_HARNESS $(ALL_SRCS) $(GEM5_FULL_SRCS) $(INCLUDES) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel $(LFLAGS)
 
@@ -409,7 +432,7 @@ gem5: gem5-cpu gem5-accel
 run-gem5: run-gem5-cpu run-gem5-accel
 
 .PHONY: run-gem5-cpu 
-run-gem5-cpu: gem5-cpu
+run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	  --debug-flags=HybridDatapath,Aladdin \
@@ -418,7 +441,7 @@ run-gem5-cpu: gem5-cpu
 	  $(GEM5_DIR)/configs/aladdin/aladdin_se.py \
 	  --num-cpus=1 \
 	  --enable_prefetchers \
-	  --mem-size=4GB \
+	  --mem-size=8GB \
 	  --mem-type=DDR3_1600_8x8  \
 	  --sys-clock=1GHz \
 	  --cpu-type=DerivO3CPU \
@@ -429,7 +452,7 @@ run-gem5-cpu: gem5-cpu
 	  | gzip -c > stdout.gz
 
 .PHONY: run-gem5-accel 
-run-gem5-accel: gem5-accel
+run-gem5-accel: gem5-accel config-symlink-gem5-accel
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	  --debug-flags=HybridDatapath,Aladdin \
@@ -438,7 +461,7 @@ run-gem5-accel: gem5-accel
 	  $(GEM5_DIR)/configs/aladdin/aladdin_se.py \
 	  --num-cpus=1 \
 	  --enable_prefetchers \
-	  --mem-size=4GB \
+	  --mem-size=8GB \
 	  --mem-type=DDR3_1600_8x8  \
 	  --sys-clock=1GHz \
 	  --cpu-type=DerivO3CPU \
