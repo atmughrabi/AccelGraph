@@ -7,49 +7,6 @@
 
 ## Graph Processing Framework that supports | OpenMP || CAPI/SystemVerilog || gem5-Aladdin | 
 
-### Tasks TODO:
-- [x] Finish Graph Data structures suite
-  - [x] CSR   (Compressed Sparse Row)
-  - [x] Grid   
-  - [x] Adjacency Linked List
-  - [x] Adjacency Array List
-- [ ] Finish graph algorithms suite OpenMP
-  - [x] BFS   (Breadth First Search)
-  - [x] PR    (Page-Rank)
-  - [x] DFS   (Depth First Search)
-  - [x] IA    (Incremental Aggregation)
-  - [x] SSSP  (BellmanFord)
-  - [x] SSSP  (Dijkstra)
-  - [ ] CC    (Connected Components)
-  - [ ] BC    (Betweenness Centrality)
-  - [ ] TC    (Triangle Counting)
-- [x] Finish integration with gem5-Aladdin
-- [ ] Finish graph algorithms suite gem5-Aladdin
-  - [ ] BFS   (Breadth First Search)
-  - [ ] PR    (Page-Rank)
-  - [ ] DFS   (Depth First Search)
-  - [ ] IA    (Incremental Aggregation)
-  - [ ] SSSP  (BellmanFord)
-  - [ ] SSSP  (Dijkstra)
-  - [ ] CC    (Connected Components)
-  - [ ] BC    (Betweenness Centrality)
-  - [ ] TC    (Triangle Counting)
-- [x] Finish integration with CAPI
-- [ ] Finish graph algorithms suite CAPI
-  - [ ] BFS   (Breadth First Search)
-  - [ ] PR    (Page-Rank)
-  - [ ] DFS   (Depth First Search)
-  - [ ] IA    (Incremental Aggregation)
-  - [ ] SSSP  (BellmanFord)
-  - [ ] SSSP  (Dijkstra)
-  - [ ] CC    (Connected Components)
-  - [ ] BC    (Betweenness Centrality)
-  - [ ] TC    (Triangle Counting)
-- [ ] Reaserch Ideas
-  - [ ] Graph algorithm design space exploration with gem5-aladdin
-  - [ ] Page-Rank quantization
-  - [ ] CAPI frontier prefetcher
-
 ## Overview 
 
 ![End-to-End Acceleration](./02_slides/fig/fig-4.png "Accel-Graph")
@@ -371,6 +328,53 @@ portable benchmarking suite for various graph processing algorithms.
 
 * *`Makefile`* - Global makefile
 
+## Tasks TODO:
+
+- [x] Finish Graph Data structures suite
+  - [x] CSR   (Compressed Sparse Row)
+  - [x] Grid   
+  - [x] Adjacency Linked List
+  - [x] Adjacency Array List
+- [ ] Finish graph algorithms suite OpenMP
+  - [x] BFS   (Breadth First Search)
+  - [x] PR    (Page-Rank)
+  - [x] DFS   (Depth First Search)
+  - [x] IA    (Incremental Aggregation)
+  - [x] SSSP  (BellmanFord)
+  - [x] SSSP  (Dijkstra)
+  - [ ] CC    (Connected Components)
+  - [ ] BC    (Betweenness Centrality)
+  - [ ] TC    (Triangle Counting)
+  - [ ] SPMV  (Sparse Matrix-vector Multiplication)
+- [x] Finish integration with gem5-Aladdin
+- [ ] Finish graph algorithms suite gem5-Aladdin
+  - [ ] BFS   (Breadth First Search)
+  - [ ] PR    (Page-Rank)
+  - [ ] DFS   (Depth First Search)
+  - [ ] IA    (Incremental Aggregation)
+  - [ ] SSSP  (BellmanFord)
+  - [ ] SSSP  (Dijkstra)
+  - [ ] CC    (Connected Components)
+  - [ ] BC    (Betweenness Centrality)
+  - [ ] TC    (Triangle Counting)
+  - [ ] SPMV  (Sparse Matrix-vector Multiplication)
+- [x] Finish integration with CAPI
+- [ ] Finish graph algorithms suite CAPI
+  - [ ] BFS   (Breadth First Search)
+  - [ ] PR    (Page-Rank)
+  - [ ] DFS   (Depth First Search)
+  - [ ] IA    (Incremental Aggregation)
+  - [ ] SSSP  (BellmanFord)
+  - [ ] SSSP  (Dijkstra)
+  - [ ] CC    (Connected Components)
+  - [ ] BC    (Betweenness Centrality)
+  - [ ] TC    (Triangle Counting)
+  - [ ] SPMV  (Sparse Matrix-vector Multiplication)
+- [ ] Research Ideas
+  - [ ] Graph algorithm design space exploration with gem5-Aladdin
+  - [ ] Page-Rank quantization
+  - [ ] CAPI frontier prefetcher
+  
 <p align="right">
 <img src="./02_slides/fig/logo1.png" width="200" >
 </p>
