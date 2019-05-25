@@ -265,53 +265,215 @@ portable benchmarking suite for various graph processing algorithms.
  ```
 `Report bugs to <atmughra@ncsu.edu>.`
 
-## Organization 
+## Organization Detailed:
 
-* `00_Graph_Bench`
-  * `include` - Major function headers 
-    * `graphalgorithms` - supported Graph algorithms
-      * `openmp`  - OpenMP integration
-        * `BFS.h`   - Breadth First Search
-        * `DFS.h`   - Depth First Search
-        * `SSSP.h`  - Single Source Shortest Path
-        * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
-        * `incrementalAgreggation.h` - Incremental Aggregation for clustering
-        * `pageRank.h` - Page Rank Algorithm
-      * `gem5aladdin`- gem5-aladdin integration
-      * `capi` - CAPI integration
-    * `preprocessing` - preprocessing graph structure [Presentation](../02_slides/preprocessing_Graphs_countsort.pdf)
-      * `countsort.h` - sort edge list using count sort
-      * `radixsort.h` - sort edge list using radix sort
-      * `reorder.h` - cluster reorder the graph for better cache locality
-      * `sortRun.h` - chose which sorting algorithm to use
-    * `structures` - structures that hold the graph in memory [Presentation](../02_slides/Graph_DataStructures.pdf)
-      * `graphAdjArrayList.h` - graph using adjacency list array with arrays
-      * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
-      * `graphCSR.h` - graph using compressed sparse matrix
-      * `graphGrid.h` - graph using Grid
-  * `src` - Major function Source files
-    * `graphalgorithms` - supported Graph algorithms
-      * `openmp`  - OpenMP integration
-        * `BFS.c`   - Breadth First Search
-        * `DFS.c`   - Depth First Search
-        * `SSSP.c`  - Single Source Shortest Path
-        * `bellmanFord.c` - Single Source Shortest Path using Bellman Ford
-        * `incrementalAgreggation.c` - Incremental Aggregation for clustering
-        * `pageRank.c` - Page Rank Algorithm
-      * `gem5aladdin`- gem5-aladdin integration
-      * `capi` - CAPI integration
-    * `preprocessing` - preprocessing graph structure [Presentation](../02_slides/preprocessing_Graphs_countsort.pdf)
-      * `countsort.c` - sort edge list using count sort
-      * `radixsort.c` - sort edge list using radix sort
-      * `reorder.c` - cluster reorder the graph for better cache locality
-      * `sortRun.c` - chose which sorting algorithm to use
-    * `structures` - structures that hold the graph in memory [Presentation](../02_slides/Graph_DataStructures.pdf)
-      * `graphAdjArrayList.c` - graph using adjacency list array with arrays
-      * `graphAdjLinkeList.c` - graph using adjacency list array with linked lists
-      * `graphCSR.c` - graph using compressed sparse matrix
-      * `graphGrid.c` - graph using Grid
+```bash
+ .
+.
+├── aladdin_common
+│   ├── algorithms_configs
+│   │   ├── 0
+│   │   │   ├── 1
+│   │   │   │   └── 0.cfg
+│   ├── cacti_configs
+│   │   ├── cacti_cache.cfg
+│   │   ├── cacti_lq.cfg
+│   │   ├── cacti_sq.cfg
+│   │   └── cacti_tlb.cfg
+│   ├── dynamic_traces
+│   │   └── test_0_1_0_dynamic_trace.gz
+│   ├── gem5_configs
+│   │   ├── gem5.cfg
+│   │   └── run.sh
+│   ├── stats_aladdin
+│   └── stats_gem5
+│       ├── accel
+│       │   ├── algorithm.cfg -> ../../algorithms_configs/0/1/0.cfg
+│       │   ├── cacti_cache.cfg -> ../../cacti_configs/cacti_cache.cfg
+│       │   ├── cacti_lq.cfg -> ../../cacti_configs/cacti_lq.cfg
+│       │   ├── cacti_sq.cfg -> ../../cacti_configs/cacti_sq.cfg
+│       │   ├── cacti_tlb.cfg -> ../../cacti_configs/cacti_tlb.cfg
+│       │   ├── dddg_parse_progress.out
+│       │   ├── dynamic_trace.gz -> ../../dynamic_traces/test_0_1_0_dynamic_trace.gz
+│       │   ├── out.csv
+│       │   ├── outputs
+│       │   │   ├── algorithm_cache_stats.txt
+│       │   │   ├── algorithm_spad_stats.txt
+│       │   │   ├── algorithm_summary
+│       │   │   ├── config.ini
+│       │   │   ├── config.json
+│       │   │   ├── stats.db
+│       │   │   └── stats.txt
+│       │   └── stdout.gz
+│       ├── cpu
+│       │   ├── algorithm.cfg -> ../../algorithms_configs/0/1/0.cfg
+│       │   ├── cacti_cache.cfg -> ../../cacti_configs/cacti_cache.cfg
+│       │   ├── cacti_lq.cfg -> ../../cacti_configs/cacti_lq.cfg
+│       │   ├── cacti_sq.cfg -> ../../cacti_configs/cacti_sq.cfg
+│       │   ├── cacti_tlb.cfg -> ../../cacti_configs/cacti_tlb.cfg
+│       │   ├── dynamic_trace.gz -> ../../dynamic_traces/test_0_1_0_dynamic_trace.gz
+│       │   ├── outputs
+│       │   │   ├── config.ini
+│       │   │   ├── config.json
+│       │   │   ├── stats.db
+│       │   │   └── stats.txt
+│       │   └── stdout.gz
+│       └── openmp
+├── bin
+│   ├── accel-graph-gem5aladdin-gem5-accel
+│   ├── accel-graph-gem5aladdin-gem5-cpu
+│   └── accel-graph-gem5aladdin-instrumented
+├── cmake
+│   ├── Findcxl.cmake
+│   └── Findsnap.cmake
+├── CMakeLists.txt
+├── include
+│   ├── graphalgorithms
+│   │   ├── capi
+│   │   │   ├── bellmanFord.h
+│   │   │   ├── BFS.h
+│   │   │   ├── DFS.h
+│   │   │   ├── incrementalAggregation.h
+│   │   │   ├── pageRank.h
+│   │   │   └── SSSP.h
+│   │   ├── gem5aladdin
+│   │   │   ├── bellmanFord.h
+│   │   │   ├── BFS.h
+│   │   │   ├── DFS.h
+│   │   │   ├── incrementalAggregation.h
+│   │   │   ├── pageRank.h
+│   │   │   └── SSSP.h
+│   │   └── openmp
+│   │       ├── bellmanFord.h
+│   │       ├── BFS.h
+│   │       ├── DFS.h
+│   │       ├── incrementalAggregation.h
+│   │       ├── pageRank.h
+│   │       └── SSSP.h
+│   ├── preprocessing
+│   │   ├── countsort.h
+│   │   ├── epochReorder.h
+│   │   ├── radixsort.h
+│   │   ├── reorder.h
+│   │   └── sortRun.h
+│   ├── structures
+│   │   ├── adjArrayList.h
+│   │   ├── adjLinkedList.h
+│   │   ├── adjMatrix.h
+│   │   ├── arrayQueue.h
+│   │   ├── arrayStack.h
+│   │   ├── bitmap.h
+│   │   ├── capienv.h
+│   │   ├── dynamicQueue.h
+│   │   ├── edgeList.h
+│   │   ├── graphAdjArrayList.h
+│   │   ├── graphAdjLinkedList.h
+│   │   ├── graphCSR.h
+│   │   ├── graphGrid.h
+│   │   ├── grid.h
+│   │   └── vertex.h
+│   └── utils
+│       ├── bloomFilter.h
+│       ├── bloomMultiHash.h
+│       ├── bloomStream.h
+│       ├── boolean.h
+│       ├── cache.h
+│       ├── fixedPoint.h
+│       ├── graphConfig.h
+│       ├── graphRun.h
+│       ├── graphStats.h
+│       ├── hash.h
+│       ├── mt19937.h
+│       ├── myMalloc.h
+│       ├── quantization.h
+│       └── timer.h
+├── labelmap
+├── Makefile
+├── obj
+├── README.md
+└── src
+    ├── CMakeLists.txt
+    ├── graphalgorithms
+    │   ├── capi
+    │   │   ├── bellmanFord.c
+    │   │   ├── BFS.c
+    │   │   ├── CMakeLists.txt
+    │   │   ├── DFS.c
+    │   │   ├── incrementalAggregation.c
+    │   │   ├── pageRank.c
+    │   │   └── SSSP.c
+    │   ├── CMakeLists.txt
+    │   ├── gem5aladdin
+    │   │   ├── bellmanFord.c
+    │   │   ├── BFS.c
+    │   │   ├── CMakeLists.txt
+    │   │   ├── DFS.c
+    │   │   ├── incrementalAggregation.c
+    │   │   ├── pageRank.c
+    │   │   └── SSSP.c
+    │   └── openmp
+    │       ├── bellmanFord.c
+    │       ├── BFS.c
+    │       ├── CMakeLists.txt
+    │       ├── DFS.c
+    │       ├── incrementalAggregation.c
+    │       ├── pageRank.c
+    │       └── SSSP.c
+    ├── main
+    │   ├── accel-graph.c
+    │   └── CMakeLists.txt
+    ├── preprocessing
+    │   ├── CMakeLists.txt
+    │   ├── countsort.c
+    │   ├── epochReorder.c
+    │   ├── radixsort.c
+    │   ├── reorder.c
+    │   └── sortRun.c
+    ├── structures
+    │   ├── adjArrayList.c
+    │   ├── adjLinkedList.c
+    │   ├── adjMatrix.c
+    │   ├── arrayQueue.c
+    │   ├── arrayStack.c
+    │   ├── bitmap.c
+    │   ├── CMakeLists.txt
+    │   ├── dynamicQueue.c
+    │   ├── edgeList.c
+    │   ├── graphAdjArrayList.c
+    │   ├── graphAdjLinkedList.c
+    │   ├── graphCSR.c
+    │   ├── graphGrid.c
+    │   ├── grid.c
+    │   └── vertex.c
+    ├── tests
+    │   ├── CMakeLists.txt
+    │   ├── test_afu.c
+    │   ├── test_bloomfilter.c
+    │   ├── test_bloomStream.c
+    │   ├── test_fixedpoint.c
+    │   ├── test_graphAdjArray.c
+    │   ├── test_graphAdjLinkedList.c
+    │   ├── test_graphCSR.c
+    │   ├── test_graphGrid.c
+    │   ├── test_grid.c
+    │   └── test_quantization.c
+    └── utils
+        ├── bloomFilter.c
+        ├── bloomMultiHash.c
+        ├── bloomStream.c
+        ├── cache.c
+        ├── CMakeLists.txt
+        ├── graphRun.c
+        ├── graphStats.c
+        ├── hash.c
+        ├── mt19937.c
+        ├── myMalloc.c
+        ├── quantization.c
+        └── timer.c
 
-* *`Makefile`* - Global makefile
+
+
+```
 
 ## Tasks TODO:
 
