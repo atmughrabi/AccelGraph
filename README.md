@@ -41,7 +41,6 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 <img src="./02_slides/fig/openmp_logo.png" height="40" align="right" >
 
 ### Initial compilation for the Graph framework with OpenMP
-<br/>
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -62,7 +61,6 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 <img src="./02_slides/fig/gem5-aladdin_logo.png" height="40" align="right" >
 
 ### Initial compilation for the Graph framework with gem5-aladdin
-<br/>
 
 * NOTE: You need gem5-aladdin environment setup on your machine.
 * Please refer to [(gem5-aladdin)](https://github.com/harvard-acc/gem5-aladdin)
@@ -82,7 +80,6 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 <img src="./02_slides/fig/capi_logo.png" height="40" align="right" >
 
 ### Initial compilation for the Graph framework with CAPI
-<br/>
 
 * NOTE: You need CAPI environment setup on your machine.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
