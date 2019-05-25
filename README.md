@@ -7,8 +7,6 @@
 
 ## Graph Processing Framework With | OpenMP || CAPI/SystemVerilog || gem5-Aladdin | ##
 
-### OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-SystemVerilog || gem5-Aladdin | ###
-
 ## Overview ##
 
 ![End-to-End Acceleration](./02_slides/fig/fig-4.png "Accel-Graph")
