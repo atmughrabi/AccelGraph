@@ -7,6 +7,7 @@
 
 ## Graph Processing Framework that supports | OpenMP || CAPI/SystemVerilog || gem5-Aladdin | 
 
+
 ## Overview 
 
 ![End-to-End Acceleration](./02_slides/fig/fig-4.png "Accel-Graph")
