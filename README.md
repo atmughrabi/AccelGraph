@@ -5,17 +5,17 @@
 
 # Accel-Graph
 <!-- ![Accel-Graph logo](./02_slides/fig/logo.png "Accel-Graph logo") -->
-## Graph Processing Framework With OpenMP|CAPI/SystemVerilog|Gem5-Aladdin
+## Graph Processing Framework With | OpenMP || CAPI/SystemVerilog || gem5-Aladdin |
 
-AFU framework for Graph Processing algorithms with OpenMP/Shared Memory Accelerator CAPI
+OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-SystemVerilog || gem5-Aladdin |
 
 ## Overview
 
 ![End-to-End Acceleration](./02_slides/fig/fig-4.png "Accel-Graph")
 
-Accel-Graph is an open source Graph processing framework, it is designed to be a portable benchmarking suite for various graph processing algorithms. It provides an end to end evaluation infrastructure. End to end involves performance bottleneck that includes the preprocessing stage of graph processing.
-The OpenMP part of AccelGraph has been tested on Ubuntu 18.04 with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking tool has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between shared memory FPGAs with parallel processors.
-Also support for Gem5-Aladdin has been included, for system emulation. With a simple cache model hard coded into our base code for quick and dirty cache performance evaluation.
+Accel-Graph is an open source graph processing framework, it is designed to be a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure that includes the preprocessing stage for forming the graph structure, with the graph algorithm.
+The OpenMP part of Accel-Graph has been developed on Ubuntu 16.04.6,  with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between shared memory FPGAs with parallel processors.
+Also we provided support for gem5-Aladdin for more performance exploration options. With a simple cache model hard coded into our base code for quick and dirty cache performance evaluation.
 
 <!-- ## Details -->
 <!-- ### Accel-Graph Supported Algorithms -->
@@ -235,3 +235,7 @@ Report bugs to <atmughra@ncsu.edu>.
       * `graphGrid.c` - graph using Grid
 
 * *`Makefile`* - Global makefile
+
+<p align="center">
+<img src="./02_slides/fig/logo2.png" width="600" >
+</p>
