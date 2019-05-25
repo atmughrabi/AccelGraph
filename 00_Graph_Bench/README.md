@@ -282,5 +282,5 @@ Report bugs to <atmughra@ncsu.edu>.
 * *`Makefile`* - Global makefile
 
 <p align="right">
-<img src="./02_slides/fig/logo1.png" width="200" >
+<img src="../02_slides/fig/logo1.png" width="200" >
 </p>
