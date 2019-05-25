@@ -52,9 +52,9 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   make run
   ```
   OR
-```
+  ```
   make run-openmp
-```
+  ```
 
 ### Graph structure (Edge list)
 
@@ -69,7 +69,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 * Example: (unweighted textual edge-list)
 * INPUT:
-```
+  ```
   ../BENCHMARKS_DIR/GRAPH_NAME/graph
 
   30    3
@@ -84,21 +84,21 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   8     22
   9     27
 
-```
+  ```
 
 * Example: convert to binary format convert and add random weights, for this one all the wights were 1.
 * `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to.
 * `--stats` is a flag that enables conversion. It used also for collecting stats about the graph (but this feature is on hold for now).
-```
+  ```
   make convert
-```
+  ```
   OR
-```
+  ```
 ./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
-```
+  ```
 
 * OUTPUT:
-```
+  ```
   ../BENCHMARKS_DIR/GRAPH_NAME/graph.wbin
 
 1e00 0000 0300 0000 0100 0000 0300 0000
@@ -110,7 +110,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 0600 0000 0b00 0000 0100 0000 0800 0000
 1600 0000 0100 0000 0900 0000 1b00 0000
 0100 0000 
-```
+  ```
 
 ### Options
 
