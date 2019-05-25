@@ -161,7 +161,8 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
  ```
 
-* Example: convert to binary format convert and add random weights, for this one all the wights were 1.
+* Example:
+  * convert to binary format and add random weights, for this exMPLE all the weights are `1`.
 * `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to.
 * `--stats` is a flag that enables conversion. It used also for collecting stats about the graph (but this feature is on hold for now).
  ```
