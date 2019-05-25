@@ -100,11 +100,11 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-gem5-openmp
   ```
-    * running the `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-aladdin integreation-test examples.
+    * running the `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
   ```
   make run-gem5-cpu
   ```
-   * running the `accel` mode on gem5 with the acceleartor active. The performance-power model is derived from the DDDG (dynamic data dependence graphs).
+   * running the `accel` mode on gem5 with the accelerator active. The performance-power model is derived from the DDDG (dynamic data dependence graphs).
   ```
   make run-gem5-accel
   ```
@@ -113,10 +113,12 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 ### Initial compilation for the Graph framework with CAPI  
 
 * NOTE: You need CAPI environment setup on your machine.
+* [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
+* There is CAPI SNAP we are not supporting since our graph processing suite heavily depends on caches support for accelerator. SNAP does not support this feature yet. So if you are interested in streaming applications or doesn't benefit from caches SNAP is your savior.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
 * CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
-* [Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
+
 
 1. From the root directory go to the graph benchmark directory:
   ```
