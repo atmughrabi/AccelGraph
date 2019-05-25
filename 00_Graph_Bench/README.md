@@ -1,13 +1,7 @@
 
-# Accel-Graph Graph Benchmark Suite
-<!-- ![Accel-Graph logo](./02_slides/fig/logo.png "Accel-Graph logo") -->
-## Graph Processing Framework With | OpenMP || CAPI/SystemVerilog || gem5-Aladdin |
+# Installation 
 
-OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-SystemVerilog || gem5-Aladdin |
-
-## Installation ##
-
-### Setting up the source code ###
+## Setting up the source code 
 
 1. Clone Accel-Graph.
 
@@ -21,9 +15,11 @@ OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-Syste
   git submodule update --init --recursive
   ```
 
-## Running Accel-Graph ##
+# Running Accel-Graph 
 
-### Initial compilation for the Graph framework with OpenMP
+[<img src="../02_slides/fig/openmp_logo.png" height="45" align="right" >](https://www.openmp.org/)
+
+## Initial compilation for the Graph framework with OpenMP 
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -33,16 +29,92 @@ OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-Syste
   ```
   make 
   ```
-3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
+3. From the root directory you can modify the Makefile with the [(parameters)](#accel-graph-options) you need for OpenMP:
   ```
   make run
   ```
-  Or
+  * OR
   ```
   make run-openmp
   ```
+[<img src="../02_slides/fig/gem5-aladdin_logo.png" height="45" align="right" >](https://github.com/harvard-acc/gem5-aladdin)
 
-### Graph structure (Edge list)
+## Initial compilation for the Graph framework with gem5-Aladdin 
+
+* NOTE: You need gem5-aladdin environment setup on your machine.
+* Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
+* It is best to go through some of the integration-test examples that [(Aladdin)](https://github.com/ysshao/aladdin/) provides. So you can understand the process flow of how and why things are proceeding the way they are.
+
+### Running Aladdin 
+
+1. From the root directory go to the graph benchmark directory:
+  ```
+  cd 00_Graph_Bench/
+  ```
+2. This will compile Aladdin, then generate a dynamic trace if it doesn't exist and then run Aladdin:
+  * The generated dynamic_trace resides in `./00_Graph_bench/aladdin_common/dynamic_traces` 
+  * The dynamic trace is labeled with the following `(GRAPH_NAME)_(DATA_STRUCTURES)_(ALGORITHMS)_(PUSH_PULL)_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
+  ```
+  make run-aladdin
+  ```
+3. To generate a dynamic trace without running Aladdin:
+  ```
+  make run-llvm-tracer # if it never been generated
+  ```
+  * OR
+  ```
+  make run-llvm-tracer-force # regenerated even if it exists
+  ```
+
+### Running gem5-Aladdin 
+
+* NOTE: You need gem5-aladdin environment setup on your machine.
+* AGAIN: Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
+* gem5-Aladdin provides the possibility to evaluate the performance of shared memory accelerators.
+
+1. From the root directory go to the graph benchmark directory:
+  ```
+  cd 00_Graph_Bench/
+  ```
+2. Their are three types of mode runs for gem5-aladding.
+  * Running with `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
+  ```
+  make run-gem5-openmp
+  ```
+  * Running with `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
+  ```
+  make run-gem5-cpu
+  ```
+  * Running with `accel` mode on gem5 with the accelerator active. The performance-power model is derived from the DDDG (Dynamic Data Dependence Graph).
+  ```
+  make run-gem5-accel
+  ```
+[<img src="../02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
+
+## Initial compilation for the Graph framework with CAPI  
+
+* NOTE: You need CAPI environment setup on your machine.
+* [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
+* We are not supporting CAPI SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a candidate.
+* For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
+* CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
+* [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
+
+
+1. From the root directory go to the graph benchmark directory:
+  ```
+  cd 00_Graph_Bench/
+  ```
+2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your PowerPC machine (CAPI supported) :
+  ```
+  make run-pslse
+  ```
+3. Runs a graph algorithm that communicates with the pslse (simulation), or psl (real HW):
+  ```
+  make run-capi
+  ```
+
+## Graph structure (Edge list) 
 
 * If you open the Makefile you will see the convention for graph directories : `BENCHMARKS_DIR/GRAPH_NAME/graph.wbin`.
 * `.bin` stands to unweighted edge list, `.wbin` stands for wighted, `In binary format`. (This is only a convention you don't have to use it)
@@ -71,14 +143,13 @@ OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-Syste
   9     27
 
  ```
-
-* Example: convert to binary format convert and add random weights, for this one all the wights were 1.
+* convert to binary format and add random weights, for this example all the weights are `1`.
 * `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to.
 * `--stats` is a flag that enables conversion. It used also for collecting stats about the graph (but this feature is on hold for now).
  ```
   make convert
  ```
-* Or
+  * OR
  ```
 ./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
  ```
@@ -98,7 +169,7 @@ OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-Syste
 0100 0000 
 ```
 
-### Accel-Graph Options
+## Accel-Graph Options 
 
  ```
 Usage: accel-graph [OPTION...]
@@ -191,49 +262,10 @@ portable benchmarking suite for various graph processing algorithms.
       --usage                Give a short usage message
   -V, --version              Print program version
 
-```
-Report bugs to <atmughra@ncsu.edu>.
+ ```
+`Report bugs to <atmughra@ncsu.edu>.`
 
-### Initial compilation for the Graph framework with gem5-aladdin
-
-* NOTE: You need gem5-aladdin environment setup on your machine.
-* Please refer to [(gem5-aladdin)](https://github.com/harvard-acc/gem5-aladdin)
-
-1. From the root directory go to the graph benchmark directory:
-  ```
-  cd 00_Graph_Bench/
-  ```
-2. The default compilation is openmp change it from Makefile or:
-  ```
-  make INTEGRATION_DIR=gem5aladdin
-  ```
-3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
-  ```
-  make run INTEGRATION_DIR=gem5aladdin
-  ```
-
-### Initial compilation for the Graph framework with CAPI
-
-* NOTE: You need CAPI environment setup on your machine.
-* For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
-* CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
-* [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
-* [Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
-
-1. From the root directory go to the graph benchmark directory:
-  ```
-  cd 00_Graph_Bench/
-  ```
-2. The default compilation is openmp change it from Makefile or:
-  ```
-  make INTEGRATION_DIR=capi
-  ```
-3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
-  ```
-  make run INTEGRATION_DIR=capi
-  ```
-
-## Organization
+## Organization 
 
 * `00_Graph_Bench`
   * `include` - Major function headers 
@@ -247,12 +279,12 @@ Report bugs to <atmughra@ncsu.edu>.
         * `pageRank.h` - Page Rank Algorithm
       * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
-    * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
+    * `preprocessing` - preprocessing graph structure [Presentation](../02_slides/preprocessing_Graphs_countsort.pdf)
       * `countsort.h` - sort edge list using count sort
       * `radixsort.h` - sort edge list using radix sort
       * `reorder.h` - cluster reorder the graph for better cache locality
       * `sortRun.h` - chose which sorting algorithm to use
-    * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
+    * `structures` - structures that hold the graph in memory [Presentation](../02_slides/Graph_DataStructures.pdf)
       * `graphAdjArrayList.h` - graph using adjacency list array with arrays
       * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
       * `graphCSR.h` - graph using compressed sparse matrix
@@ -268,12 +300,12 @@ Report bugs to <atmughra@ncsu.edu>.
         * `pageRank.c` - Page Rank Algorithm
       * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
-    * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
+    * `preprocessing` - preprocessing graph structure [Presentation](../02_slides/preprocessing_Graphs_countsort.pdf)
       * `countsort.c` - sort edge list using count sort
       * `radixsort.c` - sort edge list using radix sort
       * `reorder.c` - cluster reorder the graph for better cache locality
       * `sortRun.c` - chose which sorting algorithm to use
-    * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
+    * `structures` - structures that hold the graph in memory [Presentation](../02_slides/Graph_DataStructures.pdf)
       * `graphAdjArrayList.c` - graph using adjacency list array with arrays
       * `graphAdjLinkeList.c` - graph using adjacency list array with linked lists
       * `graphCSR.c` - graph using compressed sparse matrix
@@ -281,6 +313,51 @@ Report bugs to <atmughra@ncsu.edu>.
 
 * *`Makefile`* - Global makefile
 
-<p align="right">
-<img src="../02_slides/fig/logo1.png" width="200" >
-</p>
+## Tasks TODO:
+
+- [x] Finish Graph Data structures suite
+  - [x] CSR   (Compressed Sparse Row)
+  - [x] Grid   
+  - [x] Adjacency Linked List
+  - [x] Adjacency Array List
+- [ ] Finish graph algorithms suite OpenMP
+  - [x] BFS   (Breadth First Search)
+  - [x] PR    (Page-Rank)
+  - [x] DFS   (Depth First Search)
+  - [x] IA    (Incremental Aggregation)
+  - [x] SSSP  (BellmanFord)
+  - [x] SSSP  (Dijkstra)
+  - [ ] CC    (Connected Components)
+  - [ ] BC    (Betweenness Centrality)
+  - [ ] TC    (Triangle Counting)
+  - [ ] SPMV  (Sparse Matrix-vector Multiplication)
+- [x] Finish integration with gem5-Aladdin
+- [ ] Finish graph algorithms suite gem5-Aladdin
+  - [ ] BFS   (Breadth First Search)
+  - [ ] PR    (Page-Rank)
+  - [ ] DFS   (Depth First Search)
+  - [ ] IA    (Incremental Aggregation)
+  - [ ] SSSP  (BellmanFord)
+  - [ ] SSSP  (Dijkstra)
+  - [ ] CC    (Connected Components)
+  - [ ] BC    (Betweenness Centrality)
+  - [ ] TC    (Triangle Counting)
+  - [ ] SPMV  (Sparse Matrix-vector Multiplication)
+- [x] Finish integration with CAPI
+- [ ] Finish graph algorithms suite CAPI
+  - [ ] BFS   (Breadth First Search)
+  - [ ] PR    (Page-Rank)
+  - [ ] DFS   (Depth First Search)
+  - [ ] IA    (Incremental Aggregation)
+  - [ ] SSSP  (BellmanFord)
+  - [ ] SSSP  (Dijkstra)
+  - [ ] CC    (Connected Components)
+  - [ ] BC    (Betweenness Centrality)
+  - [ ] TC    (Triangle Counting)
+  - [ ] SPMV  (Sparse Matrix-vector Multiplication)
+- [ ] Research Ideas
+  - [ ] Graph algorithms performance exploration with gem5-Aladdin
+  - [ ] Page-Rank quantization
+  - [ ] CAPI frontier prefetcher
+
+[<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](#installation)
