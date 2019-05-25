@@ -4,7 +4,7 @@
 </p>
 
 # Accel-Graph
-<!-- ![Accel-Graph logo](./02_slides/fig/logo.png "Accel-Graph logo") -->
+
 ## Graph Processing Framework With | OpenMP || CAPI/SystemVerilog || gem5-Aladdin |
 
 OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-SystemVerilog || gem5-Aladdin |
@@ -40,7 +40,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 <img src="./02_slides/fig/openmp_logo.png" height="40" align="right" >
 
-### Initial compilation for the Graph framework with OpenMP <br/>
+### Initial compilation for the Graph framework with OpenMP ###
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -50,7 +50,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make 
   ```
-3. From the root directory you can modify the Makefile with the [(parameters)](.#Accel-Graph-Options) you need for OpenMP:
+3. From the root directory you can modify the Makefile with the [(parameters)](.#accel-graph-options) you need for OpenMP:
   ```
   make run
   ```
