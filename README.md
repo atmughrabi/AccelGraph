@@ -5,9 +5,9 @@
 
 # Accel-Graph 
 
-## Graph Processing Framework With | OpenMP || CAPI/SystemVerilog || gem5-Aladdin | ##
+## Graph Processing Framework With | OpenMP || CAPI/SystemVerilog || gem5-Aladdin | 
 
-## Overview ##
+## Overview 
 
 ![End-to-End Acceleration](./02_slides/fig/fig-4.png "Accel-Graph")
 
@@ -18,9 +18,9 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 <!-- ## Details -->
 <!-- ### Accel-Graph Supported Algorithms -->
 
-## Installation ##
+## Installation 
 
-### Setting up the source code ###
+### Setting up the source code 
 
 1. Clone Accel-Graph.
 
@@ -34,11 +34,11 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   git submodule update --init --recursive
   ```
 
-## Running Accel-Graph ##
+## Running Accel-Graph 
 
 <img src="./02_slides/fig/openmp_logo.png" height="40" align="right" >
 
-### Initial compilation for the Graph framework with OpenMP ###
+### Initial compilation for the Graph framework with OpenMP 
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -58,13 +58,13 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
 <img src="./02_slides/fig/gem5-aladdin_logo.png" height="40" align="right" >
 
-### Initial compilation for the Graph framework with gem5-Aladdin ###
+### Initial compilation for the Graph framework with gem5-Aladdin 
 
 * NOTE: You need gem5-aladdin environment setup on your machine.
 * Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
 * It is best to go through some of the integration-test examples that [(Aladdin)](https://github.com/ysshao/aladdin/) provides. So you can understand the process flow of how and why things are proceeding the way they are.
 
-#### Running Aladdin ####
+#### Running Aladdin 
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -85,7 +85,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   make run-llvm-tracer-force # regenerated even if it exists
   ```
 
-#### Running gem5-Aladdin ####
+#### Running gem5-Aladdin 
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -107,7 +107,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
 <img src="./02_slides/fig/capi_logo.png" height="40" align="right" >
 
-### Initial compilation for the Graph framework with CAPI ### 
+### Initial compilation for the Graph framework with CAPI  
 
 * NOTE: You need CAPI environment setup on your machine.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
@@ -128,7 +128,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   make run INTEGRATION_DIR=capi
   ```
 
-## Graph structure (Edge list) ##
+## Graph structure (Edge list) 
 
 * If you open the Makefile you will see the convention for graph directories : `BENCHMARKS_DIR/GRAPH_NAME/graph.wbin`.
 * `.bin` stands to unweighted edge list, `.wbin` stands for wighted, `In binary format`. (This is only a convention you don't have to use it)
@@ -184,7 +184,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 0100 0000 
 ```
 
-## Accel-Graph Options ##
+## Accel-Graph Options 
 
  ```
 Usage: accel-graph [OPTION...]
@@ -280,7 +280,7 @@ portable benchmarking suite for various graph processing algorithms.
  ```
 `Report bugs to <atmughra@ncsu.edu>.`
 
-## Organization ##
+## Organization 
 
 * `00_Graph_Bench`
   * `include` - Major function headers 
