@@ -477,11 +477,15 @@ portable benchmarking suite for various graph processing algorithms.
 
 ## Tasks TODO:
 
-- [x] Finish Graph Data structures suite
+- [x] Finish preprocessing sort
+  - [x] Radix sort
+  - [x] Count sort 
+- [x] Finish preprocessing Graph-Datastructures
   - [x] CSR   (Compressed Sparse Row)
   - [x] Grid   
   - [x] Adjacency Linked List
   - [x] Adjacency Array List
+- [x] Add Light weight reordering  
 - [ ] Finish graph algorithms suite OpenMP
   - [x] BFS   (Breadth First Search)
   - [x] PR    (Page-Rank)
@@ -520,6 +524,7 @@ portable benchmarking suite for various graph processing algorithms.
 - [ ] Research Ideas
   - [ ] Graph algorithms performance exploration with gem5-Aladdin
   - [ ] Page-Rank quantization
-  - [ ] CAPI frontier prefetcher
+  - [ ] FPGA Frontier prefetcher
+- [ ] Support unit testing
 
 [<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#installation-)

@@ -310,12 +310,12 @@ portable benchmarking suite for various graph processing algorithms.
         * `pageRank.h` - Page Rank Algorithm
       * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
-    * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
+    * `preprocessing` - preprocessing graph structure
       * `countsort.h` - sort edge list using count sort
       * `radixsort.h` - sort edge list using radix sort
       * `reorder.h` - cluster reorder the graph for better cache locality
       * `sortRun.h` - chose which sorting algorithm to use
-    * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
+    * `structures` - structures that hold the graph in memory
       * `graphAdjArrayList.h` - graph using adjacency list array with arrays
       * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
       * `graphCSR.h` - graph using compressed sparse matrix
@@ -331,12 +331,12 @@ portable benchmarking suite for various graph processing algorithms.
         * `pageRank.c` - Page Rank Algorithm
       * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
-    * `preprocessing` - preprocessing graph structure [Presentation](./02_slides/preprocessing_Graphs_countsort.pdf)
+    * `preprocessing` - preprocessing graph structure
       * `countsort.c` - sort edge list using count sort
       * `radixsort.c` - sort edge list using radix sort
       * `reorder.c` - cluster reorder the graph for better cache locality
       * `sortRun.c` - chose which sorting algorithm to use
-    * `structures` - structures that hold the graph in memory [Presentation](./02_slides/Graph_DataStructures.pdf)
+    * `structures` - structures that hold the graph in memory
       * `graphAdjArrayList.c` - graph using adjacency list array with arrays
       * `graphAdjLinkeList.c` - graph using adjacency list array with linked lists
       * `graphCSR.c` - graph using compressed sparse matrix
@@ -346,11 +346,15 @@ portable benchmarking suite for various graph processing algorithms.
 
 ## Tasks TODO:
 
-- [x] Finish Graph Data structures suite
+- [x] Finish preprocessing sort
+  - [x] Radix sort
+  - [x] Count sort 
+- [x] Finish preprocessing Graph-Datastructures
   - [x] CSR   (Compressed Sparse Row)
   - [x] Grid   
   - [x] Adjacency Linked List
   - [x] Adjacency Array List
+- [x] Add Light weight reordering  
 - [ ] Finish graph algorithms suite OpenMP
   - [x] BFS   (Breadth First Search)
   - [x] PR    (Page-Rank)
@@ -389,6 +393,7 @@ portable benchmarking suite for various graph processing algorithms.
 - [ ] Research Ideas
   - [ ] Graph algorithms performance exploration with gem5-Aladdin
   - [ ] Page-Rank quantization
-  - [ ] CAPI frontier prefetcher
+  - [ ] FPGA Frontier prefetcher
+- [ ] Support unit testing
 
 [<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](#accel-graph-benchmark-suite)

@@ -56,7 +56,7 @@ MAIN_DIR		  	= main
 #########################################################
 
 #small test graphs
-GRAPH_NAME = test
+# GRAPH_NAME = test
 # GRAPH_NAME = Rabbit
 
 # synthetic graphs
@@ -76,7 +76,7 @@ GRAPH_NAME = test
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-# GRAPH_NAME = p2p-Gnutella31
+GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -87,7 +87,7 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 1
+ALGORITHMS 		= 0
 
 ROOT 			= 0
 PUSH_PULL 		= 0
