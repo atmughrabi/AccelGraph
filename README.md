@@ -63,7 +63,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 * The reason behind converting the edge-list from text to binary, is simply takes less space on the drive for large graphs, and easier to use with the `mmap` function.
 
 | Source  | Dest | Weight (Optional) |
-| :---: | :---: :---: |
+| :---: | :---: | :---: |
 | 30  | 3  |  1 |
 | 3  | 4  |  1 |
 
