@@ -1,5 +1,5 @@
 
-[<p align="center"><img src="./02_slides/fig/logo3.png" width="700" ></p>](https://github.ncsu.edu/atmughra/AccelGraph#accel-graph)
+[<p align="center"><img src="./02_slides/fig/logo3.png" width="700" ></p>](#accel-graph)
 
 # Accel-Graph 
 
@@ -46,7 +46,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make 
   ```
-3. From the root directory you can modify the Makefile with the [(parameters)](./AccelGraph#accel-graph-options) you need for OpenMP:
+3. From the root directory you can modify the Makefile with the [(parameters)](#accel-graph-options) you need for OpenMP:
   ```
   make run
   ```
@@ -379,4 +379,4 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] Page-Rank quantization
   - [ ] CAPI frontier prefetcher
 
-[<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](https://github.ncsu.edu/atmughra/AccelGraph#accel-graph)
+[<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](#accel-graph)
