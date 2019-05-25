@@ -1,5 +1,5 @@
 
-[<p align="center"><img src="./02_slides/fig/logo3.png" width="700" ></p>](#accel-graph)
+[<p align="center"><img src="./02_slides/fig/logo3.png" width="700" ></p>](#accel-graph-benchmark-suite)
 
 # Accel-Graph Benchmark Suite
 
@@ -391,4 +391,4 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] Page-Rank quantization
   - [ ] CAPI frontier prefetcher
 
-[<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](#accel-graph)
+[<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](#accel-graph-benchmark-suite)
