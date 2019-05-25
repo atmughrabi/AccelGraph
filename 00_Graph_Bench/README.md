@@ -1,5 +1,5 @@
 
-# Installation [<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#installation)
+# Installation [<img src="../02_slides/fig/logo1.png" width="100" align="right" >](#installation)
 
 ## Setting up the source code 
 
