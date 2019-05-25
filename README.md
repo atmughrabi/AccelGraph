@@ -371,10 +371,10 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] TC    (Triangle Counting)
   - [ ] SPMV  (Sparse Matrix-vector Multiplication)
 - [ ] Research Ideas
-  - [ ] Graph algorithm design space exploration with gem5-Aladdin
+  - [ ] Graph algorithms performance exploration with gem5-Aladdin
   - [ ] Page-Rank quantization
   - [ ] CAPI frontier prefetcher
-  
+
 <p align="right">
 <img src="./02_slides/fig/logo1.png" width="200" >
 </p>
