@@ -19,6 +19,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 <!-- ## Details -->
 <!-- ### Accel-Graph Supported Algorithms -->
+
 ## Installation ##
 
 ### Setting up the source code ###
@@ -58,18 +59,18 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 ### Graph structure (Edge list)
 
-* If you open the Makefile you will see the convention used : `BENCHMARKS_DIR/GRAPH_NAME/graph.wbin`.
+* If you open the Makefile you will see the convention for graph directories : `BENCHMARKS_DIR/GRAPH_NAME/graph.wbin`.
 * `.bin` stands to unweighted edge list, `.wbin` stands for wighted, `In binary format`. (This is only a convention you don't have to use it)
-* The reason behind converting the edge-list from text to binary, is simply takes less space on the drive for large graphs, and easier to use with the `mmap` function.
+* The reason behind converting the edge-list from text to binary, it is simply takes less space on the drive for large graphs, and easier to use with the `mmap` function.
 
 | Source  | Dest | Weight (Optional) |
 | :---: | :---: | :---: |
 | 30  | 3  |  1 |
 | 3  | 4  |  1 |
 
-* Example: (unweighted textual edge-list)
-* INPUT:
-  ```
+* Example: 
+* INPUT:(unweighted textual edge-list)
+ ```
   ../BENCHMARKS_DIR/GRAPH_NAME/graph
 
   30    3
@@ -84,21 +85,21 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   8     22
   9     27
 
-  ```
+ ```
 
 * Example: convert to binary format convert and add random weights, for this one all the wights were 1.
 * `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to.
 * `--stats` is a flag that enables conversion. It used also for collecting stats about the graph (but this feature is on hold for now).
-  ```
+ ```
   make convert
-  ```
-  OR
-  ```
+ ```
+* Or
+ ```
 ./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
-  ```
+ ```
 
-* OUTPUT:
-  ```
+* OUTPUT: (weighted binary edge-list)
+ ```
   ../BENCHMARKS_DIR/GRAPH_NAME/graph.wbin
 
 1e00 0000 0300 0000 0100 0000 0300 0000
@@ -110,12 +111,11 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 0600 0000 0b00 0000 0100 0000 0800 0000
 1600 0000 0100 0000 0900 0000 1b00 0000
 0100 0000 
-  ```
+```
 
-### Options
+### Accel-Graph Options
 
-* Command-Line argument
-  ```
+ ```
 Usage: accel-graph [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
