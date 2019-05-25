@@ -1,5 +1,5 @@
 
-# Installation [<img src="../02_slides/fig/logo1.png" width="100" align="right" >](#installation)
+# Installation [<img src="../02_slides/fig/logo1.png" width="100" align="right" >](#installation-)
 
 ## Setting up the source code 
 
@@ -522,4 +522,4 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] Page-Rank quantization
   - [ ] CAPI frontier prefetcher
 
-[<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#installation)
+[<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#installation-)
