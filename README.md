@@ -40,7 +40,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 <img src="./02_slides/fig/openmp_logo.png" height="40" align="right" >
 
-### Initial compilation for the Graph framework with OpenMP ###
+### Initial compilation for the Graph framework with OpenMP <br/>
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -50,7 +50,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make 
   ```
-3. From the root directory you can modify the Makefile with the [(parameters)](.#Accel-Graph Options) you need for OpenMP:
+3. From the root directory you can modify the Makefile with the [(parameters)](.#Accel-Graph-Options) you need for OpenMP:
   ```
   make run
   ```
@@ -66,7 +66,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 * Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
 * It is best to go through some of the integration-test examples that [(Aladdin)](https://github.com/ysshao/aladdin/) provides. So you can understand the process flow of how and why things are proceeding the way they are.
 
-#### Running Aladdin ###
+#### Running Aladdin ####
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -87,7 +87,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   make run-llvm-tracer-force # regenerated even if it exists
   ```
 
-#### Running gem5-Aladdin ###
+#### Running gem5-Aladdin ####
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -109,7 +109,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
 <img src="./02_slides/fig/capi_logo.png" height="40" align="right" >
 
-### Initial compilation for the Graph framework with CAPI ###
+### Initial compilation for the Graph framework with CAPI ### 
 
 * NOTE: You need CAPI environment setup on your machine.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
