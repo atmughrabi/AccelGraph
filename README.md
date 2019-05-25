@@ -19,7 +19,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
     2. [[Building the graph structure](./02_slides/fig/03_preprocessing_DataStructures.pdf)]. CSR, Gird, Adjacency-Linked-List, and Adjacency-Array-List. 
         * [Ref](https://github.com/thu-pacman/GridGraph): Xiaowei Zhu, Wentao Han and Wenguang Chen. [GridGraph: Large-Scale Graph Processing on a Single Machine Using 2-Level Hierarchical Partitioning](https://www.usenix.org/system/files/conference/atc15/atc15-paper-zhu.pdf). Proceedings of the 2015 USENIX Annual Technical Conference, pages 375-386.
         * [Ref](https://github.com/epfl-labos/EverythingGraph): Malicevic, Jasmina, Baptiste Lepers, and Willy Zwaenepoel. "Everything you always wanted to know about multicore graph processing but were afraid to ask." 2017 {USENIX} Annual Technical Conference ({USENIX}{ATC} 17). 2017.atc15/atc15-paper-zhu.pdf). Proceedings of the 2015 USENIX Annual Technical Conference, pages 375-386.
-    3. [[relabeling the graph](./02_slides/fig/01_algorithm_PR_cache.pdf)], this step achieves better cache locality (better performance) with preprocessing overhead.
+    3. [[Relabeling the graph](./02_slides/fig/01_algorithm_PR_cache.pdf)], this step achieves better cache locality (better performance) with preprocessing overhead.
         * [Ref](https://github.com/araij/rabbit_order): J. Arai, H. Shiokawa, T. Yamamuro, M. Onizuka, and S. Iwamura. Rabbit Order: Just-in-time Parallel Reordering for Fast Graph Analysis. IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2016.
   * Graph Algorithm step depends on the direction of the data (Push/Pull):
     1. [[BFS example](./02_slides/fig/00_algorithm_BFS.pdf)], although it doesn't show direction optimized. But we discusses the Push and Pull approach separately.
@@ -136,7 +136,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   cd 00_Graph_Bench/
   ```
-2. Run pslse for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your PowerPC machine (CAPI supported) :
+2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your PowerPC machine (CAPI supported) :
   ```
   make run-pslse
   ```
