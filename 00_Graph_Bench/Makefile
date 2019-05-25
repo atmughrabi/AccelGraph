@@ -97,7 +97,7 @@ TOLERANCE 		= 1e-9
 DELTA 			= 800
 
 NUM_THREADS  	= 1
-NUM_ITERATIONS 	= 1
+NUM_ITERATIONS 	= 100
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
@@ -116,15 +116,22 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 #      ACCEL GRAPH COMPILATION VARIABLES     #
 ##############################################
 
+SRC_FILES_ALGO_OPENMP		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/openmp/*.c)
+SRC_FILES_ALGO_CAPI			=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
+SRC_FILES_ALGO_ALADDIN		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/*.c) 
+
 SRC_FILES_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/*.c) 
-SRC_FILES_ALGO		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/*.c) 
 SRC_FILES_PREPRO	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/*.c) 
 SRC_FILES_STRUCT	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/*.c)
 SRC_FILES_MAIN		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/*.c)
 SRC_FILES_TEST		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/*.c)
 
+
+OBJ_FILES_ALGO_OPENMP 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/openmp/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/openmp/%.o,$(SRC_FILES_ALGO_OPENMP)) 
+OBJ_FILES_ALGO_CAPI 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
+OBJ_FILES_ALGO_ALADDIN 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%.o,$(SRC_FILES_ALGO_ALADDIN)) 
+
 OBJ_FILES_UTIL 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o,$(SRC_FILES_UTIL)) 
-OBJ_FILES_ALGO 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/%.o,$(SRC_FILES_ALGO)) 
 OBJ_FILES_PREPRO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o,$(SRC_FILES_PREPRO)) 
 OBJ_FILES_STRUCT 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o,$(SRC_FILES_STRUCT)) 
 OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%.o,$(SRC_FILES_MAIN)) 
@@ -132,10 +139,10 @@ OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$
 
 CC				  = gcc 
 
-INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
-		-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR) 	\
-		-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
-		-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR) 
+OPENMP_INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
+				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/openmp 	\
+				-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
+				-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR) 
 
 
 # flags
@@ -153,7 +160,7 @@ LFLAGS = -lm
 LLVM_VERSION = $(shell clang --version | grep -o -m 1 "[0-9\.]\+" | head -n 1)
 
 LLVM_OBJ_FILES_UTIL 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%-opt.llvm,$(SRC_FILES_UTIL)) 
-LLVM_OBJ_FILES_ALGO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/%-opt.llvm,$(SRC_FILES_ALGO)) 
+LLVM_OBJ_FILES_ALGO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%-opt.llvm,$(SRC_FILES_ALGO)) 
 LLVM_OBJ_FILES_PREPRO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%-opt.llvm,$(SRC_FILES_PREPRO)) 
 LLVM_OBJ_FILES_STRUCT 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%-opt.llvm,$(SRC_FILES_STRUCT)) 
 LLVM_OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%-opt.llvm,$(SRC_FILES_MAIN)) 
@@ -173,15 +180,15 @@ LLVM_INC	=	-I$(ALADDIN_HOME)	\
 				-I$(ALADDIN_HOME)/common \
 		   		-I$(ALADDIN_HOME)/gem5 \
 				-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
-				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR) 	\
+				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/gem5aladdin 	\
 				-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
 				-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR) 
 
-ALL_SRCS = 	$(SRC_FILES_UTIL)   \
-			$(SRC_FILES_ALGO)   \
-			$(SRC_FILES_PREPRO)	\
-			$(SRC_FILES_STRUCT)	\
-			$(SRC_FILES_MAIN)
+ALL_SRCS_GEM5ALADDIN = 	$(SRC_FILES_UTIL)   \
+						$(SRC_FILES_ALGO_ALADDIN)   \
+						$(SRC_FILES_PREPRO)	\
+						$(SRC_FILES_STRUCT)	\
+						$(SRC_FILES_MAIN)
 
 LLVMFLAGS = -static -g -O1 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loops -fno-inline -fno-builtin -emit-llvm 
 
@@ -201,14 +208,14 @@ LLVMFLAGS = -static -g -O1 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loop
 GEM5_SRCS = aladdin_sys_connection.cpp aladdin_sys_constants.cpp dma_interface.c
 GEM5_FULL_SRCS = $(GEM5_SRCS:%=$(ALADDIN_HOME)/gem5/%)
 
-CFLAGS += -Wno-unused-label -DDMA_INTERFACE_V3
+ALADDIN_CFLAGS = $(CFLAGS) -Wno-unused-label -DDMA_INTERFACE_V3
 # -mno-sse
 GEM5_CFLAGS = -static -O3 \
               -msse -mfpmath=sse \
               -fno-exceptions 
             
 
-INCLUDES = $(LLVM_INC) 
+GEM5_INC = $(LLVM_INC) 
 
 GEM5_DIR = $(ALADDIN_HOME)/../..
 
@@ -219,20 +226,20 @@ GEM5_DIR = $(ALADDIN_HOME)/../..
 #       		 ACCEL GRAPH GENERATION    				#
 #########################################################
 
-.PHONY: all
-all : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)
+.PHONY: graph-openmp
+graph-openmp : directories directories-openmp $(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp
 	@echo "\n ******************************************************************************  "
 	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: $(word 2,$^)"
 	@echo " ******************************************************************************  \n"
 
-.PHONY: test
-test : directories $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
+.PHONY: test-openmp
+test-openmp : directories directories-openmp $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-openmp
 	@echo "\n ******************************************************************************  "
 	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> TEST: $(word 2,$^)"
 	@echo " ****************************************************************************** \n"
 
 .PHONY: directories
-directories :  directories-$(INTEGRATION_DIR)
+directories : 
 	@mkdir -p $(APP_DIR)/$(BIN_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)
@@ -241,33 +248,33 @@ directories :  directories-$(INTEGRATION_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)
 
-.PHONY: directories-$(INTEGRATION_DIR)
-directories-$(INTEGRATION_DIR) :
-	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)
+.PHONY: directories-openmp
+directories-openmp :
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/openmp
 
-$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_OPENMP) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
 	
-$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST) : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
+$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-openmp : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_OPENMP) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
 
 $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/$(GAPP).c
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP_TEST).c 
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/%.c
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/openmp/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/openmp/%.c
+	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 .PHONY: clean
 clean: clean-trace clean-gem5
@@ -289,8 +296,8 @@ directories-aladdin:
 	
 
 # Generate the source code labelmap
-$(APP_DIR)/labelmap: $(ALL_SRCS)
-	$(GET_LABELED_STMTS) $(ALL_SRCS) -- -I$(LLVM_HOME)/lib/clang/$(LLVM_VERSION)/include $(LLVM_INC) 
+$(APP_DIR)/labelmap: $(ALL_SRCS_GEM5ALADDIN)
+	$(GET_LABELED_STMTS) $(ALL_SRCS_GEM5ALADDIN) -- -I$(LLVM_HOME)/lib/clang/$(LLVM_VERSION)/include $(LLVM_INC) 
 
 $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/$(INTEGRATION_DIR)/full.llvm: $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-opt.llvm $(LLVM_OBJ_FILES_UTIL) $(LLVM_OBJ_FILES_ALGO) $(LLVM_OBJ_FILES_PREPRO) $(LLVM_OBJ_FILES_STRUCT)
 	llvm-link -o $@ $^ $(LOGGER)
@@ -366,13 +373,13 @@ config-symlink-gem5-accel:
 .PHONY: gem5-cpu 
 gem5-cpu: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS)
 	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu for gem5.
-	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) $(GEM5_FULL_SRCS) $(ALL_SRCS) $(INCLUDES) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu $(LFLAGS) 
+	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_FULL_SRCS) $(ALL_SRCS_GEM5ALADDIN) $(GEM5_INC) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-cpu $(LFLAGS) 
 
 # Builds the gem5 version with HW acceleration turned on.
 .PHONY: gem5-accel 
 gem5-accel: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS) 
 	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel  for gem5 with HW acceleration.
-	@$(CC) $(GEM5_CFLAGS) $(CFLAGS) -DGEM5_HARNESS $(ALL_SRCS) $(GEM5_FULL_SRCS) $(INCLUDES) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel $(LFLAGS)
+	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -DGEM5_HARNESS $(ALL_SRCS_GEM5ALADDIN) $(GEM5_FULL_SRCS) $(GEM5_INC) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)-gem5-accel $(LFLAGS)
 
 .PHONY: clean-gem5 
 clean-gem5:
@@ -477,44 +484,47 @@ run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 ##############################################
 
 .PHONY: run
-run: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)  -f $(FILE_BIN) $(ARGS)
+run: run-openmp
+
+.PHONY: run-openmp
+run-openmp: graph-openmp
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: convert
-convert: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) -x -c $(CONVERT_FORMAT) -f $(FILE_BIN) -z $(FILE_FORMAT)
+convert: graph-openmp
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp  -x -c $(CONVERT_FORMAT) -f $(FILE_BIN) -z $(FILE_FORMAT)
 
-.PHONY: stats
-stats: all
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p $(INOUT_STATS)
+.PHONY: stats-openmp
+stats-openmp: graph-openmp
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p $(INOUT_STATS)
 
-.PHONY: debug
-debug: all	
-	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR)
+.PHONY: debug-openmp
+debug-openmp: graph-openmp	
+	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp
 
-.PHONY: debug-memory
-debug-memory: all	
-	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) -f $(FILE_BIN) $(ARGS)
+.PHONY: debug-memory-openmp
+debug-memory-openmp: graph-openmp	
+	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
+
 # test files 
+.PHONY: run-test-openmp
+run-test-openmp: test-openmp
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-openmp
 
-.PHONY: run-test
-run-test: test
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST) 
-
-.PHONY: debug-test
-debug-test: test	
+.PHONY: debug-test-openmp
+debug-test-openmp: test-openmp	
 	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
 
-.PHONY: debug-memory-test
-debug-memory-test: test	
-	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
+.PHONY: debug-memory-test-openmp
+debug-memory-test-openmp: test-openmp	
+	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-openmp
 # cache performance
-.PHONY: cachegrind-perf
-cachegrind-perf: all
-	valgrind --tool=cachegrind ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) -f $(FILE_BIN) $(ARGS)
+.PHONY: cachegrind-perf-openmp
+cachegrind-perf-openmp: graph-openmp
+	valgrind --tool=cachegrind ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
 .PHONY: cache-perf
-cache-perf: all
-	sudo perf stat -d ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-$(INTEGRATION_DIR) -f $(FILE_BIN) $(ARGS)
+cache-perf-openmp: graph-openmp
+	sudo perf stat -d ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
 
 ##################################################
 ##################################################
