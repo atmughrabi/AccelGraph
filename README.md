@@ -1,7 +1,5 @@
 
-<p align="center">
-<img src="./02_slides/fig/logo3.png" width="700" >
-</p>
+[<p align="center"><img src="./02_slides/fig/logo3.png" width="700" ></p>](https://github.ncsu.edu/atmughra/AccelGraph#accel-graph)
 
 # Accel-Graph 
 
