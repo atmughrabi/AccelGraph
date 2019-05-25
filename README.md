@@ -380,6 +380,4 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] Page-Rank quantization
   - [ ] CAPI frontier prefetcher
 
-<p align="right">
-<img src="./02_slides/fig/logo1.png" width="200" >
-</p>
+[<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](https://github.ncsu.edu/atmughra/AccelGraph#accel-graph)
