@@ -34,11 +34,11 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   git submodule update --init --recursive
   ```
 
-## Running Accel-Graph 
+# Running Accel-Graph 
 
 <img src="./02_slides/fig/openmp_logo.png" height="40" align="right" >
 
-### Initial compilation for the Graph framework with OpenMP 
+## Initial compilation for the Graph framework with OpenMP 
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -58,13 +58,13 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
 <img src="./02_slides/fig/gem5-aladdin_logo.png" height="40" align="right" >
 
-### Initial compilation for the Graph framework with gem5-Aladdin 
+## Initial compilation for the Graph framework with gem5-Aladdin 
 
 * NOTE: You need gem5-aladdin environment setup on your machine.
 * Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
 * It is best to go through some of the integration-test examples that [(Aladdin)](https://github.com/ysshao/aladdin/) provides. So you can understand the process flow of how and why things are proceeding the way they are.
 
-#### Running Aladdin 
+### Running Aladdin 
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -85,7 +85,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   make run-llvm-tracer-force # regenerated even if it exists
   ```
 
-#### Running gem5-Aladdin 
+### Running gem5-Aladdin 
 
 * NOTE: You need gem5-aladdin environment setup on your machine.
 * AGAIN: Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
@@ -95,16 +95,16 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   cd 00_Graph_Bench/
   ```
-2. Their are three types of runs for gem5-aladding.
-    * Running the `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
+2. Their are three types of mode runs for gem5-aladding.
+  * Running with `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
   ```
   make run-gem5-openmp
   ```
-    * Running the `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
+  * Running with `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
   ```
   make run-gem5-cpu
   ```
-    * Running the `accel` mode on gem5 with the accelerator active. The performance-power model is derived from the DDDG (Dynamic Data Dependence Graph).
+  * Running with `accel` mode on gem5 with the accelerator active. The performance-power model is derived from the DDDG (Dynamic Data Dependence Graph).
   ```
   make run-gem5-accel
   ```
