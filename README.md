@@ -59,7 +59,46 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   make run-openmp
   ```
 
-### Graph structure (Edge list)
+### Initial compilation for the Graph framework with gem5-aladdin
+
+* NOTE: You need gem5-aladdin environment setup on your machine.
+* Please refer to [(gem5-aladdin)](https://github.com/harvard-acc/gem5-aladdin)
+
+1. From the root directory go to the graph benchmark directory:
+  ```
+  cd 00_Graph_Bench/
+  ```
+2. The default compilation is openmp change it from Makefile or:
+  ```
+  make INTEGRATION_DIR=gem5aladdin
+  ```
+3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
+  ```
+  make run INTEGRATION_DIR=gem5aladdin
+  ```
+
+### Initial compilation for the Graph framework with CAPI
+
+* NOTE: You need CAPI environment setup on your machine.
+* For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
+* CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
+* [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
+* [Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
+
+1. From the root directory go to the graph benchmark directory:
+  ```
+  cd 00_Graph_Bench/
+  ```
+2. The default compilation is openmp change it from Makefile or:
+  ```
+  make INTEGRATION_DIR=capi
+  ```
+3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
+  ```
+  make run INTEGRATION_DIR=capi
+  ```
+
+## Graph structure (Edge list)
 
 * If you open the Makefile you will see the convention for graph directories : `BENCHMARKS_DIR/GRAPH_NAME/graph.wbin`.
 * `.bin` stands to unweighted edge list, `.wbin` stands for wighted, `In binary format`. (This is only a convention you don't have to use it)
@@ -115,7 +154,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 0100 0000 
 ```
 
-### Accel-Graph Options
+## Accel-Graph Options
 
  ```
 Usage: accel-graph [OPTION...]
@@ -208,47 +247,8 @@ portable benchmarking suite for various graph processing algorithms.
       --usage                Give a short usage message
   -V, --version              Print program version
 
-```
-Report bugs to <atmughra@ncsu.edu>.
-
-### Initial compilation for the Graph framework with gem5-aladdin
-
-* NOTE: You need gem5-aladdin environment setup on your machine.
-* Please refer to [(gem5-aladdin)](https://github.com/harvard-acc/gem5-aladdin)
-
-1. From the root directory go to the graph benchmark directory:
-  ```
-  cd 00_Graph_Bench/
-  ```
-2. The default compilation is openmp change it from Makefile or:
-  ```
-  make INTEGRATION_DIR=gem5aladdin
-  ```
-3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
-  ```
-  make run INTEGRATION_DIR=gem5aladdin
-  ```
-
-### Initial compilation for the Graph framework with CAPI
-
-* NOTE: You need CAPI environment setup on your machine.
-* For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
-* CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
-* [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
-* [Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
-
-1. From the root directory go to the graph benchmark directory:
-  ```
-  cd 00_Graph_Bench/
-  ```
-2. The default compilation is openmp change it from Makefile or:
-  ```
-  make INTEGRATION_DIR=capi
-  ```
-3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
-  ```
-  make run INTEGRATION_DIR=capi
-  ```
+ ```
+`Report bugs to <atmughra@ncsu.edu>.`
 
 ## Organization
 
