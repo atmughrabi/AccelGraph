@@ -38,7 +38,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 ## Running Accel-Graph ##
 
-<img src="./02_slides/fig/openmp_logo.png" width="100" align="right" >
+<img src="./02_slides/fig/openmp_logo.png" width="200" align="right" >
 
 ### Initial compilation for the Graph framework with OpenMP
 
