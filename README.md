@@ -58,6 +58,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-openmp
   ```
+<img src="./02_slides/fig/gem5-aladdin_logo.png" width="200" align="right" >
 
 ### Initial compilation for the Graph framework with gem5-aladdin
 
@@ -76,6 +77,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run INTEGRATION_DIR=gem5aladdin
   ```
+<img src="./02_slides/fig/capi_logo.png" width="200" align="right" >
 
 ### Initial compilation for the Graph framework with CAPI
 
