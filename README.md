@@ -50,11 +50,11 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make 
   ```
-3. From the root directory you can modify the Makefile with the [(parameters)](#Accel-Graph Options) you need for OpenMP:
+3. From the root directory you can modify the Makefile with the [(parameters)](.#Accel-Graph Options) you need for OpenMP:
   ```
   make run
   ```
-  * Or
+  * OR
   ```
   make run-openmp
   ```
@@ -82,7 +82,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-llvm-tracer # if it never been generated
   ```
-  * Or
+  * OR
   ```
   make run-llvm-tracer-force # regenerated even if it exists
   ```
@@ -103,7 +103,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-llvm-tracer # if it never been generated
   ```
-    * Or
+  * OR
   ```
   make run-llvm-tracer-force # regenerated even if it exists
   ```
@@ -166,7 +166,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
  ```
   make convert
  ```
-  * Or
+  * OR
  ```
 ./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
  ```
