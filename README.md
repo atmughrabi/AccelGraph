@@ -114,7 +114,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 * NOTE: You need CAPI environment setup on your machine.
 * [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
-* There is CAPI SNAP we are not supporting since our graph processing suite heavily depends on caches support for accelerator. SNAP does not support this feature yet. So if you are interested in streaming applications or doesn't benefit from caches SNAP is your savior.
+* We are not supporting CAPI SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a candidate.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
 * CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
