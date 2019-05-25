@@ -24,7 +24,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   * Graph Algorithm step depends on the direction of the data (Push/Pull):
     1. [[BFS example](./02_slides/00_algorithm_BFS.pdf)], although it doesn't show direction optimized. But we discusses the Push and Pull approach separately.
         * [[Ref](https://github.com/sbeamer/gapbs)]: Scott Beamer, Krste Asanović, David Patterson. [The GAP Benchmark Suite](http://arxiv.org/abs/1508.03619). arXiv:1508.03619 [cs.DC], 2015.
-    2. [[Page-Rank (PR) example](01_algorithm_PR_cache)]: Discussing PR cache behavior.
+    2. [[Page-Rank (PR) example](./02_slides/01_algorithm_PR_cache)]: Discussing PR cache behavior.
        * [Ref](https://github.com/araij/rabbit_order): J. Arai, H. Shiokawa, T. Yamamuro, M. Onizuka, and S. Iwamura. Rabbit Order: Just-in-time Parallel Reordering for Fast Graph Analysis. IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2016.
 
 <!-- ## Details -->
