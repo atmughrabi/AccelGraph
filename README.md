@@ -114,7 +114,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 ### Options
 
-* 
+* Command-Line argument
   ```
 Usage: accel-graph [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
