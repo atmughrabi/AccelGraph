@@ -1,16 +1,10 @@
 
-<p align="center">
-<img src="../02_slides/fig/logo3.png" width="600" >
-</p>
-
-# Accel-Graph
+# Accel-Graph Graph Benchmark Suite
 <!-- ![Accel-Graph logo](./02_slides/fig/logo.png "Accel-Graph logo") -->
-## Graph Processing Framework With OpenMP|CAPI/SystemVerilog|Gem5-Aladdin
+## Graph Processing Framework With | OpenMP || CAPI/SystemVerilog || gem5-Aladdin |
 
-AFU framework for Graph Processing algorithms with OpenMP/Shared Memory Accelerator CAPI
+OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-SystemVerilog || gem5-Aladdin |
 
-<!-- ## Details -->
-<!-- ### Accel-Graph Supported Algorithms -->
 ## Installation ##
 
 ### Setting up the source code ###
@@ -43,11 +37,70 @@ AFU framework for Graph Processing algorithms with OpenMP/Shared Memory Accelera
   ```
   make run
   ```
-
-### Options
-
-4. Run the algorithm with the data structure and other settings you need
+  OR
   ```
+  make run-openmp
+  ```
+
+### Graph structure (Edge list)
+
+* If you open the Makefile you will see the convention for graph directories : `BENCHMARKS_DIR/GRAPH_NAME/graph.wbin`.
+* `.bin` stands to unweighted edge list, `.wbin` stands for wighted, `In binary format`. (This is only a convention you don't have to use it)
+* The reason behind converting the edge-list from text to binary, it is simply takes less space on the drive for large graphs, and easier to use with the `mmap` function.
+
+| Source  | Dest | Weight (Optional) |
+| :---: | :---: | :---: |
+| 30  | 3  |  1 |
+| 3  | 4  |  1 |
+
+* Example: 
+* INPUT: (unweighted textual edge-list)
+ ```
+  ../BENCHMARKS_DIR/GRAPH_NAME/graph
+
+  30    3
+  3     4
+  25    5
+  25    7
+  6     3
+  4     2
+  6     12
+  6     8
+  6     11
+  8     22
+  9     27
+
+ ```
+
+* Example: convert to binary format convert and add random weights, for this one all the wights were 1.
+* `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to.
+* `--stats` is a flag that enables conversion. It used also for collecting stats about the graph (but this feature is on hold for now).
+ ```
+  make convert
+ ```
+* Or
+ ```
+./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
+ ```
+
+* OUTPUT: (weighted binary edge-list)
+ ```
+  ../BENCHMARKS_DIR/GRAPH_NAME/graph.wbin
+
+1e00 0000 0300 0000 0100 0000 0300 0000
+0400 0000 0100 0000 1900 0000 0500 0000
+0100 0000 1900 0000 0700 0000 0100 0000
+0600 0000 0300 0000 0100 0000 0400 0000
+0200 0000 0100 0000 0600 0000 0c00 0000
+0100 0000 0600 0000 0800 0000 0100 0000
+0600 0000 0b00 0000 0100 0000 0800 0000
+1600 0000 0100 0000 0900 0000 1b00 0000
+0100 0000 
+```
+
+### Accel-Graph Options
+
+ ```
 Usage: accel-graph [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
@@ -227,3 +280,7 @@ Report bugs to <atmughra@ncsu.edu>.
       * `graphGrid.c` - graph using Grid
 
 * *`Makefile`* - Global makefile
+
+<p align="right">
+<img src="./02_slides/fig/logo1.png" width="200" >
+</p>

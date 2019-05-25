@@ -69,7 +69,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 | 3  | 4  |  1 |
 
 * Example: 
-* INPUT:(unweighted textual edge-list)
+* INPUT: (unweighted textual edge-list)
  ```
   ../BENCHMARKS_DIR/GRAPH_NAME/graph
 
