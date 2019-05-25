@@ -1,7 +1,7 @@
 
 [<p align="center"><img src="./02_slides/fig/logo3.png" width="700" ></p>](#accel-graph)
 
-# Accel-Graph 
+# Accel-Graph Benchmark Suite
 
 ## Graph Processing Framework that supports | OpenMP || CAPI/SystemVerilog || gem5-Aladdin | 
 
@@ -12,6 +12,20 @@
 Accel-Graph is an open source graph processing framework, it is designed to be a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure that includes the preprocessing stage for forming the graph structure, with the graph algorithm.
 The OpenMP part of Accel-Graph has been developed on Ubuntu 16.04.6,  with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between shared memory FPGAs with parallel processors.
 Also we provided support for gem5-Aladdin for more performance exploration options. With a simple cache model hard coded into our base code for quick and dirty cache performance evaluation.
+
+* Presentations that explains end-to-end graph processing
+  * Preprocessing two steps (third one is optional) :
+    1. [[Sorting the edge-list](./02_slides/fig/02_preprocessing_countsort.pdf)], using count-sort or radix-sort.
+    2. [[Building the graph structure](./02_slides/fig/03_preprocessing_DataStructures.pdf)]. CSR, Gird, Adjacency-Linked-List, and Adjacency-Array-List. 
+      * [Ref](https://github.com/thu-pacman/GridGraph): Xiaowei Zhu, Wentao Han and Wenguang Chen. [GridGraph: Large-Scale Graph Processing on a Single Machine Using 2-Level Hierarchical Partitioning](https://www.usenix.org/system/files/conference/atc15/atc15-paper-zhu.pdf). Proceedings of the 2015 USENIX Annual Technical Conference, pages 375-386.
+      * [Ref](https://github.com/epfl-labos/EverythingGraph): Malicevic, Jasmina, Baptiste Lepers, and Willy Zwaenepoel. "Everything you always wanted to know about multicore graph processing but were afraid to ask." 2017 {USENIX} Annual Technical Conference ({USENIX}{ATC} 17). 2017.atc15/atc15-paper-zhu.pdf). Proceedings of the 2015 USENIX Annual Technical Conference, pages 375-386.
+    3. [[relabeling the graph](./02_slides/fig/01_algorithm_PR_cache.pdf)], this step achieves better cache locality (better performance) with preprocessing overhead.
+      * [Ref](https://github.com/araij/rabbit_order): J. Arai, H. Shiokawa, T. Yamamuro, M. Onizuka, and S. Iwamura. Rabbit Order: Just-in-time Parallel Reordering for Fast Graph Analysis. IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2016.
+  * Graph Algorithm step depends on the direction of the data (Push/Pull):
+    1. [[BFS example](./02_slides/fig/00_algorithm_BFS.pdf)], although it doesn't show direction optimized. But we discusses the Push and Pull approach separately.
+      * [[Ref](https://github.com/sbeamer/gapbs)]: Scott Beamer, Krste Asanović, David Patterson. [The GAP Benchmark Suite](http://arxiv.org/abs/1508.03619). arXiv:1508.03619 [cs.DC], 2015.
+    2. [[Page-Rank (PR) example](01_algorithm_PR_cache)]: Discussing PR cache behavior.
+       * [Ref](https://github.com/araij/rabbit_order): J. Arai, H. Shiokawa, T. Yamamuro, M. Onizuka, and S. Iwamura. Rabbit Order: Just-in-time Parallel Reordering for Fast Graph Analysis. IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2016.
 
 <!-- ## Details -->
 <!-- ### Accel-Graph Supported Algorithms -->
