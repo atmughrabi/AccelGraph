@@ -76,7 +76,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-aladdin
   ```
-3. to generate a dynamic trace without running Aladdin:
+3. To generate a dynamic trace without running Aladdin:
   ```
   make run-llvm-tracer # if it never been generated
   ```
@@ -96,15 +96,15 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   cd 00_Graph_Bench/
   ```
 2. Their are three types of runs for gem5-aladding.
-    * running the `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
+    * Running the `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
   ```
   make run-gem5-openmp
   ```
-    * running the `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
+    * Running the `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
   ```
   make run-gem5-cpu
   ```
-   * running the `accel` mode on gem5 with the accelerator active. The performance-power model is derived from the DDDG (dynamic data dependence graphs).
+    * Running the `accel` mode on gem5 with the accelerator active. The performance-power model is derived from the DDDG (Dynamic Data Dependence Graph).
   ```
   make run-gem5-accel
   ```
@@ -124,13 +124,13 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   cd 00_Graph_Bench/
   ```
-2. The default compilation is openmp change it from Makefile or:
+2. Run pslse for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your PowerPC machine (CAPI supported) :
   ```
-  make INTEGRATION_DIR=capi
+  make run-pslse
   ```
-3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
+3. Runs a graph algorithm that communicates with the pslse (simulation), or psl (real HW):
   ```
-  make run INTEGRATION_DIR=capi
+  make run-capi
   ```
 
 ## Graph structure (Edge list) 
