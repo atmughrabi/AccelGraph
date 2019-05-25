@@ -18,9 +18,9 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 <!-- ## Details -->
 <!-- ### Accel-Graph Supported Algorithms -->
 
-## Installation 
+# Installation 
 
-### Setting up the source code 
+## Setting up the source code 
 
 1. Clone Accel-Graph.
 
