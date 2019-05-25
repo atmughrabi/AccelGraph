@@ -38,9 +38,9 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 ## Running Accel-Graph ##
 
-### Initial compilation for the Graph framework with OpenMP
-
 <img src="./02_slides/fig/openmp_logo.png" height="40" align="right" >
+
+### Initial compilation for the Graph framework with OpenMP
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -58,10 +58,9 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-openmp
   ```
+<img src="./02_slides/fig/gem5-aladdin_logo.png" height="40" align="right" >
 
 ### Initial compilation for the Graph framework with gem5-aladdin
-
-<img src="./02_slides/fig/gem5-aladdin_logo.png" height="40" align="right" >
 
 * NOTE: You need gem5-aladdin environment setup on your machine.
 * Please refer to [(gem5-aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
@@ -108,10 +107,9 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-llvm-tracer-force # regenerated even if it exists
   ```
+<img src="./02_slides/fig/capi_logo.png" height="40" align="right" >
 
 ### Initial compilation for the Graph framework with CAPI
-
-<img src="./02_slides/fig/capi_logo.png" height="40" align="right" >
 
 * NOTE: You need CAPI environment setup on your machine.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
