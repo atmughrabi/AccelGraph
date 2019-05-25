@@ -38,9 +38,9 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 ## Running Accel-Graph ##
 
-<img src="./02_slides/fig/openmp_logo.png" height="40" align="right" >
-
 ### Initial compilation for the Graph framework with OpenMP
+
+<img src="./02_slides/fig/openmp_logo.png" height="40" align="right" >
 
 1. From the root directory go to the graph benchmark directory:
   ```
@@ -58,28 +58,60 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-openmp
   ```
-<img src="./02_slides/fig/gem5-aladdin_logo.png" height="40" align="right" >
 
 ### Initial compilation for the Graph framework with gem5-aladdin
 
+<img src="./02_slides/fig/gem5-aladdin_logo.png" height="40" align="right" >
+
 * NOTE: You need gem5-aladdin environment setup on your machine.
-* Please refer to [(gem5-aladdin)](https://github.com/harvard-acc/gem5-aladdin)
+* Please refer to [(gem5-aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
+* It is best to go through some of the integration-test examples that [(aladdin)](https://github.com/ysshao/aladdin/) provides. So you can understand the process flow of how and why things are proceeding the way they are.
+
+#### Running Aladdin
 
 1. From the root directory go to the graph benchmark directory:
   ```
   cd 00_Graph_Bench/
   ```
-2. The default compilation is openmp change it from Makefile or:
+2. This will compile Aladdin, then generate a dynamic trace if it doesn't exist and then run Aladdin:
+  * The generated dynamic_trace resides in `./00_Graph_bench/aladdin_common/dynamic_traces` 
+  * The dynamic trace is labeled with the following `GRAPH_NAME_DATA_STRUCTURES_ALGORITHMS_PUSH_PULL_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
   ```
-  make INTEGRATION_DIR=gem5aladdin
+  make run-aladdin
   ```
-3. From the root directory you can modify the Makefile with the parameters you need for OpenMP:
+3. to generate a dynamic trace without running Aladdin:
   ```
-  make run INTEGRATION_DIR=gem5aladdin
+  make run-llvm-tracer # if it never been generated
   ```
-<img src="./02_slides/fig/capi_logo.png" height="40" align="right" >
+  Or
+  ```
+  make run-llvm-tracer-force # regenerated even if it exists
+  ```
+
+#### Running gem5-Aladdin
+
+1. From the root directory go to the graph benchmark directory:
+  ```
+  cd 00_Graph_Bench/
+  ```
+2. This will compile Aladdin, then generate a dynamic trace if it doesn't exist and then run Aladdin:
+  * The generated dynamic_trace resides in `./00_Graph_bench/aladdin_common/dynamic_traces` 
+  * The dynamic trace is labeled with the following `GRAPH_NAME_DATA_STRUCTURES_ALGORITHMS_PUSH_PULL_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
+  ```
+  make run-aladdin
+  ```
+3. to generate a dynamic trace without running Aladdin:
+  ```
+  make run-llvm-tracer # if it never been generated
+  ```
+  Or
+  ```
+  make run-llvm-tracer-force # regenerated even if it exists
+  ```
 
 ### Initial compilation for the Graph framework with CAPI
+
+<img src="./02_slides/fig/capi_logo.png" height="40" align="right" >
 
 * NOTE: You need CAPI environment setup on your machine.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
