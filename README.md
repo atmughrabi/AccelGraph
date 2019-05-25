@@ -54,7 +54,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run
   ```
-    * Or
+  * Or
   ```
   make run-openmp
   ```
@@ -82,7 +82,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-llvm-tracer # if it never been generated
   ```
-    * Or
+  * Or
   ```
   make run-llvm-tracer-force # regenerated even if it exists
   ```
