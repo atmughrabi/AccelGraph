@@ -48,7 +48,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make 
   ```
-3. From the root directory you can modify the Makefile with the [(parameters)](AccelGraph#accel-graph-options) you need for OpenMP:
+3. From the root directory you can modify the Makefile with the [(parameters)](./#accel-graph-options) you need for OpenMP:
   ```
   make run
   ```
