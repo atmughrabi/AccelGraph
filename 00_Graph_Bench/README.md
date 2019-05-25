@@ -37,7 +37,7 @@ OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-Syste
   ```
   make run
   ```
-  OR
+  Or
   ```
   make run-openmp
   ```

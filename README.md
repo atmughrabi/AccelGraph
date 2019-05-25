@@ -38,6 +38,8 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 ## Running Accel-Graph ##
 
+<img src="./02_slides/fig/oppenmp_logo.png" width="100" align="right" >
+
 ### Initial compilation for the Graph framework with OpenMP
 
 1. From the root directory go to the graph benchmark directory:
@@ -52,7 +54,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run
   ```
-  OR
+  Or
   ```
   make run-openmp
   ```
