@@ -87,23 +87,26 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 #### Running gem5-Aladdin 
 
+* NOTE: You need gem5-aladdin environment setup on your machine.
+* AGAIN: Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
+* gem5-Aladdin provides the possibility to evaluate the performance of shared memory accelerators.
+
 1. From the root directory go to the graph benchmark directory:
   ```
   cd 00_Graph_Bench/
   ```
-2. This will compile Aladdin, then generate a dynamic trace if it doesn't exist and then run Aladdin:
-  * The generated dynamic_trace resides in `./00_Graph_bench/aladdin_common/dynamic_traces` 
-  * The dynamic trace is labeled with the following `(GRAPH_NAME)_(DATA_STRUCTURES)_(ALGORITHMS)_(PUSH_PULL)_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
+2. Their are three types of runs for gem5-aladding.
+    * running the `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
   ```
-  make run-aladdin
+  make run-gem5-openmp
   ```
-3. to generate a dynamic trace without running Aladdin:
+    * running the `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-aladdin integreation-test examples.
   ```
-  make run-llvm-tracer # if it never been generated
+  make run-gem5-cpu
   ```
-  * OR
+   * running the `accel` mode on gem5 with the acceleartor active. The performance-power model is derived from the DDDG (dynamic data dependence graphs).
   ```
-  make run-llvm-tracer-force # regenerated even if it exists
+  make run-gem5-accel
   ```
 <img src="./02_slides/fig/capi_logo.png" height="40" align="right" >
 
