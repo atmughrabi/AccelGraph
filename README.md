@@ -3,11 +3,11 @@
 <img src="./02_slides/fig/logo3.png" width="700" >
 </p>
 
-# Accel-Graph
+# Accel-Graph 
 
-## Graph Processing Framework With | OpenMP || CAPI/SystemVerilog || gem5-Aladdin |
+## Graph Processing Framework With | OpenMP || CAPI/SystemVerilog || gem5-Aladdin | ##
 
-OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-SystemVerilog || gem5-Aladdin |
+### OpenMP/AFU framework for graph Processing algorithms with | OpenMP || CAPI-SystemVerilog || gem5-Aladdin | ###
 
 ## Overview ##
 
