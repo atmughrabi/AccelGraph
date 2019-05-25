@@ -56,7 +56,7 @@ MAIN_DIR		  	= main
 #########################################################
 
 #small test graphs
-# GRAPH_NAME = test.txt
+GRAPH_NAME = test
 # GRAPH_NAME = Rabbit
 
 # synthetic graphs
@@ -76,12 +76,12 @@ MAIN_DIR		  	= main
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-GRAPH_NAME = p2p-Gnutella31
+# GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
 
-FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph
 
 #GRAPH RUN
 SORT_TYPE 		= 0
@@ -98,7 +98,7 @@ NUM_THREADS  	= 1
 NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 1
 
-FILE_FORMAT 	= 1
+FILE_FORMAT 	= 0
 CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
@@ -522,7 +522,7 @@ run-openmp: graph-openmp
 
 .PHONY: convert
 convert: graph-openmp
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp  -x -c $(CONVERT_FORMAT) -f $(FILE_BIN) -z $(FILE_FORMAT)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp  -w -x -c $(CONVERT_FORMAT) -f $(FILE_BIN) -z $(FILE_FORMAT)
 
 .PHONY: stats-openmp
 stats-openmp: graph-openmp

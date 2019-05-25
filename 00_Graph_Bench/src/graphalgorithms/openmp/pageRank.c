@@ -1394,11 +1394,11 @@ float *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct 
 float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
 {
 
-    __u32 BLOCKSIZE = 128;
-    __u32 L1_SIZE = 262144;
+    // __u32 BLOCKSIZE = 128;
+    // __u32 L1_SIZE = 262144;
 
-    // __u32 BLOCKSIZE = 64;
-    // __u32 L1_SIZE = 32768;
+    __u32 BLOCKSIZE = 64;
+    __u32 L1_SIZE = 32768;
 
     __u32 L1_ASSOC = 8;
     // __u32 NUM_VERTICES = graph->num_vertices;
@@ -1562,43 +1562,43 @@ float *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struc
             //     Access(cache ,(__u64) & (vertices[v].edges_idx), 'r', '0', v);
 
             // prefetcing V+1
-            if((v + 1) < graph->num_vertices)
-            {
-                edge_idx = vertices->edges_idx[v + 1];
-                for(j = edge_idx ; j < (edge_idx + vertices->out_degree[v + 1]) ; j++)
-                {
-                    u = sorted_edges_array[j];
+            // if((v + 1) < graph->num_vertices)
+            // {
+            //     edge_idx = vertices->edges_idx[v + 1];
+            //     for(j = edge_idx ; j < (edge_idx + vertices->out_degree[v + 1]) ; j++)
+            //     {
+            //         u = sorted_edges_array[j];
 
                   
-                    if(checkPrefetch(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), '0'))
-                    {
-                        if(labels[u] < (graph->num_vertices - top))
-                        {
+            //         if(checkPrefetch(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), '0'))
+            //         {
+            //             if(labels[u] < (graph->num_vertices - top))
+            //             {
 
-                            Prefetch(cache, (__u64) & (riDividedOnDiClause[u]), 's', '1', u);
-                            // Access(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), 's', '1', u);
-                        }
-                        else
-                        {
-                            Prefetch(cache, (__u64) & (riDividedOnDiClause[u]), 's', '0', u);
-                            // Access(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), 's', '0', u);
-                        }
-                    }
-                }
+            //                 Prefetch(cache, (__u64) & (riDividedOnDiClause[u]), 's', '1', u);
+            //                 // Access(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), 's', '1', u);
+            //             }
+            //             else
+            //             {
+            //                 Prefetch(cache, (__u64) & (riDividedOnDiClause[u]), 's', '0', u);
+            //                 // Access(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), 's', '0', u);
+            //             }
+            //         }
+            //     }
 
-                if(checkPrefetch(cache_prefetch, (__u64) & (pageRanksNext[v + 1]), '0'))
-                {
-                    if(labels[v + 1] > (graph->num_vertices - top))
-                    {
-                        Prefetch(cache, (__u64) & (pageRanksNext[v + 1]), 'w', '1', v);
-                    }
-                    else
-                    {
-                        Prefetch(cache, (__u64) & (pageRanksNext[v + 1]), 'w', '0', v);
-                    }
-                }
+            //     if(checkPrefetch(cache_prefetch, (__u64) & (pageRanksNext[v + 1]), '0'))
+            //     {
+            //         if(labels[v + 1] > (graph->num_vertices - top))
+            //         {
+            //             Prefetch(cache, (__u64) & (pageRanksNext[v + 1]), 'w', '1', v);
+            //         }
+            //         else
+            //         {
+            //             Prefetch(cache, (__u64) & (pageRanksNext[v + 1]), 'w', '0', v);
+            //         }
+            //     }
 
-            }
+            // }
 
 
             edge_idx = vertices->edges_idx[v];
