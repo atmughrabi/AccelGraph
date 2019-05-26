@@ -8,6 +8,22 @@
 #include "graphAdjLinkedList.h"
 
 // ********************************************************************************************
+// ***************					Stats DataStructure							 **************
+// ********************************************************************************************
+
+struct BFSStats{
+	__u32* distances;
+	int* parents;
+	__u32  processed_nodes;
+	__u32  num_vertices;
+	double time_total;
+};
+
+struct BFSStats* newBFSStas(struct GraphCSR *graph);
+void freeBFSStas(struct BFSStats *stats);
+void resetBFSStas(struct BFSStats *stats, struct GraphCSR *graph);
+
+// ********************************************************************************************
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 

@@ -198,7 +198,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 0600 0000 0b00 0000 0100 0000 0800 0000
 1600 0000 0100 0000 0900 0000 1b00 0000
 0100 0000 
-```
+ ```
 
 ## Accel-Graph Options 
 
@@ -294,7 +294,7 @@ portable benchmarking suite for various graph processing algorithms.
   -V, --version              Print program version
 
  ```
-`Report bugs to <atmughra@ncsu.edu>.`
+
 
 ## Organization 
 
@@ -396,4 +396,5 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] FPGA Frontier prefetcher
 - [ ] Support unit testing
 
+Report bugs to <atmughra@ncsu.edu>
 [<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](#accel-graph-benchmark-suite)

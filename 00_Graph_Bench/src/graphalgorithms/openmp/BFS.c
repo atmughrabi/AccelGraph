@@ -16,6 +16,40 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
+// ********************************************************************************************
+// ***************                  Stats DataStructure                          **************
+// ********************************************************************************************
+
+struct BFSStats* newBFSStas(struct GraphCSR *graph){
+
+    struct BFSStats* stats = (struct BFSStats*) my_malloc(sizeof(struct BFSStats));
+
+    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->processed_nodes = 0;
+    stats->num_vertices = 0;
+    stats->time_total = 0;
+
+    #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graphCSR)
+    for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
+    {
+        if(vertices->out_degree[vertex_id])
+            graphCSR->parents[vertex_id] = vertices->out_degree[vertex_id] * (-1);
+        else
+            graphCSR->parents[vertex_id] = -1;
+    }
+
+}
+void freeBFSStas(struct BFSStats *stats){
+
+
+
+}
+void resetBFSStas(struct BFSStats *stats, struct GraphCSR *graph){
+
+
+
+}
 
 
 // ********************************************************************************************

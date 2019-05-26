@@ -22,17 +22,6 @@
 void  graphGridReset(struct GraphGrid *graphGrid)
 {
 
-    __u32 i;
-    graphGrid->iteration = 0;
-    graphGrid->processed_nodes = 0;
-
-
-    #pragma omp parallel for default(none) shared(graphGrid) private(i)
-    for(i = 0; i < graphGrid->num_vertices; i++)
-    {
-        graphGrid->parents[i] = -1;
-    }
-
     graphGridResetActivePartitionsMap(graphGrid->grid);
 
 }
@@ -95,14 +84,6 @@ struct GraphGrid *graphGridNew(struct EdgeList *edgeList)
 
 
     struct GraphGrid *graphGrid = (struct GraphGrid *) my_malloc( sizeof(struct GraphGrid));
-    graphGrid->parents  = (int *) my_malloc( edgeList->num_vertices * sizeof(int));
-
-    __u32 i;
-    #pragma omp parallel for default(none) private(i) shared(edgeList,graphGrid)
-    for(i = 0; i < edgeList->num_vertices; i++)
-    {
-        graphGrid->parents[i] = -1;
-    }
 
 #if WEIGHTED
     graphGrid->max_weight =  edgeList->max_weight;
@@ -113,8 +94,6 @@ struct GraphGrid *graphGridNew(struct EdgeList *edgeList)
 
     graphGrid->grid = gridNew(edgeList);
 
-    graphGrid->iteration = 0;
-    graphGrid->processed_nodes = 0;
 
     return graphGrid;
 
@@ -123,9 +102,11 @@ struct GraphGrid *graphGridNew(struct EdgeList *edgeList)
 void   graphGridFree(struct GraphGrid *graphGrid)
 {
 
-    gridFree(graphGrid->grid);
-    free(graphGrid->parents);
-    free(graphGrid);
+    if(graphGrid->grid)
+        gridFree(graphGrid->grid);
+
+    if(graphGrid)
+        free(graphGrid);
 
 }
 

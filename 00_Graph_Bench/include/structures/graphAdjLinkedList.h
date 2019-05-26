@@ -14,13 +14,11 @@ struct  GraphAdjLinkedList
 {
     __u32 num_vertices;
     __u32 num_edges;
-    __u32 iteration;
-    __u32 processed_nodes;
+  
 #if WEIGHTED
     __u32 max_weight;
 #endif
 
-    int *parents;
     struct AdjLinkedList *vertices;
 
 };
@@ -29,7 +27,6 @@ struct  GraphAdjLinkedList
 // A utility function that creates a GraphAdjLinkedList of V vertices
 struct GraphAdjLinkedList *graphAdjLinkedListGraphNew(__u32 V);
 struct GraphAdjLinkedList *graphAdjLinkedListEdgeListNew(struct EdgeList *edgeList);
-void graphAdjLinkedListReset(struct GraphAdjLinkedList *graphAdjLinkedList);
 void graphAdjLinkedListPrint(struct GraphAdjLinkedList *graphAdjLinkedList);
 void graphAdjLinkedListFree(struct GraphAdjLinkedList *graphAdjLinkedList);
 void adjLinkedListAddEdge(struct GraphAdjLinkedList *graphAdjLinkedList, struct EdgeList *edge, __u32 i, omp_lock_t *vertex_lock);

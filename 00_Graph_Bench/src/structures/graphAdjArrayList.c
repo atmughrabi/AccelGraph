@@ -28,30 +28,6 @@ void graphAdjArrayListPrintMessageWithtime(const char *msg, double time)
 
 }
 
-void graphAdjArrayListReset(struct GraphAdjArrayList *graphAdjArrayList)
-{
-
-    struct AdjArrayList *vertices;
-    __u32 vertex_id;
-
-    vertices = graphAdjArrayList->vertices;
-
-
-    graphAdjArrayList->iteration = 0;
-    graphAdjArrayList->processed_nodes = 0;
-
-    #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graphAdjArrayList)
-    for(vertex_id = 0; vertex_id < graphAdjArrayList->num_vertices ; vertex_id++)
-    {
-        if(vertices[vertex_id].out_degree)
-            graphAdjArrayList->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
-        else
-            graphAdjArrayList->parents[vertex_id] = -1;
-    }
-
-
-}
-
 // A utility function that creates a graphAdjArrayList of V vertices
 struct GraphAdjArrayList *graphAdjArrayListGraphNew(__u32 V)
 {
@@ -60,26 +36,18 @@ struct GraphAdjArrayList *graphAdjArrayListGraphNew(__u32 V)
 
     graphAdjArrayList->num_vertices = V;
     graphAdjArrayList->vertices = (struct AdjArrayList *) my_malloc( V * sizeof(struct AdjArrayList));
-    graphAdjArrayList->parents  = (int *) my_malloc( V * sizeof(int));
-
-
 
     __u32 i;
     for(i = 0; i < V; i++)
     {
         graphAdjArrayList->vertices[i].outNodes = NULL;
         graphAdjArrayList->vertices[i].out_degree = 0;
-        graphAdjArrayList->parents[i] = -1;
 
 #if DIRECTED
         graphAdjArrayList->vertices[i].inNodes = NULL;
         graphAdjArrayList->vertices[i].in_degree = 0;
 #endif
     }
-
-    graphAdjArrayList->iteration = 0;
-    graphAdjArrayList->processed_nodes = 0;
-    // printf("\n Success!!! V: %d\n ", V);
 
     return graphAdjArrayList;
 
@@ -343,13 +311,13 @@ struct GraphAdjArrayList *graphAdjArrayListEdgePopulateOutNodes(struct GraphAdjA
 struct GraphAdjArrayList *graphAdjArrayListEdgePopulateInNodes(struct GraphAdjArrayList *graphAdjArrayList, struct EdgeList *inverseEdgeList)
 {
 
-  
+
 
 #if DIRECTED
     __u32 i;
     __u32 dest;
     __u32 in_degree;
-    
+
     for(i = 0; i < inverseEdgeList->num_edges; i++)
     {
 
@@ -437,9 +405,11 @@ void graphAdjArrayListFree(struct GraphAdjArrayList *graphAdjArrayList)
 
     }
 
-    free(graphAdjArrayList->parents);
-    free(graphAdjArrayList->vertices);
-    free(graphAdjArrayList);
+    if(graphAdjArrayList->vertices)
+        free(graphAdjArrayList->vertices);
+
+    if(graphAdjArrayList)
+        free(graphAdjArrayList);
 
 
 }

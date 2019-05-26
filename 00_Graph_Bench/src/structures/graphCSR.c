@@ -20,61 +20,6 @@
 
 #include "timer.h"
 
-void graphCSRReset (struct GraphCSR *graphCSR)
-{
-
-    struct Vertex *vertices;
-    __u32 vertex_id;
-    // #if DIRECTED
-    //     if(inverse){
-    //         vertices = graph->inverse_vertices; // sorted edge array
-    //     }else{
-    //         vertices = graph->vertices;
-    //     }
-    // #else
-    vertices = graphCSR->vertices;
-    // #endif
-
-    graphCSR->iteration = 0;
-    graphCSR->processed_nodes = 0;
-
-    #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graphCSR)
-    for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
-    {
-        if(vertices->out_degree[vertex_id])
-            graphCSR->parents[vertex_id] = vertices->out_degree[vertex_id] * (-1);
-        else
-            graphCSR->parents[vertex_id] = -1;
-    }
-
-}
-
-
-void graphCSRHardReset (struct GraphCSR *graphCSR)
-{
-
-
-    __u32 vertex_id;
-
-    graphCSR->iteration = 0;
-    graphCSR->processed_nodes = 0;
-
-    #pragma omp parallel for default(none) private(vertex_id) shared(graphCSR)
-    for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
-    {
-#if DIRECTED
-        if(graphCSR->inverse_vertices)
-        {
-            graphCSR->inverse_vertices->in_degree[vertex_id] = 0;
-            graphCSR->inverse_vertices->out_degree[vertex_id] = 0;
-        }
-#endif
-        graphCSR->vertices->out_degree[vertex_id] = 0;
-        graphCSR->vertices->in_degree[vertex_id] = 0;
-        graphCSR->parents[vertex_id] = -1;
-    }
-
-}
 
 
 void graphCSRFree (struct GraphCSR *graphCSR)
@@ -82,8 +27,6 @@ void graphCSRFree (struct GraphCSR *graphCSR)
 
     if(graphCSR->vertices)
         freeVertexArray(graphCSR->vertices);
-    if(graphCSR->parents)
-        free(graphCSR->parents);
     if(graphCSR->sorted_edges_array)
         freeEdgeList(graphCSR->sorted_edges_array);
 
@@ -94,38 +37,10 @@ void graphCSRFree (struct GraphCSR *graphCSR)
         freeEdgeList(graphCSR->inverse_sorted_edges_array);
 #endif
 
-    // if(graphCSR->parents)
-    //    free(graphCSR->parents);
-
     if(graphCSR)
         free(graphCSR);
 
 
-
-}
-
-void graphCSRFreeDoublePointer (struct GraphCSR **graphCSR)
-{
-
-    if((*graphCSR)->vertices)
-        freeVertexArray((*graphCSR)->vertices);
-    if((*graphCSR)->parents)
-        free((*graphCSR)->parents);
-    if((*graphCSR)->sorted_edges_array)
-        freeEdgeList((*graphCSR)->sorted_edges_array);
-
-#if DIRECTED
-    if((*graphCSR)->inverse_vertices)
-        freeVertexArray((*graphCSR)->inverse_vertices);
-    if((*graphCSR)->inverse_sorted_edges_array)
-        freeEdgeList((*graphCSR)->inverse_sorted_edges_array);
-#endif
-
-    if((*graphCSR)->parents)
-        free((*graphCSR)->parents);
-
-    if((*graphCSR))
-        free((*graphCSR));
 
 }
 
@@ -185,38 +100,7 @@ struct GraphCSR *graphCSRNew(__u32 V, __u32 E, __u8 inverse)
     }
 #endif
 
-
-    graphCSR->parents  = (int *) my_malloc( V * sizeof(int));
-
-
-    #pragma omp for
-    for(i = 0; i < V; i++)
-    {
-        graphCSR->parents[i] = -1;
-    }
-
-    graphCSR->iteration = 0;
-    graphCSR->processed_nodes = 0;
-
     return graphCSR;
-}
-
-void graphCSRPrintParentsArray(struct GraphCSR *graphCSR)
-{
-
-
-    __u32 i;
-
-    printf("| %-15s | %-15s | %-15s |  \n", "Node", "out_degree", "Parent");
-
-    for(i = 0; i < graphCSR->num_vertices; i++)
-    {
-
-        if((graphCSR->vertices->out_degree[i] > 0) || (graphCSR->vertices->in_degree[i] > 0))
-            printf("| %-15u | %-15u | %-15d | \n", i,  graphCSR->vertices->out_degree[i], graphCSR->parents[i]);
-
-    }
-
 }
 
 
@@ -313,7 +197,7 @@ struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u
 void writeToBinFileGraphCSR (const char *fname, struct GraphCSR *graphCSR)
 {
 
-   
+
     FILE  *pBinary;
     __u32 vertex_id;
 
@@ -399,7 +283,7 @@ struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
         return NULL;
     }
 
-    
+
     ret = fread(&num_edges, sizeof(num_edges), 1, pBinary);
     ret = fread(&num_vertices, sizeof(num_vertices), 1, pBinary);
 #if WEIGHTED
@@ -432,7 +316,7 @@ struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
     graphCSR->inverse_sorted_edges_array = inverse_sorted_edges_array;
 #endif
 
- for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
+    for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
     {
 
         ret = fread(&(graphCSR->vertices->out_degree[vertex_id]), sizeof (graphCSR->vertices->out_degree[vertex_id]), 1, pBinary);
@@ -474,8 +358,9 @@ struct GraphCSR *readFromBinFileGraphCSR (const char *fname)
 
 
 
-    if(ret){
-       graphCSRPrint(graphCSR);
+    if(ret)
+    {
+        graphCSRPrint(graphCSR);
     }
 
     fclose(pBinary);

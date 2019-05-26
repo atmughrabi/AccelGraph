@@ -19,18 +19,12 @@ struct  GraphAdjArrayList
     __u32 max_weight;
 #endif
 
-    int *parents;
-    __u32 iteration;
-    __u32 processed_nodes;
-
     struct AdjArrayList *vertices;
-
 };
 
 
 // A utility function that creates a GraphAdjArrayList of V vertices
 void graphAdjArrayListPrintMessageWithtime(const char *msg, double time);
-void graphAdjArrayListReset(struct GraphAdjArrayList *graphAdjArrayList);
 struct GraphAdjArrayList *graphAdjArrayListGraphNew(__u32 V);
 struct GraphAdjArrayList *graphAdjArrayListEdgeListNew(struct EdgeList *edgeList);
 struct GraphAdjArrayList *graphAdjArrayListEdgeListNewWithInverse(struct EdgeList *edgeList, struct EdgeList *inverseEdgeList);

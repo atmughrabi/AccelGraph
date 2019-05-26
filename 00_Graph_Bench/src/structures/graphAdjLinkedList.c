@@ -12,30 +12,6 @@
 #include "adjLinkedList.h"
 #include "timer.h"
 
-void graphAdjLinkedListReset(struct GraphAdjLinkedList *graphAdjLinkedList)
-{
-
-    struct AdjLinkedList *vertices;
-    __u32 vertex_id;
-
-    vertices = graphAdjLinkedList->vertices;
-
-
-    graphAdjLinkedList->iteration = 0;
-    graphAdjLinkedList->processed_nodes = 0;
-
-    #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graphAdjLinkedList)
-    for(vertex_id = 0; vertex_id < graphAdjLinkedList->num_vertices ; vertex_id++)
-    {
-        if(vertices[vertex_id].out_degree)
-            graphAdjLinkedList->parents[vertex_id] = vertices[vertex_id].out_degree * (-1);
-        else
-            graphAdjLinkedList->parents[vertex_id] = -1;
-    }
-
-
-}
-
 // A utility function that creates a graphAdjLinkedList of V vertices
 struct GraphAdjLinkedList *graphAdjLinkedListGraphNew(__u32 V)
 {
@@ -60,10 +36,6 @@ struct GraphAdjLinkedList *graphAdjLinkedListGraphNew(__u32 V)
 
         graphAdjLinkedList->vertices[i].visited = 0;
     }
-
-    graphAdjLinkedList->iteration = 0;
-    graphAdjLinkedList->processed_nodes = 0;
-
     // printf("\n Success!!! V: %d\n ", V);
 
     return graphAdjLinkedList;
@@ -79,9 +51,6 @@ struct GraphAdjLinkedList *graphAdjLinkedListEdgeListNew(struct EdgeList *edgeLi
     graphAdjLinkedList->num_vertices = edgeList->num_vertices;
     graphAdjLinkedList->num_edges = edgeList->num_edges;
     graphAdjLinkedList->vertices = (struct AdjLinkedList *) my_malloc( graphAdjLinkedList->num_vertices * sizeof(struct AdjLinkedList));
-    graphAdjLinkedList->parents  = (int *) my_malloc( graphAdjLinkedList->num_vertices * sizeof(int));
-
-
 
 #if WEIGHTED
     graphAdjLinkedList->max_weight =  edgeList->max_weight;
@@ -93,8 +62,6 @@ struct GraphAdjLinkedList *graphAdjLinkedListEdgeListNew(struct EdgeList *edgeLi
     #pragma omp parallel for
     for(i = 0; i < graphAdjLinkedList->num_vertices; i++)
     {
-
-        graphAdjLinkedList->parents[i] = -1;
 
         graphAdjLinkedList->vertices[i].outNodes = NULL;
         graphAdjLinkedList->vertices[i].out_degree = 0;
@@ -132,8 +99,6 @@ struct GraphAdjLinkedList *graphAdjLinkedListEdgeListNew(struct EdgeList *edgeLi
     }
 
     free(vertex_lock);
-    graphAdjLinkedList->iteration = 0;
-    graphAdjLinkedList->processed_nodes = 0;
 
     return graphAdjLinkedList;
 
@@ -186,7 +151,9 @@ void graphAdjLinkedListFree(struct GraphAdjLinkedList *graphAdjLinkedList)
 
             pFree = pCrawl;
             pCrawl = pCrawl->next;
-            free(pFree);
+
+            if(pFree)
+                free(pFree);
 
         }
 
@@ -199,16 +166,19 @@ void graphAdjLinkedListFree(struct GraphAdjLinkedList *graphAdjLinkedList)
 
             pFree = pCrawl;
             pCrawl = pCrawl->next;
-            free(pFree);
+            if(pFree)
+                free(pFree);
 
         }
 #endif
 
     }
 
-    free(graphAdjLinkedList->parents);
-    free(graphAdjLinkedList->vertices);
-    free(graphAdjLinkedList);
+    if(graphAdjLinkedList->vertices)
+        free(graphAdjLinkedList->vertices);
+
+    if(graphAdjLinkedList)
+        free(graphAdjLinkedList);
 
 
 }
