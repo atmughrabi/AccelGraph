@@ -21,8 +21,32 @@
 // ********************************************************************************************
 // ***************                  CSR DataStructure                            **************
 // ********************************************************************************************
+void breadthFirstSearchGraphCSR(__u32 source,__u32 pushpull, struct GraphCSR *graph)
+{
 
+    switch (pushpull)
+    {
+    case 0: // pull
+        breadthFirstSearchPullGraphCSR(source, graph);
+        break;
+    case 1: // push
+        breadthFirstSearchPushGraphCSR(source, graph);
+        break;
+    case 2: // pull/push
+        breadthFirstSearchDirectionOptimizedGraphCSR(source, graph);
+        break;
+    case 3: // push-bitmap queue instead of array queue
+        breadthFirstSearchPushBitmapGraphCSR(source, graph);
+        break;
+    case 4: // pull/push-bitmap queue instead of array queue
+        breadthFirstSearchPushDirectionOptimizedBitmapGraphCSR(source, graph);
+        break;
+    default:// push
+        breadthFirstSearchPullGraphCSR(source);
+        break;
+    }
 
+}
 
 // breadth-first-search(graph, source)
 //  sharedFrontierQueue ← {source}
@@ -35,7 +59,7 @@
 //      end while
 //  return parents
 
-void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
+void breadthFirstSearchDirectionOptimizedGraphCSR(__u32 source, struct GraphCSR *graph)
 {
 
 
@@ -173,6 +197,106 @@ void breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
     free(timer);
     free(timer_inner);
 }
+
+// top-down-step(graph, sharedFrontierQueue, next, parents)
+//  for v ∈ sharedFrontierQueue do
+//      for u ∈ neighbors[v] do
+//          if parents[u] = -1 then
+//              parents[u] ← v
+//              next ← next ∪ {u}
+//          end if
+//      end for
+//  end for
+
+void breadthFirstSearchPushGraphCSR(__u32 source, struct GraphCSR *graph)
+{
+
+
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+    double inner_time = 0;
+    struct ArrayQueue *sharedFrontierQueue = newArrayQueue(graph->num_vertices);
+    struct Bitmap *bitmapCurr = newBitmap(graph->num_vertices);
+    struct Bitmap *bitmapNext = newBitmap(graph->num_vertices);
+
+    __u32 P = numThreads;
+   
+    __u32 mf = graph->vertices->out_degree[source]; // number of edges from unexplored verticies
+    struct ArrayQueue **localFrontierQueues = (struct ArrayQueue **) my_malloc( P * sizeof(struct ArrayQueue *));
+
+
+    __u32 i;
+    for(i = 0 ; i < P ; i++)
+    {
+        localFrontierQueues[i] = newArrayQueue(graph->num_vertices);
+
+    }
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting BFS PUSH (SOURCE NODE)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51u | \n", source);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
+    printf(" -----------------------------------------------------\n");
+
+    if(source > graph->num_vertices)
+    {
+        printf(" -----------------------------------------------------\n");
+        printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+        printf(" -----------------------------------------------------\n");
+        return;
+    }
+
+    graphCSRReset(graph);
+
+    Start(timer_inner);
+    enArrayQueue(sharedFrontierQueue, source);
+    // setBit(sharedFrontierQueue->q_bitmap,source);
+    graph->parents[source] = source;
+    Stop(timer_inner);
+    inner_time +=  Seconds(timer_inner);
+    // graph->vertices[source].visited = 1;
+
+
+    printf("| TD %-12u | %-15u | %-15f | \n", graph->iteration++, ++graph->processed_nodes, Seconds(timer_inner));
+
+    Start(timer);
+    while(!isEmptyArrayQueue(sharedFrontierQueue))  // start while
+    {
+
+            Start(timer_inner);
+            mf = topDownStepGraphCSR(graph, sharedFrontierQueue, localFrontierQueues);
+            slideWindowArrayQueue(sharedFrontierQueue);
+            Stop(timer_inner);
+
+            //stats collection
+            inner_time +=  Seconds(timer_inner);
+            graph->processed_nodes += mf;
+            printf("| TD %-12u | %-15u | %-15f | \n", graph->iteration++, sharedFrontierQueue->tail - sharedFrontierQueue->head, Seconds(timer_inner));
+
+    } // end while
+    Stop(timer);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15u | %-15f | \n", "No OverHead", graph->processed_nodes, inner_time);
+    printf(" -----------------------------------------------------\n");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15u | %-15f | \n", "total", graph->processed_nodes, Seconds(timer));
+    printf(" -----------------------------------------------------\n");
+
+    graphCSRReset(graph);
+    for(i = 0 ; i < P ; i++)
+    {
+        freeArrayQueue(localFrontierQueues[i]);
+    }
+    free(localFrontierQueues);
+    freeArrayQueue(sharedFrontierQueue);
+    freeBitmap(bitmapNext);
+    freeBitmap(bitmapCurr);
+    free(timer);
+    free(timer_inner);
+}
+
 
 
 // top-down-step(graph, sharedFrontierQueue, next, parents)
@@ -314,7 +438,7 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
 //      end while
 //  return parents
 
-void breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR *graph)
+void breadthFirstSearchPushDirectionOptimizedBitmapGraphCSR(__u32 source, struct GraphCSR *graph)
 {
 
 

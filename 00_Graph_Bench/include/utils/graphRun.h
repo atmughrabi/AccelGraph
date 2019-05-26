@@ -15,7 +15,7 @@
 #include "BFS.h"
 
 /* Used by main to communicate with parse_opt. */
-struct arguments
+struct Arguments
 {
     int wflag;
     int xflag;
@@ -39,12 +39,19 @@ struct arguments
     __u32 convert_format;
 };
 
+// Random root helper functions
+__u32 generateRandomRootGraphCSR(struct GraphCSR *graph);
+__u32 generateRandomRootGraphGrid(struct GraphGrid *graph);
+__u32 generateRandomRootGraphAdjLinkedList(struct GraphAdjLinkedList *graph);
+__u32 generateRandomRootGraphAdjArrayList(struct GraphAdjArrayList *graph);
+__u32 generateRandomRootGeneral(void *graph, struct Arguments *arguments);
+
 void freeGraphDataStructure(void *graph, __u32 datastructure);
-void writeSerializedGraphDataStructure(struct arguments *arguments);
-void readSerializeGraphDataStructure(struct arguments *arguments);
+void writeSerializedGraphDataStructure(struct Arguments *arguments);
+void readSerializeGraphDataStructure(struct Arguments *arguments);
 void generateGraphPrintMessageWithtime(const char *msg, double time);
-void *generateGraphDataStructure(struct arguments *arguments);
-void runGraphAlgorithms(void *graph, struct arguments *arguments);
+void *generateGraphDataStructure(struct Arguments *arguments);
+void runGraphAlgorithms(void *graph, struct Arguments *arguments);
 void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials);
 void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 trials, __u32 pushpull);
 void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials);

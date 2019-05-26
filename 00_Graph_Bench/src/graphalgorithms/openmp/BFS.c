@@ -150,8 +150,36 @@ void freeBFSStats(struct BFSStats *stats)
 // ********************************************************************************************
 // ***************                  CSR DataStructure                            **************
 // ********************************************************************************************
+struct BFSStats *breadthFirstSearchGraphCSR(__u32 source, __u32 pushpull, struct GraphCSR *graph)
+{
 
+    struct BFSStats * stats = NULL;
 
+    switch (pushpull)
+    {
+    case 0: // pull
+        stats = breadthFirstSearchPullGraphCSR(source, graph);
+        break;
+    case 1: // push
+        stats = breadthFirstSearchPushGraphCSR(source, graph);
+        break;
+    case 2: // pull/push
+        stats = breadthFirstSearchDirectionOptimizedGraphCSR(source, graph);
+        break;
+    case 3: // push-bitmap queue instead of array queue
+        stats = breadthFirstSearchPushBitmapGraphCSR(source, graph);
+        break;
+    case 4: // pull/push-bitmap queue instead of array queue
+        stats = breadthFirstSearchPushDirectionOptimizedBitmapGraphCSR(source, graph);
+        break;
+    default:// push
+        stats = breadthFirstSearchPullGraphCSR(source);
+        break;
+    }
+
+    return stats;
+
+}
 
 // breadth-first-search(graph, source)
 //  sharedFrontierQueue ← {source}
@@ -164,7 +192,7 @@ void freeBFSStats(struct BFSStats *stats)
 //      end while
 //  return parents
 
-struct BFSStats *breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
+struct BFSStats *breadthFirstSearchDirectionOptimizedGraphCSR(__u32 source, struct GraphCSR *graph)
 {
 
     struct BFSStats *stats = newBFSStatsGraphCSR(graph);
@@ -446,7 +474,7 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
 //      end while
 //  return parents
 
-struct BFSStats *breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR *graph)
+struct BFSStats *breadthFirstSearchPushDirectionOptimizedBitmapGraphCSR(__u32 source, struct GraphCSR *graph)
 {
 
     struct BFSStats *stats = newBFSStatsGraphCSR(graph);

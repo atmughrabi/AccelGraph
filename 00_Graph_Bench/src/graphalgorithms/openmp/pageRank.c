@@ -334,7 +334,7 @@ struct PageRankStats  *pageRankGraphGrid(double epsilon,  __u32 iterations, __u3
     case 3: // push
         stats = pageRankPushColumnFixedPointGraphGrid(epsilon, iterations, graph);
         break;
-    default:// push
+    default:// pull
         stats = pageRankPullRowGraphGrid(epsilon, iterations, graph);
         break;
     }

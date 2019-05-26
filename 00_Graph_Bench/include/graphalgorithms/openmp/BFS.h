@@ -32,14 +32,21 @@ void freeBFSStats(struct BFSStats *stats);
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-struct BFSStats *breadthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph);
+struct BFSStats *breadthFirstSearchGraphCSR(__u32 source,__u32 pushpull, struct GraphCSR *graph);
+
+struct BFSStats *breadthFirstSearchPullGraphCSR(__u32 source, struct GraphCSR *graph);
+struct BFSStats *breadthFirstSearchPushGraphCSR(__u32 source, struct GraphCSR *graph);
+struct BFSStats *breadthFirstSearchDirectionOptimizedGraphCSR(__u32 source, struct GraphCSR *graph);
+
 __u32 topDownStepGraphCSR(struct GraphCSR *graph, struct ArrayQueue *sharedFrontierQueue,  struct ArrayQueue **localFrontierQueues, struct BFSStats *stats);
 __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, struct Bitmap *bitmapNext, struct BFSStats *stats);
 
 // ********************************************************************************************
 // ***************		CSR DataStructure/Bitmap Frontiers						 **************
 // ********************************************************************************************
-struct BFSStats *breadthFirstSearchUsingBitmapsGraphCSR(__u32 source, struct GraphCSR *graph);
+
+struct BFSStats *breadthFirstSearchPushBitmapGraphCSR(__u32 source, struct GraphCSR *graph);
+struct BFSStats *breadthFirstSearchPushDirectionOptimizedBitmapGraphCSR(__u32 source, struct GraphCSR *graph);
 __u32 topDownStepUsingBitmapsGraphCSR(struct GraphCSR *graph, struct ArrayQueue *sharedFrontierQueue, struct BFSStats *stats);
 
 // ********************************************************************************************

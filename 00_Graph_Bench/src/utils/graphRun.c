@@ -31,7 +31,7 @@ void generateGraphPrintMessageWithtime(const char *msg, double time)
 
 }
 
-void writeSerializedGraphDataStructure(struct arguments *arguments)  // for now this only support graph CSR
+void writeSerializedGraphDataStructure(struct Arguments *arguments)  // for now this only support graph CSR
 {
 
     // check input type edgelist text/bin or graph csr
@@ -111,7 +111,7 @@ void writeSerializedGraphDataStructure(struct arguments *arguments)  // for now 
 
 }
 
-void readSerializeGraphDataStructure(struct arguments *arguments)  // for now this only support graph CSR
+void readSerializeGraphDataStructure(struct Arguments *arguments)  // for now this only support graph CSR
 {
 
     // check input type edgelist text/bin or graph csr
@@ -120,7 +120,7 @@ void readSerializeGraphDataStructure(struct arguments *arguments)  // for now th
 }
 
 
-void *generateGraphDataStructure(struct arguments *arguments)
+void *generateGraphDataStructure(struct Arguments *arguments)
 {
 
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
@@ -196,243 +196,209 @@ void *generateGraphDataStructure(struct arguments *arguments)
 }
 
 
-void runGraphAlgorithms(void *graph, struct arguments *arguments)
+void runGraphAlgorithms(void *graph, struct Arguments *arguments)
 {
 
-    switch ( arguments->algorithm)
+    while(arguments->trials)
     {
-    case 0: // bfs filename root
-        runBreadthFirstSearchAlgorithm( graph,  arguments->datastructure,  arguments->root,  arguments->trials);
-        break;
-    case 1: // pagerank filename
-        runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->trials,  arguments->pushpull);
-        break;
-    case 2: // SSSP-Dijkstra file name root
-        runSSSPAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations,  arguments->trials,  arguments->pushpull,  arguments->delta);
-        break;
-    case 3: // SSSP-Bellmanford file name root
-        runBellmanFordAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations,  arguments->trials,  arguments->pushpull);
-        break;
-    case 4: // DFS file name root
-        runDepthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->trials);
-        break;
-    case 5: // incremental Aggregation file name root
-        runIncrementalAggregationAlgorithm(graph,  arguments->datastructure,  arguments->trials);
-        break;
-    default:// bfs file name root
-        runBreadthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->trials);
-        break;
+        switch (arguments->algorithm)
+        {
+        case 0: // bfs filename root
+            runBreadthFirstSearchAlgorithm( graph,  arguments->datastructure,  arguments->root,  arguments->trials,  arguments->pushpull);
+            break;
+        case 1: // pagerank filename
+            runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->trials,  arguments->pushpull);
+            break;
+        case 2: // SSSP-Dijkstra file name root
+            runSSSPAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations,  arguments->trials,  arguments->pushpull,  arguments->delta);
+            break;
+        case 3: // SSSP-Bellmanford file name root
+            runBellmanFordAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations,  arguments->trials,  arguments->pushpull);
+            break;
+        case 4: // DFS file name root
+            runDepthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->trials);
+            break;
+        case 5: // incremental Aggregation file name root
+            runIncrementalAggregationAlgorithm(graph,  arguments->datastructure,  arguments->trials);
+            break;
+        default:// bfs file name root
+            runBreadthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->trials);
+            break;
+        }
+
+        arguments->root = generateRandomRootGeneral(graph, arguments);
+        arguments->trials--;
     }
+
+    freeGraphDataStructure(graph, datastructure);
+}
+
+__u32 generateRandomRootGraphCSR(struct GraphCSR *graph)
+{
+
+    __u32 root = 0;
+
+    while(1)
+    {
+        root = generateRandInt(mt19937var);
+        if(root < graph->num_vertices)
+        {
+            if(graph->vertices->out_degree[root] > 0)
+                break;
+        }
+    }
+
+    return root;
 
 }
 
 
-
-void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials)
+__u32 generateRandomRootGraphGrid(struct GraphGrid *graph)
 {
 
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    __u32 root = 0;
+
+    while(1)
+    {
+        root = generateRandInt(mt19937var);
+        if(root < graph->num_vertices)
+        {
+            if(graph->grid->out_degree[root] > 0)
+                break;
+        }
+    }
+
+    return root;
+
+}
+
+__u32 generateRandomRootGraphAdjLinkedList(struct GraphAdjLinkedList *graph)
+{
+
+    __u32 root = 0;
+
+    while(1)
+    {
+        root = generateRandInt(mt19937var);
+        if(root < graph->num_vertices)
+        {
+            if(graph->vertices[root].out_degree > 0)
+                break;
+        }
+    }
+
+    return root;
+
+}
+
+__u32 generateRandomRootGraphAdjArrayList(struct GraphAdjArrayList *graph)
+{
+
+    __u32 root = 0;
+
+    while(1)
+    {
+        root = generateRandInt(mt19937var);
+        if(root < graph->num_vertices)
+        {
+            if(graph->vertices[root].out_degree > 0)
+                break;
+        }
+    }
+
+    return root;
+
+}
+
+__u32 generateRandomRootGeneral(void *graph, struct Arguments *arguments)
+{
+
     struct GraphCSR *graphCSR = NULL;
     struct GraphGrid *graphGrid = NULL;
     struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
     struct GraphAdjArrayList *graphAdjArrayList = NULL;
 
-    switch (datastructure)
+    switch (arguments->datastructure)
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
-        if(root < graphCSR->num_vertices)
-        {
-            breadthFirstSearchGraphCSR(root, graphCSR);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphCSR->num_vertices)
-                {
-                    if(graphCSR->vertices->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphCSR->num_vertices)
-            {
-                breadthFirstSearchGraphCSR(root, graphCSR);
-            }
-            trials--;
-        }
-      
+        arguments->root = generateRandomRootGraphCSR(graphCSR);
         break;
 
     case 1: // Grid
         graphGrid = (struct GraphGrid *)graph;
-        if(root < graphGrid->num_vertices)
-        {
-            breadthFirstSearchGraphGrid(root, graphGrid);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphGrid->num_vertices)
-                {
-                    if(graphGrid->grid->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphGrid->num_vertices)
-            {
-                breadthFirstSearchGraphGrid(root, graphGrid);
-            }
-            trials--;
-        }
-    
+        arguments->root = newBFSStatsGraphGrid(graphGrid);
         break;
 
     case 2: // Adj Linked List
         graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
-        if(root < graphAdjLinkedList->num_vertices)
-        {
-            breadthFirstSearchGraphAdjLinkedList(root, graphAdjLinkedList);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphAdjLinkedList->num_vertices)
-                {
-                    if(graphAdjLinkedList->vertices[root].out_degree > 0)
-                        break;
-                }
-            }
-            if(root < graphAdjLinkedList->num_vertices)
-            {
-                breadthFirstSearchGraphAdjLinkedList(root, graphAdjLinkedList);
-            }
-            trials--;
-        }
-     
+        arguments->root = newBFSStatsGraphAdjLinkedList(graphAdjLinkedList);
         break;
 
     case 3: // Adj Array List
         graphAdjArrayList = (struct GraphAdjArrayList *)graph;
-        if(root < graphAdjArrayList->num_vertices)
-        {
-            breadthFirstSearchGraphAdjArrayList(root, graphAdjArrayList);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphAdjArrayList->num_vertices)
-                {
-                    if(graphAdjArrayList->vertices[root].out_degree > 0)
-                        break;
-                }
-            }
-            if(root < graphAdjArrayList->num_vertices)
-            {
-                breadthFirstSearchGraphAdjArrayList(root, graphAdjArrayList);
-            }
-            trials--;
-        }
-
+        arguments->root = newBFSStatsGraphAdjArrayList(graphAdjArrayList);
         break;
-
-    case 4: // CSR with no frontier only Bitmaps
-        graphCSR = (struct GraphCSR *)graph;
-        if(root < graphCSR->num_vertices)
-        {
-            breadthFirstSearchUsingBitmapsGraphCSR(root, graphCSR);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphCSR->num_vertices)
-                {
-                    if(graphCSR->vertices->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphCSR->num_vertices)
-            {
-                breadthFirstSearchUsingBitmapsGraphCSR(root, graphCSR);
-            }
-            trials--;
-        }
-   
-        break;
-
-    case 5: // Grid with no frontiers only Bitmaps
-        graphGrid = (struct GraphGrid *)graph;
-        if(root < graphGrid->num_vertices)
-        {
-            breadthFirstSearchGraphGridBitmap(root, graphGrid);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphGrid->num_vertices)
-                {
-                    if(graphGrid->grid->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphGrid->num_vertices)
-            {
-                breadthFirstSearchGraphGridBitmap(root, graphGrid);
-            }
-            trials--;
-        }
-     
-        break;
-
-
 
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
-        if(root < graphCSR->num_vertices)
-        {
-            breadthFirstSearchGraphCSR(root, graphCSR);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphCSR->num_vertices)
-                {
-                    if(graphCSR->vertices->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphCSR->num_vertices)
-            {
-                breadthFirstSearchGraphCSR(root, graphCSR);
-            }
-            trials--;
-        }
-
+        arguments->root = generateRandomRootGraphCSR(graphCSR);
         break;
     }
-    
-    freeGraphDataStructure(graph,datastructure);
-    free(timer);
+
+    return arguments->root;
+
+}
+
+void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials, __u32 pushpull)
+{
+
+
+    struct GraphCSR *graphCSR = NULL;
+    struct GraphGrid *graphGrid = NULL;
+    struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
+    struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    switch (datastructure)
+    {
+    case 0: // CSR
+        graphCSR = (struct GraphCSR *)graph;
+
+        breadthFirstSearchGraphCSR(root, pushpull, graphCSR);
+        break;
+
+    case 1: // Grid
+        graphGrid = (struct GraphGrid *)graph;
+
+        breadthFirstSearchGraphGrid(root, pushpull, graphGrid);
+        break;
+
+    case 2: // Adj Linked List
+        graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
+
+        breadthFirstSearchGraphAdjLinkedList(root,  pushpull, graphAdjLinkedList);
+        break;
+
+    case 3: // Adj Array List
+        graphAdjArrayList = (struct GraphAdjArrayList *)graph;
+
+        breadthFirstSearchGraphAdjArrayList(root, pushpull, graphAdjArrayList);
+        break;
+
+    default:// CSR
+        graphCSR = (struct GraphCSR *)graph;
+
+        breadthFirstSearchGraphCSR(root, pushpull, graphCSR);
+        break;
+    }
+
+
 
 }
 
 void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials)
 {
 
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+
     struct GraphCSR *graphCSR = NULL;
     // struct GraphGrid *graphGrid = NULL;
     // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
@@ -442,28 +408,8 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
-        if(root < graphCSR->num_vertices)
-        {
-            depthFirstSearchGraphCSR(root, graphCSR);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphCSR->num_vertices)
-                {
-                    if(graphCSR->vertices->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphCSR->num_vertices)
-            {
-                depthFirstSearchGraphCSR(root, graphCSR);
-            }
-            trials--;
-        }
-      
+
+        depthFirstSearchGraphCSR(root, graphCSR);
         break;
 
     case 1: // Grid
@@ -484,33 +430,12 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
 
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
-        if(root < graphCSR->num_vertices)
-        {
-            breadthFirstSearchGraphCSR(root, graphCSR);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphCSR->num_vertices)
-                {
-                    if(graphCSR->vertices->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphCSR->num_vertices)
-            {
-                breadthFirstSearchGraphCSR(root, graphCSR);
-            }
-            trials--;
-        }
-    
+
+        breadthFirstSearchGraphCSR(root, graphCSR);
+
         break;
     }
 
-    freeGraphDataStructure(graph,datastructure);
-    free(timer);
 
 }
 
@@ -518,7 +443,7 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
 void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 trials)
 {
 
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+
     struct GraphCSR *graphCSR = NULL;
     // struct GraphGrid *graphGrid = NULL;
     // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
@@ -528,12 +453,7 @@ void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
-        while(trials)
-        {
-            incrementalAggregationGraphCSR(graphCSR);
-            trials--;
-        }
-    
+        incrementalAggregationGraphCSR(graphCSR);
         break;
 
     case 1: // Grid
@@ -556,16 +476,12 @@ void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 
 
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
-        while(trials)
-        {
-            incrementalAggregationGraphCSR(graphCSR);
-            trials--;
-        }
+
+        incrementalAggregationGraphCSR(graphCSR);
         break;
     }
 
-    freeGraphDataStructure(graph,datastructure);
-    free(timer);
+
 
 }
 
@@ -574,7 +490,7 @@ void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 
 void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 trials, __u32 pushpull)
 {
 
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+
     struct GraphCSR *graphCSR = NULL;
     struct GraphGrid *graphGrid = NULL;
     struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
@@ -586,44 +502,42 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
         stats = pageRankGraphCSR(epsilon, iterations, pushpull, graphCSR);
-     
+
         break;
 
     case 1: // Grid
         graphGrid = (struct GraphGrid *)graph;
         stats = pageRankGraphGrid(epsilon, iterations, pushpull, graphGrid);
-      
+
         break;
 
     case 2: // Adj Linked List
         graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
         stats = pageRankGraphAdjLinkedList(epsilon, iterations, pushpull, graphAdjLinkedList);
-      
+
         break;
 
     case 3: // Adj Array List
         graphAdjArrayList = (struct GraphAdjArrayList *)graph;
         stats = pageRankGraphAdjArrayList(epsilon, iterations, pushpull, graphAdjArrayList);
-       
+
         break;
 
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
         stats = pageRankGraphCSR(epsilon, iterations, pushpull, graphCSR);
-       
+
         break;
     }
 
     freePageRankStats(stats);
-    freeGraphDataStructure(graph,datastructure);
-    free(timer);
+
 
 }
 
 void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 trials, __u32 pushpull)
 {
 
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct GraphCSR *graphCSR = NULL;
     struct GraphGrid *graphGrid = NULL;
     struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
@@ -634,137 +548,35 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
-        if(root < graphCSR->num_vertices)
-        {
-            bellmanFordGraphCSR(root, iterations, pushpull, graphCSR);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphCSR->num_vertices)
-                {
-                    if(graphCSR->vertices->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphCSR->num_vertices)
-            {
-                bellmanFordGraphCSR(root, iterations, pushpull, graphCSR);
-            }
-            trials--;
-        }
-     
+
+        bellmanFordGraphCSR(root, iterations, pushpull, graphCSR);
         break;
 
     case 1: // Grid
         graphGrid = (struct GraphGrid *)graph;
-        if(root < graphGrid->num_vertices)
-        {
-            bellmanFordGraphGrid(root, iterations, pushpull, graphGrid);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphGrid->num_vertices)
-                {
-                    if(graphGrid->grid->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphGrid->num_vertices)
-            {
-                bellmanFordGraphGrid(root, iterations, pushpull, graphGrid);
-            }
-            trials--;
-        }
-     
+
+        bellmanFordGraphGrid(root, iterations, pushpull, graphGrid);
         break;
 
     case 2: // Adj Linked List
         graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
-        if(root < graphAdjLinkedList->num_vertices)
-        {
-            bellmanFordGraphAdjLinkedList(root, iterations, pushpull, graphAdjLinkedList);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphAdjLinkedList->num_vertices)
-                {
-                    if(graphAdjLinkedList->vertices[root].out_degree > 0)
-                        break;
-                }
-            }
-            if(root < graphAdjLinkedList->num_vertices)
-            {
-                bellmanFordGraphAdjLinkedList(root, iterations, pushpull, graphAdjLinkedList);
-            }
-            trials--;
-        }
-      
+
+        bellmanFordGraphAdjLinkedList(root, iterations, pushpull, graphAdjLinkedList);
         break;
 
     case 3: // Adj Array List
         graphAdjArrayList = (struct GraphAdjArrayList *)graph;
-        if(root < graphAdjArrayList->num_vertices)
-        {
-            bellmanFordGraphAdjArrayList(root, iterations, pushpull, graphAdjArrayList);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphAdjArrayList->num_vertices)
-                {
-                    if(graphAdjArrayList->vertices[root].out_degree > 0)
-                        break;
-                }
-            }
-            if(root < graphAdjArrayList->num_vertices)
-            {
-                bellmanFordGraphAdjArrayList(root, iterations, pushpull, graphAdjArrayList);
-            }
-            trials--;
-        }
-      
+
+        bellmanFordGraphAdjArrayList(root, iterations, pushpull, graphAdjArrayList);
         break;
 
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
-        if(root < graphCSR->num_vertices)
-        {
-            bellmanFordGraphCSR(root, iterations, pushpull, graphCSR);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphCSR->num_vertices)
-                {
-                    if(graphCSR->vertices->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphCSR->num_vertices)
-            {
-                bellmanFordGraphCSR(root, iterations, pushpull, graphCSR);
-            }
-            trials--;
-        }
-     
+
+        bellmanFordGraphCSR(root, iterations, pushpull, graphCSR);
         break;
     }
 
-    freeGraphDataStructure(graph,datastructure);
-    free(timer);
 
 }
 
@@ -772,148 +584,45 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
 void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 trials, __u32 pushpull, __u32 delta)
 {
 
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct GraphCSR *graphCSR = NULL;
-    struct GraphGrid *graphGrid = NULL;
-    struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
-    struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    // struct GraphGrid *graphGrid = NULL;
+    // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
+    // struct GraphAdjArrayList *graphAdjArrayList = NULL;
 
 
     switch (datastructure)
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
-        if(root < graphCSR->num_vertices)
-        {
-            SSSPGraphCSR(root, iterations, pushpull, graphCSR, delta);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphCSR->num_vertices)
-                {
-                    if(graphCSR->vertices->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphCSR->num_vertices)
-            {
-                SSSPGraphCSR(root, iterations, pushpull, graphCSR, delta);
-            }
-            trials--;
-        }
-     
+
+        SSSPGraphCSR(root, iterations, pushpull, graphCSR, delta);
+
         break;
 
     case 1: // Grid
-        graphGrid = (struct GraphGrid *)graph;
-        if(root < graphGrid->num_vertices)
-        {
-            // bellmanFordGraphGrid(root , iterations, pushpull, graphGrid);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphGrid->num_vertices)
-                {
-                    if(graphGrid->grid->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphGrid->num_vertices)
-            {
-                // bellmanFordGraphGrid(root , iterations, pushpull, graphGrid);
-            }
-            trials--;
-        }
-   
+        // graphGrid = (struct GraphGrid *)graph;
+        generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
         break;
 
     case 2: // Adj Linked List
-        graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
-        if(root < graphAdjLinkedList->num_vertices)
-        {
-            // bellmanFordGraphAdjLinkedList(root , iterations, pushpull, graphAdjLinkedList);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphAdjLinkedList->num_vertices)
-                {
-                    if(graphAdjLinkedList->vertices[root].out_degree > 0)
-                        break;
-                }
-            }
-            if(root < graphAdjLinkedList->num_vertices)
-            {
-                // bellmanFordGraphAdjLinkedList(root , iterations, pushpull, graphAdjLinkedList);
-            }
-            trials--;
-        }
-      
+        // graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
+
+        generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
         break;
 
     case 3: // Adj Array List
-        graphAdjArrayList = (struct GraphAdjArrayList *)graph;
-        if(root < graphAdjArrayList->num_vertices)
-        {
-            // bellmanFordGraphAdjArrayList(root , iterations, pushpull, graphAdjArrayList);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphAdjArrayList->num_vertices)
-                {
-                    if(graphAdjArrayList->vertices[root].out_degree > 0)
-                        break;
-                }
-            }
-            if(root < graphAdjArrayList->num_vertices)
-            {
-                // bellmanFordGraphAdjArrayList(root , iterations, pushpull, graphAdjArrayList);
-            }
-            trials--;
-        }
-    
+        // graphAdjArrayList = (struct GraphAdjArrayList *)graph;
+
+        generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
         break;
 
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
-        if(root < graphCSR->num_vertices)
-        {
-            SSSPGraphCSR(root, iterations, pushpull, graphCSR, delta);
-        }
-        while(trials)
-        {
-            while(1)
-            {
-                root = generateRandInt(mt19937var);
-                if(root < graphCSR->num_vertices)
-                {
-                    if(graphCSR->vertices->out_degree[root] > 0)
-                        break;
-                }
-            }
-            if(root < graphCSR->num_vertices)
-            {
-                SSSPGraphCSR(root, iterations, pushpull, graphCSR, delta);
-            }
-            trials--;
-        }
-       
+
+        SSSPGraphCSR(root, iterations, pushpull, graphCSR, delta);
         break;
     }
 
-    freeGraphDataStructure(graph,datastructure);
-    free(timer);
 
 }
 
@@ -969,7 +678,7 @@ void freeGraphDataStructure(void *graph, __u32 datastructure)
         generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
         break;
     }
- 
+
     free(timer);
 
 }
