@@ -44,11 +44,17 @@ void resetArrayStack(struct ArrayStack *q)
 void freeArrayStack(struct ArrayStack *q)
 {
 
-    freeBitmap(q->q_bitmap_next);
-    freeBitmap(q->q_bitmap);
+    if(q)
+    {
+        if(q->q_bitmap_next)
+            freeBitmap(q->q_bitmap_next);
+        if(q->q_bitmap)
+            freeBitmap(q->q_bitmap);
+        if(q->Stack)
+            free(q->Stack);
+        free(q);
+    }
 
-    free(q->Stack);
-    free(q);
 
 }
 
@@ -189,7 +195,7 @@ __u8 isEmptyArrayStackNext (struct ArrayStack *q)
 
 }
 
-__u8  ispushArrayStack	(struct ArrayStack *q, __u32 k)
+__u8  ispushArrayStack  (struct ArrayStack *q, __u32 k)
 {
 
 
@@ -197,7 +203,7 @@ __u8  ispushArrayStack	(struct ArrayStack *q, __u32 k)
 
 }
 
-__u8  ispushArrayStackNext 	(struct ArrayStack *q, __u32 k)
+__u8  ispushArrayStackNext  (struct ArrayStack *q, __u32 k)
 {
 
 

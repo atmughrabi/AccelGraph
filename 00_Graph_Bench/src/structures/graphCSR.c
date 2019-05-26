@@ -86,10 +86,8 @@ void graphCSRPrint(struct GraphCSR *graphCSR)
 
 struct GraphCSR *graphCSRNew(__u32 V, __u32 E, __u8 inverse)
 {
-    int i;
+
     struct GraphCSR *graphCSR = (struct GraphCSR *) my_malloc( sizeof(struct GraphCSR));
-
-
     graphCSR->num_vertices = V;
     graphCSR->num_edges = E;
 

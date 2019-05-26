@@ -8,14 +8,26 @@
 #include "graphAdjLinkedList.h"
 #include "edgeList.h"
 
+// ********************************************************************************************
+// ***************                  Stats DataStructure                          **************
+// ********************************************************************************************
+
 struct BellmanFordStats
 {
-    __u32 *Distances;
+    __u32 *distances;
     __u32 *parents;
     __u32  processed_nodes;
     __u32 num_vertices;
     double time_total;
 };
+
+struct BellmanFordStats *newBellmanFordStatsGraphCSR(struct GraphCSR *graph);
+struct BellmanFordStats *newBellmanFordStatsGraphGrid(struct GraphGrid *graph);
+struct BellmanFordStats *newBellmanFordStatsGraphAdjArrayList(struct GraphAdjArrayList *graph);
+struct BellmanFordStats *newBellmanFordStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph);
+
+void freeBellmanFordStats(struct BellmanFordStats *stats);
+
 
 // ********************************************************************************************
 // ***************					Auxiliary functions  	  					 **************

@@ -318,9 +318,9 @@ __u32 *epochReorderRecordBFS(struct GraphCSR *graph)
         root = labelsInverse[v];
 
         epochReorderBreadthFirstSearchGraphCSR( epochReorder, root, graph);
-        // hardThreshold = graph->processed_nodes;
+        // hardThreshold = stats->processed_nodes;
         // printf(" -----------------------------------------------------\n");
-        // printf("| %-15s | %-30f | \n","SUM total", (graph->processed_nodes*100.0f)/graph->num_vertices);
+        // printf("| %-15s | %-30f | \n","SUM total", (stats->processed_nodes*100.0f)/graph->num_vertices);
         // printf(" -----------------------------------------------------\n");
         // printf(" -----------------------------------------------------\n");
         // printf("| %-15s | %-30u | \n","EPOCH ", epochReorder->rrIndex);
@@ -372,10 +372,9 @@ __u32 *epochReorderRecordBFS(struct GraphCSR *graph)
 void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder *epochReorder, __u32 source, struct GraphCSR *graph)
 {
 
-
+    struct BFSStats *stats = newBFSStatsGraphCSR(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    double inner_time = 0;
     struct ArrayQueue *sharedFrontierQueue = newArrayQueue(graph->num_vertices);
     struct Bitmap *bitmapCurr = newBitmap(graph->num_vertices);
     struct Bitmap *bitmapNext = newBitmap(graph->num_vertices);
@@ -416,18 +415,17 @@ void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder *epochReorder, _
         return;
     }
 
-    graphCSRReset(graph);
 
     Start(timer_inner);
     enArrayQueue(sharedFrontierQueue, source);
     // setBit(sharedFrontierQueue->q_bitmap,source);
-    graph->parents[source] = source;
+    stats->parents[source] = source;
     Stop(timer_inner);
-    inner_time +=  Seconds(timer_inner);
+    stats->time_total +=  Seconds(timer_inner);
     // graph->vertices[source].visited = 1;
 
 
-    printf("| TD %-12u | %-15u | %-15f | \n", graph->iteration++, ++graph->processed_nodes, Seconds(timer_inner));
+    printf("| TD %-12u | %-15u | %-15f | \n", stats->iteration++, ++stats->processed_nodes, Seconds(timer_inner));
 
     Start(timer);
     while(!isEmptyArrayQueue(sharedFrontierQueue))  // start while
@@ -446,15 +444,15 @@ void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder *epochReorder, _
             {
                 Start(timer_inner);
                 nf_prev = nf;
-                nf = epochReorderBottomUpStepGraphCSR(epochReorder, graph, bitmapCurr, bitmapNext);
+                nf = epochReorderBottomUpStepGraphCSR(epochReorder, graph, bitmapCurr, bitmapNext, stats);
                 swapBitmaps(&bitmapCurr, &bitmapNext);
                 clearBitmap(bitmapNext);
                 Stop(timer_inner);
 
                 //stats collection
-                inner_time +=  Seconds(timer_inner);
-                graph->processed_nodes += nf;
-                printf("| BU %-12u | %-15u | %-15f | \n", graph->iteration++, nf, Seconds(timer_inner));
+                stats->time_total +=  Seconds(timer_inner);
+                stats->processed_nodes += nf;
+                printf("| BU %-12u | %-15u | %-15f | \n", stats->iteration++, nf, Seconds(timer_inner));
 
             }
             while(( nf > nf_prev) ||  // growing;
@@ -473,14 +471,14 @@ void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder *epochReorder, _
 
             Start(timer_inner);
             mu -= mf;
-            mf = epochReorderTopDownStepGraphCSR(epochReorder, graph, sharedFrontierQueue, localFrontierQueues);
+            mf = epochReorderTopDownStepGraphCSR(epochReorder, graph, sharedFrontierQueue, localFrontierQueues, stats);
             slideWindowArrayQueue(sharedFrontierQueue);
             Stop(timer_inner);
 
             //stats collection
-            inner_time +=  Seconds(timer_inner);
-            graph->processed_nodes += sharedFrontierQueue->tail - sharedFrontierQueue->head;;
-            printf("| TD %-12u | %-15u | %-15f | \n", graph->iteration++, sharedFrontierQueue->tail - sharedFrontierQueue->head, Seconds(timer_inner));
+            stats->time_total +=  Seconds(timer_inner);
+            stats->processed_nodes += sharedFrontierQueue->tail - sharedFrontierQueue->head;;
+            printf("| TD %-12u | %-15u | %-15f | \n", stats->iteration++, sharedFrontierQueue->tail - sharedFrontierQueue->head, Seconds(timer_inner));
 
         }
 
@@ -489,10 +487,10 @@ void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder *epochReorder, _
     } // end while
     Stop(timer);
     printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15u | %-15f | \n", "No OverHead", graph->processed_nodes, inner_time);
+    printf("| %-15s | %-15u | %-15f | \n", "No OverHead", stats->processed_nodes, stats->time_total);
     printf(" -----------------------------------------------------\n");
     printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15u | %-15f | \n", "total", graph->processed_nodes, Seconds(timer));
+    printf("| %-15s | %-15u | %-15f | \n", "total", stats->processed_nodes, Seconds(timer));
     printf(" -----------------------------------------------------\n");
 
     // graphCSRReset(graph); // no need to recet once processed_nodes = num vertices we traveresed the whole graph
@@ -506,6 +504,7 @@ void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder *epochReorder, _
     freeBitmap(bitmapCurr);
     free(timer);
     free(timer_inner);
+
 }
 
 
@@ -519,7 +518,7 @@ void epochReorderBreadthFirstSearchGraphCSR(struct EpochReorder *epochReorder, _
 //      end for
 //  end for
 
-__u32 epochReorderTopDownStepGraphCSR(struct EpochReorder *epochReorder, struct GraphCSR *graph, struct ArrayQueue *sharedFrontierQueue, struct ArrayQueue **localFrontierQueues)
+__u32 epochReorderTopDownStepGraphCSR(struct EpochReorder *epochReorder, struct GraphCSR *graph, struct ArrayQueue *sharedFrontierQueue, struct ArrayQueue **localFrontierQueues, struct BFSStats *stats)
 {
 
 
@@ -532,7 +531,7 @@ __u32 epochReorderTopDownStepGraphCSR(struct EpochReorder *epochReorder, struct 
     __u32 mf = 0;
 
 
-    #pragma omp parallel default (none) private(u,v,j,i,edge_idx) shared(epochReorder,localFrontierQueues,graph,sharedFrontierQueue,mf)
+    #pragma omp parallel default (none) private(u,v,j,i,edge_idx) shared(stats,epochReorder,localFrontierQueues,graph,sharedFrontierQueue,mf)
     {
         __u32 t_id = omp_get_thread_num();
         struct ArrayQueue *localFrontierQueue = localFrontierQueues[t_id];
@@ -547,11 +546,11 @@ __u32 epochReorderTopDownStepGraphCSR(struct EpochReorder *epochReorder, struct 
             for(j = edge_idx ; j < (edge_idx + graph->vertices->out_degree[v]) ; j++)
             {
                 u = graph->sorted_edges_array->edges_array_dest[j];
-                int u_parent = graph->parents[u];
+                int u_parent = stats->parents[u];
                 if(u_parent < 0 )
                 {
                     atomicEpochReorderIncrementCounters( epochReorder, u);
-                    if(__sync_bool_compare_and_swap(&graph->parents[u], u_parent, v))
+                    if(__sync_bool_compare_and_swap(&(stats->parents[u]), u_parent, v))
                     {
                         atomicEpochReorderIncrementCounters( epochReorder, u);
                         enArrayQueue(localFrontierQueue, u);
@@ -582,7 +581,7 @@ __u32 epochReorderTopDownStepGraphCSR(struct EpochReorder *epochReorder, struct 
 //      end if
 //  end for
 
-__u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder *epochReorder, struct GraphCSR *graph, struct Bitmap *bitmapCurr, struct Bitmap *bitmapNext)
+__u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder *epochReorder, struct GraphCSR *graph, struct Bitmap *bitmapCurr, struct Bitmap *bitmapNext, struct BFSStats *stats)
 {
 
 
@@ -596,7 +595,7 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder *epochReorder, struct
 
     // __u32 processed_nodes = bitmapCurr->numSetBits;
     __u32 nf = 0; // number of vertices in sharedFrontierQueue
-    // graph->processed_nodes += processed_nodes;
+    // stats->processed_nodes += processed_nodes;
 
 #if DIRECTED
     vertices = graph->inverse_vertices;
@@ -606,11 +605,11 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder *epochReorder, struct
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #endif
 
-    #pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(epochReorder,bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
+    #pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(stats,epochReorder,bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
     for(v = 0 ; v < graph->num_vertices ; v++)
     {
         out_degree = vertices->out_degree[v];
-        if(graph->parents[v] < 0)  // optmization
+        if(stats->parents[v] < 0)  // optmization
         {
             edge_idx = vertices->edges_idx[v];
 
@@ -621,7 +620,7 @@ __u32 epochReorderBottomUpStepGraphCSR(struct EpochReorder *epochReorder, struct
                 if(getBit(bitmapCurr, u))
                 {
                     atomicEpochReorderIncrementCounters( epochReorder, v);
-                    graph->parents[v] = u;
+                    stats->parents[v] = u;
                     setBitAtomic(bitmapNext, v);
                     nf++;
                     break;

@@ -18,18 +18,182 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
+// ********************************************************************************************
+// ***************                  Stats DataStructure                          **************
+// ********************************************************************************************
+
+struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphCSR(struct GraphCSR *graph)
+{
+
+    __u32 v;
+
+    struct IncrementalAggregationStats *stats = (struct IncrementalAggregationStats *) malloc(sizeof(struct IncrementalAggregationStats));
+
+    stats->totalQ = 0.0;
+    stats->labels = NULL;
+
+    stats->vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->degrees = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    stats->weightSum  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    stats->atomDegree = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->atomChild = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    // struct Atom *atom = (struct Atom *) my_malloc(graph->num_vertices * sizeof(struct Atom));
+
+    stats->sibling = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->dest = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        stats->vertices[v] = v;
+        stats->degrees[v] = graph->vertices->out_degree[v];
+    }
+
+    return stats;
+}
+struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphGrid(struct GraphGrid *graph)
+{
+
+    __u32 v;
+
+    struct IncrementalAggregationStats *stats = (struct IncrementalAggregationStats *) malloc(sizeof(struct IncrementalAggregationStats));
+
+    stats->totalQ = 0.0;
+    stats->labels = NULL;
+
+    stats->vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->degrees = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    stats->weightSum  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    stats->atomDegree = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->atomChild = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    // struct Atom *atom = (struct Atom *) my_malloc(graph->num_vertices * sizeof(struct Atom));
+
+    stats->sibling = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->dest = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        stats->vertices[v] = v;
+        stats->degrees[v] = graph->grid->out_degree[v];
+    }
+
+
+    return stats;
+
+}
+struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphAdjArrayList(struct GraphAdjArrayList *graph)
+{
+
+    __u32 v;
+
+    struct IncrementalAggregationStats *stats = (struct IncrementalAggregationStats *) malloc(sizeof(struct IncrementalAggregationStats));
+
+    stats->totalQ = 0.0;
+    stats->labels = NULL;
+
+    stats->vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->degrees = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    stats->weightSum  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    stats->atomDegree = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->atomChild = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    // struct Atom *atom = (struct Atom *) my_malloc(graph->num_vertices * sizeof(struct Atom));
+
+    stats->sibling = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->dest = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        stats->vertices[v] = v;
+        stats->degrees[v] = graph->vertices[v].out_degree;
+    }
+
+
+    return stats;
+}
+struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph)
+{
+
+    __u32 v;
+
+    struct IncrementalAggregationStats *stats = (struct IncrementalAggregationStats *) malloc(sizeof(struct IncrementalAggregationStats));
+
+    stats->totalQ = 0.0;
+    stats->labels = NULL;
+
+    stats->vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->degrees = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    stats->weightSum  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    stats->atomDegree = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->atomChild = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+
+    // struct Atom *atom = (struct Atom *) my_malloc(graph->num_vertices * sizeof(struct Atom));
+
+    stats->sibling = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->dest = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        stats->vertices[v] = v;
+        stats->degrees[v] = graph->vertices[v].out_degree;
+    }
+
+
+    return stats;
+}
+
+void freeIncrementalAggregationStats(struct IncrementalAggregationStats *stats)
+{
+    if(stats)
+    {
+        if(stats->vertices)
+            free(stats->vertices);
+        if(stats->degrees)
+            free(stats->degrees);
+        if(stats->weightSum)
+            free(stats->weightSum);
+        if(stats->atomDegree)
+            free(stats->atomDegree);
+        if(stats->atomChild)
+            free(stats->atomChild);
+        if(stats->sibling)
+            free(stats->sibling);
+        if(stats->dest)
+            free(stats->dest);
+
+        free(stats);
+    }
+
+}
+
 
 
 // ********************************************************************************************
 // ***************                  CSR DataStructure                            **************
 // ********************************************************************************************
 
-__u32*  incrementalAggregationGraphCSR( struct GraphCSR *graph)
+__u32  *incrementalAggregationGraphCSR( struct GraphCSR *graph)
 {
 
     __u32 v;
     __u32 u;
     __u32 n;
+    float deltaQ = -1.0;
+
+    struct ArrayQueue *Neighbors = newArrayQueue(graph->num_vertices);
+    struct ArrayQueue *reachableSet = newArrayQueue(graph->num_vertices);
+    struct ArrayQueue *topLevelSet = newArrayQueue(graph->num_vertices);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+
     __u32 *vertices;
     __u32 *degrees;
 
@@ -39,18 +203,8 @@ __u32*  incrementalAggregationGraphCSR( struct GraphCSR *graph)
     __u32 *sibling;
     __u32 *dest;
     __u32 *weightSum;
-
-
-    float deltaQ = -1.0;
     double totalQ = 0.0;
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
-
-    struct ArrayQueue *Neighbors = newArrayQueue(graph->num_vertices);
-    struct ArrayQueue *reachableSet = newArrayQueue(graph->num_vertices);
-
-    struct ArrayQueue *topLevelSet = newArrayQueue(graph->num_vertices);
-
-    __u32* labels = NULL;
+    __u32 *labels = NULL;
 
     vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     degrees = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
@@ -70,7 +224,6 @@ __u32*  incrementalAggregationGraphCSR( struct GraphCSR *graph)
     printf("| %-51s | \n", "Starting Incremental Aggregation");
     printf(" -----------------------------------------------------\n");
 
-    graphCSRReset(graph);
 
     Start(timer);
 
@@ -120,10 +273,10 @@ __u32*  incrementalAggregationGraphCSR( struct GraphCSR *graph)
         __u32 degreeUtemp = atomDegree[u];
         degreeU = degreeUtemp;
         atomDegree[u] = degreeU;
-        
+
         findBestDestination(Neighbors, reachableSet, &deltaQ, &n, u, weightSum, dest, atomDegree, atomChild, sibling, graph);
         // printf("n %u u %u deltaQ %f\n",n,u,deltaQ );
-        
+
         if(deltaQ <= 0)
         {
             atomDegree[u] = degreeU;
@@ -149,7 +302,7 @@ __u32*  incrementalAggregationGraphCSR( struct GraphCSR *graph)
             atomChild[n] = atomVchildp;
             atomDegree[n] = atomVdegreep;
 
-           
+
             dest[u] = n;
             continue;
 
@@ -289,23 +442,23 @@ void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reacha
         // {
 
 
-            degreeUin = atomDegree[dest[i]];
+        degreeUin = atomDegree[dest[i]];
 
 
-            edgeWeightUV = weightSum[dest[i]];
-            edgeWeightVU = weightSum[dest[i]];
+        edgeWeightUV = weightSum[dest[i]];
+        edgeWeightVU = weightSum[dest[i]];
 
-            deltaQtemp = ((edgeWeightVU * numEdgesm) - (float)(degreeVin * degreeUout * numEdgesm2)) + ((edgeWeightUV * numEdgesm) - (float)(degreeUin * degreeVout * numEdgesm2));
-
-
-            if((*deltaQ) < deltaQtemp)
-            {
-                (*deltaQ) = deltaQtemp;
-                (*u) = i;
-            }
+        deltaQtemp = ((edgeWeightVU * numEdgesm) - (float)(degreeVin * degreeUout * numEdgesm2)) + ((edgeWeightUV * numEdgesm) - (float)(degreeUin * degreeVout * numEdgesm2));
 
 
-            // printf("v %u u %u q %lf\n", v, i, deltaQtemp);
+        if((*deltaQ) < deltaQtemp)
+        {
+            (*deltaQ) = deltaQtemp;
+            (*u) = i;
+        }
+
+
+        // printf("v %u u %u q %lf\n", v, i, deltaQtemp);
         // }
 
     }
@@ -357,7 +510,7 @@ void traversDendrogramReachableSetDFS(__u32 v, __u32 *atomChild, __u32 *sibling,
 }
 
 
-__u32 * returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet, __u32 *atomChild, __u32 *sibling, __u32 num_vertices)
+__u32 *returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet, __u32 *atomChild, __u32 *sibling, __u32 num_vertices)
 {
 
     __u32 i;
@@ -382,11 +535,11 @@ void traversDendrogramLabelsDFS(__u32 *newLablesCounter, __u32 *newLables, __u32
     if(v == UINT_MAX)
         return;
 
-    traversDendrogramLabelsDFS(newLablesCounter,newLables, atomChild[v], atomChild, sibling);
+    traversDendrogramLabelsDFS(newLablesCounter, newLables, atomChild[v], atomChild, sibling);
     // printf("%u %u \n", v, (*newLablesCounter));
-    newLables[v]=(*newLablesCounter);
+    newLables[v] = (*newLablesCounter);
     (*newLablesCounter)++;
-    traversDendrogramLabelsDFS(newLablesCounter,newLables, sibling[v], atomChild, sibling);
+    traversDendrogramLabelsDFS(newLablesCounter, newLables, sibling[v], atomChild, sibling);
 
 
 

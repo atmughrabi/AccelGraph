@@ -491,11 +491,8 @@ struct EdgeList *reorderGraphProcessPageRank( __u32 sort, struct EdgeList *edgeL
 
     if(graph->vertices)
         freeVertexArray(graph->vertices);
-    if(graph->parents)
-        free(graph->parents);
     // if(graph->sorted_edges_array)
     //   freeEdgeArray(graph->sorted_edges_array);
-
 #if DIRECTED
     if(graph->inverse_vertices)
         freeVertexArray(graph->inverse_vertices);

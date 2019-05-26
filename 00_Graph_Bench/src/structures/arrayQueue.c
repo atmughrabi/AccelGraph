@@ -43,13 +43,16 @@ void resetArrayQueue(struct ArrayQueue *q)
 
 void freeArrayQueue(struct ArrayQueue *q)
 {
-
-    freeBitmap(q->q_bitmap_next);
-    freeBitmap(q->q_bitmap);
-
-    free(q->queue);
-    free(q);
-
+    if(q)
+    {
+        if(q->q_bitmap_next)
+            freeBitmap(q->q_bitmap_next);
+        if(q->q_bitmap)
+            freeBitmap(q->q_bitmap);
+        if(q->queue)
+            free(q->queue);
+        free(q);
+    }
 }
 
 void enArrayQueue (struct ArrayQueue *q, __u32 k)
@@ -189,7 +192,7 @@ __u8 isEmptyArrayQueueNext (struct ArrayQueue *q)
 
 }
 
-__u8  isEnArrayQueued 	(struct ArrayQueue *q, __u32 k)
+__u8  isEnArrayQueued   (struct ArrayQueue *q, __u32 k)
 {
 
 
@@ -197,7 +200,7 @@ __u8  isEnArrayQueued 	(struct ArrayQueue *q, __u32 k)
 
 }
 
-__u8  isEnArrayQueuedNext 	(struct ArrayQueue *q, __u32 k)
+__u8  isEnArrayQueuedNext   (struct ArrayQueue *q, __u32 k)
 {
 
 

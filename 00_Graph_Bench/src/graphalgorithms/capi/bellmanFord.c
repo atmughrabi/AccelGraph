@@ -62,12 +62,12 @@ __u32 bellmanFordCompareDistanceArrays(struct BellmanFordStats *stats1, struct B
     for(v = 0 ; v < stats1->num_vertices ; v++)
     {
 
-        if(stats1->Distances[v] != stats2->Distances[v])
+        if(stats1->distances[v] != stats2->distances[v])
         {
 
             return 0;
         }
-        // else if(stats1->Distances[v] != UINT_MAX/2)
+        // else if(stats1->distances[v] != UINT_MAX/2)
 
 
     }
@@ -95,8 +95,8 @@ int bellmanFordAtomicRelax(__u32 src, __u32 dest, __u32 weight, struct BellmanFo
         flagp = 0;
 
 
-        oldDistanceV = stats->Distances[src];
-        oldDistanceU = stats->Distances[dest];
+        oldDistanceV = stats->distances[src];
+        oldDistanceU = stats->distances[dest];
         oldParent = stats->parents[dest];
         newDistance = oldDistanceV + weight;
 
@@ -106,12 +106,12 @@ int bellmanFordAtomicRelax(__u32 src, __u32 dest, __u32 weight, struct BellmanFo
             newParent = src;
             newDistance = oldDistanceV + weight;
 
-            if(__sync_bool_compare_and_swap(&(stats->Distances[src]), oldDistanceV, oldDistanceV))
+            if(__sync_bool_compare_and_swap(&(stats->distances[src]), oldDistanceV, oldDistanceV))
             {
                 flagv = 1;
             }
 
-            if(__sync_bool_compare_and_swap(&(stats->Distances[dest]), oldDistanceU, newDistance) && flagv)
+            if(__sync_bool_compare_and_swap(&(stats->distances[dest]), oldDistanceU, newDistance) && flagv)
             {
                 flagu = 1;
             }
@@ -147,13 +147,13 @@ int bellmanFordRelax(__u32 src, __u32 dest, __u32 weight, struct BellmanFordStat
 {
 
     __u32 activeVertices = 0;
-    __u32 newDistance = stats->Distances[src] + weight;
+    __u32 newDistance = stats->distances[src] + weight;
 
-    if( stats->Distances[dest] > newDistance )
+    if( stats->distances[dest] > newDistance )
     {
 
 
-        stats->Distances[dest] = newDistance;
+        stats->distances[dest] = newDistance;
         stats->parents[dest] = src;
 
         if(!getBit(bitmapNext, dest))
@@ -175,10 +175,10 @@ void bellmanFordPrintStats(struct BellmanFordStats *stats)
     for(v = 0; v < stats->num_vertices; v++)
     {
 
-        if(stats->Distances[v] != UINT_MAX / 2)
+        if(stats->distances[v] != UINT_MAX / 2)
         {
 
-            printf("d %u \n", stats->Distances[v]);
+            printf("d %u \n", stats->distances[v]);
 
         }
 
@@ -200,16 +200,16 @@ void bellmanFordPrintStatsDetails(struct BellmanFordStats *stats)
     for(v = 0; v < stats->num_vertices; v++)
     {
 
-        if(stats->Distances[v] != UINT_MAX / 2)
+        if(stats->distances[v] != UINT_MAX / 2)
         {
 
             numberOfDiscoverNodes++;
 
-            if(minDistance >  stats->Distances[v] && stats->Distances[v] != 0)
-                minDistance = stats->Distances[v];
+            if(minDistance >  stats->distances[v] && stats->distances[v] != 0)
+                minDistance = stats->distances[v];
 
-            if(maxDistance < stats->Distances[v])
-                maxDistance = stats->Distances[v];
+            if(maxDistance < stats->distances[v])
+                maxDistance = stats->distances[v];
 
 
         }
@@ -294,7 +294,7 @@ struct BellmanFordStats *bellmanFordPullRowGraphGrid(__u32 source,  __u32 iterat
     int activeVertices = 0;
 
 
-    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
 
@@ -323,7 +323,7 @@ struct BellmanFordStats *bellmanFordPullRowGraphGrid(__u32 source,  __u32 iterat
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        stats->Distances[v] = UINT_MAX / 2;
+        stats->distances[v] = UINT_MAX / 2;
         stats->parents[v] = UINT_MAX;
 
     }
@@ -331,7 +331,7 @@ struct BellmanFordStats *bellmanFordPullRowGraphGrid(__u32 source,  __u32 iterat
     setBit(bitmapNext, source);
     bitmapNext->numSetBits = 1;
     stats->parents[source] = source;
-    stats->Distances[source] = 0;
+    stats->distances[source] = 0;
 
     swapBitmaps(&bitmapCurr, &bitmapNext);
     clearBitmap(bitmapNext);
@@ -431,7 +431,7 @@ struct BellmanFordStats *bellmanFordPushColumnGraphGrid(__u32 source,  __u32 ite
     int activeVertices = 0;
 
 
-    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
 
@@ -460,7 +460,7 @@ struct BellmanFordStats *bellmanFordPushColumnGraphGrid(__u32 source,  __u32 ite
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        stats->Distances[v] = UINT_MAX / 2;
+        stats->distances[v] = UINT_MAX / 2;
         stats->parents[v] = UINT_MAX;
 
     }
@@ -468,7 +468,7 @@ struct BellmanFordStats *bellmanFordPushColumnGraphGrid(__u32 source,  __u32 ite
     setBit(bitmapNext, source);
     bitmapNext->numSetBits = 1;
     stats->parents[source] = source;
-    stats->Distances[source] = 0;
+    stats->distances[source] = 0;
 
     swapBitmaps(&bitmapCurr, &bitmapNext);
     clearBitmap(bitmapNext);
@@ -675,7 +675,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
     int activeVertices = 0;
 
 
-    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
 
@@ -717,7 +717,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        stats->Distances[v] = UINT_MAX / 2;
+        stats->distances[v] = UINT_MAX / 2;
         stats->parents[v] = UINT_MAX;
 
     }
@@ -725,7 +725,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
     setBit(bitmapNext, source);
     bitmapNext->numSetBits++;
     stats->parents[source] = source;
-    stats->Distances[source] = 0;
+    stats->distances[source] = 0;
 
     __u32 degree = graph->vertices->out_degree[source];
     __u32 edge_idx = graph->vertices->edges_idx[source];
@@ -776,18 +776,18 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
                     u = sorted_edges_array->edges_array_dest[j];
                     w = sorted_edges_array->edges_array_weight[j];
 
-                    if (minDistance > (stats->Distances[u] + w))
+                    if (minDistance > (stats->distances[u] + w))
                     {
-                        minDistance = (stats->Distances[u] + w);
+                        minDistance = (stats->distances[u] + w);
                     }
                 }
 
 
 
 
-                if(bellmanFordAtomicMin(&(stats->Distances[v]), minDistance))
+                if(bellmanFordAtomicMin(&(stats->distances[v]), minDistance))
                 {
-                    // stats->Distances[v] = minDistance;
+                    // stats->distances[v] = minDistance;
 
                     degree = graph->vertices->out_degree[v];
                     edge_idx = graph->vertices->edges_idx[v];
@@ -870,7 +870,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
 
 
 
-    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
 
@@ -899,7 +899,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        stats->Distances[v] = UINT_MAX / 2;
+        stats->distances[v] = UINT_MAX / 2;
         stats->parents[v] = UINT_MAX;
 
     }
@@ -907,7 +907,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 
     setBit(bitmapNext, source);
     bitmapNext->numSetBits = 1;
     stats->parents[source] = source;
-    stats->Distances[source] = 0;
+    stats->distances[source] = 0;
 
     swapBitmaps(&bitmapCurr, &bitmapNext);
     clearBitmap(bitmapNext);
@@ -1027,7 +1027,7 @@ struct BellmanFordStats *bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
     vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     degrees = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
-    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
 
@@ -1070,7 +1070,7 @@ struct BellmanFordStats *bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
         vertices[v] = v;
         degrees[v] = graph->vertices->out_degree[v];
 
-        stats->Distances[v] = UINT_MAX / 2;
+        stats->distances[v] = UINT_MAX / 2;
         stats->parents[v] = UINT_MAX;
 
     }
@@ -1082,7 +1082,7 @@ struct BellmanFordStats *bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
     setBit(bitmapNext, source);
     bitmapNext->numSetBits = 1;
     stats->parents[source] = source;
-    stats->Distances[source] = 0;
+    stats->distances[source] = 0;
 
     swapBitmaps(&bitmapCurr, &bitmapNext);
     clearBitmap(bitmapNext);
@@ -1247,7 +1247,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source
     int activeVertices = 0;
 
 
-    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
 
@@ -1278,7 +1278,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        stats->Distances[v] = UINT_MAX / 2;
+        stats->distances[v] = UINT_MAX / 2;
         stats->parents[v] = UINT_MAX;
 
     }
@@ -1286,7 +1286,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source
     setBit(bitmapNext, source);
     bitmapNext->numSetBits++;
     stats->parents[source] = source;
-    stats->Distances[source] = 0;
+    stats->distances[source] = 0;
 
     nodes = graph->vertices[source].outNodes;
     degree = graph->vertices[source].out_degree;
@@ -1343,18 +1343,18 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source
                     u = nodes->edges_array_dest[j];
                     w = nodes->edges_array_weight[j];
 
-                    if (minDistance > (stats->Distances[u] + w))
+                    if (minDistance > (stats->distances[u] + w))
                     {
-                        minDistance = (stats->Distances[u] + w);
+                        minDistance = (stats->distances[u] + w);
                     }
                 }
 
 
 
 
-                if(bellmanFordAtomicMin(&(stats->Distances[v]), minDistance))
+                if(bellmanFordAtomicMin(&(stats->distances[v]), minDistance))
                 {
-                    // stats->Distances[v] = minDistance;
+                    // stats->distances[v] = minDistance;
 
                     nodes = graph->vertices[v].outNodes;
                     degree = graph->vertices[v].out_degree;
@@ -1434,7 +1434,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPushGraphAdjArrayList(__u32 source
 
 
 
-    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
 
@@ -1463,7 +1463,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPushGraphAdjArrayList(__u32 source
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        stats->Distances[v] = UINT_MAX / 2;
+        stats->distances[v] = UINT_MAX / 2;
         stats->parents[v] = UINT_MAX;
 
     }
@@ -1471,7 +1471,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPushGraphAdjArrayList(__u32 source
     setBit(bitmapNext, source);
     bitmapNext->numSetBits = 1;
     stats->parents[source] = source;
-    stats->Distances[source] = 0;
+    stats->distances[source] = 0;
 
     swapBitmaps(&bitmapCurr, &bitmapNext);
     clearBitmap(bitmapNext);
@@ -1601,7 +1601,7 @@ struct BellmanFordStats *bellmanFordPullGraphAdjLinkedList(__u32 source,  __u32 
     int activeVertices = 0;
 
 
-    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
 
@@ -1632,7 +1632,7 @@ struct BellmanFordStats *bellmanFordPullGraphAdjLinkedList(__u32 source,  __u32 
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        stats->Distances[v] = UINT_MAX / 2;
+        stats->distances[v] = UINT_MAX / 2;
         stats->parents[v] = UINT_MAX;
 
     }
@@ -1640,7 +1640,7 @@ struct BellmanFordStats *bellmanFordPullGraphAdjLinkedList(__u32 source,  __u32 
     setBit(bitmapNext, source);
     bitmapNext->numSetBits++;
     stats->parents[source] = source;
-    stats->Distances[source] = 0;
+    stats->distances[source] = 0;
 
     nodes = graph->vertices[source].outNodes;
     degree = graph->vertices[source].out_degree;
@@ -1699,18 +1699,18 @@ struct BellmanFordStats *bellmanFordPullGraphAdjLinkedList(__u32 source,  __u32 
                     w = nodes->weight;
                     nodes = nodes->next;
 
-                    if (minDistance > (stats->Distances[u] + w))
+                    if (minDistance > (stats->distances[u] + w))
                     {
-                        minDistance = (stats->Distances[u] + w);
+                        minDistance = (stats->distances[u] + w);
                     }
                 }
 
 
 
 
-                if(bellmanFordAtomicMin(&(stats->Distances[v]), minDistance))
+                if(bellmanFordAtomicMin(&(stats->distances[v]), minDistance))
                 {
-                    // stats->Distances[v] = minDistance;
+                    // stats->distances[v] = minDistance;
 
                     nodes = graph->vertices[v].outNodes;
                     degree = graph->vertices[v].out_degree;
@@ -1790,7 +1790,7 @@ struct BellmanFordStats *bellmanFordPushGraphAdjLinkedList(__u32 source,  __u32 
 
 
 
-    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
 
@@ -1819,7 +1819,7 @@ struct BellmanFordStats *bellmanFordPushGraphAdjLinkedList(__u32 source,  __u32 
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        stats->Distances[v] = UINT_MAX / 2;
+        stats->distances[v] = UINT_MAX / 2;
         stats->parents[v] = UINT_MAX;
 
     }
@@ -1827,7 +1827,7 @@ struct BellmanFordStats *bellmanFordPushGraphAdjLinkedList(__u32 source,  __u32 
     setBit(bitmapNext, source);
     bitmapNext->numSetBits = 1;
     stats->parents[source] = source;
-    stats->Distances[source] = 0;
+    stats->distances[source] = 0;
 
     swapBitmaps(&bitmapCurr, &bitmapNext);
     clearBitmap(bitmapNext);

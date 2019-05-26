@@ -82,11 +82,14 @@ struct AdjArrayList *adjArrayListCreateNeighbourListInNodes(struct AdjArrayList 
 void adjArrayListFree(struct AdjArrayList *adjArrayList)
 {
 
-    freeEdgeList(adjArrayList->outNodes);
+    if(adjArrayList)
+    {
+        if(adjArrayList->outNodes)
+            freeEdgeList(adjArrayList->outNodes);
 #if DIRECTED
-    freeEdgeList(adjArrayList->inNodes);
+        if(adjArrayList->inNodes)
+            freeEdgeList(adjArrayList->inNodes);
 #endif
-
-    free(adjArrayList);
-
+        free(adjArrayList);
+    }
 }

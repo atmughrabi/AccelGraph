@@ -17,6 +17,7 @@ struct BFSStats
     int *parents;
     __u32  processed_nodes;
     __u32  num_vertices;
+    __u32 iteration;
     double time_total;
 };
 
@@ -26,7 +27,6 @@ struct BFSStats *newBFSStatsGraphAdjArrayList(struct GraphAdjArrayList *graph);
 struct BFSStats *newBFSStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph);
 
 void freeBFSStats(struct BFSStats *stats);
-void resetBFSStats(struct BFSStats *stats, struct GraphCSR *graph);
 
 // ********************************************************************************************
 // ***************					CSR DataStructure							 **************
