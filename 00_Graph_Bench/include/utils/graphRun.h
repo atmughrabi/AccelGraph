@@ -39,6 +39,7 @@ struct arguments
     __u32 convert_format;
 };
 
+void freeGraphDataStructure(void *graph, __u32 datastructure);
 void writeSerializedGraphDataStructure(struct arguments *arguments);
 void readSerializeGraphDataStructure(struct arguments *arguments);
 void generateGraphPrintMessageWithtime(const char *msg, double time);

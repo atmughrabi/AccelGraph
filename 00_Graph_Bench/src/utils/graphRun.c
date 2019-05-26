@@ -262,10 +262,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             }
             trials--;
         }
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+      
         break;
 
     case 1: // Grid
@@ -291,10 +288,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             }
             trials--;
         }
-        Start(timer);
-        graphGridFree(graphGrid);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)", Seconds(timer));
+    
         break;
 
     case 2: // Adj Linked List
@@ -320,10 +314,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             }
             trials--;
         }
-        Start(timer);
-        graphAdjLinkedListFree(graphAdjLinkedList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)", Seconds(timer));
+     
         break;
 
     case 3: // Adj Array List
@@ -349,10 +340,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             }
             trials--;
         }
-        Start(timer);
-        graphAdjArrayListFree(graphAdjArrayList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)", Seconds(timer));
+
         break;
 
     case 4: // CSR with no frontier only Bitmaps
@@ -378,10 +366,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             }
             trials--;
         }
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+   
         break;
 
     case 5: // Grid with no frontiers only Bitmaps
@@ -407,10 +392,7 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             }
             trials--;
         }
-        Start(timer);
-        graphGridFree(graphGrid);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)", Seconds(timer));
+     
         break;
 
 
@@ -438,13 +420,11 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
             }
             trials--;
         }
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+
         break;
     }
-
+    
+    freeGraphDataStructure(graph,datastructure);
     free(timer);
 
 }
@@ -454,9 +434,9 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
 
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct GraphCSR *graphCSR = NULL;
-    struct GraphGrid *graphGrid = NULL;
-    struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
-    struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    // struct GraphGrid *graphGrid = NULL;
+    // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
+    // struct GraphAdjArrayList *graphAdjArrayList = NULL;
 
     switch (datastructure)
     {
@@ -483,37 +463,22 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
             }
             trials--;
         }
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+      
         break;
 
     case 1: // Grid
-        graphGrid = (struct GraphGrid *)graph;
-
-        Start(timer);
-        graphGridFree(graphGrid);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)", Seconds(timer));
+        // graphGrid = (struct GraphGrid *)graph;
+        generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
         break;
 
     case 2: // Adj Linked List
-        graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
-
-        Start(timer);
-        graphAdjLinkedListFree(graphAdjLinkedList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)", Seconds(timer));
+        // graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
+        generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
         break;
 
     case 3: // Adj Array List
-        graphAdjArrayList = (struct GraphAdjArrayList *)graph;
-
-        Start(timer);
-        graphAdjArrayListFree(graphAdjArrayList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)", Seconds(timer));
+        // graphAdjArrayList = (struct GraphAdjArrayList *)graph;
+        generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
         break;
 
 
@@ -540,13 +505,11 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
             }
             trials--;
         }
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+    
         break;
     }
 
+    freeGraphDataStructure(graph,datastructure);
     free(timer);
 
 }
@@ -557,9 +520,9 @@ void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 
 
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct GraphCSR *graphCSR = NULL;
-    struct GraphGrid *graphGrid = NULL;
-    struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
-    struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    // struct GraphGrid *graphGrid = NULL;
+    // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
+    // struct GraphAdjArrayList *graphAdjArrayList = NULL;
 
     switch (datastructure)
     {
@@ -570,37 +533,24 @@ void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 
             incrementalAggregationGraphCSR(graphCSR);
             trials--;
         }
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+    
         break;
 
     case 1: // Grid
-        graphGrid = (struct GraphGrid *)graph;
-
-        Start(timer);
-        graphGridFree(graphGrid);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)", Seconds(timer));
+        // graphGrid = (struct GraphGrid *)graph;
+        generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
         break;
 
     case 2: // Adj Linked List
-        graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
+        // graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
 
-        Start(timer);
-        graphAdjLinkedListFree(graphAdjLinkedList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)", Seconds(timer));
+        generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
         break;
 
     case 3: // Adj Array List
-        graphAdjArrayList = (struct GraphAdjArrayList *)graph;
+        // graphAdjArrayList = (struct GraphAdjArrayList *)graph;
 
-        Start(timer);
-        graphAdjArrayListFree(graphAdjArrayList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)", Seconds(timer));
+        generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
         break;
 
 
@@ -611,13 +561,10 @@ void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 
             incrementalAggregationGraphCSR(graphCSR);
             trials--;
         }
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
         break;
     }
 
+    freeGraphDataStructure(graph,datastructure);
     free(timer);
 
 }
@@ -639,50 +586,36 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
         stats = pageRankGraphCSR(epsilon, iterations, pushpull, graphCSR);
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+     
         break;
 
     case 1: // Grid
         graphGrid = (struct GraphGrid *)graph;
         stats = pageRankGraphGrid(epsilon, iterations, pushpull, graphGrid);
-        Start(timer);
-        graphGridFree(graphGrid);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)", Seconds(timer));
+      
         break;
 
     case 2: // Adj Linked List
         graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
         stats = pageRankGraphAdjLinkedList(epsilon, iterations, pushpull, graphAdjLinkedList);
-        Start(timer);
-        graphAdjLinkedListFree(graphAdjLinkedList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)", Seconds(timer));
+      
         break;
 
     case 3: // Adj Array List
         graphAdjArrayList = (struct GraphAdjArrayList *)graph;
         stats = pageRankGraphAdjArrayList(epsilon, iterations, pushpull, graphAdjArrayList);
-        Start(timer);
-        graphAdjArrayListFree(graphAdjArrayList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)", Seconds(timer));
+       
         break;
 
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
         stats = pageRankGraphCSR(epsilon, iterations, pushpull, graphCSR);
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+       
         break;
     }
 
     freePageRankStats(stats);
+    freeGraphDataStructure(graph,datastructure);
     free(timer);
 
 }
@@ -722,11 +655,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
             }
             trials--;
         }
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
-
+     
         break;
 
     case 1: // Grid
@@ -752,10 +681,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
             }
             trials--;
         }
-        Start(timer);
-        graphGridFree(graphGrid);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)", Seconds(timer));
+     
         break;
 
     case 2: // Adj Linked List
@@ -781,10 +707,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
             }
             trials--;
         }
-        Start(timer);
-        graphAdjLinkedListFree(graphAdjLinkedList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)", Seconds(timer));
+      
         break;
 
     case 3: // Adj Array List
@@ -810,11 +733,7 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
             }
             trials--;
         }
-        Start(timer);
-        graphAdjArrayListFree(graphAdjArrayList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)", Seconds(timer));
-
+      
         break;
 
     default:// CSR
@@ -840,13 +759,11 @@ void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32
             }
             trials--;
         }
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+     
         break;
     }
 
+    freeGraphDataStructure(graph,datastructure);
     free(timer);
 
 }
@@ -887,11 +804,7 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
             }
             trials--;
         }
-        Start(timer);
-        graphCSRFree(graphCSR);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
-
+     
         break;
 
     case 1: // Grid
@@ -917,10 +830,7 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
             }
             trials--;
         }
-        Start(timer);
-        graphGridFree(graphGrid);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)", Seconds(timer));
+   
         break;
 
     case 2: // Adj Linked List
@@ -946,10 +856,7 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
             }
             trials--;
         }
-        Start(timer);
-        graphAdjLinkedListFree(graphAdjLinkedList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)", Seconds(timer));
+      
         break;
 
     case 3: // Adj Array List
@@ -975,11 +882,7 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
             }
             trials--;
         }
-        Start(timer);
-        graphAdjArrayListFree(graphAdjArrayList);
-        Stop(timer);
-        generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)", Seconds(timer));
-
+    
         break;
 
     default:// CSR
@@ -1005,13 +908,68 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
             }
             trials--;
         }
+       
+        break;
+    }
+
+    freeGraphDataStructure(graph,datastructure);
+    free(timer);
+
+}
+
+
+
+void freeGraphDataStructure(void *graph, __u32 datastructure)
+{
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct GraphCSR *graphCSR = NULL;
+    struct GraphGrid *graphGrid = NULL;
+    struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
+    struct GraphAdjArrayList *graphAdjArrayList = NULL;
+
+    switch (datastructure)
+    {
+    case 0: // CSR
+        graphCSR = (struct GraphCSR *)graph;
+        Start(timer);
+        graphCSRFree(graphCSR);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
+        break;
+
+    case 1: // Grid
+        graphGrid = (struct GraphGrid *)graph;
+        Start(timer);
+        graphGridFree(graphGrid);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("Free Graph Grid (Seconds)", Seconds(timer));
+        break;
+
+    case 2: // Adj Linked List
+        graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
+        Start(timer);
+        graphAdjLinkedListFree(graphAdjLinkedList);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("Free Graph Adjacency Linked List (Seconds)", Seconds(timer));
+        break;
+
+    case 3: // Adj Array List
+        graphAdjArrayList = (struct GraphAdjArrayList *)graph;
+        Start(timer);
+        graphAdjArrayListFree(graphAdjArrayList);
+        Stop(timer);
+        generateGraphPrintMessageWithtime("Free Graph Adjacency Array List (Seconds)", Seconds(timer));
+        break;
+
+    default:// CSR
+        graphCSR = (struct GraphCSR *)graph;
         Start(timer);
         graphCSRFree(graphCSR);
         Stop(timer);
         generateGraphPrintMessageWithtime("Free Graph CSR (Seconds)", Seconds(timer));
         break;
     }
-
+ 
     free(timer);
 
 }

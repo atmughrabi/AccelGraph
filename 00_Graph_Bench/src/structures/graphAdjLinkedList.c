@@ -151,7 +151,6 @@ void graphAdjLinkedListFree(struct GraphAdjLinkedList *graphAdjLinkedList)
 
             pFree = pCrawl;
             pCrawl = pCrawl->next;
-
             if(pFree)
                 free(pFree);
 
@@ -163,12 +162,10 @@ void graphAdjLinkedListFree(struct GraphAdjLinkedList *graphAdjLinkedList)
 
         while (pCrawl)
         {
-
             pFree = pCrawl;
             pCrawl = pCrawl->next;
             if(pFree)
                 free(pFree);
-
         }
 #endif
 
