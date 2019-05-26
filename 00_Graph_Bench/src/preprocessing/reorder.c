@@ -21,11 +21,11 @@
 struct EdgeList *reorderGraphListPageRank(struct GraphCSR *graph)
 {
 
-    float *pageRanks = NULL;
+    
     __u32 v;
     double epsilon = 1e-6;
     __u32 iterations = 100;
-
+    struct PageRankStats  *stats = NULL;
     __u32 *labelsInverse;
     __u32 *labels;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
@@ -48,25 +48,22 @@ struct EdgeList *reorderGraphListPageRank(struct GraphCSR *graph)
     }
 
 
-    pageRanks = pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
-     // pageRanks = pageRankPulCacheAnalysisGraphCSR(epsilon, iterations, graph);
+     
+    stats = pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
+     // stats = pageRankPulCacheAnalysisGraphCSR(epsilon, iterations, graph);
     
 
     // make sure that nodes with no in/out degrees have zero scores
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
-        if(graph->vertices[v].out_degree || graph->vertices[v].in_degree)
+        if(!(graph->vertices[v].out_degree || graph->vertices[v].in_degree))
         {
-            pageRanks[v] = pageRanks[v];
-        }
-        else
-        {
-            pageRanks[v] = 0;
+            stats->pageRanks[v] = 0;
         }
     }
 
-    labelsInverse = radixSortEdgesByPageRank(pageRanks, labelsInverse, graph->num_vertices);
+    labelsInverse = radixSortEdgesByPageRank(stats->pageRanks, labelsInverse, graph->num_vertices);
 
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
