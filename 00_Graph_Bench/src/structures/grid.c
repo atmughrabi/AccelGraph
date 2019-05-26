@@ -226,22 +226,35 @@ struct Grid *gridNew(struct EdgeList *edgeList)
 
 void  gridFree(struct Grid *grid)
 {
-    __u32 totalPartitions = grid->num_partitions * grid->num_partitions;
-    __u32 i;
+    
 
-    for (i = 0; i < totalPartitions; ++i)
+    if(grid)
     {
+        __u32 totalPartitions = grid->num_partitions * grid->num_partitions;
+        __u32 i;
 
-        freeEdgeList(grid->partitions[i].edgeList);
+        for (i = 0; i < totalPartitions; ++i)
+        {
+
+            freeEdgeList(grid->partitions[i].edgeList);
+        }
+
+        freeBitmap(grid->activePartitionsMap);
+
+        if(grid->activePartitions)
+            free(grid->activePartitions);
+
+        if(grid->out_degree)
+            free(grid->out_degree);
+
+        if(grid->in_degree)
+            free(grid->in_degree);
+
+        if(grid->partitions)
+            free(grid->partitions);
+
+        free(grid);
     }
-
-    freeBitmap(grid->activePartitionsMap);
-    free(grid->activePartitions);
-    free(grid->out_degree);
-    free(grid->in_degree);
-    free(grid->partitions);
-    free(grid);
-
 }
 
 

@@ -25,22 +25,24 @@
 void graphCSRFree (struct GraphCSR *graphCSR)
 {
 
-    if(graphCSR->vertices)
-        freeVertexArray(graphCSR->vertices);
-    if(graphCSR->sorted_edges_array)
-        freeEdgeList(graphCSR->sorted_edges_array);
+    if(graphCSR)
+    {
+        if(graphCSR->vertices)
+            freeVertexArray(graphCSR->vertices);
+        if(graphCSR->sorted_edges_array)
+            freeEdgeList(graphCSR->sorted_edges_array);
 
 #if DIRECTED
-    if(graphCSR->inverse_vertices)
-        freeVertexArray(graphCSR->inverse_vertices);
-    if(graphCSR->inverse_sorted_edges_array)
-        freeEdgeList(graphCSR->inverse_sorted_edges_array);
+        if(graphCSR->inverse_vertices)
+            freeVertexArray(graphCSR->inverse_vertices);
+        if(graphCSR->inverse_sorted_edges_array)
+            freeEdgeList(graphCSR->inverse_sorted_edges_array);
 #endif
 
-    if(graphCSR)
+
         free(graphCSR);
 
-
+    }
 
 }
 

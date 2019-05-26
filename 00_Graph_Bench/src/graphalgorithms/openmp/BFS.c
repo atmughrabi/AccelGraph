@@ -20,34 +20,67 @@
 // ***************                  Stats DataStructure                          **************
 // ********************************************************************************************
 
-struct BFSStats* newBFSStas(struct GraphCSR *graph){
+struct BFSStats *newBFSStats(struct GraphCSR *graph)
+{
 
-    struct BFSStats* stats = (struct BFSStats*) my_malloc(sizeof(struct BFSStats));
+    __u32 vertex_id;
 
-    stats->Distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
-    stats->parents = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    struct BFSStats *stats = (struct BFSStats *) my_malloc(sizeof(struct BFSStats));
+
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->parents = (int *) my_malloc(graph->num_vertices * sizeof(int));
     stats->processed_nodes = 0;
-    stats->num_vertices = 0;
-    stats->time_total = 0;
+    stats->num_vertices = graph->num_vertices;
+    stats->time_total = 0.0f;
 
-    #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graphCSR)
-    for(vertex_id = 0; vertex_id < graphCSR->num_vertices ; vertex_id++)
+        // optimization for BFS implentaion instead of -1 we use -out degree to for hybrid approach counter
+    #pragma omp parallel for default(none) private(vertex_id) shared(stats,graphCSR)
+    for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++)
     {
+        stats->distances[vertex_id] = 0;
         if(vertices->out_degree[vertex_id])
-            graphCSR->parents[vertex_id] = vertices->out_degree[vertex_id] * (-1);
+            stats->parents[vertex_id] = vertices->out_degree[vertex_id] * (-1);
         else
-            graphCSR->parents[vertex_id] = -1;
+            stats->parents[vertex_id] = -1;
     }
 
 }
-void freeBFSStas(struct BFSStats *stats){
+void freeBFSStats(struct BFSStats *stats)
+{
 
 
+    if(stats)
+    {
+        if(stats->distances)
+            free(stats->distances);
+        if(stats->parents)
+            free(stats->parents);
+     
+        free(stats);
+    }
 
 }
-void resetBFSStas(struct BFSStats *stats, struct GraphCSR *graph){
 
 
+void resetBFSStats(struct BFSStats *stats, struct GraphCSR *graph)
+{
+    __u32 vertex_id;
+
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->parents = (int *) my_malloc(graph->num_vertices * sizeof(int));
+    stats->processed_nodes = 0;
+    stats->num_vertices = graph->num_vertices;
+    stats->time_total = 0.0f;
+
+    #pragma omp parallel for default(none) private(vertex_id) shared(stats,graphCSR)
+    for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++)
+    {
+        stats->distances[vertex_id] = 0;
+        if(vertices->out_degree[vertex_id])
+            stats->parents[vertex_id] = vertices->out_degree[vertex_id] * (-1);
+        else
+            stats->parents[vertex_id] = -1;
+    }
 
 }
 

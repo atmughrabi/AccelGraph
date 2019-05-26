@@ -19,9 +19,9 @@ struct BFSStats{
 	double time_total;
 };
 
-struct BFSStats* newBFSStas(struct GraphCSR *graph);
-void freeBFSStas(struct BFSStats *stats);
-void resetBFSStas(struct BFSStats *stats, struct GraphCSR *graph);
+struct BFSStats* newBFSStats(struct GraphCSR *graph);
+void freeBFSStats(struct BFSStats *stats);
+void resetBFSStats(struct BFSStats *stats, struct GraphCSR *graph);
 
 // ********************************************************************************************
 // ***************					CSR DataStructure							 **************

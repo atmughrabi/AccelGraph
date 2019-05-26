@@ -30,7 +30,9 @@ void freeBitmap( struct Bitmap *bitmap)
 
     if(bitmap)
     {
-        free(bitmap->bitarray);
+        if(bitmap->bitarray)
+            free(bitmap->bitarray);
+        
         free(bitmap);
     }
 }
@@ -45,7 +47,7 @@ void clearBitmap(struct Bitmap *bitmap)
 
     // #pragma omp parallel for
     // for(i= 0 ; i <((bitmap->size+kBitsPerWord - 1)/kBitsPerWord); i++){
-    // 	word[i] = 0;
+    //  word[i] = 0;
     // }
     bitmap->numSetBits =  0;
 
@@ -104,7 +106,7 @@ __u32 getBit(struct Bitmap *bitmap, __u32 pos)
 
 // __u32 getBitAtomic(struct Bitmap* bitmap, __u32 pos){
 
-// 	return (bitmap->bitarray[word_offset(pos)] >> bit_offset(pos)) & 1l;;
+//  return (bitmap->bitarray[word_offset(pos)] >> bit_offset(pos)) & 1l;;
 
 // }
 

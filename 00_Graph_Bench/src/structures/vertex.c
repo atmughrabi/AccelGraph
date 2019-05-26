@@ -245,27 +245,19 @@ struct GraphCSR *mapVerticesWithInOutDegree (struct GraphCSR *graph, __u8 invers
 
     }
 
-    // optimization for BFS implentaion instead of -1 we use -out degree to for hybrid approach counter
+#if DIRECTED
     if(!inverse)
     {
 
         #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graph)
         for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++)
         {
-#if DIRECTED
             graph->inverse_vertices->in_degree[vertex_id] = vertices->out_degree[vertex_id];
-#endif
-            if(vertices->out_degree[vertex_id])
-                graph->parents[vertex_id] = vertices->out_degree[vertex_id] * (-1);
-            else
-                graph->parents[vertex_id] = -1;
         }
 
     }
-#if DIRECTED
     else
     {
-
         #pragma omp parallel for default(none) private(vertex_id) shared(vertices,graph)
         for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++)
         {
@@ -361,11 +353,16 @@ void printVertexArray(struct Vertex *vertex_array, __u32 num_vertices)
 
 void freeVertexArray(struct Vertex *vertices)
 {
+    if(vertices)
+    {
+        if(vertices->edges_idx)
+            free(vertices->edges_idx);
+        if(vertices->out_degree)
+            free(vertices->out_degree);
+        if(vertices->in_degree)
+            free(vertices->in_degree);
 
-    free(vertices->edges_idx);
-    free(vertices->out_degree);
-    free(vertices->in_degree);
-    free(vertices);
-
+        free(vertices);
+    }
 }
 

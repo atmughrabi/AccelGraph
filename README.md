@@ -68,6 +68,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-openmp
   ```
+
 [<img src="./02_slides/fig/gem5-aladdin_logo.png" height="45" align="right" >](https://github.com/harvard-acc/gem5-aladdin)
 
 ## Initial compilation for the Graph framework with gem5-Aladdin 
@@ -87,6 +88,10 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   * The dynamic trace is labeled with the following `(GRAPH_NAME)_(DATA_STRUCTURES)_(ALGORITHMS)_(PUSH_PULL)_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
   ```
   make run-aladdin
+  ```
+  * OR
+  ```
+  make run-aladdin-force # regenerate dynamic_trace even if it exists
   ```
 3. To generate a dynamic trace without running Aladdin:
   ```
@@ -116,10 +121,11 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-gem5-cpu
   ```
-  * Running with `accel` mode on gem5 with the accelerator active. The performance-power model is derived from the DDDG (Dynamic Data Dependence Graph).
+  * Running with `accel` mode on gem5 with the accelerator active. The performance model is derived from the DDDG (Dynamic Data Dependence Graph).
   ```
   make run-gem5-accel
   ```
+
 [<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
 
 ## Initial compilation for the Graph framework with CAPI  
@@ -136,11 +142,11 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   cd 00_Graph_Bench/
   ```
-2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your PowerPC machine (CAPI supported) :
+2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
   ```
   make run-pslse
   ```
-3. Runs a graph algorithm that communicates with the pslse (simulation), or psl (real HW):
+3. Runs a graph algorithm that communicates with the PSLSE (simulation), or PSL (real HW):
   ```
   make run-capi
   ```
