@@ -93,7 +93,7 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 0
+ALGORITHMS 		= 1
 
 ROOT 			= 0
 PUSH_PULL 		= 0
@@ -530,6 +530,10 @@ run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 ##############################################
 #         ACCEL GRAPH TOP LEVEL RULES        #
 ##############################################
+
+.PHONY: help
+help: graph-openmp
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp  --help
 
 .PHONY: run
 run: run-openmp
