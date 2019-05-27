@@ -3,9 +3,9 @@
 # globals
   GAPP               = accel-graph
 
-
+  GAPP_TEST               = test_accel-graph
 # GAPP_TEST          = test_quantization
-  GAPP_TEST          = test_bloomfilter
+# GAPP_TEST          = test_bloomfilter
 # GAPP_TEST          = test_bloomStream
 # GAPP_TEST          = fixedpoint
 # GAPP_TEST          = graphCSR
@@ -95,12 +95,12 @@ REORDER 		= 0
 DATA_STRUCTURES = 0
 ALGORITHMS 		= 0
 
-ROOT 			= 0
-PULL_PUSH 		= 2
+ROOT 			= 19058681
+PULL_PUSH 		= 1
 TOLERANCE 		= 1e-9
 DELTA 			= 800
 
-NUM_THREADS  	= 8
+NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 11
 
@@ -558,7 +558,10 @@ debug-openmp: graph-openmp
 debug-memory-openmp: graph-openmp	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
 
-# test files 
+# test files
+.PHONY: run-test
+run-test: run-test-openmp
+
 .PHONY: run-test-openmp
 run-test-openmp: test-openmp
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-openmp
