@@ -915,7 +915,7 @@ __u32 topDownStepUsingBitmapsGraphCSR(struct GraphCSR *graph, struct ArrayQueue 
                         {
                             mf +=  -(u_parent);
                             stats->distances[u] = stats->distances[v] + 1;
-                            setBit(sharedFrontierQueue->q_bitmap_next, u);
+                            setBitAtomic(sharedFrontierQueue->q_bitmap_next, u);
 
 
                         }

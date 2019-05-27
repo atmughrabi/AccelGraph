@@ -10,6 +10,19 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <argp.h>
+#include <stdbool.h>
+#include <omp.h>
+
+
+#include "graphStats.h"
+#include "edgeList.h"
+#include "myMalloc.h"
+
 #include "graphCSR.h"
 #include "graphAdjLinkedList.h"
 #include "graphAdjArrayList.h"
@@ -27,6 +40,9 @@
 #include "bellmanFord.h"
 #include "SSSP.h"
 
+#include <assert.h>
+
+
 // "   mm                        ""#             mmm                       #     \n"
 // "   ##    mmm    mmm    mmm     #           m"   "  m mm   mmm   mmmm   # mm  \n"
 // "  #  #  #"  "  #"  "  #"  #    #           #   mm  #"  " "   #  #" "#  #"  # \n"
@@ -34,6 +50,23 @@
 // " #    # "#mm"  "#mm"  "#mm"    "mm          "mmm"  #     "mm"#  ##m#"  #   # \n"
 // "                                                                #            \n"
 
+__u32 compareDistanceArrays(__u32 *arr1, __u32 *arr2, __u32 arr1_size, __u32 arr2_size)
+{
+    __u32 i = 0;
+    __u32 missmatch = 0;
+
+    if(arr1_size != arr2_size)
+        return 1;
+
+    for(i = 0 ; i < arr1_size; i++)
+    {
+        if(arr1[i] != arr2[i])
+        {
+            missmatch++;
+        }
+    }
+    return missmatch;
+}
 
 int numThreads;
 mt19937state *mt19937var;
@@ -52,7 +85,7 @@ main (int argc, char **argv)
     arguments.iterations = 20;
     arguments.trials = 1;
     arguments.epsilon = 0.0001;
-    arguments.root = -1;
+    arguments.root = 5319;
     arguments.algorithm = 0;
     arguments.datastructure = 0;
     arguments.pushpull = 0;
@@ -61,8 +94,8 @@ main (int argc, char **argv)
     arguments.symmetric = 0;
     arguments.weighted = 0;
     arguments.delta = 1;
-    arguments.numThreads = omp_get_max_threads();
-    arguments.fnameb = "../../01_GraphDatasets/p2p-Gnutella31/graph.wbin";
+    arguments.numThreads = 4;
+    arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
     arguments.convert_format = 1;
 
@@ -85,23 +118,40 @@ main (int argc, char **argv)
     printf("| %-20s %-30u | \n", "Number of Threads :", numThreads);
     printf(" -----------------------------------------------------\n");
 
-    if(arguments.xflag) // if stats flag is on collect stats or serialize your graph
+
+    //CSR DATA structure
+    graph = generateGraphDataStructure(&arguments);
+
+    __u32 missmatch = 0;
+    arguments.algorithm = 0;
+
+    struct BFSStats *ref_stats = runBreadthFirstSearchAlgorithm( graph,  arguments.datastructure,  arguments.root,  arguments.pushpull);
+    struct BFSStats *dbg_stats;
+    __u32 i;
+    for(i = 0 ; i < 5; i++)
     {
-        // __u32 binSize = arguments.iterations;
-        // __u32 inout_degree = arguments.pushpull;
-        // __u32 inout_lmode = arguments.lmode;
-        // collectStats(binSize, arguments.fnameb, arguments.sort, inout_lmode, arguments.symmetric, arguments.weighted, inout_degree);
-        writeSerializedGraphDataStructure(&arguments);
+        arguments.pushpull = i;
+        dbg_stats = runBreadthFirstSearchAlgorithm( graph,  arguments.datastructure,  arguments.root,  arguments.pushpull);
+        missmatch += compareDistanceArrays(ref_stats->distances, dbg_stats->distances, ref_stats->num_vertices, dbg_stats->num_vertices);
+        printf("%u \n", missmatch);
     }
-    else
+
+    freeBFSStats(ref_stats);
+
+    arguments.algorithm = 3;
+    arguments.pushpull = 0;
+    struct BellmanFordStats *ref_stats2 = runBellmanFordAlgorithm( graph,  arguments.datastructure,  arguments.root, arguments.iterations, arguments.pushpull);
+    struct BellmanFordStats *dbg_stats2;
+
+    for(i = 0 ; i < 3; i++)
     {
-
-        graph = generateGraphDataStructure(&arguments);
-        runGraphAlgorithms(graph, &arguments);
-
+        arguments.pushpull = i;
+        dbg_stats2 = runBellmanFordAlgorithm( graph,  arguments.datastructure,  arguments.root, arguments.iterations, arguments.pushpull);
+        missmatch += compareDistanceArrays(ref_stats2->distances, dbg_stats2->distances, ref_stats2->num_vertices, dbg_stats2->num_vertices);
+        printf("%u \n", missmatch);
     }
 
-
+    freeBellmanFordStats(ref_stats2);
 
 
     free(timer);

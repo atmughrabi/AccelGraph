@@ -221,18 +221,20 @@ int bellmanFordAtomicRelax(__u32 src, __u32 dest, __u32 weight, struct BellmanFo
             if(__sync_bool_compare_and_swap(&(stats->distances[dest]), oldDistanceU, newDistance) && flagv)
             {
                 flagu = 1;
-            }
-
-            if(__sync_bool_compare_and_swap(&(stats->parents[dest]), oldParent, newParent) && flagv && flagu)
-            {
-                flagp = 1;
-            }
-
-            if(!getBit(bitmapNext, dest) && flagv && flagu && flagp)
-            {
                 setBitAtomic(bitmapNext, dest);
                 activeVertices++;
             }
+
+            // if(__sync_bool_compare_and_swap(&(stats->parents[dest]), oldParent, newParent) && flagv && flagu)
+            // {
+            //     flagp = 1;
+            // }
+
+            // if(!getBit(bitmapNext, dest) && flagv && flagu && flagp)
+            // {
+            //     setBitAtomic(bitmapNext, dest);
+            //     activeVertices++;
+            // }
 
         }
         else
@@ -241,7 +243,7 @@ int bellmanFordAtomicRelax(__u32 src, __u32 dest, __u32 weight, struct BellmanFo
         }
 
     }
-    while (!flagu || !flagv || !flagp);
+    while (!flagu || !flagv );
 
 
     return activeVertices;
@@ -369,11 +371,11 @@ struct BellmanFordStats *bellmanFordGraphGrid(__u32 source,  __u32 iterations, _
 
     switch (pushpull)
     {
-    case 0: // push
-        stats = bellmanFordPushColumnGraphGrid(source, iterations, graph);
-        break;
-    case 1: // pull
+    case 0: // pull
         stats = bellmanFordPullRowGraphGrid(source, iterations, graph);
+        break;
+    case 1: // push
+        stats = bellmanFordPushColumnGraphGrid(source, iterations, graph);
         break;
     default:// push
         stats = bellmanFordPushColumnGraphGrid(source, iterations, graph);
@@ -718,11 +720,11 @@ struct BellmanFordStats *bellmanFordGraphCSR(__u32 source,  __u32 iterations, __
 
     switch (pushpull)
     {
-    case 0: // push
-        stats = bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
-        break;
-    case 1: // pull
+    case 0: // pull
         stats = bellmanFordDataDrivenPullGraphCSR(source, iterations, graph);
+        break;
+    case 1: // push
+        stats = bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
         break;
     case 2: // randomized push
         stats = bellmanFordRandomizedDataDrivenPushGraphCSR(source, iterations, graph);
@@ -864,7 +866,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
                         if(!getBit(bitmapNext, u))
                         {
                             activeVertices++;
-                            setBit(bitmapNext, u);
+                            setBitAtomic(bitmapNext, u);
                         }
                     }
                 }
@@ -1229,10 +1231,10 @@ struct BellmanFordStats *bellmanFordGraphAdjArrayList(__u32 source,  __u32 itera
     switch (pushpull)
     {
     case 0: // push
-        stats = bellmanFordDataDrivenPushGraphAdjArrayList(source, iterations, graph);
+        stats = bellmanFordDataDrivenPullGraphAdjArrayList(source, iterations, graph);
         break;
     case 1: // pull
-        stats = bellmanFordDataDrivenPullGraphAdjArrayList(source, iterations, graph);
+        stats = bellmanFordDataDrivenPushGraphAdjArrayList(source, iterations, graph);
         break;
     default:// push
         stats = bellmanFordDataDrivenPushGraphAdjArrayList(source, iterations, graph);
@@ -1369,7 +1371,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source
                         if(!getBit(bitmapNext, u))
                         {
                             activeVertices++;
-                            setBit(bitmapNext, u);
+                            setBitAtomic(bitmapNext, u);
                         }
                     }
                 }
@@ -1540,11 +1542,11 @@ struct BellmanFordStats *bellmanFordGraphAdjLinkedList(__u32 source,  __u32 iter
 
     switch (pushpull)
     {
-    case 0: // push
-        stats = bellmanFordPushGraphAdjLinkedList(source, iterations, graph);
-        break;
-    case 1: // pull
+    case 0: // pull
         stats = bellmanFordPullGraphAdjLinkedList(source, iterations, graph);
+        break;
+    case 1: // push
+        stats = bellmanFordPushGraphAdjLinkedList(source, iterations, graph);
         break;
     default:// push
         stats = bellmanFordPushGraphAdjLinkedList(source, iterations, graph);
@@ -1682,7 +1684,7 @@ struct BellmanFordStats *bellmanFordPullGraphAdjLinkedList(__u32 source,  __u32 
                         if(!getBit(bitmapNext, u))
                         {
                             activeVertices++;
-                            setBit(bitmapNext, u);
+                            setBitAtomic(bitmapNext, u);
                         }
                     }
                 }
