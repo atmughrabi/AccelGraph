@@ -562,6 +562,9 @@ debug-memory-openmp: graph-openmp
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
 
 # test files
+.PHONY: test
+test: test
+
 .PHONY: run-test
 run-test: run-test-openmp
 
