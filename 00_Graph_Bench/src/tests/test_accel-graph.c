@@ -119,7 +119,10 @@ main (int argc, char **argv)
     printf(" -----------------------------------------------------\n");
 
 
-    //CSR DATA structure
+    // ********************************************************************************************
+    // ***************                  CSR DataStructure                            **************
+    // ********************************************************************************************
+
     graph = generateGraphDataStructure(&arguments);
 
     __u32 missmatch = 0;
@@ -128,7 +131,7 @@ main (int argc, char **argv)
     struct BFSStats *ref_stats = runBreadthFirstSearchAlgorithm( graph,  arguments.datastructure,  arguments.root,  arguments.pushpull);
     struct BFSStats *dbg_stats;
     __u32 i;
-    for(i = 0 ; i < 5; i++)
+    for(i = 0 ; i < 10; i++)
     {
         arguments.pushpull = i;
         dbg_stats = runBreadthFirstSearchAlgorithm( graph,  arguments.datastructure,  arguments.root,  arguments.pushpull);
@@ -143,7 +146,7 @@ main (int argc, char **argv)
     struct BellmanFordStats *ref_stats2 = runBellmanFordAlgorithm( graph,  arguments.datastructure,  arguments.root, arguments.iterations, arguments.pushpull);
     struct BellmanFordStats *dbg_stats2;
 
-    for(i = 0 ; i < 3; i++)
+    for(i = 0 ; i < 10; i++)
     {
         arguments.pushpull = i;
         dbg_stats2 = runBellmanFordAlgorithm( graph,  arguments.datastructure,  arguments.root, arguments.iterations, arguments.pushpull);
