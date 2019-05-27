@@ -95,15 +95,15 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 2
+ALGORITHMS 		= 1
 
 ROOT 			= 5319
 PULL_PUSH 		= 0
 TOLERANCE 		= 1e-9
 DELTA 			= 800
 
-NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-# NUM_THREADS  	= 1
+# NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
+NUM_THREADS  	= 1
 NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 1
 
@@ -563,8 +563,8 @@ debug-memory-openmp: graph-openmp
 
 # test files
 .PHONY: test
-test: test
-
+test: run-test
+	
 .PHONY: run-test
 run-test: run-test-openmp
 

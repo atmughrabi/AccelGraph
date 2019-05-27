@@ -1,0 +1,35 @@
+sudo: required
+dist: xenial
+
+before_install:
+  - sudo apt-get update -qq
+  # These are gem5 dependencies.
+  - sudo apt-get install -y m4
+  - sudo apt-get install -y libz-dev
+  - sudo apt-get install -y libprotobuf-dev
+  - sudo apt-get install -y protobuf-compiler
+  - sudo apt-get install -y libsqlite3-dev
+  # These are Aladdin dependencies.
+  - sudo apt-get install -y libboost-graph-dev
+  - sudo apt-get install -y libboost-regex-dev
+  - sudo apt-get install -y libpthread-stubs0-dev
+  - git submodule update --init --recursive
+
+env: OMP_NUM_THREADS=4
+
+language: c
+compiler:
+  - gcc
+
+env: CXX=g++-4.7
+
+script:
+  - make -j
+  - make test
+
+notifications:
+email:
+  on_success: never
+  on_failure: always
+  recipients:
+    - atmughra@ncsu.edu

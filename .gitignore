@@ -1,16 +1,14 @@
-00_Graph_Bench/obj
-00_Graph_Bench/bin
-00_Graph_Bench/build
+00_graph_bench/obj
+00_graph_bench/bin
+00_graph_bench/build
 
 01_CAPI_Integration/CAPI-PSL9-WRAP-2.00
 01_CAPI_Integration/CAPI_1.00_DCP
 
 03_Reading/
 
-00_Graph_Bench/labelmap
-00_Graph_Bench/aladdin_common/dynamic_traces
-00_Graph_Bench/aladdin_common/stats_aladdin
-00_Graph_Bench/aladdin_common/stats_gem5
+00_graph_bench/labelmap
+00_graph_bench/aladdin_common/dynamic_traces
+00_graph_bench/aladdin_common/stats_aladdin
+00_graph_bench/aladdin_common/stats_gem5
 
-labelmap
-dynamictraces
