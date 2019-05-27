@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/klugjo/hexo-autolinker.svg?branch=master)](https://travis-ci.org/klugjo/hexo-autolinker)
+[![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)
 [<p align="center"><img src="./02_slides/fig/logo3.png" width="700" ></p>](#accel-graph-benchmark-suite)
 
 # Accel-Graph Benchmark Suite
