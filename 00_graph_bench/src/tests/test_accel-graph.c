@@ -262,7 +262,6 @@ main (int argc, char **argv)
                         missmatch += cmpGraphAlgorithmsTestStats(ref_data, cmp_data, arguments.algorithm);
 
                     freeGraphStatsGeneral(cmp_data, arguments.algorithm);
-                    printf("%u \n", missmatch);
                 }
 
                 freeGraphStatsGeneral(ref_data, arguments.algorithm);
@@ -273,6 +272,11 @@ main (int argc, char **argv)
         }
         freeGraphDataStructure(graph, arguments.datastructure);
     }
+
+    if(missmatch != 0)
+        printf("FAIL\n");
+    else
+        printf("PASS\n");
 
     free(timer);
     exit (0);
