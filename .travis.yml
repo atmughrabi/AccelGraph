@@ -21,8 +21,6 @@ language: c
 compiler:
   - gcc
 
-env: CXX=g++-4.7
-
 script:
   - make -j
   - make test
