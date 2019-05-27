@@ -522,7 +522,7 @@ struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *gra
 
     default:// CSR
         // graphCSR = (struct GraphCSR *)graph;
-
+        generateGraphPrintMessageWithtime("BUGGY IMPLEMENTATION UNCOMMENT IF YOU NEED IT", 0);
         // incrementalAggregationGraphCSR(graphCSR);
         break;
     }
