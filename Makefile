@@ -1,9 +1,7 @@
 
 APP_DIR           	= .
 BENCHMARKS_DIR      = 00_graph_bench
-# Result output strings
-PASS = \033[92mPASS\033[0m
-FAIL = \033[91mFAIL\033[0m
+
 
 
 ##############################################
@@ -38,12 +36,14 @@ debug-openmp:
 debug-memory-openmp: 
 	$(MAKE) debug-memory-openmp -C $(APP_DIR)/$(BENCHMARKS_DIR)
 
+.PHONY: test-verbose
+test-verbose:
+	$(MAKE) test-verbose -C $(APP_DIR)/$(BENCHMARKS_DIR) 
+	
 # test files
 .PHONY: test
 test:
-	@if $(MAKE) test -C $(APP_DIR)/$(BENCHMARKS_DIR) | grep FAIL > /dev/null; \
-		then exit 1; \
-	fi
+	$(MAKE) test -C $(APP_DIR)/$(BENCHMARKS_DIR) 
 	
 .PHONY: run-test
 run-test: 

@@ -157,6 +157,10 @@ CFLAGS   =  -O3 -Wall -m64 -fopenmp -g
 LFLAGS = -lm
 
 
+# TEST PASS OR FAIL
+PASS = \033[92mPASS\033[0m
+FAIL = \033[91mFAIL\033[0m
+
 ##################################################
 ##################################################
 
@@ -495,7 +499,7 @@ run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
 	  --outdir=./outputs \
 	  --stats-db-file=stats.db \
 	  $(GEM5_DIR)/configs/aladdin/aladdin_se.py \
-	  --num-cpus=$(NUM_THREADS) \
+	  --num-cpus=1 \
 	  --enable_prefetchers \
 	  --mem-size=8GB \
 	  --mem-type=DDR3_1600_8x8  \
@@ -515,7 +519,7 @@ run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 	  --outdir=./outputs \
 	  --stats-db-file=stats.db \
 	  $(GEM5_DIR)/configs/aladdin/aladdin_se.py \
-	  --num-cpus=$(NUM_THREADS) \
+	  --num-cpus=1 \
 	  --enable_prefetchers \
 	  --mem-size=8GB \
 	  --mem-type=DDR3_1600_8x8  \
@@ -561,9 +565,17 @@ debug-openmp: graph-openmp
 debug-memory-openmp: graph-openmp	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
 
+
+.PHONY: test-verbose
+test-verbose:
+	$(MAKE) run-test -C $(APP_DIR) | grep -E 'PASS|FAIL'
+
 # test files
 .PHONY: test
-test: run-test
+test:
+	@if $(MAKE) run-test -C $(APP_DIR) | grep FAIL > /dev/null; \
+		then exit 1; \
+	fi
 	
 .PHONY: run-test
 run-test: run-test-openmp

@@ -233,6 +233,7 @@ main (int argc, char **argv)
     printf(" -----------------------------------------------------\n");
 
     __u32 missmatch = 0;
+    __u32 total_missmatch = 0;
     void *ref_data;
     void *cmp_data;
 
@@ -259,7 +260,12 @@ main (int argc, char **argv)
                     cmp_data = runGraphAlgorithmsTest(graph, &arguments);
 
                     if(ref_data != NULL && cmp_data != NULL)
-                        missmatch += cmpGraphAlgorithmsTestStats(ref_data, cmp_data, arguments.algorithm);
+                        missmatch = cmpGraphAlgorithmsTestStats(ref_data, cmp_data, arguments.algorithm);
+                    total_missmatch += missmatch;
+                    if(missmatch != 0)
+                        printf("FAIL : Trial [%u] Graph [%s] Missmatches [%u] \nFAIL : DataStructure [%u] Algorithm [%u] Direction [%u]\n\n", arguments.trials, arguments.fnameb, missmatch, arguments.datastructure, arguments.algorithm, arguments.pushpull);
+                    else
+                        printf("PASS : Trial [%u] Graph [%s] Missmatches [%u] \nPASS : DataStructure [%u] Algorithm [%u] Direction [%u]\n\n", arguments.trials, arguments.fnameb, missmatch, arguments.datastructure, arguments.algorithm, arguments.pushpull);
 
                     freeGraphStatsGeneral(cmp_data, arguments.algorithm);
                 }
@@ -273,10 +279,11 @@ main (int argc, char **argv)
         freeGraphDataStructure(graph, arguments.datastructure);
     }
 
-    if(missmatch != 0)
-        printf("FAIL\n");
+    if(total_missmatch != 0)
+        printf("FAIL : Trial [%u] Graph [%s] Missmatches [%u]", arguments.trials, arguments.fnameb, missmatch);
     else
-        printf("PASS\n");
+        printf("PASS : Trial [%u] Graph [%s] Missmatches [%u]", arguments.trials, arguments.fnameb, missmatch);
+
 
     free(timer);
     exit (0);

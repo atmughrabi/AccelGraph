@@ -400,7 +400,7 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] Graph algorithms performance exploration with gem5-Aladdin
   - [ ] Page-Rank quantization
   - [ ] FPGA Frontier prefetcher
-- [ ] Support unit testing
+- [x] Support unit testing
 
 Report bugs to <atmughra@ncsu.edu>
 [<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](#accel-graph-benchmark-suite)
