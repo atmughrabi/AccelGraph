@@ -58,7 +58,7 @@ void freeIncrementalAggregationStats(struct IncrementalAggregationStats *stats);
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-__u32  *incrementalAggregationGraphCSR(struct GraphCSR *graph);
+struct IncrementalAggregationStats *incrementalAggregationGraphCSR(struct GraphCSR *graph);
 void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reachableSet, float *deltaQ, __u32 *u, __u32 v,struct IncrementalAggregationStats* stats, struct GraphCSR *graph);
 void traversDendrogramReachableSetDFS(__u32 v, __u32 *atomChild, __u32 *sibling, struct ArrayQueue *reachableSet);
 void printSet(struct ArrayQueue *Set);

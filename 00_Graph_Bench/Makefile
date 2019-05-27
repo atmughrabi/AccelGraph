@@ -92,17 +92,17 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 #GRAPH RUN
 SORT_TYPE 		= 0
 REORDER 		= 0
-DATA_STRUCTURES = 3
-ALGORITHMS 		= 1
+DATA_STRUCTURES = 0
+ALGORITHMS 		= 0
 
 ROOT 			= 0
-PULL_PUSH 		= 0
+PULL_PUSH 		= 2
 TOLERANCE 		= 1e-9
 DELTA 			= 800
 
 NUM_THREADS  	= 8
-NUM_ITERATIONS 	= 100
-NUM_TRIALS 		= 10
+NUM_ITERATIONS 	= 1
+NUM_TRIALS 		= 11
 
 FILE_FORMAT 	= 1
 CONVERT_FORMAT 	= 1
@@ -262,7 +262,7 @@ $(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)
 $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-openmp : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_OPENMP) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
 
-$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/$(GAPP).c
+$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP_TEST).c 
@@ -313,7 +313,7 @@ $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/full.s: $(APP_DIR)/$(OBJ_DIR)/$(AL
 $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-instrumented: $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/full.s
 	$(CXX) -static -O0 -fno-inline -o $@ $< $(LLVM_LIBS) -fopenmp
 
-$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-opt.llvm : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/$(GAPP).c $(APP_DIR)/labelmap
+$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-opt.llvm : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c $(APP_DIR)/labelmap
 	clang 	 $(LLVMFLAGS) $(LLVM_INC) -o $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/$*.llvm $<
 	opt 	-S -load=$(TRACER) -fulltrace -labelmapwriter $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/$*.llvm -o $@ 
 
@@ -464,7 +464,7 @@ gem5: gem5-cpu gem5-accel
 run-gem5: run-gem5-cpu run-gem5-accel
 
 .PHONY: run-gem5-openmp 
-run-gem5-openmp: graph-openmp config-symlink-gem5-openmp
+run-gem5-openmp: directories-gem5 graph-openmp config-symlink-gem5-openmp
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/openmp && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	  --debug-flags=HybridDatapath,Aladdin \

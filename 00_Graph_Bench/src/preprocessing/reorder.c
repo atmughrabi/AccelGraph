@@ -192,7 +192,6 @@ struct EdgeList *reorderGraphListEpochRabbit(struct GraphCSR *graph)
 {
 
     // __u32 v;
-    __u32 *labelsInverse;
     // __u32 *labels;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
@@ -207,8 +206,9 @@ struct EdgeList *reorderGraphListEpochRabbit(struct GraphCSR *graph)
 
     Start(timer);
 
+    struct IncrementalAggregationStats *stats;
 
-    labelsInverse = incrementalAggregationGraphCSR(graph);
+    stats = incrementalAggregationGraphCSR(graph);
 
     // #pragma omp parallel for
     // for(v = 0; v < graph->num_vertices; v++)
@@ -219,7 +219,7 @@ struct EdgeList *reorderGraphListEpochRabbit(struct GraphCSR *graph)
 
     edgeList = graph->sorted_edges_array;
 
-    edgeList = relabelEdgeList(edgeList, labelsInverse);
+    edgeList = relabelEdgeList(edgeList, stats->labels);
 
     Stop(timer);
 
@@ -230,8 +230,7 @@ struct EdgeList *reorderGraphListEpochRabbit(struct GraphCSR *graph)
     printf(" -----------------------------------------------------\n");
 
     free(timer);
-    free(labelsInverse);
-    // free(labels);
+    freeIncrementalAggregationStats(stats);
 
     return edgeList;
 }

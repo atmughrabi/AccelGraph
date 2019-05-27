@@ -198,39 +198,77 @@ void *generateGraphDataStructure(struct Arguments *arguments)
 
 void runGraphAlgorithms(void *graph, struct Arguments *arguments)
 {
+    // struct BellmanFordStats
+    // struct PageRankStats
+    // struct BFSStats
+    // struct DFSStats
+    // struct IncrementalAggregationStats
+    // struct SSSPStats
 
-    while(arguments->trials)
+    double time_total = 0.0f;
+    __u32  trials = arguments->trials;
+
+    while(trials)
     {
         switch (arguments->algorithm)
         {
-        case 0: // bfs filename root
-            runBreadthFirstSearchAlgorithm( graph,  arguments->datastructure,  arguments->root,  arguments->trials,  arguments->pushpull);
-            break;
+        case 0:  // bfs filename root
+        {
+            struct BFSStats *stats = runBreadthFirstSearchAlgorithm( graph,  arguments->datastructure,  arguments->root,  arguments->pushpull);
+            time_total += stats->time_total;
+            freeBFSStats(stats);
+        }
+        break;
         case 1: // pagerank filename
-            runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->trials,  arguments->pushpull);
-            break;
+        {
+            struct PageRankStats *stats = runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->pushpull);
+            time_total += stats->time_total;
+            freePageRankStats(stats);
+        }
+        break;
         case 2: // SSSP-Dijkstra file name root
-            runSSSPAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations,  arguments->trials,  arguments->pushpull,  arguments->delta);
-            break;
+        {
+            struct SSSPStats *stats = runSSSPAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations, arguments->pushpull,  arguments->delta);
+            time_total += stats->time_total;
+            freeSSSPStats(stats);
+        }
+        break;
         case 3: // SSSP-Bellmanford file name root
-            runBellmanFordAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations,  arguments->trials,  arguments->pushpull);
-            break;
+        {
+            struct BellmanFordStats *stats = runBellmanFordAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations, arguments->pushpull);
+            time_total += stats->time_total;
+            freeBellmanFordStats(stats);
+        }
+        break;
         case 4: // DFS file name root
-            runDepthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->trials);
-            break;
+        {
+            struct DFSStats *stats = runDepthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root);
+            time_total += stats->time_total;
+            freeDFSStats(stats);
+        }
+        break;
         case 5: // incremental Aggregation file name root
-            runIncrementalAggregationAlgorithm(graph,  arguments->datastructure,  arguments->trials);
-            break;
+        {
+            struct IncrementalAggregationStats *stats = runIncrementalAggregationAlgorithm(graph,  arguments->datastructure);
+            time_total += stats->time_total;
+            freeIncrementalAggregationStats(stats);
+        }
+        break;
         default:// bfs file name root
-            runBreadthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->trials);
-            break;
+        {
+            struct BFSStats *stats = runBreadthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root, arguments->pushpull);
+            time_total += stats->time_total;
+            freeBFSStats(stats);
+        }
+        break;
         }
 
         arguments->root = generateRandomRootGeneral(graph, arguments);
-        arguments->trials--;
+        trials--;
     }
 
-    freeGraphDataStructure(graph, datastructure);
+    generateGraphPrintMessageWithtime("*     -----> Trials Avg Time (Seconds) <-----", (time_total / (double)arguments->trials));
+    freeGraphDataStructure(graph, arguments->datastructure);
 }
 
 __u32 generateRandomRootGraphCSR(struct GraphCSR *graph)
@@ -327,17 +365,17 @@ __u32 generateRandomRootGeneral(void *graph, struct Arguments *arguments)
 
     case 1: // Grid
         graphGrid = (struct GraphGrid *)graph;
-        arguments->root = newBFSStatsGraphGrid(graphGrid);
+        arguments->root = generateRandomRootGraphGrid(graphGrid);
         break;
 
     case 2: // Adj Linked List
         graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
-        arguments->root = newBFSStatsGraphAdjLinkedList(graphAdjLinkedList);
+        arguments->root = generateRandomRootGraphAdjLinkedList(graphAdjLinkedList);
         break;
 
     case 3: // Adj Array List
         graphAdjArrayList = (struct GraphAdjArrayList *)graph;
-        arguments->root = newBFSStatsGraphAdjArrayList(graphAdjArrayList);
+        arguments->root = generateRandomRootGraphAdjArrayList(graphAdjArrayList);
         break;
 
     default:// CSR
@@ -350,7 +388,7 @@ __u32 generateRandomRootGeneral(void *graph, struct Arguments *arguments)
 
 }
 
-void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials, __u32 pushpull)
+struct BFSStats *runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 pushpull)
 {
 
 
@@ -358,44 +396,46 @@ void runBreadthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, 
     struct GraphGrid *graphGrid = NULL;
     struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
     struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    struct BFSStats *stats = NULL;
+
     switch (datastructure)
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
 
-        breadthFirstSearchGraphCSR(root, pushpull, graphCSR);
+        stats = breadthFirstSearchGraphCSR(root, pushpull, graphCSR);
         break;
 
     case 1: // Grid
         graphGrid = (struct GraphGrid *)graph;
 
-        breadthFirstSearchGraphGrid(root, pushpull, graphGrid);
+        stats = breadthFirstSearchGraphGrid(root, pushpull, graphGrid);
         break;
 
     case 2: // Adj Linked List
         graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
 
-        breadthFirstSearchGraphAdjLinkedList(root,  pushpull, graphAdjLinkedList);
+        stats = breadthFirstSearchGraphAdjLinkedList(root,  pushpull, graphAdjLinkedList);
         break;
 
     case 3: // Adj Array List
         graphAdjArrayList = (struct GraphAdjArrayList *)graph;
 
-        breadthFirstSearchGraphAdjArrayList(root, pushpull, graphAdjArrayList);
+        stats = breadthFirstSearchGraphAdjArrayList(root, pushpull, graphAdjArrayList);
         break;
 
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
 
-        breadthFirstSearchGraphCSR(root, pushpull, graphCSR);
+        stats = breadthFirstSearchGraphCSR(root, pushpull, graphCSR);
         break;
     }
 
-
+    return stats;
 
 }
 
-void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __u32 trials)
+struct DFSStats *runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root)
 {
 
 
@@ -403,13 +443,14 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
     // struct GraphGrid *graphGrid = NULL;
     // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
     // struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    struct DFSStats *stats = NULL;
 
     switch (datastructure)
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
 
-        depthFirstSearchGraphCSR(root, graphCSR);
+        stats = depthFirstSearchGraphCSR(root, graphCSR);
         break;
 
     case 1: // Grid
@@ -431,16 +472,16 @@ void runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, int root, __
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
 
-        breadthFirstSearchGraphCSR(root, graphCSR);
-
+        stats = depthFirstSearchGraphCSR(root, graphCSR);
         break;
     }
 
+    return stats;
 
 }
 
 
-void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 trials)
+struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure)
 {
 
 
@@ -448,12 +489,13 @@ void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 
     // struct GraphGrid *graphGrid = NULL;
     // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
     // struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    struct IncrementalAggregationStats *stats = NULL;
 
     switch (datastructure)
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
-        incrementalAggregationGraphCSR(graphCSR);
+        stats = incrementalAggregationGraphCSR(graphCSR);
         break;
 
     case 1: // Grid
@@ -481,13 +523,13 @@ void runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure, __u32 
         break;
     }
 
-
+    return stats;
 
 }
 
 
 
-void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 trials, __u32 pushpull)
+struct PageRankStats *runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 pushpull)
 {
 
 
@@ -530,58 +572,59 @@ void runPageRankAlgorithm(void *graph, __u32 datastructure, double epsilon, __u3
         break;
     }
 
-    freePageRankStats(stats);
+    return stats;
 
 
 }
 
-void runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 trials, __u32 pushpull)
+struct BellmanFordStats *runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 pushpull)
 {
 
     struct GraphCSR *graphCSR = NULL;
     struct GraphGrid *graphGrid = NULL;
     struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
     struct GraphAdjArrayList *graphAdjArrayList = NULL;
-
+    struct BellmanFordStats *stats = NULL;
 
     switch (datastructure)
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
 
-        bellmanFordGraphCSR(root, iterations, pushpull, graphCSR);
+        stats = bellmanFordGraphCSR(root, iterations, pushpull, graphCSR);
         break;
 
     case 1: // Grid
         graphGrid = (struct GraphGrid *)graph;
 
-        bellmanFordGraphGrid(root, iterations, pushpull, graphGrid);
+        stats = bellmanFordGraphGrid(root, iterations, pushpull, graphGrid);
         break;
 
     case 2: // Adj Linked List
         graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
 
-        bellmanFordGraphAdjLinkedList(root, iterations, pushpull, graphAdjLinkedList);
+        stats = bellmanFordGraphAdjLinkedList(root, iterations, pushpull, graphAdjLinkedList);
         break;
 
     case 3: // Adj Array List
         graphAdjArrayList = (struct GraphAdjArrayList *)graph;
 
-        bellmanFordGraphAdjArrayList(root, iterations, pushpull, graphAdjArrayList);
+        stats = bellmanFordGraphAdjArrayList(root, iterations, pushpull, graphAdjArrayList);
         break;
 
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
 
-        bellmanFordGraphCSR(root, iterations, pushpull, graphCSR);
+        stats = bellmanFordGraphCSR(root, iterations, pushpull, graphCSR);
         break;
     }
 
+    return stats;
 
 }
 
 
-void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 trials, __u32 pushpull, __u32 delta)
+struct SSSPStats *runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 pushpull, __u32 delta)
 {
 
     struct GraphCSR *graphCSR = NULL;
@@ -589,13 +632,13 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
     // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
     // struct GraphAdjArrayList *graphAdjArrayList = NULL;
 
-
+    struct SSSPStats *stats = NULL;
     switch (datastructure)
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
 
-        SSSPGraphCSR(root, iterations, pushpull, graphCSR, delta);
+        stats = SSSPGraphCSR(root, iterations, pushpull, graphCSR, delta);
 
         break;
 
@@ -619,10 +662,11 @@ void runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterat
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
 
-        SSSPGraphCSR(root, iterations, pushpull, graphCSR, delta);
+        stats = SSSPGraphCSR(root, iterations, pushpull, graphCSR, delta);
         break;
     }
 
+    return stats;
 
 }
 

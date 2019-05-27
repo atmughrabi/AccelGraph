@@ -362,21 +362,25 @@ void durstenfeldShuffle(__u32 *vertices, __u32 size)
 // ***************                  GRID DataStructure                           **************
 // ********************************************************************************************
 
-void bellmanFordGraphGrid(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphGrid *graph)
+struct BellmanFordStats *bellmanFordGraphGrid(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphGrid *graph)
 {
+
+    struct BellmanFordStats *stats;
 
     switch (pushpull)
     {
     case 0: // push
-        bellmanFordPushColumnGraphGrid(source, iterations, graph);
+        stats = bellmanFordPushColumnGraphGrid(source, iterations, graph);
         break;
     case 1: // pull
-        bellmanFordPullRowGraphGrid(source, iterations, graph);
+        stats = bellmanFordPullRowGraphGrid(source, iterations, graph);
         break;
     default:// push
-        bellmanFordPushColumnGraphGrid(source, iterations, graph);
+        stats = bellmanFordPushColumnGraphGrid(source, iterations, graph);
         break;
     }
+
+    return stats;
 
 }
 struct BellmanFordStats *bellmanFordPullRowGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid *graph)
@@ -707,25 +711,28 @@ void bellmanFordSpiltGraphCSR(struct GraphCSR *graph, struct GraphCSR **graphPlu
 
 }
 
-void bellmanFordGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR *graph)
+struct BellmanFordStats *bellmanFordGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR *graph)
 {
+
+    struct BellmanFordStats *stats = NULL;
 
     switch (pushpull)
     {
     case 0: // push
-        bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
+        stats = bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
         break;
     case 1: // pull
-        bellmanFordDataDrivenPullGraphCSR(source, iterations, graph);
+        stats = bellmanFordDataDrivenPullGraphCSR(source, iterations, graph);
         break;
     case 2: // randomized push
-        bellmanFordRandomizedDataDrivenPushGraphCSR(source, iterations, graph);
+        stats = bellmanFordRandomizedDataDrivenPushGraphCSR(source, iterations, graph);
         break;
     default:// push
-        bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
+        stats = bellmanFordDataDrivenPushGraphCSR(source, iterations, graph);
         break;
     }
 
+    return stats;
 
 }
 
@@ -1214,24 +1221,25 @@ struct BellmanFordStats *bellmanFordRandomizedDataDrivenPushGraphCSR(__u32 sourc
 // ***************                  ArrayList DataStructure                      **************
 // ********************************************************************************************
 
-void bellmanFordGraphAdjArrayList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList *graph)
+struct BellmanFordStats *bellmanFordGraphAdjArrayList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList *graph)
 {
 
+    struct BellmanFordStats *stats;
 
     switch (pushpull)
     {
     case 0: // push
-        bellmanFordDataDrivenPushGraphAdjArrayList(source, iterations, graph);
+        stats = bellmanFordDataDrivenPushGraphAdjArrayList(source, iterations, graph);
         break;
     case 1: // pull
-        bellmanFordDataDrivenPullGraphAdjArrayList(source, iterations, graph);
+        stats = bellmanFordDataDrivenPullGraphAdjArrayList(source, iterations, graph);
         break;
     default:// push
-        bellmanFordDataDrivenPushGraphAdjArrayList(source, iterations, graph);
+        stats = bellmanFordDataDrivenPushGraphAdjArrayList(source, iterations, graph);
         break;
     }
 
-
+    return stats;
 }
 
 
@@ -1525,32 +1533,25 @@ struct BellmanFordStats *bellmanFordDataDrivenPushGraphAdjArrayList(__u32 source
 // ***************                  LinkedList DataStructure                     **************
 // ********************************************************************************************
 
-void bellmanFordGraphAdjLinkedList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList *graph)
+struct BellmanFordStats *bellmanFordGraphAdjLinkedList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList *graph)
 {
 
-    // struct BellmanFordStats* stats1 = bellmanFordPushGraphAdjLinkedList(source, iterations, graph);
-    // struct BellmanFordStats* stats2 = bellmanFordPullGraphAdjLinkedList(source, iterations, graph);
-    // // // // struct BellmanFordStats* stats3 = bellmanFordRandomizedDataDrivenPushGraphCSR(source, iterations, graph);
-
-    // if( bellmanFordCompareDistanceArrays( stats1, stats2)){
-    // printf("Match!!\n");
-    // }else{
-    // printf("NOT Match!!\n");
-    // }
+    struct BellmanFordStats *stats;
 
     switch (pushpull)
     {
     case 0: // push
-        bellmanFordPushGraphAdjLinkedList(source, iterations, graph);
+        stats = bellmanFordPushGraphAdjLinkedList(source, iterations, graph);
         break;
     case 1: // pull
-        bellmanFordPullGraphAdjLinkedList(source, iterations, graph);
+        stats = bellmanFordPullGraphAdjLinkedList(source, iterations, graph);
         break;
     default:// push
-        bellmanFordPushGraphAdjLinkedList(source, iterations, graph);
+        stats = bellmanFordPushGraphAdjLinkedList(source, iterations, graph);
         break;
     }
 
+    return stats;
 
 }
 

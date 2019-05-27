@@ -53,8 +53,9 @@ __u32 topDownStepUsingBitmapsGraphCSR(struct GraphCSR *graph, struct ArrayQueue 
 // ***************					GRID DataStructure							 **************
 // ********************************************************************************************
 
+struct BFSStats *breadthFirstSearchGraphGrid(__u32 source, __u32 pushpull, struct GraphGrid *graph);
 
-struct BFSStats *breadthFirstSearchGraphGrid(__u32 source, struct GraphGrid *graph);
+struct BFSStats *breadthFirstSearchRowGraphGrid(__u32 source, struct GraphGrid *graph);
 void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid *graph, struct ArrayQueue *sharedFrontierQueue, struct ArrayQueue **localFrontierQueues, struct BFSStats *stats);
 void breadthFirstSearchPartitionGraphGrid(struct GraphGrid *graph, struct Partition *partition, struct ArrayQueue *sharedFrontierQueue, struct ArrayQueue *localFrontierQueue, struct BFSStats *stats);
 void breadthFirstSearchSetActivePartitions(struct GraphGrid *graph, struct ArrayQueue *sharedFrontierQueue);
@@ -64,7 +65,7 @@ void breadthFirstSearchSetActivePartitions(struct GraphGrid *graph, struct Array
 // ***************					GRID DataStructure/Bitmap Frontiers			 **************
 // ********************************************************************************************
 
-struct BFSStats *breadthFirstSearchGraphGridBitmap(__u32 source, struct GraphGrid *graph);
+struct BFSStats *breadthFirstSearchRowGraphGridBitmap(__u32 source, struct GraphGrid *graph);
 void breadthFirstSearchStreamEdgesGraphGridBitmap(struct GraphGrid *graph, struct Bitmap *FrontierBitmapCurr, struct Bitmap *FrontierBitmapNext, struct BFSStats *stats);
 void breadthFirstSearchPartitionGraphGridBitmap(struct GraphGrid *graph, struct Partition *partition, struct Bitmap *FrontierBitmapCurr, struct Bitmap *FrontierBitmapNext, struct BFSStats *stats);
 void breadthFirstSearchSetActivePartitionsBitmap(struct GraphGrid *graph, struct Bitmap *FrontierBitmap);
@@ -74,7 +75,13 @@ void breadthFirstSearchSetActivePartitionsBitmap(struct GraphGrid *graph, struct
 // ***************					ArrayList DataStructure					     **************
 // ********************************************************************************************
 
-struct BFSStats *breadthFirstSearchGraphAdjArrayList(__u32 source, struct GraphAdjArrayList *graph);
+
+struct BFSStats *breadthFirstSearchGraphAdjArrayList(__u32 source, __u32 pushpull, struct GraphAdjArrayList *graph);
+
+struct BFSStats *breadthFirstSearchPullGraphAdjArrayList(__u32 source, struct GraphAdjArrayList *graph);
+struct BFSStats *breadthFirstSearchPushGraphAdjArrayList(__u32 source, struct GraphAdjArrayList *graph);
+struct BFSStats *breadthFirstSearchDirectionOptimizedGraphAdjArrayList(__u32 source, struct GraphAdjArrayList *graph);
+
 __u32 bottomUpStepGraphAdjArrayList(struct GraphAdjArrayList *graph, struct Bitmap *bitmapCurr, struct Bitmap *bitmapNext, struct BFSStats *stats);
 __u32 topDownStepGraphAdjArrayList(struct GraphAdjArrayList *graph, struct ArrayQueue *sharedFrontierQueue,  struct ArrayQueue **localFrontierQueues, struct BFSStats *stats);
 
@@ -83,8 +90,12 @@ __u32 topDownStepGraphAdjArrayList(struct GraphAdjArrayList *graph, struct Array
 // ***************					LinkedList DataStructure					 **************
 // ********************************************************************************************
 
+struct BFSStats *breadthFirstSearchGraphAdjLinkedList(__u32 source, __u32 pushpull, struct GraphAdjLinkedList *graph);
 
-struct BFSStats *breadthFirstSearchGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedList *graph);
+struct BFSStats *breadthFirstSearchPullGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedList *graph);
+struct BFSStats *breadthFirstSearchPushGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedList *graph);
+struct BFSStats *breadthFirstSearchDirectionOptimizedGraphAdjLinkedList(__u32 source, struct GraphAdjLinkedList *graph);
+
 __u32 bottomUpStepGraphAdjLinkedList(struct GraphAdjLinkedList *graph, struct Bitmap *bitmapCurr, struct Bitmap *bitmapNext, struct BFSStats *stats);
 __u32 topDownStepGraphAdjLinkedList(struct GraphAdjLinkedList *graph, struct ArrayQueue *sharedFrontierQueue,  struct ArrayQueue **localFrontierQueues, struct BFSStats *stats);
 

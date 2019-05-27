@@ -120,7 +120,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
 {
     /* Get the input argument from argp_parse, which we
        know is a pointer to our arguments structure. */
-    struct arguments *arguments = state->input;
+    struct Arguments *arguments = state->input;
 
     switch (key)
     {
@@ -189,7 +189,7 @@ int
 main (int argc, char **argv)
 {
 
-    struct arguments arguments;
+    struct Arguments arguments;
     /* Default values. */
 
     arguments.wflag = 0;

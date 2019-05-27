@@ -42,7 +42,8 @@ void durstenfeldShuffle(__u32 *vertices, __u32 size);
 // ***************					GRID DataStructure							 **************
 // ********************************************************************************************
 
-void bellmanFordGraphGrid(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphGrid *graph);
+struct BellmanFordStats *bellmanFordGraphGrid(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphGrid *graph);
+
 struct BellmanFordStats *bellmanFordPullRowGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid *graph);
 struct BellmanFordStats *bellmanFordPushColumnGraphGrid(__u32 source,  __u32 iterations, struct GraphGrid *graph);
 
@@ -52,7 +53,7 @@ struct BellmanFordStats *bellmanFordPushColumnGraphGrid(__u32 source,  __u32 ite
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-void bellmanFordGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR *graph);
+struct BellmanFordStats *bellmanFordGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR *graph);
 
 struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR *graph);
 struct BellmanFordStats *bellmanFordDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR *graph);
@@ -63,7 +64,7 @@ void bellmanFordSpiltGraphCSR(struct GraphCSR *graph, struct GraphCSR **graphPlu
 // ***************					ArrayList DataStructure					     **************
 // ********************************************************************************************
 
-void bellmanFordGraphAdjArrayList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList *graph);
+struct BellmanFordStats *bellmanFordGraphAdjArrayList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList *graph);
 
 struct BellmanFordStats *bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source,  __u32 iterations, struct GraphAdjArrayList *graph);
 struct BellmanFordStats *bellmanFordDataDrivenPushGraphAdjArrayList(__u32 source,  __u32 iterations, struct GraphAdjArrayList *graph);
@@ -72,7 +73,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPushGraphAdjArrayList(__u32 source
 // ***************					LinkedList DataStructure					 **************
 // ********************************************************************************************
 
-void bellmanFordGraphAdjLinkedList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList *graph);
+struct BellmanFordStats *bellmanFordGraphAdjLinkedList(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList *graph);
 
 struct BellmanFordStats *bellmanFordPullGraphAdjLinkedList(__u32 source,  __u32 iterations, struct GraphAdjLinkedList *graph);
 struct BellmanFordStats *bellmanFordPushGraphAdjLinkedList(__u32 source,  __u32 iterations, struct GraphAdjLinkedList *graph);

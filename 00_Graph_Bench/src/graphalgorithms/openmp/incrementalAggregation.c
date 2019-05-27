@@ -122,6 +122,7 @@ struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphAdjLinked
 
     struct IncrementalAggregationStats *stats = (struct IncrementalAggregationStats *) malloc(sizeof(struct IncrementalAggregationStats));
 
+    stats->time_total =  0.0;
     stats->totalQ = 0.0;
 
     stats->vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
@@ -165,6 +166,8 @@ void freeIncrementalAggregationStats(struct IncrementalAggregationStats *stats)
             free(stats->sibling);
         if(stats->dest)
             free(stats->dest);
+        if(stats->labels)
+            free(stats->labels);
 
         free(stats);
     }
@@ -177,14 +180,13 @@ void freeIncrementalAggregationStats(struct IncrementalAggregationStats *stats)
 // ***************                  CSR DataStructure                            **************
 // ********************************************************************************************
 
-__u32  *incrementalAggregationGraphCSR( struct GraphCSR *graph)
+struct IncrementalAggregationStats *incrementalAggregationGraphCSR( struct GraphCSR *graph)
 {
 
     __u32 v;
     __u32 u;
     __u32 n;
     float deltaQ = -1.0;
-    __u32   *labels = NULL;
     struct IncrementalAggregationStats *stats = newIncrementalAggregationStatsGraphCSR(graph);
     struct ArrayQueue *Neighbors = newArrayQueue(graph->num_vertices);
     struct ArrayQueue *reachableSet = newArrayQueue(graph->num_vertices);
@@ -288,11 +290,12 @@ __u32  *incrementalAggregationGraphCSR( struct GraphCSR *graph)
     }
 
     // printSet(topLevelSet);
-    labels = returnLabelsOfNodesFromDendrogram(topLevelSet, stats->atomChild, stats->sibling, graph->num_vertices);
+    stats->labels = returnLabelsOfNodesFromDendrogram(topLevelSet, stats->atomChild, stats->sibling, graph->num_vertices);
 
     Stop(timer);
+    stats->time_total =  Seconds(timer);
     printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15u | %-15f | \n", "Clusters", sizeArrayQueueCurr(topLevelSet),  Seconds(timer));
+    printf("| %-15s | %-15u | %-15f | \n", "Clusters", sizeArrayQueueCurr(topLevelSet),  stats->time_total);
     printf(" -----------------------------------------------------\n");
     // printf(" -----------------------------------------------------\n");
     // printf("| %-15s | %-15lf | %-15f | \n", "total Q", totalQ, Seconds(timer));
@@ -302,7 +305,7 @@ __u32  *incrementalAggregationGraphCSR( struct GraphCSR *graph)
     freeArrayQueue(topLevelSet);
     freeArrayQueue(reachableSet);
     freeArrayQueue(Neighbors);
-    freeIncrementalAggregationStats(stats);
+  
 
     //  for(v = 0; v < graph->num_vertices; v++)
     // {
@@ -312,7 +315,7 @@ __u32  *incrementalAggregationGraphCSR( struct GraphCSR *graph)
     // }
 
 
-    return labels;
+    return stats;
 }
 
 

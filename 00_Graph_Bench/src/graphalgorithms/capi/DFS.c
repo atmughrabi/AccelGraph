@@ -16,18 +16,133 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
-
-
 // ********************************************************************************************
-// ***************					CSR DataStructure							 **************
+// ***************                  Stats DataStructure                          **************
 // ********************************************************************************************
 
+struct DFSStats *newDFSStatsGraphCSR(struct GraphCSR *graph)
+{
+
+    __u32 vertex_id;
+
+    struct DFSStats *stats = (struct DFSStats *) my_malloc(sizeof(struct DFSStats));
+
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->parents = (int *) my_malloc(graph->num_vertices * sizeof(int));
+    stats->processed_nodes = 0;
+    stats->num_vertices = graph->num_vertices;
+    stats->time_total = 0.0f;
+
+    // optimization for DFS implentaion instead of -1 we use -out degree to for hybrid approach counter
+    #pragma omp parallel for default(none) private(vertex_id) shared(stats,graph)
+    for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++)
+    {
+        stats->distances[vertex_id] = 0;
+        stats->parents[vertex_id] = -1;
+    }
+
+    return stats;
+
+}
+
+struct DFSStats *newDFSStatsGraphGrid(struct GraphGrid *graph)
+{
+
+    __u32 vertex_id;
+
+    struct DFSStats *stats = (struct DFSStats *) my_malloc(sizeof(struct DFSStats));
+
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->parents = (int *) my_malloc(graph->num_vertices * sizeof(int));
+    stats->processed_nodes = 0;
+    stats->num_vertices = graph->num_vertices;
+    stats->time_total = 0.0f;
+
+    #pragma omp parallel for default(none) private(vertex_id) shared(stats,graph)
+    for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++)
+    {
+        stats->distances[vertex_id] = 0;
+        stats->parents[vertex_id] = -1;
+    }
+
+    return stats;
+}
+
+struct DFSStats *newDFSStatsGraphAdjArrayList(struct GraphAdjArrayList *graph)
+{
+
+    __u32 vertex_id;
+
+    struct DFSStats *stats = (struct DFSStats *) my_malloc(sizeof(struct DFSStats));
+
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->parents = (int *) my_malloc(graph->num_vertices * sizeof(int));
+    stats->processed_nodes = 0;
+    stats->num_vertices = graph->num_vertices;
+    stats->time_total = 0.0f;
 
 
-void depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *graph)
+    #pragma omp parallel for default(none) private(vertex_id) shared(stats,graph)
+    for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++)
+    {
+        stats->distances[vertex_id] = 0;
+        stats->parents[vertex_id] = -1;
+    }
+
+    return stats;
+}
+
+struct DFSStats *newDFSStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph)
+{
+
+    __u32 vertex_id;
+
+    struct DFSStats *stats = (struct DFSStats *) my_malloc(sizeof(struct DFSStats));
+
+    stats->distances  = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->parents = (int *) my_malloc(graph->num_vertices * sizeof(int));
+    stats->processed_nodes = 0;
+    stats->num_vertices = graph->num_vertices;
+    stats->time_total = 0.0f;
+
+
+    #pragma omp parallel for default(none) private(vertex_id) shared(stats,graph)
+    for(vertex_id = 0; vertex_id < graph->num_vertices ; vertex_id++)
+    {
+        stats->distances[vertex_id] = 0;
+        stats->parents[vertex_id] = -1;
+    }
+
+    return stats;
+}
+
+void freeDFSStats(struct DFSStats *stats)
 {
 
 
+    if(stats)
+    {
+        if(stats->distances)
+            free(stats->distances);
+        if(stats->parents)
+            free(stats->parents);
+
+        free(stats);
+    }
+
+}
+
+
+// ********************************************************************************************
+// ***************                  CSR DataStructure                            **************
+// ********************************************************************************************
+
+
+
+struct DFSStats  *depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *graph)
+{
+
+    struct DFSStats *stats = newDFSStatsGraphCSR(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct ArrayStack *sharedFrontierStack = newArrayStack(graph->num_vertices);
 
@@ -39,33 +154,25 @@ void depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *graph)
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices)
+    if(source > graph->num_vertices)
     {
         printf(" -----------------------------------------------------\n");
         printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
         printf(" -----------------------------------------------------\n");
-        return;
+        return stats;
     }
-
-    graphCSRReset(graph);
 
 
     pushArrayStack(sharedFrontierStack, source);
-
-    graph->parents[source] = source;
-
-
-
+    stats->parents[source] = source;
 
     Start(timer);
     while(!isEmptyArrayStackCurr(sharedFrontierStack))  // start while
     {
 
-
-
         __u32 v = popArrayStack(sharedFrontierStack);
 
-        graph->processed_nodes++;
+        stats->processed_nodes++;
         __u32 edge_idx = graph->vertices->edges_idx[v];
         __u32 j;
 
@@ -74,10 +181,11 @@ void depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *graph)
         {
 
             __u32 u = graph->sorted_edges_array->edges_array_dest[j];
-            int u_parent = graph->parents[u];
+            int u_parent = stats->parents[u];
             if(u_parent < 0 )
             {
-                graph->parents[u] = v;
+                stats->parents[u] = v;
+                stats->distances[u] = stats->distances[v]+1;
                 pushArrayStack(sharedFrontierStack, u);
             }
         }
@@ -85,25 +193,28 @@ void depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *graph)
 
     } // end while
     Stop(timer);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15u | %-15f | \n", "No OverHead", graph->processed_nodes,  Seconds(timer));
-    printf(" -----------------------------------------------------\n");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15u | %-15f | \n", "total", graph->processed_nodes, Seconds(timer));
-    printf(" -----------------------------------------------------\n");
 
+    stats->time_total = Seconds(timer);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15u | %-15f | \n", "No OverHead", stats->processed_nodes,  stats->time_total);
+    printf(" -----------------------------------------------------\n");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15u | %-15f | \n", "total", stats->processed_nodes, Seconds(timer));
+    printf(" -----------------------------------------------------\n");
 
     freeArrayStack(sharedFrontierStack);
 
     free(timer);
+
+    return stats;
 }
 
 
 
-void depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
+struct DFSStats  *depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
 {
 
-
+    struct DFSStats *stats = newDFSStatsGraphCSR(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct ArrayStack *sharedFrontierStack = newArrayStack(graph->num_vertices);
 
@@ -116,18 +227,16 @@ void depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices)
+    if(source > graph->num_vertices)
     {
         printf(" -----------------------------------------------------\n");
         printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
         printf(" -----------------------------------------------------\n");
-        return;
+        return stats;
     }
 
-    graphCSRReset(graph);
-
     pushArrayStack(sharedFrontierStack, source);
-    graph->parents[source] = source;
+    stats->parents[source] = source;
 
 
 
@@ -137,7 +246,7 @@ void depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
 
         __u32 v = popArrayStack(sharedFrontierStack);
 
-        graph->processed_nodes++;
+        stats->processed_nodes++;
         __u32 edge_idx = graph->vertices->edges_idx[v];
         __u32 j;
 
@@ -145,10 +254,11 @@ void depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
         {
 
             __u32 u = graph->sorted_edges_array->edges_array_dest[j];
-            int u_parent = graph->parents[u];
+            int u_parent = stats->parents[u];
             if(u_parent < 0 )
             {
-                graph->parents[u] = v;
+                stats->parents[u] = v;
+                stats->distances[u] = stats->distances[v]+1;
                 pushArrayStack(sharedFrontierStack, u);
             }
         }
@@ -156,24 +266,26 @@ void depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
 
     } // end while
     Stop(timer);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15u | %-15f | \n", "No OverHead", graph->processed_nodes,  Seconds(timer));
-    printf(" -----------------------------------------------------\n");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15u | %-15f | \n", "total", graph->processed_nodes, Seconds(timer));
-    printf(" -----------------------------------------------------\n");
 
+    stats->time_total = Seconds(timer);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15u | %-15f | \n", "No OverHead", stats->processed_nodes,  stats->time_total);
+    printf(" -----------------------------------------------------\n");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15u | %-15f | \n", "total", stats->processed_nodes, Seconds(timer));
+    printf(" -----------------------------------------------------\n");
 
     freeArrayStack(sharedFrontierStack);
 
     free(timer);
 
+    return stats;
 }
 
-void pDepthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
+struct DFSStats  *pDepthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
 {
 
-
+    struct DFSStats *stats = newDFSStatsGraphCSR(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
 
@@ -185,46 +297,44 @@ void pDepthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Nodes", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source < 0 && source > graph->num_vertices)
+    if(source > graph->num_vertices)
     {
         printf(" -----------------------------------------------------\n");
         printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
         printf(" -----------------------------------------------------\n");
-        return;
+        return stats;
     }
 
-    graphCSRReset(graph);
-
-    graph->parents[source] = source;
+    stats->parents[source] = source;
 
     Start(timer);
-
-
-    pDepthFirstSearchGraphCSRTask( source, graph );
-
+    parallelDepthFirstSearchGraphCSRTask(source, graph, stats);
     Stop(timer);
+
+    stats->time_total = Seconds(timer);
     printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15u | %-15f | \n", "No OverHead", graph->processed_nodes,  Seconds(timer));
+    printf("| %-15s | %-15u | %-15f | \n", "No OverHead", stats->processed_nodes,  stats->time_total);
     printf(" -----------------------------------------------------\n");
     printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15u | %-15f | \n", "total", graph->processed_nodes, Seconds(timer));
+    printf("| %-15s | %-15u | %-15f | \n", "total", stats->processed_nodes, Seconds(timer));
     printf(" -----------------------------------------------------\n");
 
-    graphCSRReset(graph);
 
     free(timer);
 
+    return stats;
+
 }
 
-void pDepthFirstSearchGraphCSRTask(__u32 source, struct GraphCSR *graph)
+void parallelDepthFirstSearchGraphCSRTask(__u32 source, struct GraphCSR *graph, struct DFSStats *stats)
 {
 
     __u32 v = source;
 
     #pragma omp atomic update
-    graph->processed_nodes++;
+    stats->processed_nodes++;
 
-    // printf("%u \n", graph->processed_nodes);
+    // printf("%u \n", stats->processed_nodes);
 
     __u32 edge_idx = graph->vertices->edges_idx[v];
     __u32 j;
@@ -233,14 +343,17 @@ void pDepthFirstSearchGraphCSRTask(__u32 source, struct GraphCSR *graph)
     {
 
         __u32 u = graph->sorted_edges_array->edges_array_dest[j];
-        int u_parent = graph->parents[u];
+        int u_parent = stats->parents[u];
         if(u_parent < 0 )
         {
-            if(__sync_bool_compare_and_swap(&graph->parents[u], u_parent, v))
+            if(__sync_bool_compare_and_swap(&(stats->parents[u]), u_parent, v))
             {
 
+                
+                stats->distances[u] = stats->distances[v]+1;
+
                 // #pragma omp task
-                pDepthFirstSearchGraphCSRTask( u, graph);
+                parallelDepthFirstSearchGraphCSRTask( u, graph, stats);
 
             }
         }

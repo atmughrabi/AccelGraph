@@ -194,7 +194,6 @@ struct DFSStats  *depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *gr
     } // end while
     Stop(timer);
 
-
     stats->time_total = Seconds(timer);
     printf(" -----------------------------------------------------\n");
     printf("| %-15s | %-15u | %-15f | \n", "No OverHead", stats->processed_nodes,  stats->time_total);
@@ -267,7 +266,6 @@ struct DFSStats  *depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph)
 
     } // end while
     Stop(timer);
-
 
     stats->time_total = Seconds(timer);
     printf(" -----------------------------------------------------\n");

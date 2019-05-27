@@ -542,41 +542,26 @@ int test_13(int x)
     return x;
 }
 
-void SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR *graph, __u32 delta)
+struct SSSPStats *SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, struct GraphCSR *graph, __u32 delta)
 {
 
-    // delta = graph->max_weight/2;
-
-    // struct SSSPStats* stats1 = SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
-    // struct SSSPStats* stats2 = SSSPDataDrivenPullGraphCSR(source, iterations, graph, delta);
-
-    // if( SSSPCompareDistanceArrays( stats1, stats2)){
-    // printf("Match!!\n");
-    // }else{
-    // printf("NOT Match!!\n");
-    // }
-
-
-    // SSSPPrintStats();
-
-
-    printf(" %u \n", test_13(3) );
-
+    struct SSSPStats *stats = NULL;
 
     switch (pushpull)
     {
     case 0: // push
-        SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
-        break;
-    case 1: // pull
         printf("Commented out due to race conflicts\n");
         //     SSSPDataDrivenPullGraphCSR(source, iterations, graph, delta);
         break;
+    case 1: // pull
+        stats = SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
+        break;
     default:// push
-        SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
+        stats = SSSPDataDrivenPushGraphCSR(source, iterations, graph, delta);
         break;
     }
 
+    return stats;
 
 }
 
@@ -1098,37 +1083,37 @@ struct SSSPStats *SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     free(timer);
     free(timer_inner);
     freeBitmap(bitmapSetCurr);
-    // graphCSRFree(graphHeavy);
-    // graphCSRFree(graphLight);
+    graphCSRFree(graphHeavy);
+    graphCSRFree(graphLight);
 
-    if(graphHeavy->vertices)
-        freeVertexArray(graphHeavy->vertices);
-    if(graphHeavy->sorted_edges_array)
-        freeEdgeList(graphHeavy->sorted_edges_array);
-    if(graphHeavy)
-        free(graphHeavy);
+//     if(graphHeavy->vertices)
+//         freeVertexArray(graphHeavy->vertices);
+//     if(graphHeavy->sorted_edges_array)
+//         freeEdgeList(graphHeavy->sorted_edges_array);
+//     if(graphHeavy)
+//         free(graphHeavy);
 
-#if DIRECTED
-    if(graphHeavy->inverse_vertices)
-        freeVertexArray(graphHeavy->inverse_vertices);
-    if(graphHeavy->inverse_sorted_edges_array)
-        freeEdgeList(graphHeavy->inverse_sorted_edges_array);
-#endif
+// #if DIRECTED
+//     if(graphHeavy->inverse_vertices)
+//         freeVertexArray(graphHeavy->inverse_vertices);
+//     if(graphHeavy->inverse_sorted_edges_array)
+//         freeEdgeList(graphHeavy->inverse_sorted_edges_array);
+// #endif
 
-    if(graphLight->vertices)
-        freeVertexArray(graphLight->vertices);
-    if(graphLight->sorted_edges_array)
-        freeEdgeList(graphLight->sorted_edges_array);
-    if(graphLight)
-        free(graphLight);
+//     if(graphLight->vertices)
+//         freeVertexArray(graphLight->vertices);
+//     if(graphLight->sorted_edges_array)
+//         freeEdgeList(graphLight->sorted_edges_array);
+//     if(graphLight)
+//         free(graphLight);
 
 
-#if DIRECTED
-    if(graphLight->inverse_vertices)
-        freeVertexArray(graphLight->inverse_vertices);
-    if(graphLight->inverse_sorted_edges_array)
-        freeEdgeList(graphLight->inverse_sorted_edges_array);
-#endif
+// #if DIRECTED
+//     if(graphLight->inverse_vertices)
+//         freeVertexArray(graphLight->inverse_vertices);
+//     if(graphLight->inverse_sorted_edges_array)
+//         freeEdgeList(graphLight->inverse_sorted_edges_array);
+// #endif
 
 
     // SSSPPrintStats(stats);

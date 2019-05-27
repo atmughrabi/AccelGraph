@@ -128,7 +128,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 
 [<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
 
-## Initial compilation for the Graph framework with CAPI  
+## Initial compilation for the Graph framework with Coherent Accelerator Processor Interface (CAPI)  
 
 * NOTE: You need CAPI environment setup on your machine.
 * [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)

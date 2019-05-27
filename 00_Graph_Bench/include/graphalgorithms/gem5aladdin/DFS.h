@@ -9,12 +9,33 @@
 #include "bitmap.h"
 
 // ********************************************************************************************
+// ***************					Stats DataStructure							 **************
+// ********************************************************************************************
+
+struct DFSStats
+{
+    __u32 *distances;
+    int *parents;
+    __u32  processed_nodes;
+    __u32  num_vertices;
+    double time_total;
+};
+
+struct DFSStats *newDFSStatsGraphCSR(struct GraphCSR *graph);
+struct DFSStats *newDFSStatsGraphGrid(struct GraphGrid *graph);
+struct DFSStats *newDFSStatsGraphAdjArrayList(struct GraphAdjArrayList *graph);
+struct DFSStats *newDFSStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph);
+
+void freeDFSStats(struct DFSStats *stats);
+
+
+// ********************************************************************************************
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-void depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph);
-void depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *graph);
-void pDepthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph);
-void pDepthFirstSearchGraphCSRTask(__u32 source, struct GraphCSR *graph);
+struct DFSStats  *depthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph);
+struct DFSStats  *depthFirstSearchGraphCSRBase(__u32 source, struct GraphCSR *graph);
+struct DFSStats  *pDepthFirstSearchGraphCSR(__u32 source, struct GraphCSR *graph);
+void parallelDepthFirstSearchGraphCSRTask(__u32 source, struct GraphCSR *graph, struct DFSStats *stats);
 
 #endif

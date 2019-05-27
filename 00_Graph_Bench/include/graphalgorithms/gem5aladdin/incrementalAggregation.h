@@ -7,9 +7,10 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
-struct __attribute__((__packed__)) Atom{
-	__u32 degree;
-	__u32 child;
+struct __attribute__((__packed__)) Atom
+{
+    __u32 degree;
+    __u32 child;
 };
 
 // typedef struct pair { void *a[2]; } pair;
@@ -24,17 +25,46 @@ struct __attribute__((__packed__)) Atom{
 //       future.a[1] = actual.a[0];
 //   }
 // }
+
+// ********************************************************************************************
+// ***************					Stats DataStructure							 **************
+// ********************************************************************************************
+
+struct IncrementalAggregationStats
+{
+    __u32 *vertices;
+    __u32 *degrees;
+
+    //dendogram
+    __u32 *atomDegree;
+    __u32 *atomChild;
+    __u32 *sibling;
+    __u32 *dest;
+    __u32 *weightSum;
+    __u32 *labels;
+    __u32 num_vertices;
+    double totalQ;
+    double time_total;
+};
+
+struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphCSR(struct GraphCSR *graph);
+struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphGrid(struct GraphGrid *graph);
+struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphAdjArrayList(struct GraphAdjArrayList *graph);
+struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph);
+
+void freeIncrementalAggregationStats(struct IncrementalAggregationStats *stats);
+
 // ********************************************************************************************
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-__u32*  incrementalAggregationGraphCSR(struct GraphCSR *graph);
-void findBestDestination(struct ArrayQueue *Neighbors,struct ArrayQueue *reachableSet,float *deltaQ, __u32 *u, __u32 v, __u32 *weightSum, __u32 *dest, __u32 *atomDegree, __u32 *atomChild, __u32 *sibling, struct GraphCSR *graph);
+struct IncrementalAggregationStats *incrementalAggregationGraphCSR(struct GraphCSR *graph);
+void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reachableSet, float *deltaQ, __u32 *u, __u32 v,struct IncrementalAggregationStats* stats, struct GraphCSR *graph);
 void traversDendrogramReachableSetDFS(__u32 v, __u32 *atomChild, __u32 *sibling, struct ArrayQueue *reachableSet);
 void printSet(struct ArrayQueue *Set);
 void returnReachableSetOfNodesFromDendrogram(__u32 v, __u32 *atomChild, __u32 *sibling, struct ArrayQueue *reachableSet);
 
-__u32 * returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet , __u32 *atomChild, __u32 *sibling, __u32 num_vertices);
+__u32 *returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet, __u32 *atomChild, __u32 *sibling, __u32 num_vertices);
 void traversDendrogramLabelsDFS(__u32 *newLablesCounter, __u32 *newLables, __u32 v, __u32 *atomChild, __u32 *sibling);
 
 #endif
