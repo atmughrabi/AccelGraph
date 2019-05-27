@@ -247,7 +247,7 @@ main (int argc, char **argv)
 
         graph = generateGraphDataStructure(&arguments);
         runGraphAlgorithms(graph, &arguments);
-
+        freeGraphDataStructure(graph, arguments.datastructure);
     }
 
 

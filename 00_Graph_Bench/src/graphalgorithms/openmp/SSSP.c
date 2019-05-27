@@ -876,7 +876,7 @@ struct SSSPStats *SSSPGraphCSR(__u32 source,  __u32 iterations, __u32 pushpull, 
 //     graphCSRFree(graphHeavy);
 //     graphCSRFree(graphLight);
 
-  
+
 //     // SSSPPrintStats(stats);
 //     return stats;
 // }
@@ -892,6 +892,19 @@ struct SSSPStats *SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     iterations = graph->num_vertices - 1;
 
     struct SSSPStats *stats = newSSSPStatsGraphCSR(graph, delta);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Delta-Stepping Algorithm Push DD (Source)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51u | \n", source);
+    if(source > graph->num_vertices)
+    {
+        printf(" -----------------------------------------------------\n");
+        printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
+        printf(" -----------------------------------------------------\n");
+        return stats;
+    }
+
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
@@ -905,10 +918,7 @@ struct SSSPStats *SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     struct GraphCSR *graphHeavy = NULL;
     struct GraphCSR *graphLight = NULL;
 
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Delta-Stepping Algorithm Push DD (Source)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51u | \n", source);
+
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Start Split Heavy/Light");
     printf(" -----------------------------------------------------\n");
@@ -934,13 +944,7 @@ struct SSSPStats *SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     printf("| %-15s | %-15s | %-15s | \n", "Iteration", "Active vertices", "Time (Seconds)");
     printf(" -----------------------------------------------------\n");
 
-    if(source > graph->num_vertices)
-    {
-        printf(" -----------------------------------------------------\n");
-        printf("| %-51s | \n", "ERROR!! CHECK SOURCE RANGE");
-        printf(" -----------------------------------------------------\n");
-        return NULL;
-    }
+
 
     Start(timer);
 
@@ -1068,7 +1072,7 @@ struct SSSPStats *SSSPDataDrivenPushGraphCSR(__u32 source,  __u32 iterations, st
     graphCSRFree(graphHeavy);
     graphCSRFree(graphLight);
 
-   
+
     // SSSPPrintStats(stats);
     return stats;
 }

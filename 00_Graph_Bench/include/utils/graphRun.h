@@ -47,8 +47,11 @@ __u32 generateRandomRootGraphAdjArrayList(struct GraphAdjArrayList *graph);
 __u32 generateRandomRootGeneral(void *graph, struct Arguments *arguments);
 
 void freeGraphDataStructure(void *graph, __u32 datastructure);
+void freeGraphStatsGeneral(void *stats, __u32 algorithm);
+
 void writeSerializedGraphDataStructure(struct Arguments *arguments);
 void readSerializeGraphDataStructure(struct Arguments *arguments);
+
 void generateGraphPrintMessageWithtime(const char *msg, double time);
 void *generateGraphDataStructure(struct Arguments *arguments);
 
@@ -62,12 +65,6 @@ struct BellmanFordStats *runBellmanFordAlgorithm(void *graph, __u32 datastructur
 struct SSSPStats *runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 pushpull, __u32 delta);
 
 
-// struct BellmanFordStats
-// struct PageRankStats
-// struct BFSStats
-// struct DFSStats
-// struct IncrementalAggregationStats
-// struct SSSPStats
 
 #endif
 

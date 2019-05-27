@@ -268,7 +268,7 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
     }
 
     generateGraphPrintMessageWithtime("*     -----> Trials Avg Time (Seconds) <-----", (time_total / (double)arguments->trials));
-    freeGraphDataStructure(graph, arguments->datastructure);
+
 }
 
 __u32 generateRandomRootGraphCSR(struct GraphCSR *graph)
@@ -456,16 +456,19 @@ struct DFSStats *runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, 
     case 1: // Grid
         // graphGrid = (struct GraphGrid *)graph;
         generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
+
         break;
 
     case 2: // Adj Linked List
         // graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
         generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
+
         break;
 
     case 3: // Adj Array List
         // graphAdjArrayList = (struct GraphAdjArrayList *)graph;
         generateGraphPrintMessageWithtime("NOT YET IMPLEMENTED", 0);
+
         break;
 
 
@@ -485,7 +488,7 @@ struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *gra
 {
 
 
-    struct GraphCSR *graphCSR = NULL;
+    // struct GraphCSR *graphCSR = NULL;
     // struct GraphGrid *graphGrid = NULL;
     // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
     // struct GraphAdjArrayList *graphAdjArrayList = NULL;
@@ -494,8 +497,9 @@ struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *gra
     switch (datastructure)
     {
     case 0: // CSR
-        graphCSR = (struct GraphCSR *)graph;
-        stats = incrementalAggregationGraphCSR(graphCSR);
+        // graphCSR = (struct GraphCSR *)graph;
+        // stats = incrementalAggregationGraphCSR(graphCSR);
+        generateGraphPrintMessageWithtime("BUGGY IMPLEMENTATION UNCOMMENT IF YOU NEED IT", 0);
         break;
 
     case 1: // Grid
@@ -517,9 +521,9 @@ struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *gra
 
 
     default:// CSR
-        graphCSR = (struct GraphCSR *)graph;
+        // graphCSR = (struct GraphCSR *)graph;
 
-        incrementalAggregationGraphCSR(graphCSR);
+        // incrementalAggregationGraphCSR(graphCSR);
         break;
     }
 
@@ -724,5 +728,57 @@ void freeGraphDataStructure(void *graph, __u32 datastructure)
     }
 
     free(timer);
+
+}
+
+
+void freeGraphStatsGeneral(void *stats, __u32 algorithm)
+{
+
+    switch (algorithm)
+    {
+    case 0:  // bfs filename root
+    {
+        struct BFSStats *freeStatsBFS = (struct BFSStats * )stats;
+        freeBFSStats(freeStatsBFS);
+    }
+    break;
+    case 1: // pagerank filename
+    {
+        struct PageRankStats *freeStatsPageRank = (struct PageRankStats * )stats;
+        freePageRankStats(freeStatsPageRank);
+    }
+    break;
+    case 2: // SSSP-Dijkstra file name root
+    {
+        struct SSSPStats *freeStatsSSSP = (struct SSSPStats * )stats;
+        freeSSSPStats(freeStatsSSSP);
+    }
+    break;
+    case 3: // SSSP-Bellmanford file name root
+    {
+        struct BellmanFordStats *freeStatsBellmanFord = (struct BellmanFordStats * )stats;
+        freeBellmanFordStats(freeStatsBellmanFord);
+    }
+    break;
+    case 4: // DFS file name root
+    {
+        struct DFSStats *freeStatsDFS = (struct DFSStats * )stats;
+        freeDFSStats(freeStatsDFS);
+    }
+    break;
+    case 5: // incremental Aggregation file name root
+    {
+        struct IncrementalAggregationStats *freeStats = (struct IncrementalAggregationStats *)stats;
+        freeIncrementalAggregationStats(freeStats);
+    }
+    break;
+    default:// bfs file name root
+    {
+        struct BFSStats *freeStatsBFS = (struct BFSStats *)stats;
+        freeBFSStats(freeStatsBFS);
+    }
+    break;
+    }
 
 }

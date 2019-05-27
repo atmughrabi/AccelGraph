@@ -1,9 +1,11 @@
 
 
-# globals
+# globals binaary /bin/accel-graph name doesn't need to match main/accel-graph.c
   GAPP               = accel-graph
 
-  GAPP_TEST               = test_accel-graph
+
+# test name needs to match the file name test_accel-graph.c
+  GAPP_TEST          = test_accel-graph
 # GAPP_TEST          = test_quantization
 # GAPP_TEST          = test_bloomfilter
 # GAPP_TEST          = test_bloomStream
@@ -93,9 +95,9 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 3
+ALGORITHMS 		= 2
 
-ROOT 			= 59669
+ROOT 			= 5319
 PULL_PUSH 		= 0
 TOLERANCE 		= 1e-9
 DELTA 			= 800
@@ -103,7 +105,7 @@ DELTA 			= 800
 NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 # NUM_THREADS  	= 1
 NUM_ITERATIONS 	= 1
-NUM_TRIALS 		= 100
+NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
 CONVERT_FORMAT 	= 1
@@ -234,13 +236,13 @@ GEM5_DIR = $(ALADDIN_HOME)/../..
 .PHONY: graph-openmp
 graph-openmp : directories directories-openmp $(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp
 	@echo "\n ******************************************************************************  "
-	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: $(word 2,$^)"
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: ./$(word 3,$^)"
 	@echo " ******************************************************************************  \n"
 
 .PHONY: test-openmp
 test-openmp : directories directories-openmp $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-openmp
 	@echo "\n ******************************************************************************  "
-	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> TEST: $(word 2,$^)"
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> TEST: ./$(word 3,$^)"
 	@echo " ****************************************************************************** \n"
 
 .PHONY: directories
