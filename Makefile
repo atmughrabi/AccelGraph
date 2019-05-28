@@ -101,6 +101,10 @@ run-gem5-cpu:
 .PHONY: run-gem5-accel 
 run-gem5-accel: 
 	$(MAKE) run-gem5-accel -C $(APP_DIR)/$(BENCHMARKS_DIR)
+
+.PHONY: run-gem5-accel-debug
+run-gem5-accel-debug: 
+	$(MAKE) run-gem5-accel-debug -C $(APP_DIR)/$(BENCHMARKS_DIR)
 	  
 ##################################################
 ##################################################
