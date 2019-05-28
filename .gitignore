@@ -2,9 +2,6 @@
 00_graph_bench/bin
 00_graph_bench/build
 
-01_CAPI_Integration/CAPI-PSL9-WRAP-2.00
-01_CAPI_Integration/CAPI_1.00_DCP
-
 03_Reading/
 
 00_graph_bench/labelmap

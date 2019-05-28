@@ -916,7 +916,6 @@ struct PageRankStats *pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 
     case 3: // push
         stats = pageRankPushFixedPointGraphCSR(epsilon, iterations, graph);
         break;
-
     case 4: // pull
         stats = pageRankPulCacheAnalysisGraphCSR(epsilon, iterations, graph);
         break;

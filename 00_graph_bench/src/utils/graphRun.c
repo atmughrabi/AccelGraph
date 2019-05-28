@@ -11,6 +11,7 @@
 #include "graphConfig.h"
 #include "timer.h"
 #include "graphRun.h"
+#include "reorder.h"
 
 #include "BFS.h"
 #include "DFS.h"
@@ -576,6 +577,9 @@ struct PageRankStats *runPageRankAlgorithm(void *graph, __u32 datastructure, dou
         break;
     }
 
+
+    // if you want to output pageranks and rankins sorted use this 
+    // stats->realRanks = radixSortEdgesByPageRank (stats->pageRanks, stats->realRanks, stats->num_vertices);
     return stats;
 
 
