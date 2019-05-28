@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)
 
-# Accel-Graph Benchmark Suite
+
+# Accel-Graph Benchmark Suite [![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)
 
 # Installation 
 
