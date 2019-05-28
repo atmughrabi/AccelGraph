@@ -1,12 +1,12 @@
-[submodule "01_CAPI_Integration/capi-utils"]
-	path = 01_CAPI_Integration/capi-utils
+[submodule "01_capi_integration/capi-utils"]
+	path = 01_capi_integration/capi-utils
 	url = https://github.com/ibm-capi/capi-utils.git
 	ignore = dirty
-[submodule "01_CAPI_Integration/pslse"]
-	path = 01_CAPI_Integration/pslse
+[submodule "01_capi_integration/pslse"]
+	path = 01_capi_integration/pslse
 	url = https://github.com/ibm-capi/pslse.git
 	ignore = dirty
-[submodule "01_CAPI_Integration/libcxl"]
-	path = 01_CAPI_Integration/libcxl
+[submodule "01_capi_integration/libcxl"]
+	path = 01_capi_integration/libcxl
 	url = https://github.com/ibm-capi/libcxl.git
 	ignore = dirty
