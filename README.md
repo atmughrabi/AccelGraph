@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)
-[<p align="center"><img src="./02_slides/fig/logo3.png" width="700" ></p>](#accel-graph-benchmark-suite)
+[<p align="center"><img src="./02_slides/fig/logo3.png" width="650" ></p>](#accel-graph-benchmark-suite)
 
 # Accel-Graph Benchmark Suite
 
@@ -400,7 +400,7 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] Graph algorithms performance exploration with gem5-Aladdin
   - [ ] Page-Rank quantization
   - [ ] FPGA Frontier prefetcher
-- [x] Support unit testing
+- [x] Support testing
 
 Report bugs to <atmughra@ncsu.edu>
 [<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](#accel-graph-benchmark-suite)

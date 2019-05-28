@@ -1,5 +1,35 @@
+[![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)
 
-# Installation [<img src="../02_slides/fig/logo1.png" width="100" align="right" >](#installation-)
+# Accel-Graph Benchmark Suite
+
+## Graph Processing Framework that supports | OpenMP || CAPI/SystemVerilog || gem5-Aladdin | 
+
+## Overview 
+
+![End-to-End Acceleration](./02_slides/fig/fig-4.png "Accel-Graph")
+
+Accel-Graph is an open source graph processing framework, it is designed to be a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure that includes the preprocessing stage for forming the graph structure, with the graph algorithm.
+The OpenMP part of Accel-Graph has been developed on Ubuntu 16.04.6,  with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between shared memory FPGAs with parallel processors.
+Also we provided support for gem5-Aladdin for more performance exploration options. With a simple cache model hard coded into our base code for quick and dirty cache performance evaluation.
+
+* Presentations that explains end-to-end graph processing
+  * Preprocessing two steps (third one is optional) :
+    1. [[Sorting the edge-list](./02_slides/02_preprocessing_countsort.pdf)], using count-sort or radix-sort.
+    2. [[Building the graph structure](./02_slides/03_preprocessing_DataStructures.pdf)]. CSR, Gird, Adjacency-Linked-List, and Adjacency-Array-List. 
+        * [Ref](https://github.com/thu-pacman/GridGraph): Xiaowei Zhu, Wentao Han and Wenguang Chen. [GridGraph: Large-Scale Graph Processing on a Single Machine Using 2-Level Hierarchical Partitioning](https://www.usenix.org/system/files/conference/atc15/atc15-paper-zhu.pdf). Proceedings of the 2015 USENIX Annual Technical Conference, pages 375-386.
+        * [Ref](https://github.com/epfl-labos/EverythingGraph): Malicevic, Jasmina, Baptiste Lepers, and Willy Zwaenepoel. "Everything you always wanted to know about multicore graph processing but were afraid to ask." 2017 USENIX Annual Technical Conference. Proceedings of the 2015 USENIX Annual Technical Conference, pages 375-386.
+    3. [[Relabeling the graph](./02_slides/01_algorithm_PR_cache.pdf)], this step achieves better cache locality (better performance) with preprocessing overhead.
+        * [Ref](https://github.com/araij/rabbit_order): J. Arai, H. Shiokawa, T. Yamamuro, M. Onizuka, and S. Iwamura. Rabbit Order: Just-in-time Parallel Reordering for Fast Graph Analysis. IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2016.
+  * Graph Algorithm step depends on the direction of the data (Push/Pull):
+    1. [[BFS example](./02_slides/00_algorithm_BFS.pdf)], although it doesn't show direction optimized. But we discusses the Push and Pull approach separately.
+        * [[Ref](https://github.com/sbeamer/gapbs)]: Scott Beamer, Krste Asanović, David Patterson. [The GAP Benchmark Suite](http://arxiv.org/abs/1508.03619). arXiv:1508.03619 [cs.DC], 2015.
+    2. [[Page-Rank (PR) example](./02_slides/01_algorithm_PR_cache.pdf)]: Discussing PR cache behavior.
+       * [Ref](https://github.com/araij/rabbit_order): J. Arai, H. Shiokawa, T. Yamamuro, M. Onizuka, and S. Iwamura. Rabbit Order: Just-in-time Parallel Reordering for Fast Graph Analysis. IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2016.
+
+<!-- ## Details -->
+<!-- ### Accel-Graph Supported Algorithms -->
+
+# Installation 
 
 ## Setting up the source code 
 
@@ -17,7 +47,7 @@
 
 # Running Accel-Graph 
 
-[<img src="../02_slides/fig/openmp_logo.png" height="45" align="right" >](https://www.openmp.org/)
+[<img src="./02_slides/fig/openmp_logo.png" height="45" align="right" >](https://www.openmp.org/)
 
 ## Initial compilation for the Graph framework with OpenMP 
 
@@ -37,7 +67,8 @@
   ```
   make run-openmp
   ```
-[<img src="../02_slides/fig/gem5-aladdin_logo.png" height="45" align="right" >](https://github.com/harvard-acc/gem5-aladdin)
+
+[<img src="./02_slides/fig/gem5-aladdin_logo.png" height="45" align="right" >](https://github.com/harvard-acc/gem5-aladdin)
 
 ## Initial compilation for the Graph framework with gem5-Aladdin 
 
@@ -56,6 +87,10 @@
   * The dynamic trace is labeled with the following `(GRAPH_NAME)_(DATA_STRUCTURES)_(ALGORITHMS)_(PUSH_PULL)_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
   ```
   make run-aladdin
+  ```
+  * OR
+  ```
+  make run-aladdin-force # regenerate dynamic_trace even if it exists
   ```
 3. To generate a dynamic trace without running Aladdin:
   ```
@@ -85,13 +120,14 @@
   ```
   make run-gem5-cpu
   ```
-  * Running with `accel` mode on gem5 with the accelerator active. The performance-power model is derived from the DDDG (Dynamic Data Dependence Graph).
+  * Running with `accel` mode on gem5 with the accelerator active. The performance model is derived from the DDDG (Dynamic Data Dependence Graph).
   ```
   make run-gem5-accel
   ```
-[<img src="../02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
 
-## Initial compilation for the Graph framework with CAPI  
+[<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
+
+## Initial compilation for the Graph framework with Coherent Accelerator Processor Interface (CAPI)  
 
 * NOTE: You need CAPI environment setup on your machine.
 * [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
@@ -105,11 +141,11 @@
   ```
   cd 00_Graph_Bench/
   ```
-2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your PowerPC machine (CAPI supported) :
+2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
   ```
   make run-pslse
   ```
-3. Runs a graph algorithm that communicates with the pslse (simulation), or psl (real HW):
+3. Runs a graph algorithm that communicates with the PSLSE (simulation), or PSL (real HW):
   ```
   make run-capi
   ```
@@ -167,7 +203,7 @@
 0600 0000 0b00 0000 0100 0000 0800 0000
 1600 0000 0100 0000 0900 0000 1b00 0000
 0100 0000 
-```
+ ```
 
 ## Accel-Graph Options 
 
@@ -263,217 +299,55 @@ portable benchmarking suite for various graph processing algorithms.
   -V, --version              Print program version
 
  ```
-`Report bugs to <atmughra@ncsu.edu>.`
-
-## Organization Detailed:
-
-```bash
- .
-.
-├── aladdin_common
-│   ├── algorithms_configs
-│   │   ├── 0
-│   │   │   ├── 1
-│   │   │   │   └── 0.cfg
-│   ├── cacti_configs
-│   │   ├── cacti_cache.cfg
-│   │   ├── cacti_lq.cfg
-│   │   ├── cacti_sq.cfg
-│   │   └── cacti_tlb.cfg
-│   ├── dynamic_traces
-│   │   └── test_0_1_0_dynamic_trace.gz
-│   ├── gem5_configs
-│   │   ├── gem5.cfg
-│   │   └── run.sh
-│   ├── stats_aladdin
-│   └── stats_gem5
-│       ├── accel
-│       │   ├── algorithm.cfg -> ../../algorithms_configs/0/1/0.cfg
-│       │   ├── cacti_cache.cfg -> ../../cacti_configs/cacti_cache.cfg
-│       │   ├── cacti_lq.cfg -> ../../cacti_configs/cacti_lq.cfg
-│       │   ├── cacti_sq.cfg -> ../../cacti_configs/cacti_sq.cfg
-│       │   ├── cacti_tlb.cfg -> ../../cacti_configs/cacti_tlb.cfg
-│       │   ├── dddg_parse_progress.out
-│       │   ├── dynamic_trace.gz -> ../../dynamic_traces/test_0_1_0_dynamic_trace.gz
-│       │   ├── out.csv
-│       │   ├── outputs
-│       │   │   ├── algorithm_cache_stats.txt
-│       │   │   ├── algorithm_spad_stats.txt
-│       │   │   ├── algorithm_summary
-│       │   │   ├── config.ini
-│       │   │   ├── config.json
-│       │   │   ├── stats.db
-│       │   │   └── stats.txt
-│       │   └── stdout.gz
-│       ├── cpu
-│       │   ├── algorithm.cfg -> ../../algorithms_configs/0/1/0.cfg
-│       │   ├── cacti_cache.cfg -> ../../cacti_configs/cacti_cache.cfg
-│       │   ├── cacti_lq.cfg -> ../../cacti_configs/cacti_lq.cfg
-│       │   ├── cacti_sq.cfg -> ../../cacti_configs/cacti_sq.cfg
-│       │   ├── cacti_tlb.cfg -> ../../cacti_configs/cacti_tlb.cfg
-│       │   ├── dynamic_trace.gz -> ../../dynamic_traces/test_0_1_0_dynamic_trace.gz
-│       │   ├── outputs
-│       │   │   ├── config.ini
-│       │   │   ├── config.json
-│       │   │   ├── stats.db
-│       │   │   └── stats.txt
-│       │   └── stdout.gz
-│       └── openmp
-├── bin
-│   ├── accel-graph-gem5aladdin-gem5-accel
-│   ├── accel-graph-gem5aladdin-gem5-cpu
-│   └── accel-graph-gem5aladdin-instrumented
-├── cmake
-│   ├── Findcxl.cmake
-│   └── Findsnap.cmake
-├── CMakeLists.txt
-├── include
-│   ├── graphalgorithms
-│   │   ├── capi
-│   │   │   ├── bellmanFord.h
-│   │   │   ├── BFS.h
-│   │   │   ├── DFS.h
-│   │   │   ├── incrementalAggregation.h
-│   │   │   ├── pageRank.h
-│   │   │   └── SSSP.h
-│   │   ├── gem5aladdin
-│   │   │   ├── bellmanFord.h
-│   │   │   ├── BFS.h
-│   │   │   ├── DFS.h
-│   │   │   ├── incrementalAggregation.h
-│   │   │   ├── pageRank.h
-│   │   │   └── SSSP.h
-│   │   └── openmp
-│   │       ├── bellmanFord.h
-│   │       ├── BFS.h
-│   │       ├── DFS.h
-│   │       ├── incrementalAggregation.h
-│   │       ├── pageRank.h
-│   │       └── SSSP.h
-│   ├── preprocessing
-│   │   ├── countsort.h
-│   │   ├── epochReorder.h
-│   │   ├── radixsort.h
-│   │   ├── reorder.h
-│   │   └── sortRun.h
-│   ├── structures
-│   │   ├── adjArrayList.h
-│   │   ├── adjLinkedList.h
-│   │   ├── adjMatrix.h
-│   │   ├── arrayQueue.h
-│   │   ├── arrayStack.h
-│   │   ├── bitmap.h
-│   │   ├── capienv.h
-│   │   ├── dynamicQueue.h
-│   │   ├── edgeList.h
-│   │   ├── graphAdjArrayList.h
-│   │   ├── graphAdjLinkedList.h
-│   │   ├── graphCSR.h
-│   │   ├── graphGrid.h
-│   │   ├── grid.h
-│   │   └── vertex.h
-│   └── utils
-│       ├── bloomFilter.h
-│       ├── bloomMultiHash.h
-│       ├── bloomStream.h
-│       ├── boolean.h
-│       ├── cache.h
-│       ├── fixedPoint.h
-│       ├── graphConfig.h
-│       ├── graphRun.h
-│       ├── graphStats.h
-│       ├── hash.h
-│       ├── mt19937.h
-│       ├── myMalloc.h
-│       ├── quantization.h
-│       └── timer.h
-├── labelmap
-├── Makefile
-├── obj
-├── README.md
-└── src
-    ├── CMakeLists.txt
-    ├── graphalgorithms
-    │   ├── capi
-    │   │   ├── bellmanFord.c
-    │   │   ├── BFS.c
-    │   │   ├── CMakeLists.txt
-    │   │   ├── DFS.c
-    │   │   ├── incrementalAggregation.c
-    │   │   ├── pageRank.c
-    │   │   └── SSSP.c
-    │   ├── CMakeLists.txt
-    │   ├── gem5aladdin
-    │   │   ├── bellmanFord.c
-    │   │   ├── BFS.c
-    │   │   ├── CMakeLists.txt
-    │   │   ├── DFS.c
-    │   │   ├── incrementalAggregation.c
-    │   │   ├── pageRank.c
-    │   │   └── SSSP.c
-    │   └── openmp
-    │       ├── bellmanFord.c
-    │       ├── BFS.c
-    │       ├── CMakeLists.txt
-    │       ├── DFS.c
-    │       ├── incrementalAggregation.c
-    │       ├── pageRank.c
-    │       └── SSSP.c
-    ├── main
-    │   ├── accel-graph.c
-    │   └── CMakeLists.txt
-    ├── preprocessing
-    │   ├── CMakeLists.txt
-    │   ├── countsort.c
-    │   ├── epochReorder.c
-    │   ├── radixsort.c
-    │   ├── reorder.c
-    │   └── sortRun.c
-    ├── structures
-    │   ├── adjArrayList.c
-    │   ├── adjLinkedList.c
-    │   ├── adjMatrix.c
-    │   ├── arrayQueue.c
-    │   ├── arrayStack.c
-    │   ├── bitmap.c
-    │   ├── CMakeLists.txt
-    │   ├── dynamicQueue.c
-    │   ├── edgeList.c
-    │   ├── graphAdjArrayList.c
-    │   ├── graphAdjLinkedList.c
-    │   ├── graphCSR.c
-    │   ├── graphGrid.c
-    │   ├── grid.c
-    │   └── vertex.c
-    ├── tests
-    │   ├── CMakeLists.txt
-    │   ├── test_afu.c
-    │   ├── test_bloomfilter.c
-    │   ├── test_bloomStream.c
-    │   ├── test_fixedpoint.c
-    │   ├── test_graphAdjArray.c
-    │   ├── test_graphAdjLinkedList.c
-    │   ├── test_graphCSR.c
-    │   ├── test_graphGrid.c
-    │   ├── test_grid.c
-    │   └── test_quantization.c
-    └── utils
-        ├── bloomFilter.c
-        ├── bloomMultiHash.c
-        ├── bloomStream.c
-        ├── cache.c
-        ├── CMakeLists.txt
-        ├── graphRun.c
-        ├── graphStats.c
-        ├── hash.c
-        ├── mt19937.c
-        ├── myMalloc.c
-        ├── quantization.c
-        └── timer.c
 
 
+## Organization 
 
-```
+* `00_Graph_Bench`
+  * `include` - Major function headers 
+    * `graphalgorithms` - supported Graph algorithms
+      * `openmp`  - OpenMP integration
+        * `BFS.h`   - Breadth First Search
+        * `DFS.h`   - Depth First Search
+        * `SSSP.h`  - Single Source Shortest Path
+        * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
+        * `incrementalAgreggation.h` - Incremental Aggregation for clustering
+        * `pageRank.h` - Page Rank Algorithm
+      * `gem5aladdin`- gem5-aladdin integration
+      * `capi` - CAPI integration
+    * `preprocessing` - preprocessing graph structure
+      * `countsort.h` - sort edge list using count sort
+      * `radixsort.h` - sort edge list using radix sort
+      * `reorder.h` - cluster reorder the graph for better cache locality
+      * `sortRun.h` - chose which sorting algorithm to use
+    * `structures` - structures that hold the graph in memory
+      * `graphAdjArrayList.h` - graph using adjacency list array with arrays
+      * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
+      * `graphCSR.h` - graph using compressed sparse matrix
+      * `graphGrid.h` - graph using Grid
+  * `src` - Major function Source files
+    * `graphalgorithms` - supported Graph algorithms
+      * `openmp`  - OpenMP integration
+        * `BFS.c`   - Breadth First Search
+        * `DFS.c`   - Depth First Search
+        * `SSSP.c`  - Single Source Shortest Path
+        * `bellmanFord.c` - Single Source Shortest Path using Bellman Ford
+        * `incrementalAgreggation.c` - Incremental Aggregation for clustering
+        * `pageRank.c` - Page Rank Algorithm
+      * `gem5aladdin`- gem5-aladdin integration
+      * `capi` - CAPI integration
+    * `preprocessing` - preprocessing graph structure
+      * `countsort.c` - sort edge list using count sort
+      * `radixsort.c` - sort edge list using radix sort
+      * `reorder.c` - cluster reorder the graph for better cache locality
+      * `sortRun.c` - chose which sorting algorithm to use
+    * `structures` - structures that hold the graph in memory
+      * `graphAdjArrayList.c` - graph using adjacency list array with arrays
+      * `graphAdjLinkeList.c` - graph using adjacency list array with linked lists
+      * `graphCSR.c` - graph using compressed sparse matrix
+      * `graphGrid.c` - graph using Grid
+
+* *`Makefile`* - Global makefile
 
 ## Tasks TODO:
 
@@ -525,6 +399,7 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] Graph algorithms performance exploration with gem5-Aladdin
   - [ ] Page-Rank quantization
   - [ ] FPGA Frontier prefetcher
-- [ ] Support unit testing
+- [x] Support unit testing
 
-[<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#installation-)
+Report bugs to <atmughra@ncsu.edu>
+[<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](#accel-graph-benchmark-suite)
