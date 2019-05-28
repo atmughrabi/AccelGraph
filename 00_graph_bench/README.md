@@ -56,7 +56,7 @@
   cd 00_Graph_Bench/
   ```
 2. This will compile Aladdin, then generate a dynamic trace if it doesn't exist and then run Aladdin:
-  * The generated dynamic_trace resides in `./00_Graph_bench/aladdin_common/dynamic_traces` 
+  * The generated dynamic_trace resides in `../00_Graph_bench/aladdin_common/dynamic_traces` 
   * The dynamic trace is labeled with the following `(GRAPH_NAME)_(DATA_STRUCTURES)_(ALGORITHMS)_(PUSH_PULL)_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
   ```
   make run-aladdin
@@ -98,7 +98,7 @@
   make run-gem5-accel
   ```
 
-[<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
+[<img src="../02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
 
 ## Initial compilation for the Graph framework with Coherent Accelerator Processor Interface (CAPI)  
 
