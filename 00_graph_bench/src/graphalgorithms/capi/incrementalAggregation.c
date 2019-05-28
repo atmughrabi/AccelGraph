@@ -370,7 +370,12 @@ void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reacha
                 stats->dest[tempU] = stats->dest[stats->dest[tempU]];
             }
 
-            #pragma omp atomic update
+        }
+
+         for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++)
+        {
+            tempU = graph->sorted_edges_array->edges_array_dest[k];
+
             stats->weightSum[stats->dest[tempU]]++;
 
             if(!isEnArrayQueued(Neighbors, stats->dest[tempU]) &&  stats->dest[stats->dest[tempV]] != stats->dest[tempU])
@@ -380,8 +385,6 @@ void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reacha
             }
 
         }
-
-
 
     }
 
