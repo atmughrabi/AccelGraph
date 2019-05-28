@@ -47,7 +47,8 @@ struct Cache
     struct CacheLine **cacheLines;
 
     ulong currentCycle;
-
+    ulong currentCycle_cache;
+    ulong currentCycle_preftcher;
     //counters for graph performance on the cache
     uint *verticesMiss;
     uint  numVertices;

@@ -1546,6 +1546,7 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
     return stats;
 }
 
+
 // topoligy driven approach
 struct PageRankStats *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
 {
@@ -1707,15 +1708,15 @@ struct PageRankStats *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 it
         {
             degree = vertices->out_degree[v];
 
-            // if(labels[v] > (graph->num_vertices - top))
-            //     Access(cache_top, (__u64) & (vertices[v].out_degree), 'r', '1', v);
-            // else
-            //     Access(cache, (__u64) & (vertices[v].out_degree), 'r', '0', v);
+            if(labels[v] > (graph->num_vertices - top))
+                Access(cache, (__u64) & (vertices[v].out_degree), 'r', '1', v);
+            else
+                Access(cache, (__u64) & (vertices[v].out_degree), 'r', '0', v);
 
-            // if(labels[v] > (graph->num_vertices - top))
-            //     Access(cache_top, (__u64) & (vertices[v].edges_idx), 'r', '1', v);
-            // else
-            //     Access(cache ,(__u64) & (vertices[v].edges_idx), 'r', '0', v);
+            if(labels[v] > (graph->num_vertices - top))
+                Access(cache, (__u64) & (vertices[v].edges_idx), 'r', '1', v);
+            else
+                Access(cache, (__u64) & (vertices[v].edges_idx), 'r', '0', v);
 
             // prefetcing V+1
             // if((v + 1) < graph->num_vertices)
@@ -1767,13 +1768,13 @@ struct PageRankStats *pageRankPulCacheAnalysisGraphCSR(double epsilon,  __u32 it
                 {
                     Access(cache, (__u64) & (riDividedOnDiClause[u]), 'r', '1', u);
                     Access(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), 'r', '1', u);
-                    // Access(cache_top, (__u64) &(sorted_edges_array[j]), 'r', '1', v);
+                    Access(cache, (__u64) & (sorted_edges_array[j]), 'r', '1', v);
                 }
                 else
                 {
                     Access(cache, (__u64) & (riDividedOnDiClause[u]), 'r', '0', u);
                     Access(cache_prefetch, (__u64) & (riDividedOnDiClause[u]), 'r', '0', u);
-                    // Access(cache, (__u64) &(sorted_edges_array[j]), 'r', '0', v);
+                    Access(cache, (__u64) & (sorted_edges_array[j]), 'r', '0', v);
                 }
 
                 pageRanksNext[v] += riDividedOnDiClause[u];

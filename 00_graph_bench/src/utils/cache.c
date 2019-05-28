@@ -155,12 +155,11 @@ void writeBack(struct Cache *cache, ulong addr)
 }
 
 
-
 void initCache(struct Cache *cache, int s, int a, int b )
 {
     ulong i, j;
     cache->reads = cache->readMisses = cache->readsPrefetch = cache->readMissesPrefetch = cache->writes = cache->evictions = 0;
-    cache->writeMisses = cache->writeBacks = cache->currentCycle = 0;
+    cache->writeMisses = cache->writeBacks = cache->currentCycle_preftcher = cache->currentCycle_cache = cache->currentCycle = 0;
 
     cache->readsTop = cache->readMissesTop = cache->readsTopPrefetch = cache->readMissesTopPrefetch = cache->writesTop = 0;
     cache->writeMissesTop = cache->writeBacksTop = cache->evictionsTop = 0;
@@ -200,7 +199,11 @@ void initCache(struct Cache *cache, int s, int a, int b )
 void Access(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)
 {
     cache->currentCycle++;/*per cache global counter to maintain LRU order
+
+
       among cache ways, updated on every cache access*/
+
+    cache->currentCycle_cache++;
 
     if(op == 'w')
     {
@@ -270,6 +273,7 @@ void Prefetch(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)
 {
     cache->currentCycle++;/*per cache global counter to maintain LRU order
       among cache ways, updated on every cache access*/
+    cache->currentCycle_preftcher++;
 
     cache->readsPrefetch++;
     if(top == '1')
@@ -397,82 +401,93 @@ void printStats(struct Cache *cache)
 
 
 
-    float missRate = (double)((getWM(cache) + getRM(cache)) * 100) / (cache->currentCycle); //calculate miss rate
+    float missRate = (double)((getWM(cache) + getRM(cache)) * 100) / (cache->currentCycle_cache); //calculate miss rate
     missRate = roundf(missRate * 100) / 100;                            //rounding miss rate
 
-    float missRatePrefetch = (double)(( getRMPrefetch(cache)) * 100) / (getReadsPrefetch(cache)); //calculate miss rate
+    float missRatePrefetch = (double)(( getRMPrefetch(cache)) * 100) / (cache->currentCycle_preftcher); //calculate miss rate
     missRatePrefetch = roundf(missRatePrefetch * 100) / 100;
 
-    float missRateTop = (double)((getWMTop(cache) + getRMTop(cache)) * 100) / (cache->currentCycle); //calculate miss rate
+    float missRateTop = (double)((getWMTop(cache) + getRMTop(cache)) * 100) / (cache->currentCycle_cache); //calculate miss rate
     missRateTop = roundf(missRateTop * 100) / 100;                            //rounding miss rate
 
-    float readRatioTop = (((double)getReadsTop(cache) / getReads(cache)) * 100.0);
-    float readMissRatioTop = (((double)getRMTop(cache) / getRM(cache)) * 100.0);
-    float writeRatioTop = (((double)getWritesTop(cache) / getWrites(cache)) * 100.0);
-    float writeMissRatioTop = (((double)getWMTop(cache) / getWM(cache)) * 100.0);
-    float missRateRatioTop = (((double)missRateTop / missRate) * 100.0);
-    float evictionRatioTop = (((double)getEVCTop(cache) / getEVC(cache)) * 100.0);
+    // float readRatioTop = (((double)getReadsTop(cache) / getReads(cache)) * 100.0);
+    // float readMissRatioTop = (((double)getRMTop(cache) / getRM(cache)) * 100.0);
+    // float writeRatioTop = (((double)getWritesTop(cache) / getWrites(cache)) * 100.0);
+    // float writeMissRatioTop = (((double)getWMTop(cache) / getWM(cache)) * 100.0);
+    // float missRateRatioTop = (((double)missRateTop / missRate) * 100.0);
+    // float evictionRatioTop = (((double)getEVCTop(cache) / getEVC(cache)) * 100.0);
+
+    printf(" -----------------------------------------------------\n");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Simulation results (Cache)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %'-27lu | \n", "Reads", getReads(cache) );
+    printf("| %-21s | %'-27lu | \n", "Read misses", getRM(cache) );
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %'-27lu | \n", "Writes", getWrites(cache) );
+    printf("| %-21s | %'-27lu | \n", "Write misses", getWM(cache) );
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27.2f | \n", "Miss rate(%)", missRate);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %'-27lu | \n", "Writebacks", getWB(cache) );
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %'-27lu | \n", "Evictions", getEVC(cache) );
+    printf(" -----------------------------------------------------\n");
+
+    printf(" -----------------------------------------------------\n");
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "TOP degree nodes results (Cache)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %'-27lu | \n", "Reads", getReadsTop(cache) );
+    printf("| %-21s | %'-27lu | \n", "Read misses", getRMTop(cache) );
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %'-27lu | \n", "Writes", getWritesTop(cache) );
+    printf("| %-21s | %'-27lu | \n", "Write misses", getWMTop(cache) );
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27.2f | \n", "Miss rate(%)", missRateTop);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %'-27lu | \n", "Writebacks", getWBTop(cache) );
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %'-27lu | \n", "Evictions", getEVCTop(cache) );
+    printf(" -----------------------------------------------------\n");
+
+    printf(" -----------------------------------------------------\n");
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Prefetcher Stats");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %'-27lu | \n", "Reads", getReadsPrefetch(cache) );
+    printf("| %-21s | %'-27lu | \n", "Read misses", getRMPrefetch(cache) );
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27.2f | \n", "Effeciency(%)", missRatePrefetch);
+    printf(" -----------------------------------------------------\n");
 
 
-    printf("============ Simulation results (Cache) ============\n");
-    /****print out the rest of statistics here.****/
-    /****follow the ouput file format**************/
-    printf("01. number of reads:                          %lu\n", getReads(cache));
-    printf("02. number of read misses:                    %lu\n", getRM(cache));
-    printf("03. number of writes:                         %lu\n", getWrites(cache));
-    printf("04. number of write misses:                   %lu\n", getWM(cache));
-    printf("05. total miss rate:                          %.2f%%\n", missRate);
-    printf("06. number of writebacks:                     %lu\n", getWB(cache));
-    printf("06. number of evictions:                      %lu\n", getEVC(cache));
-
-    printf("============ Simulation results (TOP out degree nodes) ============\n");
-    printf("01. number of reads:                          %lu\n", getReadsTop(cache));
-    printf("02. number of read misses:                    %lu\n", getRMTop(cache));
-    printf("03. number of writes:                         %lu\n", getWritesTop(cache));
-    printf("04. number of write misses:                   %lu\n", getWMTop(cache));
-    printf("05. total miss rate:                          %.2f%%\n", missRateTop);
-    printf("06. number of evictionsTop:                   %lu\n", getEVCTop(cache));
-
-    printf("============ Simulation results (TOP out degree nodes RATIOS) ============\n");
-    printf("01. ratio of reads:                          %.2f%%\n", readRatioTop);
-    printf("02. ratio of read misses:                    %.2f%%\n", readMissRatioTop);
-    printf("03. ratio of writes:                         %.2f%%\n", writeRatioTop);
-    printf("04. ratio of write misses:                   %.2f%%\n", writeMissRatioTop);
-    printf("05. ratio miss rate:                         %.2f%%\n", missRateRatioTop);
-    printf("06. ratio of evictionsTop:                   %.2f%%\n", evictionRatioTop);
-
-    printf("============ Prefetch Stats (Ideal DATA Prefetching) ============\n");
-    printf("01. number of reads:                          %lu\n", getReadsPrefetch(cache));
-    printf("02. number of read misses:                    %lu\n", getRMPrefetch(cache));
-    printf("05. total miss rate:                          %.2f%%\n", missRatePrefetch);
-
-
-
-
-    ulong  numVerticesMiss = 0;
-    ulong  totalVerticesMiss = 0;
+    // ulong  numVerticesMiss = 0;
+    // ulong  totalVerticesMiss = 0;
     // uint  maxVerticesMiss = 0;
     // uint  maxNode = 0;
 
-    uint i;
-    for(i = 0; i < cache->numVertices; i++)
-    {
-        if(cache->verticesMiss[i] > 100)
-        {
-            numVerticesMiss++;
-            totalVerticesMiss += cache->verticesMiss[i];
-        }
-    }
+    // uint i;
+    // for(i = 0; i < cache->numVertices; i++)
+    // {
+    //     if(cache->verticesMiss[i] > 100)
+    //     {
+    //         numVerticesMiss++;
+    //         totalVerticesMiss += cache->verticesMiss[i];
+    //     }
+    // }
 
 
-    float MissNodesRatioReadMisses = (((double)numVerticesMiss / cache->numVertices) * 100.0);
-    float ratioReadMissesMissNodes = (((double)totalVerticesMiss / getRM(cache)) * 100.0);
+    // float MissNodesRatioReadMisses = (((double)numVerticesMiss / cache->numVertices) * 100.0);
+    // float ratioReadMissesMissNodes = (((double)totalVerticesMiss / getRM(cache)) * 100.0);
 
-    printf("============ Graph Stats (Nodes cause highest miss stats) ============\n");
-    printf("01. number of nodes:                          %lu\n", numVerticesMiss);
-    printf("02. number of read misses:                    %lu\n", totalVerticesMiss);
-    printf("03. ratio from total nodes :                  %.2f%%\n", MissNodesRatioReadMisses);
-    printf("04. ratio from total read misses:             %.2f%%\n", ratioReadMissesMissNodes);
+    // printf("============ Graph Stats (Nodes cause highest miss stats) ============\n");
+    // printf("01. number of nodes:                          %lu\n", numVerticesMiss);
+    // printf("02. number of read misses:                    %lu\n", totalVerticesMiss);
+    // printf("03. ratio from total nodes :                  %.2f%%\n", MissNodesRatioReadMisses);
+    // printf("04. ratio from total read misses:             %.2f%%\n", ratioReadMissesMissNodes);
 
 
 
