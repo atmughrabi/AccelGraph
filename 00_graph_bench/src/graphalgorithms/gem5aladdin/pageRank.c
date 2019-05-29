@@ -25,13 +25,10 @@
 #include "cache.h"
 #include "bloomMultiHash.h"
 
-//gem5-aladdin
-#ifdef DMA_MODE
-#include "gem5/dma_interface.h"
-#endif
 
 #ifdef GEM5_HARNESS
 #include "gem5/gem5_harness.h"
+// #include "gem5/m5ops.h"
 #endif
 
 // ********************************************************************************************
@@ -1046,20 +1043,7 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
                 riDividedOnDiClause[v] = 0.0f;
         }
 
-        // #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
-        // for(v = 0; v < graph->num_vertices; v++)
-        // {
-        //     float nodeIncomingPR = 0.0f;
-        //     degree = vertices->out_degree[v];
-        //     edge_idx = vertices->edges_idx[v];
-        //     for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-        //     {
-        //         u = sorted_edges_array[j];
-        //         nodeIncomingPR += riDividedOnDiClause[u]; // stats->pageRanks[v]/graph->vertices[v].out_degree;
-        //     }
-        //     pageRanksNext[v] = nodeIncomingPR;
-        // }
-
+        // m5_work_begin(ACCELGRAPH_CSR_PAGERANK_PULL, 0);
 #ifdef GEM5_HARNESS
         mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "riDividedOnDiClause", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(__u32));
@@ -1076,6 +1060,7 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
 #else
         pageRankPullGraphCSRKernel(riDividedOnDiClause, pageRanksNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
 #endif
+        // m5_work_end(ACCELGRAPH_CSR_PAGERANK_PULL, 0);
 
         #pragma omp parallel for private(v) shared(epsilon, pageRanksNext,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)

@@ -226,9 +226,12 @@ GEM5_CFLAGS = -static -O3 \
               -fno-exceptions 
             
 
-GEM5_INC = $(LLVM_INC) 
+
 
 GEM5_DIR = $(ALADDIN_HOME)/../..
+
+GEM5_INC = $(LLVM_INC) \
+# 			-I$(GEM5_DIR)/include/
 
 GEM5_ARGS	= --outdir=./outputs \
 			  --stats-db-file=stats.db \
@@ -423,7 +426,7 @@ gem5-cpu: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS)
 .PHONY: gem5-accel 
 gem5-accel: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS) 
 	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-accel  for gem5 with HW acceleration.
-	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -DGEM5_HARNESS $(ALL_SRCS_GEM5ALADDIN) $(GEM5_FULL_SRCS) $(GEM5_INC) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-accel $(LFLAGS)
+	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -DGEM5_HARNESS $(ALL_SRCS_GEM5ALADDIN) $(GEM5_FULL_SRCS) $(GEM5_INC) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-accel $(LFLAGS)
 
 .PHONY: clean-gem5 
 clean-gem5:
