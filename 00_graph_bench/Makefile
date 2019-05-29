@@ -125,7 +125,7 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 
 SRC_FILES_ALGO_OPENMP		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/openmp/*.c)
 SRC_FILES_ALGO_CAPI			=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
-SRC_FILES_ALGO_ALADDIN		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/*.c) 
+
 
 SRC_FILES_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/*.c) 
 SRC_FILES_PREPRO	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/*.c) 
@@ -136,7 +136,6 @@ SRC_FILES_TEST		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/*.c)
 
 OBJ_FILES_ALGO_OPENMP 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/openmp/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/openmp/%.o,$(SRC_FILES_ALGO_OPENMP)) 
 OBJ_FILES_ALGO_CAPI 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
-OBJ_FILES_ALGO_ALADDIN 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%.o,$(SRC_FILES_ALGO_ALADDIN)) 
 
 OBJ_FILES_UTIL 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o,$(SRC_FILES_UTIL)) 
 OBJ_FILES_PREPRO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o,$(SRC_FILES_PREPRO)) 
@@ -145,6 +144,7 @@ OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$
 OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%.o,$(SRC_FILES_TEST)) 
 
 CC				  = gcc 
+
 
 OPENMP_INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
 				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/openmp 	\
@@ -169,6 +169,8 @@ FAIL = \033[91mFAIL\033[0m
 ##################################################
 
 LLVM_VERSION = $(shell clang --version | grep -o -m 1 "[0-9\.]\+" | head -n 1)
+
+SRC_FILES_ALGO_ALADDIN		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/*.c) 
 
 LLVM_OBJ_FILES_UTIL 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%-opt.llvm,$(SRC_FILES_UTIL)) 
 LLVM_OBJ_FILES_ALGO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%-opt.llvm,$(SRC_FILES_ALGO_ALADDIN)) 
@@ -210,27 +212,36 @@ LLVMFLAGS = -static -g -O1 -S -fno-slp-vectorize -fno-vectorize -fno-unroll-loop
 #    		 GEM5 COMPILATION VARIABLES         #
 ##################################################
 
+GEM5_SRCS = aladdin_sys_connection.cpp aladdin_sys_constants.cpp dma_interface.c
+GEM5_FULL_SRCS = $(GEM5_SRCS:%=$(ALADDIN_HOME)/gem5/%)
+
+GEM5_TEMP_OBJ = $(patsubst $(ALADDIN_HOME)/gem5/%.c,$(ALADDIN_HOME)/gem5/%.o,$(GEM5_FULL_SRCS)) 
+GEM5_FULL_OBJ = $(patsubst $(ALADDIN_HOME)/gem5/%.cpp,$(ALADDIN_HOME)/gem5/%.o,$(GEM5_TEMP_OBJ)) 
+
+OBJ_FILES_ALGO_ALADDIN 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%.o,$(SRC_FILES_ALGO_ALADDIN)) 
+OBJ_FILES_UTIL_ALADDIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o,$(SRC_FILES_UTIL)) 
+OBJ_FILES_PREPRO_ALADDIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o,$(SRC_FILES_PREPRO)) 
+OBJ_FILES_STRUCT_ALADDIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o,$(SRC_FILES_STRUCT)) 
+OBJ_FILES_MAIN_ALADDIN   	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%.o,$(SRC_FILES_MAIN)) 
+OBJ_FILES_TEST_ALADDIN   	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%.o,$(SRC_FILES_TEST)) 
+
 # Common Make targets for simulating MachSuite in gem5.
 #
 # ALADDIN_HOME needs to be defined as an environment variable.
 # The gem5 dependencies are listed as .cpp files for compatibility with gem5.
 # To compile them with C code, we need to explicitly use gcc.
 
-GEM5_SRCS = aladdin_sys_connection.cpp aladdin_sys_constants.cpp dma_interface.c
-GEM5_FULL_SRCS = $(GEM5_SRCS:%=$(ALADDIN_HOME)/gem5/%)
+
 
 ALADDIN_CFLAGS = $(CFLAGS) -Wno-unused-label -DDMA_INTERFACE_V3
 # -mno-sse
-GEM5_CFLAGS = -static -O3 \
+GEM5_CFLAGS = -O3 \
               -msse -mfpmath=sse \
               -fno-exceptions 
             
-
-
-
 GEM5_DIR = $(ALADDIN_HOME)/../..
 
-GEM5_INC = $(LLVM_INC) \
+GEM5_INC = $(LLVM_INC)
 # 			-I$(GEM5_DIR)/include/
 
 GEM5_ARGS	= --outdir=./outputs \
@@ -382,57 +393,97 @@ directories-gem5:
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/openmp
 
+.PHONY: config-symlink-gem5
+config-symlink-gem5:
+	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/$(INTEGRATION)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH) &&\
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/$(INTEGRATION)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
+	ln -sf ../../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_dynamic_trace.gz ./dynamic_trace.gz &&\
+	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
+	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
+	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
+	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
+	ln -sf ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH).cfg ./algorithm.cfg
+
 # These are relative to gem5.cfg file
 .PHONY: config-symlink-gem5-cpu
-config-symlink-gem5-cpu:
-	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH) &&\
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
-	ln -sf ../../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_dynamic_trace.gz ./dynamic_trace.gz &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
-	ln -sf ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH).cfg ./algorithm.cfg
+config-symlink-gem5-cpu: INTEGRATION = cpu
+config-symlink-gem5-cpu: config-symlink-gem5
+	
 
 .PHONY: config-symlink-gem5-accel
-config-symlink-gem5-accel:
-	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH) &&\
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
-	ln -sf ../../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_dynamic_trace.gz ./dynamic_trace.gz &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
-	ln -sf ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH).cfg ./algorithm.cfg
+config-symlink-gem5-accel: INTEGRATION = accel
+config-symlink-gem5-accel: config-symlink-gem5
+	
 
 .PHONY: config-symlink-gem5-openmp
-config-symlink-gem5-openmp:
-	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/openmp/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH) &&\
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/openmp/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
-	ln -sf ../../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_dynamic_trace.gz ./dynamic_trace.gz &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
-	ln -sf ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH).cfg ./algorithm.cfg
+config-symlink-gem5-openmp: INTEGRATION = openmp
+config-symlink-gem5-openmp: config-symlink-gem5
+	
+
+.PHONY: graph-gem5-accel
+graph-gem5-accel : directories directories-gem5 $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-accel
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: ./$(word 3,$^)"
+	@echo " ******************************************************************************  \n"
+
+.PHONY: graph-gem5-cpu
+graph-gem5-cpu : directories directories-gem5 $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: ./$(word 3,$^)"
+	@echo " ******************************************************************************  \n"
+
+
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-accel:  $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-accel.o $(GEM5_FULL_OBJ) $(OBJ_FILES_UTIL_ALADDIN) $(OBJ_FILES_ALGO_ALADDIN) $(OBJ_FILES_PREPRO_ALADDIN) $(OBJ_FILES_STRUCT_ALADDIN)
+	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -o $@ $^  $(LFLAGS) 
+
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu:  $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-cpu.o $(GEM5_FULL_OBJ) $(OBJ_FILES_UTIL_ALADDIN) $(OBJ_FILES_ALGO_ALADDIN) $(OBJ_FILES_PREPRO_ALADDIN) $(OBJ_FILES_STRUCT_ALADDIN)
+	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -o $@ $^  $(LFLAGS) 
+
+$(ALADDIN_HOME)/gem5/%.o: $(GEM5_FULL_SRCS)
+	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-accel.o: $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
+	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-cpu.o: $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
+	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c
+	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c 
+	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
+	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
+
+$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c
+	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
+
+
+.PHONY: gem5-build 
+gem5-build: directories-gem5 $(GEM5_FULL_SRCS)
+	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-$(INTEGRATION).
+	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(MODE) $(ALL_SRCS_GEM5ALADDIN) $(GEM5_FULL_SRCS) $(GEM5_INC) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-$(INTEGRATION) $(LFLAGS)
+
 
 # Builds the standalone CPU version only.
 .PHONY: gem5-cpu 
-gem5-cpu: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS)
-	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-cpu for gem5.
-	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_FULL_SRCS) $(ALL_SRCS_GEM5ALADDIN) $(GEM5_INC) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-cpu $(LFLAGS) 
+gem5-cpu: INTEGRATION = cpu
+gem5-cpu: gem5-build 
 
-# Builds the gem5 version with HW acceleration turned on.
-.PHONY: gem5-accel 
-gem5-accel: directories-gem5 $(SRCS) $(GEM5_FULL_SRCS) 
-	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-accel  for gem5 with HW acceleration.
-	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -DGEM5_HARNESS $(ALL_SRCS_GEM5ALADDIN) $(GEM5_FULL_SRCS) $(GEM5_INC) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-accel $(LFLAGS)
-
+# Builds the gem5 version with HW acceleration turned on. target specific variables
+.PHONY: gem5-accel
+gem5-accel: INTEGRATION = accel
+gem5-accel: MODE = -DGEM5_HARNESS
+gem5-accel: gem5-build 
+	
 .PHONY: clean-gem5 
 clean-gem5:
 	@rm -rf ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-cpu 
 	@rm -fr ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-accel
 	@rm -fr ./$(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)
+	@rm -fr $(GEM5_FULL_OBJ)
 
 ##################################################
 ##################################################
@@ -507,7 +558,7 @@ run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
-	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-cpu -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
+	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
 	| gzip -c > stdout.gz
 
 .PHONY: run-gem5-accel 
@@ -515,7 +566,7 @@ run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
-	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
+	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
 	| gzip -c > stdout.gz
 
 .PHONY: run-gem5-accel-debug 
@@ -523,7 +574,7 @@ run-gem5-accel-debug: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH) l && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS_DEBUG) \
-	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
+	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
 	| gzip -c > stdout.gz &&\
 
 	  
