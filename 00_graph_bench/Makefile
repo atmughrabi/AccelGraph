@@ -1,5 +1,7 @@
 
-
+#########################################################
+#       		 GENERAL DIRECTOIRES   	    			#
+#########################################################
 # globals binaary /bin/accel-graph name doesn't need to match main/accel-graph.c
   GAPP               = accel-graph
 
@@ -53,6 +55,9 @@ TEST_DIR		  	= tests
 #contains the main for the graph processing framework
 MAIN_DIR		  	= main
 
+##################################################
+##################################################
+
 #########################################################
 #       		 ACCEL RUN GRAPH ARGUMENTS    			#
 #########################################################
@@ -77,8 +82,8 @@ MAIN_DIR		  	= main
 
 
 # real world small graphs binary format
-# GRAPH_NAME = com-youtube
-GRAPH_NAME = p2p-Gnutella31
+GRAPH_NAME = com-youtube
+# GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -118,10 +123,18 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 
 ##################################################
 ##################################################
+#these variables only affect the signature not used in the make file
+
+UNROLLING = 32
+
+#each diffrenert run would store the output to different folder based on these parameters
+BENCHMARK_SIGNATURE = $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_$(UNROLLING)
 
 ##############################################
 #      ACCEL GRAPH COMPILATION VARIABLES     #
 ##############################################
+
+
 
 SRC_FILES_ALGO_OPENMP		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/openmp/*.c)
 SRC_FILES_ALGO_CAPI			=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
@@ -340,6 +353,7 @@ clean: clean-trace clean-gem5
 directories-aladdin:
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)
+	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(ALADDIN_STATS_DIR)
 	
 
@@ -401,14 +415,14 @@ directories-gem5:
 
 .PHONY: config-symlink-gem5
 config-symlink-gem5:
-	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/$(INTEGRATION)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH) &&\
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/$(INTEGRATION)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
-	ln -sf ../../../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_dynamic_trace.gz ./dynamic_trace.gz &&\
+	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/$(INTEGRATION)/$(BENCHMARK_SIGNATURE) &&\
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/$(INTEGRATION)/$(BENCHMARK_SIGNATURE)  && \
+	ln -sf ../../../$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz ./dynamic_trace.gz &&\
 	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
 	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
 	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
 	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
-	ln -sf ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH).cfg ./algorithm.cfg
+	ln -sf ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH)/$(UNROLLING).cfg ./algorithm.cfg
 
 .PHONY: config-symlink-gem5-cache
 config-symlink-gem5-cache: INTEGRATION = cache
@@ -538,30 +552,30 @@ dma-trace-binary :
 	$(MAKE) -C . DMA_MODE=1 trace-binary
 
 .PHONY: run-llvm-tracer
-run-llvm-tracer : trace-binary $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_dynamic_trace.gz
+run-llvm-tracer : trace-binary $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz
 	
-$(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_dynamic_trace.gz :
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR) && \
-	../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-instrumented -f ../../$(FILE_BIN) $(ARGS)
-	mv $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $@
+$(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz :
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE) && \
+	../../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-instrumented -f ../../../$(FILE_BIN) $(ARGS)
+	mv $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/dynamic_trace.gz $@
 
 .PHONY: run-llvm-tracer-force
 run-llvm-tracer-force : trace-binary 
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR) && \
-	../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-instrumented -f ../../$(FILE_BIN) $(ARGS)
-	mv $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/dynamic_trace.gz $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_dynamic_trace.gz
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE) && \
+	../../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-instrumented -f ../../../$(FILE_BIN) $(ARGS)
+	mv $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/dynamic_trace.gz $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz
 
 .PHONY: run-aladdin
 run-aladdin : run-llvm-tracer
 	cd $(ALADDIN_HOME)/common && make
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(ALADDIN_STATS_DIR) && \
-	$(ALADDIN_HOME)/common/aladdin $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH) ../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH).cfg
+	$(ALADDIN_HOME)/common/aladdin $(BENCHMARK_SIGNATURE) ../$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH)/$(UNROLLING).cfg
 
 .PHONY: run-aladdin-force
 run-aladdin-force : run-llvm-tracer-force
 	cd $(ALADDIN_HOME)/common && make
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(ALADDIN_STATS_DIR) && \
-	$(ALADDIN_HOME)/common/aladdin $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH) ../$(DYNAMIC_TRACES_DIR)/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH).cfg
+	$(ALADDIN_HOME)/common/aladdin $(BENCHMARK_SIGNATURE) ../$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH)/$(UNROLLING).cfg
 
 
 ##################################################
@@ -580,12 +594,12 @@ run-gem5: run-gem5-cpu run-gem5-accel
 
 .PHONY: run-gem5-cache 
 run-gem5-cache: gem5-cache config-symlink-gem5-cache
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cache/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cache/$(BENCHMARK_SIGNATURE)  && \
 	../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cache -f ../../../../$(FILE_BIN) $(ARGS) | gzip -c > stdout.gz
 
 .PHONY: run-gem5-openmp 
 run-gem5-openmp: directories-gem5 graph-openmp config-symlink-gem5-openmp run-llvm-tracer
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/openmp/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/openmp/$(BENCHMARK_SIGNATURE)  && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
 	-c ../../../../$(BIN_DIR)/$(GAPP)-openmp -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
@@ -593,7 +607,7 @@ run-gem5-openmp: directories-gem5 graph-openmp config-symlink-gem5-openmp run-ll
 
 .PHONY: run-gem5-cpu
 run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu/$(BENCHMARK_SIGNATURE)  && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
 	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
@@ -601,7 +615,7 @@ run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
 
 .PHONY: run-gem5-accel
 run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel/$(BENCHMARK_SIGNATURE)  && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
 	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
@@ -609,7 +623,7 @@ run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 
 .PHONY: run-gem5-accel-debug
 run-gem5-accel-debug: gem5-accel config-symlink-gem5-accel run-llvm-tracer
-	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH) l && \
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel/$(BENCHMARK_SIGNATURE) l && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS_DEBUG) \
 	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \

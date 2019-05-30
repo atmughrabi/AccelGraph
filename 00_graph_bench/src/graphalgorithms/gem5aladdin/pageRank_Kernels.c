@@ -37,8 +37,11 @@ void pageRankPullGraphCSRKernelAladdin(float *riDividedOnDiClause, float *pageRa
     __u32 u;
     __u32 degree;
     __u32 edge_idx;
-sum : for(v = 0; v < num_vertices; v++)
+
+sum :
+    for(v = 0; v < num_vertices; v++)
     {
+
         float nodeIncomingPR = 0.0f;
         degree = out_degree[v];
         edge_idx = edges_idx[v];
@@ -67,29 +70,29 @@ void pageRankPullGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *riD
     {
 
 
-        if((v + 1) < num_vertices)
-        {
-            edge_idx = edges_idx[v + 1];
-            for(j = edge_idx ; j < (edge_idx + out_degree[v + 1]) ; j++)
-            {
-                u = sorted_edges_array[j];
-                if(checkPrefetch(cache->doubleTag, (__u64) & (riDividedOnDiClause[u])))
-                {
-                    Prefetch(cache->cache, (__u64) & (riDividedOnDiClause[u]), 's', u);
-                }
-            }
-            if(checkPrefetch(cache->doubleTag, (__u64) & (pageRanksNext[v + 1])))
-            {
-                Prefetch(cache->cache, (__u64) & (pageRanksNext[v + 1]), 'w', v);
-            }
-        }
+        // if((v + 1) < num_vertices)
+        // {
+        //     edge_idx = edges_idx[v + 1];
+        //     for(j = edge_idx ; j < (edge_idx + out_degree[v + 1]) ; j++)
+        //     {
+        //         u = sorted_edges_array[j];
+        //         if(checkPrefetch(cache->doubleTag, (__u64) & (riDividedOnDiClause[u])))
+        //         {
+        //             Prefetch(cache->cache, (__u64) & (riDividedOnDiClause[u]), 's', u);
+        //         }
+        //     }
+        //     if(checkPrefetch(cache->doubleTag, (__u64) & (pageRanksNext[v + 1])))
+        //     {
+        //         Prefetch(cache->cache, (__u64) & (pageRanksNext[v + 1]), 'w', v);
+        //     }
+        // }
 
         float nodeIncomingPR = 0.0f;
         degree = out_degree[v];
         edge_idx = edges_idx[v];
 
-        Access(cache->cache, (__u64) & (out_degree[v]), 'r', v);
-        Access(cache->cache, (__u64) & (edges_idx[v]), 'r', v);
+        // Access(cache->cache, (__u64) & (out_degree[v]), 'r', v);
+        // Access(cache->cache, (__u64) & (edges_idx[v]), 'r', v);
 
         for(j = edge_idx ; j <  (edge_idx + degree) ; j++)
         {
