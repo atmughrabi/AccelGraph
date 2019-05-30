@@ -199,7 +199,7 @@ accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-wei
 ```
 
 * OUTPUT: (weighted binary edge-list)
-```console
+```
   ../BENCHMARKS_DIR/GRAPH_NAME/graph.wbin
 
 1e00 0000 0300 0000 0100 0000 0300 0000
@@ -215,7 +215,7 @@ accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-wei
 
 ## Accel-Graph Options 
 
-```console
+```
 Usage: accel-graph [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
