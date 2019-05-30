@@ -39,8 +39,11 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
 ```console
 accel@graph:~$ git clone https://github.com/atmughrabi/AccelGraph.git
 ```
-
-2. Setup the CAPI submodules.
+2. From the home directory go to the AccelGraph directory:
+```console
+accel@graph:~$ cd AccelGraph/
+```
+3. Setup the CAPI submodules.
 
 ```console
 accel@graph:~AccelGraph$ git submodule update --init --recursive
@@ -54,19 +57,19 @@ accel@graph:~AccelGraph$ git submodule update --init --recursive
 
 1. From the root directory go to the graph benchmark directory:
 ```console
-accel@graph:~AccelGraph$ cd 00_Graph_Bench/
+accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
 2. The default compilation is openmp:
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make 
+accel@graph:~AccelGraph/00_graph_bench$ make 
 ```
 3. From the root directory you can modify the Makefile with the [(parameters)](#accel-graph-options) you need for OpenMP:
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run
+accel@graph:~AccelGraph/00_graph_bench$ make run
 ```
 * OR
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-openmp
+accel@graph:~AccelGraph/00_graph_bench$ make run-openmp
 ```
 
 [<img src="./02_slides/fig/gem5-aladdin_logo.png" height="45" align="right" >](https://github.com/harvard-acc/gem5-aladdin)
@@ -81,25 +84,25 @@ accel@graph:~AccelGraph/00_Graph_Bench$ make run-openmp
 
 1. From the root directory go to the graph benchmark directory:
 ```console
-accel@graph:~AccelGraph$ cd 00_Graph_Bench/
+accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
 2. This will compile Aladdin, then generate a dynamic trace if it doesn't exist and then run Aladdin:
-* The generated dynamic_trace resides in `./00_Graph_bench/aladdin_common/dynamic_traces` 
+* The generated dynamic_trace resides in `./00_graph_bench/aladdin_common/dynamic_traces` 
 * The dynamic trace is labeled with the following `(GRAPH_NAME)_(DATA_STRUCTURES)_(ALGORITHMS)_(PUSH_PULL)_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-aladdin
+accel@graph:~AccelGraph/00_graph_bench$ make run-aladdin
 ```
 * OR (regenerate dynamic_trace even if it exists)
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-aladdin-force 
+accel@graph:~AccelGraph/00_graph_bench$ make run-aladdin-force 
 ```
 * To generate a dynamic trace without running Aladdin: (if it never been generated)
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-llvm-tracer 
+accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer 
 ```
 * OR (regenerated even if it exist)
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-llvm-tracer-force 
+accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer-force 
 ```
 
 ### Running gem5-Aladdin 
@@ -110,24 +113,24 @@ accel@graph:~AccelGraph/00_Graph_Bench$ make run-llvm-tracer-force
 
 1. From the root directory go to the graph benchmark directory:
   ```console
-  accel@graph:~AccelGraph$ cd 00_Graph_Bench/
+  accel@graph:~AccelGraph$ cd 00_graph_bench/
   ```
 2. Their are four `mode` runs for gem5-aladding.
 * Running with `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-gem5-openmp
+accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-openmp
 ```
 * Running with `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-gem5-cpu
+accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cpu
 ```
 * Running with `accel` mode on gem5 with the accelerator active. The performance model is derived from the DDDG (Dynamic Data Dependence Graph).
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-gem5-accel
+accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-accel
 ```
 * Running with `cache` mode using `00_graph_bench/util/cache.c`.This simulates trace driven cache. check `pageRankPullGraphCSRKernelCache` in `00_graph_bench/src/gem5aladdin/pageRank_kernels.c`, for a good example.
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-gem5-cache
+accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
 ```
 
 [<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
@@ -144,15 +147,15 @@ accel@graph:~AccelGraph/00_Graph_Bench$ make run-gem5-cache
 
 1. From the root directory go to the graph benchmark directory:
 ```console
-accel@graph:~AccelGraph$ cd 00_Graph_Bench/
+accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
 2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-pslse
+accel@graph:~AccelGraph/00_graph_bench$ make run-pslse
 ```
 3. Runs a graph algorithm that communicates with the PSLSE (simulation), or PSL (real HW):
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make run-capi
+accel@graph:~AccelGraph/00_graph_bench$ make run-capi
 ```
 
 ## Graph structure (Edge list) 
@@ -188,11 +191,11 @@ accel@graph:~AccelGraph/00_Graph_Bench$ make run-capi
 * `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to.
 * `--stats` is a flag that enables conversion. It used also for collecting stats about the graph (but this feature is on hold for now).
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ make convert
+accel@graph:~AccelGraph/00_graph_bench$ make convert
 ```
 * OR
 ```console
-accel@graph:~AccelGraph/00_Graph_Bench$ ./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
+accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
 ```
 
 * OUTPUT: (weighted binary edge-list)
@@ -307,7 +310,7 @@ portable benchmarking suite for various graph processing algorithms.
 
 ## Organization 
 
-* `00_Graph_Bench`
+* `00_graph_bench`
   * `include` - Major function headers 
     * `graphalgorithms` - supported Graph algorithms
       * `openmp`  - OpenMP integration
