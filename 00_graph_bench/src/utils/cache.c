@@ -13,21 +13,10 @@ void initCacheLine(struct CacheLine *cacheLine)
 {
     cacheLine->tag = 0;
     cacheLine->Flags = 0;
-    cacheLine->top = 0;
 }
 ulong getTag(struct CacheLine *cacheLine)
 {
     return cacheLine->tag;
-}
-
-uchar getTop(struct CacheLine *cacheLine)
-{
-    return cacheLine->top;
-}
-
-void setTop(struct CacheLine *cacheLine, uchar top)
-{
-    cacheLine->top = top;
 }
 
 ulong getFlags(struct CacheLine *cacheLine)
@@ -54,9 +43,8 @@ void invalidate(struct CacheLine *cacheLine)
 {
     cacheLine->tag = 0;    //useful function
     cacheLine->Flags = INVALID;
-    cacheLine->top = 0;
 }
-bool isValid(struct CacheLine *cacheLine)
+__u32 isValid(struct CacheLine *cacheLine)
 {
     return ((cacheLine->Flags) != INVALID);
 }
@@ -101,32 +89,6 @@ ulong getEVC(struct Cache *cache)
 {
     return cache->evictions;
 }
-
-ulong getRMTop(struct Cache *cache)
-{
-    return cache->readMissesTop;
-}
-ulong getWMTop(struct Cache *cache)
-{
-    return cache->writeMissesTop;
-}
-ulong getReadsTop(struct Cache *cache)
-{
-    return cache->readsTop;
-}
-ulong getWritesTop(struct Cache *cache)
-{
-    return cache->writesTop;
-}
-ulong getWBTop(struct Cache *cache)
-{
-    return cache->writeBacksTop;
-}
-ulong getEVCTop(struct Cache *cache)
-{
-    return cache->evictionsTop;
-}
-
 ulong getRMPrefetch(struct Cache *cache)
 {
     return cache->readMissesPrefetch;
@@ -136,33 +98,97 @@ ulong getReadsPrefetch(struct Cache *cache)
 {
     return cache->readsPrefetch;
 }
-ulong getRMTopPrefetch(struct Cache *cache)
-{
-    return cache->readMissesTopPrefetch;
-}
-ulong getReadsTopPrefetch(struct Cache *cache)
-{
-    return cache->readsTopPrefetch;
-}
-void writeBackTop(struct Cache *cache, ulong addr)
-{
-    cache->writeBacksTop++;
-}
-
 void writeBack(struct Cache *cache, ulong addr)
 {
     cache->writeBacks++;
 }
 
 
+struct DoubleTaggedCache *newDoubleTaggedCache(__u32 L1_SIZE, __u32 L1_ASSOC, __u32 BLOCKSIZE, __u32 num_vertices)
+{
+
+    struct DoubleTaggedCache *cache = (struct DoubleTaggedCache *) my_malloc(sizeof(struct DoubleTaggedCache));
+
+    cache->cache = newCache( L1_SIZE, L1_ASSOC, BLOCKSIZE, num_vertices);
+    cache->doubleTag = newCache( L1_SIZE, L1_ASSOC, BLOCKSIZE, num_vertices);
+
+    return cache;
+
+}
+
+void freeDoubleTaggedCache(struct DoubleTaggedCache *cache)
+{
+    
+    if(cache)
+    {
+        freeCache(cache->cache);
+        freeCache(cache->doubleTag);
+
+        free(cache);
+
+    }
+
+}
+
+
+struct Cache *newCache(__u32 L1_SIZE, __u32 L1_ASSOC, __u32 BLOCKSIZE, __u32 num_vertices)
+{
+
+    ulong i;
+
+    struct Cache *cache = ( struct Cache *) my_malloc(sizeof(struct Cache));
+
+    cache->numVertices = num_vertices;
+    initCache(cache, L1_SIZE, L1_ASSOC, BLOCKSIZE);
+
+    cache->verticesMiss = (uint *)my_malloc(sizeof(uint) * num_vertices);
+    cache->verticesHit = (uint *)my_malloc(sizeof(uint) * num_vertices);
+
+
+    for(i = 0; i < num_vertices; i++)
+    {
+        cache->verticesMiss[i] = 0;
+        cache->verticesHit[i] = 0;
+    }
+
+    return cache;
+
+}
+
+
+void freeCache(struct Cache *cache)
+{
+    ulong i;
+
+    if(cache)
+    {
+
+        if(cache->verticesMiss)
+            free(cache->verticesMiss);
+        if(cache->verticesHit)
+            free(cache->verticesHit);
+
+
+        if(cache->cacheLines)
+        {
+            for(i = 0; i < cache->sets; i++)
+            {
+                if(cache->cacheLines[i])
+                    free(cache->cacheLines[i]);
+
+            }
+            free(cache->cacheLines);
+        }
+        free(cache);
+    }
+
+}
+
 void initCache(struct Cache *cache, int s, int a, int b )
 {
     ulong i, j;
     cache->reads = cache->readMisses = cache->readsPrefetch = cache->readMissesPrefetch = cache->writes = cache->evictions = 0;
     cache->writeMisses = cache->writeBacks = cache->currentCycle_preftcher = cache->currentCycle_cache = cache->currentCycle = 0;
-
-    cache->readsTop = cache->readMissesTop = cache->readsTopPrefetch = cache->readMissesTopPrefetch = cache->writesTop = 0;
-    cache->writeMissesTop = cache->writeBacksTop = cache->evictionsTop = 0;
 
     cache->size       = (ulong)(s);
     cache->lineSize   = (ulong)(b);
@@ -196,7 +222,7 @@ void initCache(struct Cache *cache, int s, int a, int b )
     }
 }
 
-void Access(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)
+void Access(struct Cache *cache, ulong addr, uchar op, uint node)
 {
     cache->currentCycle++;/*per cache global counter to maintain LRU order
 
@@ -208,36 +234,30 @@ void Access(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)
     if(op == 'w')
     {
         cache->writes++;
-        if(top == '1')
-            cache->writesTop++;
     }
     else if(op == 'r')
     {
         cache->reads++;
-        if(top == '1')
-            cache->readsTop++;
 
     }
 
-    struct CacheLine *line = findLine(cache, addr, top);
+    struct CacheLine *line = findLine(cache, addr);
     if(line == NULL)/*miss*/
     {
         if(op == 'w')
         {
             cache->writeMisses++;
-            if(top == '1')
-                cache->writeMissesTop++;
+
+            cache->verticesMiss[node]++;
         }
         else
         {
             cache->readMisses++;
-            if(top == '1')
-                cache->readMissesTop++;
 
             cache->verticesMiss[node]++;
         }
 
-        struct CacheLine *newline = fillLine(cache, addr, top);
+        struct CacheLine *newline = fillLine(cache, addr);
         if(op == 'w')
             setFlags(newline, DIRTY);
 
@@ -248,12 +268,14 @@ void Access(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)
         updateLRU(cache, line);
         if(op == 'w')
             setFlags(line, DIRTY);
+
+        cache->verticesHit[node]++;
     }
 }
 
-__u32 checkPrefetch(struct Cache *cache, ulong addr, uchar top)
+__u32 checkPrefetch(struct Cache *cache, ulong addr)
 {
-    struct CacheLine *line = findLine(cache, addr, top);
+    struct CacheLine *line = findLine(cache, addr);
 
     if(line == NULL)
         return 1;
@@ -269,25 +291,23 @@ __u32 checkPrefetch(struct Cache *cache, ulong addr, uchar top)
     return 0;
 }
 
-void Prefetch(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)
+void Prefetch(struct Cache *cache, ulong addr, uchar op, uint node)
 {
     cache->currentCycle++;/*per cache global counter to maintain LRU order
       among cache ways, updated on every cache access*/
     cache->currentCycle_preftcher++;
 
     cache->readsPrefetch++;
-    if(top == '1')
-        cache->readsTopPrefetch++;
 
-    struct CacheLine *line = findLine(cache, addr, top);
+
+    struct CacheLine *line = findLine(cache, addr);
     if(line == NULL)/*miss*/
     {
 
         cache->readMissesPrefetch++;
-        if(top == '1')
-            cache->readMissesTopPrefetch++;
 
-        fillLine(cache, addr, top);
+
+        fillLine(cache, addr);
     }
     else
     {
@@ -298,7 +318,7 @@ void Prefetch(struct Cache *cache, ulong addr, uchar op, uchar top, uint node)
 
 
 /*look up line*/
-struct CacheLine *findLine(struct Cache *cache, ulong addr, uchar top)
+struct CacheLine *findLine(struct Cache *cache, ulong addr)
 {
     ulong i, j, tag, pos;
 
@@ -318,8 +338,6 @@ struct CacheLine *findLine(struct Cache *cache, ulong addr, uchar top)
         return NULL;
     else
     {
-        if(top == '0')
-            setTop(&(cache->cacheLines[i][pos]), top);
 
         return &(cache->cacheLines[i][pos]);
     }
@@ -356,8 +374,7 @@ struct CacheLine *getLRU(struct Cache *cache, ulong addr)
     assert(victim != cache->assoc);
 
     cache->evictions++;
-    if(getTop(&(cache->cacheLines[i][victim])) == '1')
-        cache->evictionsTop++;
+
 
     return &(cache->cacheLines[i][victim]);
 }
@@ -372,7 +389,7 @@ struct CacheLine *findLineToReplace(struct Cache *cache, ulong addr)
 }
 
 /*allocate a new line*/
-struct CacheLine *fillLine(struct Cache *cache, ulong addr, uchar top)
+struct CacheLine *fillLine(struct Cache *cache, ulong addr)
 {
     ulong tag;
 
@@ -381,14 +398,12 @@ struct CacheLine *fillLine(struct Cache *cache, ulong addr, uchar top)
     if(getFlags(victim) == DIRTY)
     {
         writeBack(cache, addr);
-        if(getTop(victim) == '1')
-            writeBackTop(cache, addr);
     }
 
     tag = calcTag(cache, addr);
     setTag(victim, tag);
     setFlags(victim, VALID);
-    setTop(victim, top);
+
 
     /**note that this cache line has been already
        upgraded to MRU in the previous function (findLineToReplace)**/
@@ -407,17 +422,8 @@ void printStats(struct Cache *cache)
     float missRatePrefetch = (double)(( getRMPrefetch(cache)) * 100) / (cache->currentCycle_preftcher); //calculate miss rate
     missRatePrefetch = roundf(missRatePrefetch * 100) / 100;
 
-    float missRateTop = (double)((getWMTop(cache) + getRMTop(cache)) * 100) / (cache->currentCycle_cache); //calculate miss rate
-    missRateTop = roundf(missRateTop * 100) / 100;                            //rounding miss rate
 
-    // float readRatioTop = (((double)getReadsTop(cache) / getReads(cache)) * 100.0);
-    // float readMissRatioTop = (((double)getRMTop(cache) / getRM(cache)) * 100.0);
-    // float writeRatioTop = (((double)getWritesTop(cache) / getWrites(cache)) * 100.0);
-    // float writeMissRatioTop = (((double)getWMTop(cache) / getWM(cache)) * 100.0);
-    // float missRateRatioTop = (((double)missRateTop / missRate) * 100.0);
-    // float evictionRatioTop = (((double)getEVCTop(cache) / getEVC(cache)) * 100.0);
-
-    printf(" -----------------------------------------------------\n");
+    printf("\n -----------------------------------------------------\n");
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Simulation results (Cache)");
     printf(" -----------------------------------------------------\n");
@@ -437,31 +443,13 @@ void printStats(struct Cache *cache)
     printf(" -----------------------------------------------------\n");
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "TOP degree nodes results (Cache)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-21s | %'-27lu | \n", "Reads", getReadsTop(cache) );
-    printf("| %-21s | %'-27lu | \n", "Read misses", getRMTop(cache) );
-    printf(" -----------------------------------------------------\n");
-    printf("| %-21s | %'-27lu | \n", "Writes", getWritesTop(cache) );
-    printf("| %-21s | %'-27lu | \n", "Write misses", getWMTop(cache) );
-    printf(" -----------------------------------------------------\n");
-    printf("| %-21s | %-27.2f | \n", "Miss rate(%)", missRateTop);
-    printf(" -----------------------------------------------------\n");
-    printf("| %-21s | %'-27lu | \n", "Writebacks", getWBTop(cache) );
-    printf(" -----------------------------------------------------\n");
-    printf("| %-21s | %'-27lu | \n", "Evictions", getEVCTop(cache) );
-    printf(" -----------------------------------------------------\n");
-
-    printf(" -----------------------------------------------------\n");
-
-    printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Prefetcher Stats");
     printf(" -----------------------------------------------------\n");
     printf("| %-21s | %'-27lu | \n", "Reads", getReadsPrefetch(cache) );
     printf("| %-21s | %'-27lu | \n", "Read misses", getRMPrefetch(cache) );
     printf(" -----------------------------------------------------\n");
     printf("| %-21s | %-27.2f | \n", "Effeciency(%)", missRatePrefetch);
-    printf(" -----------------------------------------------------\n");
+    printf(" -----------------------------------------------------\n\n");
 
 
     // ulong  numVerticesMiss = 0;

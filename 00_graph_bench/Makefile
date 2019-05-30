@@ -72,7 +72,7 @@ MAIN_DIR		  	= main
 # GRAPH_NAME = twitter
 # GRAPH_NAME = livejournal
 # GRAPH_NAME = USA-Road
-# GRAPH_NAME = enwiki-2013
+GRAPH_NAME = enwiki-2013
 # GRAPH_NAME = arabic-2005
 
 
@@ -125,7 +125,7 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 
 SRC_FILES_ALGO_OPENMP		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/openmp/*.c)
 SRC_FILES_ALGO_CAPI			=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
-
+SRC_FILES_ALGO_ALADDIN		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/*.c) 
 
 SRC_FILES_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/*.c) 
 SRC_FILES_PREPRO	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/*.c) 
@@ -144,7 +144,6 @@ OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$
 OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%.o,$(SRC_FILES_TEST)) 
 
 CC				  = gcc 
-
 
 OPENMP_INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
 				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/openmp 	\
@@ -170,8 +169,6 @@ FAIL = \033[91mFAIL\033[0m
 
 LLVM_VERSION = $(shell clang --version | grep -o -m 1 "[0-9\.]\+" | head -n 1)
 
-SRC_FILES_ALGO_ALADDIN		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/*.c) 
-
 LLVM_OBJ_FILES_UTIL 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%-opt.llvm,$(SRC_FILES_UTIL)) 
 LLVM_OBJ_FILES_ALGO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%-opt.llvm,$(SRC_FILES_ALGO_ALADDIN)) 
 LLVM_OBJ_FILES_PREPRO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%-opt.llvm,$(SRC_FILES_PREPRO)) 
@@ -183,7 +180,7 @@ TRACER = $(TRACER_HOME)/lib/full_trace.so
 LOGGER = $(TRACER_HOME)/lib/trace_logger.llvm
 GET_LABELED_STMTS = $(TRACER_HOME)/bin/get-labeled-stmts
 
-KERNELS = pageRankPullGraphCSRKernel
+KERNELS = pageRankPullGraphCSRKernelAladdin
 
 export WORKLOAD  = $(KERNELS)
 
@@ -195,7 +192,10 @@ LLVM_INC	=	-I$(ALADDIN_HOME)	\
 				-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
 				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/gem5aladdin 	\
 				-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
-				-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR) 
+				-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR) \
+				-I$(GEM5_DIR)/include \
+				-I$(GEM5_DIR)/include/gem5 \
+				-I$(GEM5_DIR)/util/m5
 
 ALL_SRCS_GEM5ALADDIN = 	$(SRC_FILES_UTIL)   \
 						$(SRC_FILES_ALGO_ALADDIN)   \
@@ -235,14 +235,14 @@ OBJ_FILES_TEST_ALADDIN   	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(A
 
 ALADDIN_CFLAGS = $(CFLAGS) -Wno-unused-label -DDMA_INTERFACE_V3
 # -mno-sse
-GEM5_CFLAGS = -O3 \
+GEM5_CFLAGS = -static -O3 \
               -msse -mfpmath=sse \
               -fno-exceptions 
             
 GEM5_DIR = $(ALADDIN_HOME)/../..
 
 GEM5_INC = $(LLVM_INC)
-# 			-I$(GEM5_DIR)/include/
+
 
 GEM5_ARGS	= --outdir=./outputs \
 			  --stats-db-file=stats.db \
@@ -392,6 +392,7 @@ directories-gem5:
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/openmp
+	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cache
 
 .PHONY: config-symlink-gem5
 config-symlink-gem5:
@@ -403,6 +404,10 @@ config-symlink-gem5:
 	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
 	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
 	ln -sf ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH).cfg ./algorithm.cfg
+
+.PHONY: config-symlink-gem5-cache
+config-symlink-gem5-cache: INTEGRATION = cache
+config-symlink-gem5-cache: config-symlink-gem5
 
 # These are relative to gem5.cfg file
 .PHONY: config-symlink-gem5-cpu
@@ -432,15 +437,21 @@ graph-gem5-cpu : directories directories-gem5 $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5
 	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: ./$(word 3,$^)"
 	@echo " ******************************************************************************  \n"
 
+.PHONY: graph-gem5-cache
+graph-gem5-cache : directories directories-gem5 $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-cache
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: ./$(word 3,$^)"
+	@echo " ******************************************************************************  \n"
 
-$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-accel:  $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-accel.o $(GEM5_FULL_OBJ) $(OBJ_FILES_UTIL_ALADDIN) $(OBJ_FILES_ALGO_ALADDIN) $(OBJ_FILES_PREPRO_ALADDIN) $(OBJ_FILES_STRUCT_ALADDIN)
+
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-accel:  $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-accel.o  $(GEM5_FULL_SRCS) $(OBJ_FILES_UTIL_ALADDIN) $(OBJ_FILES_ALGO_ALADDIN) $(OBJ_FILES_PREPRO_ALADDIN) $(OBJ_FILES_STRUCT_ALADDIN)
 	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -o $@ $^  $(LFLAGS) 
 
-$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu:  $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-cpu.o $(GEM5_FULL_OBJ) $(OBJ_FILES_UTIL_ALADDIN) $(OBJ_FILES_ALGO_ALADDIN) $(OBJ_FILES_PREPRO_ALADDIN) $(OBJ_FILES_STRUCT_ALADDIN)
-	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -o $@ $^  $(LFLAGS) 
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu:  $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-cpu.o $(OBJ_FILES_UTIL_ALADDIN) $(OBJ_FILES_ALGO_ALADDIN) $(OBJ_FILES_PREPRO_ALADDIN) $(OBJ_FILES_STRUCT_ALADDIN)
+	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -o $@ $^  $(LFLAGS)
 
-$(ALADDIN_HOME)/gem5/%.o: $(GEM5_FULL_SRCS)
-	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -c -o $@ $<
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-cache:  $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-cache.o $(OBJ_FILES_UTIL_ALADDIN) $(OBJ_FILES_ALGO_ALADDIN) $(OBJ_FILES_PREPRO_ALADDIN) $(OBJ_FILES_STRUCT_ALADDIN)
+	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) -o $@ $^  $(LFLAGS)
 
 $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-accel.o: $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
 	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
@@ -448,11 +459,14 @@ $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-accel.o: $(APP_DIR)/$(SRC_
 $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-cpu.o: $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
 	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
 
+$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-cache.o: $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
+	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
+
 $(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c
 	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c 
-	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
+$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c
+	$(CC) $(GEM5_CFLAGS) $(MODE) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
 	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
@@ -461,30 +475,38 @@ $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.
 	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
 
 
+# $(GEM5_DIR)/util/m5/m5op_x86.o $(GEM5_DIR)/util/m5/m5_mmap.o
+# only use as backup for gem5-accel target
 .PHONY: gem5-build 
-gem5-build: directories-gem5 $(GEM5_FULL_SRCS)
+gem5-build: directories-gem5 $(GEM5_FULL_SRCS) 
 	@echo Building benchmark ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-$(INTEGRATION).
 	@$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(MODE) $(ALL_SRCS_GEM5ALADDIN) $(GEM5_FULL_SRCS) $(GEM5_INC) -o $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-$(INTEGRATION) $(LFLAGS)
 
 
+# Builds the standalone CPU version only with simple cache
+.PHONY: gem5-cpu 
+gem5-cache: MODE = -DCACHE_HARNESS
+gem5-cache: INTEGRATION = cache
+gem5-cache: graph-gem5-cache
+
 # Builds the standalone CPU version only.
 .PHONY: gem5-cpu 
 gem5-cpu: INTEGRATION = cpu
-gem5-cpu: gem5-build 
+gem5-cpu: graph-gem5-cpu 
 
 # Builds the gem5 version with HW acceleration turned on. target specific variables
 .PHONY: gem5-accel
 gem5-accel: INTEGRATION = accel
 gem5-accel: MODE = -DGEM5_HARNESS
-gem5-accel: gem5-build 
+gem5-accel: graph-gem5-accel
 	
 .PHONY: clean-gem5 
 clean-gem5:
-	@rm -rf ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-cpu 
-	@rm -fr ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-gem5-accel
+	@rm -rf ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu 
+	@rm -fr ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-accel
+	@rm -rf ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-cache
 	@rm -fr ./$(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)
 	@rm -fr $(GEM5_FULL_OBJ)
-
 ##################################################
 ##################################################
 
@@ -544,9 +566,13 @@ gem5: gem5-cpu gem5-accel
 .PHONY: run-gem5
 run-gem5: run-gem5-cpu run-gem5-accel
 
+.PHONY: run-gem5-cache 
+run-gem5-cache: gem5-cache config-symlink-gem5-cache
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cache/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
+	../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cache -f ../../../../$(FILE_BIN) $(ARGS)
 
 .PHONY: run-gem5-openmp 
-run-gem5-openmp: directories-gem5 graph-openmp config-symlink-gem5-openmp
+run-gem5-openmp: directories-gem5 graph-openmp config-symlink-gem5-openmp run-llvm-tracer
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/openmp/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
@@ -554,7 +580,7 @@ run-gem5-openmp: directories-gem5 graph-openmp config-symlink-gem5-openmp
 	| gzip -c > stdout.gz
 
 .PHONY: run-gem5-cpu 
-run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
+run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu 
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu/$(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)  && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
@@ -649,4 +675,9 @@ cache-perf-openmp: graph-openmp
 ##################################################
 ##################################################
 
-
+##############################################
+#      ACCEL GRAPH CAPI TOP LEVEL RULES      #
+##############################################
+	  
+##################################################
+##################################################
