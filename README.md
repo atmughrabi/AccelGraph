@@ -89,17 +89,17 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-aladdin
   ```
-  * OR
+  * OR 9regenerate dynamic_trace even if it exists)
   ```
-  make run-aladdin-force # regenerate dynamic_trace even if it exists
+  make run-aladdin-force 
   ```
 3. To generate a dynamic trace without running Aladdin: (if it never been generated)
   ```
-  make run-llvm-tracer # if it never been generated
+  make run-llvm-tracer 
   ```
   * OR (regenerated even if it exist)
   ```
-  make run-llvm-tracer-force # regenerated even if it exists
+  make run-llvm-tracer-force 
   ```
 
 ### Running gem5-Aladdin 
