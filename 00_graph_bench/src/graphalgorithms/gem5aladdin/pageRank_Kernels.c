@@ -38,7 +38,7 @@ void pageRankPullGraphCSRKernelAladdin(float *riDividedOnDiClause, float *pageRa
     __u32 degree;
     __u32 edge_idx;
 
-sum :
+iter :
     for(v = 0; v < num_vertices; v++)
     {
 
@@ -46,6 +46,7 @@ sum :
         degree = out_degree[v];
         edge_idx = edges_idx[v];
 
+sum :
         for(j = edge_idx ; j <  (edge_idx + degree) ; j++)
         {
             u = sorted_edges_array[j];
