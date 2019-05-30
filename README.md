@@ -89,7 +89,7 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-aladdin
   ```
-  * OR 9regenerate dynamic_trace even if it exists)
+  * OR (regenerate dynamic_trace even if it exists)
   ```
   make run-aladdin-force 
   ```
