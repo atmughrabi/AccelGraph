@@ -125,6 +125,10 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   make run-gem5-accel
   ```
+ * Running with `cache` mode using `00_graph_bench/util/cache.c`.This simulates trace driven cache. check `pageRankPullGraphCSRKernelCache` in `00_graph_bench/src/gem5aladdin/pageRank_kernels.c`, for a good example.
+  ```
+  make run-gem5-cache
+  ```
 
 [<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
 
