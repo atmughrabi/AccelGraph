@@ -6,7 +6,7 @@
   GAPP               = accel-graph
 
 
-# test name needs to match the file name test_accel-graph.c
+# test name needs to match the file name test/test_accel-graph.c
   GAPP_TEST          = test_accel-graph
 # GAPP_TEST          = test_quantization
 # GAPP_TEST          = test_bloomfilter
@@ -63,7 +63,7 @@ MAIN_DIR		  	= main
 #########################################################
 
 #small test graphs
-# GRAPH_NAME = test
+GRAPH_NAME = test
 # GRAPH_NAME = Rabbit
 
 # synthetic graphs
@@ -82,7 +82,7 @@ MAIN_DIR		  	= main
 
 
 # real world small graphs binary format
-GRAPH_NAME = com-youtube
+# GRAPH_NAME = com-youtube
 # GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
@@ -125,7 +125,7 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 ##################################################
 #these variables only affect the signature not used in the make file
 
-UNROLLING = 32
+UNROLLING = 16
 
 #each diffrenert run would store the output to different folder based on these parameters
 BENCHMARK_SIGNATURE = $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_$(UNROLLING)

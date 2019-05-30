@@ -59,7 +59,7 @@ accel@graph:~AccelGraph$ git submodule update --init --recursive
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
-2. The default compilation is openmp:
+2. The default compilation is `openmp` mode:
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make 
 ```
@@ -100,7 +100,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-aladdin-force
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer 
 ```
-* OR (regenerated even if it exist)
+* OR (regenerate dynamict_trace.gz even if it exist)
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer-force 
 ```
@@ -112,9 +112,9 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer-force
 * gem5-Aladdin provides the possibility to evaluate the performance of shared memory accelerators.
 
 1. From the root directory go to the graph benchmark directory:
-  ```console
-  accel@graph:~AccelGraph$ cd 00_graph_bench/
-  ```
+```console
+accel@graph:~AccelGraph$ cd 00_graph_bench/
+```
 2. Their are four `mode` runs for gem5-aladding.
 * Running with `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
 ```console
@@ -139,7 +139,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
 
 * NOTE: You need CAPI environment setup on your machine.
 * [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
-* We are not supporting CAPI SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a candidate.
+* We are not supporting CAPI SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a good candidate.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
 * CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
@@ -149,7 +149,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
-2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
+2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-pslse
 ```

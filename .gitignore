@@ -4,6 +4,7 @@
 
 03_Reading/
 
+nohup.out
 00_graph_bench/nohup.out
 00_graph_bench/labelmap
 00_graph_bench/aladdin_common/dynamic_traces
