@@ -1037,7 +1037,6 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
 
 
 #ifdef GEM5_HARNESS
-        
         mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "riDividedOnDiClause", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
@@ -1050,10 +1049,13 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
             ACCELGRAPH_CSR_PAGERANK_PULL, "sorted_edges_array", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
 
         invokeAcceleratorAndBlock(ACCELGRAPH_CSR_PAGERANK_PULL);
+#endif
 
-#elif CACHE_HARNESS
+#ifdef CACHE_HARNESS
         pageRankPullGraphCSRKernelCache(cache, riDividedOnDiClause, pageRanksNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
-#else
+#endif
+
+#ifdef CPU_HARNESS
         pageRankPullGraphCSRKernelAladdin(riDividedOnDiClause, pageRanksNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
 #endif
 
