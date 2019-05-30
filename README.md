@@ -112,20 +112,20 @@ Also we provided support for gem5-Aladdin for more performance exploration optio
   ```
   cd 00_Graph_Bench/
   ```
-2. Their are four mode runs for gem5-aladding.
-    1. Running with `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
+2. Their are four `mode` runs for gem5-aladding.
+* Running with `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
   ```
   make run-gem5-openmp
   ```
-    2. Running with `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
+* Running with `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
   ```
   make run-gem5-cpu
   ```
-    3. Running with `accel` mode on gem5 with the accelerator active. The performance model is derived from the DDDG (Dynamic Data Dependence Graph).
+* Running with `accel` mode on gem5 with the accelerator active. The performance model is derived from the DDDG (Dynamic Data Dependence Graph).
   ```
   make run-gem5-accel
   ```
-    4. Running with `cache` mode using `00_graph_bench/util/cache.c`.This simulates trace driven cache. check `pageRankPullGraphCSRKernelCache` in `00_graph_bench/src/gem5aladdin/pageRank_kernels.c`, for a good example.
+* Running with `cache` mode using `00_graph_bench/util/cache.c`.This simulates trace driven cache. check `pageRankPullGraphCSRKernelCache` in `00_graph_bench/src/gem5aladdin/pageRank_kernels.c`, for a good example.
   ```
   make run-gem5-cache
   ```
