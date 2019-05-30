@@ -92,7 +92,7 @@ accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-aladdin
 ```
-* OR (regenerate dynamic_trace even if it exists)
+* OR (regenerates dynamic_trace even if it exists)
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-aladdin-force 
 ```
@@ -100,7 +100,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-aladdin-force
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer 
 ```
-* OR (regenerate dynamict_trace.gz even if it exist)
+* OR (regenerates dynamic_trace.gz even if it exist)
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer-force 
 ```
