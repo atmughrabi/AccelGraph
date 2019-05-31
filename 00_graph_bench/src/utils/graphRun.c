@@ -498,44 +498,44 @@ struct SPMVStats *runSPMVAlgorithm(void *graph, __u32 datastructure, double epsi
 {
 
 
-    // struct GraphCSR *graphCSR = NULL;
-    // struct GraphGrid *graphGrid = NULL;
-    // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
-    // struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    struct GraphCSR *graphCSR = NULL;
+    struct GraphGrid *graphGrid = NULL;
+    struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
+    struct GraphAdjArrayList *graphAdjArrayList = NULL;
     struct SPMVStats *stats = NULL;
 
-    // switch (datastructure)
-    // {
-    // case 0: // CSR
-    //     graphCSR = (struct GraphCSR *)graph;
-    //     stats = SPMVGraphCSR(epsilon, iterations, pushpull, graphCSR);
+    switch (datastructure)
+    {
+    case 0: // CSR
+        graphCSR = (struct GraphCSR *)graph;
+        stats = SPMVGraphCSR(epsilon, iterations, pushpull, graphCSR);
 
-    //     break;
+        break;
 
-    // case 1: // Grid
-    //     graphGrid = (struct GraphGrid *)graph;
-    //     stats = SPMVGraphGrid(epsilon, iterations, pushpull, graphGrid);
+    case 1: // Grid
+        graphGrid = (struct GraphGrid *)graph;
+        stats = SPMVGraphGrid(epsilon, iterations, pushpull, graphGrid);
 
-    //     break;
+        break;
 
-    // case 2: // Adj Linked List
-    //     graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
-    //     stats = SPMVGraphAdjLinkedList(epsilon, iterations, pushpull, graphAdjLinkedList);
+    case 2: // Adj Linked List
+        graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
+        stats = SPMVGraphAdjLinkedList(epsilon, iterations, pushpull, graphAdjLinkedList);
 
-    //     break;
+        break;
 
-    // case 3: // Adj Array List
-    //     graphAdjArrayList = (struct GraphAdjArrayList *)graph;
-    //     stats = SPMVGraphAdjArrayList(epsilon, iterations, pushpull, graphAdjArrayList);
+    case 3: // Adj Array List
+        graphAdjArrayList = (struct GraphAdjArrayList *)graph;
+        stats = SPMVGraphAdjArrayList(epsilon, iterations, pushpull, graphAdjArrayList);
 
-    //     break;
+        break;
 
-    // default:// CSR
-    //     graphCSR = (struct GraphCSR *)graph;
-    //     stats = SPMVGraphCSR(epsilon, iterations, pushpull, graphCSR);
+    default:// CSR
+        graphCSR = (struct GraphCSR *)graph;
+        stats = SPMVGraphCSR(epsilon, iterations, pushpull, graphCSR);
 
-    //     break;
-    // }
+        break;
+    }
 
 
     return stats;
