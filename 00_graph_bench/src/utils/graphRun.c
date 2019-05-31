@@ -13,12 +13,15 @@
 #include "graphRun.h"
 #include "reorder.h"
 
+
 #include "BFS.h"
 #include "DFS.h"
 #include "pageRank.h"
 #include "incrementalAggregation.h"
 #include "bellmanFord.h"
 #include "SSSP.h"
+#include "SPMV.h"
+
 
 
 void generateGraphPrintMessageWithtime(const char *msg, double time)
@@ -227,7 +230,7 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
             freePageRankStats(stats);
         }
         break;
-        case 2: // SSSP-Dijkstra file name root
+        case 2: // SSSP-Delta file name root
         {
             struct SSSPStats *stats = runSSSPAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations, arguments->pushpull,  arguments->delta);
             time_total += stats->time_total;
@@ -249,6 +252,13 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
         }
         break;
         case 5: // incremental Aggregation file name root
+        {
+            struct SPMVStats *stats = runSPMVAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->pushpull);
+            time_total += stats->time_total;
+            freeSPMVStats(stats);
+        }
+        break;
+        case 6: // incremental Aggregation file name root
         {
             struct IncrementalAggregationStats *stats = runIncrementalAggregationAlgorithm(graph,  arguments->datastructure);
             time_total += stats->time_total;
@@ -479,6 +489,54 @@ struct DFSStats *runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, 
         stats = depthFirstSearchGraphCSR(root, graphCSR);
         break;
     }
+
+    return stats;
+
+}
+
+struct SPMVStats *runSPMVAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 pushpull)
+{
+
+
+    // struct GraphCSR *graphCSR = NULL;
+    // struct GraphGrid *graphGrid = NULL;
+    // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
+    // struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    struct SPMVStats *stats = NULL;
+
+    // switch (datastructure)
+    // {
+    // case 0: // CSR
+    //     graphCSR = (struct GraphCSR *)graph;
+    //     stats = SPMVGraphCSR(epsilon, iterations, pushpull, graphCSR);
+
+    //     break;
+
+    // case 1: // Grid
+    //     graphGrid = (struct GraphGrid *)graph;
+    //     stats = SPMVGraphGrid(epsilon, iterations, pushpull, graphGrid);
+
+    //     break;
+
+    // case 2: // Adj Linked List
+    //     graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
+    //     stats = SPMVGraphAdjLinkedList(epsilon, iterations, pushpull, graphAdjLinkedList);
+
+    //     break;
+
+    // case 3: // Adj Array List
+    //     graphAdjArrayList = (struct GraphAdjArrayList *)graph;
+    //     stats = SPMVGraphAdjArrayList(epsilon, iterations, pushpull, graphAdjArrayList);
+
+    //     break;
+
+    // default:// CSR
+    //     graphCSR = (struct GraphCSR *)graph;
+    //     stats = SPMVGraphCSR(epsilon, iterations, pushpull, graphCSR);
+
+    //     break;
+    // }
+
 
     return stats;
 

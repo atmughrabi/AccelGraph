@@ -12,7 +12,14 @@
 
 #include "graphConfig.h"
 #include "timer.h"
+
 #include "BFS.h"
+#include "DFS.h"
+#include "pageRank.h"
+#include "incrementalAggregation.h"
+#include "bellmanFord.h"
+#include "SSSP.h"
+#include "SPMV.h"
 
 /* Used by main to communicate with parse_opt. */
 struct Arguments
@@ -63,6 +70,7 @@ struct DFSStats *runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, 
 struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure);
 struct BellmanFordStats *runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 pushpull);
 struct SSSPStats *runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 pushpull, __u32 delta);
+struct SPMVStats *runSPMVAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 pushpull);
 
 
 

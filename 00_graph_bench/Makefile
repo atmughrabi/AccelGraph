@@ -238,11 +238,11 @@ OBJ_FILES_ALGO_ALADDIN_CPU 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5
 OBJ_FILES_ALGO_ALADDIN_ACCEL 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%-accel.o,$(SRC_FILES_ALGO_ALADDIN)) 
 OBJ_FILES_ALGO_ALADDIN_CACHE 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%-cache.o,$(SRC_FILES_ALGO_ALADDIN)) 
 
-OBJ_FILES_UTIL_ALADDIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o,$(SRC_FILES_UTIL)) 
-OBJ_FILES_PREPRO_ALADDIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o,$(SRC_FILES_PREPRO)) 
-OBJ_FILES_STRUCT_ALADDIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o,$(SRC_FILES_STRUCT)) 
-OBJ_FILES_MAIN_ALADDIN   	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%.o,$(SRC_FILES_MAIN)) 
-OBJ_FILES_TEST_ALADDIN   	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%.o,$(SRC_FILES_TEST)) 
+OBJ_FILES_UTIL_ALADDIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%-gem5aladdin.o,$(SRC_FILES_UTIL)) 
+OBJ_FILES_PREPRO_ALADDIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%-gem5aladdin.o,$(SRC_FILES_PREPRO)) 
+OBJ_FILES_STRUCT_ALADDIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%-gem5aladdin.o,$(SRC_FILES_STRUCT)) 
+OBJ_FILES_MAIN_ALADDIN   	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%-gem5aladdin.o,$(SRC_FILES_MAIN)) 
+OBJ_FILES_TEST_ALADDIN   	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%-gem5aladdin.o,$(SRC_FILES_TEST)) 
 
 # Common Make targets for simulating MachSuite in gem5.
 #
@@ -482,7 +482,7 @@ $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-cpu.o: $(APP_DIR)/$(SRC_DI
 $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-gem5aladdin-cache.o: $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
 	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%-gem5aladdin.o : $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c
 	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%-cpu.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c
@@ -494,10 +494,10 @@ $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%-cache.o : $(APP_DIR)/$(SRC_DIR)/
 $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/%-accel.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/gem5aladdin/%.c
 	$(CC) $(GEM5_CFLAGS) $(MODE) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%-gem5aladdin.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
 	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%-gem5aladdin.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c
 	$(CC) $(GEM5_CFLAGS) $(ALADDIN_CFLAGS) $(GEM5_INC) -c -o $@ $<
 
 
