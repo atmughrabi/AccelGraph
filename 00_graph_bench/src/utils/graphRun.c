@@ -253,7 +253,7 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
         break;
         case 5: // incremental Aggregation file name root
         {
-            struct SPMVStats *stats = runSPMVAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->pushpull);
+            struct SPMVStats *stats = runSPMVAlgorithm(graph,  arguments->datastructure,  arguments->iterations,  arguments->pushpull);
             time_total += stats->time_total;
             freeSPMVStats(stats);
         }
@@ -494,7 +494,7 @@ struct DFSStats *runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, 
 
 }
 
-struct SPMVStats *runSPMVAlgorithm(void *graph, __u32 datastructure, double epsilon, __u32 iterations, __u32 pushpull)
+struct SPMVStats *runSPMVAlgorithm(void *graph, __u32 datastructure, __u32 iterations, __u32 pushpull)
 {
 
 
@@ -508,31 +508,31 @@ struct SPMVStats *runSPMVAlgorithm(void *graph, __u32 datastructure, double epsi
     {
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
-        stats = SPMVGraphCSR(epsilon, iterations, pushpull, graphCSR);
+        stats = SPMVGraphCSR( iterations, pushpull, graphCSR);
 
         break;
 
     case 1: // Grid
         graphGrid = (struct GraphGrid *)graph;
-        stats = SPMVGraphGrid(epsilon, iterations, pushpull, graphGrid);
+        stats = SPMVGraphGrid(iterations, pushpull, graphGrid);
 
         break;
 
     case 2: // Adj Linked List
         graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
-        stats = SPMVGraphAdjLinkedList(epsilon, iterations, pushpull, graphAdjLinkedList);
+        stats = SPMVGraphAdjLinkedList(iterations, pushpull, graphAdjLinkedList);
 
         break;
 
     case 3: // Adj Array List
         graphAdjArrayList = (struct GraphAdjArrayList *)graph;
-        stats = SPMVGraphAdjArrayList(epsilon, iterations, pushpull, graphAdjArrayList);
+        stats = SPMVGraphAdjArrayList(iterations, pushpull, graphAdjArrayList);
 
         break;
 
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
-        stats = SPMVGraphCSR(epsilon, iterations, pushpull, graphCSR);
+        stats = SPMVGraphCSR(iterations, pushpull, graphCSR);
 
         break;
     }
@@ -636,7 +636,7 @@ struct PageRankStats *runPageRankAlgorithm(void *graph, __u32 datastructure, dou
     }
 
 
-    // if you want to output pageranks and rankins sorted use this 
+    // if you want to output pageranks and rankins sorted use this
     // stats->realRanks = radixSortEdgesByPageRank (stats->pageRanks, stats->realRanks, stats->num_vertices);
     return stats;
 
