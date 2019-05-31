@@ -168,12 +168,11 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
 {
 
     __u32 v;
-
-    // float init_pr = 1.0f / (float)graph->num_vertices;
+    double sum = 0.0;
 
     __u32 totalPartitions  = graph->grid->num_partitions;
 
-    struct SPMVStats *stats = newPageRankStatsGraphGrid(graph);
+    struct SPMVStats *stats = newSPMVStatsGraphGrid(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
@@ -183,9 +182,14 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
     printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
     printf(" -----------------------------------------------------\n");
 
+    //assume any vector input for benchamrking purpose.
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        stats->vector_input[v] =  (1.0f / graph->grid->out_degree[v]);
+    }
+
     Start(timer);
-
-
     for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
     {
         Start(timer_inner);
@@ -223,25 +227,27 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
         }
 
 
+
+
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
 
     }// end iteration loop
 
-    double sum = 0.0f;
     #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
-        sum += stats->vector_output[v];
+
+        sum += ((int)(stats->vector_output[v] * 10 + .5) / 10.0);
     }
 
     Stop(timer);
     stats->time_total = Seconds(timer);
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-13s | %-14s | \n", "Iterations", "PR Sum", "Time (S)");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Sum", "Time (S)");
     printf(" -----------------------------------------------------\n");
-    printf("| %-15u | %-13lf | %-14f | \n", stats->iterations, sum, stats->time_total);
+    printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
 
@@ -253,6 +259,93 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
 }
 struct SPMVStats *SPMVPushColumnGraphGrid( __u32 iterations, struct GraphGrid *graph)
 {
+     __u32 v;
+    double sum = 0.0;
+
+    __u32 totalPartitions  = graph->grid->num_partitions;
+
+    struct SPMVStats *stats = newSPMVStatsGraphGrid(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting SPMV-Row");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    //assume any vector input for benchamrking purpose.
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        stats->vector_input[v] =  (1.0f / graph->grid->out_degree[v]);
+    }
+
+    Start(timer);
+    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    {
+        Start(timer_inner);
+
+        __u32 i;
+        #pragma omp parallel for private(i)
+        for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
+        {
+            __u32 j;
+            // #pragma omp parallel for private(j)
+            for (j = 0; j < totalPartitions; ++j)
+            {
+                __u32 k;
+                __u32 src;
+                __u32 dest;
+                float weight = 0.0001f;
+                struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
+                for (k = 0; k < partition->num_edges; ++k)
+                {
+                    src  = partition->edgeList->edges_array_src[k];
+                    dest = partition->edgeList->edges_array_dest[k];
+
+#if WEIGHTED
+                    weight = partition->edgeList->edges_array_weight[k];
+#endif
+
+                    // #pragma omp atomic update
+                    // __sync_fetch_and_add(&stats->vector_output[dest],(weight * stats->vector_input[src]));
+                    // addAtomicFloat(&stats->vector_output[dest], (weight * stats->vector_input[src])
+
+                    #pragma omp atomic update
+                    stats->vector_output[dest] +=  (weight * stats->vector_input[src]);
+                }
+            }
+        }
+
+
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+
+    }// end iteration loop
+
+    #pragma omp parallel for reduction(+:sum)
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+
+        sum += ((int)(stats->vector_output[v] * 10 + .5) / 10.0);
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Sum", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    return stats;
 
 }
 struct SPMVStats *SPMVPullRowFixedPointGraphGrid( __u32 iterations, struct GraphGrid *graph)
