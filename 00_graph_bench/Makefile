@@ -126,9 +126,10 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 #these variables only affect the signature not used in the make file
 
 UNROLLING = 16
+PIPELINE = 0
 
 #each diffrenert run would store the output to different folder based on these parameters
-BENCHMARK_SIGNATURE = $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_$(UNROLLING)
+BENCHMARK_SIGNATURE = $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_$(UNROLLING)_$(PIPELINE)
 
 ##############################################
 #      ACCEL GRAPH COMPILATION VARIABLES     #
@@ -418,11 +419,11 @@ config-symlink-gem5:
 	@mkdir -p $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/$(INTEGRATION)/$(BENCHMARK_SIGNATURE) &&\
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/$(INTEGRATION)/$(BENCHMARK_SIGNATURE)  && \
 	ln -sf ../../../$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz ./dynamic_trace.gz &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
-	ln -sf ../../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
-	ln -sf ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH)/$(UNROLLING).cfg ./algorithm.cfg
+	cp ../../../$(ALADDIN_CACTI_DIR)/cacti_cache.cfg ./cacti_cache.cfg &&\
+	cp ../../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
+	cp ../../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
+	cp ../../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
+	cp ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH)/$(UNROLLING).cfg ./algorithm.cfg
 
 .PHONY: config-symlink-gem5-cache
 config-symlink-gem5-cache: INTEGRATION = cache

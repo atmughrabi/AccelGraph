@@ -46,7 +46,6 @@ iter :
         degree = out_degree[v];
         edge_idx = edges_idx[v];
 
-sum :
         for(j = edge_idx ; j <  (edge_idx + degree) ; j++)
         {
             u = sorted_edges_array[j];

@@ -15,15 +15,11 @@
 #include "fixedPoint.h"
 #include "quantization.h"
 
-#include "reorder.h"
-
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
-#include "cache.h"
-#include "bloomMultiHash.h"
 
 
 // ********************************************************************************************
@@ -528,7 +524,7 @@ struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 
             if(graph->grid->out_degree[v])
                 riDividedOnDiClause[v] = DoubleToFixed64(stats->pageRanks[v] / graph->grid->out_degree[v]);
             else
-                riDividedOnDiClause[v] = 0;
+                riDividedOnDiClause[v] = 0.0f;
         }
 
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
@@ -800,7 +796,7 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
             if(graph->grid->out_degree[v])
                 riDividedOnDiClause[v] = DoubleToFixed64(stats->pageRanks[v] / graph->grid->out_degree[v]);
             else
-                riDividedOnDiClause[v] = 0;
+                riDividedOnDiClause[v] = 0.0f;
         }
 
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
@@ -1144,7 +1140,7 @@ struct PageRankStats *pageRankPushGraphCSR(double epsilon,  __u32 iterations, st
             if(graph->vertices->out_degree[v])
                 riDividedOnDiClause[v] = stats->pageRanks[v] / graph->vertices->out_degree[v];
             else
-                riDividedOnDiClause[v] = 0;
+                riDividedOnDiClause[v] = 0.0f;
 
         }
 
@@ -1305,7 +1301,7 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
             if(graph->vertices->out_degree[v])
                 riDividedOnDiClause[v] = DoubleToFixed64(stats->pageRanks[v] / graph->vertices->out_degree[v]);
             else
-                riDividedOnDiClause[v] = 0;
+                riDividedOnDiClause[v] = 0.0f;
         }
 
         // Stop(timer_inner);
@@ -1451,7 +1447,7 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
                 // riDividedOnDiClause[v] = DIVFixed64V1(pageRanksFP[v],UInt64ToFixed(graph->vertices[v].out_degree));
             }
             else
-                riDividedOnDiClause[v] = 0;
+                riDividedOnDiClause[v] = 0.0f;
 
         }
         // Stop(timer_inner);
@@ -2607,7 +2603,7 @@ struct PageRankStats *pageRankPushFixedPointGraphAdjArrayList(double epsilon,  _
             if(graph->vertices[v].out_degree)
                 riDividedOnDiClause[v] = DoubleToFixed64(stats->pageRanks[v] / graph->vertices[v].out_degree);
             else
-                riDividedOnDiClause[v] = 0;
+                riDividedOnDiClause[v] = 0.0f;
 
         }
 
@@ -3748,7 +3744,7 @@ struct PageRankStats *pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  
             if(graph->vertices[v].out_degree)
                 riDividedOnDiClause[v] = DoubleToFixed64(stats->pageRanks[v] / graph->vertices[v].out_degree);
             else
-                riDividedOnDiClause[v] = 0;
+                riDividedOnDiClause[v] = 0.0f;
 
         }
 
