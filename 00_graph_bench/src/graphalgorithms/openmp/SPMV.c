@@ -186,7 +186,10 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
-        stats->vector_input[v] =  (1.0f / graph->grid->out_degree[v]);
+        if(graph->grid->out_degree[v])
+            stats->vector_input[v] =  (1.0f / graph->grid->out_degree[v]);
+        else
+            stats->vector_input[v] = 0.001f;
     }
 
     Start(timer);
@@ -195,11 +198,11 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
         Start(timer_inner);
 
         __u32 i;
-        #pragma omp parallel for private(i)
+        // #pragma omp parallel for private(i)
         for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
         {
             __u32 j;
-            // #pragma omp parallel for private(j)
+            #pragma omp parallel for private(j)
             for (j = 0; j < totalPartitions; ++j)
             {
                 __u32 k;
@@ -220,14 +223,11 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
                     // __sync_fetch_and_add(&stats->vector_output[dest],(weight * stats->vector_input[src]));
                     // addAtomicFloat(&stats->vector_output[dest], (weight * stats->vector_input[src])
 
-                    #pragma omp atomic update
-                    stats->vector_output[dest] +=  (weight * stats->vector_input[src]);
+                    // #pragma omp atomic update
+                    stats->vector_output[src] +=  (weight * stats->vector_input[dest]);
                 }
             }
         }
-
-
-
 
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
@@ -259,7 +259,7 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
 }
 struct SPMVStats *SPMVPushColumnGraphGrid( __u32 iterations, struct GraphGrid *graph)
 {
-     __u32 v;
+    __u32 v;
     double sum = 0.0;
 
     __u32 totalPartitions  = graph->grid->num_partitions;
@@ -269,7 +269,7 @@ struct SPMVStats *SPMVPushColumnGraphGrid( __u32 iterations, struct GraphGrid *g
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting SPMV-Row");
+    printf("| %-51s | \n", "Starting SPMV-Column");
     printf(" -----------------------------------------------------\n");
     printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
     printf(" -----------------------------------------------------\n");
@@ -278,7 +278,10 @@ struct SPMVStats *SPMVPushColumnGraphGrid( __u32 iterations, struct GraphGrid *g
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
-        stats->vector_input[v] =  (1.0f / graph->grid->out_degree[v]);
+        if(graph->grid->out_degree[v])
+            stats->vector_input[v] =  (1.0f / graph->grid->out_degree[v]);
+        else
+            stats->vector_input[v] = 0.001f;
     }
 
     Start(timer);
@@ -286,13 +289,13 @@ struct SPMVStats *SPMVPushColumnGraphGrid( __u32 iterations, struct GraphGrid *g
     {
         Start(timer_inner);
 
-        __u32 i;
-        #pragma omp parallel for private(i)
-        for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
+        __u32 j;
+        #pragma omp parallel for private(j)
+        for (j = 0; j < totalPartitions; ++j)  // iterate over partitions colwise
         {
-            __u32 j;
+            __u32 i;
             // #pragma omp parallel for private(j)
-            for (j = 0; j < totalPartitions; ++j)
+            for (i = 0; i < totalPartitions; ++i)
             {
                 __u32 k;
                 __u32 src;
@@ -312,14 +315,11 @@ struct SPMVStats *SPMVPushColumnGraphGrid( __u32 iterations, struct GraphGrid *g
                     // __sync_fetch_and_add(&stats->vector_output[dest],(weight * stats->vector_input[src]));
                     // addAtomicFloat(&stats->vector_output[dest], (weight * stats->vector_input[src])
 
-                    #pragma omp atomic update
-                    stats->vector_output[dest] +=  (weight * stats->vector_input[src]);
+                    // #pragma omp atomic update
+                    stats->vector_output[src] +=  (weight * stats->vector_input[dest]);
                 }
             }
         }
-
-
-
 
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));

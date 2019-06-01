@@ -55,7 +55,5 @@ void   graphGridResetActivePartitionsMap(struct Grid *grid);
 void   graphGridSetActivePartitionsMap(struct Grid *grid, __u32 vertex);
 
 __u32 getPartitionID(__u32 vertices, __u32 partitions, __u32 vertex_id);
-__u32 getPartitionRangeBegin(__u32 vertices, __u32 partitions, __u32 partition_id);
-__u32 getPartitionRangeEnd(__u32 vertices, __u32 partitions, __u32 partition_id);
 
 #endif

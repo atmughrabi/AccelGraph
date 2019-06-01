@@ -461,39 +461,6 @@ inline __u32 getPartitionID(__u32 vertices, __u32 partitions, __u32 vertex_id)
     return (vertex_id < split_point) ? vertex_id / partition_size : (vertex_id - split_point) / (partition_size - 1) + (vertices % partitions);
 }
 
-__u32 getPartitionRangeBegin(__u32 vertices, __u32 partitions, __u32 partition_id)
-{
-
-    __u32 split_partition = vertices % partitions;
-    __u32 partition_size = vertices / partitions + 1;
-
-    if (partition_id < split_partition)
-    {
-        __u32 begin = partition_id * partition_size;
-        return begin;
-    }
-    __u32 split_point = split_partition * partition_size;
-    __u32 begin = split_point + (partition_id - split_partition) * (partition_size - 1);
-
-    return begin;
-}
-
-__u32 getPartitionRangeEnd(__u32 vertices, __u32 partitions, __u32 partition_id)
-{
-
-    __u32 split_partition = vertices % partitions;
-    __u32 partition_size = vertices / partitions + 1;
-
-    if (partition_id < split_partition)
-    {
-        __u32 end = (partition_id + 1) * partition_size;
-        return  end;
-    }
-    __u32 split_point = split_partition * partition_size;
-    __u32 end = split_point + (partition_id - split_partition + 1) * (partition_size - 1);
-
-    return  end;
-}
 
 void gridPrintMessageWithtime(const char *msg, double time)
 {

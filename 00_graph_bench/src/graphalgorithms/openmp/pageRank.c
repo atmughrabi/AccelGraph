@@ -359,7 +359,7 @@ struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations
 
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Page Rank Pull-Row (tolerance/epsilon)");
+    printf("| %-51s | \n", "Starting Page Rank Row (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51.13lf | \n", epsilon);
     printf(" -----------------------------------------------------\n");
@@ -391,11 +391,11 @@ struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
 
         __u32 i;
-        #pragma omp parallel for private(i)
+        // #pragma omp parallel for private(i)
         for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
         {
             __u32 j;
-            // #pragma omp parallel for private(j)
+            #pragma omp parallel for private(j)
             for (j = 0; j < totalPartitions; ++j)
             {
                 __u32 k;
@@ -411,7 +411,7 @@ struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations
                     // __sync_fetch_and_add(&pageRanksNext[dest],riDividedOnDiClause[src]);
                     // addAtomicFloat(float *num, float value)
 
-                    #pragma omp atomic update
+                    // #pragma omp atomic update
                     pageRanksNext[dest] +=  riDividedOnDiClause[src];
                 }
             }
@@ -496,7 +496,7 @@ struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 
 
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Page Rank Pull-Row FP (tolerance/epsilon)");
+    printf("| %-51s | \n", "Starting Page Rank Row FP (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51.13lf | \n", epsilon);
     printf(" -----------------------------------------------------\n");
@@ -530,10 +530,11 @@ struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
 
         __u32 i;
-        #pragma omp parallel for private(i)
+        // #pragma omp parallel for private(i)
         for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
         {
             __u32 j;
+            #pragma omp parallel for private(j)
             for (j = 0; j < totalPartitions; ++j)
             {
                 __u32 k;
@@ -545,7 +546,7 @@ struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 
                     src  = partition->edgeList->edges_array_src[k];
                     dest = partition->edgeList->edges_array_dest[k];
 
-                    #pragma omp atomic update
+                    // #pragma omp atomic update
                     pageRanksNext[dest] +=  riDividedOnDiClause[src];
                 }
             }
@@ -634,7 +635,7 @@ struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  __u32 iterati
 
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Page Rank Push-Col (tolerance/epsilon)");
+    printf("| %-51s | \n", "Starting Page Rank Col (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51.13lf | \n", epsilon);
     printf(" -----------------------------------------------------\n");
@@ -667,11 +668,12 @@ struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  __u32 iterati
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
 
         __u32 j;
-        #pragma omp parallel for private(j)
-        for (j = 0; j < totalPartitions; ++j)  // iterate over partitions columnwise
+       #pragma omp parallel for private(j)
+        for (j = 0; j < totalPartitions; ++j)  
         {
             __u32 i;
 
+            // #pragma omp parallel for private(i) // iterate over partitions columnwise
             for (i = 0; i < totalPartitions; ++i)
             {
                 __u32 k;
@@ -683,7 +685,7 @@ struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  __u32 iterati
                     src  = partition->edgeList->edges_array_src[k];
                     dest = partition->edgeList->edges_array_dest[k];
 
-                    #pragma omp atomic update
+                    // #pragma omp atomic update
                     pageRanksNext[dest] +=  riDividedOnDiClause[src];
 
                     // addAtomicFloat(&pageRanksNext[dest] , riDividedOnDiClause[src]);
@@ -769,7 +771,7 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Page Rank Push-Col FP (tolerance/epsilon)");
+    printf("| %-51s | \n", "Starting Page Rank Col FP (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51.13lf | \n", epsilon);
     printf(" -----------------------------------------------------\n");
@@ -802,6 +804,7 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
 
         __u32 j;
+       
         #pragma omp parallel for private(j)
         for (j = 0; j < totalPartitions; ++j)  // iterate over partitions columnwise
         {
@@ -817,7 +820,7 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
                     src  = partition->edgeList->edges_array_src[k];
                     dest = partition->edgeList->edges_array_dest[k];
 
-                    #pragma omp atomic update
+                    // #pragma omp atomic update
                     pageRanksNext[dest] +=  riDividedOnDiClause[src];
 
                     // addAtomicFloat(&pageRanksNext[dest] , riDividedOnDiClause[src]);

@@ -100,11 +100,11 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 1
-ALGORITHMS 		= 5
+ALGORITHMS 		= 1
 
 ROOT 			= 5319
-PULL_PUSH 		= 0
-TOLERANCE 		= 1e-9
+PULL_PUSH 		= 3
+TOLERANCE 		= 1e-8
 DELTA 			= 800
 
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
