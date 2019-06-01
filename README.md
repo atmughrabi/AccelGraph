@@ -373,11 +373,12 @@ portable benchmarking suite for various graph processing algorithms.
   - [x] DFS   (Depth First Search)
   - [x] IA    (Incremental Aggregation)
   - [x] SSSP  (BellmanFord)
-  - [x] SSSP  (Dijkstra)
+  - [x] SSSP  (Delta Stepping)
+  - [x] SPMV  (Sparse Matrix-vector Multiplication)
   - [ ] CC    (Connected Components)
   - [ ] BC    (Betweenness Centrality)
   - [ ] TC    (Triangle Counting)
-  - [ ] SPMV  (Sparse Matrix-vector Multiplication)
+  
 - [x] Finish integration with gem5-Aladdin
 - [ ] Finish graph algorithms suite gem5-Aladdin
   - [ ] BFS   (Breadth First Search)
