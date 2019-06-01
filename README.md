@@ -9,9 +9,9 @@
 
 ![End-to-End Acceleration](./02_slides/fig/fig-4.png "Accel-Graph")
 
-Accel-Graph is an open source graph processing framework, it is designed to be a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure that includes the preprocessing stage for forming the graph structure, with the graph algorithm.
-The OpenMP part of Accel-Graph has been developed on Ubuntu 16.04.6,  with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between shared memory FPGAs with parallel processors.
-Also we provided support for gem5-Aladdin for more performance exploration options. With a simple cache model hard coded into our base code for quick and dirty cache performance evaluation.
+Accel-Graph is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure that includes the preprocessing stage of forming the graph structure, with the graph algorithm.
+The OpenMP part of Accel-Graph has been developed on Ubuntu 16.04.6,  with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between Shared Memory Accelerators and Parallel Processors.
+Also we support gem5-Aladdin for pre-RTL performance exploration using accelerators. Included also, a simple cache model hard coded into our base code for quick and dirty cache performance evaluation.
 
 * Presentations that explains end-to-end graph processing
   * Preprocessing two steps (third one is optional) :
@@ -139,7 +139,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
 
 * NOTE: You need CAPI environment setup on your machine.
 * [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
-* We are not supporting CAPI SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a good candidate.
+* We are not supporting CAPI-SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a good candidate.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
 * CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
@@ -171,9 +171,8 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-capi
 
 * Example: 
 * INPUT: (unweighted textual edge-list)
+* ../BENCHMARKS_DIR/GRAPH_NAME/graph
  ```
-  ../BENCHMARKS_DIR/GRAPH_NAME/graph
-
   30    3
   3     4
   25    5
@@ -188,7 +187,8 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-capi
 
  ```
 * convert to binary format and add random weights, for this example all the weights are `1`.
-* `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to.
+* `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to. 
+* NOTE: you can read the file from text format without the convert step. By adding `--graph-file-format 0` to the argument list. The default is `1` assuming it is binary. please check `--help` for better explanation.
 * `--stats` is a flag that enables conversion. It used also for collecting stats about the graph (but this feature is on hold for now).
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make convert
@@ -199,9 +199,8 @@ accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-wei
 ```
 
 * OUTPUT: (weighted binary edge-list)
+*  ../BENCHMARKS_DIR/GRAPH_NAME/graph.wbin
 ```
-  ../BENCHMARKS_DIR/GRAPH_NAME/graph.wbin
-
 1e00 0000 0300 0000 0100 0000 0300 0000
 0400 0000 0100 0000 1900 0000 0500 0000
 0100 0000 1900 0000 0700 0000 0100 0000
