@@ -52,8 +52,6 @@ struct SPMVStats *SPMVPushGraphCSR(__u32 iterations, struct GraphCSR *graph);
 struct SPMVStats *SPMVPullFixedPointGraphCSR(__u32 iterations, struct GraphCSR *graph);
 struct SPMVStats *SPMVPushFixedPointGraphCSR(__u32 iterations, struct GraphCSR *graph);
 
-struct SPMVStats *SPMVDataDrivenPullGraphCSR(__u32 iterations, struct GraphCSR *graph);
-struct SPMVStats *SPMVDataDrivenPushGraphCSR(__u32 iterations, struct GraphCSR *graph);
 
 // ********************************************************************************************
 // ***************					ArrayList DataStructure					     **************
@@ -66,10 +64,6 @@ struct SPMVStats *SPMVPushGraphAdjArrayList(__u32 iterations, struct GraphAdjArr
 struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList(__u32 iterations, struct GraphAdjArrayList *graph);
 struct SPMVStats *SPMVPushFixedPointGraphAdjArrayList(__u32 iterations, struct GraphAdjArrayList *graph);
 
-struct SPMVStats *SPMVDataDrivenPullGraphAdjArrayList(__u32 iterations, struct GraphAdjArrayList *graph);
-struct SPMVStats *SPMVDataDrivenPushGraphAdjArrayList(__u32 iterations, struct GraphAdjArrayList *graph);
-struct SPMVStats *SPMVDataDrivenPullPushGraphAdjArrayList(__u32 iterations, struct GraphAdjArrayList *graph);
-
 // ********************************************************************************************
 // ***************					LinkedList DataStructure					 **************
 // ********************************************************************************************
@@ -80,8 +74,5 @@ struct SPMVStats *SPMVPushGraphAdjLinkedList(__u32 iterations, struct GraphAdjLi
 
 struct SPMVStats *SPMVPullFixedPointGraphAdjLinkedList(__u32 iterations, struct GraphAdjLinkedList *graph);
 struct SPMVStats *SPMVPushFixedPointGraphAdjLinkedList(__u32 iterations, struct GraphAdjLinkedList *graph);
-
-struct SPMVStats *SPMVDataDrivenPullGraphAdjLinkedList(__u32 iterations, struct GraphAdjLinkedList *graph);
-struct SPMVStats *SPMVDataDrivenPushGraphAdjLinkedList(__u32 iterations, struct GraphAdjLinkedList *graph);
 
 #endif
