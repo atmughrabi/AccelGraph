@@ -198,7 +198,7 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
         Start(timer_inner);
 
         __u32 i;
-        #pragma omp parallel for private(i)
+        #pragma omp parallel for private(i) schedule (dynamic,numThreads)
         for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
         {
             __u32 j;
@@ -294,7 +294,7 @@ struct SPMVStats *SPMVPushColumnGraphGrid( __u32 iterations, struct GraphGrid *g
         for (j = 0; j < totalPartitions; ++j)  // iterate over partitions colwise
         {
             __u32 i;
-            #pragma omp parallel for private(i)
+            #pragma omp parallel for private(i) schedule (dynamic,numThreads)
             for (i = 0; i < totalPartitions; ++i)
             {
                 __u32 k;
