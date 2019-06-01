@@ -1,6 +1,6 @@
 
 
-[<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#accel-graph-benchmark-suite)
+[<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#accel-graph-benchmark-suite-)
 # Accel-Graph Benchmark Suite [![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)
 
 # Installation 
@@ -384,4 +384,4 @@ portable benchmarking suite for various graph processing algorithms.
 - [x] Support testing
 
 Report bugs to <atmughra@ncsu.edu>
-[<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#accel-graph-benchmark-suite)
+[<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#accel-graph-benchmark-suite-)
