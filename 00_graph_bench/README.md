@@ -8,15 +8,18 @@
 
 1. Clone Accel-Graph.
 
-  ```
-  git clone https://github.com/atmughrabi/AccelGraph.git
-  ```
+```console
+accel@graph:~$ git clone https://github.com/atmughrabi/AccelGraph.git
+```
+2. From the home directory go to the AccelGraph directory:
+```console
+accel@graph:~$ cd AccelGraph/
+```
+3. Setup the CAPI submodules.
 
-2. Setup the CAPI submodules.
-
-  ```
-  git submodule update --init --recursive
-  ```
+```console
+accel@graph:~AccelGraph$ git submodule update --init --recursive
+```
 
 # Running Accel-Graph 
 
@@ -25,21 +28,21 @@
 ## Initial compilation for the Graph framework with OpenMP 
 
 1. From the root directory go to the graph benchmark directory:
-  ```
-  cd 00_Graph_Bench/
-  ```
-2. The default compilation is openmp:
-  ```
-  make 
-  ```
+```console
+accel@graph:~AccelGraph$ cd 00_graph_bench/
+```
+2. The default compilation is `openmp` mode:
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make 
+```
 3. From the root directory you can modify the Makefile with the [(parameters)](#accel-graph-options) you need for OpenMP:
-  ```
-  make run
-  ```
-  * OR
-  ```
-  make run-openmp
-  ```
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run
+```
+* OR
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-openmp
+```
 
 [<img src="../02_slides/fig/gem5-aladdin_logo.png" height="45" align="right" >](https://github.com/harvard-acc/gem5-aladdin)
 
@@ -52,27 +55,27 @@
 ### Running Aladdin 
 
 1. From the root directory go to the graph benchmark directory:
-  ```
-  cd 00_Graph_Bench/
-  ```
+```console
+accel@graph:~AccelGraph$ cd 00_graph_bench/
+```
 2. This will compile Aladdin, then generate a dynamic trace if it doesn't exist and then run Aladdin:
-  * The generated dynamic_trace resides in `./00_Graph_bench/aladdin_common/dynamic_traces` 
-  * The dynamic trace is labeled with the following `(GRAPH_NAME)_(DATA_STRUCTURES)_(ALGORITHMS)_(PUSH_PULL)_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
-  ```
-  make run-aladdin
-  ```
-  * OR
-  ```
-  make run-aladdin-force # regenerate dynamic_trace even if it exists
-  ```
-3. To generate a dynamic trace without running Aladdin:
-  ```
-  make run-llvm-tracer # if it never been generated
-  ```
-  * OR
-  ```
-  make run-llvm-tracer-force # regenerated even if it exists
-  ```
+* The generated dynamic_trace resides in `./00_graph_bench/aladdin_common/dynamic_traces` 
+* The dynamic trace is labeled with the following `(GRAPH_NAME)_(DATA_STRUCTURES)_(ALGORITHMS)_(PUSH_PULL)_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-aladdin
+```
+* OR (regenerates dynamic_trace even if it exists)
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-aladdin-force 
+```
+* To generate a dynamic trace without running Aladdin: (if it never been generated)
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer 
+```
+* OR (regenerates dynamic_trace.gz even if it exist)
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer-force 
+```
 
 ### Running gem5-Aladdin 
 
@@ -81,22 +84,26 @@
 * gem5-Aladdin provides the possibility to evaluate the performance of shared memory accelerators.
 
 1. From the root directory go to the graph benchmark directory:
-  ```
-  cd 00_Graph_Bench/
-  ```
-2. Their are three types of mode runs for gem5-aladding.
-  * Running with `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
-  ```
-  make run-gem5-openmp
-  ```
-  * Running with `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
-  ```
-  make run-gem5-cpu
-  ```
-  * Running with `accel` mode on gem5 with the accelerator active. The performance model is derived from the DDDG (Dynamic Data Dependence Graph).
-  ```
-  make run-gem5-accel
-  ```
+```console
+accel@graph:~AccelGraph$ cd 00_graph_bench/
+```
+2. Their are four `mode` runs for gem5-aladding.
+* Running with `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-openmp
+```
+* Running with `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cpu
+```
+* Running with `accel` mode on gem5 with the accelerator active. The performance model is derived from the DDDG (Dynamic Data Dependence Graph).
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-accel
+```
+* Running with `cache` mode using `00_graph_bench/util/cache.c`.This simulates trace driven cache. check `pageRankPullGraphCSRKernelCache` in `00_graph_bench/src/gem5aladdin/pageRank_kernels.c`, for a good example.
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
+```
 
 [<img src="../02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
 
@@ -104,24 +111,24 @@
 
 * NOTE: You need CAPI environment setup on your machine.
 * [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
-* We are not supporting CAPI SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a candidate.
+* We are not supporting CAPI-SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a good candidate.
 * For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
 * CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
 
 
 1. From the root directory go to the graph benchmark directory:
-  ```
-  cd 00_Graph_Bench/
-  ```
-2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
-  ```
-  make run-pslse
-  ```
+```console
+accel@graph:~AccelGraph$ cd 00_graph_bench/
+```
+2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-pslse
+```
 3. Runs a graph algorithm that communicates with the PSLSE (simulation), or PSL (real HW):
-  ```
-  make run-capi
-  ```
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-capi
+```
 
 ## Graph structure (Edge list) 
 
@@ -136,9 +143,8 @@
 
 * Example: 
 * INPUT: (unweighted textual edge-list)
+* ../BENCHMARKS_DIR/GRAPH_NAME/graph
  ```
-  ../BENCHMARKS_DIR/GRAPH_NAME/graph
-
   30    3
   3     4
   25    5
@@ -153,20 +159,20 @@
 
  ```
 * convert to binary format and add random weights, for this example all the weights are `1`.
-* `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to.
+* `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to. 
+* NOTE: you can read the file from text format without the convert step. By adding `--graph-file-format 0` to the argument list. The default is `1` assuming it is binary. please check `--help` for better explanation.
 * `--stats` is a flag that enables conversion. It used also for collecting stats about the graph (but this feature is on hold for now).
- ```
-  make convert
- ```
-  * OR
- ```
-./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
- ```
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make convert
+```
+* OR
+```console
+accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
+```
 
 * OUTPUT: (weighted binary edge-list)
- ```
-  ../BENCHMARKS_DIR/GRAPH_NAME/graph.wbin
-
+*  ../BENCHMARKS_DIR/GRAPH_NAME/graph.wbin
+```
 1e00 0000 0300 0000 0100 0000 0300 0000
 0400 0000 0100 0000 1900 0000 0500 0000
 0100 0000 1900 0000 0700 0000 0100 0000
@@ -176,11 +182,11 @@
 0600 0000 0b00 0000 0100 0000 0800 0000
 1600 0000 0100 0000 0900 0000 1b00 0000
 0100 0000 
- ```
+```
 
 ## Accel-Graph Options 
 
- ```
+```
 Usage: accel-graph [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
@@ -270,13 +276,12 @@ portable benchmarking suite for various graph processing algorithms.
   -?, --help                 Give this help list
       --usage                Give a short usage message
   -V, --version              Print program version
-
- ```
+```
 
 
 ## Organization 
 
-* `00_Graph_Bench`
+* `00_graph_bench`
   * `include` - Major function headers 
     * `graphalgorithms` - supported Graph algorithms
       * `openmp`  - OpenMP integration
@@ -286,6 +291,7 @@ portable benchmarking suite for various graph processing algorithms.
         * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
         * `incrementalAgreggation.h` - Incremental Aggregation for clustering
         * `pageRank.h` - Page Rank Algorithm
+        * `SPMV.h` - Sparse Matrix Vector Multiplication
       * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
     * `preprocessing` - preprocessing graph structure
@@ -307,6 +313,7 @@ portable benchmarking suite for various graph processing algorithms.
         * `bellmanFord.c` - Single Source Shortest Path using Bellman Ford
         * `incrementalAgreggation.c` - Incremental Aggregation for clustering
         * `pageRank.c` - Page Rank Algorithm
+        * `SPMV.c` - Sparse Matrix Vector Multiplication
       * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
     * `preprocessing` - preprocessing graph structure
@@ -339,11 +346,12 @@ portable benchmarking suite for various graph processing algorithms.
   - [x] DFS   (Depth First Search)
   - [x] IA    (Incremental Aggregation)
   - [x] SSSP  (BellmanFord)
-  - [x] SSSP  (Dijkstra)
-  - [ ] CC    (Connected Components)
+  - [x] SSSP  (Delta Stepping)
+  - [x] SPMV  (Sparse Matrix Vector Multiplication)
+  - [x] CC    (Connected Components)
   - [ ] BC    (Betweenness Centrality)
   - [ ] TC    (Triangle Counting)
-  - [ ] SPMV  (Sparse Matrix-vector Multiplication)
+  
 - [x] Finish integration with gem5-Aladdin
 - [ ] Finish graph algorithms suite gem5-Aladdin
   - [ ] BFS   (Breadth First Search)
@@ -372,7 +380,7 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] Graph algorithms performance exploration with gem5-Aladdin
   - [ ] Page-Rank quantization
   - [ ] FPGA Frontier prefetcher
-- [x] Support unit testing
+- [x] Support testing
 
 Report bugs to <atmughra@ncsu.edu>
 [<p align="right"> <img src="../02_slides/fig/logo1.png" width="200" ></p>](#accel-graph-benchmark-suite)

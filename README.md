@@ -319,6 +319,7 @@ portable benchmarking suite for various graph processing algorithms.
         * `bellmanFord.h` - Single Source Shortest Path using Bellman Ford
         * `incrementalAgreggation.h` - Incremental Aggregation for clustering
         * `pageRank.h` - Page Rank Algorithm
+        * `SPMV.h` - Sparse Matrix Vector Multiplication
       * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
     * `preprocessing` - preprocessing graph structure
@@ -340,6 +341,7 @@ portable benchmarking suite for various graph processing algorithms.
         * `bellmanFord.c` - Single Source Shortest Path using Bellman Ford
         * `incrementalAgreggation.c` - Incremental Aggregation for clustering
         * `pageRank.c` - Page Rank Algorithm
+        * `SPMV.c` - Sparse Matrix Vector Multiplication
       * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
     * `preprocessing` - preprocessing graph structure
@@ -373,8 +375,8 @@ portable benchmarking suite for various graph processing algorithms.
   - [x] IA    (Incremental Aggregation)
   - [x] SSSP  (BellmanFord)
   - [x] SSSP  (Delta Stepping)
-  - [x] SPMV  (Sparse Matrix-vector Multiplication)
-  - [ ] CC    (Connected Components)
+  - [x] SPMV  (Sparse Matrix Vector Multiplication)
+  - [x] CC    (Connected Components)
   - [ ] BC    (Betweenness Centrality)
   - [ ] TC    (Triangle Counting)
   
