@@ -1,8 +1,7 @@
 
 
 
-# Accel-Graph Benchmark Suite [![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph) 
-[<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#accel-graph-benchmark-suite)
+# Accel-Graph Benchmark Suite [![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)[<p align="right"> <img src="../02_slides/fig/logo1.png" width="100" ></p>](#accel-graph-benchmark-suite)
 
 # Installation 
 
