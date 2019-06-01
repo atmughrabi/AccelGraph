@@ -5,6 +5,7 @@
 #include <argp.h>
 #include <stdbool.h>
 #include <omp.h>
+#include <math.h>
 
 
 #include "graphStats.h"
@@ -27,10 +28,36 @@
 #include "incrementalAggregation.h"
 #include "bellmanFord.h"
 #include "SSSP.h"
+#include "SPMV.h"
 
 #include <assert.h>
 #include "graphTest.h"
 
+
+__u32 equalFloat(float a, float b, float epsilon)
+{
+    return fabs(a - b) < epsilon;
+}
+
+__u32 compareFloatArrays(float *arr1, float *arr2, __u32 arr1_size, __u32 arr2_size)
+{
+    __u32 i = 0;
+    __u32 missmatch = 0;
+    float epsilon = 1e-5f;
+
+    if(arr1_size != arr2_size)
+        return 1;
+
+    for(i = 0 ; i < arr1_size; i++)
+    {
+
+        if(!equalFloat(arr1[i], arr2[i], epsilon))
+        {
+            missmatch++;
+        }
+    }
+    return missmatch;
+}
 
 __u32 compareRealRanks(__u32 *arr1, __u32 *arr2, __u32 arr1_size, __u32 arr2_size)
 {
@@ -102,7 +129,8 @@ __u32 cmpGraphAlgorithmsTestStats(void *ref_stats, void *cmp_stats, __u32 algori
     {
         struct PageRankStats *ref_stats_tmp = (struct PageRankStats * )ref_stats;
         struct PageRankStats *cmp_stats_tmp = (struct PageRankStats * )cmp_stats;
-        missmatch += compareRealRanks(ref_stats_tmp->realRanks, cmp_stats_tmp->realRanks, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
+        // missmatch += compareRealRanks(ref_stats_tmp->realRanks, cmp_stats_tmp->realRanks, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
+        missmatch += compareFloatArrays(ref_stats_tmp->pageRanks, cmp_stats_tmp->pageRanks, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
 
     }
     break;
@@ -127,7 +155,13 @@ __u32 cmpGraphAlgorithmsTestStats(void *ref_stats, void *cmp_stats, __u32 algori
         missmatch += compareDistanceArrays(ref_stats_tmp->distances, cmp_stats_tmp->distances, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
     }
     break;
-    case 5: // incremental Aggregation file name root
+    case 5: // SPMV file name root
+    {
+        struct SPMVStats *ref_stats_tmp = (struct SPMVStats * )ref_stats;
+        struct SPMVStats *cmp_stats_tmp = (struct SPMVStats * )cmp_stats;
+        missmatch += compareFloatArrays(ref_stats_tmp->vector_output, cmp_stats_tmp->vector_output, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
+    }
+    case 6: // incremental Aggregation file name root
     {
         struct IncrementalAggregationStats *ref_stats_tmp = (struct IncrementalAggregationStats * )ref_stats;
         struct IncrementalAggregationStats *cmp_stats_tmp = (struct IncrementalAggregationStats * )cmp_stats;
@@ -153,22 +187,22 @@ void *runGraphAlgorithmsTest(void *graph, struct Arguments *arguments)
 
     switch (arguments->algorithm)
     {
-    case 0:  // bfs filename root
+    case 0:  // BFS
     {
         ref_stats = runBreadthFirstSearchAlgorithm( graph,  arguments->datastructure,  arguments->root,  arguments->pushpull);
     }
     break;
-    case 1: // pagerank filename
+    case 1: // pagerank
     {
         ref_stats = runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->pushpull);
     }
     break;
-    case 2: // SSSP-Dijkstra file name root
+    case 2: // SSSP-Dijkstra
     {
         ref_stats = runSSSPAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations, arguments->pushpull,  arguments->delta);
     }
     break;
-    case 3: // SSSP-Bellmanford file name root
+    case 3: // SSSP-Bellmanford
     {
         ref_stats = runBellmanFordAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations, arguments->pushpull);
     }
@@ -178,12 +212,16 @@ void *runGraphAlgorithmsTest(void *graph, struct Arguments *arguments)
         ref_stats = runDepthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root);
     }
     break;
-    case 5: // incremental Aggregation file name root
+    case 5: // SPMV
+    {
+        ref_stats = runSPMVAlgorithm(graph,  arguments->datastructure,  arguments->iterations,  arguments->pushpull);
+    }
+    case 6: // incremental Aggregation
     {
         ref_stats = runIncrementalAggregationAlgorithm(graph,  arguments->datastructure);
     }
     break;
-    default:// bfs file name root
+    default:// BFS
     {
         ref_stats = runBreadthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root, arguments->pushpull);
     }

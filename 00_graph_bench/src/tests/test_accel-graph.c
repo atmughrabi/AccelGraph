@@ -113,13 +113,14 @@ main (int argc, char **argv)
     for(arguments.datastructure = 0 ; arguments.datastructure < 4; arguments.datastructure++)
     {
         graph = generateGraphDataStructure(&arguments);
-        arguments.trials = 20;
+        arguments.trials = (generateRandInt(mt19937var) % 50)+1;
+        arguments.iterations = (generateRandInt(mt19937var) % 200)+1;
 
         while(arguments.trials)
         {
             arguments.root = generateRandomRootGeneral(graph, &arguments);
 
-            for(arguments.algorithm = 0 ; arguments.algorithm < 6; arguments.algorithm++)
+            for(arguments.algorithm = 0 ; arguments.algorithm < 7; arguments.algorithm++)
             {
                 arguments.pushpull = 0;
                 ref_data = runGraphAlgorithmsTest(graph, &arguments);
