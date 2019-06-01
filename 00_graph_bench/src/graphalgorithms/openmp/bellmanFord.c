@@ -451,11 +451,11 @@ struct BellmanFordStats *bellmanFordPullRowGraphGrid(__u32 source,  __u32 iterat
         activeVertices = 0;
 
         __u32 i;
-        #pragma omp parallel for private(i) reduction(+ : activeVertices) schedule (dynamic,8)
+        #pragma omp parallel for private(i) reduction(+ : activeVertices) schedule (dynamic,numThreads)
         for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
         {
             __u32 j;
-            // #pragma omp parallel for private(j)
+            // #pragma omp parallel for private(j) reduction(+ : activeVertices) schedule (dynamic,8)
             for (j = 0; j < totalPartitions; ++j)
             {
                 __u32 k;
@@ -571,11 +571,11 @@ struct BellmanFordStats *bellmanFordPushColumnGraphGrid(__u32 source,  __u32 ite
         activeVertices = 0;
 
         __u32 j;
-        #pragma omp parallel for private(j) reduction(+ : activeVertices) schedule (dynamic,8)
+        #pragma omp parallel for private(j) reduction(+ : activeVertices) schedule (dynamic,numThreads)
         for (j = 0; j < totalPartitions; ++j)  // iterate over partitions colwise
         {
             __u32 i;
-            // #pragma omp parallel for private(j)
+            // #pragma omp parallel for private(i) reduction(+ : activeVertices) schedule (dynamic,numThreads)
             for (i = 0; i < totalPartitions; ++i)
             {
                 __u32 k;
@@ -590,10 +590,10 @@ struct BellmanFordStats *bellmanFordPushColumnGraphGrid(__u32 source,  __u32 ite
 
                     if(getBit(bitmapCurr, src))
                     {
-                        if(numThreads == 1)
+                        // if(numThreads == 1)
                             activeVertices += bellmanFordRelax(src, dest, weight, stats, bitmapNext);
-                        else
-                            activeVertices += bellmanFordAtomicRelax(src, dest, weight, stats, bitmapNext);
+                        // else
+                            // activeVertices += bellmanFordAtomicRelax(src, dest, weight, stats, bitmapNext);
                     }
                 }
             }
