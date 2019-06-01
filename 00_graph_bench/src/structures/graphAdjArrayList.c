@@ -92,34 +92,41 @@ struct GraphAdjArrayList *graphAdjArrayListEdgeListNewWithInverse(struct EdgeLis
     graphAdjArrayListPrintMessageWithtime("Graph AdjArrayList New (Seconds)", Seconds(timer));
 
 
-
     Start(timer);
     graphAdjArrayList = graphAdjArrayListEdgeListProcessOutDegree(graphAdjArrayList, edgeList);
     Stop(timer);
-    graphAdjArrayListPrintMessageWithtime("Graph EdgeList Process OutDegree (Seconds)", Seconds(timer));
-
-#if DIRECTED
-    Start(timer);
-    graphAdjArrayList = graphAdjArrayListEdgeListProcessInDegree(graphAdjArrayList, inverseEdgeList);
-    Stop(timer);
-    graphAdjArrayListPrintMessageWithtime("Graph EdgeList Process InDegree (Seconds)", Seconds(timer));
-#endif
+    graphAdjArrayListPrintMessageWithtime("Graph AdjArrayList Process OutDegree (Seconds)", Seconds(timer));
 
     Start(timer);
-    graphAdjArrayList = graphAdjArrayListEdgeAllocate(graphAdjArrayList);
+    graphAdjArrayList = graphAdjArrayListEdgeAllocateOutNodes(graphAdjArrayList);
     Stop(timer);
-    graphAdjArrayListPrintMessageWithtime("Graph Edge Allocate Memory (Seconds)", Seconds(timer));
+    graphAdjArrayListPrintMessageWithtime("Graph AdjArrayList Allocate Memory (Seconds)", Seconds(timer));
 
     Start(timer);
     graphAdjArrayList = graphAdjArrayListEdgePopulateOutNodes(graphAdjArrayList, edgeList);
     Stop(timer);
-    graphAdjArrayListPrintMessageWithtime("Graph Populate OutNodes (Seconds)", Seconds(timer));
+    graphAdjArrayListPrintMessageWithtime("Graph AdjArrayList Populate OutNodes (Seconds)", Seconds(timer));
+
+    freeEdgeList(edgeList);
 
 #if DIRECTED
+
+    Start(timer);
+    graphAdjArrayList = graphAdjArrayListEdgeListProcessInDegree(graphAdjArrayList, inverseEdgeList);
+    Stop(timer);
+    graphAdjArrayListPrintMessageWithtime("Graph AdjArrayList Process InDegree (Seconds)", Seconds(timer));
+
+    Start(timer);
+    graphAdjArrayList = graphAdjArrayListEdgeAllocateInodes(graphAdjArrayList);
+    Stop(timer);
+    graphAdjArrayListPrintMessageWithtime("Graph AdjArrayList Allocate Memory (Seconds)", Seconds(timer));
+
     Start(timer);
     graphAdjArrayList = graphAdjArrayListEdgePopulateInNodes(graphAdjArrayList, inverseEdgeList);
     Stop(timer);
-    graphAdjArrayListPrintMessageWithtime("Graph Populate InNodes (Seconds)", Seconds(timer));
+    graphAdjArrayListPrintMessageWithtime("Graph AdjArrayList Populate InNodes (Seconds)", Seconds(timer));
+
+    freeEdgeList(inverseEdgeList);
 #endif
 
 
@@ -142,6 +149,7 @@ struct GraphAdjArrayList *graphAdjArrayListEdgeListProcessInOutDegree(struct Gra
     __u32 dest;
 #endif
 
+    #pragma omp parallel for
     for(i = 0; i < edgeList->num_edges; i++)
     {
 
@@ -150,8 +158,12 @@ struct GraphAdjArrayList *graphAdjArrayListEdgeListProcessInOutDegree(struct Gra
 
 #if DIRECTED
         dest = edgeList->edges_array_dest[i];
+
+        #pragma omp atomic update
         graphAdjArrayList->vertices[dest].in_degree++;
 #endif
+
+        #pragma omp atomic update
         graphAdjArrayList->vertices[src].out_degree++;
 
     }
@@ -165,11 +177,13 @@ struct GraphAdjArrayList *graphAdjArrayListEdgeListProcessOutDegree(struct Graph
 
     __u32 i;
     __u32 src;
-
+#pragma omp parallel for
     for(i = 0; i < edgeList->num_edges; i++)
     {
 
         src =  edgeList->edges_array_src[i];
+
+        #pragma omp atomic update
         graphAdjArrayList->vertices[src].out_degree++;
 
 
@@ -187,11 +201,13 @@ struct GraphAdjArrayList *graphAdjArrayListEdgeListProcessInDegree(struct GraphA
     __u32 i;
     __u32 dest;
 
-
+    #pragma omp parallel for
     for(i = 0; i < inverseEdgeList->num_edges; i++)
     {
 
         dest =  inverseEdgeList->edges_array_src[i];
+
+        #pragma omp atomic update
         graphAdjArrayList->vertices[dest].in_degree++;
 
     }
@@ -207,6 +223,7 @@ struct GraphAdjArrayList *graphAdjArrayListEdgeAllocate(struct GraphAdjArrayList
 {
 
     __u32 v;
+    #pragma omp parallel for
     for(v = 0; v < graphAdjArrayList->num_vertices; v++)
     {
 
@@ -223,6 +240,44 @@ struct GraphAdjArrayList *graphAdjArrayListEdgeAllocate(struct GraphAdjArrayList
 
 }
 
+struct GraphAdjArrayList *graphAdjArrayListEdgeAllocateInodes(struct GraphAdjArrayList *graphAdjArrayList)
+{
+    #if DIRECTED
+    __u32 v;
+    // #pragma omp parallel for
+    for(v = 0; v < graphAdjArrayList->num_vertices; v++)
+    {
+
+        adjArrayListCreateNeighbourListInNodes(&(graphAdjArrayList->vertices[v]));
+
+
+        graphAdjArrayList->vertices[v].in_degree =  0;
+
+    }
+
+    #endif
+
+    return graphAdjArrayList;
+
+}
+
+struct GraphAdjArrayList *graphAdjArrayListEdgeAllocateOutNodes(struct GraphAdjArrayList *graphAdjArrayList)
+{
+
+    __u32 v;
+    // #pragma omp parallel for
+    for(v = 0; v < graphAdjArrayList->num_vertices; v++)
+    {
+
+        adjArrayListCreateNeighbourListOutNodes(&(graphAdjArrayList->vertices[v]));
+
+        graphAdjArrayList->vertices[v].out_degree = 0; // will be used as an index to edge array outnode
+
+    }
+
+    return graphAdjArrayList;
+
+}
 
 
 
@@ -239,14 +294,14 @@ struct GraphAdjArrayList *graphAdjArrayListEdgePopulate(struct GraphAdjArrayList
 
     __u32 out_degree;
 
-
+    #pragma omp parallel for
     for(i = 0; i < edgeList->num_edges; i++)
     {
 
         src =  edgeList->edges_array_src[i];
 
 
-        out_degree = graphAdjArrayList->vertices[src].out_degree;
+        out_degree = __sync_fetch_and_add(&(graphAdjArrayList->vertices[src].out_degree), 1);
 
         graphAdjArrayList->vertices[src].outNodes->edges_array_src[out_degree] = edgeList->edges_array_src[i];
         graphAdjArrayList->vertices[src].outNodes->edges_array_dest[out_degree] = edgeList->edges_array_dest[i];
@@ -254,11 +309,11 @@ struct GraphAdjArrayList *graphAdjArrayListEdgePopulate(struct GraphAdjArrayList
         graphAdjArrayList->vertices[src].outNodes->edges_array_weight[out_degree] = edgeList->edges_array_weight[i];
 #endif
 
-        graphAdjArrayList->vertices[src].out_degree++;
-
+        
 #if DIRECTED
         dest = edgeList->edges_array_dest[i];
-        in_degree = graphAdjArrayList->vertices[dest].in_degree;
+
+        in_degree = __sync_fetch_and_add(&(graphAdjArrayList->vertices[src].in_degree), 1);
 
         graphAdjArrayList->vertices[dest].inNodes->edges_array_src[in_degree] = edgeList->edges_array_src[i];
         graphAdjArrayList->vertices[dest].inNodes->edges_array_dest[in_degree] = edgeList->edges_array_dest[i];
@@ -266,7 +321,6 @@ struct GraphAdjArrayList *graphAdjArrayListEdgePopulate(struct GraphAdjArrayList
         graphAdjArrayList->vertices[dest].inNodes->edges_array_weight[in_degree] = edgeList->edges_array_weight[i];
 #endif
 
-        graphAdjArrayList->vertices[dest].in_degree++;
 #endif
 
 
@@ -317,6 +371,7 @@ struct GraphAdjArrayList *graphAdjArrayListEdgePopulateInNodes(struct GraphAdjAr
     __u32 i;
     __u32 dest;
     __u32 in_degree;
+
 
     for(i = 0; i < inverseEdgeList->num_edges; i++)
     {
@@ -453,18 +508,18 @@ struct GraphAdjArrayList *graphAdjArrayListPreProcessingStep (const char *fnameb
     Start(timer);
     struct GraphAdjArrayList *graph = graphAdjArrayListEdgeListNewWithInverse(edgeList, inverse_edgeList);
     Stop(timer);
-    graphAdjArrayListPrintMessageWithtime("Create Adj Array List from EdgeList (Seconds)", Seconds(timer));
+    graphAdjArrayListPrintMessageWithtime("Create AdjArrayList from EdgeList (Seconds)", Seconds(timer));
 #else
     Start(timer);
     struct GraphAdjArrayList *graph = graphAdjArrayListEdgeListNew(edgeList);
     Stop(timer);
-    graphAdjArrayListPrintMessageWithtime("Create Adj Array List from EdgeList (Seconds)", Seconds(timer));
+    graphAdjArrayListPrintMessageWithtime("Create AdjArrayList from EdgeList (Seconds)", Seconds(timer));
 #endif
 
-    freeEdgeList(edgeList);
-#if DIRECTED
-    freeEdgeList(inverse_edgeList);
-#endif
+//     freeEdgeList(edgeList);
+// #if DIRECTED
+//     freeEdgeList(inverse_edgeList);
+// #endif
 
     free(timer);
 

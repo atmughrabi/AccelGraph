@@ -238,7 +238,7 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        sum += ((int)(stats->vector_output[v] * 10 + .5) / 10.0);
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
     Stop(timer);
@@ -330,7 +330,7 @@ struct SPMVStats *SPMVPushColumnGraphGrid( __u32 iterations, struct GraphGrid *g
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        sum += ((int)(stats->vector_output[v] * 10 + .5) / 10.0);
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
     Stop(timer);
@@ -439,7 +439,7 @@ struct SPMVStats *SPMVPullRowFixedPointGraphGrid( __u32 iterations, struct Graph
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        sum += ((int)(stats->vector_output[v] * 10 + .5) / 10.0);
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
     Stop(timer);
@@ -552,7 +552,7 @@ struct SPMVStats *SPMVPushColumnFixedPointGraphGrid( __u32 iterations, struct Gr
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        sum += ((int)(stats->vector_output[v] * 10 + .5) / 10.0);
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
     Stop(timer);
@@ -683,7 +683,7 @@ struct SPMVStats *SPMVPullGraphCSR( __u32 iterations, struct GraphCSR *graph)
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        sum += ((int)(stats->vector_output[v] * 10 + .5) / 10.0);
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
     Stop(timer);
@@ -785,7 +785,7 @@ struct SPMVStats *SPMVPushGraphCSR( __u32 iterations, struct GraphCSR *graph)
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        sum += ((int)(stats->vector_output[v] * 10 + .5) / 10.0);
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
     Stop(timer);
@@ -865,7 +865,7 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( __u32 iterations, struct GraphCSR 
             __u32 src = v;
             __u32 dest;
             __u64 weight = DoubleToFixed64(0.0001f);
-            float nodeIncomingSPMV = 0.0f;
+            __u64 nodeIncomingSPMV = 0;
             degree = vertices->out_degree[src];
             edge_idx = vertices->edges_idx[src];
 
@@ -898,7 +898,7 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( __u32 iterations, struct GraphCSR 
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        sum += ((int)(stats->vector_output[v] * 10 + .5) / 10.0);
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
     Stop(timer);
@@ -1020,7 +1020,7 @@ struct SPMVStats *SPMVPushFixedPointGraphCSR( __u32 iterations, struct GraphCSR 
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        sum += ((int)(stats->vector_output[v] * 10 + .5) / 10.0);
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
     Stop(timer);
@@ -1078,18 +1078,392 @@ struct SPMVStats *SPMVGraphAdjArrayList( __u32 iterations, __u32 pushpull, struc
 struct SPMVStats *SPMVPullGraphAdjArrayList( __u32 iterations, struct GraphAdjArrayList *graph)
 {
 
+    __u32 v;
+    __u32 degree;
+    double sum = 0.0;
+    struct EdgeList *Nodes;
+
+    struct SPMVStats *stats = newSPMVStatsGraphAdjArrayList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting SPMV-PULL");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    //assume any vector input for benchamrking purpose.
+    // #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        if(graph->vertices[v].out_degree)
+            stats->vector_input[v] =  (1.0f / graph->vertices[v].out_degree);
+        else
+            stats->vector_input[v] = 0.001f;
+    }
+
+    Start(timer);
+    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    {
+        Start(timer_inner);
+
+        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+            float weight = 0.0001f;
+            float nodeIncomingSPMV = 0.0f;
+            degree = graph->vertices[src].out_degree;
+            Nodes = graph->vertices[src].outNodes;
+
+            for(j = 0 ; j < (degree) ; j++)
+            {
+                dest = Nodes->edges_array_dest[j];
+#if WEIGHTED
+                weight = Nodes->edges_array_weight[j];
+#endif
+                nodeIncomingSPMV +=  (weight * stats->vector_input[dest]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+            }
+
+            stats->vector_output[src] = nodeIncomingSPMV;
+        }
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+
+    }// end iteration loop
+
+    #pragma omp parallel for reduction(+:sum)
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Sum", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    return stats;
+
+
 }
 struct SPMVStats *SPMVPushGraphAdjArrayList( __u32 iterations, struct GraphAdjArrayList *graph)
 {
+
+    __u32 v;
+    __u32 degree;
+    double sum = 0.0;
+    struct EdgeList *Nodes;
+
+    struct SPMVStats *stats = newSPMVStatsGraphAdjArrayList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting SPMV-PUSH");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    //assume any vector input for benchamrking purpose.
+    // #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        if(graph->vertices[v].out_degree)
+            stats->vector_input[v] =  (1.0f / graph->vertices[v].out_degree);
+        else
+            stats->vector_input[v] = 0.001f;
+    }
+
+    Start(timer);
+    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    {
+        Start(timer_inner);
+
+        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+            float weight = 0.0001f;
+
+#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
+            Nodes = graph->vertices[src].inNodes;
+            degree = graph->vertices[src].in_degree;
+#else
+            Nodes = graph->vertices[src].outNodes;
+            degree = graph->vertices[src].out_degree;
+#endif
+
+            for(j = 0 ; j <  (degree) ; j++)
+            {
+                dest =  Nodes->edges_array_dest[j];
+#if WEIGHTED
+                weight = Nodes->edges_array_weight[j];
+#endif
+
+                #pragma omp atomic update
+                stats->vector_output[dest] += (weight * stats->vector_input[src]);
+            }
+
+        }
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+
+    }// end iteration loop
+
+    #pragma omp parallel for reduction(+:sum)
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Sum", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    return stats;
 
 }
 
 struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList( __u32 iterations, struct GraphAdjArrayList *graph)
 {
 
+    __u32 v;
+    __u32 degree;
+    double sum = 0.0;
+    struct EdgeList *Nodes;
+
+    struct SPMVStats *stats = newSPMVStatsGraphAdjArrayList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+
+    __u64 *vector_input = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    __u64 *vector_output = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting SPMV-PULL Fixed-Point");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    //assume any vector input for benchamrking purpose.
+    // #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        if(graph->vertices[v].out_degree)
+            stats->vector_input[v] =  (1.0f / graph->vertices[v].out_degree);
+        else
+            stats->vector_input[v] = 0.001f;
+    }
+
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
+    }
+
+    Start(timer);
+    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    {
+        Start(timer_inner);
+
+        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+            __u64 nodeIncomingSPMV = 0.0f;
+            __u64 weight = DoubleToFixed64(0.0001f);
+            degree = graph->vertices[src].out_degree;
+            Nodes = graph->vertices[src].outNodes;
+
+            for(j = 0 ; j < (degree) ; j++)
+            {
+                dest = Nodes->edges_array_dest[j];
+#if WEIGHTED
+                weight = DoubleToFixed64(Nodes->edges_array_weight[j]);
+#endif
+                nodeIncomingSPMV +=  MULFixed64V1(weight, vector_input[dest]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+            }
+
+            vector_output[src] = nodeIncomingSPMV;
+        }
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+
+    }// end iteration loop
+
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        stats->vector_output[v] = Fixed64ToDouble(vector_output[v]);
+    }
+
+
+    #pragma omp parallel for reduction(+:sum)
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
+    }
+
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Sum", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    free(vector_output);
+    free(vector_input);
+
+    return stats;
+
 }
 struct SPMVStats *SPMVPushFixedPointGraphAdjArrayList( __u32 iterations, struct GraphAdjArrayList *graph)
 {
+
+    __u32 v;
+    __u32 degree;
+    double sum = 0.0;
+    struct EdgeList *Nodes;
+
+    struct SPMVStats *stats = newSPMVStatsGraphAdjArrayList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+
+    __u64 *vector_input = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    __u64 *vector_output = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting SPMV-PUSH Fixed-Point");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    //assume any vector input for benchamrking purpose.
+    // #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        if(graph->vertices[v].out_degree)
+            stats->vector_input[v] =  (1.0f / graph->vertices[v].out_degree);
+        else
+            stats->vector_input[v] = 0.001f;
+    }
+
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
+    }
+
+    Start(timer);
+    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    {
+        Start(timer_inner);
+
+        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+            __u64 weight = DoubleToFixed64(0.0001f);
+
+#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
+            Nodes = graph->vertices[src].inNodes;
+            degree = graph->vertices[src].in_degree;
+#else
+            Nodes = graph->vertices[src].outNodes;
+            degree = graph->vertices[src].out_degree;
+#endif
+
+            for(j = 0 ; j <  (degree) ; j++)
+            {
+                dest =  Nodes->edges_array_dest[j];
+#if WEIGHTED
+                weight = DoubleToFixed64(Nodes->edges_array_weight[j]);
+#endif
+
+                #pragma omp atomic update
+                vector_output[dest] += MULFixed64V1(weight, vector_input[src]);
+            }
+
+        }
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+
+    }// end iteration loop
+
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        stats->vector_output[v] = Fixed64ToDouble(vector_output[v]);
+    }
+
+
+    #pragma omp parallel for reduction(+:sum)
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
+    }
+
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Sum", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    free(vector_output);
+    free(vector_input);
+
+    return stats;
 
 }
 
@@ -1128,17 +1502,391 @@ struct SPMVStats *SPMVGraphAdjLinkedList( __u32 iterations, __u32 pushpull, stru
 }
 struct SPMVStats *SPMVPullGraphAdjLinkedList( __u32 iterations, struct GraphAdjLinkedList *graph)
 {
+    __u32 v;
+    __u32 degree;
+    double sum = 0.0;
+    struct AdjLinkedListNode *Nodes;
 
+    struct SPMVStats *stats = newSPMVStatsGraphAdjLinkedList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting SPMV-PULL");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    //assume any vector input for benchamrking purpose.
+    // #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        if(graph->vertices[v].out_degree)
+            stats->vector_input[v] =  (1.0f / graph->vertices[v].out_degree);
+        else
+            stats->vector_input[v] = 0.001f;
+    }
+
+    Start(timer);
+    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    {
+        Start(timer_inner);
+
+        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+            float weight = 0.0001f;
+            float nodeIncomingSPMV = 0.0f;
+            degree = graph->vertices[src].out_degree;
+            Nodes = graph->vertices[src].outNodes;
+
+            for(j = 0 ; j < (degree) ; j++)
+            {
+                dest =  Nodes->dest;
+#if WEIGHTED
+                weight = Nodes->weight;
+#endif
+                Nodes = Nodes->next;
+
+                nodeIncomingSPMV +=  (weight * stats->vector_input[dest]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+            }
+
+            stats->vector_output[src] = nodeIncomingSPMV;
+        }
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+
+    }// end iteration loop
+
+    #pragma omp parallel for reduction(+:sum)
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Sum", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    return stats;
 }
 struct SPMVStats *SPMVPushGraphAdjLinkedList( __u32 iterations, struct GraphAdjLinkedList *graph)
 {
+    __u32 v;
+    __u32 degree;
+    double sum = 0.0;
+    struct AdjLinkedListNode *Nodes;
 
+    struct SPMVStats *stats = newSPMVStatsGraphAdjLinkedList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting SPMV-PUSH");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    //assume any vector input for benchamrking purpose.
+    // #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        if(graph->vertices[v].out_degree)
+            stats->vector_input[v] =  (1.0f / graph->vertices[v].out_degree);
+        else
+            stats->vector_input[v] = 0.001f;
+    }
+
+    Start(timer);
+    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    {
+        Start(timer_inner);
+
+        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+            float weight = 0.0001f;
+
+#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
+            Nodes = graph->vertices[src].inNodes;
+            degree = graph->vertices[src].in_degree;
+#else
+            Nodes = graph->vertices[src].outNodes;
+            degree = graph->vertices[src].out_degree;
+#endif
+
+            for(j = 0 ; j <  (degree) ; j++)
+            {
+
+                dest =  Nodes->dest;
+#if WEIGHTED
+                weight = Nodes->weight;
+#endif
+                Nodes = Nodes->next;
+
+                #pragma omp atomic update
+                stats->vector_output[dest] += (weight * stats->vector_input[src]);
+            }
+
+        }
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+
+    }// end iteration loop
+
+    #pragma omp parallel for reduction(+:sum)
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Sum", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    return stats;
 }
 struct SPMVStats *SPMVPullFixedPointGraphAdjLinkedList( __u32 iterations, struct GraphAdjLinkedList *graph)
 {
+    __u32 v;
+    __u32 degree;
+    double sum = 0.0;
+    struct AdjLinkedListNode *Nodes;
 
+    struct SPMVStats *stats = newSPMVStatsGraphAdjLinkedList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+
+    __u64 *vector_input = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    __u64 *vector_output = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting SPMV-PULL Fixed-Point");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    //assume any vector input for benchamrking purpose.
+    // #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        if(graph->vertices[v].out_degree)
+            stats->vector_input[v] =  (1.0f / graph->vertices[v].out_degree);
+        else
+            stats->vector_input[v] = 0.001f;
+    }
+
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
+    }
+
+    Start(timer);
+    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    {
+        Start(timer_inner);
+
+        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+            __u64 nodeIncomingSPMV = 0.0f;
+            __u64 weight = DoubleToFixed64(0.0001f);
+            degree = graph->vertices[src].out_degree;
+            Nodes = graph->vertices[src].outNodes;
+
+            for(j = 0 ; j < (degree) ; j++)
+            {
+
+                dest =  Nodes->dest;
+#if WEIGHTED
+                weight = DoubleToFixed64(Nodes->weight);
+#endif
+                Nodes = Nodes->next;
+                
+                nodeIncomingSPMV +=  MULFixed64V1(weight, vector_input[dest]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+            }
+
+            vector_output[src] = nodeIncomingSPMV;
+        }
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+
+    }// end iteration loop
+
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        stats->vector_output[v] = Fixed64ToDouble(vector_output[v]);
+    }
+
+
+    #pragma omp parallel for reduction(+:sum)
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
+    }
+
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Sum", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    free(vector_output);
+    free(vector_input);
+
+    return stats;
 }
 struct SPMVStats *SPMVPushFixedPointGraphAdjLinkedList( __u32 iterations, struct GraphAdjLinkedList *graph)
 {
+    __u32 v;
+    __u32 degree;
+    double sum = 0.0;
+    struct AdjLinkedListNode *Nodes;
 
+    struct SPMVStats *stats = newSPMVStatsGraphAdjLinkedList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+
+    __u64 *vector_input = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    __u64 *vector_output = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting SPMV-PUSH Fixed-Point");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    //assume any vector input for benchamrking purpose.
+    // #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        if(graph->vertices[v].out_degree)
+            stats->vector_input[v] =  (1.0f / graph->vertices[v].out_degree);
+        else
+            stats->vector_input[v] = 0.001f;
+    }
+
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
+    }
+
+    Start(timer);
+    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    {
+        Start(timer_inner);
+
+        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+            __u64 weight = DoubleToFixed64(0.0001f);
+
+#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
+            Nodes = graph->vertices[src].inNodes;
+            degree = graph->vertices[src].in_degree;
+#else
+            Nodes = graph->vertices[src].outNodes;
+            degree = graph->vertices[src].out_degree;
+#endif
+
+            for(j = 0 ; j <  (degree) ; j++)
+            {
+                dest =  Nodes->dest;
+
+#if WEIGHTED
+                weight = DoubleToFixed64(Nodes->weight);
+#endif
+                Nodes = Nodes->next;
+
+                #pragma omp atomic update
+                vector_output[dest] += MULFixed64V1(weight, vector_input[src]);
+            }
+
+        }
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+
+    }// end iteration loop
+
+    #pragma omp parallel for
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        stats->vector_output[v] = Fixed64ToDouble(vector_output[v]);
+    }
+
+
+    #pragma omp parallel for reduction(+:sum)
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
+    }
+
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Sum", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    free(vector_output);
+    free(vector_input);
+
+    return stats;
 }
