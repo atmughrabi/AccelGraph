@@ -9,9 +9,8 @@
 
 ![End-to-End Acceleration](./02_slides/fig/fig-4.png "Accel-Graph")
 
-Accel-Graph is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure that includes the preprocessing stage of forming the graph structure, with the graph algorithm.
-The OpenMP part of Accel-Graph has been developed on Ubuntu 16.04.6,  with PowerPC/Intel architecture taken into account. It is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between Shared Memory Accelerators and Parallel Processors.
-Also we support gem5-Aladdin for pre-RTL performance exploration using accelerators. Included also, a simple cache model hard coded into our base code for quick and dirty cache performance evaluation.
+Accel-Graph is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of Accel-Graph has been developed on Ubuntu 16.04.6, with PowerPC/Intel architecture taken into account. 
+Accel-Graph is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore, this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between Shared Memory Accelerators and Parallel Processors. Also, we support gem5-Aladdin for pre-RTL performance exploration using accelerators. Included also, a simple cache model hard-coded into our base code for quick and dirty cache performance evaluation.
 
 * Presentations that explains end-to-end graph processing
   * Preprocessing two steps (third one is optional) :

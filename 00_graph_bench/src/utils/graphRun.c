@@ -547,7 +547,7 @@ struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *gra
 {
 
 
-    // struct GraphCSR *graphCSR = NULL;
+    struct GraphCSR *graphCSR = NULL;
     // struct GraphGrid *graphGrid = NULL;
     // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
     // struct GraphAdjArrayList *graphAdjArrayList = NULL;
@@ -556,9 +556,9 @@ struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *gra
     switch (datastructure)
     {
     case 0: // CSR
-        // graphCSR = (struct GraphCSR *)graph;
-        // stats = incrementalAggregationGraphCSR(graphCSR);
-        generateGraphPrintMessageWithtime("BUGGY IMPLEMENTATION UNCOMMENT IF YOU NEED IT", 0);
+        graphCSR = (struct GraphCSR *)graph;
+        stats = incrementalAggregationGraphCSR(graphCSR);
+        // generateGraphPrintMessageWithtime("BUGGY IMPLEMENTATION UNCOMMENT IF YOU NEED IT", 0);
         break;
 
     case 1: // Grid
