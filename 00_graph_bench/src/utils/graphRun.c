@@ -21,6 +21,7 @@
 #include "bellmanFord.h"
 #include "SSSP.h"
 #include "SPMV.h"
+#include "connectedComponents.h"
 
 
 
@@ -50,6 +51,18 @@ void writeSerializedGraphDataStructure(struct Arguments *arguments)  // for now 
         arguments->weighted = 0; // no need to generate weights again this affects readedgelistbin
         Stop(timer);
         generateGraphPrintMessageWithtime("Serialize EdgeList text to binary (Seconds)", Seconds(timer));
+    }
+    else if(arguments->fnameb_format == 1 && arguments->convert_format == 0)  // for now it edge list is text only convert to binary
+    {
+        Start(timer);
+        struct EdgeList *edgeList = readEdgeListsbin(arguments->fnameb, 0, arguments->symmetric, arguments->weighted);  // read edglist from binary file
+        writeEdgeListToTXTFile(edgeList, arguments->fnameb);
+        arguments->fnameb_format = 1; // now you have a bin file
+        arguments->weighted = 0; // no need to generate weights again this affects readedgelistbin
+        Stop(timer);
+        generateGraphPrintMessageWithtime("Serialize EdgeList binary to text (Seconds)", Seconds(timer));
+
+        freeEdgeList(edgeList);
     }
     else if(arguments->fnameb_format == 0 && arguments->convert_format == 2)  // for now it edge list is text only convert to binary
     {
@@ -216,56 +229,63 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
     {
         switch (arguments->algorithm)
         {
-        case 0:  // bfs filename root
+        case 0:  // BFS
         {
             struct BFSStats *stats = runBreadthFirstSearchAlgorithm( graph,  arguments->datastructure,  arguments->root,  arguments->pushpull);
             time_total += stats->time_total;
             freeBFSStats(stats);
         }
         break;
-        case 1: // pagerank filename
+        case 1: // pagerank
         {
             struct PageRankStats *stats = runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->pushpull);
             time_total += stats->time_total;
             freePageRankStats(stats);
         }
         break;
-        case 2: // SSSP-Delta file name root
+        case 2: // SSSP-Delta
         {
             struct SSSPStats *stats = runSSSPAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations, arguments->pushpull,  arguments->delta);
             time_total += stats->time_total;
             freeSSSPStats(stats);
         }
         break;
-        case 3: // SSSP-Bellmanford file name root
+        case 3: // SSSP-Bellmanford
         {
             struct BellmanFordStats *stats = runBellmanFordAlgorithm(graph,  arguments->datastructure,  arguments->root,  arguments->iterations, arguments->pushpull);
             time_total += stats->time_total;
             freeBellmanFordStats(stats);
         }
         break;
-        case 4: // DFS file name root
+        case 4: // DFS
         {
             struct DFSStats *stats = runDepthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root);
             time_total += stats->time_total;
             freeDFSStats(stats);
         }
         break;
-        case 5: // incremental Aggregation file name root
+        case 5: // SPMV
         {
             struct SPMVStats *stats = runSPMVAlgorithm(graph,  arguments->datastructure,  arguments->iterations,  arguments->pushpull);
             time_total += stats->time_total;
             freeSPMVStats(stats);
         }
         break;
-        case 6: // incremental Aggregation file name root
+        case 6: // Connected Components
+        {
+            struct CCStats *stats = runConnectedComponentsAlgorithm(graph,  arguments->datastructure,  arguments->iterations,  arguments->pushpull);
+            time_total += stats->time_total;
+            freeCCStats(stats);
+        }
+        break;
+        case 7: // incremental Aggregation
         {
             struct IncrementalAggregationStats *stats = runIncrementalAggregationAlgorithm(graph,  arguments->datastructure);
             time_total += stats->time_total;
             freeIncrementalAggregationStats(stats);
         }
         break;
-        default:// bfs file name root
+        default: // BFS
         {
             struct BFSStats *stats = runBreadthFirstSearchAlgorithm(graph,  arguments->datastructure,  arguments->root, arguments->pushpull);
             time_total += stats->time_total;
@@ -494,6 +514,54 @@ struct DFSStats *runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, 
 
 }
 
+struct CCStats *runConnectedComponentsAlgorithm(void *graph, __u32 datastructure, __u32 iterations, __u32 pushpull)
+{
+
+
+    struct GraphCSR *graphCSR = NULL;
+    // struct GraphGrid *graphGrid = NULL;
+    // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
+    // struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    struct CCStats *stats = NULL;
+
+    switch (datastructure)
+    {
+    case 0: // CSR
+        graphCSR = (struct GraphCSR *)graph;
+        stats = connectedComponentsGraphCSR(iterations, pushpull, graphCSR);
+        break;
+
+    case 1: // Grid
+        // graphGrid = (struct GraphGrid *)graph;
+        // stats = SPMVGraphGrid(iterations, pushpull, graphGrid);
+
+        break;
+
+    case 2: // Adj Linked List
+        // graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
+        // stats = SPMVGraphAdjLinkedList(iterations, pushpull, graphAdjLinkedList);
+
+        break;
+
+    case 3: // Adj Array List
+        // graphAdjArrayList = (struct GraphAdjArrayList *)graph;
+        // stats = SPMVGraphAdjArrayList(iterations, pushpull, graphAdjArrayList);
+
+        break;
+
+    default:// CSR
+        graphCSR = (struct GraphCSR *)graph;
+        stats = connectedComponentsGraphCSR(iterations, pushpull, graphCSR);
+        break;
+    }
+
+
+    return stats;
+
+}
+
+
+
 struct SPMVStats *runSPMVAlgorithm(void *graph, __u32 datastructure, __u32 iterations, __u32 pushpull)
 {
 
@@ -558,7 +626,8 @@ struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *gra
     case 0: // CSR
         graphCSR = (struct GraphCSR *)graph;
         stats = incrementalAggregationGraphCSR(graphCSR);
-        // generateGraphPrintMessageWithtime("BUGGY IMPLEMENTATION UNCOMMENT IF YOU NEED IT", 0);
+
+        generateGraphPrintMessageWithtime("BUGGY IMPLEMENTATION UNCOMMENT IF YOU NEED IT", 0);
         break;
 
     case 1: // Grid
@@ -580,8 +649,9 @@ struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *gra
 
 
     default:// CSR
-        // graphCSR = (struct GraphCSR *)graph;
-        // stats = incrementalAggregationGraphCSR(graphCSR);
+        graphCSR = (struct GraphCSR *)graph;
+        stats = incrementalAggregationGraphCSR(graphCSR);
+
         generateGraphPrintMessageWithtime("BUGGY IMPLEMENTATION UNCOMMENT IF YOU NEED IT", 0);
         break;
     }
@@ -799,43 +869,55 @@ void freeGraphStatsGeneral(void *stats, __u32 algorithm)
 
     switch (algorithm)
     {
-    case 0:  // bfs filename root
+    case 0:  // bfs  
     {
         struct BFSStats *freeStatsBFS = (struct BFSStats * )stats;
         freeBFSStats(freeStatsBFS);
     }
     break;
-    case 1: // pagerank filename
+    case 1: // pagerank 
     {
         struct PageRankStats *freeStatsPageRank = (struct PageRankStats * )stats;
         freePageRankStats(freeStatsPageRank);
     }
     break;
-    case 2: // SSSP-Dijkstra file name root
+    case 2: // SSSP-Dijkstra 
     {
         struct SSSPStats *freeStatsSSSP = (struct SSSPStats * )stats;
         freeSSSPStats(freeStatsSSSP);
     }
     break;
-    case 3: // SSSP-Bellmanford file name root
+    case 3: // SSSP-Bellmanford
     {
         struct BellmanFordStats *freeStatsBellmanFord = (struct BellmanFordStats * )stats;
         freeBellmanFordStats(freeStatsBellmanFord);
     }
     break;
-    case 4: // DFS file name root
+    case 4: // DFS 
     {
         struct DFSStats *freeStatsDFS = (struct DFSStats * )stats;
         freeDFSStats(freeStatsDFS);
     }
     break;
-    case 5: // incremental Aggregation file name root
+    case 5: //SPMV
+    {
+        struct SPMVStats *freeStats = (struct SPMVStats *)stats;
+        freeSPMVStats(freeStats);
+    }
+    break;
+    case 6: // Connected Components
+    {
+        struct CCStats *freeStats = (struct CCStats *)stats;
+        freeCCStats(freeStats);
+    }
+    break;
+    case 7: // incremental Aggregation
     {
         struct IncrementalAggregationStats *freeStats = (struct IncrementalAggregationStats *)stats;
         freeIncrementalAggregationStats(freeStats);
     }
     break;
-    default:// bfs file name root
+    default:// bfs file  
     {
         struct BFSStats *freeStatsBFS = (struct BFSStats *)stats;
         freeBFSStats(freeStatsBFS);

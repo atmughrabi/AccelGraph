@@ -39,6 +39,7 @@
 #include "incrementalAggregation.h"
 #include "bellmanFord.h"
 #include "SSSP.h"
+#include "connectedComponents.h"
 
 #include <assert.h>
 #include "graphTest.h"

@@ -26,5 +26,6 @@ char *readEdgeListstxt(const char *fname, __u32 weighted);
 struct EdgeList *readEdgeListsbin(const char *fname, __u8 inverse, __u32 symmetric, __u32 weighted);
 struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem, __u8 inverse, __u32 symmetric);
 struct EdgeList *newEdgeList(__u32 num_edges);
+void writeEdgeListToTXTFile(struct EdgeList *edgeList, const char *fname);
 
 #endif

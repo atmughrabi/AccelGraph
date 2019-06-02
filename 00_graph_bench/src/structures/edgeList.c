@@ -28,6 +28,30 @@ __u32 maxTwoIntegers(__u32 num1, __u32 num2)
 }
 
 
+void writeEdgeListToTXTFile(struct EdgeList *edgeList, const char *fname)
+{
+
+    FILE *fp;
+    __u32 i;
+
+
+    char *fname_txt = (char *) malloc((strlen(fname) + 10) * sizeof(char));
+
+    fname_txt = strcpy (fname_txt, fname);
+    fname_txt = strcat (fname_txt, ".txt");
+
+    fp = fopen (fname_txt, "w");
+
+    for(i = 0; i < edgeList->num_edges; i++)
+    {
+
+        fprintf(fp, "%u %u\n", edgeList->edges_array_src[i], edgeList->edges_array_dest[i]);
+
+    }
+
+    fclose (fp);
+}
+
 // read edge file to edge_array in memory
 struct EdgeList *newEdgeList( __u32 num_edges)
 {
@@ -180,7 +204,7 @@ char *readEdgeListstxt(const char *fname, __u32 weighted)
         }
         else
         {
-            i = fscanf(pText, "%u\t%u\t%u\n", &src, &dest, &weight);      
+            i = fscanf(pText, "%u\t%u\t%u\n", &src, &dest, &weight);
         }
 #else
         i = fscanf(pText, "%u\t%u\n", &src, &dest);

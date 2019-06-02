@@ -20,6 +20,7 @@
 #include "bellmanFord.h"
 #include "SSSP.h"
 #include "SPMV.h"
+#include "connectedComponents.h"
 
 /* Used by main to communicate with parse_opt. */
 struct Arguments
@@ -71,6 +72,7 @@ struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *gra
 struct BellmanFordStats *runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 pushpull);
 struct SSSPStats *runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 pushpull, __u32 delta);
 struct SPMVStats *runSPMVAlgorithm(void *graph, __u32 datastructure,__u32 iterations, __u32 pushpull);
+struct CCStats *runConnectedComponentsAlgorithm(void *graph, __u32 datastructure, __u32 iterations, __u32 pushpull);
 
 
 

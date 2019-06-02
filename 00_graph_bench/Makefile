@@ -63,7 +63,7 @@ MAIN_DIR		  	= main
 #########################################################
 
 #small test graphs
-GRAPH_NAME = test
+# GRAPH_NAME = test
 # GRAPH_NAME = Rabbit
 
 # synthetic graphs
@@ -97,10 +97,10 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 
 
 #GRAPH RUN
-SORT_TYPE 		= 0
-REORDER 		= 5
+SORT_TYPE 		= 1
+REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 0
+ALGORITHMS 		= 5
 
 ROOT 			= 5319
 PULL_PUSH 		= 0
@@ -109,11 +109,11 @@ DELTA 			= 800
 
 NUM_THREADS  	= 8
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-NUM_ITERATIONS 	= 200
-NUM_TRIALS 		= 10
+NUM_ITERATIONS 	= 1
+NUM_TRIALS 		= 2
 
 FILE_FORMAT 	= 1
-CONVERT_FORMAT 	= 1
+CONVERT_FORMAT 	= 0
 
 #STATS COLLECTION VARIABLES
 BIN_SIZE = 512
@@ -167,7 +167,7 @@ OPENMP_INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
 
 # flags
 CFLAGS   =  -O3 -Wall -m64 -fopenmp -g 
-LFLAGS = -lm
+LFLAGS = -lm -lJudy
 
 
 # TEST PASS OR FAIL
