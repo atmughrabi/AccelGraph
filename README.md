@@ -211,8 +211,8 @@ accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-wei
 0100 0000 
 ```
 
-## Graph structure Processing:
-Accel-Graph handles multiple types of representations of the the graph in memory each has their own theoretical benefits and shortcomings.
+## Graph Structure Preprocessing:
+Accel-Graph can handle multiple representations of the graph structure in memory, each has their own theoretical benefits and shortcomings.
 
 ### Regular unsorted Edge-list as input.
 <p align="center"><img src="./02_slides/fig/datastructures/edgelist-file.png" width ="500" ></p>
