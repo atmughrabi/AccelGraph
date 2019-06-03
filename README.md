@@ -218,16 +218,16 @@ Accel-Graph handles multiple types of representations of the the graph in memory
 ![End-to-End Acceleration](./02_slides/fig/datastructures/edgelist-file.png "Edge-list File")
 
 ###  CSR (Compressed Sparse Row)
-![End-to-End Acceleration](./02_slides/fig/datastructures/csr.png width="650" "CSR")
+![End-to-End Acceleration](./02_slides/fig/datastructures/csr.png "CSR")
 
 ###  Grid
-![End-to-End Acceleration](./02_slides/fig/datastructures/grid.png width="650" "grid")
+![End-to-End Acceleration](./02_slides/fig/datastructures/grid.png "grid")
 
 ###  Array-List
-![End-to-End Acceleration](./02_slides/fig/datastructures/arraylist.png width="650" "Array-list")
+![End-to-End Acceleration](./02_slides/fig/datastructures/arraylist.png "Array-list")
 
 ###  Linked-List
-![End-to-End Acceleration](./02_slides/fig/datastructures/likedlist.pngwidth="650" "Linked-list")
+![End-to-End Acceleration](./02_slides/fig/datastructures/likedlist.png "Linked-list")
 
 
 ## Accel-Graph Options 
