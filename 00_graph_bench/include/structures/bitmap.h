@@ -23,6 +23,7 @@ struct  Bitmap
 
 };
 
+struct Bitmap *newBitmapSet( __u32 size);
 struct Bitmap *newBitmap( __u32 size);
 void clearBitmap(struct Bitmap *bitmap);
 void setBit(struct Bitmap *bitmap, __u32 pos);

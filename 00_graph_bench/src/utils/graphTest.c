@@ -169,7 +169,7 @@ __u32 cmpGraphAlgorithmsTestStats(void *ref_stats, void *cmp_stats, __u32 algori
         struct CCStats *ref_stats_tmp = (struct CCStats * )ref_stats;
         struct CCStats *cmp_stats_tmp = (struct CCStats * )cmp_stats;
         missmatch += compareDistanceArrays(ref_stats_tmp->components, cmp_stats_tmp->components, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
-        missmatch = 0;
+        // missmatch = 0;
     }
     break;
     case 7: // incremental Aggregation file name root

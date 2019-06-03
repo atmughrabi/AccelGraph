@@ -38,9 +38,9 @@ void freeCCStats(struct CCStats *stats);
 
 void printComponents(struct CCStats *stats);
 // ********************************************************************************************
-// ***************				Afforest Helper Functions						 **************
+// ***************						 Helper Functions						 **************
 // ********************************************************************************************
-
+__u32 atomicMin(__u32 *oldValue, __u32 newValue);
 void addSample(__u32 id);
 void linkNodes(__u32 u, __u32 v, __u32 *components);
 void compressNodes(__u32 num_vertices, __u32 *components);
@@ -53,7 +53,8 @@ __u32 sampleFrequentNode(__u32 num_vertices, __u32 num_samples, __u32 *component
 struct CCStats *connectedComponentsGraphCSR(__u32 iterations, __u32 pushpull, struct GraphCSR *graph);
 struct CCStats *connectedComponentsAfforestGraphCSR(__u32 iterations, struct GraphCSR *graph);
 struct CCStats *connectedComponentsShiloachVishkinGraphCSR(__u32 iterations, struct GraphCSR *graph);
-
+struct CCStats *connectedComponentsWeaklyGraphCSR( __u32 iterations, struct GraphCSR *graph);
+__u32 connectedComponentsVerify(struct CCStats *stats, struct GraphCSR *graph)
 
 
 // ********************************************************************************************

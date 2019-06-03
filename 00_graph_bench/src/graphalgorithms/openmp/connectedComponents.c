@@ -206,8 +206,24 @@ void printComponents(struct CCStats *stats)
 }
 
 // ********************************************************************************************
-// ***************              Afforest Helper Functions                        **************
+// ***************                       Helper Functions                        **************
 // ********************************************************************************************
+
+__u32 atomicMin(__u32 *oldValue, __u32 newValue)
+{
+
+    __u32 oldTemp;
+    __u32 flag = 0;
+
+    do
+    {
+        oldTemp = *oldValue;
+    }
+    while(oldTemp > newValue && !(flag = __sync_bool_compare_and_swap(oldValue, oldTemp, newValue)));
+
+    return flag;
+
+}
 
 void linkNodes(__u32 u, __u32 v, __u32 *components)
 {
@@ -306,14 +322,17 @@ struct CCStats *connectedComponentsGraphCSR(__u32 iterations, __u32 pushpull, st
     switch (pushpull)
     {
 
-    case 0: // pull
+    case 0: // Shiloach Vishkin
         stats = connectedComponentsShiloachVishkinGraphCSR( iterations, graph);
         break;
-    case 1: // push
+    case 1: // Afforest
         stats = connectedComponentsAfforestGraphCSR( iterations, graph);
         break;
-    default:// pull
-        stats = connectedComponentsShiloachVishkinGraphCSR( iterations, graph);
+    case 2: // Afforest
+        stats = connectedComponentsWeaklyGraphCSR( iterations, graph);
+        break;
+    default:// Afforest
+        stats = connectedComponentsAfforestGraphCSR( iterations, graph);
         break;
     }
 
@@ -332,8 +351,8 @@ struct CCStats *connectedComponentsAfforestGraphCSR( __u32 iterations, struct Gr
         num_samples = graph->num_vertices / 2;
 
     struct CCStats *stats = newCCStatsGraphCSR(graph);
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
-    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
 
 
     stats->neighbor_rounds = 2;
@@ -489,20 +508,8 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( __u32 iterations, st
     __u32 change = 0;
 
     struct CCStats *stats = newCCStatsGraphCSR(graph);
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
-    struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-
-    struct Vertex *vertices = NULL;
-    __u32 *sorted_edges_array = NULL;
-
-#if DIRECTED
-    vertices = graph->inverse_vertices;
-    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
-#else
-    vertices = graph->vertices;
-    sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
-#endif
-
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Shiloach-Vishkin Connected Components");
@@ -553,7 +560,7 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( __u32 iterations, st
 
 
         compressNodes( stats->num_vertices, stats->components);
-       
+
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
     }
@@ -575,4 +582,100 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( __u32 iterations, st
 
     return stats;
 
+}
+
+struct CCStats *connectedComponentsWeaklyGraphCSR( __u32 iterations, struct GraphCSR *graph)
+{
+
+    __u32 v;
+    __u32 degree;
+    __u32 edge_idx;
+    __u32 componentsCount = 0;
+    __u32 change = 0;
+
+    struct CCStats *stats = newCCStatsGraphCSR(graph);
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
+
+    struct Bitmap *bitmapNext = newBitmap(graph->num_vertices);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Weakly Connected Components");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+
+    Start(timer);
+    stats->iterations = 0;
+    change = 1;
+
+
+    while(change)
+    {
+        Start(timer_inner);
+        change = 0;
+        stats->iterations++;
+
+        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+
+            degree = graph->vertices->out_degree[src];
+            edge_idx = graph->vertices->edges_idx[src];
+
+            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+            {
+                dest = graph->sorted_edges_array->edges_array_dest[j];
+
+                if(atomicMin(&(stats->components[dest]), stats->components[src]))
+                {
+                    setBitAtomic(bitmapNext, dest);
+                }
+            }
+        }
+
+
+        // compressNodes( stats->num_vertices, stats->components);
+
+        #pragma omp parallel for reduction (+:change)
+        for(v = 0 ; v < ((bitmapNext->size + kBitsPerWord - 1) / kBitsPerWord); v++)
+        {
+            change += bitmapNext->bitarray[v];
+            bitmapNext->bitarray[v] = 0;
+        }
+
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Components", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15u | %-15f | \n", stats->iterations, componentsCount, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    freeBitmap(bitmapNext);
+    printCCStats(stats);
+
+    return stats;
+
+}
+
+__u32 connectedComponentsVerify(struct CCStats *stats, struct GraphCSR *graph){
+
+
+
+    
 }

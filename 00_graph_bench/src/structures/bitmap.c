@@ -23,6 +23,22 @@ struct Bitmap *newBitmap( __u32 size)
     return bitmap;
 }
 
+struct Bitmap *newBitmapSet( __u32 size)
+{
+
+
+    struct Bitmap *bitmap = (struct Bitmap *) my_malloc( sizeof(struct Bitmap));
+    bitmap->bitarray = (__u32 *) my_malloc(sizeof(__u32) * ((size + kBitsPerWord - 1) / kBitsPerWord));
+
+
+
+    memset(bitmap->bitarray, 1, (sizeof(__u32) * ((size + kBitsPerWord - 1) / kBitsPerWord)));
+    bitmap->size =  size;
+    bitmap->numSetBits =  size;
+
+    return bitmap;
+}
+
 
 void freeBitmap( struct Bitmap *bitmap)
 {
