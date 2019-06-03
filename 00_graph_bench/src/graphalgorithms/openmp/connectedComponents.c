@@ -579,7 +579,6 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( __u32 iterations, st
     free(timer_inner);
 
     printCCStats(stats);
-
     return stats;
 
 }
@@ -635,6 +634,11 @@ struct CCStats *connectedComponentsWeaklyGraphCSR( __u32 iterations, struct Grap
                 {
                     setBitAtomic(bitmapNext, dest);
                 }
+
+                if(atomicMin(&(stats->components[src]), stats->components[dest]))
+                {
+                    setBitAtomic(bitmapNext, src);
+                }
             }
         }
 
@@ -668,23 +672,13 @@ struct CCStats *connectedComponentsWeaklyGraphCSR( __u32 iterations, struct Grap
     free(timer_inner);
     freeBitmap(bitmapNext);
     printCCStats(stats);
-
+    // connectedComponentsVerifyGraphCSR(stats, graph);
     return stats;
 
 }
 
 __u32 connectedComponentsVerifyGraphCSR(struct CCStats *stats, struct GraphCSR *graph)
 {
-
-    __u32 pass = 0;
-    __u32 *inverselabels = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
-    __u32 v;
-    #pragma omp parallel for default(none) private(v) shared(stats,inverselabels)
-    for(v = 0; v < stats->num_vertices; v++)
-    {
-        inverselabels[stats->components[v]] = v;
-    }
-    struct Bitmap *bitmapNext = newBitmap(graph->num_vertices);
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Connected Components Verification");
@@ -693,9 +687,220 @@ __u32 connectedComponentsVerifyGraphCSR(struct CCStats *stats, struct GraphCSR *
     printf(" -----------------------------------------------------\n");
 
 
+    __u32 pass = 1;
+    struct ArrayQueue *frontier = newArrayQueue(graph->num_vertices);
+    __u32 *inverselabels = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    __u32 iter;
+    __u32 j;
+    __u32 i;
+
+    for(iter = 0; iter < stats->num_vertices; iter++)
+    {
+        inverselabels[stats->components[iter]] = iter;
+    }
+
+    __u32 n;
+    __u32 comp;
+
+    for(iter = 0 ; iter < graph->num_vertices; iter++)
+    {
+
+        comp = stats->components[iter];
+        n = inverselabels[comp];
+
+        softResetArrayQueue(frontier);
+        enArrayQueueWithBitmap(frontier, n);
+
+        for(i = frontier->head ; i < frontier->tail; i++)
+        {
+            __u32 u = frontier->queue[i];
+            __u32 edge_idx = graph->vertices->edges_idx[u];
+            __u32 out_degree = graph->vertices->out_degree[u];
+
+            for(j = edge_idx ; j < (edge_idx + out_degree) ; j++)
+            {
+                __u32 v = graph->sorted_edges_array->edges_array_dest[j];
+
+                if(stats->components[v] != comp)
+                {
+                    pass = 0;
+                }
+                if(!isEnArrayQueued(frontier, v))
+                    enArrayQueueWithBitmap(frontier, v);
+            }
+
+#if DIRECTED
+
+            __u32 in_edge_idx = graph->inverse_vertices->edges_idx[u];
+            __u32 in_degree = graph->inverse_vertices->out_degree[u];
+
+            for(j = in_edge_idx ; j < (in_edge_idx + in_degree) ; j++)
+            {
+                __u32 v = graph->inverse_sorted_edges_array->edges_array_dest[j];
+
+                if(stats->components[v] != comp)
+                {
+                    pass = 0;
+                }
+                if(!isEnArrayQueued(frontier, v))
+                    enArrayQueueWithBitmap(frontier, v);
+            }
+
+
+#endif
+
+
+        }
+    }
+
+
+    for(iter = 0 ; iter < (frontier->q_bitmap->size); iter++)
+    {
+        if(!getBit(frontier->q_bitmap, iter))
+            pass++;
+    }
+
+    if(!pass)
+    {
+
+        printf("PASS\n");
+        pass = 1;
+    }
+    else
+    {
+
+        printf("FAIL %u\n", pass);
+        pass = 0;
+
+
+    }
+
+
+
 
     free(inverselabels);
-    freeBitmap(bitmapNext);
+    freeArrayQueue(frontier);
 
     return pass;
+}
+
+
+// ********************************************************************************************
+// ***************                  GRID DataStructure                           **************
+// ********************************************************************************************
+
+struct CCStats *connectedComponentsGraphGrid(__u32 iterations, __u32 pushpull, struct GraphGrid *graph)
+{
+
+    struct CCStats *stats = NULL;
+
+    switch (pushpull)
+    {
+    case 0: // Weakly Connected
+        stats = connectedComponentsWeaklyGraphGrid( iterations, graph);
+        break;
+    default:// Afforest
+        stats = connectedComponentsWeaklyGraphGrid( iterations, graph);
+        break;
+    }
+
+    return stats;
+
+}
+struct CCStats *connectedComponentsWeaklyGraphGrid(__u32 iterations, struct GraphGrid *graph)
+{
+
+    __u32 v;
+    __u32 componentsCount = 0;
+    __u32 change = 0;
+    __u32 totalPartitions  = graph->grid->num_partitions;
+
+    struct CCStats *stats = newCCStatsGraphGrid(graph);
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Bitmap *bitmapNext = newBitmap(graph->num_vertices);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Weakly Connected Components");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+
+
+
+
+
+    Start(timer);
+    stats->iterations = 0;
+    change = 1;
+
+
+    while(change)
+    {
+        Start(timer_inner);
+        change = 0;
+        stats->iterations++;
+
+        __u32 i;
+        #pragma omp parallel for private(i) schedule (dynamic,numThreads)
+        for (i = 0; i < totalPartitions; ++i)
+        {
+            __u32 j;
+            // #pragma omp parallel for private(j) schedule (dynamic,numThreads)
+            for (j = 0; j < totalPartitions; ++j)  // iterate over partitions colwise
+            {
+                __u32 k;
+                struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
+                for (k = 0; k < partition->num_edges; ++k)
+                {
+
+                    __u32 src = partition->edgeList->edges_array_src[k];
+                    __u32 dest = partition->edgeList->edges_array_dest[k];
+
+                    if(atomicMin(&(stats->components[dest]), stats->components[src]))
+                    {
+                        setBitAtomic(bitmapNext, dest);
+                    }
+
+                    if(atomicMin(&(stats->components[src]), stats->components[dest]))
+                    {
+                        setBitAtomic(bitmapNext, src);
+                    }
+
+                }
+            }
+        }
+
+
+        // compressNodes( stats->num_vertices, stats->components);
+        #pragma omp parallel for reduction (+:change)
+        for(v = 0 ; v < ((bitmapNext->size + kBitsPerWord - 1) / kBitsPerWord); v++)
+        {
+            change += bitmapNext->bitarray[v];
+            bitmapNext->bitarray[v] = 0;
+        }
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Components", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15u | %-15f | \n", stats->iterations, componentsCount, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    printCCStats(stats);
+    // connectedComponentsVerifyGraphCSR(stats, graph);
+    return stats;
+
+
+
 }

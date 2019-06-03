@@ -61,7 +61,8 @@ __u32 connectedComponentsVerifyGraphCSR(struct CCStats *stats, struct GraphCSR *
 // ***************					GRID DataStructure							 **************
 // ********************************************************************************************
 
-
+struct CCStats *connectedComponentsGraphGrid(__u32 iterations, __u32 pushpull, struct GraphGrid *graph);
+struct CCStats *connectedComponentsWeaklyGraphGrid(__u32 iterations, struct GraphGrid *graph);
 
 
 // ********************************************************************************************

@@ -30,6 +30,16 @@ struct ArrayQueue *newArrayQueue(__u32 size)
 
 }
 
+void softResetArrayQueue(struct ArrayQueue *q)
+{
+
+    q->head = 0;
+    q->tail = 0;
+    q->tail_next = 0;
+    // clearBitmap(q->q_bitmap);
+    // clearBitmap(q->q_bitmap_next);
+
+}
 
 void resetArrayQueue(struct ArrayQueue *q)
 {
@@ -38,6 +48,7 @@ void resetArrayQueue(struct ArrayQueue *q)
     q->tail = 0;
     q->tail_next = 0;
     clearBitmap(q->q_bitmap);
+    // clearBitmap(q->q_bitmap_next);
 
 }
 

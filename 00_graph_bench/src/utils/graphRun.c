@@ -519,7 +519,7 @@ struct CCStats *runConnectedComponentsAlgorithm(void *graph, __u32 datastructure
 
 
     struct GraphCSR *graphCSR = NULL;
-    // struct GraphGrid *graphGrid = NULL;
+    struct GraphGrid *graphGrid = NULL;
     // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
     // struct GraphAdjArrayList *graphAdjArrayList = NULL;
     struct CCStats *stats = NULL;
@@ -530,25 +530,18 @@ struct CCStats *runConnectedComponentsAlgorithm(void *graph, __u32 datastructure
         graphCSR = (struct GraphCSR *)graph;
         stats = connectedComponentsGraphCSR(iterations, pushpull, graphCSR);
         break;
-
     case 1: // Grid
-        // graphGrid = (struct GraphGrid *)graph;
-        // stats = SPMVGraphGrid(iterations, pushpull, graphGrid);
-
+        graphGrid = (struct GraphGrid *)graph;
+        stats = connectedComponentsGraphGrid(iterations, pushpull, graphGrid);
         break;
-
     case 2: // Adj Linked List
         // graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
         // stats = SPMVGraphAdjLinkedList(iterations, pushpull, graphAdjLinkedList);
-
         break;
-
     case 3: // Adj Array List
         // graphAdjArrayList = (struct GraphAdjArrayList *)graph;
         // stats = SPMVGraphAdjArrayList(iterations, pushpull, graphAdjArrayList);
-
         break;
-
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
         stats = connectedComponentsGraphCSR(iterations, pushpull, graphCSR);
@@ -869,19 +862,19 @@ void freeGraphStatsGeneral(void *stats, __u32 algorithm)
 
     switch (algorithm)
     {
-    case 0:  // bfs  
+    case 0:  // bfs
     {
         struct BFSStats *freeStatsBFS = (struct BFSStats * )stats;
         freeBFSStats(freeStatsBFS);
     }
     break;
-    case 1: // pagerank 
+    case 1: // pagerank
     {
         struct PageRankStats *freeStatsPageRank = (struct PageRankStats * )stats;
         freePageRankStats(freeStatsPageRank);
     }
     break;
-    case 2: // SSSP-Dijkstra 
+    case 2: // SSSP-Dijkstra
     {
         struct SSSPStats *freeStatsSSSP = (struct SSSPStats * )stats;
         freeSSSPStats(freeStatsSSSP);
@@ -893,7 +886,7 @@ void freeGraphStatsGeneral(void *stats, __u32 algorithm)
         freeBellmanFordStats(freeStatsBellmanFord);
     }
     break;
-    case 4: // DFS 
+    case 4: // DFS
     {
         struct DFSStats *freeStatsDFS = (struct DFSStats * )stats;
         freeDFSStats(freeStatsDFS);
@@ -917,7 +910,7 @@ void freeGraphStatsGeneral(void *stats, __u32 algorithm)
         freeIncrementalAggregationStats(freeStats);
     }
     break;
-    default:// bfs file  
+    default:// bfs file
     {
         struct BFSStats *freeStatsBFS = (struct BFSStats *)stats;
         freeBFSStats(freeStatsBFS);

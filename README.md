@@ -395,9 +395,8 @@ portable benchmarking suite for various graph processing algorithms.
   - [x] SSSP  (Delta Stepping)
   - [x] SPMV  (Sparse Matrix Vector Multiplication)
   - [x] CC    (Connected Components)
+  - [x] TC    (Triangle Counting)
   - [ ] BC    (Betweenness Centrality)
-  - [ ] TC    (Triangle Counting)
-  
 - [x] Finish integration with gem5-Aladdin
 - [ ] Finish graph algorithms suite gem5-Aladdin
   - [ ] BFS   (Breadth First Search)
