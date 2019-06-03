@@ -218,7 +218,7 @@ Accel-Graph handles multiple types of representations of the the graph in memory
 <p align="center"><img src="./02_slides/fig/datastructures/edgelist-file.png" width ="500" ></p>
 
 ###  CSR (Compressed Sparse Row)
-<p align="center"><img src="./02_slides/fig/datastructures/csr.png" width ="500" ></p>
+<p align="center"><img src="./02_slides/fig/datastructures/csr.png" width ="450" ></p>
 
 ###  Grid
 <p align="center"><img src="./02_slides/fig/datastructures/grid.png" width ="700" ></p>
