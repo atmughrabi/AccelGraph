@@ -37,7 +37,6 @@ struct CCStats *newCCStatsGraphCSR(struct GraphCSR *graph)
 
     struct CCStats *stats = (struct CCStats *) my_malloc(sizeof(struct CCStats));
 
-    stats->alone = 0;
     stats->iterations = 0;
     stats->neighbor_rounds = 2;
     stats->num_vertices = graph->num_vertices;
@@ -54,11 +53,6 @@ struct CCStats *newCCStatsGraphCSR(struct GraphCSR *graph)
         stats->counts[v] = 0;
     }
 
-    for(v = 0; v < stats->num_vertices; v++)
-    {
-        if(!(graph->vertices->out_degree[v] || graph->vertices->in_degree[v]))
-            stats->alone++;
-    }
     return stats;
 
 }
@@ -146,7 +140,6 @@ void freeCCStats(struct CCStats *stats)
             free(stats->components);
         if(stats->counts)
             free(stats->counts);
-        free(stats->components);
         if(stats->labels)
             free(stats->labels);
         free(stats);
@@ -193,11 +186,11 @@ void printCCStats(struct CCStats *stats)
     for(i = (stats->num_vertices - 1); i > (stats->num_vertices - 1 - k); i--)
     {
 
-        printf("| %-21u | %-27u | \n", stats->labels[i],stats->counts[i] );
+        printf("| %-21u | %-27u | \n", stats->labels[i], stats->counts[i] );
 
     }
     printf(" -----------------------------------------------------\n");
-    printf("| %-21s | %-27u | \n", "Num Components", numComp-stats->alone);
+    printf("| %-21s | %-27u | \n", "Num Components", numComp);
     printf(" -----------------------------------------------------\n");
 }
 

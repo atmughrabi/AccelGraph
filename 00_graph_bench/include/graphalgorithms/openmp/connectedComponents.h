@@ -19,7 +19,6 @@
 
 struct CCStats
 {	
-	__u32 alone;
     __u32 neighbor_rounds;
     __u32 iterations;
     __u32 num_vertices;
