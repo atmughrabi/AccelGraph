@@ -13,12 +13,14 @@
 #include "boolean.h"
 #include "arrayQueue.h"
 #include "bitmap.h"
-#include "connectedComponents.h"
 
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
+#include "reorder.h"
+#include "connectedComponents.h"
+
 
 Pvoid_t JArray = (PWord_t) NULL; // Declare static hash table
 
@@ -35,18 +37,28 @@ struct CCStats *newCCStatsGraphCSR(struct GraphCSR *graph)
 
     struct CCStats *stats = (struct CCStats *) my_malloc(sizeof(struct CCStats));
 
+    stats->alone = 0;
     stats->iterations = 0;
     stats->neighbor_rounds = 2;
     stats->num_vertices = graph->num_vertices;
     stats->time_total = 0.0f;
     stats->components = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->counts = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->labels = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
     #pragma omp parallel for default(none) private(v) shared(stats)
     for(v = 0; v < stats->num_vertices; v++)
     {
         stats->components[v] = v;
+        stats->labels[v] = v;
+        stats->counts[v] = 0;
     }
 
+    for(v = 0; v < stats->num_vertices; v++)
+    {
+        if(!(graph->vertices->out_degree[v] || graph->vertices->in_degree[v]))
+            stats->alone++;
+    }
     return stats;
 
 }
@@ -62,11 +74,15 @@ struct CCStats *newCCStatsGraphGrid(struct GraphGrid *graph)
     stats->num_vertices = graph->num_vertices;
     stats->time_total = 0.0f;
     stats->components = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->counts = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->labels = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
     #pragma omp parallel for default(none) private(v) shared(stats)
     for(v = 0; v < stats->num_vertices; v++)
     {
         stats->components[v] = v;
+        stats->labels[v] = v;
+        stats->counts[v] = 0;
     }
 
     return stats;
@@ -83,13 +99,16 @@ struct CCStats *newCCStatsGraphAdjArrayList(struct GraphAdjArrayList *graph)
     stats->num_vertices = graph->num_vertices;
     stats->time_total = 0.0f;
     stats->components = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->counts = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->labels = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
     #pragma omp parallel for default(none) private(v) shared(stats)
     for(v = 0; v < stats->num_vertices; v++)
     {
         stats->components[v] = v;
+        stats->labels[v] = v;
+        stats->counts[v] = 0;
     }
-
     return stats;
 
 }
@@ -104,11 +123,15 @@ struct CCStats *newCCStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph)
     stats->num_vertices = graph->num_vertices;
     stats->time_total = 0.0f;
     stats->components = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->counts = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->labels = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
 
     #pragma omp parallel for default(none) private(v) shared(stats)
     for(v = 0; v < stats->num_vertices; v++)
     {
         stats->components[v] = v;
+        stats->labels[v] = v;
+        stats->counts[v] = 0;
     }
 
     return stats;
@@ -121,8 +144,61 @@ void freeCCStats(struct CCStats *stats)
     {
         if(stats->components)
             free(stats->components);
+        if(stats->counts)
+            free(stats->counts);
+        free(stats->components);
+        if(stats->labels)
+            free(stats->labels);
         free(stats);
     }
+}
+
+void printCCStats(struct CCStats *stats)
+{
+
+    Word_t *PValue;
+    Word_t   Index;
+    __u32 k = 5;
+    __u32 numComp = 0;
+    __u32 i;
+
+    for(i = 0; i < stats->num_vertices; i++)
+    {
+        addSample(stats->components[i]);
+    }
+
+
+    Index = 0;
+    JLF(PValue, JArray, Index);
+    while (PValue != NULL)
+    {
+        // printf("%lu %lu\n", Index, *PValue);
+        stats->counts[Index] = *PValue;
+        * PValue = 0;
+        JLN(PValue, JArray, Index);
+
+    }
+
+    for(i = 0; i < stats->num_vertices; i++)
+    {
+        if(stats->counts[i])
+            numComp++;
+    }
+
+    stats->labels = radixSortEdgesByDegree(stats->counts, stats->labels, stats->num_vertices);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Top Clusters", "Count");
+    printf(" -----------------------------------------------------\n");
+
+    for(i = (stats->num_vertices - 1); i > (stats->num_vertices - 1 - k); i--)
+    {
+
+        printf("| %-21u | %-27u | \n", stats->labels[i],stats->counts[i] );
+
+    }
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27u | \n", "Num Components", numComp-stats->alone);
+    printf(" -----------------------------------------------------\n");
 }
 
 void printComponents(struct CCStats *stats)
@@ -137,7 +213,7 @@ void printComponents(struct CCStats *stats)
 }
 
 // ********************************************************************************************
-// ***************				Afforest Helper Functions						 **************
+// ***************              Afforest Helper Functions                        **************
 // ********************************************************************************************
 
 void linkNodes(__u32 u, __u32 v, __u32 *components)
@@ -226,7 +302,7 @@ __u32 sampleFrequentNode(__u32 num_vertices, __u32 num_samples, __u32 *component
 }
 
 // ********************************************************************************************
-// ***************					CSR DataStructure							 **************
+// ***************                  CSR DataStructure                            **************
 // ********************************************************************************************
 
 struct CCStats *connectedComponentsGraphCSR(__u32 iterations, __u32 pushpull, struct GraphCSR *graph)
@@ -403,6 +479,9 @@ struct CCStats *connectedComponentsAfforestGraphCSR( __u32 iterations, struct Gr
 
     free(timer);
     free(timer_inner);
+
+    printCCStats(stats);
+
     JSLFA(Bytes, JArray);
     return stats;
 

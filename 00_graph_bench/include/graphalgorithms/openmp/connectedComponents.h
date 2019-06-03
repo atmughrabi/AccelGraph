@@ -18,11 +18,14 @@
 #define JUDYERROR_SAMPLE 1 
 
 struct CCStats
-{
+{	
+	__u32 alone;
     __u32 neighbor_rounds;
     __u32 iterations;
     __u32 num_vertices;
     __u32 *components;
+    __u32 *counts;
+    __u32 *labels;
     double time_total;
 };
 
@@ -30,7 +33,7 @@ struct CCStats *newCCStatsGraphCSR(struct GraphCSR *graph);
 struct CCStats *newCCStatsGraphGrid(struct GraphGrid *graph);
 struct CCStats *newCCStatsGraphAdjArrayList(struct GraphAdjArrayList *graph);
 struct CCStats *newCCStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph);
-
+void printCCStats(struct CCStats *stats);
 void freeCCStats(struct CCStats *stats);
 
 
