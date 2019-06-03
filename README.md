@@ -157,7 +157,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-pslse
 accel@graph:~AccelGraph/00_graph_bench$ make run-capi
 ```
 
-## Graph structure (Edge list) 
+## Graph structure Input (Edge list) 
 
 * If you open the Makefile you will see the convention for graph directories : `BENCHMARKS_DIR/GRAPH_NAME/graph.wbin`.
 * `.bin` stands to unweighted edge list, `.wbin` stands for wighted, `In binary format`. (This is only a convention you don't have to use it)
@@ -210,6 +210,25 @@ accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-wei
 1600 0000 0100 0000 0900 0000 1b00 0000
 0100 0000 
 ```
+
+## Graph structure Processing:
+Accel-Graph handles multiple types of representations of the the graph in memory each has their own theoretical benefits and shortcomings.
+
+### Regular unsorted Edge-list as input.
+![End-to-End Acceleration](./02_slides/fig/datastructures/edgelist-file.png "Edge-list File")
+
+###  CSR (Compressed Sparse Row)
+![End-to-End Acceleration](./02_slides/fig/datastructures/csr.png "CSR")
+
+###  Grid
+![End-to-End Acceleration](./02_slides/fig/datastructures/grid.png "grid")
+
+###  Array-List
+![End-to-End Acceleration](./02_slides/fig/datastructures/arraylist.png "Array-list")
+
+###  Linked-List
+![End-to-End Acceleration](./02_slides/fig/datastructures/likedlist.png "Linked-list")
+
 
 ## Accel-Graph Options 
 

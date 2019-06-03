@@ -54,7 +54,7 @@ struct CCStats *connectedComponentsGraphCSR(__u32 iterations, __u32 pushpull, st
 struct CCStats *connectedComponentsAfforestGraphCSR(__u32 iterations, struct GraphCSR *graph);
 struct CCStats *connectedComponentsShiloachVishkinGraphCSR(__u32 iterations, struct GraphCSR *graph);
 struct CCStats *connectedComponentsWeaklyGraphCSR( __u32 iterations, struct GraphCSR *graph);
-__u32 connectedComponentsVerify(struct CCStats *stats, struct GraphCSR *graph)
+__u32 connectedComponentsVerifyGraphCSR(struct CCStats *stats, struct GraphCSR *graph);
 
 
 // ********************************************************************************************

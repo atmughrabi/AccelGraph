@@ -673,9 +673,29 @@ struct CCStats *connectedComponentsWeaklyGraphCSR( __u32 iterations, struct Grap
 
 }
 
-__u32 connectedComponentsVerify(struct CCStats *stats, struct GraphCSR *graph){
+__u32 connectedComponentsVerifyGraphCSR(struct CCStats *stats, struct GraphCSR *graph)
+{
+
+    __u32 pass = 0;
+    __u32 *inverselabels = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    __u32 v;
+    #pragma omp parallel for default(none) private(v) shared(stats,inverselabels)
+    for(v = 0; v < stats->num_vertices; v++)
+    {
+        inverselabels[stats->components[v]] = v;
+    }
+    struct Bitmap *bitmapNext = newBitmap(graph->num_vertices);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Connected Components Verification");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
 
 
 
-    
+    free(inverselabels);
+    freeBitmap(bitmapNext);
+
+    return pass;
 }
