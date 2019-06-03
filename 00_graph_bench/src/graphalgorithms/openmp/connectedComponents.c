@@ -486,7 +486,7 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( __u32 iterations, st
     __u32 degree;
     __u32 edge_idx;
     __u32 componentsCount = 0;
-
+    __u32 change = 0;
 
     struct CCStats *stats = newCCStatsGraphCSR(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
@@ -512,9 +512,14 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( __u32 iterations, st
 
 
     Start(timer);
-    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    stats->iterations = 0;
+    change = 1;
+
+    while(change)
     {
         Start(timer_inner);
+        change = 0;
+        stats->iterations++;
 
         #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
@@ -529,17 +534,29 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( __u32 iterations, st
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
                 dest = graph->sorted_edges_array->edges_array_dest[j];
+                __u32 comp_src = stats->components[src];
+                __u32 comp_dest = stats->components[dest];
 
+                if(comp_src == comp_dest)
+                    continue;
 
+                __u32 comp_high = comp_src > comp_dest ? comp_src : comp_dest;
+                __u32 comp_low = comp_src + (comp_dest - comp_high);
+
+                if(comp_high == stats->components[comp_high])
+                {
+                    change = 1;
+                    stats->components[comp_high] = comp_low;
+                }
             }
         }
 
 
+        compressNodes( stats->num_vertices, stats->components);
+       
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
-
-    }// end iteration loop
-
+    }
 
     Stop(timer);
     stats->time_total = Seconds(timer);
@@ -553,6 +570,9 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( __u32 iterations, st
 
     free(timer);
     free(timer_inner);
+
+    printCCStats(stats);
+
     return stats;
 
 }
