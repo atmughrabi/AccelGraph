@@ -215,10 +215,10 @@ accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-wei
 Accel-Graph handles multiple types of representations of the the graph in memory each has their own theoretical benefits and shortcomings.
 
 ### Regular unsorted Edge-list as input.
-<p align="center"><img src="./02_slides/fig/datastructures/edgelist-file.png" length="650" ></p>
+<p align="center"><img src="./02_slides/fig/datastructures/edgelist-file.png" length="500" ></p>
 
 ###  CSR (Compressed Sparse Row)
-<p align="center"><img src="./02_slides/fig/datastructures/csr.png" length="650" ></p>
+<p align="center"><img src="./02_slides/fig/datastructures/csr.png" length="500" ></p>
 
 ###  Grid
 <p align="center"><img src="./02_slides/fig/datastructures/grid.png" length="650" ></p>
