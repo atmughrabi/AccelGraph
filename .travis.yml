@@ -13,6 +13,7 @@ before_install:
   - sudo apt-get install -y libboost-graph-dev
   - sudo apt-get install -y libboost-regex-dev
   - sudo apt-get install -y libpthread-stubs0-dev
+  - sudo apt-get install -y libjudy-dev 
   - git submodule update --init --recursive
  
 

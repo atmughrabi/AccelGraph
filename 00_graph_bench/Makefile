@@ -72,10 +72,10 @@ MAIN_DIR		  	= main
 
 # real world large graphs binary format
 # GRAPH_NAME = orkut
-# GRAPH_NAME = gplus
+GRAPH_NAME = gplus
 # GRAPH_NAME = sk-2005
 # GRAPH_NAME = twitter
-GRAPH_NAME = livejournal
+# GRAPH_NAME = livejournal
 # GRAPH_NAME = USA-Road
 # GRAPH_NAME = enwiki-2013
 # GRAPH_NAME = arabic-2005
@@ -100,10 +100,10 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 1
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 5
+ALGORITHMS 		= 6
 
 ROOT 			= 5319
-PULL_PUSH 		= 0
+PULL_PUSH 		= 1
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 

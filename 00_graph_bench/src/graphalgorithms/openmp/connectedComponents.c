@@ -20,7 +20,7 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
-Pvoid_t JArray = (Pvoid_t) NULL; // Declare static hash table
+Pvoid_t JArray = (PWord_t) NULL; // Declare static hash table
 
 // ********************************************************************************************
 // ***************                  Stats DataStructure                          **************
@@ -221,6 +221,7 @@ __u32 sampleFrequentNode(__u32 num_vertices, __u32 num_samples, __u32 *component
     printf("| %-21s | %-27u | \n", "Skipping(%)", (int)fractiongraph * 100);
 
 
+
     return maxKey;
 }
 
@@ -255,7 +256,7 @@ struct CCStats *connectedComponentsAfforestGraphCSR( __u32 iterations, struct Gr
 
     __u32 u;
     __u32 componentsCount = 0;
-
+    Word_t    Bytes;
     __u32 num_samples = 1024;
 
     if(num_samples > graph->num_vertices)
@@ -402,6 +403,7 @@ struct CCStats *connectedComponentsAfforestGraphCSR( __u32 iterations, struct Gr
 
     free(timer);
     free(timer_inner);
+    JSLFA(Bytes, JArray);
     return stats;
 
 }
