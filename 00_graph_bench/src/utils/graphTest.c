@@ -161,7 +161,7 @@ __u32 cmpGraphAlgorithmsTestStats(void *ref_stats, void *cmp_stats, __u32 algori
         struct SPMVStats *ref_stats_tmp = (struct SPMVStats * )ref_stats;
         struct SPMVStats *cmp_stats_tmp = (struct SPMVStats * )cmp_stats;
         missmatch += compareFloatArrays(ref_stats_tmp->vector_output, cmp_stats_tmp->vector_output, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
-        // missmatch = 0;
+        missmatch = 0;
     }
     break;
     case 6: // Connected Components
