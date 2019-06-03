@@ -227,7 +227,7 @@ Accel-Graph handles multiple types of representations of the the graph in memory
 <p align="center"><img src="./02_slides/fig/datastructures/arraylist.png" length="650" ></p>
 
 ###  Linked-List
-<p align="center"><img src="./02_slides/fig/datastructures/likedlist.png" length="650" ></p>
+<p align="center"><img src="./02_slides/fig/datastructures/likedlist.png" length="450" ></p>
 
 
 ## Accel-Graph Options 
