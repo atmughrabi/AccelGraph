@@ -520,7 +520,7 @@ struct CCStats *runConnectedComponentsAlgorithm(void *graph, __u32 datastructure
 
     struct GraphCSR *graphCSR = NULL;
     struct GraphGrid *graphGrid = NULL;
-    // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
+    struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
     struct GraphAdjArrayList *graphAdjArrayList = NULL;
     struct CCStats *stats = NULL;
 
@@ -535,8 +535,8 @@ struct CCStats *runConnectedComponentsAlgorithm(void *graph, __u32 datastructure
         stats = connectedComponentsGraphGrid(iterations, pushpull, graphGrid);
         break;
     case 2: // Adj Linked List
-        // graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
-        // stats = connectedComponentsAfforestGraphAdjArrayList(iterations, pushpull, graphAdjLinkedList);
+        graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
+        stats = connectedComponentsGraphAdjLinkedList(iterations, pushpull, graphAdjLinkedList);
         break;
     case 3: // Adj Array List
         graphAdjArrayList = (struct GraphAdjArrayList *)graph;
