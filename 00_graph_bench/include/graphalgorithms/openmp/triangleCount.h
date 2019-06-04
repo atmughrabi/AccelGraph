@@ -13,9 +13,10 @@
 // ********************************************************************************************
 
 struct TCStats
-{	
+{
     __u32 num_vertices;
-    __u32 counts;
+    __u32 *counts;
+    __u32 total_counts;
     double time_total;
 };
 

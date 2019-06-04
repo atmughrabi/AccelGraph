@@ -98,12 +98,12 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 
 #GRAPH RUN
 SORT_TYPE 		= 1
-REORDER 		= 0
-DATA_STRUCTURES = 1
-ALGORITHMS 		= 6
+REORDER 		= 3
+DATA_STRUCTURES = 0
+ALGORITHMS 		= 7
 
 ROOT 			= 5319
-PULL_PUSH 		= 2
+PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
@@ -119,7 +119,7 @@ CONVERT_FORMAT 	= 0
 BIN_SIZE = 512
 INOUT_STATS = 2
 
-ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+ARGS = -s -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################
