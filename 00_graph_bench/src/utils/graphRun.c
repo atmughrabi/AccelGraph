@@ -521,7 +521,7 @@ struct CCStats *runConnectedComponentsAlgorithm(void *graph, __u32 datastructure
     struct GraphCSR *graphCSR = NULL;
     struct GraphGrid *graphGrid = NULL;
     // struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
-    // struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    struct GraphAdjArrayList *graphAdjArrayList = NULL;
     struct CCStats *stats = NULL;
 
     switch (datastructure)
@@ -536,11 +536,11 @@ struct CCStats *runConnectedComponentsAlgorithm(void *graph, __u32 datastructure
         break;
     case 2: // Adj Linked List
         // graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
-        // stats = SPMVGraphAdjLinkedList(iterations, pushpull, graphAdjLinkedList);
+        // stats = connectedComponentsAfforestGraphAdjArrayList(iterations, pushpull, graphAdjLinkedList);
         break;
     case 3: // Adj Array List
-        // graphAdjArrayList = (struct GraphAdjArrayList *)graph;
-        // stats = SPMVGraphAdjArrayList(iterations, pushpull, graphAdjArrayList);
+        graphAdjArrayList = (struct GraphAdjArrayList *)graph;
+        stats = connectedComponentsGraphAdjArrayList(iterations, pushpull, graphAdjArrayList);
         break;
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;

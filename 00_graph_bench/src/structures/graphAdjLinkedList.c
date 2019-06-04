@@ -84,7 +84,7 @@ struct GraphAdjLinkedList *graphAdjLinkedListEdgeListNew(struct EdgeList *edgeLi
         omp_init_lock(&(vertex_lock[i]));
     }
 
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for(i = 0; i < edgeList->num_edges; i++)
     {
 
@@ -193,13 +193,13 @@ void adjLinkedListAddEdge(struct GraphAdjLinkedList *graphAdjLinkedList, struct 
 #if WEIGHTED
     newNode->weight = edge->edges_array_weight[i];
 #endif
-    omp_set_lock(&(vertex_lock[edge->edges_array_src[i]]));
+    // omp_set_lock(&(vertex_lock[edge->edges_array_src[i]]));
     newNode->next = graphAdjLinkedList->vertices[edge->edges_array_src[i]].outNodes;
     graphAdjLinkedList->vertices[edge->edges_array_src[i]].out_degree++;
     graphAdjLinkedList->vertices[edge->edges_array_src[i]].visited = 0;
     graphAdjLinkedList->vertices[edge->edges_array_src[i]].outNodes = newNode;
 
-    omp_unset_lock((&vertex_lock[edge->edges_array_src[i]]));
+    // omp_unset_lock((&vertex_lock[edge->edges_array_src[i]]));
 
     // omp_set_lock(&(vertex_lock[edge->edges_array_dest[i]]));
     // omp_unset_lock((&vertex_lock[edge->edges_array_dest[i]]));
@@ -209,7 +209,7 @@ void adjLinkedListAddEdge(struct GraphAdjLinkedList *graphAdjLinkedList, struct 
 #if WEIGHTED
     newNode->weight = edge->edges_array_weight[i];
 #endif
-    omp_set_lock(&(vertex_lock[edge->edges_array_dest[i]]));
+    // omp_set_lock(&(vertex_lock[edge->edges_array_dest[i]]));
 #if DIRECTED
     newNode->next = graphAdjLinkedList->vertices[edge->edges_array_dest[i]].inNodes;
     graphAdjLinkedList->vertices[edge->edges_array_dest[i]].in_degree++;
@@ -222,7 +222,7 @@ void adjLinkedListAddEdge(struct GraphAdjLinkedList *graphAdjLinkedList, struct 
     graphAdjLinkedList->vertices[edge->edges_array_dest[i]].outNodes = newNode;
 #endif
 
-    omp_unset_lock((&vertex_lock[edge->edges_array_dest[i]]));
+    // omp_unset_lock((&vertex_lock[edge->edges_array_dest[i]]));
 
 }
 

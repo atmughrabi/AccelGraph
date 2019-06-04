@@ -339,6 +339,92 @@ struct CCStats *connectedComponentsGraphCSR(__u32 iterations, __u32 pushpull, st
     return stats;
 
 }
+
+struct CCStats *connectedComponentsShiloachVishkinGraphCSR( __u32 iterations, struct GraphCSR *graph)
+{
+
+    __u32 v;
+    __u32 degree;
+    __u32 edge_idx;
+    __u32 componentsCount = 0;
+    __u32 change = 0;
+
+    struct CCStats *stats = newCCStatsGraphCSR(graph);
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Shiloach-Vishkin Connected Components");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+
+    Start(timer);
+    stats->iterations = 0;
+    change = 1;
+
+    while(change)
+    {
+        Start(timer_inner);
+        change = 0;
+        stats->iterations++;
+
+        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+
+            degree = graph->vertices->out_degree[src];
+            edge_idx = graph->vertices->edges_idx[src];
+
+            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+            {
+                dest = graph->sorted_edges_array->edges_array_dest[j];
+                __u32 comp_src = stats->components[src];
+                __u32 comp_dest = stats->components[dest];
+
+                if(comp_src == comp_dest)
+                    continue;
+
+                __u32 comp_high = comp_src > comp_dest ? comp_src : comp_dest;
+                __u32 comp_low = comp_src + (comp_dest - comp_high);
+
+                if(comp_high == stats->components[comp_high])
+                {
+                    change = 1;
+                    stats->components[comp_high] = comp_low;
+                }
+            }
+        }
+
+
+        compressNodes( stats->num_vertices, stats->components);
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Components", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15u | %-15f | \n", stats->iterations, componentsCount, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+
+    printCCStats(stats);
+    return stats;
+
+}
+
 struct CCStats *connectedComponentsAfforestGraphCSR( __u32 iterations, struct GraphCSR *graph)
 {
 
@@ -495,90 +581,6 @@ struct CCStats *connectedComponentsAfforestGraphCSR( __u32 iterations, struct Gr
     printCCStats(stats);
 
     JSLFA(Bytes, JArray);
-    return stats;
-
-}
-struct CCStats *connectedComponentsShiloachVishkinGraphCSR( __u32 iterations, struct GraphCSR *graph)
-{
-
-    __u32 v;
-    __u32 degree;
-    __u32 edge_idx;
-    __u32 componentsCount = 0;
-    __u32 change = 0;
-
-    struct CCStats *stats = newCCStatsGraphCSR(graph);
-    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
-    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
-
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Shiloach-Vishkin Connected Components");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
-    printf(" -----------------------------------------------------\n");
-
-
-    Start(timer);
-    stats->iterations = 0;
-    change = 1;
-
-    while(change)
-    {
-        Start(timer_inner);
-        change = 0;
-        stats->iterations++;
-
-        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            __u32 j;
-            __u32 src = v;
-            __u32 dest;
-
-            degree = graph->vertices->out_degree[src];
-            edge_idx = graph->vertices->edges_idx[src];
-
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                dest = graph->sorted_edges_array->edges_array_dest[j];
-                __u32 comp_src = stats->components[src];
-                __u32 comp_dest = stats->components[dest];
-
-                if(comp_src == comp_dest)
-                    continue;
-
-                __u32 comp_high = comp_src > comp_dest ? comp_src : comp_dest;
-                __u32 comp_low = comp_src + (comp_dest - comp_high);
-
-                if(comp_high == stats->components[comp_high])
-                {
-                    change = 1;
-                    stats->components[comp_high] = comp_low;
-                }
-            }
-        }
-
-
-        compressNodes( stats->num_vertices, stats->components);
-
-        Stop(timer_inner);
-        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
-    }
-
-    Stop(timer);
-    stats->time_total = Seconds(timer);
-
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Components", "Time (S)");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-15u | %-15u | %-15f | \n", stats->iterations, componentsCount, stats->time_total);
-    printf(" -----------------------------------------------------\n");
-
-
-    free(timer);
-    free(timer_inner);
-
-    printCCStats(stats);
     return stats;
 
 }
@@ -1191,3 +1193,403 @@ struct CCStats *connectedComponentsWeaklyGraphGrid(__u32 iterations, struct Grap
 
 }
 
+
+// ********************************************************************************************
+// ***************                  ArrayList DataStructure                      **************
+// ********************************************************************************************
+
+struct CCStats *connectedComponentsGraphAdjArrayList(__u32 iterations, __u32 pushpull, struct GraphAdjArrayList *graph)
+{
+
+    struct CCStats *stats = NULL;
+
+    switch (pushpull)
+    {
+    case 0: // Shiloach Vishkin
+        stats = connectedComponentsShiloachVishkinGraphAdjArrayList( iterations, graph);
+        break;
+    case 1: // Afforest
+        stats = connectedComponentsAfforestGraphAdjArrayList( iterations, graph);
+        break;
+    case 2: // Weakly Connected
+        stats = connectedComponentsWeaklyGraphAdjArrayList( iterations, graph);
+        break;
+    default:// Afforest
+        stats = connectedComponentsAfforestGraphAdjArrayList( iterations, graph);
+        break;
+    }
+
+    return stats;
+
+}
+
+struct CCStats *connectedComponentsShiloachVishkinGraphAdjArrayList(__u32 iterations, struct GraphAdjArrayList *graph)
+{
+    __u32 v;
+    __u32 degree;
+    __u32 componentsCount = 0;
+    __u32 change = 0;
+    struct EdgeList *Nodes;
+
+    struct CCStats *stats = newCCStatsGraphAdjArrayList(graph);
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Shiloach-Vishkin Connected Components");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+
+    Start(timer);
+    stats->iterations = 0;
+    change = 1;
+
+    while(change)
+    {
+        Start(timer_inner);
+        change = 0;
+        stats->iterations++;
+
+        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+
+            Nodes = graph->vertices[v].outNodes;
+            degree = graph->vertices[v].out_degree;
+
+            for(j = 0 ; j < (degree) ; j++)
+            {
+                dest = Nodes->edges_array_dest[j];
+                __u32 comp_src = stats->components[src];
+                __u32 comp_dest = stats->components[dest];
+
+                if(comp_src == comp_dest)
+                    continue;
+
+                __u32 comp_high = comp_src > comp_dest ? comp_src : comp_dest;
+                __u32 comp_low = comp_src + (comp_dest - comp_high);
+
+                if(comp_high == stats->components[comp_high])
+                {
+                    change = 1;
+                    stats->components[comp_high] = comp_low;
+                }
+            }
+        }
+
+
+        compressNodes( stats->num_vertices, stats->components);
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Components", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15u | %-15f | \n", stats->iterations, componentsCount, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+
+    printCCStats(stats);
+    return stats;
+
+
+}
+struct CCStats *connectedComponentsAfforestGraphAdjArrayList(__u32 iterations, struct GraphAdjArrayList *graph)
+{
+
+    __u32 u;
+    __u32 componentsCount = 0;
+    Word_t    Bytes;
+    __u32 num_samples = 1024;
+
+    if(num_samples > graph->num_vertices)
+        num_samples = graph->num_vertices / 2;
+
+    struct CCStats *stats = newCCStatsGraphAdjArrayList(graph);
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
+
+
+    stats->neighbor_rounds = 2;
+
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Afforest Connected Components");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Neighbor Round", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    __u32 r = 0;
+
+    Start(timer);
+    for(r = 0; r < stats->neighbor_rounds; r++)
+    {
+        Start(timer_inner);
+        #pragma omp parallel for schedule(dynamic, 2048)
+        for(u = 0; u < graph->num_vertices; u++)
+        {
+            __u32 j;
+            __u32 v;
+
+            struct EdgeList *Nodes = graph->vertices[u].outNodes;
+            __u32 degree_out = graph->vertices[u].out_degree;
+
+            for(j = (0 + r) ; j < (degree_out) ; j++)
+            {
+                v =  Nodes->edges_array_dest[j];
+                linkNodes(u, v, stats->components);
+                break;
+            }
+        }
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", r, Seconds(timer_inner));
+
+        Start(timer_inner);
+        compressNodes(graph->num_vertices, stats->components);
+        Stop(timer_inner);
+        printf(" -----------------------------------------------------\n");
+        printf("| %-21s | %-27s | \n", "Compress", "Time (S)");
+        printf(" -----------------------------------------------------\n");
+        printf("| %-21s | %-27f | \n", "", Seconds(timer_inner));
+        printf(" -----------------------------------------------------\n");
+
+    }// end neighbor_rounds loop
+
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Sampling Components", "");
+    printf(" -----------------------------------------------------\n");
+    Start(timer_inner);
+    __u32 sampleComp = sampleFrequentNode(graph->num_vertices, num_samples,  stats->components);
+    Stop(timer_inner);
+    printf("| Most freq ID: %-7u | %-27f | \n", sampleComp, Seconds(timer_inner));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Final Link Phase", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    Start(timer_inner);
+#if DIRECTED
+    #pragma omp parallel for schedule(dynamic, 2048)
+    for(u = 0; u < graph->num_vertices; u++)
+    {
+        __u32 j;
+        __u32 v;
+
+        if(stats->components[u] == sampleComp)
+            continue;
+
+        struct EdgeList *Nodes_out = graph->vertices[u].outNodes;
+        __u32 degree_out = graph->vertices[u].out_degree;
+
+        for(j = ( 0 + stats->neighbor_rounds) ; j < (degree_out) ; j++)
+        {
+            v =  Nodes_out->edges_array_dest[j];
+            linkNodes(u, v, stats->components);
+        }
+
+        struct EdgeList *Nodes_in = graph->vertices[u].inNodes;
+        __u32 degree_in = graph->vertices[u].in_degree;
+
+        for(j = (0) ; j < (degree_in) ; j++)
+        {
+            v = Nodes_in->edges_array_dest[j];
+            linkNodes(u, v, stats->components);
+        }
+
+    }
+#else
+    #pragma omp parallel for schedule(dynamic, 2048)
+    for(u = 0; u < graph->num_vertices; u++)
+    {
+        __u32 j;
+        __u32 v;
+
+        if(stats->components[u] == sampleComp)
+            continue;
+
+        struct EdgeList *Nodes_out = graph->vertices[u].outNodes;
+        __u32 degree_out = graph->vertices[u].out_degree;
+
+        for(j = ( 0 + stats->neighbor_rounds) ; j < (degree_out) ; j++)
+        {
+            v =  Nodes_out->edges_array_dest[j];
+            linkNodes(u, v, stats->components);
+        }
+    }
+#endif
+    Stop(timer_inner);
+    printf("| %-21u | %-27f | \n", componentsCount, Seconds(timer_inner));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Compress", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    Start(timer_inner);
+    compressNodes(graph->num_vertices, stats->components);
+    Stop(timer_inner);
+    printf("| %-21u | %-27f | \n", r, Seconds(timer_inner));
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Components", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15u | %-15f | \n", stats->neighbor_rounds, componentsCount, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+
+    printCCStats(stats);
+
+    JSLFA(Bytes, JArray);
+    return stats;
+
+
+}
+struct CCStats *connectedComponentsWeaklyGraphAdjArrayList( __u32 iterations, struct GraphAdjArrayList *graph)
+{
+
+    __u32 v;
+    __u32 componentsCount = 0;
+    __u32 change = 0;
+
+    struct CCStats *stats = newCCStatsGraphAdjArrayList(graph);
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
+
+    struct Bitmap *bitmapNext = newBitmap(graph->num_vertices);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Weakly Connected Components");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+
+    Start(timer);
+    stats->iterations = 0;
+    change = 1;
+
+
+    while(change)
+    {
+        Start(timer_inner);
+        change = 0;
+        stats->iterations++;
+
+        #pragma omp parallel for private(v) schedule(dynamic, 1024)
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            __u32 j;
+            __u32 src = v;
+            __u32 dest;
+
+            struct EdgeList *Nodes_out = graph->vertices[v].outNodes;
+            __u32 degree_out = graph->vertices[v].out_degree;
+
+            for(j = 0 ; j < (degree_out) ; j++)
+            {
+                dest = Nodes_out->edges_array_dest[j];
+
+                if(atomicMin(&(stats->components[dest]), stats->components[src]))
+                {
+                    setBitAtomic(bitmapNext, dest);
+                }
+
+                if(atomicMin(&(stats->components[src]), stats->components[dest]))
+                {
+                    setBitAtomic(bitmapNext, src);
+                }
+            }
+        }
+
+
+        // compressNodes( stats->num_vertices, stats->components);
+
+        #pragma omp parallel for reduction (+:change)
+        for(v = 0 ; v < ((bitmapNext->size + kBitsPerWord - 1) / kBitsPerWord); v++)
+        {
+            change += bitmapNext->bitarray[v];
+            bitmapNext->bitarray[v] = 0;
+        }
+
+
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Components", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15u | %-15f | \n", stats->iterations, componentsCount, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    freeBitmap(bitmapNext);
+    printCCStats(stats);
+    // connectedComponentsVerifyGraphCSR(stats, graph);
+    return stats;
+
+}
+
+// ********************************************************************************************
+// ***************                  LinkedList DataStructure                     **************
+// ********************************************************************************************
+
+struct CCStats *connectedComponentsGraphAdjLinkedList(__u32 iterations, __u32 pushpull, struct GraphAdjLinkedList *graph)
+{
+
+    struct CCStats *stats = NULL;
+
+    switch (pushpull)
+    {
+    case 0: // Shiloach Vishkin
+        stats = connectedComponentsShiloachVishkinGraphAdjLinkedList( iterations, graph);
+        break;
+    case 1: // Afforest
+        stats = connectedComponentsAfforestGraphAdjLinkedList( iterations, graph);
+        break;
+    case 2: // Weakly Connected
+        stats = connectedComponentsWeaklyGraphAdjLinkedList( iterations, graph);
+        break;
+    default:// Afforest
+        stats = connectedComponentsAfforestGraphAdjLinkedList( iterations, graph);
+        break;
+    }
+
+    return stats;
+
+}
+
+struct CCStats *connectedComponentsAfforestGraphAdjLinkedList(__u32 iterations, struct GraphAdjLinkedList *graph)
+{
+
+}
+struct CCStats *connectedComponentsShiloachVishkinGraphAdjLinkedList(__u32 iterations, struct GraphAdjLinkedList *graph)
+{
+
+}
+struct CCStats *connectedComponentsWeaklyGraphAdjLinkedList( __u32 iterations, struct GraphAdjLinkedList *graph)
+{
+
+}

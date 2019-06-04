@@ -56,7 +56,6 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR(__u32 iterations, str
 struct CCStats *connectedComponentsWeaklyGraphCSR( __u32 iterations, struct GraphCSR *graph);
 __u32 connectedComponentsVerifyGraphCSR(struct CCStats *stats, struct GraphCSR *graph);
 
-
 // ********************************************************************************************
 // ***************					GRID DataStructure							 **************
 // ********************************************************************************************
@@ -66,27 +65,24 @@ struct CCStats *connectedComponentsAfforestGraphGrid(__u32 iterations, struct Gr
 struct CCStats *connectedComponentsShiloachVishkinGraphGrid(__u32 iterations, struct GraphGrid *graph);
 struct CCStats *connectedComponentsWeaklyGraphGrid(__u32 iterations, struct GraphGrid *graph);
 
-
 // ********************************************************************************************
 // ***************					ArrayList DataStructure					     **************
 // ********************************************************************************************
 
-struct CCStats *connectedComponentsGraphAdjArrayList(__u32 iterations, __u32 pushpull, struct AdjArrayList *graph);
-struct CCStats *connectedComponentsAfforestGraphAdjArrayList(__u32 iterations, struct AdjArrayList *graph);
-struct CCStats *connectedComponentsShiloachVishkinGraphAdjArrayList(__u32 iterations, struct AdjArrayList *graph);
-struct CCStats *connectedComponentsWeaklyGraphAdjArrayList( __u32 iterations, struct AdjArrayList *graph);
-__u32 connectedComponentsVerifyGraphAdjArrayList(struct CCStats *stats, struct AdjArrayList *graph);
-
+struct CCStats *connectedComponentsGraphAdjArrayList(__u32 iterations, __u32 pushpull, struct GraphAdjArrayList *graph);
+struct CCStats *connectedComponentsAfforestGraphAdjArrayList(__u32 iterations, struct GraphAdjArrayList *graph);
+struct CCStats *connectedComponentsShiloachVishkinGraphAdjArrayList(__u32 iterations, struct GraphAdjArrayList *graph);
+struct CCStats *connectedComponentsWeaklyGraphAdjArrayList( __u32 iterations, struct GraphAdjArrayList *graph);
 
 // ********************************************************************************************
 // ***************					LinkedList DataStructure					 **************
 // ********************************************************************************************
 
-struct CCStats *connectedComponentsGraphAdjLinkedList(__u32 iterations, __u32 pushpull, struct AdjLinkedList *graph);
-struct CCStats *connectedComponentsAfforestGraphAdjLinkedList(__u32 iterations, struct AdjLinkedList *graph);
-struct CCStats *connectedComponentsShiloachVishkinGraphAdjLinkedList(__u32 iterations, struct AdjLinkedList *graph);
-struct CCStats *connectedComponentsWeaklyGraphAdjLinkedList( __u32 iterations, struct AdjLinkedList *graph);
-__u32 connectedComponentsVerifyGraphAdjLinkedList(struct CCStats *stats, struct AdjLinkedList *graph);
+struct CCStats *connectedComponentsGraphAdjLinkedList(__u32 iterations, __u32 pushpull, struct GraphAdjLinkedList *graph);
+struct CCStats *connectedComponentsAfforestGraphAdjLinkedList(__u32 iterations, struct GraphAdjLinkedList *graph);
+struct CCStats *connectedComponentsShiloachVishkinGraphAdjLinkedList(__u32 iterations, struct GraphAdjLinkedList *graph);
+struct CCStats *connectedComponentsWeaklyGraphAdjLinkedList( __u32 iterations, struct GraphAdjLinkedList *graph);
+
 
 
 #endif
