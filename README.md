@@ -231,7 +231,7 @@ Accel-Graph can handle multiple representations of the graph structure in memory
 <p align="center"><img src="./02_slides/fig/datastructures/linkedlist.png" width="600" ></p>
 
 
-## Accel-Graph Options 
+# Accel-Graph Options 
 
 ```
 Usage: accel-graph [OPTION...]
@@ -326,7 +326,7 @@ portable benchmarking suite for various graph processing algorithms.
 ```
 
 
-## Organization 
+# Organization 
 
 * `00_graph_bench`
   * `include` - Major function headers 
@@ -376,7 +376,7 @@ portable benchmarking suite for various graph processing algorithms.
 
 * *`Makefile`* - Global makefile
 
-## Tasks TODO:
+# Tasks TODO:
 
 - [x] Finish preprocessing sort
   - [x] Radix sort
