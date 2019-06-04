@@ -211,22 +211,23 @@ accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-wei
 0100 0000 
 ```
 
-## Graph Structure Preprocessing:
+# Graph Structure Preprocessing:
 Accel-Graph can handle multiple representations of the graph structure in memory, each has their own theoretical benefits and shortcomings.
 
-### Regular unsorted Edge-list as input.
+## Regular unsorted Edge-list as input.
+
 <p align="center"><img src="./02_slides/fig/datastructures/edgelist-file.png" width ="500" ></p>
 
-###  CSR (Compressed Sparse Row)
+##  CSR (Compressed Sparse Row)
 <p align="center"><img src="./02_slides/fig/datastructures/csr.png" width ="450" ></p>
 
-###  Grid
+##  Grid
 <p align="center"><img src="./02_slides/fig/datastructures/grid.png" width ="700" ></p>
 
-###  Array-List
+##  Array-List
 <p align="center"><img src="./02_slides/fig/datastructures/arraylist.png" width="550" ></p>
 
-###  Linked-List
+##  Linked-List
 <p align="center"><img src="./02_slides/fig/datastructures/linkedlist.png" width="600" ></p>
 
 
