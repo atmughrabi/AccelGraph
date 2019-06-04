@@ -83,7 +83,7 @@ GRAPH_NAME = gplus
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-GRAPH_NAME = p2p-Gnutella31
+# GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -99,11 +99,11 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 #GRAPH RUN
 SORT_TYPE 		= 1
 REORDER 		= 0
-DATA_STRUCTURES = 0
+DATA_STRUCTURES = 1
 ALGORITHMS 		= 6
 
 ROOT 			= 5319
-PULL_PUSH 		= 7
+PULL_PUSH 		= 2
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 

@@ -30,6 +30,7 @@
 #include "SSSP.h"
 #include "SPMV.h"
 #include "connectedComponents.h"
+#include "triangleCount.h"
 
 #include <assert.h>
 #include "graphTest.h"
@@ -171,7 +172,14 @@ __u32 cmpGraphAlgorithmsTestStats(void *ref_stats, void *cmp_stats, __u32 algori
         missmatch += compareDistanceArrays(ref_stats_tmp->components, cmp_stats_tmp->components, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
     }
     break;
-    case 7: // incremental Aggregation file name root
+    case 7: // Connected Components
+    {
+        struct TCStats *ref_stats_tmp = (struct TCStats * )ref_stats;
+        struct TCStats *cmp_stats_tmp = (struct TCStats * )cmp_stats;
+        missmatch += (ref_stats_tmp->counts == cmp_stats_tmp->counts) ? 1 : 0;
+    }
+    break;
+    case 8: // incremental Aggregation file name root
     {
         struct IncrementalAggregationStats *ref_stats_tmp = (struct IncrementalAggregationStats * )ref_stats;
         struct IncrementalAggregationStats *cmp_stats_tmp = (struct IncrementalAggregationStats * )cmp_stats;
@@ -232,7 +240,12 @@ void *runGraphAlgorithmsTest(void *graph, struct Arguments *arguments)
         ref_stats = runConnectedComponentsAlgorithm(graph,  arguments->datastructure,  arguments->iterations,  arguments->pushpull);
     }
     break;
-    case 7: // incremental Aggregation
+    case 7: // Triangle Count
+    {
+        ref_stats = runTriangleCountAlgorithm(graph, arguments->datastructure, arguments->pushpull);
+    }
+    break;
+    case 8: // incremental Aggregation
     {
         ref_stats = runIncrementalAggregationAlgorithm(graph,  arguments->datastructure);
     }

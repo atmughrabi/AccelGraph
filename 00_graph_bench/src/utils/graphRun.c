@@ -13,7 +13,6 @@
 #include "graphRun.h"
 #include "reorder.h"
 
-
 #include "BFS.h"
 #include "DFS.h"
 #include "pageRank.h"
@@ -22,7 +21,7 @@
 #include "SSSP.h"
 #include "SPMV.h"
 #include "connectedComponents.h"
-
+#include "triangleCount.h"
 
 
 void generateGraphPrintMessageWithtime(const char *msg, double time)
@@ -278,7 +277,14 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
             freeCCStats(stats);
         }
         break;
-        case 7: // incremental Aggregation
+        case 7: // Triangle Counting
+        {
+            struct TCStats *stats = runTriangleCountAlgorithm(graph, arguments->datastructure, arguments->pushpull);
+            time_total += stats->time_total;
+            freeTCStats(stats);
+        }
+        break;
+        case 8: // incremental Aggregation
         {
             struct IncrementalAggregationStats *stats = runIncrementalAggregationAlgorithm(graph,  arguments->datastructure);
             time_total += stats->time_total;
@@ -545,6 +551,45 @@ struct CCStats *runConnectedComponentsAlgorithm(void *graph, __u32 datastructure
     default:// CSR
         graphCSR = (struct GraphCSR *)graph;
         stats = connectedComponentsGraphCSR(iterations, pushpull, graphCSR);
+        break;
+    }
+
+
+    return stats;
+
+}
+
+struct TCStats *runTriangleCountAlgorithm(void *graph, __u32 datastructure, __u32 pushpull)
+{
+
+
+    struct GraphCSR *graphCSR = NULL;
+    struct GraphGrid *graphGrid = NULL;
+    struct GraphAdjLinkedList *graphAdjLinkedList = NULL;
+    struct GraphAdjArrayList *graphAdjArrayList = NULL;
+    struct TCStats *stats = NULL;
+
+    switch (datastructure)
+    {
+    case 0: // CSR
+        graphCSR = (struct GraphCSR *)graph;
+        stats = triangleCountGraphCSR(pushpull, graphCSR);
+        break;
+    case 1: // Grid
+        graphGrid = (struct GraphGrid *)graph;
+        stats = triangleCountGraphGrid(pushpull, graphGrid);
+        break;
+    case 2: // Adj Linked List
+        graphAdjLinkedList = (struct GraphAdjLinkedList *)graph;
+        stats = triangleCountGraphAdjLinkedList(pushpull, graphAdjLinkedList);
+        break;
+    case 3: // Adj Array List
+        graphAdjArrayList = (struct GraphAdjArrayList *)graph;
+        stats = triangleCountGraphAdjArrayList(pushpull, graphAdjArrayList);
+        break;
+    default:// CSR
+        graphCSR = (struct GraphCSR *)graph;
+        stats = triangleCountGraphCSR(pushpull, graphCSR);
         break;
     }
 
@@ -904,7 +949,13 @@ void freeGraphStatsGeneral(void *stats, __u32 algorithm)
         freeCCStats(freeStats);
     }
     break;
-    case 7: // incremental Aggregation
+    case 7: // Triangle Counting
+    {
+        struct TCStats *freeStats = (struct TCStats *)stats;
+        freeTCStats(freeStats);
+    }
+    break;
+    case 8: // incremental Aggregation
     {
         struct IncrementalAggregationStats *freeStats = (struct IncrementalAggregationStats *)stats;
         freeIncrementalAggregationStats(freeStats);

@@ -40,6 +40,7 @@
 #include "bellmanFord.h"
 #include "SSSP.h"
 #include "connectedComponents.h"
+#include "triangleCount.h"
 
 #include <assert.h>
 #include "graphTest.h"
