@@ -114,8 +114,8 @@ main (int argc, char **argv)
     for(arguments.datastructure = 0 ; arguments.datastructure < 4; arguments.datastructure++)
     {
         graph = generateGraphDataStructure(&arguments);
-        arguments.trials = (generateRandInt(mt19937var) % 50)+1;
-        arguments.iterations = (generateRandInt(mt19937var) % 200)+1;
+        arguments.trials = (generateRandInt(mt19937var) % 50) + 1;
+        arguments.iterations = (generateRandInt(mt19937var) % 200) + 1;
 
         while(arguments.trials)
         {
@@ -138,9 +138,14 @@ main (int argc, char **argv)
 
                     total_missmatch += missmatch;
                     if(missmatch != 0)
+                    {
                         printf("FAIL : Trial [%u] Graph [%s] Missmatches [%u] \nFAIL : DataStructure [%u] Algorithm [%u] Direction [%u]\n\n", arguments.trials, arguments.fnameb, missmatch, arguments.datastructure, arguments.algorithm, arguments.pushpull);
+                        exit (1);
+                    }
                     else
+                    {
                         printf("PASS : Trial [%u] Graph [%s] Missmatches [%u] \nPASS : DataStructure [%u] Algorithm [%u] Direction [%u]\n\n", arguments.trials, arguments.fnameb, missmatch, arguments.datastructure, arguments.algorithm, arguments.pushpull);
+                    }
 
                     freeGraphStatsGeneral(cmp_data, arguments.algorithm);
                 }

@@ -276,6 +276,7 @@ __u32 sampleFrequentNode(__u32 num_vertices, __u32 num_samples, __u32 *component
     Word_t *PValue;
     Word_t   Index;
     __u32 i;
+    initializeMersenneState (mt19937var, 27491095); 
     for (i = 0; i < num_samples; i++)
     {
         __u32 n = generateRandInt(mt19937var) % num_vertices;
@@ -1625,7 +1626,7 @@ struct CCStats *connectedComponentsShiloachVishkinGraphAdjLinkedList(__u32 itera
                 
                 dest = Nodes->dest;
                 Nodes = Nodes->next;
-                
+
                 __u32 comp_src = stats->components[src];
                 __u32 comp_dest = stats->components[dest];
 
