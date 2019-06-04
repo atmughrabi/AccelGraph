@@ -62,6 +62,8 @@ __u32 connectedComponentsVerifyGraphCSR(struct CCStats *stats, struct GraphCSR *
 // ********************************************************************************************
 
 struct CCStats *connectedComponentsGraphGrid(__u32 iterations, __u32 pushpull, struct GraphGrid *graph);
+struct CCStats *connectedComponentsAfforestGraphGrid(__u32 iterations, struct GraphGrid *graph);
+struct CCStats *connectedComponentsShiloachVishkinGraphGrid(__u32 iterations, struct GraphGrid *graph);
 struct CCStats *connectedComponentsWeaklyGraphGrid(__u32 iterations, struct GraphGrid *graph);
 
 
@@ -69,13 +71,22 @@ struct CCStats *connectedComponentsWeaklyGraphGrid(__u32 iterations, struct Grap
 // ***************					ArrayList DataStructure					     **************
 // ********************************************************************************************
 
-
-
+struct CCStats *connectedComponentsGraphAdjArrayList(__u32 iterations, __u32 pushpull, struct AdjArrayList *graph);
+struct CCStats *connectedComponentsAfforestGraphAdjArrayList(__u32 iterations, struct AdjArrayList *graph);
+struct CCStats *connectedComponentsShiloachVishkinGraphAdjArrayList(__u32 iterations, struct AdjArrayList *graph);
+struct CCStats *connectedComponentsWeaklyGraphAdjArrayList( __u32 iterations, struct AdjArrayList *graph);
+__u32 connectedComponentsVerifyGraphAdjArrayList(struct CCStats *stats, struct AdjArrayList *graph);
 
 
 // ********************************************************************************************
 // ***************					LinkedList DataStructure					 **************
 // ********************************************************************************************
+
+struct CCStats *connectedComponentsGraphAdjLinkedList(__u32 iterations, __u32 pushpull, struct AdjLinkedList *graph);
+struct CCStats *connectedComponentsAfforestGraphAdjLinkedList(__u32 iterations, struct AdjLinkedList *graph);
+struct CCStats *connectedComponentsShiloachVishkinGraphAdjLinkedList(__u32 iterations, struct AdjLinkedList *graph);
+struct CCStats *connectedComponentsWeaklyGraphAdjLinkedList( __u32 iterations, struct AdjLinkedList *graph);
+__u32 connectedComponentsVerifyGraphAdjLinkedList(struct CCStats *stats, struct AdjLinkedList *graph);
 
 
 #endif

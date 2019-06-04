@@ -83,7 +83,7 @@ GRAPH_NAME = gplus
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-# GRAPH_NAME = p2p-Gnutella31
+GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -99,16 +99,16 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 #GRAPH RUN
 SORT_TYPE 		= 1
 REORDER 		= 0
-DATA_STRUCTURES = 0
+DATA_STRUCTURES = 1
 ALGORITHMS 		= 6
 
 ROOT 			= 5319
-PULL_PUSH 		= 2
+PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
-NUM_THREADS  	= 8
-# NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
+# NUM_THREADS  	= 1
+NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 1
 
@@ -659,12 +659,11 @@ stats-openmp: graph-openmp
 
 .PHONY: debug-openmp
 debug-openmp: graph-openmp	
-	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp
+	gdb -ex=r --args ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
 
 .PHONY: debug-memory-openmp
 debug-memory-openmp: graph-openmp	
 	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
-
 
 .PHONY: test-verbose
 test-verbose:

@@ -328,7 +328,7 @@ struct CCStats *connectedComponentsGraphCSR(__u32 iterations, __u32 pushpull, st
     case 1: // Afforest
         stats = connectedComponentsAfforestGraphCSR( iterations, graph);
         break;
-    case 2: // Afforest
+    case 2: // WCC
         stats = connectedComponentsWeaklyGraphCSR( iterations, graph);
         break;
     default:// Afforest
@@ -796,7 +796,13 @@ struct CCStats *connectedComponentsGraphGrid(__u32 iterations, __u32 pushpull, s
 
     switch (pushpull)
     {
-    case 0: // Weakly Connected
+    case 0: // Shiloach Vishkin
+        stats = connectedComponentsShiloachVishkinGraphGrid( iterations, graph);
+        break;
+    case 1: // Afforest
+        stats = connectedComponentsAfforestGraphGrid( iterations, graph);
+        break;
+    case 2: // Weakly Connected
         stats = connectedComponentsWeaklyGraphGrid( iterations, graph);
         break;
     default:// Afforest
@@ -807,6 +813,291 @@ struct CCStats *connectedComponentsGraphGrid(__u32 iterations, __u32 pushpull, s
     return stats;
 
 }
+
+struct CCStats *connectedComponentsShiloachVishkinGraphGrid( __u32 iterations, struct GraphGrid *graph)
+{
+
+    __u32 i;
+    __u32 componentsCount = 0;
+    __u32 change = 0;
+    __u32 totalPartitions  = graph->grid->num_partitions;
+    struct CCStats *stats = newCCStatsGraphGrid(graph);
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Shiloach-Vishkin Connected Components");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+
+    Start(timer);
+    stats->iterations = 0;
+    change = 1;
+
+    while(change)
+    {
+        Start(timer_inner);
+        change = 0;
+        stats->iterations++;
+
+        #pragma omp parallel for private(i) schedule (dynamic,numThreads)
+        for (i = 0; i < totalPartitions; ++i)
+        {
+            __u32 j;
+            // #pragma omp parallel for private(j) schedule (dynamic,numThreads)
+            for (j = 0; j < totalPartitions; ++j)  // iterate over partitions colwise
+            {
+                __u32 k;
+                struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
+                for (k = 0; k < partition->num_edges; ++k)
+                {
+                    __u32 src = partition->edgeList->edges_array_src[k];
+                    __u32 dest = partition->edgeList->edges_array_dest[k];
+
+
+                    __u32 comp_src = stats->components[src];
+                    __u32 comp_dest = stats->components[dest];
+
+                    if(comp_src != comp_dest)
+                    {
+                        __u32 comp_high = comp_src > comp_dest ? comp_src : comp_dest;
+                        __u32 comp_low = comp_src + (comp_dest - comp_high);
+
+                        if(comp_high == stats->components[comp_high])
+                        {
+                            change = 1;
+                            stats->components[comp_high] = comp_low;
+                        }
+                    }
+                }
+            }
+        }
+
+        compressNodes( stats->num_vertices, stats->components);
+
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Components", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15u | %-15f | \n", stats->iterations, componentsCount, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+
+    printCCStats(stats);
+    return stats;
+
+}
+
+
+struct CCStats *connectedComponentsAfforestGraphGrid( __u32 iterations, struct GraphGrid *graph)
+{
+
+    __u32 i;
+    __u32 v;
+    __u32 componentsCount = 0;
+    Word_t    Bytes;
+    __u32 num_samples = 1024;
+    __u32 totalPartitions  = graph->grid->num_partitions;
+
+    if(num_samples > graph->num_vertices)
+        num_samples = graph->num_vertices / 2;
+
+    struct CCStats *stats = newCCStatsGraphGrid(graph);
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+    struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
+    __u32 *neighbor = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    struct Bitmap *linked = newBitmap(graph->num_vertices);
+
+    stats->neighbor_rounds = 2;
+    #pragma omp parallel for default(none) private(v) shared(graph,neighbor)
+    for(v = 0; v < graph->num_vertices; v++)
+    {
+        neighbor[v] = 0;
+    }
+
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Afforest Connected Components");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Neighbor Round", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    __u32 r = 0;
+
+    Start(timer);
+    for(r = 0; r < stats->neighbor_rounds; r++)
+    {
+        Start(timer_inner);
+        #pragma omp parallel for private(i) schedule (dynamic,numThreads)
+        for (i = 0; i < totalPartitions; ++i)
+        {
+            __u32 j;
+            // #pragma omp parallel for private(j) schedule (dynamic,numThreads)
+            for (j = 0; j < totalPartitions; ++j)  // iterate over partitions colwise
+            {
+                __u32 k;
+                struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
+                for (k = 0; k < partition->num_edges; ++k)
+                {
+                    __u32 src = partition->edgeList->edges_array_src[k];
+                    __u32 dest = partition->edgeList->edges_array_dest[k];
+
+                    if(neighbor[src] >= r && !getBit(linked, src))
+                    {
+                        linkNodes(src, dest, stats->components);
+                        setBit(linked, src);
+                    }
+                    else
+                    {
+                        neighbor[src]++;
+                    }
+                }
+            }
+        }
+        Stop(timer_inner);
+        printf("| %-21u | %-27f | \n", r, Seconds(timer_inner));
+
+        #pragma omp parallel for default(none) private(v) shared(stats,neighbor)
+        for(v = 0; v < stats->num_vertices; v++)
+        {
+            neighbor[v] = 0;
+        }
+        clearBitmap(linked);
+
+        Start(timer_inner);
+        compressNodes(graph->num_vertices, stats->components);
+        Stop(timer_inner);
+        printf(" -----------------------------------------------------\n");
+        printf("| %-21s | %-27s | \n", "Compress", "Time (S)");
+        printf(" -----------------------------------------------------\n");
+        printf("| %-21s | %-27f | \n", "", Seconds(timer_inner));
+        printf(" -----------------------------------------------------\n");
+
+    }// end neighbor_rounds loop
+
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Sampling Components", "");
+    printf(" -----------------------------------------------------\n");
+    Start(timer_inner);
+    __u32 sampleComp = sampleFrequentNode(graph->num_vertices, num_samples,  stats->components);
+    Stop(timer_inner);
+    printf("| Most freq ID: %-7u | %-27f | \n", sampleComp, Seconds(timer_inner));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Final Link Phase", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    Start(timer_inner);
+#if DIRECTED
+    #pragma omp parallel for private(i) schedule (dynamic,numThreads)
+    for (i = 0; i < totalPartitions; ++i)
+    {
+        __u32 j;
+        // #pragma omp parallel for private(j) schedule (dynamic,numThreads)
+        for (j = 0; j < totalPartitions; ++j)  // iterate over partitions colwise
+        {
+            __u32 k;
+            struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
+            for (k = 0; k < partition->num_edges; ++k)
+            {
+                __u32 src = partition->edgeList->edges_array_src[k];
+                __u32 dest = partition->edgeList->edges_array_dest[k];
+
+                if(stats->components[src] != sampleComp)
+                {
+
+                    if(neighbor[src] >= stats->neighbor_rounds)
+                    {
+                        linkNodes(src, dest, stats->components);
+                    }
+                    else
+                    {
+                        neighbor[src]++;
+                    }
+
+                }
+
+                if(stats->components[dest] != sampleComp)
+                {
+                    linkNodes(dest, src, stats->components);
+                }
+
+            }
+        }
+    }
+#else
+    #pragma omp parallel for private(i) schedule (dynamic,numThreads)
+    for (i = 0; i < totalPartitions; ++i)
+    {
+        __u32 j;
+        // #pragma omp parallel for private(j) schedule (dynamic,numThreads)
+        for (j = 0; j < totalPartitions; ++j)  // iterate over partitions colwise
+        {
+            __u32 k;
+            struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
+            for (k = 0; k < partition->num_edges; ++k)
+            {
+                __u32 src = partition->edgeList->edges_array_src[k];
+                __u32 dest = partition->edgeList->edges_array_dest[k];
+
+                if(stats->components[src] != sampleComp)
+                {
+
+                    if(neighbor[src] >= stats->neighbor_rounds)
+                    {
+                        linkNodes(src, dest, stats->components);
+                    }
+                    else
+                    {
+                        neighbor[src]++;
+                    }
+                }
+            }
+        }
+    }
+#endif
+    Stop(timer_inner);
+    printf("| %-21u | %-27f | \n", componentsCount, Seconds(timer_inner));
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Compress", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    Start(timer_inner);
+    compressNodes(graph->num_vertices, stats->components);
+    Stop(timer_inner);
+    printf("| %-21u | %-27f | \n", r, Seconds(timer_inner));
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15s | %-15s | %-15s | \n", "Iterations", "Components", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-15u | %-15u | %-15f | \n", stats->neighbor_rounds, componentsCount, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+
+    free(timer);
+    free(timer_inner);
+    free(neighbor);
+    printCCStats(stats);
+    freeBitmap(linked);
+    JSLFA(Bytes, JArray);
+    return stats;
+
+}
+
+
 struct CCStats *connectedComponentsWeaklyGraphGrid(__u32 iterations, struct GraphGrid *graph)
 {
 
@@ -825,11 +1116,6 @@ struct CCStats *connectedComponentsWeaklyGraphGrid(__u32 iterations, struct Grap
     printf(" -----------------------------------------------------\n");
     printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
     printf(" -----------------------------------------------------\n");
-
-
-
-
-
 
     Start(timer);
     stats->iterations = 0;
@@ -904,3 +1190,4 @@ struct CCStats *connectedComponentsWeaklyGraphGrid(__u32 iterations, struct Grap
 
 
 }
+
