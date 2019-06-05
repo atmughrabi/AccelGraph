@@ -178,7 +178,7 @@ struct GraphCSR *graphCSRPreProcessingStep (struct Arguments *arguments)
 #if DIRECTED
 
     Start(timer);
-    struct EdgeList *inverse_edgeList = readEdgeListsbin(arguments->fnameb, 1, arguments->symmetric, arguments->weighted); // read edglist from memory since we pre loaded it
+    struct EdgeList *inverse_edgeList = readEdgeListsMem(edgeList, 1, 0, 0); // read edglist from memory since we pre loaded it
     Stop(timer);
 
     graphCSRPrintMessageWithtime("Read Inverse Edge List From Memory (Seconds)", Seconds(timer));

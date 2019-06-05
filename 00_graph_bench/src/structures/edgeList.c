@@ -497,7 +497,7 @@ struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem,  __u8 inverse, 
 
     __u32 i;
 
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for(i = 0; i < num_edges; i++)
     {
         src = edgeListmem->edges_array_src[i];
@@ -513,20 +513,12 @@ struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem,  __u8 inverse, 
             {
                 edgeList->edges_array_src[i] = src;
                 edgeList->edges_array_dest[i] = dest;
-                edgeList->edges_array_src[i + (num_edges)] = dest;
-                edgeList->edges_array_dest[i + (num_edges)] = src;
+
 
 #if WEIGHTED
-                if(weighted)
-                {
-                    edgeList->edges_array_weight[i] = weight;
-                    edgeList->edges_array_weight[i + (num_edges)] = weight;
-                }
-                else
-                {
-                    edgeList->edges_array_weight[i] = weight;
-                    edgeList->edges_array_weight[i + (num_edges)] = weight;
-                }
+
+                edgeList->edges_array_weight[i] = weight;
+
 #endif
 
             }
@@ -538,7 +530,7 @@ struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem,  __u8 inverse, 
 #if WEIGHTED
                 if(weighted)
                 {
-                    edgeList->edges_array_weight[i] = 1;
+                    edgeList->edges_array_weight[i] = weight;
                 }
                 else
                 {
@@ -553,19 +545,11 @@ struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem,  __u8 inverse, 
             {
                 edgeList->edges_array_src[i] = dest;
                 edgeList->edges_array_dest[i] = src;
-                edgeList->edges_array_src[i + (num_edges)] = src;
-                edgeList->edges_array_dest[i + (num_edges)] = dest;
+
 #if WEIGHTED
-                if(weighted)
-                {
-                    edgeList->edges_array_weight[i] = weight;
-                    edgeList->edges_array_weight[i + (num_edges)] = edgeList->edges_array_weight[i];
-                }
-                else
-                {
-                    edgeList->edges_array_weight[i] = weight;
-                    edgeList->edges_array_weight[i + (num_edges)] = weight;
-                }
+
+                edgeList->edges_array_weight[i] = weight;
+
 #endif
             }
             else
@@ -573,14 +557,9 @@ struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem,  __u8 inverse, 
                 edgeList->edges_array_src[i] = dest;
                 edgeList->edges_array_dest[i] = src;
 #if WEIGHTED
-                if(weighted)
-                {
-                    edgeList->edges_array_weight[i] = weight;
-                }
-                else
-                {
-                    edgeList->edges_array_weight[i] = weight;
-                }
+
+                edgeList->edges_array_weight[i] = weight;
+
 #endif
             }// symmetric
         }// inverse
@@ -589,19 +568,11 @@ struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem,  __u8 inverse, 
         {
             edgeList->edges_array_src[i] = src;
             edgeList->edges_array_dest[i] = dest;
-            edgeList->edges_array_src[i + (num_edges)] = dest;
-            edgeList->edges_array_dest[i + (num_edges)] = src;
+
 #if WEIGHTED
-            if(weighted)
-            {
-                edgeList->edges_array_weight[i] = weight;
-                edgeList->edges_array_weight[i + (num_edges)] = weight;
-            }
-            else
-            {
-                edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
-                edgeList->edges_array_weight[i + (num_edges)] = weight;
-            }
+
+            edgeList->edges_array_weight[i] = weight;
+
 #endif
         }
         else
@@ -609,14 +580,9 @@ struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem,  __u8 inverse, 
             edgeList->edges_array_src[i] = src;
             edgeList->edges_array_dest[i] = dest;
 #if WEIGHTED
-            if(weighted)
-            {
-                edgeList->edges_array_weight[i] = 1;
-            }
-            else
-            {
-                edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
-            }
+
+            edgeList->edges_array_weight[i] = weight;
+
 #endif
         }
 #endif

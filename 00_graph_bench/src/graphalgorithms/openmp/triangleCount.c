@@ -160,9 +160,9 @@ struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph)
         for(v = edge_idx_u; v < (edge_idx_u + degree_u) ; v++)
         {
             __u32 node_v = graph->sorted_edges_array->edges_array_dest[v];
-
-            // if(node_v > u)
-            //     break;
+           
+            if(node_v > u)
+                break;
 
             __u32 degree_v = graph->vertices->out_degree[node_v];
             __u32 edge_idx_v = graph->vertices->edges_idx[node_v];
@@ -191,7 +191,7 @@ struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph)
                 }
 
                 // if(node_w == node_iter)
-                   
+
             }
         }
     }
@@ -205,7 +205,7 @@ struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph)
         counts += stats->counts[u];
     }
 
-    stats->total_counts = counts/6;
+    stats->total_counts = counts / 6;
 
     printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
@@ -239,7 +239,7 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
         for(v = edge_idx_u; v < (edge_idx_u + degree_u) ; v++)
         {
             __u32 node_v = graph->sorted_edges_array->edges_array_dest[v];
-
+           
             if(node_v > u)
                 break;
 

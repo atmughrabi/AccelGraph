@@ -529,7 +529,7 @@ struct GraphAdjArrayList *graphAdjArrayListPreProcessingStep (struct Arguments *
 #if DIRECTED
     Start(timer);
     // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-    struct EdgeList *inverse_edgeList = readEdgeListsbin(arguments->fnameb, 1, arguments->symmetric, arguments->weighted);
+    struct EdgeList *inverse_edgeList = readEdgeListsMem(edgeList, 1, 0, 0);
     Stop(timer);
     // edgeListPrint(inverse_edgeList);
     graphAdjArrayListPrintMessageWithtime("Read Inverse Edge List From File (Seconds)", Seconds(timer));
