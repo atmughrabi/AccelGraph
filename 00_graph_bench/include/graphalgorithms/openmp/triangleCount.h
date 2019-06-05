@@ -31,6 +31,7 @@ void freeTCStats(struct TCStats *stats);
 // ********************************************************************************************
 
 struct TCStats *triangleCountGraphCSR(__u32 pushpull, struct GraphCSR *graph);
+struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph);
 struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph);
 struct TCStats *triangleCountPushGraphCSR(struct GraphCSR *graph);
 

@@ -166,22 +166,22 @@ struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u
 
     graphCSRPrintMessageWithtime("Process In/Out degrees of Nodes (Seconds)", Seconds(timer));
 
-#if DIRECTED
+// #if DIRECTED
 
-    Start(timer);
-    struct EdgeList *inverse_edgeList = readEdgeListsbin(fnameb, 1, symmetric, weighted); // read edglist from memory since we pre loaded it
-    Stop(timer);
+//     Start(timer);
+//     struct EdgeList *inverse_edgeList = readEdgeListsbin(fnameb, 1, symmetric, weighted); // read edglist from memory since we pre loaded it
+//     Stop(timer);
 
-    graphCSRPrintMessageWithtime("Read Inverse Edge List From Memory (Seconds)", Seconds(timer));
+//     graphCSRPrintMessageWithtime("Read Inverse Edge List From Memory (Seconds)", Seconds(timer));
 
-    inverse_edgeList = sortRunAlgorithms(inverse_edgeList, sort);
+//     inverse_edgeList = sortRunAlgorithms(inverse_edgeList, sort);
 
-    Start(timer);
-    graphCSR = graphCSRAssignEdgeList (graphCSR, inverse_edgeList, 1);
-    Stop(timer);
-    graphCSRPrintMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)", Seconds(timer));
+//     Start(timer);
+//     graphCSR = graphCSRAssignEdgeList (graphCSR, inverse_edgeList, 1);
+//     Stop(timer);
+//     graphCSRPrintMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)", Seconds(timer));
 
-#endif
+// #endif
 
 
     graphCSRPrint(graphCSR);

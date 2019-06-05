@@ -105,7 +105,7 @@ void freeTCStats(struct TCStats *stats)
 }
 
 // ********************************************************************************************
-// ***************					CSR DataStructure							 **************
+// ***************                  CSR DataStructure                            **************
 // ********************************************************************************************
 
 struct TCStats *triangleCountGraphCSR(__u32 pushpull, struct GraphCSR *graph)
@@ -115,9 +115,12 @@ struct TCStats *triangleCountGraphCSR(__u32 pushpull, struct GraphCSR *graph)
     switch (pushpull)
     {
     case 0: // pull
+        stats = triangleCountBasicGraphCSR(graph);
+        break;
+    case 1: // pull
         stats = triangleCountPullGraphCSR(graph);
         break;
-    case 1: // push
+    case 2: // push
         stats = triangleCountPushGraphCSR(graph);
         break;
     default:// pull
@@ -125,6 +128,85 @@ struct TCStats *triangleCountGraphCSR(__u32 pushpull, struct GraphCSR *graph)
         break;
     }
 
+    return stats;
+
+}
+struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph)
+{
+
+    __u32 u;
+    __u32 counts = 0;
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Triangle Count-basic");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Triangle Counts", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    struct TCStats *stats = newTCStatsGraphCSR(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+
+    Start(timer);
+    #pragma omp parallel for shared(stats) schedule(dynamic, 1024)
+    for(u = 0; u < graph->num_vertices; u++)
+    {
+        __u32 degree_u = graph->vertices->out_degree[u];
+        __u32 edge_idx_u = graph->vertices->edges_idx[u];
+        __u32 v;
+
+        for(v = edge_idx_u; v < (edge_idx_u + degree_u) ; v++)
+        {
+            __u32 node_v = graph->sorted_edges_array->edges_array_dest[v];
+
+            // if(node_v > u)
+            //     break;
+
+            __u32 degree_v = graph->vertices->out_degree[node_v];
+            __u32 edge_idx_v = graph->vertices->edges_idx[node_v];
+            __u32 w;
+
+            __u32 degree_iter = graph->vertices->out_degree[u];
+            __u32 edge_idx_iter = graph->vertices->edges_idx[u];
+            __u32 iter;
+
+            for(w = edge_idx_v; w < (edge_idx_v + degree_v) ; w++)
+            {
+
+                __u32 node_w = graph->sorted_edges_array->edges_array_dest[w];
+
+                // if(node_w > node_v)
+                //     break;
+
+                __u32 node_iter = graph->sorted_edges_array->edges_array_dest[edge_idx_iter];
+
+                for(iter = edge_idx_iter; iter < (edge_idx_iter + degree_iter) ; iter++)
+                {
+                    node_iter = graph->sorted_edges_array->edges_array_dest[iter];
+
+                    if(node_iter == node_w)
+                        stats->counts[u]++;
+                }
+
+                // if(node_w == node_iter)
+                   
+            }
+        }
+    }
+
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+
+    #pragma omp parallel for default(none) reduction (+ : counts) private(u) shared(stats)
+    for(u = 0; u < stats->num_vertices; u++)
+    {
+        counts += stats->counts[u];
+    }
+
+    stats->total_counts = counts/6;
+
+    printf("| %-21u | %-27f | \n", stats->total_counts, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+
+    free(timer);
     return stats;
 
 }
@@ -170,18 +252,20 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
 
                 __u32 node_w = graph->sorted_edges_array->edges_array_dest[w];
 
-                if(node_w > v)
+                if(node_w > node_v)
                     break;
+
+                __u32 node_iter = graph->sorted_edges_array->edges_array_dest[edge_idx_iter];
 
                 for(iter = edge_idx_iter; iter < (edge_idx_iter + degree_iter) ; iter++)
                 {
-                    __u32 node_iter = graph->sorted_edges_array->edges_array_dest[iter];
+                    node_iter = graph->sorted_edges_array->edges_array_dest[iter];
 
-                    if(node_iter > node_w)
+                    if(node_iter >= node_w)
                         break;
                 }
 
-                if(node_w == iter)
+                if(node_w == node_iter)
                     stats->counts[u]++;
             }
         }
@@ -247,19 +331,22 @@ struct TCStats *triangleCountPushGraphCSR(struct GraphCSR *graph)
 
                 __u32 node_w = graph->sorted_edges_array->edges_array_dest[w];
 
-                if(node_w > v)
+                if(node_w > node_v)
                     break;
+
+                __u32 node_iter = graph->sorted_edges_array->edges_array_dest[edge_idx_iter];
 
                 for(iter = edge_idx_iter; iter < (edge_idx_iter + degree_iter) ; iter++)
                 {
-                    __u32 node_iter = graph->sorted_edges_array->edges_array_dest[iter];
+                    node_iter = graph->sorted_edges_array->edges_array_dest[iter];
 
-                    if(node_iter > node_w)
+                    if(node_iter >= node_w)
                         break;
                 }
 
-                if(node_w == iter){
-                	#pragma omp atomic update
+                if(node_w == node_iter)
+                {
+                    #pragma omp atomic update
                     stats->counts[node_w]++;
                 }
             }
@@ -286,7 +373,7 @@ struct TCStats *triangleCountPushGraphCSR(struct GraphCSR *graph)
 }
 
 // ********************************************************************************************
-// ***************					GRID DataStructure							 **************
+// ***************                  GRID DataStructure                           **************
 // ********************************************************************************************
 
 struct TCStats *triangleCountGraphGrid(__u32 pushpull, struct GraphGrid *graph)
@@ -319,7 +406,7 @@ struct TCStats *triangleCountColumnGraphGrid(struct GraphGrid *graph)
 }
 
 // ********************************************************************************************
-// ***************					ArrayList DataStructure					     **************
+// ***************                  ArrayList DataStructure                      **************
 // ********************************************************************************************
 
 struct TCStats *triangleCountGraphAdjArrayList(__u32 pushpull, struct GraphAdjArrayList *graph)
@@ -351,7 +438,7 @@ struct TCStats *triangleCountPushGraphAdjArrayList(struct GraphAdjArrayList *gra
 }
 
 // ********************************************************************************************
-// ***************					LinkedList DataStructure					 **************
+// ***************                  LinkedList DataStructure                     **************
 // ********************************************************************************************
 
 struct TCStats *triangleCountGraphAdjLinkedList(__u32 pushpull, struct GraphAdjLinkedList *graph)

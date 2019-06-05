@@ -72,7 +72,7 @@ GRAPH_NAME = Rabbit
 
 # real world large graphs binary format
 # GRAPH_NAME = orkut
-# GRAPH_NAME = gplus
+GRAPH_NAME = gplus
 # GRAPH_NAME = sk-2005
 # GRAPH_NAME = twitter
 # GRAPH_NAME = livejournal
@@ -83,7 +83,7 @@ GRAPH_NAME = Rabbit
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-GRAPH_NAME = p2p-Gnutella31
+# GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -97,29 +97,29 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 
 
 #GRAPH RUN
-SORT_TYPE 		= 0
-REORDER 		= 0
-DATA_STRUCTURES = 3
-ALGORITHMS 		= 1
+SORT_TYPE 		= 1
+REORDER 		= 3
+DATA_STRUCTURES = 0
+ALGORITHMS 		= 7
 
 ROOT 			= 5319
-PULL_PUSH 		= 6
+PULL_PUSH 		= 1
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
 # NUM_THREADS  	= 1
 NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 NUM_ITERATIONS 	= 200
-NUM_TRIALS 		= 1
+NUM_TRIALS 		= 2
 
 FILE_FORMAT 	= 1
-CONVERT_FORMAT 	= 1
+CONVERT_FORMAT 	= 0
 
 #STATS COLLECTION VARIABLES
 BIN_SIZE = 512
 INOUT_STATS = 2
 
-ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+ARGS = -s -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################
@@ -651,7 +651,7 @@ run-openmp: graph-openmp
 
 .PHONY: convert
 convert: graph-openmp
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp  -w -x -c $(CONVERT_FORMAT) -f $(FILE_BIN) -z $(FILE_FORMAT)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp  -x -c $(CONVERT_FORMAT) -f $(FILE_BIN) -z $(FILE_FORMAT)
 
 .PHONY: stats-openmp
 stats-openmp: graph-openmp
