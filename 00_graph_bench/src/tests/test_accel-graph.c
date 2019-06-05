@@ -116,7 +116,7 @@ main (int argc, char **argv)
     {
         graph = generateGraphDataStructure(&arguments);
         arguments.trials = (generateRandInt(mt19937var) % 50) + 1;
-        arguments.iterations = (generateRandInt(mt19937var) % 200) + 1;
+        arguments.iterations = 100;
 
         while(arguments.trials)
         {

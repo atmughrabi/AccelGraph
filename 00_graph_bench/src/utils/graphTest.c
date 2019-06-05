@@ -45,7 +45,7 @@ __u32 compareFloatArrays(float *arr1, float *arr2, __u32 arr1_size, __u32 arr2_s
 {
     __u32 i = 0;
     __u32 missmatch = 0;
-    float epsilon = 1e-4f;
+    float epsilon = 1e-3f;
 
     if(arr1_size != arr2_size)
         return 1;

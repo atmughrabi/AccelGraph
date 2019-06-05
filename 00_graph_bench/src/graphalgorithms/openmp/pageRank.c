@@ -668,8 +668,8 @@ struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  __u32 iterati
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
 
         __u32 j;
-       #pragma omp parallel for private(j)
-        for (j = 0; j < totalPartitions; ++j)  
+        #pragma omp parallel for private(j)
+        for (j = 0; j < totalPartitions; ++j)
         {
             __u32 i;
 
@@ -804,7 +804,7 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
 
         __u32 j;
-       
+
         #pragma omp parallel for private(j)
         for (j = 0; j < totalPartitions; ++j)  // iterate over partitions columnwise
         {
@@ -2865,8 +2865,6 @@ struct PageRankStats *pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  _
     __u32 j;
     __u32 u;
 
-
-
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphAdjArrayList(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
@@ -2876,8 +2874,6 @@ struct PageRankStats *pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  _
     int activeVertices = 0;
     struct EdgeList *Nodes;
 
-
-
     workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
     workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
 
@@ -2885,13 +2881,8 @@ struct PageRankStats *pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  _
     resetWorkList(workListNext, graph->num_vertices);
     resetWorkList(workListCurr, graph->num_vertices);
 
-
-
-
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
     float *aResiduals = (float *) my_malloc(graph->num_vertices * sizeof(float));
-
-
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push DD (tolerance/epsilon)");
@@ -2904,7 +2895,6 @@ struct PageRankStats *pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  _
     Start(timer);
 
     Start(timer_inner);
-
 
     #pragma omp parallel for private(Nodes,degree,v,j,u) shared(workListCurr,workListNext,aResiduals) reduction(+:activeVertices)
     for(v = 0; v < graph->num_vertices; v++)
@@ -2923,7 +2913,6 @@ struct PageRankStats *pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  _
         Nodes = graph->vertices[v].outNodes;
         degree = graph->vertices[v].out_degree;
 #endif
-
 
         for(j = 0 ; j < (degree) ; j++)
         {
@@ -2958,7 +2947,6 @@ struct PageRankStats *pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  _
                 Nodes = graph->vertices[v].outNodes;
                 degree = graph->vertices[v].out_degree;
                 float delta = stats->damp * (aResiduals[v] / degree);
-
 
                 for(j = 0 ; j < (degree) ; j++)
                 {

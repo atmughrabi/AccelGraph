@@ -745,7 +745,7 @@ struct PageRankStats *runPageRankAlgorithm(void *graph, __u32 datastructure, dou
 
 
     // if you want to output pageranks and rankins sorted use this
-    // stats->realRanks = radixSortEdgesByPageRank (stats->pageRanks, stats->realRanks, stats->num_vertices);
+    stats->realRanks = radixSortEdgesByPageRank (stats->pageRanks, stats->realRanks, stats->num_vertices);
     return stats;
 
 
