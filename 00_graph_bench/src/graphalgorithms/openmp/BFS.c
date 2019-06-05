@@ -129,6 +129,8 @@ struct BFSStats *newBFSStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph)
     return stats;
 }
 
+
+
 void freeBFSStats(struct BFSStats *stats)
 {
 
@@ -176,6 +178,7 @@ struct BFSStats *breadthFirstSearchGraphCSR(__u32 source, __u32 pushpull, struct
         stats = breadthFirstSearchDirectionOptimizedGraphCSR(source, graph);
         break;
     }
+
 
     return stats;
 
@@ -306,8 +309,6 @@ struct BFSStats *breadthFirstSearchPushGraphCSR(__u32 source, struct GraphCSR *g
     struct ArrayQueue *sharedFrontierQueue = newArrayQueue(graph->num_vertices);
 
     __u32 P = numThreads;
-    __u32 mf = graph->vertices->out_degree[source]; // number of edges from unexplored verticies
-
 
     struct ArrayQueue **localFrontierQueues = (struct ArrayQueue **) my_malloc( P * sizeof(struct ArrayQueue *));
 
@@ -335,13 +336,13 @@ struct BFSStats *breadthFirstSearchPushGraphCSR(__u32 source, struct GraphCSR *g
     {
 
         Start(timer_inner);
-        mf = topDownStepGraphCSR(graph, sharedFrontierQueue, localFrontierQueues, stats);
+        topDownStepGraphCSR(graph, sharedFrontierQueue, localFrontierQueues, stats);
         slideWindowArrayQueue(sharedFrontierQueue);
         Stop(timer_inner);
 
         //stats collection
         stats->time_total +=  Seconds(timer_inner);
-        stats->processed_nodes += mf;
+        stats->processed_nodes += sharedFrontierQueue->tail - sharedFrontierQueue->head;
         printf("| TD %-12u | %-15u | %-15f | \n", stats->iteration++, sharedFrontierQueue->tail - sharedFrontierQueue->head, Seconds(timer_inner));
 
     } // end while
@@ -490,7 +491,7 @@ struct BFSStats *breadthFirstSearchDirectionOptimizedGraphCSR(__u32 source, stru
 
             //stats collection
             stats->time_total +=  Seconds(timer_inner);
-            stats->processed_nodes += sharedFrontierQueue->tail - sharedFrontierQueue->head;;
+            stats->processed_nodes += sharedFrontierQueue->tail - sharedFrontierQueue->head;
             printf("| TD %-12u | %-15u | %-15f | \n", stats->iteration++, sharedFrontierQueue->tail - sharedFrontierQueue->head, Seconds(timer_inner));
 
         }
@@ -1816,7 +1817,6 @@ struct BFSStats *breadthFirstSearchPushGraphAdjArrayList(__u32 source, struct Gr
     struct ArrayQueue *sharedFrontierQueue = newArrayQueue(graph->num_vertices);
 
     __u32 P = numThreads;
-    __u32 mf = 0;
 
     struct ArrayQueue **localFrontierQueues = (struct ArrayQueue **) my_malloc( P * sizeof(struct ArrayQueue *));
 
@@ -1828,9 +1828,6 @@ struct BFSStats *breadthFirstSearchPushGraphAdjArrayList(__u32 source, struct Gr
 
     }
 
-
-
-    mf = graph->vertices[source].out_degree; // number of edges from unexplored verticies
 
     Start(timer_inner);
     enArrayQueue(sharedFrontierQueue, source);
@@ -1848,13 +1845,13 @@ struct BFSStats *breadthFirstSearchPushGraphAdjArrayList(__u32 source, struct Gr
     {
 
         Start(timer_inner);
-        mf = topDownStepGraphAdjArrayList(graph, sharedFrontierQueue, localFrontierQueues, stats);
+        topDownStepGraphAdjArrayList(graph, sharedFrontierQueue, localFrontierQueues, stats);
         slideWindowArrayQueue(sharedFrontierQueue);
         Stop(timer_inner);
 
         //stats collection
         stats->time_total +=  Seconds(timer_inner);
-        stats->processed_nodes += mf;
+        stats->processed_nodes += sharedFrontierQueue->tail - sharedFrontierQueue->head;
         printf("| TD %-12u | %-15u | %-15f | \n", stats->iteration++, sharedFrontierQueue->tail - sharedFrontierQueue->head, Seconds(timer_inner));
 
     } // end while
@@ -2321,9 +2318,6 @@ struct BFSStats *breadthFirstSearchPushGraphAdjLinkedList(__u32 source, struct G
     struct ArrayQueue *sharedFrontierQueue = newArrayQueue(graph->num_vertices);
 
     __u32 P = numThreads;
-    __u32 mf = graph->vertices[source].out_degree; // number of edges from unexplored verticies
-
-
     struct ArrayQueue **localFrontierQueues = (struct ArrayQueue **) my_malloc( P * sizeof(struct ArrayQueue *));
 
 
@@ -2350,13 +2344,13 @@ struct BFSStats *breadthFirstSearchPushGraphAdjLinkedList(__u32 source, struct G
     {
 
         Start(timer_inner);
-        mf = topDownStepGraphAdjLinkedList(graph, sharedFrontierQueue, localFrontierQueues, stats);
+        topDownStepGraphAdjLinkedList(graph, sharedFrontierQueue, localFrontierQueues, stats);
         slideWindowArrayQueue(sharedFrontierQueue);
         Stop(timer_inner);
 
         //stats collection
         stats->time_total +=  Seconds(timer_inner);
-        stats->processed_nodes += mf;
+        stats->processed_nodes += sharedFrontierQueue->tail - sharedFrontierQueue->head;
         printf("| TD %-12u | %-15u | %-15f | \n", stats->iteration++, sharedFrontierQueue->tail - sharedFrontierQueue->head, Seconds(timer_inner));
 
     } // end while

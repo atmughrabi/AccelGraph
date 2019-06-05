@@ -539,9 +539,7 @@ struct CCStats *connectedComponentsAfforestGraphCSR( __u32 iterations, struct Gr
         __u32 j;
         __u32 v;
         __u32 degree_out;
-        __u32 degree_in;
         __u32 edge_idx_out;
-        __u32 edge_idx_in;
 
         if(stats->components[u] == sampleComp)
             continue;
