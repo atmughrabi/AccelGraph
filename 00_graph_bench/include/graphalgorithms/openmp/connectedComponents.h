@@ -2,6 +2,7 @@
 #define CONNECTEDCOMPONENTS_H
 
 #include <linux/types.h>
+#include "graphConfig.h"
 
 #include "graphCSR.h"
 #include "graphGrid.h"

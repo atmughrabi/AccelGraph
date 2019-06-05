@@ -8,15 +8,17 @@
 #include "timer.h"
 #include "myMalloc.h"
 #include "boolean.h"
-#include "incrementalAggregation.h"
-#include "reorder.h"
 
+#include "graphConfig.h"
 
 #include "arrayQueue.h"
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
+
+#include "incrementalAggregation.h"
+#include "reorder.h"
 
 // ********************************************************************************************
 // ***************                  Stats DataStructure                          **************

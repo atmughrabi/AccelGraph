@@ -2,8 +2,6 @@
 #define COUNTSORT_H
 
 #include "edgeList.h"
-#include "vertex.h"
-#include "graphCSR.h"
 
 // A structure to represent an edge
 

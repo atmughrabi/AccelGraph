@@ -2,10 +2,9 @@
 #define ADJLINKEDLIST_H
 
 #include <linux/types.h>
-
-#include "edgeList.h"
 #include "graphConfig.h"
-#include "graphCSR.h"
+#include "edgeList.h"
+
 
 // A structure to represent an adjacency list node
 struct  AdjLinkedListNode

@@ -2,8 +2,11 @@
 #define GRAPHADJARRAYLIST_H
 
 #include <linux/types.h>
-#include "adjArrayList.h"
+
+#include "graphConfig.h"
 #include "edgeList.h"
+#include "adjArrayList.h"
+
 
 
 // A structure to represent a GraphAdjArrayList. A GraphAdjArrayList
@@ -37,7 +40,7 @@ struct GraphAdjArrayList *graphAdjArrayListEdgeAllocate(struct GraphAdjArrayList
 struct GraphAdjArrayList *graphAdjArrayListEdgePopulate(struct GraphAdjArrayList *graphAdjArrayList, struct EdgeList *edgeList);
 struct GraphAdjArrayList *graphAdjArrayListEdgePopulateOutNodes(struct GraphAdjArrayList *graphAdjArrayList, struct EdgeList *edgeList);
 struct GraphAdjArrayList *graphAdjArrayListEdgePopulateInNodes(struct GraphAdjArrayList *graphAdjArrayList, struct EdgeList *inverseEdgeList);
-struct GraphAdjArrayList *graphAdjArrayListPreProcessingStep (const char *fnameb, __u32 sort,  __u32 lmode, __u32 symmetric, __u32 weighted);
+struct GraphAdjArrayList *graphAdjArrayListPreProcessingStep (struct Arguments *arguments);
 struct GraphAdjArrayList *graphAdjArrayListEdgeAllocateOutNodes(struct GraphAdjArrayList *graphAdjArrayList);
 struct GraphAdjArrayList *graphAdjArrayListEdgeAllocateInodes(struct GraphAdjArrayList *graphAdjArrayList);
 

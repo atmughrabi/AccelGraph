@@ -4,13 +4,20 @@
 #include <linux/types.h>
 #include <omp.h>
 
+#include "timer.h"
+#include "myMalloc.h"
+#include "graphConfig.h"
 #include "edgeList.h"
 #include "vertex.h"
-#include "myMalloc.h"
-#include "graphAdjLinkedList.h"
-#include "graphConfig.h"
+#include "sortRun.h"
+#include "reorder.h"
+
 #include "adjLinkedList.h"
-#include "timer.h"
+#include "graphAdjLinkedList.h"
+
+
+
+
 
 // A utility function that creates a graphAdjLinkedList of V vertices
 struct GraphAdjLinkedList *graphAdjLinkedListGraphNew(__u32 V)
@@ -238,17 +245,30 @@ void   graphAdjLinkedListPrintMessageWithtime(const char *msg, double time)
     printf(" -----------------------------------------------------\n");
 
 }
-struct GraphAdjLinkedList *graphAdjLinkedListPreProcessingStep (const char *fnameb, __u32 lmode, __u32 symmetric, __u32 weighted)
+struct GraphAdjLinkedList *graphAdjLinkedListPreProcessingStep (struct Arguments *arguments)
 {
 
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
 
-
     Start(timer);
-    struct EdgeList *edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted);
+    struct EdgeList *edgeList = readEdgeListsbin(arguments->fnameb, 0, arguments->symmetric, arguments->weighted);
     Stop(timer);
     // edgeListPrint(edgeList);
+
+    if(arguments->lmode)
+        edgeList = reorderGraphProcess(edgeList, arguments);
+
+    edgeList = sortRunAlgorithms(edgeList, arguments->sort);
+
+    if(arguments->dflag)
+    {
+        Start(timer);
+        edgeList = removeDulpicatesSelfLoopEdges(edgeList);
+        Stop(timer);
+        graphCSRPrintMessageWithtime("Removing duplicate edges (Seconds)", Seconds(timer));
+    }
+
     graphAdjLinkedListPrintMessageWithtime("Read Edge List From File (Seconds)", Seconds(timer));
 
     Start(timer);

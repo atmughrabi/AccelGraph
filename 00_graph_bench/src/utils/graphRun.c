@@ -2,16 +2,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "graphCSR.h"
-#include "graphAdjLinkedList.h"
-#include "graphAdjArrayList.h"
-#include "graphGrid.h"
-
 #include "mt19937.h"
 #include "graphConfig.h"
 #include "timer.h"
-#include "graphRun.h"
-#include "reorder.h"
+
+#include "graphCSR.h"
+#include "graphGrid.h"
+#include "graphAdjLinkedList.h"
+#include "graphAdjArrayList.h"
 
 #include "BFS.h"
 #include "DFS.h"
@@ -22,6 +20,9 @@
 #include "SPMV.h"
 #include "connectedComponents.h"
 #include "triangleCount.h"
+
+#include "reorder.h"
+#include "graphRun.h"
 
 
 void generateGraphPrintMessageWithtime(const char *msg, double time)
@@ -76,7 +77,7 @@ void writeSerializedGraphDataStructure(struct Arguments *arguments)  // for now 
         generateGraphPrintMessageWithtime("Serialize EdgeList text to binary (Seconds)", Seconds(timer));
 
         Start(timer);
-        graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+        graph = (void *)graphCSRPreProcessingStep (arguments);
         Stop(timer);
         generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
 
@@ -98,7 +99,7 @@ void writeSerializedGraphDataStructure(struct Arguments *arguments)  // for now 
 
 
         Start(timer);
-        graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+        graph = (void *)graphCSRPreProcessingStep (arguments);
         Stop(timer);
         generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
 
@@ -160,32 +161,32 @@ void *generateGraphDataStructure(struct Arguments *arguments)
         case 0: // CSR
         case 4:
             Start(timer);
-            graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+            graph = (void *)graphCSRPreProcessingStep (arguments);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
             break;
         case 1: // Grid
         case 5:
             Start(timer);
-            graph = (void *)graphGridPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+            graph = (void *)graphGridPreProcessingStep (arguments);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphGrid Preprocessing Step Time (Seconds)", Seconds(timer));
             break;
         case 2: // Adj Linked List
             Start(timer);
-            graph = (void *)graphAdjLinkedListPreProcessingStep ( arguments->fnameb,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+            graph = (void *)graphAdjLinkedListPreProcessingStep (arguments);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphAdjLinkedList Preprocessing Step Time (Seconds)", Seconds(timer));
             break;
         case 3: // Adj Array List
             Start(timer);
-            graph = (void *)graphAdjArrayListPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+            graph = (void *)graphAdjArrayListPreProcessingStep ( arguments);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphAdjArrayList Preprocessing Step Time (Seconds)", Seconds(timer));
             break;
         default:// CSR
             Start(timer);
-            graph = (void *)graphCSRPreProcessingStep ( arguments->fnameb,  arguments->sort,  arguments->lmode,  arguments->symmetric,  arguments->weighted);
+            graph = (void *)graphCSRPreProcessingStep ( arguments);
             Stop(timer);
             generateGraphPrintMessageWithtime("GraphCSR Preprocessing Step Time (Seconds)", Seconds(timer));
 

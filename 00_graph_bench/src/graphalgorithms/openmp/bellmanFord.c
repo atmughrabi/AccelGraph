@@ -6,20 +6,22 @@
 #include <omp.h>
 #include <limits.h> //UINT_MAX
 
-
-#include "sortRun.h"
-#include "timer.h"
 #include "myMalloc.h"
+#include "timer.h"
+#include "mt19937.h"
 #include "boolean.h"
 #include "arrayQueue.h"
 #include "bitmap.h"
-#include "bellmanFord.h"
 
-#include "mt19937.h"
+#include "graphConfig.h"
+#include "sortRun.h"
+
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
+
+#include "bellmanFord.h"
 
 // ********************************************************************************************
 // ***************                  Stats DataStructure                          **************

@@ -3,20 +3,27 @@
 #include <unistd.h>
 #include <linux/types.h>
 
+#include "timer.h"
+#include "graphConfig.h"
+#include "myMalloc.h"
+
 #include "grid.h"
 #include "graphGrid.h"
 #include "edgeList.h"
-#include "myMalloc.h"
-#include "graphConfig.h"
-
+#include "sortRun.h"
 #include "reorder.h"
-#include "graphCSR.h"
+
+
+
+
+
+
 
 // #include "countsort.h"
 // #include "radixsort.h"
-#include "sortRun.h"
 
-#include "timer.h"
+
+
 
 
 void  graphGridReset(struct GraphGrid *graphGrid)
@@ -112,27 +119,35 @@ void   graphGridFree(struct GraphGrid *graphGrid)
 
 
 
-struct GraphGrid *graphGridPreProcessingStep (const char *fnameb, __u32 sort, __u32 lmode, __u32 symmetric, __u32 weighted)
+struct GraphGrid *graphGridPreProcessingStep (struct Arguments *arguments)
 {
 
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
-    printf("Filename : %s \n", fnameb);
+    printf("Filename : %s \n", arguments->fnameb);
 
 
     Start(timer);
-    struct EdgeList *edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted);
+    struct EdgeList *edgeList = readEdgeListsbin(arguments->fnameb, 0, arguments->symmetric, arguments->weighted);
     Stop(timer);
     // edgeListPrint(edgeList);
     graphGridPrintMessageWithtime("Read Edge List From File (Seconds)", Seconds(timer));
 
 
 
-    if(lmode)
-        edgeList = reorderGraphProcess(sort, edgeList, lmode, symmetric, fnameb);
+    if(arguments->lmode)
+        edgeList = reorderGraphProcess(edgeList, arguments);
 
     // Start(timer);
-    edgeList = sortRunAlgorithms(edgeList, sort);
+    edgeList = sortRunAlgorithms(edgeList, arguments->sort);
+
+    if(arguments->dflag)
+    {
+        Start(timer);
+        edgeList = removeDulpicatesSelfLoopEdges(edgeList);
+        Stop(timer);
+        graphCSRPrintMessageWithtime("Removing duplicate edges (Seconds)", Seconds(timer));
+    }
     // Stop(timer);
     // graphGridPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 

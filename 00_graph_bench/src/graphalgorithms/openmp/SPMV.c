@@ -10,7 +10,8 @@
 #include "boolean.h"
 #include "arrayQueue.h"
 #include "bitmap.h"
-#include "SPMV.h"
+
+#include "graphConfig.h"
 
 #include "fixedPoint.h"
 #include "quantization.h"
@@ -20,6 +21,7 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
+#include "SPMV.h"
 
 
 // ********************************************************************************************

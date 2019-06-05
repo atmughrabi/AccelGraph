@@ -5,13 +5,16 @@
 #include <argp.h>
 #include <stdbool.h>
 #include <omp.h>
+#include <linux/types.h>
 
-#include "graphRun.h"
-#include "graphStats.h"
-#include "edgeList.h"
 #include "myMalloc.h"
 #include "timer.h"
 #include "mt19937.h"
+#include "graphConfig.h"
+#include "graphRun.h"
+#include "graphStats.h"
+#include "edgeList.h"
+
 
 // "   mm                        ""#             mmm                       #     \n"
 // "   ##    mmm    mmm    mmm     #           m"   "  m mm   mmm   mmmm   # mm  \n"
@@ -47,35 +50,35 @@ static struct argp_option options[] =
         "\nSpecify file format to be read, is it textual edge list, or a binary file edge list. This is specifically useful if you have Graph CSR/Grid structure already saved in a binary file format to skip the preprocessing step. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
     },
     {
-        "algorithm",         'a', "[ALGORITHM #]",      0,
-        "\n[0]-BFS, [1]-Page-rank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS [5]-IncrementalAggregation"
+        "algorithm",         'a', "[DEFAULT:0]",      0,
+        "\n[0]-BFS, [1]-Page-rank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS,[5]-SPMV, [6]-Connected-Components, [7]-Triangle Counting, [8]-IncrementalAggregation"
     },
     {
-        "data-structure",    'd', "[TYPE #]",      0,
+        "data-structure",    'd', "[DEFAULT:0]",      0,
         "\n[0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj ArrayList [4-5] same order bitmap frontiers"
     },
     {
-        "root",              'r', "[SOURCE|ROOT]",      0,
+        "root",              'r', "[DEFAULT:0]",      0,
         "\nBFS, DFS, SSSP root"
     },
     {
-        "direction",         'p', "[PUSH|PULL]",      0,
-        "\n[0-1]-push/pull [2-3]-push/pull fixed point arithmetic [4-6]-same order but using data driven"
+        "direction",         'p', "[DEFAULT:0]",      0,
+        "\n[0]-PULL, [1]-PUSH,[2]-HYBRID. NOTE: Please consult the function switch table for each algorithm"
     },
     {
-        "sort",              'o', "[RADIX|COUNT]",      0,
+        "sort",              'o', "[DEFAULT:0]",      0,
         "\n[0]-radix-src [1]-radix-src-dest [2]-count-src [3]-count-src-dst"
     },
     {
-        "num-threads",       'n', "[# THREADS]",      0,
+        "num-threads",       'n', "[DEFAULT:MAX]",      0,
         "\nDefault:max number of threads the system has"
     },
     {
-        "num-iterations",    'i', "[# ITERATIONS]",      0,
+        "num-iterations",    'i', "[DEFAULT:20]",      0,
         "\nNumber of iterations for page rank to converge [default:20] SSSP-BellmanFord [default:V-1] "
     },
     {
-        "num-trials",        't', "[# TRIALS]",      0,
+        "num-trials",        't', "[DEFAULT:1]",      0,
         "\nNumber of random trials for each whole run (graph algorithm run) [default:0] "
     },
     {
@@ -83,7 +86,7 @@ static struct argp_option options[] =
         "\nTolerance value of for page rank [default:0.0001] "
     },
     {
-        "epsilon",           'e', "[EPSILON:0.0001]",      OPTION_ALIAS
+        "epsilon",           'e', "[DEFAULT:0.0001]",      OPTION_ALIAS
     },
     {
         "delta",             'b', "[DELTA:1]",      0,
@@ -107,7 +110,19 @@ static struct argp_option options[] =
     },
     {
         "stats",             'x', 0,      0,
-        "\nDump a histogram to file based on in-out degree count bins / sorted according to in/out-degree or page-ranks "
+        "\nDump a histogram to file based on in-out degree count bins / sorted according to in/out-degree or page-ranks\n--bin-size/--in-out-degree are related bin verticies in  terms of in or out degrees "
+    },
+    {
+        "bin-size",         'g', "SIZE:512",      0,
+        "\nYou bin vertices's histogram according to this parameter, if you have a large graph you want to illustrate "
+    },
+    {
+        "in-out-degree",    'j', "[DEFAULT:2]",      0,
+        "\n[1]-in-degree, [2]-out-degree, bin histogram with out/in-degree binned. [DEFAULT:2]  "
+    },
+    {
+        "remove-duplicate", 'k', 0,      0,
+        "\nRemovers duplicate edges and self loops from the graph"
     },
     { 0 }
 };
@@ -175,6 +190,15 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'c':
         arguments->convert_format = atoi(arg);
         break;
+    case 'g':
+        arguments->binSize = atoi(arg);
+        break;
+    case 'j':
+        arguments->inout_degree = atoi(arg);
+        break;
+    case 'k':
+        arguments->dflag = 1;
+        break;
 
     default:
         return ARGP_ERR_UNKNOWN;
@@ -195,11 +219,13 @@ main (int argc, char **argv)
     arguments.wflag = 0;
     arguments.xflag = 0;
     arguments.sflag = 0;
-
+    arguments.dflag = 0;
+    arguments.binSize = 512;
+    arguments.inout_degree = 0;
     arguments.iterations = 20;
     arguments.trials = 1;
     arguments.epsilon = 0.0001;
-    arguments.root = -1;
+    arguments.root = 0;
     arguments.algorithm = 0;
     arguments.datastructure = 0;
     arguments.pushpull = 0;

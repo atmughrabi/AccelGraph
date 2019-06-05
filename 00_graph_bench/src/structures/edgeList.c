@@ -13,9 +13,11 @@
 
 
 #include "mt19937.h"
-#include "edgeList.h"
 #include "myMalloc.h"
 #include "graphConfig.h"
+#include "edgeList.h"
+
+
 
 __u32 maxTwoIntegers(__u32 num1, __u32 num2)
 {
@@ -94,6 +96,59 @@ struct EdgeList *newEdgeList( __u32 num_edges)
 #endif
 
     return newEdgeList;
+
+}
+
+
+struct EdgeList *removeDulpicatesSelfLoopEdges( struct EdgeList *edgeList)
+{
+
+    struct EdgeList *tempEdgeList = newEdgeList(edgeList->num_edges);
+    __u32 tempSrc = 0;
+    __u32 tempDest = 0;
+    __u32 tempWeight = 0;
+    __u32 j = 0;
+    __u32 i = 0;
+
+    tempSrc = edgeList->edges_array_src[i];
+    tempDest = edgeList->edges_array_dest[i];
+#if WEIGHTED
+    tempWeight = edgeList->edges_array_weight[i];
+#endif
+    i++;
+
+    tempEdgeList->edges_array_src[j] = tempSrc;
+    tempEdgeList->edges_array_dest[j] = tempDest;
+#if WEIGHTED
+    tempEdgeList->edges_array_weight[j] = tempWeight;
+#endif
+    j++;
+
+    for(; i < tempEdgeList->num_edges; i++)
+    {
+        tempSrc = edgeList->edges_array_src[i];
+        tempDest = edgeList->edges_array_dest[i];
+#if WEIGHTED
+        tempWeight = edgeList->edges_array_weight[i];
+#endif
+        if(tempSrc != tempDest)
+        {
+            if(tempEdgeList->edges_array_src[j - 1] != tempSrc || tempEdgeList->edges_array_dest[j - 1] != tempDest )
+            {
+                tempEdgeList->edges_array_src[j] = tempSrc;
+                tempEdgeList->edges_array_dest[j] = tempDest;
+#if WEIGHTED
+                tempEdgeList->edges_array_weight[j] = tempWeight;
+#endif
+                j++;
+            }
+        }
+    }
+
+    tempEdgeList->num_edges = j;
+    tempEdgeList->num_vertices = edgeList->num_vertices ;
+    freeEdgeList(edgeList);
+    return tempEdgeList;
 
 }
 
@@ -430,85 +485,140 @@ struct EdgeList *readEdgeListsbin(const char *fname, __u8 inverse, __u32 symmetr
 }
 
 
-struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem, __u8 inverse, __u32 symmetric)
+struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem,  __u8 inverse, __u32 symmetric, __u32 weighted)
 {
 
 
     __u32 num_edges = edgeListmem->num_edges;
+    __u32  src = 0, dest = 0, weight = 1;;
     struct EdgeList *edgeList;
-#if DIRECTED
-    if(symmetric)
-    {
-        edgeList = newEdgeList((num_edges) * 2);
-    }
-    else
-    {
-        edgeList = newEdgeList(num_edges);
-    }
-#else
-    if(symmetric)
-    {
-        edgeList = newEdgeList((num_edges) * 2);
-    }
-    else
-    {
-        edgeList = newEdgeList(num_edges);
-    }
-#endif
+
+    edgeList = newEdgeList((num_edges));
 
     __u32 i;
 
     #pragma omp parallel for
     for(i = 0; i < num_edges; i++)
     {
+        src = edgeListmem->edges_array_src[i];
+        dest = edgeListmem->edges_array_dest[i];
+#if WEIGHTED
+        weight = edgeListmem->edges_array_weight[i];
+#endif
+        // printf(" %u %lu -> %lu \n",src,dest);
 #if DIRECTED
         if(!inverse)
         {
             if(symmetric)
             {
-                edgeList->edges_array_src[i] = edgeListmem->edges_array_src[i];
-                edgeList->edges_array_dest[i] = edgeListmem->edges_array_dest[i];
-                edgeList->edges_array_src[i + (num_edges)] = edgeListmem->edges_array_dest[i];
-                edgeList->edges_array_dest[i + (num_edges)] = edgeListmem->edges_array_src[i];
+                edgeList->edges_array_src[i] = src;
+                edgeList->edges_array_dest[i] = dest;
+                edgeList->edges_array_src[i + (num_edges)] = dest;
+                edgeList->edges_array_dest[i + (num_edges)] = src;
+
+#if WEIGHTED
+                if(weighted)
+                {
+                    edgeList->edges_array_weight[i] = weight;
+                    edgeList->edges_array_weight[i + (num_edges)] = weight;
+                }
+                else
+                {
+                    edgeList->edges_array_weight[i] = weight;
+                    edgeList->edges_array_weight[i + (num_edges)] = weight;
+                }
+#endif
+
             }
             else
             {
-                edgeList->edges_array_src[i] = edgeListmem->edges_array_src[i];
-                edgeList->edges_array_dest[i] = edgeListmem->edges_array_dest[i];
-            }
-        }
+                edgeList->edges_array_src[i] = src;
+                edgeList->edges_array_dest[i] = dest;
+
+#if WEIGHTED
+                if(weighted)
+                {
+                    edgeList->edges_array_weight[i] = 1;
+                }
+                else
+                {
+                    edgeList->edges_array_weight[i] = weight;
+                }
+#endif
+            } // symmetric
+        } // inverse
         else
         {
             if(symmetric)
             {
-                edgeList->edges_array_src[i] = edgeListmem->edges_array_src[i];
-                edgeList->edges_array_dest[i] = edgeListmem->edges_array_dest[i];
-                edgeList->edges_array_src[i + (num_edges)] = edgeListmem->edges_array_dest[i];
-                edgeList->edges_array_dest[i + (num_edges)] = edgeListmem->edges_array_src[i];
+                edgeList->edges_array_src[i] = dest;
+                edgeList->edges_array_dest[i] = src;
+                edgeList->edges_array_src[i + (num_edges)] = src;
+                edgeList->edges_array_dest[i + (num_edges)] = dest;
+#if WEIGHTED
+                if(weighted)
+                {
+                    edgeList->edges_array_weight[i] = weight;
+                    edgeList->edges_array_weight[i + (num_edges)] = edgeList->edges_array_weight[i];
+                }
+                else
+                {
+                    edgeList->edges_array_weight[i] = weight;
+                    edgeList->edges_array_weight[i + (num_edges)] = weight;
+                }
+#endif
             }
             else
             {
-                edgeList->edges_array_src[i] = edgeListmem->edges_array_dest[i];
-                edgeList->edges_array_dest[i] = edgeListmem->edges_array_src[i];
-            }
-        }
+                edgeList->edges_array_src[i] = dest;
+                edgeList->edges_array_dest[i] = src;
+#if WEIGHTED
+                if(weighted)
+                {
+                    edgeList->edges_array_weight[i] = weight;
+                }
+                else
+                {
+                    edgeList->edges_array_weight[i] = weight;
+                }
+#endif
+            }// symmetric
+        }// inverse
 #else
         if(symmetric)
         {
-            edgeList->edges_array_src[i] = edgeListmem->edges_array_src[i];
-            edgeList->edges_array_dest[i] = edgeListmem->edges_array_dest[i];
-            edgeList->edges_array_src[i + (num_edges)] = edgeListmem->edges_array_dest[i];
-            edgeList->edges_array_dest[i + (num_edges)] = edgeListmem->edges_array_src[i];
+            edgeList->edges_array_src[i] = src;
+            edgeList->edges_array_dest[i] = dest;
+            edgeList->edges_array_src[i + (num_edges)] = dest;
+            edgeList->edges_array_dest[i + (num_edges)] = src;
+#if WEIGHTED
+            if(weighted)
+            {
+                edgeList->edges_array_weight[i] = weight;
+                edgeList->edges_array_weight[i + (num_edges)] = weight;
+            }
+            else
+            {
+                edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
+                edgeList->edges_array_weight[i + (num_edges)] = weight;
+            }
+#endif
         }
         else
         {
-            edgeList->edges_array_src[i] = edgeListmem->edges_array_src[i];
-            edgeList->edges_array_dest[i] = edgeListmem->edges_array_dest[i];
-        }
-#endif
-
+            edgeList->edges_array_src[i] = src;
+            edgeList->edges_array_dest[i] = dest;
 #if WEIGHTED
-        edgeList->edges_array_weight[i] = edgeListmem->edges_array_weight[i];
+            if(weighted)
+            {
+                edgeList->edges_array_weight[i] = 1;
+            }
+            else
+            {
+                edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
+            }
+#endif
+        }
 #endif
     }
 

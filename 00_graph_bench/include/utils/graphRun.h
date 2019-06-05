@@ -5,13 +5,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "graphCSR.h"
-#include "graphAdjLinkedList.h"
-#include "graphAdjArrayList.h"
-#include "graphGrid.h"
-
 #include "graphConfig.h"
 #include "timer.h"
+
+#include "graphCSR.h"
+#include "graphGrid.h"
+#include "graphAdjLinkedList.h"
+#include "graphAdjArrayList.h"
 
 #include "BFS.h"
 #include "DFS.h"
@@ -22,30 +22,6 @@
 #include "SPMV.h"
 #include "connectedComponents.h"
 
-/* Used by main to communicate with parse_opt. */
-struct Arguments
-{
-    int wflag;
-    int xflag;
-    int sflag;
-
-    __u32 iterations;
-    __u32 trials;
-    double epsilon;
-    int root;
-    __u32 algorithm;
-    __u32 datastructure;
-    __u32 pushpull;
-    __u32 sort;
-    __u32 lmode;
-    __u32 symmetric;
-    __u32 weighted;
-    __u32 delta;
-    __u32 numThreads;
-    char *fnameb;
-    __u32 fnameb_format;
-    __u32 convert_format;
-};
 
 // Random root helper functions
 __u32 generateRandomRootGraphCSR(struct GraphCSR *graph);
@@ -71,7 +47,7 @@ struct DFSStats *runDepthFirstSearchAlgorithm(void *graph, __u32 datastructure, 
 struct IncrementalAggregationStats *runIncrementalAggregationAlgorithm(void *graph, __u32 datastructure);
 struct BellmanFordStats *runBellmanFordAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 pushpull);
 struct SSSPStats *runSSSPAlgorithm(void *graph, __u32 datastructure, __u32 root, __u32 iterations, __u32 pushpull, __u32 delta);
-struct SPMVStats *runSPMVAlgorithm(void *graph, __u32 datastructure,__u32 iterations, __u32 pushpull);
+struct SPMVStats *runSPMVAlgorithm(void *graph, __u32 datastructure, __u32 iterations, __u32 pushpull);
 struct CCStats *runConnectedComponentsAlgorithm(void *graph, __u32 datastructure, __u32 iterations, __u32 pushpull);
 struct TCStats *runTriangleCountAlgorithm(void *graph, __u32 datastructure, __u32 pushpull);
 

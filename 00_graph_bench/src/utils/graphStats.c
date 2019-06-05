@@ -5,16 +5,20 @@
 #include <string.h>
 #include <omp.h>
 
-#include "graphStats.h"
-#include "myMalloc.h"
-#include "graphCSR.h"
-#include "graphConfig.h"
 #include "timer.h"
+#include "myMalloc.h"
+#include "graphConfig.h"
+#include "graphCSR.h"
+#include "graphStats.h"
 
 
 
 
-void collectStats( __u32 binSize, const char *fnameb,  __u32 sort,  __u32 lmode, __u32 symmetric, __u32 weighted, __u32 inout_degree)
+
+
+
+
+void collectStats(struct Arguments *arguments)
 {
 
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
@@ -26,48 +30,48 @@ void collectStats( __u32 binSize, const char *fnameb,  __u32 sort,  __u32 lmode,
     printf(" -----------------------------------------------------\n");
     Start(timer);
 
-    struct GraphCSR *graphStats = graphCSRPreProcessingStep (fnameb, sort, lmode, symmetric, weighted);
+    struct GraphCSR *graphStats = graphCSRPreProcessingStep (arguments);
 
 
-    __u32 *histogram_in = (__u32 *) my_malloc(sizeof(__u32) * binSize);
-    __u32 *histogram_out = (__u32 *) my_malloc(sizeof(__u32) * binSize);
+    __u32 *histogram_in = (__u32 *) my_malloc(sizeof(__u32) * arguments->binSize);
+    __u32 *histogram_out = (__u32 *) my_malloc(sizeof(__u32) * arguments->binSize);
 
 
     __u32 i = 0;
     #pragma omp parallel for
-    for(i = 0 ; i < binSize; i++)
+    for(i = 0 ; i < arguments->binSize; i++)
     {
         histogram_in[i] = 0;
         histogram_out[i] = 0;
     }
 
-    char *fname_txt = (char *) malloc((strlen(fnameb) + 20) * sizeof(char));
-    char *fname_stats_out = (char *) malloc((strlen(fnameb) + 20) * sizeof(char));
-    char *fname_stats_in = (char *) malloc((strlen(fnameb) + 20) * sizeof(char));
-    char *fname_adjMat = (char *) malloc((strlen(fnameb) + 20) * sizeof(char));
+    char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+    char *fname_stats_out = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+    char *fname_stats_in = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+    char *fname_adjMat = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
 
 
-    fname_txt = strcpy (fname_txt, fnameb);
-    fname_adjMat = strcpy (fname_adjMat, fnameb);
+    fname_txt = strcpy (fname_txt, arguments->fnameb);
+    fname_adjMat = strcpy (fname_adjMat, arguments->fnameb);
 
 
     fname_adjMat  = strcat (fname_adjMat, ".bin-adj-SM.dat");// out-degree
 
-    if(lmode == 1)
+    if(arguments->lmode == 1)
     {
         fname_stats_in = strcat (fname_txt, ".in-degree.dat");// in-degree
-        countHistogram(graphStats, histogram_in, binSize, inout_degree);
-        printHistogram(fname_stats_in, histogram_in, binSize);
+        countHistogram(graphStats, histogram_in, arguments->binSize, arguments->inout_degree);
+        printHistogram(fname_stats_in, histogram_in, arguments->binSize);
     }
-    else if(lmode == 2)
+    else if(arguments->lmode == 2)
     {
         fname_stats_out = strcat (fname_txt, ".out-degree.dat");// out-degree
-        countHistogram(graphStats, histogram_out, binSize, inout_degree);
-        printHistogram(fname_stats_out, histogram_out, binSize);
+        countHistogram(graphStats, histogram_out, arguments->binSize, arguments->inout_degree);
+        printHistogram(fname_stats_out, histogram_out, arguments->binSize);
     }
 
 
-    printSparseMatrixList(fname_adjMat,  graphStats, binSize);
+    printSparseMatrixList(fname_adjMat,  graphStats, arguments->binSize);
 
 
     Stop(timer);

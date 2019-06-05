@@ -9,6 +9,8 @@
 #include <limits.h>
 #include "myMalloc.h"
 
+#include "graphConfig.h"
+
 struct BloomMultiHash *newBloomMultiHash(__u32 size, double error)
 {
 

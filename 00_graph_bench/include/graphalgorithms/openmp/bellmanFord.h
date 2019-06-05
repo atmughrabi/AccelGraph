@@ -2,11 +2,15 @@
 #define BELLMANFORD_H
 
 #include <linux/types.h>
+
+#include "graphConfig.h"
+#include "edgeList.h"
+
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
-#include "edgeList.h"
+
 
 // ********************************************************************************************
 // ***************                  Stats DataStructure                          **************

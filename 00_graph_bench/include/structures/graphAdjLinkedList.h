@@ -3,6 +3,8 @@
 
 #include <linux/types.h>
 #include <omp.h>
+
+#include "graphConfig.h"
 #include "adjLinkedList.h"
 #include "edgeList.h"
 
@@ -31,7 +33,7 @@ void graphAdjLinkedListPrint(struct GraphAdjLinkedList *graphAdjLinkedList);
 void graphAdjLinkedListFree(struct GraphAdjLinkedList *graphAdjLinkedList);
 void adjLinkedListAddEdge(struct GraphAdjLinkedList *graphAdjLinkedList, struct EdgeList *edge, __u32 i, omp_lock_t *vertex_lock);
 void   graphAdjLinkedListPrintMessageWithtime(const char *msg, double time);
-struct GraphAdjLinkedList *graphAdjLinkedListPreProcessingStep (const char *fnameb,  __u32 lmode, __u32 symmetric, __u32 weighted);
+struct GraphAdjLinkedList *graphAdjLinkedListPreProcessingStep (struct Arguments *arguments);
 
 #endif
 

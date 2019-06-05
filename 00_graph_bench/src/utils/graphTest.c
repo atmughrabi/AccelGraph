@@ -6,21 +6,19 @@
 #include <stdbool.h>
 #include <omp.h>
 #include <math.h>
+#include <assert.h>
 
-
-#include "graphStats.h"
-#include "edgeList.h"
 #include "myMalloc.h"
+#include "mt19937.h"
+#include "graphConfig.h"
+#include "timer.h"
+
+#include "edgeList.h"
 
 #include "graphCSR.h"
 #include "graphAdjLinkedList.h"
 #include "graphAdjArrayList.h"
 #include "graphGrid.h"
-
-#include "mt19937.h"
-#include "graphConfig.h"
-#include "timer.h"
-#include "graphRun.h"
 
 #include "BFS.h"
 #include "DFS.h"
@@ -32,7 +30,8 @@
 #include "connectedComponents.h"
 #include "triangleCount.h"
 
-#include <assert.h>
+#include "graphStats.h"
+#include "graphRun.h"
 #include "graphTest.h"
 
 

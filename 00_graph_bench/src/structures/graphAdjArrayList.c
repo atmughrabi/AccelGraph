@@ -2,19 +2,24 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/types.h>
+#include <omp.h>
 
-#include "edgeList.h"
-#include "vertex.h"
+#include "timer.h"
 #include "myMalloc.h"
-#include "graphAdjArrayList.h"
 #include "graphConfig.h"
+#include "edgeList.h"
+#include "sortRun.h"
+#include "vertex.h"
+
 #include "adjArrayList.h"
+#include "graphAdjArrayList.h"
+#include "reorder.h"
+
 //edgelist prerpcessing
 // #include "countsort.h"
 // #include "radixsort.h"
-#include "sortRun.h"
 
-#include "timer.h"
+
 
 
 void graphAdjArrayListPrintMessageWithtime(const char *msg, double time)
@@ -495,34 +500,42 @@ void graphAdjArrayListFree(struct GraphAdjArrayList *graphAdjArrayList)
 }
 
 
-struct GraphAdjArrayList *graphAdjArrayListPreProcessingStep (const char *fnameb, __u32 sort, __u32 lmode, __u32 symmetric, __u32 weighted)
+struct GraphAdjArrayList *graphAdjArrayListPreProcessingStep (struct Arguments *arguments)
 {
 
 
     struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
 
     Start(timer);
-    struct EdgeList *edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted);
+    struct EdgeList *edgeList = readEdgeListsbin(arguments->fnameb, 0, arguments->symmetric, arguments->weighted);
     Stop(timer);
     // edgeListPrint(edgeList);
     graphAdjArrayListPrintMessageWithtime("Read Edge List From File (Seconds)", Seconds(timer));
 
+    if(arguments->lmode)
+        edgeList = reorderGraphProcess(edgeList, arguments);
     // Start(timer);
-    edgeList = sortRunAlgorithms(edgeList, sort);
+    edgeList = sortRunAlgorithms(edgeList, arguments->sort);
     // Stop(timer);
     // graphAdjArrayListPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
-
+    if(arguments->dflag)
+    {
+        Start(timer);
+        edgeList = removeDulpicatesSelfLoopEdges(edgeList);
+        Stop(timer);
+        graphCSRPrintMessageWithtime("Removing duplicate edges (Seconds)", Seconds(timer));
+    }
 
 #if DIRECTED
     Start(timer);
     // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-    struct EdgeList *inverse_edgeList = readEdgeListsbin(fnameb, 1, symmetric, weighted);
+    struct EdgeList *inverse_edgeList = readEdgeListsbin(arguments->fnameb, 1, arguments->symmetric, arguments->weighted);
     Stop(timer);
     // edgeListPrint(inverse_edgeList);
     graphAdjArrayListPrintMessageWithtime("Read Inverse Edge List From File (Seconds)", Seconds(timer));
 
     // Start(timer);
-    inverse_edgeList = sortRunAlgorithms(inverse_edgeList, sort);
+    inverse_edgeList = sortRunAlgorithms(inverse_edgeList, arguments->sort);
     // Stop(timer);
     // graphAdjArrayListPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
 #endif

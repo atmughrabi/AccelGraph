@@ -10,12 +10,16 @@
 #include "boolean.h"
 #include "arrayQueue.h"
 #include "bitmap.h"
-#include "triangleCount.h"
+
+#include "graphConfig.h"
 
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
+
+#include "triangleCount.h"
+
 
 
 
@@ -27,7 +31,7 @@ struct TCStats *newTCStatsGraphCSR(struct GraphCSR *graph)
     stats->total_counts = 0;
     stats->num_vertices = graph->num_vertices;
     stats->time_total = 0.0f;
-    stats->counts = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->counts = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
 
     #pragma omp parallel for default(none) private(v) shared(stats)
     for(v = 0; v < stats->num_vertices; v++)
@@ -46,7 +50,7 @@ struct TCStats *newTCStatsGraphGrid(struct GraphGrid *graph)
     stats->total_counts = 0;
     stats->num_vertices = graph->num_vertices;
     stats->time_total = 0.0f;
-    stats->counts = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->counts = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
 
     #pragma omp parallel for default(none) private(v) shared(stats)
     for(v = 0; v < stats->num_vertices; v++)
@@ -63,7 +67,7 @@ struct TCStats *newTCStatsGraphAdjArrayList(struct GraphAdjArrayList *graph)
     stats->total_counts = 0;
     stats->num_vertices = graph->num_vertices;
     stats->time_total = 0.0f;
-    stats->counts = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->counts = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
 
     #pragma omp parallel for default(none) private(v) shared(stats)
     for(v = 0; v < stats->num_vertices; v++)
@@ -81,7 +85,7 @@ struct TCStats *newTCStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph)
     stats->total_counts = 0;
     stats->num_vertices = graph->num_vertices;
     stats->time_total = 0.0f;
-    stats->counts = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
+    stats->counts = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
 
     #pragma omp parallel for default(none) private(v) shared(stats)
     for(v = 0; v < stats->num_vertices; v++)
@@ -135,7 +139,7 @@ struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph)
 {
 
     __u32 u;
-    __u32 counts = 0;
+    __u64 counts = 0;
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Triangle Count-basic");
     printf(" -----------------------------------------------------\n");
@@ -203,7 +207,7 @@ struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph)
 
     stats->total_counts = counts/6;
 
-    printf("| %-21u | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
     free(timer);
@@ -214,7 +218,7 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
 {
 
     __u32 u;
-    __u32 counts = 0;
+    __u64 counts = 0;
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Triangle Count-PULL");
     printf(" -----------------------------------------------------\n");
@@ -225,7 +229,7 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
     Start(timer);
-    #pragma omp parallel for shared(stats) schedule(dynamic, 1024)
+    #pragma omp parallel for shared(stats) reduction(+:counts) schedule(dynamic, 64)
     for(u = 0; u < graph->num_vertices; u++)
     {
         __u32 degree_u = graph->vertices->out_degree[u];
@@ -266,7 +270,7 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
                 }
 
                 if(node_w == node_iter)
-                    stats->counts[u]++;
+                    counts++;
             }
         }
     }
@@ -282,7 +286,7 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
 
     stats->total_counts = counts;
 
-    printf("| %-21u | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
     free(timer);
@@ -293,7 +297,7 @@ struct TCStats *triangleCountPushGraphCSR(struct GraphCSR *graph)
 {
 
     __u32 u;
-    __u32 counts = 0;
+    __u64 counts = 0;
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Triangle Count-PUSH");
     printf(" -----------------------------------------------------\n");
@@ -364,7 +368,7 @@ struct TCStats *triangleCountPushGraphCSR(struct GraphCSR *graph)
 
     stats->total_counts = counts;
 
-    printf("| %-21u | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
     free(timer);

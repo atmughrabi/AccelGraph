@@ -71,10 +71,10 @@ GRAPH_NAME = Rabbit
 # GRAPH_NAME = RMAT22
 
 # real world large graphs binary format
-# GRAPH_NAME = orkut
-GRAPH_NAME = gplus
+GRAPH_NAME = orkut
+# GRAPH_NAME = gplus
 # GRAPH_NAME = sk-2005
-# GRAPH_NAME = twitter
+GRAPH_NAME = twitter
 # GRAPH_NAME = livejournal
 # GRAPH_NAME = USA-Road
 # GRAPH_NAME = enwiki-2013
@@ -110,7 +110,7 @@ DELTA 			= 800
 # NUM_THREADS  	= 1
 NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 NUM_ITERATIONS 	= 200
-NUM_TRIALS 		= 2
+NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
 CONVERT_FORMAT 	= 0
@@ -119,7 +119,7 @@ CONVERT_FORMAT 	= 0
 BIN_SIZE = 512
 INOUT_STATS = 2
 
-ARGS = -s -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+ARGS =  -s -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################

@@ -1,7 +1,11 @@
 #ifndef INCREMENTALAGGREGATION_H
 #define INCREMENTALAGGREGATION_H
 
+#include <linux/types.h>
+
+#include "graphConfig.h"
 #include "arrayQueue.h"
+
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"

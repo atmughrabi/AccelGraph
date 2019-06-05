@@ -6,14 +6,17 @@
 #include <omp.h>
 #include <linux/types.h>
 
-#include "graphCSR.h"
-#include "sortRun.h"
-#include "fixedPoint.h"
+
 #include "timer.h"
 #include "myMalloc.h"
+#include "graphConfig.h"
+#include "edgeList.h"
+#include "fixedPoint.h"
+#include "sortRun.h"
+
+#include "graphCSR.h"
 #include "reorder.h"
 #include "epochReorder.h"
-#include "edgeList.h"
 
 #include "pageRank.h"
 #include "incrementalAggregation.h"
@@ -21,7 +24,7 @@
 struct EdgeList *reorderGraphListPageRank(struct GraphCSR *graph)
 {
 
-    
+
     __u32 v;
     double epsilon = 1e-6;
     __u32 iterations = 100;
@@ -48,10 +51,10 @@ struct EdgeList *reorderGraphListPageRank(struct GraphCSR *graph)
     }
 
 
-     
+
     stats = pageRankDataDrivenPushGraphCSR(epsilon, iterations, graph);
-     // stats = pageRankPulCacheAnalysisGraphCSR(epsilon, iterations, graph);
-    
+    // stats = pageRankPulCacheAnalysisGraphCSR(epsilon, iterations, graph);
+
 
     // make sure that nodes with no in/out degrees have zero scores
     #pragma omp parallel for
@@ -363,7 +366,7 @@ __u32 *radixSortEdgesByPageRank (float *pageRanks, __u32 *labels, __u32 num_vert
     #pragma omp parallel for
     for(v = 0; v < num_vertices; v++)
     {
-        pageRanksFP[v] = FLOAT_2_U(*(__u32*)&pageRanks[v]);
+        pageRanksFP[v] = FLOAT_2_U(*(__u32 *)&pageRanks[v]);
     }
 
     for(j = 0 ; j < radix ; j++)
@@ -427,7 +430,7 @@ __u32 *radixSortEdgesByDegree (__u32 *degrees, __u32 *labels, __u32 num_vertices
 
 }
 
-struct EdgeList *reorderGraphProcessPageRank( __u32 sort, struct EdgeList *edgeList, __u32 lmode, __u32 symmetric)
+struct EdgeList *reorderGraphProcessPageRank(struct EdgeList *edgeList, struct Arguments *arguments)
 {
 
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
@@ -439,7 +442,7 @@ struct EdgeList *reorderGraphProcessPageRank( __u32 sort, struct EdgeList *edgeL
 #endif
 
     // Start(timer);
-    edgeList = sortRunAlgorithms(edgeList, sort);
+    edgeList = sortRunAlgorithms(edgeList, arguments->sort);
     // edgeList = radixSortEdgesBySourceOptimized(edgeList);
     // edgeListPrint(edgeList);
     // Stop(timer);
@@ -456,14 +459,14 @@ struct EdgeList *reorderGraphProcessPageRank( __u32 sort, struct EdgeList *edgeL
 
     Start(timer);
     // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-    struct EdgeList *inverse_edgeList = readEdgeListsMem(edgeList, 1, symmetric);
+    struct EdgeList *inverse_edgeList = readEdgeListsMem(edgeList, 1, arguments->symmetric, arguments->weighted);
     Stop(timer);
     // edgeListPrint(inverse_edgeList);
     graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)", Seconds(timer));
 
 
     // Start(timer);
-    inverse_edgeList = sortRunAlgorithms(inverse_edgeList, sort);
+    inverse_edgeList = sortRunAlgorithms(inverse_edgeList, arguments->sort);
     // inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
     // Stop(timer);
     // graphCSRPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
@@ -475,13 +478,13 @@ struct EdgeList *reorderGraphProcessPageRank( __u32 sort, struct EdgeList *edgeL
 
 #endif
 
-    if(lmode == 1) // pageRank
+    if(arguments->lmode == 1) // pageRank
         edgeList =  reorderGraphListPageRank(graph);
-    else if(lmode == 5) //epoch RABBIT
+    else if(arguments->lmode == 5) //epoch RABBIT
         edgeList =  reorderGraphListEpochRabbit(graph);
-    else if(lmode == 6) //epoch pagerank
+    else if(arguments->lmode == 6) //epoch pagerank
         edgeList = reorderGraphListEpochPageRank(graph); // in-degree
-    else if(lmode == 7) //epoch BFS
+    else if(arguments->lmode == 7) //epoch BFS
         edgeList = reorderGraphListEpochBFS(graph); // in-degree
 
 
@@ -582,7 +585,7 @@ __u32 *reorderGraphProcessInOutDegrees(__u32 *degrees, struct EdgeList *edgeList
 
 
 
-struct EdgeList *reorderGraphProcess( __u32 sort, struct EdgeList *edgeList, __u32 lmode, __u32 symmetric, const char *fnameb)
+struct EdgeList *reorderGraphProcess(struct EdgeList *edgeList, struct Arguments *arguments)
 {
 
 
@@ -600,16 +603,18 @@ struct EdgeList *reorderGraphProcess( __u32 sort, struct EdgeList *edgeList, __u
 
 
 
-    if(lmode == 1 || lmode == 5 || lmode == 6 || lmode == 7 ) // pageRank
-        edgeList = reorderGraphProcessPageRank( sort, edgeList, lmode, symmetric);
-    else if(lmode == 2)
-        edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// in-degree
-    else if(lmode == 3)
-        edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// out-degree
-    else if(lmode == 4)
-        edgeList = reorderGraphProcessDegree( sort, edgeList, lmode);// in/out-degree
-    else if(lmode == 8)
-        edgeList = relabelEdgeListFromFile(edgeList, fnameb, edgeList->num_vertices);// load from file
+    if(arguments->lmode == 1 || arguments->lmode == 5 || arguments->lmode == 6 || arguments->lmode == 7 ) // pageRank
+        edgeList = reorderGraphProcessPageRank(edgeList, arguments);
+    else if(arguments->lmode == 2)
+        edgeList = reorderGraphProcessDegree( arguments->sort, edgeList, arguments->lmode);// in-degree
+    else if(arguments->lmode == 3)
+        edgeList = reorderGraphProcessDegree( arguments->sort, edgeList, arguments->lmode);// out-degree
+    else if(arguments->lmode == 4)
+        edgeList = reorderGraphProcessDegree( arguments->sort, edgeList, arguments->lmode);// in/out-degree
+    else if(arguments->lmode == 8)
+        edgeList = relabelEdgeListFromFile(edgeList, arguments->fnameb, edgeList->num_vertices);// load from file
+    else
+        edgeList = reorderGraphProcessDegree( arguments->sort, edgeList, arguments->lmode);// out-degree
 
 
     Stop(timer);
@@ -674,7 +679,7 @@ struct EdgeList *reorderGraphListDegree(struct EdgeList *edgeList, __u32 *degree
     #pragma omp parallel for
     for(v = 0; v < edgeList->num_vertices; v++)
     {
-        labels[labelsInverse[v]] = v;
+        labels[labelsInverse[v]] = edgeList->num_vertices - 1 - v;
     }
 
 

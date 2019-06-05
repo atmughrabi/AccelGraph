@@ -2,6 +2,7 @@
 #define TRIANGLECOUNT_H
 
 #include <linux/types.h>
+#include "graphConfig.h"
 
 #include "graphCSR.h"
 #include "graphGrid.h"
@@ -15,8 +16,8 @@
 struct TCStats
 {
     __u32 num_vertices;
-    __u32 *counts;
-    __u32 total_counts;
+    __u64 *counts;
+    __u64 total_counts;
     double time_total;
 };
 

@@ -2,6 +2,7 @@
 #define BITMAP_H
 
 #include <linux/types.h>
+#include "graphConfig.h"
 
 #define kBitsPerWord  32
 #define word_offset(n)  (n / kBitsPerWord)

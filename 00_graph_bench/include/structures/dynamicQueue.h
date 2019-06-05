@@ -2,6 +2,7 @@
 #define DYNAMICQUEUE_H
 
 #include <linux/types.h>
+#include "graphConfig.h"
 
 // A linked list (LL) node to store a queue entry
 struct  QNode

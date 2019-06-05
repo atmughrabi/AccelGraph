@@ -5,20 +5,23 @@
 #include <err.h>
 #include <string.h>
 
-#include "edgeList.h"
-#include "vertex.h"
 #include "myMalloc.h"
-#include "graphCSR.h"
+#include "timer.h"
 #include "graphConfig.h"
-#include "graphStats.h"
+
+#include "edgeList.h"
+#include "sortRun.h"
+#include "vertex.h"
+
+#include "graphCSR.h"
 #include "reorder.h"
 
 //edgelist prerpcessing
 // #include "countsort.h"
 // #include "radixsort.h"
-#include "sortRun.h"
 
-#include "timer.h"
+
+
 
 
 
@@ -131,22 +134,31 @@ struct GraphCSR *graphCSRAssignEdgeList (struct GraphCSR *graphCSR, struct EdgeL
 }
 
 
-struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u32 lmode, __u32 symmetric, __u32 weighted)
+struct GraphCSR *graphCSRPreProcessingStep (struct Arguments *arguments)
 {
 
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
     Start(timer);
-    struct EdgeList *edgeList = readEdgeListsbin(fnameb, 0, symmetric, weighted); // read edglist from binary file
+    struct EdgeList *edgeList = readEdgeListsbin(arguments->fnameb, 0, arguments->symmetric, arguments->weighted); // read edglist from binary file
     Stop(timer);
     // edgeListPrint(edgeList);
     graphCSRPrintMessageWithtime("Read Edge List From File (Seconds)", Seconds(timer));
 
 
 
-    if(lmode)
-        edgeList = reorderGraphProcess(sort, edgeList, lmode, symmetric, fnameb);
+    if(arguments->lmode)
+        edgeList = reorderGraphProcess(edgeList, arguments);
 
+    edgeList = sortRunAlgorithms(edgeList, arguments->sort);
+
+    if(arguments->dflag)
+    {
+        Start(timer);
+        edgeList = removeDulpicatesSelfLoopEdges(edgeList);
+        Stop(timer);
+        graphCSRPrintMessageWithtime("Removing duplicate edges (Seconds)", Seconds(timer));
+    }
 
 #if DIRECTED
     struct GraphCSR *graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
@@ -154,34 +166,31 @@ struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u
     struct GraphCSR *graphCSR = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
 #endif
 
-    Start(timer);
-    edgeList = sortRunAlgorithms(edgeList, sort);
+
 
     // edgeListPrint(edgeList);
     Start(timer);
     graphCSR = graphCSRAssignEdgeList (graphCSR, edgeList, 0);
     Stop(timer);
 
+    graphCSRPrintMessageWithtime("Mappign Vertices to CSR (Seconds)", Seconds(timer));
 
+#if DIRECTED
 
-    graphCSRPrintMessageWithtime("Process In/Out degrees of Nodes (Seconds)", Seconds(timer));
+    Start(timer);
+    struct EdgeList *inverse_edgeList = readEdgeListsbin(arguments->fnameb, 1, arguments->symmetric, arguments->weighted); // read edglist from memory since we pre loaded it
+    Stop(timer);
 
-// #if DIRECTED
+    graphCSRPrintMessageWithtime("Read Inverse Edge List From Memory (Seconds)", Seconds(timer));
 
-//     Start(timer);
-//     struct EdgeList *inverse_edgeList = readEdgeListsbin(fnameb, 1, symmetric, weighted); // read edglist from memory since we pre loaded it
-//     Stop(timer);
+    inverse_edgeList = sortRunAlgorithms(inverse_edgeList, arguments->sort);
 
-//     graphCSRPrintMessageWithtime("Read Inverse Edge List From Memory (Seconds)", Seconds(timer));
+    Start(timer);
+    graphCSR = graphCSRAssignEdgeList (graphCSR, inverse_edgeList, 1);
+    Stop(timer);
+    graphCSRPrintMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)", Seconds(timer));
 
-//     inverse_edgeList = sortRunAlgorithms(inverse_edgeList, sort);
-
-//     Start(timer);
-//     graphCSR = graphCSRAssignEdgeList (graphCSR, inverse_edgeList, 1);
-//     Stop(timer);
-//     graphCSRPrintMessageWithtime("Process In/Out degrees of Inverse Nodes (Seconds)", Seconds(timer));
-
-// #endif
+#endif
 
 
     graphCSRPrint(graphCSR);

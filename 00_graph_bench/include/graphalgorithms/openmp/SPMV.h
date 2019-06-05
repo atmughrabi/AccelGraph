@@ -3,6 +3,8 @@
 
 #include <linux/types.h>
 
+#include "graphConfig.h"
+
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"

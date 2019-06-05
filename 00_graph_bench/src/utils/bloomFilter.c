@@ -7,6 +7,8 @@
 #include "hash.h"
 #include "myMalloc.h"
 
+#include "graphConfig.h"
+
 struct BloomFilter *newBloomFilter(__u32 size, __u32 k)
 {
 

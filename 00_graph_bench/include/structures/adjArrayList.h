@@ -2,9 +2,9 @@
 #define ADJARRAYLIST_H
 
 #include <linux/types.h>
-
-#include "edgeList.h"
 #include "graphConfig.h"
+#include "edgeList.h"
+
 
 
 

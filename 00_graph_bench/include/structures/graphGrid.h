@@ -3,9 +3,9 @@
 
 #include <linux/types.h>
 
+#include "graphConfig.h"
 #include "edgeList.h"
 #include "grid.h"
-#include "graphConfig.h"
 
 
 // A structure to represent an adjacency list
@@ -29,6 +29,6 @@ void  graphGridPrint(struct GraphGrid *graphGrid);
 struct GraphGrid * graphGridNew(struct EdgeList* edgeList);
 void   graphGridFree(struct GraphGrid *graphGrid);
 void   graphGridPrintMessageWithtime(const char * msg, double time);
-struct GraphGrid* graphGridPreProcessingStep (const char * fnameb, __u32 sort,  __u32 lmode, __u32 symmetric, __u32 weighted);
+struct GraphGrid* graphGridPreProcessingStep (struct Arguments *arguments);
 
 #endif

@@ -2,11 +2,12 @@
 #define GRID_H
 
 #include <linux/types.h>
-
+#include "bitmap.h"
+#include "graphConfig.h"
 #include "edgeList.h"
 #include "vertex.h"
-#include "graphConfig.h"
-#include "bitmap.h"
+
+
 
 // A structure to represent an adjacency list
 struct  Partition

@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include <linux/types.h>
 #include "bloomStream.h"
 #include "bitmap.h"
 #include "hash.h"
-#include <limits.h>
+
 #include "myMalloc.h"
+#include "graphConfig.h"
 
 struct BloomStream *newBloomStream(__u32 size, __u32 k)
 {

@@ -9,12 +9,15 @@
 #include "boolean.h"
 #include "arrayStack.h"
 #include "bitmap.h"
-#include "DFS.h"
+
+#include "graphConfig.h"
 
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
+
+#include "DFS.h"
 
 // ********************************************************************************************
 // ***************                  Stats DataStructure                          **************

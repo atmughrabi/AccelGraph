@@ -7,18 +7,20 @@
 #include <Judy.h>
 
 #include "mt19937.h"
-// #include "libchash.h"
 #include "timer.h"
 #include "myMalloc.h"
 #include "boolean.h"
 #include "arrayQueue.h"
 #include "bitmap.h"
 
+#include "graphConfig.h"
+
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 #include "reorder.h"
+
 #include "connectedComponents.h"
 
 
