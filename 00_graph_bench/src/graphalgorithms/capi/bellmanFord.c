@@ -1261,6 +1261,8 @@ struct BellmanFordStats *bellmanFordGraphAdjArrayList(__u32 source,  __u32 itera
         break;
     }
 
+    bellmanFordPrintStats(stats);
+
     return stats;
 }
 
@@ -1578,6 +1580,8 @@ struct BellmanFordStats *bellmanFordGraphAdjLinkedList(__u32 source,  __u32 iter
         break;
     }
 
+    bellmanFordPrintStats(stats);
+    
     return stats;
 
 }

@@ -169,7 +169,7 @@ struct GraphCSR *graphCSRPreProcessingStep (const char *fnameb, __u32 sort,  __u
 #if DIRECTED
 
     Start(timer);
-    struct EdgeList *inverse_edgeList = readEdgeListsMem(edgeList, 1, symmetric); // read edglist from memory since we pre loaded it
+    struct EdgeList *inverse_edgeList = readEdgeListsbin(fnameb, 1, symmetric, weighted); // read edglist from memory since we pre loaded it
     Stop(timer);
 
     graphCSRPrintMessageWithtime("Read Inverse Edge List From Memory (Seconds)", Seconds(timer));

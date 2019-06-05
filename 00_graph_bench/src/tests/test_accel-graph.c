@@ -76,7 +76,7 @@ main (int argc, char **argv)
     arguments.pushpull = 0;
     arguments.sort = 0;
     arguments.lmode = 0;
-    arguments.symmetric = 1;
+    arguments.symmetric = 0;
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
@@ -141,7 +141,7 @@ main (int argc, char **argv)
                     if(missmatch != 0)
                     {
                         printf("FAIL : Trial [%u] Graph [%s] Missmatches [%u] \nFAIL : DataStructure [%u] Algorithm [%u] Direction [%u]\n\n", arguments.trials, arguments.fnameb, missmatch, arguments.datastructure, arguments.algorithm, arguments.pushpull);
-                        // exit (1);
+                        exit (1);
                     }
                     else
                     {

@@ -42,6 +42,15 @@ void writeEdgeListToTXTFile(struct EdgeList *edgeList, const char *fname)
 
     fp = fopen (fname_txt, "w");
 
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Number of Vertices (V)");
+    printf("| %-51u | \n", edgeList->num_vertices);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Number of Edges (E)");
+    printf("| %-51u | \n", edgeList->num_edges);
+    printf(" -----------------------------------------------------\n");
+
+
     for(i = 0; i < edgeList->num_edges; i++)
     {
 
@@ -111,37 +120,6 @@ void freeEdgeList( struct EdgeList *edgeList)
 }
 
 
-
-// struct Edge* newEdgeList(__u32 num_edges){
-
-//         // struct Edge* edges_array = (struct Edge*) aligned_alloc(CACHELINE_BYTES, num_edges * sizeof(struct Edge));
-//         struct Edge* edges_array = (struct Edge*) my_malloc( num_edges * sizeof(struct Edge));
-
-//         __u32 i;
-
-//         for(i = 0; i < num_edges; i++){
-
-//                 edges_array[i].dest = 0;
-//                 edges_array[i].src = 0;
-
-//                 #if WEIGHTED
-//                     edges_array[i].weight = 0;
-//                 #endif
-//         }
-
-//         return edges_array;
-
-// }
-
-// void freeEdgeArray(struct Edge* edges_array){
-
-//         if(edges_array)
-//             free(edges_array);
-//         // printf("edges_array freed \n");
-
-// }
-
-
 char *readEdgeListstxt(const char *fname, __u32 weighted)
 {
 
@@ -186,10 +164,6 @@ char *readEdgeListstxt(const char *fname, __u32 weighted)
         return NULL;
     }
 
-    // char type;
-    // __u32 time =0;
-    //  char * buffer = (char *) malloc(200*sizeof(char));
-
     while (1)
     {
 
@@ -200,7 +174,6 @@ char *readEdgeListstxt(const char *fname, __u32 weighted)
             i = fscanf(pText, "%u\t%u\n", &src, &dest);
             // weight = (generateRandInt(mt19937var) % 256) + 1;
             weight = 1;
-            // printf("\t%u\t%u\t%u\n", src, dest, weight);
         }
         else
         {
@@ -213,7 +186,6 @@ char *readEdgeListstxt(const char *fname, __u32 weighted)
         if( i == EOF )
             break;
 
-        // printf("\t%u\t%u\t%u\n", src, dest, weight);
 
         fwrite(&src, sizeof (src), 1, pBinary);
         fwrite(&dest, sizeof (dest), 1, pBinary);
@@ -221,18 +193,8 @@ char *readEdgeListstxt(const char *fname, __u32 weighted)
 #if WEIGHTED
         fwrite(&weight, sizeof (weight), 1, pBinary);
 #endif
-        // }
-        // else{
-        //     i = fscanf(pText, "%[^\n]",buffer);
-        //     fgetc(pText);
-        //     // printf("%s\n",buffer);
-        // }
+
         size++;
-        // if( size == 70 )
-        //      break;
-
-
-
     }
 
 
@@ -244,6 +206,9 @@ char *readEdgeListstxt(const char *fname, __u32 weighted)
 
 
 }
+
+
+
 
 struct EdgeList *readEdgeListsbin(const char *fname, __u8 inverse, __u32 symmetric, __u32 weighted)
 {
@@ -324,47 +289,87 @@ struct EdgeList *readEdgeListsbin(const char *fname, __u8 inverse, __u32 symmetr
     // #pragma omp parallel for reduction(max:num_vertices)
     for(i = 0; i < num_edges; i++)
     {
-
         src = buf_pointer[((offset) * i) + 0];
         dest = buf_pointer[((offset) * i) + 1];
         // printf(" %u %lu -> %lu \n",src,dest);
 #if DIRECTED
-
         if(!inverse)
         {
-
             if(symmetric)
             {
                 edgeList->edges_array_src[i] = src;
                 edgeList->edges_array_dest[i] = dest;
                 edgeList->edges_array_src[i + (num_edges)] = dest;
                 edgeList->edges_array_dest[i + (num_edges)] = src;
+
+#if WEIGHTED
+                if(weighted)
+                {
+                    edgeList->edges_array_weight[i] = 1;
+                    edgeList->edges_array_weight[i + (num_edges)] = edgeList->edges_array_weight[i];
+                }
+                else
+                {
+                    edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
+                    edgeList->edges_array_weight[i + (num_edges)] = edgeList->edges_array_weight[i];
+                }
+#endif
+
             }
             else
             {
                 edgeList->edges_array_src[i] = src;
                 edgeList->edges_array_dest[i] = dest;
-            }
 
-        }
+#if WEIGHTED
+                if(weighted)
+                {
+                    edgeList->edges_array_weight[i] = 1;
+                }
+                else
+                {
+                    edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
+                }
+#endif
+            } // symmetric
+        } // inverse
         else
         {
-
             if(symmetric)
             {
                 edgeList->edges_array_src[i] = dest;
                 edgeList->edges_array_dest[i] = src;
                 edgeList->edges_array_src[i + (num_edges)] = src;
                 edgeList->edges_array_dest[i + (num_edges)] = dest;
+#if WEIGHTED
+                if(weighted)
+                {
+                    edgeList->edges_array_weight[i] = 1;
+                    edgeList->edges_array_weight[i + (num_edges)] = edgeList->edges_array_weight[i];
+                }
+                else
+                {
+                    edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
+                    edgeList->edges_array_weight[i + (num_edges)] = edgeList->edges_array_weight[i];
+                }
+#endif
             }
             else
             {
                 edgeList->edges_array_src[i] = dest;
                 edgeList->edges_array_dest[i] = src;
-            }
-
-        }
-
+#if WEIGHTED
+                if(weighted)
+                {
+                    edgeList->edges_array_weight[i] = 1;
+                }
+                else
+                {
+                    edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
+                }
+#endif
+            }// symmetric
+        }// inverse
 #else
         if(symmetric)
         {
@@ -372,36 +377,42 @@ struct EdgeList *readEdgeListsbin(const char *fname, __u8 inverse, __u32 symmetr
             edgeList->edges_array_dest[i] = dest;
             edgeList->edges_array_src[i + (num_edges)] = dest;
             edgeList->edges_array_dest[i + (num_edges)] = src;
+#if WEIGHTED
+            if(weighted)
+            {
+                edgeList->edges_array_weight[i] = 1;
+                edgeList->edges_array_weight[i + (num_edges)] = edgeList->edges_array_weight[i];
+            }
+            else
+            {
+                edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
+                edgeList->edges_array_weight[i + (num_edges)] = edgeList->edges_array_weight[i];
+            }
+#endif
         }
         else
         {
             edgeList->edges_array_src[i] = src;
             edgeList->edges_array_dest[i] = dest;
+#if WEIGHTED
+            if(weighted)
+            {
+                edgeList->edges_array_weight[i] = 1;
+            }
+            else
+            {
+                edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
+            }
+#endif
         }
 #endif
 
         num_vertices = maxTwoIntegers(num_vertices, maxTwoIntegers(edgeList->edges_array_src[i], edgeList->edges_array_dest[i]));
 
 #if WEIGHTED
-        if(weighted)
-        {
-            // edgeList->edges_array_weightt[i] = (genrand_int32() % 255)+1;
-            edgeList->edges_array_weight[i] = 1;
-
-            if(symmetric)
-            {
-                edgeList->edges_array_weight[i + (num_edges)] = 1;
-            }
-        }
-        else
-        {
-            edgeList->edges_array_weight[i] = buf_pointer[((offset) * i) + 2];
-
-        }
-
         max_weight = maxTwoIntegers(max_weight, edgeList->edges_array_weight[i]);
-
 #endif
+
     }
 
     edgeList->num_vertices = num_vertices + 1; // max number of veritices Array[0-max]
@@ -417,6 +428,7 @@ struct EdgeList *readEdgeListsbin(const char *fname, __u8 inverse, __u32 symmetr
 
     return edgeList;
 }
+
 
 struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem, __u8 inverse, __u32 symmetric)
 {
@@ -449,12 +461,9 @@ struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem, __u8 inverse, _
     #pragma omp parallel for
     for(i = 0; i < num_edges; i++)
     {
-
 #if DIRECTED
-
         if(!inverse)
         {
-
             if(symmetric)
             {
                 edgeList->edges_array_src[i] = edgeListmem->edges_array_src[i];
@@ -467,11 +476,9 @@ struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem, __u8 inverse, _
                 edgeList->edges_array_src[i] = edgeListmem->edges_array_src[i];
                 edgeList->edges_array_dest[i] = edgeListmem->edges_array_dest[i];
             }
-
         }
         else
         {
-
             if(symmetric)
             {
                 edgeList->edges_array_src[i] = edgeListmem->edges_array_src[i];
@@ -484,10 +491,7 @@ struct EdgeList *readEdgeListsMem( struct EdgeList *edgeListmem, __u8 inverse, _
                 edgeList->edges_array_src[i] = edgeListmem->edges_array_dest[i];
                 edgeList->edges_array_dest[i] = edgeListmem->edges_array_src[i];
             }
-
         }
-
-
 #else
         if(symmetric)
         {
@@ -527,7 +531,6 @@ void edgeListPrint(struct EdgeList *edgeList)
     __u32 i;
     for(i = 0; i < edgeList->num_edges; i++)
     {
-
 #if WEIGHTED
         printf("%u -> %u w: %d \n", edgeList->edges_array_src[i], edgeList->edges_array_dest[i], edgeList->edges_array_weight[i]);
 #else

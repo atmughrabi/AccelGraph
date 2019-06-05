@@ -223,6 +223,7 @@ int bellmanFordAtomicRelax(__u32 src, __u32 dest, __u32 weight, struct BellmanFo
                 flagu = 1;
                 setBitAtomic(bitmapNext, dest);
                 activeVertices++;
+                stats->parents[dest] = src;
             }
 
             // if(__sync_bool_compare_and_swap(&(stats->parents[dest]), oldParent, newParent) && flagv && flagu)
@@ -280,21 +281,21 @@ int bellmanFordRelax(__u32 src, __u32 dest, __u32 weight, struct BellmanFordStat
 void bellmanFordPrintStats(struct BellmanFordStats *stats)
 {
     __u32 v;
-    __u32 sum =0;
+    __u32 sum = 0;
     for(v = 0; v < stats->num_vertices; v++)
     {
 
         if(stats->distances[v] != UINT_MAX / 2)
         {
             sum += stats->distances[v];
-            printf("d %u \n", stats->distances[v]);
+            printf("p %u d %u \n", stats->parents[v], stats->distances[v]);
 
         }
 
 
     }
 
-     printf("sum %u \n", sum);
+    printf("sum %u \n", sum);
 }
 
 void bellmanFordPrintStatsDetails(struct BellmanFordStats *stats)
@@ -381,8 +382,6 @@ struct BellmanFordStats *bellmanFordGraphGrid(__u32 source,  __u32 iterations, _
         stats = bellmanFordPushColumnGraphGrid(source, iterations, graph);
         break;
     }
-
-    // bellmanFordPrintStats(stats);
 
     return stats;
 
@@ -593,9 +592,9 @@ struct BellmanFordStats *bellmanFordPushColumnGraphGrid(__u32 source,  __u32 ite
                     if(getBit(bitmapCurr, src))
                     {
                         // if(numThreads == 1)
-                            activeVertices += bellmanFordRelax(src, dest, weight, stats, bitmapNext);
+                        activeVertices += bellmanFordRelax(src, dest, weight, stats, bitmapNext);
                         // else
-                            // activeVertices += bellmanFordAtomicRelax(src, dest, weight, stats, bitmapNext);
+                        // activeVertices += bellmanFordAtomicRelax(src, dest, weight, stats, bitmapNext);
                     }
                 }
             }
@@ -729,7 +728,7 @@ void printDistances(struct BellmanFordStats *stats)
     __u32 vertex_id;
     __u32 sum = 0;
     for(vertex_id = 0; vertex_id < stats->num_vertices ; vertex_id++)
-    {   
+    {
         sum += stats->distances[vertex_id];
         printf("v: %u d: %u \n", vertex_id, sum);
     }
@@ -757,10 +756,7 @@ struct BellmanFordStats *bellmanFordGraphCSR(__u32 source,  __u32 iterations, __
         break;
     }
 
-    // bellmanFordPrintStats(stats);
-
     return stats;
-
 }
 
 struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 iterations, struct GraphCSR *graph)
@@ -886,7 +882,7 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphCSR(__u32 source,  __u32 
                     for(j = edge_idx ; j < (edge_idx + degree) ; j++)
                     {
                         u = graph->sorted_edges_array->edges_array_dest[j];
-                       
+
                         if(!getBit(bitmapNext, u))
                         {
                             activeVertices++;
@@ -1274,7 +1270,7 @@ struct BellmanFordStats *bellmanFordGraphAdjArrayList(__u32 source,  __u32 itera
         stats = bellmanFordDataDrivenPushGraphAdjArrayList(source, iterations, graph);
         break;
     }
-
+   
     return stats;
 }
 
@@ -1357,7 +1353,6 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source
         stats->processed_nodes += activeVertices;
         activeVertices = 0;
 
-
         #pragma omp parallel for private(nodes,v) shared(graph,stats,bitmapNext,bitmapCurr) reduction(+ : activeVertices) schedule (dynamic,128)
         for(v = 0; v < graph->num_vertices; v++)
         {
@@ -1366,10 +1361,10 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source
             __u32 degree;
             __u32 j, u, w;
 
+            __u32 minParent = UINT_MAX;
 
             if(getBit(bitmapCurr, v))
             {
-
 #if DIRECTED // will look at the other neighbours if directed by using inverese edge list
                 nodes = graph->vertices[v].inNodes;
                 degree = graph->vertices[v].in_degree;
@@ -1382,27 +1377,25 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source
                 {
                     u = nodes->edges_array_dest[j];
                     w = nodes->edges_array_weight[j];
-
+                    // printf("w %u \n",w );
                     if (minDistance > (stats->distances[u] + w))
                     {
                         minDistance = (stats->distances[u] + w);
+                        minParent = u;
                     }
                 }
-
-
-
 
                 if(bellmanFordAtomicMin(&(stats->distances[v]), minDistance))
                 {
                     // stats->distances[v] = minDistance;
-
+                    stats->parents[v] = minParent;
                     nodes = graph->vertices[v].outNodes;
                     degree = graph->vertices[v].out_degree;
+
                     for(j = 0 ; j < (degree) ; j++)
                     {
                         u = nodes->edges_array_dest[j];
                         w = nodes->edges_array_weight[j];
-
 
                         if(!getBit(bitmapNext, u))
                         {
@@ -1414,13 +1407,10 @@ struct BellmanFordStats *bellmanFordDataDrivenPullGraphAdjArrayList(__u32 source
             }
         }
 
-
         swapBitmaps(&bitmapCurr, &bitmapNext);
         clearBitmap(bitmapNext);
 
         Stop(timer_inner);
-
-
 
         printf("| %-15u | %-15u | %-15f | \n", iter, activeVertices, Seconds(timer_inner));
         if(activeVertices == 0)
@@ -1591,7 +1581,7 @@ struct BellmanFordStats *bellmanFordGraphAdjLinkedList(__u32 source,  __u32 iter
         stats = bellmanFordPushGraphAdjLinkedList(source, iterations, graph);
         break;
     }
-
+    
     return stats;
 
 }
@@ -1705,7 +1695,7 @@ struct BellmanFordStats *bellmanFordPullGraphAdjLinkedList(__u32 source,  __u32 
 
                 if(bellmanFordAtomicMin(&(stats->distances[v]), minDistance))
                 {
-                    // stats->distances[v] = minDistance;
+                    stats->parents[v] = minDistance;
 
                     nodes = graph->vertices[v].outNodes;
                     degree = graph->vertices[v].out_degree;

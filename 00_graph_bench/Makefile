@@ -63,8 +63,8 @@ MAIN_DIR		  	= main
 #########################################################
 
 #small test graphs
-GRAPH_NAME = test
-# GRAPH_NAME = Rabbit
+# GRAPH_NAME = test
+GRAPH_NAME = Rabbit
 
 # synthetic graphs
 # GRAPH_NAME = RMAT20
@@ -97,10 +97,10 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 
 
 #GRAPH RUN
-SORT_TYPE 		= 1
+SORT_TYPE 		= 0
 REORDER 		= 0
-DATA_STRUCTURES = 3
-ALGORITHMS 		= 3
+DATA_STRUCTURES = 0
+ALGORITHMS 		= 0
 
 ROOT 			= 5319
 PULL_PUSH 		= 2
@@ -113,13 +113,13 @@ NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
-CONVERT_FORMAT 	= 0
+CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
 BIN_SIZE = 512
 INOUT_STATS = 2
 
-ARGS = -s -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################

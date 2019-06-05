@@ -256,6 +256,8 @@ struct GraphAdjLinkedList *graphAdjLinkedListPreProcessingStep (const char *fnam
     Stop(timer);
     graphAdjLinkedListPrintMessageWithtime("Create Adj Linked List from EdgeList (Seconds)", Seconds(timer));
 
+    graphAdjLinkedListPrint(graphAdjLinkedList);
+
     freeEdgeList(edgeList);
     free(timer);
     return graphAdjLinkedList;

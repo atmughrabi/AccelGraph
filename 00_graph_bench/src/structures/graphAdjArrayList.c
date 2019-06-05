@@ -541,6 +541,8 @@ struct GraphAdjArrayList *graphAdjArrayListPreProcessingStep (const char *fnameb
     graphAdjArrayListPrintMessageWithtime("Create AdjArrayList from EdgeList (Seconds)", Seconds(timer));
 #endif
 
+    graphAdjArrayListPrint(graph);
+
     //     freeEdgeList(edgeList);
     // #if DIRECTED
     //     freeEdgeList(inverse_edgeList);
