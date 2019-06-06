@@ -85,7 +85,7 @@ GRAPH_NAME = gplus
 # GRAPH_NAME = com-youtube
 # GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
-GRAPH_NAME = web-Google
+# GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
 
 #UNWEIGHTED
