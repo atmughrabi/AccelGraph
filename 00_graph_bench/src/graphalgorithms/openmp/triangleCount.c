@@ -273,8 +273,6 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
                 if(node_w == node_iter)
                 {
                     counts++;
-                    // printf("\rcounts: %llu ", counts * numThreads);
-                    // fflush(stdout);
                 }
             }
         }
