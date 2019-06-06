@@ -160,7 +160,7 @@ struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph)
         for(v = edge_idx_u; v < (edge_idx_u + degree_u) ; v++)
         {
             __u32 node_v = graph->sorted_edges_array->edges_array_dest[v];
-           
+
             if(node_v > u)
                 break;
 
@@ -239,7 +239,7 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
         for(v = edge_idx_u; v < (edge_idx_u + degree_u) ; v++)
         {
             __u32 node_v = graph->sorted_edges_array->edges_array_dest[v];
-           
+
             if(node_v > u)
                 break;
 
@@ -261,6 +261,7 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
 
                 __u32 node_iter = graph->sorted_edges_array->edges_array_dest[edge_idx_iter];
 
+
                 for(iter = edge_idx_iter; iter < (edge_idx_iter + degree_iter) ; iter++)
                 {
                     node_iter = graph->sorted_edges_array->edges_array_dest[iter];
@@ -270,7 +271,11 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
                 }
 
                 if(node_w == node_iter)
+                {
                     counts++;
+                    // printf("\rcounts: %llu ", counts * numThreads);
+                    // fflush(stdout);
+                }
             }
         }
     }
@@ -278,11 +283,11 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
     Stop(timer);
     stats->time_total = Seconds(timer);
 
-    #pragma omp parallel for default(none) reduction (+ : counts) private(u) shared(stats)
-    for(u = 0; u < stats->num_vertices; u++)
-    {
-        counts += stats->counts[u];
-    }
+    // #pragma omp parallel for default(none) reduction (+ : counts) private(u) shared(stats)
+    // for(u = 0; u < stats->num_vertices; u++)
+    // {
+    //     counts += stats->counts[u];
+    // }
 
     stats->total_counts = counts;
 

@@ -435,18 +435,40 @@ struct EdgeList *reorderGraphProcessPageRank(struct EdgeList *edgeList, struct A
 
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
+
+
+    // Start(timer);
+    edgeList = sortRunAlgorithms(edgeList, 1);
+    // edgeList = radixSortEdgesBySourceOptimized(edgeList);
+    // edgeListPrint(edgeList);
+    // Stop(timer);
+    // graphCSRPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
+
+    // edgeListPrint(edgeList);
+    if(arguments->dflag)
+    {
+        Start(timer);
+        edgeList = removeDulpicatesSelfLoopEdges(edgeList);
+        Stop(timer);
+        graphCSRPrintMessageWithtime("Removing duplicate edges (Seconds)", Seconds(timer));
+    }
+    // edgeListPrint(edgeList);
+
+    if(arguments->lmode == 5)
+    {
+        arguments->lmode = (5 + 3);
+        edgeList = reorderGraphProcess(edgeList, arguments);
+    }
+    // edgeListPrint(edgeList);
+    arguments->lmode = arguments->lmode - 3;
+    edgeList = sortRunAlgorithms(edgeList, 1);
+    // edgeListPrint(edgeList);
+
 #if DIRECTED
     struct GraphCSR *graph = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 1);
 #else
     struct GraphCSR *graph = graphCSRNew(edgeList->num_vertices, edgeList->num_edges, 0);
 #endif
-
-    // Start(timer);
-    edgeList = sortRunAlgorithms(edgeList, arguments->sort);
-    // edgeList = radixSortEdgesBySourceOptimized(edgeList);
-    // edgeListPrint(edgeList);
-    // Stop(timer);
-    // graphCSRPrintMessageWithtime("Radix Sort Edges By Source (Seconds)",Seconds(timer));
 
     Start(timer);
     graph = graphCSRAssignEdgeList (graph, edgeList, 0);
@@ -459,14 +481,14 @@ struct EdgeList *reorderGraphProcessPageRank(struct EdgeList *edgeList, struct A
 
     Start(timer);
     // struct EdgeList* inverse_edgeList = readEdgeListsbin(fnameb,1);
-    struct EdgeList *inverse_edgeList = readEdgeListsMem(edgeList, 1, arguments->symmetric, arguments->weighted);
+    struct EdgeList *inverse_edgeList = readEdgeListsMem(edgeList, 1, 0, 0);
     Stop(timer);
     // edgeListPrint(inverse_edgeList);
     graphCSRPrintMessageWithtime("Read Inverse Edge List From File (Seconds)", Seconds(timer));
 
 
     // Start(timer);
-    inverse_edgeList = sortRunAlgorithms(inverse_edgeList, arguments->sort);
+    inverse_edgeList = sortRunAlgorithms(inverse_edgeList, 1);
     // inverse_edgeList = radixSortEdgesBySourceOptimized(inverse_edgeList);
     // Stop(timer);
     // graphCSRPrintMessageWithtime("Radix Sort Inverse Edges By Source (Seconds)",Seconds(timer));
@@ -560,7 +582,7 @@ __u32 *reorderGraphProcessInOutDegrees(__u32 *degrees, struct EdgeList *edgeList
         src  = edgeList->edges_array_src[i];
         dest = edgeList->edges_array_dest[i];
 
-        if(lmode == 3)
+        if(lmode == 3 || lmode == (5 + 3))
         {
             #pragma omp atomic update
             degrees[src]++;
@@ -611,7 +633,9 @@ struct EdgeList *reorderGraphProcess(struct EdgeList *edgeList, struct Arguments
         edgeList = reorderGraphProcessDegree( arguments->sort, edgeList, arguments->lmode);// out-degree
     else if(arguments->lmode == 4)
         edgeList = reorderGraphProcessDegree( arguments->sort, edgeList, arguments->lmode);// in/out-degree
-    else if(arguments->lmode == 8)
+    else if(arguments->lmode == (3 + 5))
+        edgeList = reorderGraphProcessDegree( arguments->sort, edgeList, arguments->lmode);// out-degree for incremental aggregation
+    else if(arguments->lmode == 10)
         edgeList = relabelEdgeListFromFile(edgeList, arguments->fnameb, edgeList->num_vertices);// load from file
     else
         edgeList = reorderGraphProcessDegree( arguments->sort, edgeList, arguments->lmode);// out-degree
@@ -648,7 +672,7 @@ struct EdgeList *reorderGraphListDegree(struct EdgeList *edgeList, __u32 *degree
 
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Degree Reording/Relabeling");
+    printf("| %-51s | \n", "Starting Degree Reordering/Relabeling");
     printf(" -----------------------------------------------------\n");
     if(lmode == 2)  // in-degree
     {
@@ -656,7 +680,11 @@ struct EdgeList *reorderGraphListDegree(struct EdgeList *edgeList, __u32 *degree
     }
     else if(lmode == 3)
     {
-        printf("| %-51s | \n", "OUT-DEGREE");
+        printf("| %-51s | \n", "OUT-DEGREE DESCENDING");
+    }
+    else if(lmode == (5 + 3))
+    {
+        printf("| %-51s | \n", "OUT-DEGREE ASCENDING");
     }
     else if(lmode == 4)
     {
@@ -676,10 +704,24 @@ struct EdgeList *reorderGraphListDegree(struct EdgeList *edgeList, __u32 *degree
 
 
     //decending order mapping
-    #pragma omp parallel for
-    for(v = 0; v < edgeList->num_vertices; v++)
+
+    if(lmode == (5 + 3)) //increasing order for incremental Aggregation
     {
-        labels[labelsInverse[v]] = edgeList->num_vertices - 1 - v;
+        #pragma omp parallel for
+        for(v = 0; v < edgeList->num_vertices; v++)
+        {
+            labels[labelsInverse[v]] = v;
+        }
+
+    }
+    else
+    {
+        #pragma omp parallel for
+        for(v = 0; v < edgeList->num_vertices; v++)
+        {
+            labels[labelsInverse[v]] = edgeList->num_vertices - 1 - v;
+        }
+
     }
 
 
@@ -688,7 +730,7 @@ struct EdgeList *reorderGraphListDegree(struct EdgeList *edgeList, __u32 *degree
     Stop(timer);
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Degree Reording/Relabeling Complete");
+    printf("| %-51s | \n", "Degree Reordering/Relabeling Complete");
     printf(" -----------------------------------------------------\n");
     printf("| %-51f | \n", Seconds(timer));
     printf(" -----------------------------------------------------\n");

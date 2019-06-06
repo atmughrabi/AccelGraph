@@ -115,17 +115,17 @@ main (int argc, char **argv)
     for(arguments.datastructure = 0 ; arguments.datastructure < 4; arguments.datastructure++)
     {
         graph = generateGraphDataStructure(&arguments);
-        arguments.trials = (generateRandInt(mt19937var) % 50) + 1;
+        arguments.trials = (generateRandInt(mt19937var) % 50) + 1; // random number of trials
         arguments.iterations = 100;
 
         while(arguments.trials)
         {
-            arguments.root = generateRandomRootGeneral(graph, &arguments);
+            arguments.root = generateRandomRootGeneral(graph, &arguments); // random root each trial
 
             for(arguments.algorithm = 0 ; arguments.algorithm < 8; arguments.algorithm++)
             {
                 arguments.pushpull = 0;
-                ref_data = runGraphAlgorithmsTest(graph, &arguments);
+                ref_data = runGraphAlgorithmsTest(graph, &arguments); // ref stats should mach oother algo
                 for(arguments.pushpull = 0 ; arguments.pushpull < 10; arguments.pushpull++)
                 {
 

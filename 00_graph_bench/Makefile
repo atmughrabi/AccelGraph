@@ -71,7 +71,7 @@ GRAPH_NAME = Rabbit
 # GRAPH_NAME = RMAT22
 
 # real world large graphs binary format
-GRAPH_NAME = orkut
+# GRAPH_NAME = orkut
 GRAPH_NAME = gplus
 # GRAPH_NAME = sk-2005
 # GRAPH_NAME = twitter
@@ -84,7 +84,7 @@ GRAPH_NAME = gplus
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
 # GRAPH_NAME = p2p-Gnutella31
-# GRAPH_NAME = web-BerkStan
+GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
 
@@ -109,7 +109,7 @@ DELTA 			= 800
 
 # NUM_THREADS  	= 1
 NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-NUM_ITERATIONS 	= 200
+NUM_ITERATIONS 	= 100
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1

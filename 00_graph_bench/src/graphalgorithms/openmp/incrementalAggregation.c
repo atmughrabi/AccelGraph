@@ -204,14 +204,16 @@ struct IncrementalAggregationStats *incrementalAggregationGraphCSR( struct Graph
 
     //order vertices according to degree
 
-    stats->vertices = radixSortEdgesByDegree(stats->degrees, stats->vertices, graph->num_vertices);
+    // stats->vertices = radixSortEdgesByDegree(stats->degrees, stats->vertices, graph->num_vertices);
 
     //initialize variables
-    #pragma omp parallel for private(u)
-    for(v = 0 ; v < graph->num_vertices; v++)
+    // #pragma omp parallel for private(u)
+    for(u = 0 ; u < graph->num_vertices; u++)
     {
-        u = stats->vertices[v];
+        // u = stats->vertices[v];
         stats->atomDegree[u] = graph->vertices->out_degree[u];
+        // printf("*u %u deg %u\n",u,graph->vertices->out_degree[u] );
+
         stats->atomChild[u] = UINT_MAX;
 
         // atom[v].degree = graph->vertices[u].out_degree;
@@ -227,14 +229,14 @@ struct IncrementalAggregationStats *incrementalAggregationGraphCSR( struct Graph
 
 
     //incrementally aggregate vertices
-    for(v = 0 ; v < graph->num_vertices; v++)
+    for(u = 0 ; u < graph->num_vertices; u++)
     {
 
         deltaQ = -1.0;
         __u32 atomVchild;
         __u32 atomVdegree;
-        u = stats->vertices[v];
-        n = stats->vertices[v];
+        // u = stats->vertices[v];
+        n = u;
 
         __u32 degreeU = UINT_MAX;
 

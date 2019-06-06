@@ -181,6 +181,11 @@ struct GraphCSR *mapVerticesWithInOutDegree (struct GraphCSR *graph, __u8 invers
     __u32 *offset_start_arr = (__u32 *) my_malloc( P * sizeof(__u32));
     __u32 *offset_end_arr = (__u32 *) my_malloc( P * sizeof(__u32));
 
+    // for(vertex_id = 0; vertex_id < graph->num_vertices; vertex_id++){
+
+    //     printf("-->v %u out_degree %u\n",vertex_id, graph->vertices->out_degree[vertex_id] );
+    // }
+
 
 #if DIRECTED
 
@@ -270,6 +275,11 @@ struct GraphCSR *mapVerticesWithInOutDegree (struct GraphCSR *graph, __u8 invers
 
     free(offset_start_arr);
     free(offset_end_arr);
+
+    // for(vertex_id = 0; vertex_id < graph->num_vertices; vertex_id++){
+
+    //     printf("<--v %u out_degree %u\n",vertex_id, graph->vertices->out_degree[vertex_id] );
+    // }
 
     return graph;
 
