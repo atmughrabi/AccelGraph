@@ -200,11 +200,11 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
         Start(timer_inner);
 
         __u32 i;
-        #pragma omp parallel for private(i) schedule (dynamic,numThreads)
+        // #pragma omp parallel for private(i) schedule (dynamic,numThreads)
         for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
         {
             __u32 j;
-            // #pragma omp parallel for private(j)
+            #pragma omp parallel for private(j) schedule (dynamic,numThreads)
             for (j = 0; j < totalPartitions; ++j)
             {
                 __u32 k;
@@ -226,7 +226,7 @@ struct SPMVStats *SPMVPullRowGraphGrid( __u32 iterations, struct GraphGrid *grap
                     // addAtomicFloat(&stats->vector_output[dest], (weight * stats->vector_input[src])
 
                     // #pragma omp atomic update
-                    stats->vector_output[src] +=  (weight * stats->vector_input[dest]);
+                    stats->vector_output[dest] +=  (weight * stats->vector_input[src]);
                 }
             }
         }
@@ -292,11 +292,11 @@ struct SPMVStats *SPMVPushColumnGraphGrid( __u32 iterations, struct GraphGrid *g
         Start(timer_inner);
 
         __u32 j;
-        // #pragma omp parallel for private(j)
+        #pragma omp parallel for private(j) schedule (dynamic,numThreads)
         for (j = 0; j < totalPartitions; ++j)  // iterate over partitions colwise
         {
             __u32 i;
-            #pragma omp parallel for private(i) schedule (dynamic,numThreads)
+            // #pragma omp parallel for private(i) schedule (dynamic,numThreads)
             for (i = 0; i < totalPartitions; ++i)
             {
                 __u32 k;
@@ -314,11 +314,7 @@ struct SPMVStats *SPMVPushColumnGraphGrid( __u32 iterations, struct GraphGrid *g
 #endif
 
                     // #pragma omp atomic update
-                    // __sync_fetch_and_add(&stats->vector_output[dest],(weight * stats->vector_input[src]));
-                    // addAtomicFloat(&stats->vector_output[dest], (weight * stats->vector_input[src])
-
-                    // #pragma omp atomic update
-                    stats->vector_output[src] +=  (weight * stats->vector_input[dest]);
+                    stats->vector_output[dest] +=  (weight * stats->vector_input[src]);
                 }
             }
         }
@@ -394,11 +390,11 @@ struct SPMVStats *SPMVPullRowFixedPointGraphGrid( __u32 iterations, struct Graph
         Start(timer_inner);
 
         __u32 i;
-        #pragma omp parallel for private(i) schedule (dynamic,numThreads)
+        // #pragma omp parallel for private(i) schedule (dynamic,numThreads)
         for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
         {
             __u32 j;
-            // #pragma omp parallel for private(j)
+            #pragma omp parallel for private(j) schedule (dynamic,numThreads)
             for (j = 0; j < totalPartitions; ++j)
             {
                 __u32 k;
@@ -414,13 +410,8 @@ struct SPMVStats *SPMVPullRowFixedPointGraphGrid( __u32 iterations, struct Graph
 #if WEIGHTED
                     weight = DoubleToFixed64(partition->edgeList->edges_array_weight[k]);
 #endif
-
                     // #pragma omp atomic update
-                    // __sync_fetch_and_add(&stats->vector_output[dest],(weight * stats->vector_input[src]));
-                    // addAtomicFloat(&stats->vector_output[dest], (weight * stats->vector_input[src])
-
-                    // #pragma omp atomic update
-                    vector_output[src] += MULFixed64V1(weight, vector_input[dest]);
+                    vector_output[dest] += MULFixed64V1(weight, vector_input[src]);
                 }
             }
         }
@@ -507,11 +498,11 @@ struct SPMVStats *SPMVPushColumnFixedPointGraphGrid( __u32 iterations, struct Gr
         Start(timer_inner);
 
         __u32 j;
-        // #pragma omp parallel for private(j)
+        #pragma omp parallel for private(j) schedule (dynamic,numThreads)
         for (j = 0; j < totalPartitions; ++j)  // iterate over partitions colwise
         {
             __u32 i;
-            #pragma omp parallel for private(i) schedule (dynamic,numThreads)
+            // #pragma omp parallel for private(i) schedule (dynamic,numThreads)
             for (i = 0; i < totalPartitions; ++i)
             {
                 __u32 k;
@@ -529,11 +520,7 @@ struct SPMVStats *SPMVPushColumnFixedPointGraphGrid( __u32 iterations, struct Gr
 #endif
 
                     // #pragma omp atomic update
-                    // __sync_fetch_and_add(&stats->vector_output[dest],(weight * stats->vector_input[src]));
-                    // addAtomicFloat(&stats->vector_output[dest], (weight * stats->vector_input[src])
-
-                    // #pragma omp atomic update
-                    vector_output[src] += MULFixed64V1(weight, vector_input[dest]);
+                    vector_output[dest] += MULFixed64V1(weight, vector_input[src]);
                 }
             }
         }
@@ -624,10 +611,18 @@ struct SPMVStats *SPMVPullGraphCSR( __u32 iterations, struct GraphCSR *graph)
     __u32 *sorted_edges_array = NULL;
     __u32 *edges_array_weight = NULL;
 
+#if DIRECTED
+    vertices = graph->inverse_vertices;
+    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
+#if WEIGHTED
+    edges_array_weight = graph->inverse_sorted_edges_array->edges_array_weight;
+#endif
+#else
     vertices = graph->vertices;
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #if WEIGHTED
     edges_array_weight = graph->sorted_edges_array->edges_array_weight;
+#endif
 #endif
 
 
@@ -652,27 +647,26 @@ struct SPMVStats *SPMVPullGraphCSR( __u32 iterations, struct GraphCSR *graph)
     {
         Start(timer_inner);
 
-        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
+        // #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
         {
             __u32 j;
-            __u32 src = v;
-            __u32 dest;
+            __u32 src ;
+            __u32 dest = v;
             float weight = 0.0001f;
-            float nodeIncomingSPMV = 0.0f;
-            degree = vertices->out_degree[src];
-            edge_idx = vertices->edges_idx[src];
+            degree = vertices->out_degree[dest];
+            edge_idx = vertices->edges_idx[dest];
 
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
-                dest = sorted_edges_array[j];
+                src = sorted_edges_array[j];
 #if WEIGHTED
                 weight = edges_array_weight[j];
 #endif
-                nodeIncomingSPMV +=  (weight * stats->vector_input[dest]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+                stats->vector_output[dest] +=  (weight * stats->vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
             }
 
-            stats->vector_output[src] = nodeIncomingSPMV;
+
         }
 
 
@@ -719,19 +713,13 @@ struct SPMVStats *SPMVPushGraphCSR( __u32 iterations, struct GraphCSR *graph)
     __u32 *sorted_edges_array = NULL;
     __u32 *edges_array_weight = NULL;
 
-#if DIRECTED
-    vertices = graph->inverse_vertices;
-    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
-#if WEIGHTED
-    edges_array_weight = graph->inverse_sorted_edges_array->edges_array_weight;
-#endif
-#else
+
     vertices = graph->vertices;
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #if WEIGHTED
     edges_array_weight = graph->sorted_edges_array->edges_array_weight;
 #endif
-#endif
+
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting SPMV-PUSH");
@@ -826,10 +814,18 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( __u32 iterations, struct GraphCSR 
     __u32 *sorted_edges_array = NULL;
     __u32 *edges_array_weight = NULL;
 
+#if DIRECTED
+    vertices = graph->inverse_vertices;
+    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
+#if WEIGHTED
+    edges_array_weight = graph->inverse_sorted_edges_array->edges_array_weight;
+#endif
+#else
     vertices = graph->vertices;
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #if WEIGHTED
     edges_array_weight = graph->sorted_edges_array->edges_array_weight;
+#endif
 #endif
 
 
@@ -864,23 +860,21 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( __u32 iterations, struct GraphCSR 
         for(v = 0; v < graph->num_vertices; v++)
         {
             __u32 j;
-            __u32 src = v;
-            __u32 dest;
+            __u32 src;
+            __u32 dest = v;
             __u64 weight = DoubleToFixed64(0.0001f);
-            __u64 nodeIncomingSPMV = 0;
-            degree = vertices->out_degree[src];
-            edge_idx = vertices->edges_idx[src];
+            degree = vertices->out_degree[dest];
+            edge_idx = vertices->edges_idx[dest];
 
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
-                dest = sorted_edges_array[j];
+                src = sorted_edges_array[j];
 #if WEIGHTED
                 weight = DoubleToFixed64(edges_array_weight[j]);
 #endif
-                nodeIncomingSPMV +=   MULFixed64V1(weight, vector_input[dest]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+                vector_output[dest] +=   MULFixed64V1(weight, vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
             }
 
-            vector_output[src] = nodeIncomingSPMV;
         }
 
 
@@ -941,19 +935,12 @@ struct SPMVStats *SPMVPushFixedPointGraphCSR( __u32 iterations, struct GraphCSR 
     __u32 *sorted_edges_array = NULL;
     __u32 *edges_array_weight = NULL;
 
-#if DIRECTED
-    vertices = graph->inverse_vertices;
-    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
-#if WEIGHTED
-    edges_array_weight = graph->inverse_sorted_edges_array->edges_array_weight;
-#endif
-#else
     vertices = graph->vertices;
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #if WEIGHTED
     edges_array_weight = graph->sorted_edges_array->edges_array_weight;
 #endif
-#endif
+
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting SPMV-PUSH Fixed-Point");
@@ -1018,10 +1005,9 @@ struct SPMVStats *SPMVPushFixedPointGraphCSR( __u32 iterations, struct GraphCSR 
     }
 
 
-    #pragma omp parallel for reduction(+:sum)
+    // #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
-
         sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
@@ -1115,23 +1101,27 @@ struct SPMVStats *SPMVPullGraphAdjArrayList( __u32 iterations, struct GraphAdjAr
         for(v = 0; v < graph->num_vertices; v++)
         {
             __u32 j;
-            __u32 src = v;
-            __u32 dest;
+            __u32 src;
+            __u32 dest = v;
             float weight = 0.0001f;
-            float nodeIncomingSPMV = 0.0f;
-            degree = graph->vertices[src].out_degree;
-            Nodes = graph->vertices[src].outNodes;
+
+#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
+            Nodes = graph->vertices[dest].inNodes;
+            degree = graph->vertices[dest].in_degree;
+#else
+            Nodes = graph->vertices[dest].outNodes;
+            degree = graph->vertices[dest].out_degree;
+#endif
 
             for(j = 0 ; j < (degree) ; j++)
             {
-                dest = Nodes->edges_array_dest[j];
+                src = Nodes->edges_array_dest[j];
 #if WEIGHTED
                 weight = Nodes->edges_array_weight[j];
 #endif
-                nodeIncomingSPMV +=  (weight * stats->vector_input[dest]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+                stats->vector_output[dest] +=  (weight * stats->vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
             }
 
-            stats->vector_output[src] = nodeIncomingSPMV;
         }
 
 
@@ -1204,13 +1194,8 @@ struct SPMVStats *SPMVPushGraphAdjArrayList( __u32 iterations, struct GraphAdjAr
             __u32 dest;
             float weight = 0.0001f;
 
-#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
-            Nodes = graph->vertices[src].inNodes;
-            degree = graph->vertices[src].in_degree;
-#else
             Nodes = graph->vertices[src].outNodes;
             degree = graph->vertices[src].out_degree;
-#endif
 
             for(j = 0 ; j <  (degree) ; j++)
             {
@@ -1234,7 +1219,6 @@ struct SPMVStats *SPMVPushGraphAdjArrayList( __u32 iterations, struct GraphAdjAr
     #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
-
         sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
@@ -1300,23 +1284,27 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList( __u32 iterations, struct 
         for(v = 0; v < graph->num_vertices; v++)
         {
             __u32 j;
-            __u32 src = v;
-            __u32 dest;
-            __u64 nodeIncomingSPMV = 0.0f;
+            __u32 src;
+            __u32 dest = v;
             __u64 weight = DoubleToFixed64(0.0001f);
-            degree = graph->vertices[src].out_degree;
-            Nodes = graph->vertices[src].outNodes;
+
+#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
+            Nodes = graph->vertices[dest].inNodes;
+            degree = graph->vertices[dest].in_degree;
+#else
+            Nodes = graph->vertices[dest].outNodes;
+            degree = graph->vertices[dest].out_degree;
+#endif
 
             for(j = 0 ; j < (degree) ; j++)
             {
-                dest = Nodes->edges_array_dest[j];
+                src = Nodes->edges_array_dest[j];
 #if WEIGHTED
                 weight = DoubleToFixed64(Nodes->edges_array_weight[j]);
 #endif
-                nodeIncomingSPMV +=  MULFixed64V1(weight, vector_input[dest]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
-            }
 
-            vector_output[src] = nodeIncomingSPMV;
+                vector_output[dest] +=  MULFixed64V1(weight, vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+            }
         }
 
 
@@ -1329,13 +1317,13 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList( __u32 iterations, struct 
     for(v = 0; v < graph->num_vertices; v++)
     {
         stats->vector_output[v] = Fixed64ToDouble(vector_output[v]);
+
     }
 
 
     #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
-
         sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
@@ -1408,13 +1396,8 @@ struct SPMVStats *SPMVPushFixedPointGraphAdjArrayList( __u32 iterations, struct 
             __u32 dest;
             __u64 weight = DoubleToFixed64(0.0001f);
 
-#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
-            Nodes = graph->vertices[src].inNodes;
-            degree = graph->vertices[src].in_degree;
-#else
             Nodes = graph->vertices[src].outNodes;
             degree = graph->vertices[src].out_degree;
-#endif
 
             for(j = 0 ; j <  (degree) ; j++)
             {
@@ -1422,7 +1405,6 @@ struct SPMVStats *SPMVPushFixedPointGraphAdjArrayList( __u32 iterations, struct 
 #if WEIGHTED
                 weight = DoubleToFixed64(Nodes->edges_array_weight[j]);
 #endif
-
                 #pragma omp atomic update
                 vector_output[dest] += MULFixed64V1(weight, vector_input[src]);
             }
@@ -1442,10 +1424,9 @@ struct SPMVStats *SPMVPushFixedPointGraphAdjArrayList( __u32 iterations, struct 
     }
 
 
-    #pragma omp parallel for reduction(+:sum)
+    // #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
-
         sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
@@ -1539,25 +1520,29 @@ struct SPMVStats *SPMVPullGraphAdjLinkedList( __u32 iterations, struct GraphAdjL
         for(v = 0; v < graph->num_vertices; v++)
         {
             __u32 j;
-            __u32 src = v;
-            __u32 dest;
+            __u32 src;
+            __u32 dest = v;
             float weight = 0.0001f;
-            float nodeIncomingSPMV = 0.0f;
-            degree = graph->vertices[src].out_degree;
-            Nodes = graph->vertices[src].outNodes;
 
+#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
+            Nodes = graph->vertices[dest].inNodes;
+            degree = graph->vertices[dest].in_degree;
+#else
+            Nodes = graph->vertices[dest].outNodes;
+            degree = graph->vertices[dest].out_degree;
+#endif
             for(j = 0 ; j < (degree) ; j++)
             {
-                dest =  Nodes->dest;
+                src =  Nodes->dest;
 #if WEIGHTED
                 weight = Nodes->weight;
 #endif
                 Nodes = Nodes->next;
 
-                nodeIncomingSPMV +=  (weight * stats->vector_input[dest]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+                stats->vector_output[dest] +=  (weight * stats->vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
             }
 
-            stats->vector_output[src] = nodeIncomingSPMV;
+
         }
 
 
@@ -1627,13 +1612,8 @@ struct SPMVStats *SPMVPushGraphAdjLinkedList( __u32 iterations, struct GraphAdjL
             __u32 dest;
             float weight = 0.0001f;
 
-#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
-            Nodes = graph->vertices[src].inNodes;
-            degree = graph->vertices[src].in_degree;
-#else
             Nodes = graph->vertices[src].outNodes;
             degree = graph->vertices[src].out_degree;
-#endif
 
             for(j = 0 ; j <  (degree) ; j++)
             {
@@ -1722,26 +1702,26 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjLinkedList( __u32 iterations, struct
         for(v = 0; v < graph->num_vertices; v++)
         {
             __u32 j;
-            __u32 src = v;
-            __u32 dest;
-            __u64 nodeIncomingSPMV = 0.0f;
+            __u32 src;
+            __u32 dest = v;
             __u64 weight = DoubleToFixed64(0.0001f);
-            degree = graph->vertices[src].out_degree;
-            Nodes = graph->vertices[src].outNodes;
-
+#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
+            Nodes = graph->vertices[dest].inNodes;
+            degree = graph->vertices[dest].in_degree;
+#else
+            Nodes = graph->vertices[dest].outNodes;
+            degree = graph->vertices[dest].out_degree;
+#endif
             for(j = 0 ; j < (degree) ; j++)
             {
-
-                dest =  Nodes->dest;
+                src =  Nodes->dest;
 #if WEIGHTED
                 weight = DoubleToFixed64(Nodes->weight);
 #endif
                 Nodes = Nodes->next;
-                
-                nodeIncomingSPMV +=  MULFixed64V1(weight, vector_input[dest]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
-            }
 
-            vector_output[src] = nodeIncomingSPMV;
+                vector_output[dest] +=  MULFixed64V1(weight, vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+            }
         }
 
 
@@ -1831,13 +1811,8 @@ struct SPMVStats *SPMVPushFixedPointGraphAdjLinkedList( __u32 iterations, struct
             __u32 dest;
             __u64 weight = DoubleToFixed64(0.0001f);
 
-#if DIRECTED // will look at the other neighbours if directed by using inverese edge list
-            Nodes = graph->vertices[src].inNodes;
-            degree = graph->vertices[src].in_degree;
-#else
             Nodes = graph->vertices[src].outNodes;
             degree = graph->vertices[src].out_degree;
-#endif
 
             for(j = 0 ; j <  (degree) ; j++)
             {

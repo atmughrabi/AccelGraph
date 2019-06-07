@@ -6,7 +6,7 @@
 
 
 #define WEIGHTED 1
-#define DIRECTED 0
+#define DIRECTED 1
 
 extern int numThreads;
 extern mt19937state *mt19937var;

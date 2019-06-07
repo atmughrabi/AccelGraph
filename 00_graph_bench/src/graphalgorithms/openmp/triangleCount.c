@@ -143,7 +143,6 @@ __u32 countIntersectionsBinarySearch(__u32 u, __u32 v, struct GraphCSR *graph)
     __u32 degree_comp = graph->vertices->out_degree[u];
     __u32 edge_idx_comp = graph->vertices->edges_idx[u];
 
-    __u32 i;
     __u32 iter;
 
     for(iter = edge_idx_iter ; iter < (edge_idx_iter + degree_iter); iter++ )
@@ -191,9 +190,6 @@ __u32 countIntersectionsBinarySearch(__u32 u, __u32 v, struct GraphCSR *graph)
     }
     return count;
 }
-
-
-
 
 
 // ********************************************************************************************
