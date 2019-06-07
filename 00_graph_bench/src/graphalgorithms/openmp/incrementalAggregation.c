@@ -32,6 +32,8 @@ struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphCSR(struc
     struct IncrementalAggregationStats *stats = (struct IncrementalAggregationStats *) malloc(sizeof(struct IncrementalAggregationStats));
 
     stats->totalQ = 0.0;
+    stats->num_clusters = 0;
+    stats->atom = (struct Atom *) my_malloc(graph->num_vertices * sizeof(struct Atom));;
 
     stats->vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->degrees = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
@@ -62,6 +64,7 @@ struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphGrid(stru
     struct IncrementalAggregationStats *stats = (struct IncrementalAggregationStats *) malloc(sizeof(struct IncrementalAggregationStats));
 
     stats->totalQ = 0.0;
+    stats->num_clusters = 0;
 
     stats->vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->degrees = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
@@ -94,6 +97,7 @@ struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphAdjArrayL
     struct IncrementalAggregationStats *stats = (struct IncrementalAggregationStats *) malloc(sizeof(struct IncrementalAggregationStats));
 
     stats->totalQ = 0.0;
+    stats->num_clusters = 0;
 
     stats->vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->degrees = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
@@ -126,6 +130,7 @@ struct IncrementalAggregationStats *newIncrementalAggregationStatsGraphAdjLinked
 
     stats->time_total =  0.0;
     stats->totalQ = 0.0;
+    stats->num_clusters = 0;
 
     stats->vertices = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
     stats->degrees = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));
@@ -186,12 +191,10 @@ struct IncrementalAggregationStats *incrementalAggregationGraphCSR( struct Graph
 {
 
     __u32 v;
-    __u32 u;
-    __u32 n;
+
     float deltaQ = -1.0;
     struct IncrementalAggregationStats *stats = newIncrementalAggregationStatsGraphCSR(graph);
-    struct ArrayQueue *Neighbors = newArrayQueue(graph->num_vertices);
-    struct ArrayQueue *reachableSet = newArrayQueue(graph->num_vertices);
+
     struct ArrayQueue *topLevelSet = newArrayQueue(graph->num_vertices);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
@@ -204,160 +207,138 @@ struct IncrementalAggregationStats *incrementalAggregationGraphCSR( struct Graph
 
     //order vertices according to degree
 
-    // stats->vertices = radixSortEdgesByDegree(stats->degrees, stats->vertices, graph->num_vertices);
+    stats->vertices = radixSortEdgesByDegree(stats->degrees, stats->vertices, graph->num_vertices);
 
     //initialize variables
-    // #pragma omp parallel for private(u)
-    for(u = 0 ; u < graph->num_vertices; u++)
+    #pragma omp parallel for
+    for(v = 0 ; v < graph->num_vertices; v++)
     {
-        // u = stats->vertices[v];
-        stats->atomDegree[u] = graph->vertices->out_degree[u];
-        // printf("*u %u deg %u\n",u,graph->vertices->out_degree[u] );
+        stats->atomDegree[v] = graph->vertices->out_degree[v];
+        stats->atomChild[v] = UINT_MAX;
+        stats->atom[v].degree = graph->vertices->out_degree[v];
+        stats->atom[v].child = UINT_MAX;
 
-        stats->atomChild[u] = UINT_MAX;
-
-        // atom[v].degree = graph->vertices[u].out_degree;
-        // atom[u].child = UINT_MAX;
-
-        stats->sibling[u] = UINT_MAX;
-        stats->dest[u] = u;
-        stats->weightSum[u] = 0;
+        stats->sibling[v] = UINT_MAX;
+        stats->dest[v] = v;
+        stats->weightSum[v] = 0;
     }
 
 
 
-
-
-    //incrementally aggregate vertices
-    for(u = 0 ; u < graph->num_vertices; u++)
+    // #pragma omp parallel shared(stats, graph, topLevelSet)
     {
 
-        deltaQ = -1.0;
-        __u32 atomVchild;
-        __u32 atomVdegree;
-        // u = stats->vertices[v];
-        n = u;
+        //incrementally aggregate vertices
+        struct ArrayQueue *Neighbors = newArrayQueue(graph->num_vertices);
+        struct ArrayQueue *reachableSet = newArrayQueue(graph->num_vertices);
 
-        __u32 degreeU = UINT_MAX;
 
-        // //atomic swap
-        __u32 degreeUtemp = stats->atomDegree[u];
-        degreeU = degreeUtemp;
-        stats->atomDegree[u] = degreeU;
 
-        findBestDestination(Neighbors, reachableSet, &deltaQ, &n, u, stats, graph);
-        // printf("n %u u %u deltaQ %f\n",n,u,deltaQ );
-
-        if(deltaQ <= 0)
+        // #pragma omp  for
+        for(v = 0 ; v < graph->num_vertices; v++)
         {
-            stats->atomDegree[u] = degreeU;
-            enArrayQueueAtomic(topLevelSet, u);
-            continue;
+            __u32 u;
+            __u32 n;
+            deltaQ = -1.0;
+            __u32 atomVchild;
+            __u32 atomVdegree;
+            u = stats->vertices[v];
+            n = u;
+
+            __u32 degreeU = UINT_MAX;
+
+            // //atomic swap
+            __u32 degreeUtemp = stats->atom[u].degree;
+            degreeU = degreeUtemp;
+            stats->atom[u].degree = degreeU;
+
+            // __sync_bool_compare_and_swap()
+
+            findBestDestination(Neighbors, reachableSet, &deltaQ, &n, u, stats, graph);
+
+            if(deltaQ <= 0)
+            {
+                stats->atom[u].degree = degreeU;
+                enArrayQueueAtomic(topLevelSet, u);
+                continue;
+            }
+
+            //atomic load
+            // #pragma omp atomic read
+            atomVchild = stats->atom[n].child;
+            atomVdegree = stats->atom[n].degree;
+
+            if(atomVdegree != UINT_MAX)
+            {
+                stats->sibling[u] = atomVchild;
+
+                struct Atom atomp;
+
+                atomp.degree = atomVdegree + degreeU;
+                atomp.child = u;
+
+                stats->atom[n] = atomp;
+
+                stats->dest[u] = n;
+                continue;
+
+            }
+            stats->atom[u].degree = degreeU;
+
+            stats->sibling[u] = UINT_MAX;
+
+            stats->totalQ += (double)deltaQ;
         }
 
-        //atomic load
-        // #pragma omp atomic read
-        atomVchild = stats->atomChild[n];
-
-        // #pragma omp atomic read
-        atomVdegree = stats->atomDegree[n];
-        // printf("atomVdegree %u \n",atomVdegree );
-
-        if(atomVdegree != UINT_MAX)
-        {
-            stats->sibling[u] = atomVchild;
-
-            __u32 atomVdegreep = atomVdegree + degreeU;
-            __u32 atomVchildp = u;
-
-            stats->atomChild[n] = atomVchildp;
-            stats->atomDegree[n] = atomVdegreep;
-
-
-            stats->dest[u] = n;
-            continue;
-
-        }
-
-        stats->atomDegree[u] = degreeU;
-        stats->sibling[u] = UINT_MAX;
-
-        stats->totalQ += (double)deltaQ;
-
+        freeArrayQueue(reachableSet);
+        freeArrayQueue(Neighbors);
     }
 
-
-    for(v = 0; v < graph->num_vertices; v++)
-    {
-        u = stats->vertices[v];
-        // printf("[u] %u child %u sibling %u deg %u dest %u\n", u, atomChild[u], sibling[u], atomDegree[u], dest[u]);
-    }
-
-    // printSet(topLevelSet);
-    stats->labels = returnLabelsOfNodesFromDendrogram(topLevelSet, stats->atomChild, stats->sibling, graph->num_vertices);
-
+    printSet(topLevelSet);
+    stats->labels = returnLabelsOfNodesFromDendrogram(topLevelSet, stats->atom, stats->sibling, graph->num_vertices);
+    stats->num_clusters = sizeArrayQueueCurr(topLevelSet);
     Stop(timer);
+
     stats->time_total =  Seconds(timer);
     printf(" -----------------------------------------------------\n");
-    printf("| %-15s | %-15u | %-15f | \n", "Clusters", sizeArrayQueueCurr(topLevelSet),  stats->time_total);
+    printf("| %-15s | %-15u | %-15f | \n", "num_clusters", sizeArrayQueueCurr(topLevelSet),  stats->time_total);
     printf(" -----------------------------------------------------\n");
-    // printf(" -----------------------------------------------------\n");
-    // printf("| %-15s | %-15lf | %-15f | \n", "total Q", totalQ, Seconds(timer));
-    // printf(" -----------------------------------------------------\n");
 
 
     freeArrayQueue(topLevelSet);
-    freeArrayQueue(reachableSet);
-    freeArrayQueue(Neighbors);
-  
-
-    //  for(v = 0; v < graph->num_vertices; v++)
-    // {
-
-    //     printf("%u %u \n", v, labels[v]);
-    //     // printf("[u] %u child %u sibling %u deg %u dest %u\n", u, atomChild[u], sibling[u], atomDegree[u], dest[u]);
-    // }
 
 
     return stats;
 }
 
 
-void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reachableSet, float *deltaQ, __u32 *u, __u32 v, struct IncrementalAggregationStats* stats, struct GraphCSR *graph)
+void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reachableSet, float *deltaQ, __u32 *u, __u32 v, struct IncrementalAggregationStats *stats, struct GraphCSR *graph)
 {
 
 
     __u32 j;
     __u32 k;
+    __u32 t;
 
     __u32 tempV;
     __u32 tempU;
     __u32 degreeTemp;
     __u32 edgeTemp;
 
-    __u32 edgeWeightVU = 0;
     __u32 edgeWeightUV = 0;
     __u32 degreeVout = 0;
-    __u32 degreeVin = 0;
     __u32 degreeUout = 0;
-    __u32 degreeUin = 0;
     float deltaQtemp = 0.0;
     float numEdgesm = 1.0 / ((graph->num_edges));
     float numEdgesm2 = numEdgesm * numEdgesm;
+    struct Bitmap *bitmapNC = newBitmap(graph->num_vertices);
 
     // struct Vertex *vertices = NULL;
     // struct EdgeList  *sorted_edges_array = NULL;
 
-    // #if DIRECTED
-    //     vertices = graph->inverse_vertices;
-    //     sorted_edges_array = graph->inverse_sorted_edges_array;
-    // #else
-    //     vertices = graph->vertices;
-    //     sorted_edges_array = graph->sorted_edges_array;
-    // #endif
+    returnReachableSetOfNodesFromDendrogram(v, stats->atom, stats->sibling, reachableSet);
 
-    returnReachableSetOfNodesFromDendrogram(v, stats->atomChild, stats->sibling, reachableSet);
-
+    // #pragma omp parallel for private(degreeTemp,edgeTemp,tempV,k,tempU) shared (bitmapNC,reachableSet,stats)
     for(j = reachableSet->head ; j < reachableSet->tail; j++)
     {
         tempV = reachableSet->queue[j];
@@ -371,110 +352,80 @@ void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reacha
 
             while(stats->dest[stats->dest[tempU]] != stats->dest[tempU])
             {
+                #pragma omp atomic write
                 stats->dest[tempU] = stats->dest[stats->dest[tempU]];
             }
-
-            #pragma omp atomic update
-            stats->weightSum[stats->dest[tempU]]++;
-
-            if(!isEnArrayQueued(Neighbors, stats->dest[tempU]) &&  stats->dest[stats->dest[tempV]] != stats->dest[tempU])
-            {
-                enArrayQueueWithBitmap(Neighbors, stats->dest[tempU]);
-                // printf("->%u %u - ",dest[tempV], dest[tempU]);
-            }
-
+            setBitAtomic(bitmapNC, tempU);
+            // edgeWeightUV++;
         }
+    }
 
-
-
+    // #pragma omp parallel for shared(Neighbors, graph, stats) reduction (+:edgeWeightUV)
+    for(t = 0; t < graph->num_vertices ; t++)
+    {
+        if(getBit(bitmapNC, t))
+        {
+            if(!isEnArrayQueued(Neighbors, stats->dest[t]))
+            {
+                edgeWeightUV++;
+                enArrayQueueWithBitmapAtomic(Neighbors, stats->dest[t]);
+            }
+        }
     }
 
 
     // edge_idv = graph->vertices[v].edges_idx;
-    degreeVout = stats->atomDegree[stats->dest[v]];
-    degreeVin = stats->atomDegree[stats->dest[v]];
+    degreeVout = stats->atom[stats->dest[v]].degree;
 
     for(j = Neighbors->head ; j < Neighbors->tail; j++)
     {
-
-        deltaQtemp = 0.0;
-        // edgeWeightVU =   weightSum[dest[v]];
         __u32 i = Neighbors->queue[j];
-        degreeUout = stats->atomDegree[stats->dest[i]];
+        deltaQtemp = 0.0;
+        degreeUout = stats->atom[stats->dest[i]].degree;
 
-        // if(degreeUout != UINT_MAX)
-        // {
-
-
-        degreeUin = stats->atomDegree[stats->dest[i]];
-
-
-        edgeWeightUV = stats->weightSum[stats->dest[i]];
-        edgeWeightVU = stats->weightSum[stats->dest[i]];
-
-        deltaQtemp = ((edgeWeightVU * numEdgesm) - (float)(degreeVin * degreeUout * numEdgesm2)) + ((edgeWeightUV * numEdgesm) - (float)(degreeUin * degreeVout * numEdgesm2));
-
-
-        if((*deltaQ) < deltaQtemp)
+        if(degreeUout != UINT_MAX)
         {
-            (*deltaQ) = deltaQtemp;
-            (*u) = i;
-        }
-
-
-        // printf("v %u u %u q %lf\n", v, i, deltaQtemp);
-        // }
-
-    }
-
-    for(j = reachableSet->head ; j < reachableSet->tail; j++)
-    {
-        tempV = reachableSet->queue[j];
-
-        degreeTemp = graph->vertices->out_degree[tempV];
-        edgeTemp = graph->vertices->edges_idx[tempV];
-
-        for(k = edgeTemp ; k < (edgeTemp + degreeTemp) ; k++)
-        {
-            tempU = graph->sorted_edges_array->edges_array_dest[k];
-
-            #pragma omp atomic write
-            stats->weightSum[stats->dest[tempU]] = 0;
+            deltaQtemp = 2 * ((edgeWeightUV * numEdgesm) - (float)(degreeVout * degreeUout * numEdgesm2));
+            if((*deltaQ) < deltaQtemp && i != v)
+            {
+                (*deltaQ) = deltaQtemp;
+                (*u) = i;
+            }
         }
     }
-
     resetArrayQueue(reachableSet);
     resetArrayQueue(Neighbors);
+    freeBitmap(bitmapNC);
 }
 
 
 
 
-void returnReachableSetOfNodesFromDendrogram(__u32 v, __u32 *atomChild, __u32 *sibling, struct ArrayQueue *reachableSet)
+void returnReachableSetOfNodesFromDendrogram(__u32 v, struct Atom *atom, __u32 *sibling, struct ArrayQueue *reachableSet)
 {
 
-    traversDendrogramReachableSetDFS(v, atomChild, sibling, reachableSet);
+    traversDendrogramReachableSetDFS(v, atom, sibling, reachableSet);
 
 }
 
 
-void traversDendrogramReachableSetDFS(__u32 v, __u32 *atomChild, __u32 *sibling, struct ArrayQueue *reachableSet)
+void traversDendrogramReachableSetDFS(__u32 v, struct Atom *atom, __u32 *sibling, struct ArrayQueue *reachableSet)
 {
 
-    if(atomChild[v] != UINT_MAX)
-        traversDendrogramReachableSetDFS(atomChild[v], atomChild, sibling, reachableSet);
+    if(atom[v].child != UINT_MAX)
+        traversDendrogramReachableSetDFS(atom[v].child, atom, sibling, reachableSet);
 
-    enArrayQueue(reachableSet, v);
+    enArrayQueueWithBitmap(reachableSet, v);
 
     if(sibling[v] != UINT_MAX)
-        traversDendrogramReachableSetDFS(sibling[v], atomChild, sibling, reachableSet);
+        traversDendrogramReachableSetDFS(sibling[v], atom, sibling, reachableSet);
 
 
 
 }
 
 
-__u32 *returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet, __u32 *atomChild, __u32 *sibling, __u32 num_vertices)
+__u32 *returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet, struct Atom *atom, __u32 *sibling, __u32 num_vertices)
 {
 
     __u32 i;
@@ -484,7 +435,7 @@ __u32 *returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet, __u32 
     for(i = reachableSet->head ; i < reachableSet->tail; i++)
     {
         // printf("%u \n", reachableSet->queue[i]);
-        traversDendrogramLabelsDFS(&newLablesCounter, newLables, reachableSet->queue[i], atomChild, sibling);
+        traversDendrogramLabelsDFS(&newLablesCounter, newLables, reachableSet->queue[i], atom, sibling);
 
     }
 
@@ -493,17 +444,17 @@ __u32 *returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet, __u32 
 }
 
 
-void traversDendrogramLabelsDFS(__u32 *newLablesCounter, __u32 *newLables, __u32 v, __u32 *atomChild, __u32 *sibling)
+void traversDendrogramLabelsDFS(__u32 *newLablesCounter, __u32 *newLables, __u32 v, struct Atom *atom, __u32 *sibling)
 {
 
     if(v == UINT_MAX)
         return;
 
-    traversDendrogramLabelsDFS(newLablesCounter, newLables, atomChild[v], atomChild, sibling);
+    traversDendrogramLabelsDFS(newLablesCounter, newLables, atom[v].child, atom, sibling);
     // printf("%u %u \n", v, (*newLablesCounter));
     newLables[v] = (*newLablesCounter);
     (*newLablesCounter)++;
-    traversDendrogramLabelsDFS(newLablesCounter, newLables, sibling[v], atomChild, sibling);
+    traversDendrogramLabelsDFS(newLablesCounter, newLables, sibling[v], atom, sibling);
 
 
 

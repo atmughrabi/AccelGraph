@@ -34,7 +34,6 @@ struct IncrementalAggregationStats
 {
     __u32 *vertices;
     __u32 *degrees;
-
     //dendogram
     __u32 *atomDegree;
     __u32 *atomChild;
@@ -43,6 +42,7 @@ struct IncrementalAggregationStats
     __u32 *weightSum;
     __u32 *labels;
     __u32 num_vertices;
+    __u32 num_clusters;
     double totalQ;
     double time_total;
 };

@@ -103,6 +103,7 @@ main (int argc, char **argv)
     printf("| %-20s %-30u | \n", "Number of Threads :", numThreads);
     printf(" -----------------------------------------------------\n");
 
+
     __u32 missmatch = 0;
     __u32 total_missmatch = 0;
     void *ref_data;
@@ -112,20 +113,38 @@ main (int argc, char **argv)
     // ***************                  CSR DataStructure                            **************
     // ********************************************************************************************
 
-    for(arguments.datastructure = 0 ; arguments.datastructure < 4; arguments.datastructure++)
+    for(arguments.algorithm = 0 ; arguments.algorithm < 8; arguments.algorithm++)
     {
-        graph = generateGraphDataStructure(&arguments);
-        arguments.trials = (generateRandInt(mt19937var) % 50) + 1; // random number of trials
-        arguments.iterations = 100;
-
-        while(arguments.trials)
+        for(arguments.datastructure = 0 ; arguments.datastructure < 4; arguments.datastructure++)
         {
-            arguments.root = generateRandomRootGeneral(graph, &arguments); // random root each trial
 
-            for(arguments.algorithm = 0 ; arguments.algorithm < 8; arguments.algorithm++)
+
+
+            if(arguments.algorithm == 7)  // Triangle counting depends on order
             {
-                arguments.pushpull = 0;
+
+                arguments.sort = 1;
+                arguments.lmode = 3;
+            }
+
+            if(arguments.algorithm == 8)  // Triangle counting depends on order
+            {
+
+                arguments.sort = 1;
+                arguments.lmode = 8;
+            }
+
+            graph = generateGraphDataStructure(&arguments);
+
+            arguments.iterations = 100;
+            arguments.trials = (generateRandInt(mt19937var) % 50) + 1; // random number of trials
+
+
+            while(arguments.trials)
+            {
+                arguments.root = generateRandomRootGeneral(graph, &arguments); // random root each trial
                 ref_data = runGraphAlgorithmsTest(graph, &arguments); // ref stats should mach oother algo
+
                 for(arguments.pushpull = 0 ; arguments.pushpull < 10; arguments.pushpull++)
                 {
 
@@ -136,8 +155,8 @@ main (int argc, char **argv)
                         missmatch = cmpGraphAlgorithmsTestStats(ref_data, cmp_data, arguments.algorithm);
                     }
 
-
                     total_missmatch += missmatch;
+
                     if(missmatch != 0)
                     {
                         printf("FAIL : Trial [%u] Graph [%s] Missmatches [%u] \nFAIL : DataStructure [%u] Algorithm [%u] Direction [%u]\n\n", arguments.trials, arguments.fnameb, missmatch, arguments.datastructure, arguments.algorithm, arguments.pushpull);
@@ -152,12 +171,16 @@ main (int argc, char **argv)
                 }
 
                 freeGraphStatsGeneral(ref_data, arguments.algorithm);
+                arguments.trials--;
 
+                printf("%s\n", "whlwehwelkwerljr" );
             }
 
-            arguments.trials--;
+
+            freeGraphDataStructure(graph, arguments.datastructure);
+
         }
-        freeGraphDataStructure(graph, arguments.datastructure);
+
     }
 
     if(total_missmatch != 0)

@@ -633,7 +633,7 @@ struct SPMVStats *SPMVPullGraphCSR( __u32 iterations, struct GraphCSR *graph)
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices->out_degree[v])
@@ -647,7 +647,7 @@ struct SPMVStats *SPMVPullGraphCSR( __u32 iterations, struct GraphCSR *graph)
     {
         Start(timer_inner);
 
-        // #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
+        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
         {
             __u32 j;
@@ -728,7 +728,7 @@ struct SPMVStats *SPMVPushGraphCSR( __u32 iterations, struct GraphCSR *graph)
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices->out_degree[v])
@@ -836,7 +836,7 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( __u32 iterations, struct GraphCSR 
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices->out_degree[v])
@@ -949,7 +949,7 @@ struct SPMVStats *SPMVPushFixedPointGraphCSR( __u32 iterations, struct GraphCSR 
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices->out_degree[v])
@@ -1005,7 +1005,7 @@ struct SPMVStats *SPMVPushFixedPointGraphCSR( __u32 iterations, struct GraphCSR 
     }
 
 
-    // #pragma omp parallel for reduction(+:sum)
+    #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
         sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
@@ -1083,7 +1083,7 @@ struct SPMVStats *SPMVPullGraphAdjArrayList( __u32 iterations, struct GraphAdjAr
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices[v].out_degree)
@@ -1172,7 +1172,7 @@ struct SPMVStats *SPMVPushGraphAdjArrayList( __u32 iterations, struct GraphAdjAr
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices[v].out_degree)
@@ -1260,7 +1260,7 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList( __u32 iterations, struct 
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices[v].out_degree)
@@ -1280,7 +1280,7 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList( __u32 iterations, struct 
     {
         Start(timer_inner);
 
-        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+         #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
         {
             __u32 j;
@@ -1299,14 +1299,19 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList( __u32 iterations, struct 
             for(j = 0 ; j < (degree) ; j++)
             {
                 src = Nodes->edges_array_dest[j];
+               
+
 #if WEIGHTED
                 weight = DoubleToFixed64(Nodes->edges_array_weight[j]);
 #endif
 
                 vector_output[dest] +=  MULFixed64V1(weight, vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+
             }
+          
         }
 
+       
 
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
@@ -1368,7 +1373,7 @@ struct SPMVStats *SPMVPushFixedPointGraphAdjArrayList( __u32 iterations, struct 
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices[v].out_degree)
@@ -1424,7 +1429,7 @@ struct SPMVStats *SPMVPushFixedPointGraphAdjArrayList( __u32 iterations, struct 
     }
 
 
-    // #pragma omp parallel for reduction(+:sum)
+    #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
         sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
@@ -1502,7 +1507,7 @@ struct SPMVStats *SPMVPullGraphAdjLinkedList( __u32 iterations, struct GraphAdjL
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices[v].out_degree)
@@ -1590,7 +1595,7 @@ struct SPMVStats *SPMVPushGraphAdjLinkedList( __u32 iterations, struct GraphAdjL
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices[v].out_degree)
@@ -1678,7 +1683,7 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjLinkedList( __u32 iterations, struct
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices[v].out_degree)
@@ -1715,13 +1720,16 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjLinkedList( __u32 iterations, struct
             for(j = 0 ; j < (degree) ; j++)
             {
                 src =  Nodes->dest;
+               
 #if WEIGHTED
                 weight = DoubleToFixed64(Nodes->weight);
 #endif
                 Nodes = Nodes->next;
 
                 vector_output[dest] +=  MULFixed64V1(weight, vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
+
             }
+          
         }
 
 
@@ -1783,7 +1791,7 @@ struct SPMVStats *SPMVPushFixedPointGraphAdjLinkedList( __u32 iterations, struct
     printf(" -----------------------------------------------------\n");
 
     //assume any vector input for benchamrking purpose.
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
         if(graph->vertices[v].out_degree)

@@ -83,7 +83,7 @@ GRAPH_NAME = Rabbit
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-GRAPH_NAME = p2p-Gnutella31
+# GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -100,7 +100,7 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 5
+ALGORITHMS 		= 8
 
 ROOT 			= 5319
 PULL_PUSH 		= 0
