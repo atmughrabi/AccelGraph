@@ -225,7 +225,7 @@ struct IncrementalAggregationStats *incrementalAggregationGraphCSR( struct Graph
 
 
 
-    // #pragma omp parallel shared(stats, graph, topLevelSet)
+    #pragma omp parallel shared(stats, graph, topLevelSet)
     {
 
         //incrementally aggregate vertices
@@ -233,28 +233,21 @@ struct IncrementalAggregationStats *incrementalAggregationGraphCSR( struct Graph
         struct ArrayQueue *reachableSet = newArrayQueue(graph->num_vertices);
 
 
-
-        // #pragma omp  for
+        #pragma omp for schedule (dynamic,1024)
         for(v = 0 ; v < graph->num_vertices; v++)
         {
             __u32 u;
             __u32 n;
             deltaQ = -1.0;
-            __u32 atomVchild;
-            __u32 atomVdegree;
             u = stats->vertices[v];
             n = u;
 
             __u32 degreeU = UINT_MAX;
 
-            // //atomic swap
-            __u32 degreeUtemp = stats->atom[u].degree;
-            degreeU = degreeUtemp;
-            stats->atom[u].degree = degreeU;
+            //atomic swap
+            degreeU =  __sync_val_compare_and_swap(&(stats->atom[u].degree), stats->atom[u].degree, UINT_MAX );
 
-            // __sync_bool_compare_and_swap()
-
-            findBestDestination(Neighbors, reachableSet, &deltaQ, &n, u, stats, graph);
+            findBestDestination(Neighbors, reachableSet, &deltaQ, &n, degreeU, u, stats, graph);
 
             if(deltaQ <= 0)
             {
@@ -264,25 +257,29 @@ struct IncrementalAggregationStats *incrementalAggregationGraphCSR( struct Graph
             }
 
             //atomic load
-            // #pragma omp atomic read
-            atomVchild = stats->atom[n].child;
-            atomVdegree = stats->atom[n].degree;
+            struct Atom atomv;
+            char *castv = (char *)&atomv;
 
-            if(atomVdegree != UINT_MAX)
+            #pragma omp atomic read
+            (*castv) = *((char *)(&(stats->atom[n])));
+
+            if(atomv.degree != UINT_MAX)
             {
-                stats->sibling[u] = atomVchild;
 
                 struct Atom atomp;
-
-                atomp.degree = atomVdegree + degreeU;
+              
+                stats->sibling[u] = atomv.child;
+                atomp.degree = atomv.degree + degreeU;
                 atomp.child = u;
-
-                stats->atom[n] = atomp;
-
-                stats->dest[u] = n;
-                continue;
+          
+                if(__sync_bool_compare_and_swap((char *)(&(stats->atom[n])), *((char *)(&(stats->atom[n]))), *((char *)(&(atomp)))))
+                {
+                    stats->dest[u] = n;
+                    continue;
+                }
 
             }
+
             stats->atom[u].degree = degreeU;
 
             stats->sibling[u] = UINT_MAX;
@@ -294,7 +291,6 @@ struct IncrementalAggregationStats *incrementalAggregationGraphCSR( struct Graph
         freeArrayQueue(Neighbors);
     }
 
-    printSet(topLevelSet);
     stats->labels = returnLabelsOfNodesFromDendrogram(topLevelSet, stats->atom, stats->sibling, graph->num_vertices);
     stats->num_clusters = sizeArrayQueueCurr(topLevelSet);
     Stop(timer);
@@ -312,7 +308,7 @@ struct IncrementalAggregationStats *incrementalAggregationGraphCSR( struct Graph
 }
 
 
-void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reachableSet, float *deltaQ, __u32 *u, __u32 v, struct IncrementalAggregationStats *stats, struct GraphCSR *graph)
+void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reachableSet, float *deltaQ, __u32 *u, __u32 degreeVout, __u32 v, struct IncrementalAggregationStats *stats, struct GraphCSR *graph)
 {
 
 
@@ -326,19 +322,15 @@ void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reacha
     __u32 edgeTemp;
 
     __u32 edgeWeightUV = 0;
-    __u32 degreeVout = 0;
-    __u32 degreeUout = 0;
+
     float deltaQtemp = 0.0;
     float numEdgesm = 1.0 / ((graph->num_edges));
     float numEdgesm2 = numEdgesm * numEdgesm;
     struct Bitmap *bitmapNC = newBitmap(graph->num_vertices);
 
-    // struct Vertex *vertices = NULL;
-    // struct EdgeList  *sorted_edges_array = NULL;
 
-    returnReachableSetOfNodesFromDendrogram(v, stats->atom, stats->sibling, reachableSet);
-
-    // #pragma omp parallel for private(degreeTemp,edgeTemp,tempV,k,tempU) shared (bitmapNC,reachableSet,stats)
+    // returnReachableSetOfNodesFromDendrogram(v, stats->atom, stats->sibling, reachableSet);
+    #pragma omp parallel for private(degreeTemp,edgeTemp,tempV,k,tempU) shared (bitmapNC,reachableSet,stats)
     for(j = reachableSet->head ; j < reachableSet->tail; j++)
     {
         tempV = reachableSet->queue[j];
@@ -352,7 +344,7 @@ void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reacha
 
             while(stats->dest[stats->dest[tempU]] != stats->dest[tempU])
             {
-                #pragma omp atomic write
+                // #pragma omp atomic write
                 stats->dest[tempU] = stats->dest[stats->dest[tempU]];
             }
             setBitAtomic(bitmapNC, tempU);
@@ -373,14 +365,12 @@ void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reacha
         }
     }
 
-
-    // edge_idv = graph->vertices[v].edges_idx;
-    degreeVout = stats->atom[stats->dest[v]].degree;
+    deltaQtemp = 0.0;
 
     for(j = Neighbors->head ; j < Neighbors->tail; j++)
     {
         __u32 i = Neighbors->queue[j];
-        deltaQtemp = 0.0;
+        __u32 degreeUout = 0;
         degreeUout = stats->atom[stats->dest[i]].degree;
 
         if(degreeUout != UINT_MAX)
@@ -393,6 +383,7 @@ void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reacha
             }
         }
     }
+
     resetArrayQueue(reachableSet);
     resetArrayQueue(Neighbors);
     freeBitmap(bitmapNC);
@@ -455,8 +446,6 @@ void traversDendrogramLabelsDFS(__u32 *newLablesCounter, __u32 *newLables, __u32
     newLables[v] = (*newLablesCounter);
     (*newLablesCounter)++;
     traversDendrogramLabelsDFS(newLablesCounter, newLables, sibling[v], atom, sibling);
-
-
 
 }
 

@@ -65,7 +65,7 @@ void freeIncrementalAggregationStats(struct IncrementalAggregationStats *stats);
 // ********************************************************************************************
 
 struct IncrementalAggregationStats *incrementalAggregationGraphCSR(struct GraphCSR *graph);
-void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reachableSet, float *deltaQ, __u32 *u, __u32 v, struct IncrementalAggregationStats *stats, struct GraphCSR *graph);
+void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reachableSet, float *deltaQ, __u32 *u, __u32 degreeVout, __u32 v, struct IncrementalAggregationStats *stats, struct GraphCSR *graph);
 void traversDendrogramReachableSetDFS(__u32 v, struct Atom *atom, __u32 *sibling, struct ArrayQueue *reachableSet);
 void printSet(struct ArrayQueue *Set);
 void returnReachableSetOfNodesFromDendrogram(__u32 v, struct Atom *atom, __u32 *sibling, struct ArrayQueue *reachableSet);
