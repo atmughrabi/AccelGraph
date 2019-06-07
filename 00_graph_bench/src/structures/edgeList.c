@@ -110,14 +110,19 @@ struct EdgeList *removeDulpicatesSelfLoopEdges( struct EdgeList *edgeList)
     __u32 j = 0;
     __u32 i = 0;
 
-    tempSrc = edgeList->edges_array_src[i];
-    tempDest = edgeList->edges_array_dest[i];
-#if WEIGHTED
-    tempWeight = edgeList->edges_array_weight[i];
-#endif
-    i++;
 
-    tempEdgeList->edges_array_src[j] = tempSrc;
+    do
+    {
+        tempSrc = edgeList->edges_array_src[i];
+        tempDest = edgeList->edges_array_dest[i];
+#if WEIGHTED
+        tempWeight = edgeList->edges_array_weight[i];
+#endif
+        i++;
+    }
+    while(tempSrc == tempDest);
+
+        tempEdgeList->edges_array_src[j] = tempSrc;
     tempEdgeList->edges_array_dest[j] = tempDest;
 #if WEIGHTED
     tempEdgeList->edges_array_weight[j] = tempWeight;

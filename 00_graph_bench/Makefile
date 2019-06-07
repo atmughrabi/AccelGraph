@@ -72,7 +72,7 @@ GRAPH_NAME = Rabbit
 
 # real world large graphs binary format
 # GRAPH_NAME = orkut
-GRAPH_NAME = gplus
+# GRAPH_NAME = gplus
 # GRAPH_NAME = sk-2005
 # GRAPH_NAME = twitter
 # GRAPH_NAME = livejournal
@@ -84,7 +84,7 @@ GRAPH_NAME = gplus
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
 # GRAPH_NAME = p2p-Gnutella31
-# GRAPH_NAME = web-BerkStan
+GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
 
@@ -103,7 +103,7 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 7
 
 ROOT 			= 5319
-PULL_PUSH 		= 1
+PULL_PUSH 		= 3
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
@@ -113,13 +113,13 @@ NUM_ITERATIONS 	= 100
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
-CONVERT_FORMAT 	= 0
+CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
 BIN_SIZE = 512
 INOUT_STATS = 2
 
-ARGS = -k -s -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+ARGS =  -s -k -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################

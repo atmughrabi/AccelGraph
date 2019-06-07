@@ -146,7 +146,6 @@ struct GraphCSR *graphCSRPreProcessingStep (struct Arguments *arguments)
     graphCSRPrintMessageWithtime("Read Edge List From File (Seconds)", Seconds(timer));
 
 
-
     if(arguments->lmode)
         edgeList = reorderGraphProcess(edgeList, arguments);
 

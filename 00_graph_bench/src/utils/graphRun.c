@@ -143,6 +143,12 @@ void *generateGraphDataStructure(struct Arguments *arguments)
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     void *graph = NULL;
 
+    if(arguments->algorithm == 7){ // Triangle counting depends on order
+
+        arguments->sort = 1;
+        arguments->lmode = 3;
+    }
+
     if(arguments->fnameb_format == 0)  // for now it edge list is text only convert to binary
     {
         Start(timer);

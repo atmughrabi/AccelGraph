@@ -28,6 +28,14 @@ struct TCStats *newTCStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph);
 void freeTCStats(struct TCStats *stats);
 
 // ********************************************************************************************
+// ***************                  Helper Functions                             **************
+// ********************************************************************************************
+
+__u32 minTwoNodes(__u32 node_v, __u32 node_u, __u32 degree_v, __u32 degree_u);
+__u32 maxTwoNodes(__u32 node_v, __u32 node_u, __u32 degree_v, __u32 degree_u);
+__u32 countIntersectionsBinarySearch(__u32 u, __u32 v, struct GraphCSR *graph);
+
+// ********************************************************************************************
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
@@ -35,6 +43,7 @@ struct TCStats *triangleCountGraphCSR(__u32 pushpull, struct GraphCSR *graph);
 struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph);
 struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph);
 struct TCStats *triangleCountPushGraphCSR(struct GraphCSR *graph);
+struct TCStats *triangleCountBinaryIntersectionGraphCSR(struct GraphCSR *graph);
 
 // ********************************************************************************************
 // ***************					GRID DataStructure							 **************
