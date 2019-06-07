@@ -136,72 +136,31 @@ __u32 countIntersectionsBinarySearch(__u32 u, __u32 v, struct GraphCSR *graph)
 {
 
     __u32 count = 0;
-    __u32 degree_u = graph->vertices->out_degree[u];
-    __u32 degree_v = graph->vertices->out_degree[v];
+    
+    __u32 degree_iter = graph->vertices->out_degree[v];
+    __u32 edge_idx_iter = graph->vertices->edges_idx[v];
 
-    // printf("u: %u degree %u\n", u, degree_u);
-    // printf("v: %u degree %u\n", v, degree_v);
-
-
-    __u32 node_iter = 0;
-    __u32 node_comp = 0;
-
-    // if(degree_u > degree_v)
-    // {
-        node_iter = v;
-        node_comp = u;
-    // }
-    // else
-    // {
-    //     node_iter = u;
-    //     node_comp = v;
-    // }
-
-    __u32 degree_iter = graph->vertices->out_degree[node_iter];
-    __u32 edge_idx_iter = graph->vertices->edges_idx[node_iter];
-
-    __u32 degree_comp = graph->vertices->out_degree[node_comp];
-    __u32 edge_idx_comp = graph->vertices->edges_idx[node_comp];
+    __u32 degree_comp = graph->vertices->out_degree[u];
+    __u32 edge_idx_comp = graph->vertices->edges_idx[u];
 
     __u32 i;
-    // printf("iter: %u degree %u\n->", node_iter, degree_iter);
-    // for(i = edge_idx_iter ; i < (edge_idx_iter + degree_iter); i++ )
-    // {
-    //     printf("%u ", graph->sorted_edges_array->edges_array_dest[i]);
-    // }
-    // printf("\n");
-    // printf("comp: %u degree %u\n->", node_comp, degree_comp);
-    // for(i = edge_idx_comp ; i < (edge_idx_comp + degree_comp); i++ )
-    // {
-    //     printf("%u ", graph->sorted_edges_array->edges_array_dest[i]);
-    // }
-    // printf("\n");
-
-
-
-
     __u32 iter;
+
     for(iter = edge_idx_iter ; iter < (edge_idx_iter + degree_iter); iter++ )
     {
-        __u32 bottom = 0;
-        __u32 top = degree_comp;
 
-        __u32 mid = (top + bottom) >> 1;
-        __u32 v_comp = graph->sorted_edges_array->edges_array_dest[edge_idx_comp + mid];
         __u32 u_iter = graph->sorted_edges_array->edges_array_dest[iter];
-
-        if(u_iter > node_iter)
+        if(u_iter > v)
             break;
 
-       
+        __u32 bottom = 0;
+        __u32 top = degree_comp;
+        __u32 mid = (top + bottom) >> 1;
+        __u32 v_comp = graph->sorted_edges_array->edges_array_dest[edge_idx_comp + mid];
 
         while( bottom < (top - 1))
         {
 
-
-
-            // printf("--> u_iter %u top \n", u_iter, top);
-            // printf("--> v_comp %u mid %u \n", v_comp, mid);
             if(u_iter < v_comp)
             {
                 top = mid;
@@ -210,14 +169,14 @@ __u32 countIntersectionsBinarySearch(__u32 u, __u32 v, struct GraphCSR *graph)
             else if ( u_iter > v_comp)
             {
                 bottom = mid;
-            
+
             }
             else
             {
-                // printf("--> Match <-- \n");
                 count++;
                 break;
             }
+
 
             mid = (top + bottom) >> 1;
             v_comp = graph->sorted_edges_array->edges_array_dest[edge_idx_comp + mid];
@@ -230,9 +189,6 @@ __u32 countIntersectionsBinarySearch(__u32 u, __u32 v, struct GraphCSR *graph)
 
 
     }
-
-    // printf("count %u \n\n", count );
-
     return count;
 }
 
@@ -529,7 +485,6 @@ struct TCStats *triangleCountBinaryIntersectionGraphCSR(struct GraphCSR *graph)
         {
             __u32 node_v = graph->sorted_edges_array->edges_array_dest[v];
 
-            // printf("(u %u v %u) \n", u, node_v);
             if(node_v > u)
                 break;
             counts += countIntersectionsBinarySearch(u, node_v, graph);
