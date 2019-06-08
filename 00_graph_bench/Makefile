@@ -125,7 +125,7 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 ##################################################
 #these variables only affect the signature not used in the make file
 
-UNROLLING = 16
+UNROLLING = 32
 PIPELINE = 0
 
 #each diffrenert run would store the output to different folder based on these parameters
