@@ -20,6 +20,7 @@
 
 # dirs Root app 
 APP_DIR           	= .
+SCRIPT_DIR          = ../04_scripts
 BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
@@ -103,7 +104,7 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 1
 
 ROOT 			= 5319
-PULL_PUSH 		= 0
+PULL_PUSH 		= 1
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
@@ -130,7 +131,7 @@ PIPELINE = 0
 
 #each diffrenert run would store the output to different folder based on these parameters
 BENCHMARK_SIGNATURE = $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_$(UNROLLING)_$(PIPELINE)
-
+PAGERANK_KERNELS=pageRankPullGraphCSRKernelAladdin pageRankPushGraphCSRKernelAladdin
 ##############################################
 #      ACCEL GRAPH COMPILATION VARIABLES     #
 ##############################################
@@ -177,7 +178,7 @@ FAIL = \033[91mFAIL\033[0m
 ##################################################
 ##################################################
 
-PAGERANK_KERNELS = pageRankPullGraphCSRKernelAladdin,pageRankPushGraphCSRKernelAladdin
+
 ##################################################
 #      LLVM TRACER COMPILATION VARIABLES         #
 ##################################################
@@ -195,9 +196,7 @@ TRACER = $(TRACER_HOME)/lib/full_trace.so
 LOGGER = $(TRACER_HOME)/lib/trace_logger.llvm
 GET_LABELED_STMTS = $(TRACER_HOME)/bin/get-labeled-stmts
 
-KERNELS = $(PAGERANK_KERNELS)
-
-export WORKLOAD  = $(KERNELS)
+export WORKLOAD=$(shell python $(SCRIPT_DIR)/choose_workload.py $(ALGORITHMS) $(PULL_PUSH))
 
 LLVM_LIBS = -lm -lz -lpthread 
 
@@ -511,10 +510,15 @@ gem5-build: directories-gem5 $(GEM5_FULL_SRCS)
 
 
 # Builds the standalone CPU version only with simple cache
-.PHONY: gem5-cpu 
+.PHONY: gem5-cache 
 gem5-cache: MODE 		= -DCACHE_HARNESS
 gem5-cache: INTEGRATION = cache
 gem5-cache: graph-gem5-cache
+
+.PHONY: gem5-cache-prefetch
+gem5-cache-prefetch: MODE 		 = -DCACHE_HARNESS -DPREFETCH
+gem5-cache-prefetch: INTEGRATION = cache
+gem5-cache-prefetch: graph-gem5-cache
 
 # Builds the standalone CPU version only.
 .PHONY: gem5-cpu
@@ -594,10 +598,15 @@ gem5: gem5-cpu gem5-accel
 .PHONY: run-gem5
 run-gem5: run-gem5-cpu run-gem5-accel
 
+.PHONY: run-gem5-cache-prefetch 
+run-gem5-cache-prefetch: gem5-cache-prefetch config-symlink-gem5-cache
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cache/$(BENCHMARK_SIGNATURE)  && \
+	../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cache -f ../../../../$(FILE_BIN) $(ARGS)
+
 .PHONY: run-gem5-cache 
 run-gem5-cache: gem5-cache config-symlink-gem5-cache
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cache/$(BENCHMARK_SIGNATURE)  && \
-	../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cache -f ../../../../$(FILE_BIN) $(ARGS) | gzip -c > stdout.sim.gz
+	../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cache -f ../../../../$(FILE_BIN) $(ARGS)
 
 .PHONY: run-gem5-openmp 
 run-gem5-openmp: directories-gem5 graph-openmp config-symlink-gem5-openmp run-llvm-tracer

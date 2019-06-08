@@ -1178,17 +1178,17 @@ struct PageRankStats *pageRankPushGraphCSR(double epsilon,  __u32 iterations, st
 
 #ifdef GEM5_HARNESS
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "riDividedOnDiClause_push_csr", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(float));
+            ACCELGRAPH_CSR_PAGERANK_PUSH, "riDividedOnDiClause_push_csr", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(float));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "pageRanksNext_push_csr", &(pageRanksNext[0]), graph->num_vertices * sizeof(float));
+            ACCELGRAPH_CSR_PAGERANK_PUSH, "pageRanksNext_push_csr", &(pageRanksNext[0]), graph->num_vertices * sizeof(float));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "out_degree_push_csr", &(graph->vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
+            ACCELGRAPH_CSR_PAGERANK_PUSH, "out_degree_push_csr", &(graph->vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "edges_idx_push_csr", &(graph->vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
+            ACCELGRAPH_CSR_PAGERANK_PUSH, "edges_idx_push_csr", &(graph->vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "sorted_edges_array_push_csr", &(graph->sorted_edges_array->edges_array_dest[0]), graph->num_edges * sizeof(__u32));
+            ACCELGRAPH_CSR_PAGERANK_PUSH, "sorted_edges_array_push_csr", &(graph->sorted_edges_array->edges_array_dest[0]), graph->num_edges * sizeof(__u32));
 
-        invokeAcceleratorAndBlock(ACCELGRAPH_CSR_PAGERANK_PULL);
+        invokeAcceleratorAndBlock(ACCELGRAPH_CSR_PAGERANK_PUSH);
 #endif
 
 #ifdef CACHE_HARNESS

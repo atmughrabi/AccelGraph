@@ -18,6 +18,9 @@
 
 // you should add these to Aladdin as an extern "aladdin_sys_constants.h"
 unsigned ACCELGRAPH_CSR_PAGERANK_PULL = 0x300;
+unsigned ACCELGRAPH_CSR_PAGERANK_PUSH = 0x301;
+unsigned ACCELGRAPH_CSR_PAGERANK_PULL_FP = 0x302;
+unsigned ACCELGRAPH_CSR_PAGERANK_PUSH_FP = 0x303;
 
 
 // ********************************************************************************************
@@ -87,7 +90,7 @@ void pageRankPullGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *riD
             }
             if(checkPrefetch(cache->doubleTag, (__u64) & (pageRanksNext[v + 1])))
             {
-                Prefetch(cache->cache, (__u64) & (pageRanksNext[v + 1]), 'r', v);
+                Prefetch(cache->cache, (__u64) & (pageRanksNext[v + 1]), 'r', (v + 1));
             }
         }
 #endif
@@ -169,13 +172,14 @@ void pageRankPushGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *riD
                 u = sorted_edges_array[j];
                 if(checkPrefetch(cache->doubleTag, (__u64) & (pageRanksNext[u])))
                 {
-                    Prefetch(cache->cache, (__u64) & (pageRanksNext[u]), 'r', v);
+                    Prefetch(cache->cache, (__u64) & (pageRanksNext[u]), 'r', u);
                 }
 
             }
+
             if(checkPrefetch(cache->doubleTag, (__u64) & (riDividedOnDiClause[v + 1])))
             {
-                Prefetch(cache->cache, (__u64) & (riDividedOnDiClause[v + 1]), 's', u);
+                Prefetch(cache->cache, (__u64) & (riDividedOnDiClause[v + 1]), 's', (v + 1));
             }
         }
 #endif
