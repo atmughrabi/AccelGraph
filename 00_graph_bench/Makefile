@@ -75,7 +75,7 @@ GRAPH_NAME = Rabbit
 # GRAPH_NAME = gplus
 # GRAPH_NAME = sk-2005
 # GRAPH_NAME = twitter
-GRAPH_NAME = livejournal
+# GRAPH_NAME = livejournal
 # GRAPH_NAME = USA-Road
 # GRAPH_NAME = enwiki-2013
 # GRAPH_NAME = arabic-2005
@@ -83,7 +83,7 @@ GRAPH_NAME = livejournal
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-# GRAPH_NAME = p2p-Gnutella31
+GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -100,15 +100,15 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 8
+ALGORITHMS 		= 1
 
 ROOT 			= 5319
 PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
-# NUM_THREADS  	= 1
-NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
+NUM_THREADS  	= 1
+# NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 1
 
@@ -369,7 +369,7 @@ $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/full.s: $(APP_DIR)/$(OBJ_DIR)/$(AL
 	llc -O0 -disable-fp-elim -filetype=asm -o $@ $<
 
 $(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-instrumented: $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/full.s
-	$(CXX) -static -O0 -fno-inline -o $@ $< $(LLVM_LIBS) -fopenmp 
+	$(CXX) -static -O0 -fno-inline -o $@ $< $(LLVM_LIBS) -fopenmp -lJudy
 
 $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP)-opt.llvm : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c $(APP_DIR)/labelmap
 	clang 	 $(LLVMFLAGS) $(LLVM_INC) -o $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/gem5aladdin/$*.llvm $<

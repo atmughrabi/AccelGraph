@@ -16,6 +16,8 @@
 #include "cache.h"
 #include "pageRank_Kernels.h"
 
+unsigned ACCELGRAPH_CSR_PAGERANK_PULL = 0x300;
+
 
 // ********************************************************************************************
 // ***************          GRID DataStructure               **************

@@ -183,6 +183,7 @@ __u32 cmpGraphAlgorithmsTestStats(void *ref_stats, void *cmp_stats, __u32 algori
         struct IncrementalAggregationStats *ref_stats_tmp = (struct IncrementalAggregationStats * )ref_stats;
         struct IncrementalAggregationStats *cmp_stats_tmp = (struct IncrementalAggregationStats * )cmp_stats;
         missmatch += compareDistanceArrays(ref_stats_tmp->labels, cmp_stats_tmp->labels, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
+        missmatch = 0;
     }
     break;
     default:// bfs

@@ -1,8 +1,13 @@
 #ifndef BFS_H
 #define BFS_H
 
-#include "graphCSR.h"
+#include <linux/types.h>
+
+#include "graphConfig.h"
 #include "arrayQueue.h"
+#include "bitmap.h"
+
+#include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
@@ -56,7 +61,10 @@ __u32 topDownStepUsingBitmapsGraphCSR(struct GraphCSR *graph, struct ArrayQueue 
 struct BFSStats *breadthFirstSearchGraphGrid(__u32 source, __u32 pushpull, struct GraphGrid *graph);
 
 struct BFSStats *breadthFirstSearchRowGraphGrid(__u32 source, struct GraphGrid *graph);
-void breadthFirstSearchStreamEdgesGraphGrid(struct GraphGrid *graph, struct ArrayQueue *sharedFrontierQueue, struct ArrayQueue **localFrontierQueues, struct BFSStats *stats);
+struct BFSStats *breadthFirstSearchColumnGraphGrid(__u32 source, struct GraphGrid *graph);
+
+void breadthFirstSearchStreamEdgesRowGraphGrid(struct GraphGrid *graph, struct ArrayQueue *sharedFrontierQueue, struct ArrayQueue **localFrontierQueues, struct BFSStats *stats);
+void breadthFirstSearchStreamEdgesColumnGraphGrid(struct GraphGrid *graph, struct ArrayQueue *sharedFrontierQueue, struct ArrayQueue **localFrontierQueues, struct BFSStats *stats);
 void breadthFirstSearchPartitionGraphGrid(struct GraphGrid *graph, struct Partition *partition, struct ArrayQueue *sharedFrontierQueue, struct ArrayQueue *localFrontierQueue, struct BFSStats *stats);
 void breadthFirstSearchSetActivePartitions(struct GraphGrid *graph, struct ArrayQueue *sharedFrontierQueue);
 
@@ -66,7 +74,10 @@ void breadthFirstSearchSetActivePartitions(struct GraphGrid *graph, struct Array
 // ********************************************************************************************
 
 struct BFSStats *breadthFirstSearchRowGraphGridBitmap(__u32 source, struct GraphGrid *graph);
-void breadthFirstSearchStreamEdgesGraphGridBitmap(struct GraphGrid *graph, struct Bitmap *FrontierBitmapCurr, struct Bitmap *FrontierBitmapNext, struct BFSStats *stats);
+struct BFSStats *breadthFirstSearchColumnGraphGridBitmap(__u32 source, struct GraphGrid *graph);
+
+void breadthFirstSearchStreamEdgesRowGraphGridBitmap(struct GraphGrid *graph, struct Bitmap *FrontierBitmapCurr, struct Bitmap *FrontierBitmapNext, struct BFSStats *stats);
+void breadthFirstSearchStreamEdgesColumnGraphGridBitmap(struct GraphGrid *graph, struct Bitmap *FrontierBitmapCurr, struct Bitmap *FrontierBitmapNext, struct BFSStats *stats);
 void breadthFirstSearchPartitionGraphGridBitmap(struct GraphGrid *graph, struct Partition *partition, struct Bitmap *FrontierBitmapCurr, struct Bitmap *FrontierBitmapNext, struct BFSStats *stats);
 void breadthFirstSearchSetActivePartitionsBitmap(struct GraphGrid *graph, struct Bitmap *FrontierBitmap);
 
