@@ -16,6 +16,7 @@
 #include "cache.h"
 #include "pageRank_Kernels.h"
 
+// you should add these to Aladdin as an extern "aladdin_sys_constants.h"
 unsigned ACCELGRAPH_CSR_PAGERANK_PULL = 0x300;
 
 

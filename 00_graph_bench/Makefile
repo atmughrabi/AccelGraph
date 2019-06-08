@@ -618,7 +618,7 @@ run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
 .PHONY: run-gem5-cpu-only
 run-gem5-cpu-only: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu/$(BENCHMARK_SIGNATURE)  && \
-	../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu -f ../../../../$(FILE_BIN) $(ARGS) | gzip -c > stdout.run.gz
+	../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu -f ../../../../$(FILE_BIN) $(ARGS) 
 
 .PHONY: run-gem5-accel
 run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer

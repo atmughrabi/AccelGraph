@@ -10,21 +10,16 @@
 #include "boolean.h"
 #include "arrayQueue.h"
 #include "bitmap.h"
-#include "pageRank.h"
+
+#include "graphConfig.h"
 
 #include "fixedPoint.h"
 #include "quantization.h"
-
-#include "reorder.h"
 
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
-
-#include "cache.h"
-#include "bloomMultiHash.h"
-
 
 #ifdef GEM5_HARNESS
 #include "gem5/gem5_harness.h"
@@ -32,8 +27,10 @@
 
 // #include <gem5/m5ops.h>
 // #include "m5_mmap.h"
-#include "pageRank_Kernels.h"
 
+#include "cache.h"
+#include "pageRank_Kernels.h"
+#include "pageRank.h"
 
 #define BLOCKSIZE 64
 #define L1_SIZE 32768
@@ -1130,7 +1127,6 @@ struct PageRankStats *pageRankPushGraphCSR(double epsilon,  __u32 iterations, st
 
 
     double error_total = 0.0;
-    __u32 i;
     __u32 v;
 
     // double error = 0;
@@ -1186,9 +1182,9 @@ struct PageRankStats *pageRankPushGraphCSR(double epsilon,  __u32 iterations, st
         mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "pageRanksNext_push_csr", &(pageRanksNext[0]), graph->num_vertices * sizeof(float));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "out_degree_push_csr", &(vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
+            ACCELGRAPH_CSR_PAGERANK_PULL, "out_degree_push_csr", &(graph->vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "edges_idx_push_csr", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
+            ACCELGRAPH_CSR_PAGERANK_PULL, "edges_idx_push_csr", &(graph->vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
             ACCELGRAPH_CSR_PAGERANK_PULL, "sorted_edges_array_push_csr", &(graph->sorted_edges_array->edges_array_dest[0]), graph->num_edges * sizeof(__u32));
 
@@ -1196,11 +1192,11 @@ struct PageRankStats *pageRankPushGraphCSR(double epsilon,  __u32 iterations, st
 #endif
 
 #ifdef CACHE_HARNESS
-        pageRankPushGraphCSRKernelCache(cache, riDividedOnDiClause, pageRanksNext, vertices->out_degree, vertices->edges_idx, graph->sorted_edges_array->edges_array_dest, graph->num_vertices);
+        pageRankPushGraphCSRKernelCache(cache, riDividedOnDiClause, pageRanksNext, graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest, graph->num_vertices);
 #endif
 
 #ifdef CPU_HARNESS
-        pageRankPushGraphCSRKernelAladdin(riDividedOnDiClause, pageRanksNext, vertices->out_degree, vertices->edges_idx, graph->sorted_edges_array->edges_array_dest, graph->num_vertices);
+        pageRankPushGraphCSRKernelAladdin(riDividedOnDiClause, pageRanksNext, graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest, graph->num_vertices);
 #endif
 
 

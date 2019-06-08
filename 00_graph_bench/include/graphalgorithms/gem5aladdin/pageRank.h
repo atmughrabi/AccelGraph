@@ -2,6 +2,7 @@
 #define PAGERANK_H
 
 #include <linux/types.h>
+
 #include "graphCSR.h"
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
@@ -62,7 +63,6 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-void pageRankPullGraphCSRKernel(float *riDividedOnDiClause, float *pageRanksNext, __u32 *out_degree,__u32 *edges_idx, __u32 *sorted_edges_array, __u32 num_vertices);
 struct PageRankStats *pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphCSR *graph);
 struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph);
 struct PageRankStats *pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph);
