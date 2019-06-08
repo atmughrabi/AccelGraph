@@ -188,19 +188,19 @@ Accel-Graph can handle multiple representations of the graph structure in memory
 
 ## Regular unsorted Edge-list as input.
 
-<p align="center"><img src="./02_slides/fig/datastructures/edgelist-file.png" width ="500" ></p>
+<p align="center"><img src="../02_slides/fig/datastructures/edgelist-file.png" width ="500" ></p>
 
 ##  CSR (Compressed Sparse Row)
-<p align="center"><img src="./02_slides/fig/datastructures/csr.png" width ="450" ></p>
+<p align="center"><img src="../02_slides/fig/datastructures/csr.png" width ="450" ></p>
 
 ##  Grid
-<p align="center"><img src="./02_slides/fig/datastructures/grid.png" width ="700" ></p>
+<p align="center"><img src="../02_slides/fig/datastructures/grid.png" width ="700" ></p>
 
 ##  Array-List
-<p align="center"><img src="./02_slides/fig/datastructures/arraylist.png" width="550" ></p>
+<p align="center"><img src="../02_slides/fig/datastructures/arraylist.png" width="550" ></p>
 
 ##  Linked-List
-<p align="center"><img src="./02_slides/fig/datastructures/linkedlist.png" width="600" ></p>
+<p align="center"><img src="../02_slides/fig/datastructures/linkedlist.png" width="600" ></p>
 
 
 # Accel-Graph Options 

@@ -125,7 +125,7 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 ##################################################
 #these variables only affect the signature not used in the make file
 
-UNROLLING = 32
+UNROLLING = 16
 PIPELINE = 0
 
 #each diffrenert run would store the output to different folder based on these parameters
@@ -177,6 +177,7 @@ FAIL = \033[91mFAIL\033[0m
 ##################################################
 ##################################################
 
+PAGERANK_KERNELS = pageRankPullGraphCSRKernelAladdin,pageRankPushGraphCSRKernelAladdin
 ##################################################
 #      LLVM TRACER COMPILATION VARIABLES         #
 ##################################################
@@ -194,7 +195,7 @@ TRACER = $(TRACER_HOME)/lib/full_trace.so
 LOGGER = $(TRACER_HOME)/lib/trace_logger.llvm
 GET_LABELED_STMTS = $(TRACER_HOME)/bin/get-labeled-stmts
 
-KERNELS = pageRankPullGraphCSRKernelAladdin
+KERNELS = $(PAGERANK_KERNELS)
 
 export WORKLOAD  = $(KERNELS)
 
@@ -596,7 +597,7 @@ run-gem5: run-gem5-cpu run-gem5-accel
 .PHONY: run-gem5-cache 
 run-gem5-cache: gem5-cache config-symlink-gem5-cache
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cache/$(BENCHMARK_SIGNATURE)  && \
-	../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cache -f ../../../../$(FILE_BIN) $(ARGS) | gzip -c > stdout.gz
+	../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cache -f ../../../../$(FILE_BIN) $(ARGS) | gzip -c > stdout.sim.gz
 
 .PHONY: run-gem5-openmp 
 run-gem5-openmp: directories-gem5 graph-openmp config-symlink-gem5-openmp run-llvm-tracer
@@ -604,7 +605,7 @@ run-gem5-openmp: directories-gem5 graph-openmp config-symlink-gem5-openmp run-ll
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
 	-c ../../../../$(BIN_DIR)/$(GAPP)-openmp -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
-	| gzip -c > stdout.gz
+	| gzip -c > stdout.sim.gz
 
 .PHONY: run-gem5-cpu
 run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
@@ -612,7 +613,12 @@ run-gem5-cpu: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
 	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
-	| gzip -c > stdout.gz
+	| gzip -c > stdout.sim.gz
+
+.PHONY: run-gem5-cpu-only
+run-gem5-cpu-only: gem5-cpu config-symlink-gem5-cpu run-llvm-tracer
+	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/cpu/$(BENCHMARK_SIGNATURE)  && \
+	../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-cpu -f ../../../../$(FILE_BIN) $(ARGS) | gzip -c > stdout.run.gz
 
 .PHONY: run-gem5-accel
 run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
@@ -620,7 +626,7 @@ run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
 	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
-	| gzip -c > stdout.gz
+	| gzip -c > stdout.sim.gz
 
 .PHONY: run-gem5-accel-debug
 run-gem5-accel-debug: gem5-accel config-symlink-gem5-accel run-llvm-tracer
@@ -628,7 +634,7 @@ run-gem5-accel-debug: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS_DEBUG) \
 	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
-	| gzip -c > stdout.gz &&\
+	| gzip -c > stdout.sim.gz &&\
 
 	  
 ##################################################

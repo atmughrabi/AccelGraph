@@ -86,7 +86,7 @@ void pageRankPullGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *riD
             }
             if(checkPrefetch(cache->doubleTag, (__u64) & (pageRanksNext[v + 1])))
             {
-                Prefetch(cache->cache, (__u64) & (pageRanksNext[v + 1]), 'w', v);
+                Prefetch(cache->cache, (__u64) & (pageRanksNext[v + 1]), 'r', v);
             }
         }
 #endif
@@ -120,5 +120,87 @@ void pageRankPullGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *riD
 
 }
 
+
+// ********************************************************************************************
+
+void pageRankPushGraphCSRKernelAladdin(float *riDividedOnDiClause, float *pageRanksNext, __u32 *out_degree, __u32 *edges_idx, __u32 *sorted_edges_array, __u32 num_vertices)
+{
+
+    __u32 j;
+    __u32 v;
+    __u32 u;
+    __u32 degree;
+    __u32 edge_idx;
+
+iter :
+    for(v = 0; v < num_vertices; v++)
+    {
+        degree = out_degree[v];
+        edge_idx = edges_idx[v];
+sum :
+        for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+        {
+            u = sorted_edges_array[j];
+            pageRanksNext[u] += riDividedOnDiClause[v];
+        }
+    }
+}
+
+
+void pageRankPushGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *riDividedOnDiClause, float *pageRanksNext, __u32 *out_degree, __u32 *edges_idx, __u32 *sorted_edges_array, __u32 num_vertices)
+{
+
+    __u32 j;
+    __u32 v;
+    __u32 u;
+    __u32 degree;
+    __u32 edge_idx;
+
+    for(v = 0; v < num_vertices; v++)
+    {
+
+#ifdef PREFETCH
+        if((v + 1) < num_vertices)
+        {
+            edge_idx = edges_idx[v + 1];
+            for(j = edge_idx ; j < (edge_idx + out_degree[v + 1]) ; j++)
+            {
+                u = sorted_edges_array[j];
+                if(checkPrefetch(cache->doubleTag, (__u64) & (pageRanksNext[u])))
+                {
+                    Prefetch(cache->cache, (__u64) & (pageRanksNext[u]), 'r', v);
+                }
+
+            }
+            if(checkPrefetch(cache->doubleTag, (__u64) & (riDividedOnDiClause[v + 1])))
+            {
+                Prefetch(cache->cache, (__u64) & (riDividedOnDiClause[v + 1]), 's', u);
+            }
+        }
+#endif
+
+        degree = out_degree[v];
+        edge_idx = edges_idx[v];
+
+        // Access(cache->cache, (__u64) & (out_degree[v]), 'r', v);
+        // Access(cache->cache, (__u64) & (edges_idx[v]), 'r', v);
+
+        for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+        {
+            u = sorted_edges_array[j];
+
+            Access(cache->cache, (__u64) & (sorted_edges_array[j]), 'r', u);
+
+            pageRanksNext[u] += riDividedOnDiClause[v];
+
+            Access(cache->cache, (__u64) & (riDividedOnDiClause[v]), 'r', v);
+            Access(cache->doubleTag, (__u64) & (riDividedOnDiClause[v]), 'r', v);
+
+            Access(cache->cache, (__u64) & (pageRanksNext[u]), 'r', u);
+            Access(cache->cache, (__u64) & (pageRanksNext[u]), 'w', u);
+            Access(cache->doubleTag, (__u64) & (pageRanksNext[u]), 'r', u);
+        }
+    }
+}
 
 // ********************************************************************************************
