@@ -71,11 +71,11 @@ GRAPH_NAME = Rabbit
 # GRAPH_NAME = RMAT22
 
 # real world large graphs binary format
-GRAPH_NAME = orkut
+# GRAPH_NAME = orkut
 # GRAPH_NAME = gplus
 # GRAPH_NAME = sk-2005
 # GRAPH_NAME = twitter
-# GRAPH_NAME = livejournal
+GRAPH_NAME = livejournal
 # GRAPH_NAME = USA-Road
 # GRAPH_NAME = enwiki-2013
 # GRAPH_NAME = arabic-2005

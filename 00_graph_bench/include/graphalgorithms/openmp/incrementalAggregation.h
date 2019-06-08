@@ -11,12 +11,17 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
-struct __attribute__((__packed__)) Atom
+struct __attribute__((__packed__)) MyPair
 {
     __u32 degree;
     __u32 child;
 };
 
+
+union Atom {
+    __u64 atomicPair;
+    struct MyPair pair;
+};
 // typedef struct pair { void *a[2]; } pair;
 
 // inline
@@ -42,7 +47,7 @@ struct IncrementalAggregationStats
     //dendogram
     __u32 *atomDegree;
     __u32 *atomChild;
-    struct Atom *atom;
+    union Atom *atom;
 
     __u32 *sibling;
     __u32 *dest;
@@ -66,11 +71,11 @@ void freeIncrementalAggregationStats(struct IncrementalAggregationStats *stats);
 
 struct IncrementalAggregationStats *incrementalAggregationGraphCSR(struct GraphCSR *graph);
 void findBestDestination(struct ArrayQueue *Neighbors, struct ArrayQueue *reachableSet, float *deltaQ, __u32 *u, __u32 degreeVout, __u32 v, struct IncrementalAggregationStats *stats, struct GraphCSR *graph);
-void traversDendrogramReachableSetDFS(__u32 v, struct Atom *atom, __u32 *sibling, struct ArrayQueue *reachableSet);
+void traversDendrogramReachableSetDFS(__u32 v, union Atom *atom, __u32 *sibling, struct ArrayQueue *reachableSet);
 void printSet(struct ArrayQueue *Set);
-void returnReachableSetOfNodesFromDendrogram(__u32 v, struct Atom *atom, __u32 *sibling, struct ArrayQueue *reachableSet);
+void returnReachableSetOfNodesFromDendrogram(__u32 v, union Atom *atom, __u32 *sibling, struct ArrayQueue *reachableSet);
 
-__u32 *returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet, struct Atom *atom, __u32 *sibling, __u32 num_vertices);
-void traversDendrogramLabelsDFS(__u32 *newLablesCounter, __u32 *newLables, __u32 v, struct Atom *atom, __u32 *sibling);
+__u32 *returnLabelsOfNodesFromDendrogram(struct ArrayQueue *reachableSet, union Atom *atom, __u32 *sibling, __u32 num_vertices);
+void traversDendrogramLabelsDFS(__u32 *newLablesCounter, __u32 *newLables, __u32 v, union Atom *atom, __u32 *sibling);
 
 #endif
