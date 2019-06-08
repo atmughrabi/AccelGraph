@@ -136,7 +136,7 @@ __u32 countIntersectionsBinarySearch(__u32 u, __u32 v, struct GraphCSR *graph)
 {
 
     __u32 count = 0;
-    
+
     __u32 degree_iter = graph->vertices->out_degree[v];
     __u32 edge_idx_iter = graph->vertices->edges_idx[v];
 
@@ -527,9 +527,42 @@ struct TCStats *triangleCountGraphGrid(__u32 pushpull, struct GraphGrid *graph)
 struct TCStats *triangleCountRowGraphGrid(struct GraphGrid *graph)
 {
 
+    
+    __u64 counts = 0;
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Triangle Count To Be Implemented");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Triangle Counts", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    struct TCStats *stats = newTCStatsGraphGrid(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+    stats->total_counts = counts;
+    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+    return stats;
+
 }
 struct TCStats *triangleCountColumnGraphGrid(struct GraphGrid *graph)
 {
+
+    __u64 counts = 0;
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Triangle Count To Be Implemented");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Triangle Counts", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    struct TCStats *stats = newTCStatsGraphGrid(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+    stats->total_counts = counts;
+    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+    return stats;
 
 }
 
@@ -559,10 +592,40 @@ struct TCStats *triangleCountGraphAdjArrayList(__u32 pushpull, struct GraphAdjAr
 struct TCStats *triangleCountPullGraphAdjArrayList(struct GraphAdjArrayList *graph)
 {
 
+    __u64 counts = 0;
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Triangle Count To Be Implemented");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Triangle Counts", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    struct TCStats *stats = newTCStatsGraphAdjArrayList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+    stats->total_counts = counts;
+    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+    return stats;
+
 }
 struct TCStats *triangleCountPushGraphAdjArrayList(struct GraphAdjArrayList *graph)
 {
+    __u64 counts = 0;
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Triangle Count To Be Implemented");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Triangle Counts", "Time (S)");
+    printf(" -----------------------------------------------------\n");
 
+    struct TCStats *stats = newTCStatsGraphAdjArrayList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+    stats->total_counts = counts;
+    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+    return stats;
 }
 
 // ********************************************************************************************
@@ -590,9 +653,40 @@ struct TCStats *triangleCountGraphAdjLinkedList(__u32 pushpull, struct GraphAdjL
 }
 struct TCStats *triangleCountPullGraphAdjLinkedList(struct GraphAdjLinkedList *graph)
 {
+    __u64 counts = 0;
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Triangle Count To Be Implemented");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Triangle Counts", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    struct TCStats *stats = newTCStatsGraphAdjLinkedList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+    stats->total_counts = counts;
+    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+    return stats;
 
 }
 struct TCStats *triangleCountPushGraphAdjLinkedList(struct GraphAdjLinkedList *graph)
 {
+
+    __u64 counts = 0;
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "Starting Triangle Count To Be Implemented");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-21s | %-27s | \n", "Triangle Counts", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    struct TCStats *stats = newTCStatsGraphAdjLinkedList(graph);
+    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+    Stop(timer);
+    stats->time_total = Seconds(timer);
+    stats->total_counts = counts;
+    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf(" -----------------------------------------------------\n");
+    return stats;
 
 }
