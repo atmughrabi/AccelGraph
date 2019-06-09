@@ -17,11 +17,8 @@
 #include "pageRank_Kernels.h"
 
 // you should add these to Aladdin as an extern "aladdin_sys_constants.h"
-unsigned ACCELGRAPH_CSR_PAGERANK_PULL = 0x300;
-unsigned ACCELGRAPH_CSR_PAGERANK_PUSH = 0x301;
-unsigned ACCELGRAPH_CSR_PAGERANK_PULL_FP = 0x302;
-unsigned ACCELGRAPH_CSR_PAGERANK_PUSH_FP = 0x303;
-
+unsigned ACCELGRAPH = 0x300;
+unsigned ACCELGRAPH_PAGERANK = 0x310;
 
 // ********************************************************************************************
 // ***************          GRID DataStructure               **************

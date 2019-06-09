@@ -1035,17 +1035,17 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
 
 #ifdef GEM5_HARNESS
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "riDividedOnDiClause_pull_csr", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(float));
+            ACCELGRAPH, "riDividedOnDiClause_pull_csr", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(float));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "pageRanksNext_pull_csr", &(pageRanksNext[0]), graph->num_vertices * sizeof(float));
+            ACCELGRAPH, "pageRanksNext_pull_csr", &(pageRanksNext[0]), graph->num_vertices * sizeof(float));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "out_degree_pull_csr", &(vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
+            ACCELGRAPH, "out_degree_pull_csr", &(vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "edges_idx_pull_csr", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
+            ACCELGRAPH, "edges_idx_pull_csr", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PULL, "sorted_edges_array_pull_csr", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
+            ACCELGRAPH, "sorted_edges_array_pull_csr", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
 
-        invokeAcceleratorAndBlock(ACCELGRAPH_CSR_PAGERANK_PULL);
+        invokeAcceleratorAndBlock(ACCELGRAPH);
 #endif
 
 #ifdef CACHE_HARNESS
@@ -1178,17 +1178,17 @@ struct PageRankStats *pageRankPushGraphCSR(double epsilon,  __u32 iterations, st
 
 #ifdef GEM5_HARNESS
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PUSH, "riDividedOnDiClause_push_csr", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(float));
+            ACCELGRAPH, "riDividedOnDiClause_push_csr", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(float));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PUSH, "pageRanksNext_push_csr", &(pageRanksNext[0]), graph->num_vertices * sizeof(float));
+            ACCELGRAPH, "pageRanksNext_push_csr", &(pageRanksNext[0]), graph->num_vertices * sizeof(float));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PUSH, "out_degree_push_csr", &(graph->vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
+            ACCELGRAPH, "out_degree_push_csr", &(graph->vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PUSH, "edges_idx_push_csr", &(graph->vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
+            ACCELGRAPH, "edges_idx_push_csr", &(graph->vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
-            ACCELGRAPH_CSR_PAGERANK_PUSH, "sorted_edges_array_push_csr", &(graph->sorted_edges_array->edges_array_dest[0]), graph->num_edges * sizeof(__u32));
+            ACCELGRAPH, "sorted_edges_array_push_csr", &(graph->sorted_edges_array->edges_array_dest[0]), graph->num_edges * sizeof(__u32));
 
-        invokeAcceleratorAndBlock(ACCELGRAPH_CSR_PAGERANK_PUSH);
+        invokeAcceleratorAndBlock(ACCELGRAPH);
 #endif
 
 #ifdef CACHE_HARNESS
@@ -1264,11 +1264,7 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
 {
 
     double error_total = 0.0;
-    __u32 j;
     __u32 v;
-    __u32 u;
-    __u32 degree;
-    __u32 edge_idx;
     __u32 activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
@@ -1282,6 +1278,11 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
     __u32 *sorted_edges_array = NULL;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+
+#ifdef CACHE_HARNESS
+    struct DoubleTaggedCache *cache = newDoubleTaggedCache(L1_SIZE,  L1_ASSOC,  BLOCKSIZE, graph->num_vertices);
+#endif
+
 
 #if DIRECTED
     vertices = graph->inverse_vertices;
@@ -1335,18 +1336,29 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
         // printf("|A %-9u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
 
         //  Start(timer_inner);
-        #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            degree = vertices->out_degree[v];
-            edge_idx = vertices->edges_idx[v];
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                u = sorted_edges_array[j];
-                pageRanksNext[v] += riDividedOnDiClause[u];
-            }
+#ifdef GEM5_HARNESS
+        mapArrayToAccelerator(
+            ACCELGRAPH, "riDividedOnDiClause_pull_csr_fp", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(__u64));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "pageRanksNext_pull_csr_fp", &(pageRanksNext[0]), graph->num_vertices * sizeof(__u64));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "out_degree_pull_csr_fp", &(vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "edges_idx_pull_csr_fp", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "sorted_edges_array_pull_csr_fp", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
 
-        }
+        invokeAcceleratorAndBlock(ACCELGRAPH);
+#endif
+
+#ifdef CACHE_HARNESS
+        pageRankPullFixedPointGraphCSRKernelCache(cache, riDividedOnDiClause, pageRanksNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
+#endif
+
+#ifdef CPU_HARNESS
+        pageRankPullFixedPointGraphCSRKernelAladdin(riDividedOnDiClause, pageRanksNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
+#endif
+
         // Stop(timer_inner);
         // printf("|B %-9u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
 
@@ -1401,6 +1413,11 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
     free(timer_inner);
     free(riDividedOnDiClause);
 
+#ifdef CACHE_HARNESS
+    printStats(cache->cache);
+    freeDoubleTaggedCache(cache);
+#endif
+
     stats->error_total = error_total;
     return stats;
 
@@ -1410,33 +1427,18 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
 {
 
     double error_total = 0.0;
-    __u32 i;
     __u32 v;
 
-    // double error = 0;
     __u32 activeVertices = 0;
 
-    // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
-    // __u64 stats->base_prFP = DoubleToFixed(stats->base_pr);
-    // __u64 stats->dampFP = DoubleToFixed(stats->damp);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
+#ifdef CACHE_HARNESS
+    struct DoubleTaggedCache *cache = newDoubleTaggedCache(L1_SIZE,  L1_ASSOC,  BLOCKSIZE, graph->num_vertices);
+#endif
 
-    omp_lock_t *vertex_lock  = (omp_lock_t *) my_malloc( graph->num_vertices * sizeof(omp_lock_t));
-
-
-
-    #pragma omp parallel for default(none) private(i) shared(graph,vertex_lock)
-    for (i = 0; i < graph->num_vertices; i++)
-    {
-        omp_init_lock(&(vertex_lock[i]));
-    }
-
-
-
-    // __u32* pageRanksFP = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
     __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
     __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
 
@@ -1455,8 +1457,6 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
     #pragma omp parallel for default(none) private(v) shared(pageRanksNext,graph)
     for(v = 0; v < graph->num_vertices; v++)
     {
-
-        // pageRanksFP[v]=stats->base_prFP;
         pageRanksNext[v] = 0;
     }
 
@@ -1480,31 +1480,28 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
         // Stop(timer_inner);
         // printf("|A%-10u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
         // Start(timer_inner);
-        #pragma omp parallel for default(none) schedule(dynamic, 1024) private(v) shared(graph,pageRanksNext,riDividedOnDiClause)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
+#ifdef GEM5_HARNESS
+        mapArrayToAccelerator(
+            ACCELGRAPH, "riDividedOnDiClause_push_csr_fp", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(__u64));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "pageRanksNext_push_csr_fp", &(pageRanksNext[0]), graph->num_vertices * sizeof(__u64));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "out_degree_push_csr_fp", &(graph->vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "edges_idx_push_csr_fp", &(graph->vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "sorted_edges_array_push_csr_fp", &(graph->sorted_edges_array->edges_array_dest[0]), graph->num_edges * sizeof(__u32));
 
+        invokeAcceleratorAndBlock(ACCELGRAPH);
+#endif
 
+#ifdef CACHE_HARNESS
+        pageRankPushFixedPointGraphCSRKernelAladdin(cache, riDividedOnDiClause, pageRanksNext, graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest, graph->num_vertices);
+#endif
 
-            __u32 degree = graph->vertices->out_degree[v];
-            __u32 edge_idx = graph->vertices->edges_idx[v];
-            // __u32 tid = omp_get_thread_num();
-            __u32 j;
-
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                __u32 u = graph->sorted_edges_array->edges_array_dest[j];
-
-                // omp_set_lock(&(vertex_lock[u]));
-                //   pageRanksNext[u] += riDividedOnDiClause[v];
-                // omp_unset_lock((&vertex_lock[u]));
-
-                #pragma omp atomic update
-                pageRanksNext[u] += riDividedOnDiClause[v];
-
-                // addAtomicFixedPoint(&pageRanksNext[u] , riDividedOnDiClause[v]);
-            }
-        }
+#ifdef CPU_HARNESS
+        pageRankPushFixedPointGraphCSRKernelCache(riDividedOnDiClause, pageRanksNext, graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest, graph->num_vertices);
+#endif
         // Stop(timer_inner);
         // printf("|B%-10u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
         // Start(timer_inner);
@@ -1552,17 +1549,16 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
 
     // pageRankPrint(pageRanks, graph->num_vertices);
 
-    #pragma omp parallel for
-    for (i = 0; i < graph->num_vertices; i++)
-    {
-        omp_destroy_lock(&(vertex_lock[i]));
-    }
 
     free(timer);
     free(timer_inner);
-    free(vertex_lock);
     free(pageRanksNext);
     free(riDividedOnDiClause);
+
+#ifdef CACHE_HARNESS
+    printStats(cache->cache);
+    freeDoubleTaggedCache(cache);
+#endif
 
     stats->error_total = error_total;
     return stats;
