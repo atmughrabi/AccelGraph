@@ -32,8 +32,8 @@
 #include "pageRank_Kernels.h"
 #include "pageRank.h"
 
-#define BLOCKSIZE 64
-#define L1_SIZE 32768
+#define BLOCKSIZE 128
+#define L1_SIZE 262144
 #define L1_ASSOC 8
 
 // ********************************************************************************************

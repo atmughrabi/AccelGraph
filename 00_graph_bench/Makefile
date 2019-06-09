@@ -104,7 +104,7 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 1
 
 ROOT 			= 5319
-PULL_PUSH 		= 1
+PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
@@ -131,7 +131,8 @@ PIPELINE = 0
 
 #each diffrenert run would store the output to different folder based on these parameters
 BENCHMARK_SIGNATURE = $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_$(UNROLLING)_$(PIPELINE)
-PAGERANK_KERNELS=pageRankPullGraphCSRKernelAladdin pageRankPushGraphCSRKernelAladdin
+
+PAGERANK_KERNELS=pageRankPullGraphCSRKernelAladdin,pageRankPushGraphCSRKernelAladdin
 ##############################################
 #      ACCEL GRAPH COMPILATION VARIABLES     #
 ##############################################
@@ -197,6 +198,7 @@ LOGGER = $(TRACER_HOME)/lib/trace_logger.llvm
 GET_LABELED_STMTS = $(TRACER_HOME)/bin/get-labeled-stmts
 
 export WORKLOAD=$(shell python $(SCRIPT_DIR)/choose_workload.py $(ALGORITHMS) $(PULL_PUSH))
+# export WORKLOAD=pageRankPushGraphCSRKernelAladdin
 
 LLVM_LIBS = -lm -lz -lpthread 
 
@@ -273,7 +275,7 @@ GEM5_ARGS	= --outdir=./outputs \
 			  --sys-clock=1GHz \
 			  --cpu-type=DerivO3CPU \
 			  --caches \
-			  --cacheline_size=64 \
+			  --cacheline_size=128 \
 			  --accel_cfg_file=../../../$(ALADDIN_GEM5_DIR)/gem5.cfg
 
 GEM5_ARGS_DEBUG = 	--debug-flags=HybridDatapath,Aladdin \
@@ -341,7 +343,12 @@ $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.
 clean: clean-trace clean-gem5
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
-	@rm -fr $(APP_DIR)/$(BUILD_DIR)/*
+
+.PHONY: clean-obj
+clean-obj:
+	@rm -fr $(APP_DIR)/$(OBJ_DIR)/*
+	@rm -fr $(APP_DIR)/$(BIN_DIR)/*
+	@rm -f labelmap
 
 ##################################################
 ##################################################
@@ -397,6 +404,8 @@ clean-trace:
 	@rm -f labelmap
 	@rm -fr $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)
 	@rm -fr $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(ALADDIN_STATS_DIR)
+
+
 
 ##################################################
 ##################################################
@@ -541,6 +550,11 @@ clean-gem5:
 	@rm -fr $(GEM5_FULL_OBJ)
 ##################################################
 ##################################################
+
+############################################
+#     CLEAN OBJ FILES        			   #
+############################################
+
 
 ############################################
 #      LLVM TRACER  TOP LEVEL RULES        #

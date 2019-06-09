@@ -35,7 +35,7 @@ unsigned ACCELGRAPH_CSR_PAGERANK_PUSH_FP = 0x303;
 // ********************************************************************************************
 
 
-void pageRankPullGraphCSRKernelAladdin(float *riDividedOnDiClause, float *pageRanksNext, __u32 *out_degree, __u32 *edges_idx, __u32 *sorted_edges_array, __u32 num_vertices)
+void pageRankPullGraphCSRKernelAladdin(float *riDividedOnDiClause_pull_csr, float *pageRanksNext_pull_csr, __u32 *out_degree_pull_csr, __u32 *edges_idx_pull_csr, __u32 *sorted_edges_array_pull_csr, __u32 num_vertices)
 {
 
     __u32 j;
@@ -49,16 +49,16 @@ iter :
     {
 
         float nodeIncomingPR = 0.0f;
-        degree = out_degree[v];
-        edge_idx = edges_idx[v];
+        degree = out_degree_pull_csr[v];
+        edge_idx = edges_idx_pull_csr[v];
 
 sum :
         for(j = edge_idx ; j <  (edge_idx + degree) ; j++)
         {
-            u = sorted_edges_array[j];
-            nodeIncomingPR += riDividedOnDiClause[u]; // pageRanks[v]/graph->vertices[v].out_degree;
+            u = sorted_edges_array_pull_csr[j];
+            nodeIncomingPR += riDividedOnDiClause_pull_csr[u]; // pageRanks[v]/graph->vertices[v].out_degree;
         }
-        pageRanksNext[v] = nodeIncomingPR;
+        pageRanksNext_pull_csr[v] = nodeIncomingPR;
     }
 
 }
@@ -127,7 +127,7 @@ void pageRankPullGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *riD
 
 // ********************************************************************************************
 
-void pageRankPushGraphCSRKernelAladdin(float *riDividedOnDiClause, float *pageRanksNext, __u32 *out_degree, __u32 *edges_idx, __u32 *sorted_edges_array, __u32 num_vertices)
+void pageRankPushGraphCSRKernelAladdin(float *riDividedOnDiClause_push_csr, float *pageRanksNext_push_csr, __u32 *out_degree_push_csr, __u32 *edges_idx_push_csr, __u32 *sorted_edges_array_push_csr, __u32 num_vertices)
 {
 
     __u32 j;
@@ -139,13 +139,13 @@ void pageRankPushGraphCSRKernelAladdin(float *riDividedOnDiClause, float *pageRa
 iter :
     for(v = 0; v < num_vertices; v++)
     {
-        degree = out_degree[v];
-        edge_idx = edges_idx[v];
+        degree = out_degree_push_csr[v];
+        edge_idx = edges_idx_push_csr[v];
 sum :
         for(j = edge_idx ; j < (edge_idx + degree) ; j++)
         {
-            u = sorted_edges_array[j];
-            pageRanksNext[u] += riDividedOnDiClause[v];
+            u = sorted_edges_array_push_csr[j];
+            pageRanksNext_push_csr[u] += riDividedOnDiClause_push_csr[v];
         }
     }
 }

@@ -73,6 +73,10 @@ cache-perf-openmp:
 clean: 
 	$(MAKE) clean -C $(APP_DIR)/$(BENCHMARKS_DIR)
 
+.PHONY: clean-obj
+clean-obj: 
+	$(MAKE) clean-obj -C $(APP_DIR)/$(BENCHMARKS_DIR)
+
 ##################################################
 ##################################################
 
@@ -100,6 +104,10 @@ run-gem5-cache:
 .PHONY: run-gem5-cpu 
 run-gem5-cpu: 
 	$(MAKE) run-gem5-cpu -C $(APP_DIR)/$(BENCHMARKS_DIR)
+
+.PHONY: run-gem5-cpu-only 
+run-gem5-cpu-only: 
+	$(MAKE) run-gem5-cpu-only -C $(APP_DIR)/$(BENCHMARKS_DIR)
 
 .PHONY: run-gem5-accel 
 run-gem5-accel: 
