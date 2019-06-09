@@ -104,7 +104,7 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 1
 
 ROOT 			= 5319
-PULL_PUSH 		= 0
+PULL_PUSH 		= 3
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
@@ -432,7 +432,7 @@ config-symlink-gem5:
 	cp ../../../$(ALADDIN_CACTI_DIR)/cacti_tlb.cfg ./cacti_tlb.cfg &&\
 	cp ../../../$(ALADDIN_CACTI_DIR)/cacti_lq.cfg ./cacti_lq.cfg &&\
 	cp ../../../$(ALADDIN_CACTI_DIR)/cacti_sq.cfg ./cacti_sq.cfg &&\
-	cp ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH)/$(UNROLLING).cfg ./algorithm.cfg
+	cp ../../../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(UNROLLING).cfg ./algorithm.cfg
 
 .PHONY: config-symlink-gem5-cache
 config-symlink-gem5-cache: INTEGRATION = cache
@@ -589,13 +589,13 @@ run-llvm-tracer-force : trace-binary
 run-aladdin : run-llvm-tracer
 	cd $(ALADDIN_HOME)/common && make
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(ALADDIN_STATS_DIR) && \
-	$(ALADDIN_HOME)/common/aladdin $(BENCHMARK_SIGNATURE) ../$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH)/$(UNROLLING).cfg
+	$(ALADDIN_HOME)/common/aladdin $(BENCHMARK_SIGNATURE) ../$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(UNROLLING).cfg
 
 .PHONY: run-aladdin-force
 run-aladdin-force : run-llvm-tracer-force
 	cd $(ALADDIN_HOME)/common && make
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(ALADDIN_STATS_DIR) && \
-	$(ALADDIN_HOME)/common/aladdin $(BENCHMARK_SIGNATURE) ../$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(PULL_PUSH)/$(UNROLLING).cfg
+	$(ALADDIN_HOME)/common/aladdin $(BENCHMARK_SIGNATURE) ../$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz ../$(ALADDIN_ALGO_DIR)/$(DATA_STRUCTURES)/$(ALGORITHMS)/$(UNROLLING).cfg
 
 
 ##################################################

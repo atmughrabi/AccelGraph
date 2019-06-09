@@ -1496,11 +1496,11 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
 #endif
 
 #ifdef CACHE_HARNESS
-        pageRankPushFixedPointGraphCSRKernelAladdin(cache, riDividedOnDiClause, pageRanksNext, graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest, graph->num_vertices);
+        pageRankPushFixedPointGraphCSRKernelCache(cache, riDividedOnDiClause, pageRanksNext, graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest, graph->num_vertices);
 #endif
 
 #ifdef CPU_HARNESS
-        pageRankPushFixedPointGraphCSRKernelCache(riDividedOnDiClause, pageRanksNext, graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest, graph->num_vertices);
+        pageRankPushFixedPointGraphCSRKernelAladdin(riDividedOnDiClause, pageRanksNext, graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest, graph->num_vertices);
 #endif
         // Stop(timer_inner);
         // printf("|B%-10u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));

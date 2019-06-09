@@ -4,7 +4,8 @@ import sys
 algorithm = int(sys.argv[1])
 direction = int(sys.argv[2])
 
-workloads = [[],["pageRankPullGraphCSRKernelAladdin", "pageRankPushGraphCSRKernelAladdin"]]
+workloads = [[],["pageRankPullGraphCSRKernelAladdin", "pageRankPushGraphCSRKernelAladdin",
+				 "pageRankPullFixedPointGraphCSRKernelAladdin", "pageRankPushFixedPointGraphCSRKernelAladdin"]]
 
 
 try:
