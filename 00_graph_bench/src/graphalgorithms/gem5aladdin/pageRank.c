@@ -1480,6 +1480,7 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
         // Stop(timer_inner);
         // printf("|A%-10u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
         // Start(timer_inner);
+        
 #ifdef GEM5_HARNESS
         mapArrayToAccelerator(
             ACCELGRAPH, "riDividedOnDiClause_push_csr_fp", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(__u64));

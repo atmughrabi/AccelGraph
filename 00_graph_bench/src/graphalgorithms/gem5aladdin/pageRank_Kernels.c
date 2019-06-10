@@ -41,23 +41,19 @@ void pageRankPullGraphCSRKernelAladdin(float *riDividedOnDiClause_pull_csr, floa
     __u32 degree;
     __u32 edge_idx;
 
-iter :
-    for(v = 0; v < num_vertices; v++)
+iter : for(v = 0; v < num_vertices; v++)
     {
-
         float nodeIncomingPR = 0.0f;
         degree = out_degree_pull_csr[v];
         edge_idx = edges_idx_pull_csr[v];
 
-sum :
-        for(j = edge_idx ; j <  (edge_idx + degree) ; j++)
+     for(j = edge_idx ; j <  (edge_idx + degree) ; j++)
         {
             u = sorted_edges_array_pull_csr[j];
             nodeIncomingPR += riDividedOnDiClause_pull_csr[u]; // pageRanks[v]/graph->vertices[v].out_degree;
         }
         pageRanksNext_pull_csr[v] = nodeIncomingPR;
     }
-
 }
 
 void pageRankPullGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *riDividedOnDiClause, float *pageRanksNext, __u32 *out_degree, __u32 *edges_idx, __u32 *sorted_edges_array, __u32 num_vertices)
@@ -222,7 +218,7 @@ iter :
     for(v = 0; v < num_vertices; v++)
     {
 
-        float nodeIncomingPR = 0.0f;
+        __u64 nodeIncomingPR = 0;
         degree = out_degree_pull_csr_fp[v];
         edge_idx = edges_idx_pull_csr_fp[v];
 
@@ -269,7 +265,7 @@ void pageRankPullFixedPointGraphCSRKernelCache(struct DoubleTaggedCache *cache, 
         }
 #endif
 
-        float nodeIncomingPR = 0.0f;
+        __u64 nodeIncomingPR = 0;
         degree = out_degree[v];
         edge_idx = edges_idx[v];
 

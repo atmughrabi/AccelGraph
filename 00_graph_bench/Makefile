@@ -104,7 +104,7 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 1
 
 ROOT 			= 5319
-PULL_PUSH 		= 3
+PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
@@ -126,13 +126,12 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 ##################################################
 #these variables only affect the signature not used in the make file
 
-UNROLLING = 16
+UNROLLING = 64
 PIPELINE = 0
 
 #each diffrenert run would store the output to different folder based on these parameters
 BENCHMARK_SIGNATURE = $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_$(UNROLLING)_$(PIPELINE)
 
-PAGERANK_KERNELS=pageRankPullGraphCSRKernelAladdin,pageRankPushGraphCSRKernelAladdin
 ##############################################
 #      ACCEL GRAPH COMPILATION VARIABLES     #
 ##############################################
