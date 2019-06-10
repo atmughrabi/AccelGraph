@@ -1480,7 +1480,7 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
         // Stop(timer_inner);
         // printf("|A%-10u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
         // Start(timer_inner);
-        
+
 #ifdef GEM5_HARNESS
         mapArrayToAccelerator(
             ACCELGRAPH, "riDividedOnDiClause_push_csr_fp", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(__u64));
@@ -1587,7 +1587,10 @@ struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iter
     __u8 *workListCurr = NULL;
     __u8 *workListNext = NULL;
     int activeVertices = 0;
-
+    
+#ifdef CACHE_HARNESS
+    struct DoubleTaggedCache *cache = newDoubleTaggedCache(L1_SIZE,  L1_ASSOC,  BLOCKSIZE, graph->num_vertices);
+#endif
 
     workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
     workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
@@ -1647,48 +1650,50 @@ struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iter
                 riDividedOnDiClause[v] = 0.0f;
         }
 
-        #pragma omp parallel for default(none) shared(epsilon,riDividedOnDiClause,sorted_edges_array,vertices,workListCurr,workListNext,stats,graph) private(v) reduction(+:activeVertices,error_total) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            if(workListCurr[v])
-            {
-                __u32 edge_idx;
-                __u32 degree;
-                __u32 j;
-                __u32 u;
-                double error = 0;
-                float nodeIncomingPR = 0;
-                degree = vertices->out_degree[v]; // when directed we use inverse graph out degree means in degree
-                edge_idx = vertices->edges_idx[v];
-                for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-                {
-                    u = sorted_edges_array[j];
-                    nodeIncomingPR += riDividedOnDiClause[u]; // sum (PRi/outDegree(i))
-                }
-                float oldPageRank =  stats->pageRanks[v];
-                float newPageRank =  stats->base_pr + (stats->damp * nodeIncomingPR);
-                error = fabs(newPageRank - oldPageRank);
-                error_total += error / graph->num_vertices;
-                if(error >= epsilon)
-                {
-                    stats->pageRanks[v] = newPageRank;
-                    degree = graph->vertices->out_degree[v];
-                    edge_idx = graph->vertices->edges_idx[v];
-                    for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-                    {
-                        u = graph->sorted_edges_array->edges_array_dest[j];
+#ifdef GEM5_HARNESS
+        mapArrayToAccelerator(
+            ACCELGRAPH, "riDividedOnDiClause_dd_pull_csr", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(float));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "pageRanks_dd_pull_csr", &(stats->pageRanks[0]), graph->num_vertices * sizeof(float));
 
-                        #pragma omp atomic write
-                        workListNext[u] = 1;
-                        // __u8 old_val = workListNext[u];
-                        // if(!old_val){
-                        //    __sync_bool_compare_and_swap(&workListNext[u], 0, 1);
-                        // }
-                    }
-                    activeVertices++;
-                }
-            }
-        }
+        mapArrayToAccelerator(
+            ACCELGRAPH, "in_degree_dd_pull_csr", &(vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "in_edges_idx_dd_pull_csr", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "in_sorted_edges_array_dd_pull_csr", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
+
+        mapArrayToAccelerator(
+            ACCELGRAPH, "out_degree_dd_pull_csr", &(graph->vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "out_edges_idx_dd_pull_csr", &(graph->vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "out_sorted_edges_array_dd_pull_csr", &(graph->sorted_edges_array->edges_array_dest[0]), graph->num_edges * sizeof(__u32));
+
+        mapArrayToAccelerator(
+            ACCELGRAPH, "workListCurr", &(graph->vertices->out_degree[0]), graph->num_vertices * sizeof(__u8));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "workListNext", &(graph->vertices->edges_idx[0]), graph->num_vertices * sizeof(__u8));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "error_total", &(graph->sorted_edges_array->edges_array_dest[0]), sizeof(double));
+
+        invokeAcceleratorAndBlock(ACCELGRAPH);
+#endif
+
+#ifdef CACHE_HARNESS
+        activeVertices += pageRankDataDrivenPullGraphCSRKernelCache(cache, riDividedOnDiClause, stats->pageRanks,
+                          vertices->out_degree, vertices->edges_idx, sorted_edges_array,
+                          graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest,
+                          workListCurr, workListNext, &error_total, epsilon, graph->num_vertices);
+#endif
+
+#ifdef CPU_HARNESS
+        activeVertices += pageRankDataDrivenPullGraphCSRKernelAladdin(riDividedOnDiClause, stats->pageRanks,
+                          vertices->out_degree, vertices->edges_idx, sorted_edges_array,
+                          graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest,
+                          workListCurr, workListNext, &error_total, epsilon, graph->num_vertices);
+#endif
+
 
         // activeVertices = getNumOfSetBits(workListNext);
         swapWorkLists(&workListNext, &workListCurr);
@@ -1725,6 +1730,11 @@ struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iter
     free(timer);
     free(timer_inner);
     free(riDividedOnDiClause);
+
+#ifdef CACHE_HARNESS
+    printStats(cache->cache);
+    freeDoubleTaggedCache(cache);
+#endif
 
     stats->error_total = error_total;
     return stats;

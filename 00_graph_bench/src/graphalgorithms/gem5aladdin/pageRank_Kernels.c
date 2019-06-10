@@ -41,13 +41,14 @@ void pageRankPullGraphCSRKernelAladdin(float *riDividedOnDiClause_pull_csr, floa
     __u32 degree;
     __u32 edge_idx;
 
+
 iter : for(v = 0; v < num_vertices; v++)
     {
         float nodeIncomingPR = 0.0f;
         degree = out_degree_pull_csr[v];
         edge_idx = edges_idx_pull_csr[v];
 
-     for(j = edge_idx ; j <  (edge_idx + degree) ; j++)
+        for(j = edge_idx ; j <  (edge_idx + degree) ; j++)
         {
             u = sorted_edges_array_pull_csr[j];
             nodeIncomingPR += riDividedOnDiClause_pull_csr[u]; // pageRanks[v]/graph->vertices[v].out_degree;
@@ -129,12 +130,12 @@ void pageRankPushGraphCSRKernelAladdin(float *riDividedOnDiClause_push_csr, floa
     __u32 degree;
     __u32 edge_idx;
 
-iter :
-    for(v = 0; v < num_vertices; v++)
+
+iter : for(v = 0; v < num_vertices; v++)
     {
         degree = out_degree_push_csr[v];
         edge_idx = edges_idx_push_csr[v];
-sum :
+
         for(j = edge_idx ; j < (edge_idx + degree) ; j++)
         {
             u = sorted_edges_array_push_csr[j];
@@ -214,15 +215,14 @@ void pageRankPullFixedPointGraphCSRKernelAladdin(__u64 *riDividedOnDiClause_pull
     __u32 degree;
     __u32 edge_idx;
 
-iter :
-    for(v = 0; v < num_vertices; v++)
+
+iter : for(v = 0; v < num_vertices; v++)
     {
 
         __u64 nodeIncomingPR = 0;
         degree = out_degree_pull_csr_fp[v];
         edge_idx = edges_idx_pull_csr_fp[v];
 
-sum :
         for(j = edge_idx ; j <  (edge_idx + degree) ; j++)
         {
             u = sorted_edges_array_pull_csr_fp[j];
@@ -306,12 +306,12 @@ void pageRankPushFixedPointGraphCSRKernelAladdin(__u64 *riDividedOnDiClause_push
     __u32 degree;
     __u32 edge_idx;
 
-iter :
-    for(v = 0; v < num_vertices; v++)
+
+iter : for(v = 0; v < num_vertices; v++)
     {
         degree = out_degree_push_csr_fp[v];
         edge_idx = edges_idx_push_csr_fp[v];
-sum :
+
         for(j = edge_idx ; j < (edge_idx + degree) ; j++)
         {
             u = sorted_edges_array_push_csr_fp[j];
@@ -379,3 +379,114 @@ void pageRankPushFixedPointGraphCSRKernelCache(struct DoubleTaggedCache *cache, 
 }
 
 // ********************************************************************************************
+
+__u32 pageRankDataDrivenPullGraphCSRKernelAladdin(float *riDividedOnDiClause_dd_pull_csr, float *pageRanks_dd_pull_csr,
+                                                __u32 *in_degree_dd_pull_csr, __u32 *in_edges_idx_dd_pull_csr, __u32 *in_sorted_edges_array_dd_pull_csr,
+                                                __u32 *out_degree_dd_pull_csr, __u32 *out_edges_idx_dd_pull_csr, __u32 *out_sorted_edges_array_dd_pull_csr,
+                                                __u8 *workListCurr, __u8 *workListNext, double *error_total, double epsilon, __u32 num_vertices)
+{
+
+    __u32 j;
+    __u32 v;
+    __u32 u;
+    __u32 degree;
+    __u32 edge_idx;
+    __u32 activeVertices = 0;
+    double damp = 0.85;
+    double base_pr = 1 - damp;
+
+iter: for(v = 0; v < num_vertices; v++)
+    {
+        if(workListCurr[v])
+        {
+            double error = 0;
+            float nodeIncomingPR = 0;
+            degree = in_degree_dd_pull_csr[v]; // when directed we use inverse graph out degree means in degree
+            edge_idx = in_edges_idx_dd_pull_csr[v];
+            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+            {
+                u = in_sorted_edges_array_dd_pull_csr[j];
+                nodeIncomingPR += riDividedOnDiClause_dd_pull_csr[u]; // sum (PRi/outDegree(i))
+            }
+
+            float oldPageRank =  pageRanks_dd_pull_csr[v];
+            float newPageRank =  base_pr + (damp * nodeIncomingPR);
+            error = fabs(newPageRank - oldPageRank);
+            (*error_total) += error / num_vertices;
+
+            if(error >= epsilon)
+            {
+                pageRanks_dd_pull_csr[v] = newPageRank;
+                degree = out_degree_dd_pull_csr[v];
+                edge_idx = out_edges_idx_dd_pull_csr[v];
+                for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+                {
+                    u = out_sorted_edges_array_dd_pull_csr[j];
+                    workListNext[u] = 1;
+                }
+
+                activeVertices++;
+            }
+        }
+    }
+
+
+    return activeVertices;
+}
+
+
+// ********************************************************************************************
+
+__u32 pageRankDataDrivenPullGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *riDividedOnDiClause_dd_pull_csr, float *pageRanks_dd_pull_csr,
+                                                __u32 *in_degree_dd_pull_csr, __u32 *in_edges_idx_dd_pull_csr, __u32 *in_sorted_edges_array_dd_pull_csr,
+                                                __u32 *out_degree_dd_pull_csr, __u32 *out_edges_idx_dd_pull_csr, __u32 *out_sorted_edges_array_dd_pull_csr,
+                                                __u8  *workListCurr, __u8 *workListNext, double *error_total, double epsilon, __u32 num_vertices)
+{
+
+    __u32 j;
+    __u32 v;
+    __u32 u;
+    __u32 degree;
+    __u32 edge_idx;
+    __u32 activeVertices = 0;
+    double damp = 0.85;
+    double base_pr = 1 - damp;
+
+iter: for(v = 0; v < num_vertices; v++)
+    {
+        if(workListCurr[v])
+        {
+            double error = 0;
+            float nodeIncomingPR = 0;
+            degree = in_degree_dd_pull_csr[v]; // when directed we use inverse graph out degree means in degree
+            edge_idx = in_edges_idx_dd_pull_csr[v];
+            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+            {
+                u = in_sorted_edges_array_dd_pull_csr[j];
+                nodeIncomingPR += riDividedOnDiClause_dd_pull_csr[u]; // sum (PRi/outDegree(i))
+            }
+
+            float oldPageRank =  pageRanks_dd_pull_csr[v];
+            float newPageRank =  base_pr + (damp * nodeIncomingPR);
+            error = fabs(newPageRank - oldPageRank);
+            (*error_total) += error / num_vertices;
+
+            if(error >= epsilon)
+            {
+                pageRanks_dd_pull_csr[v] = newPageRank;
+                degree = out_degree_dd_pull_csr[v];
+                edge_idx = out_edges_idx_dd_pull_csr[v];
+                for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+                {
+                    u = out_sorted_edges_array_dd_pull_csr[j];
+                    workListNext[u] = 1;
+                }
+
+                activeVertices++;
+            }
+        }
+    }
+
+
+    return activeVertices;
+}
