@@ -97,6 +97,10 @@ run-gem5:
 run-gem5-openmp: 
 	$(MAKE) run-gem5-openmp -C $(APP_DIR)/$(BENCHMARKS_DIR)
 
+.PHONY: run-gem5-cache-prefetch 
+run-gem5-cache-prefetch:
+	$(MAKE) run-gem5-cache-prefetch -C $(APP_DIR)/$(BENCHMARKS_DIR)
+
 .PHONY: run-gem5-cache 
 run-gem5-cache: 
 	$(MAKE) run-gem5-cache -C $(APP_DIR)/$(BENCHMARKS_DIR)

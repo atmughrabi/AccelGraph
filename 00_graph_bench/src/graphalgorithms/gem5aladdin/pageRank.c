@@ -1587,7 +1587,7 @@ struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iter
     __u8 *workListCurr = NULL;
     __u8 *workListNext = NULL;
     int activeVertices = 0;
-    
+
 #ifdef CACHE_HARNESS
     struct DoubleTaggedCache *cache = newDoubleTaggedCache(L1_SIZE,  L1_ASSOC,  BLOCKSIZE, graph->num_vertices);
 #endif
@@ -1766,9 +1766,14 @@ struct PageRankStats *pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iter
     workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
     workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
 
+#ifdef CACHE_HARNESS
+    struct DoubleTaggedCache *cache = newDoubleTaggedCache(L1_SIZE,  L1_ASSOC,  BLOCKSIZE, graph->num_vertices);
+#endif
 
     resetWorkList(workListNext, graph->num_vertices);
     resetWorkList(workListCurr, graph->num_vertices);
+
+
 
 #if DIRECTED
     vertices = graph->inverse_vertices;
@@ -1826,47 +1831,40 @@ struct PageRankStats *pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iter
         error_total = 0;
         activeVertices = 0;
 
-        #pragma omp parallel for default(none) private(edge_idx,degree,v,j,u) shared(stats,epsilon,graph,workListCurr,workListNext,aResiduals) reduction(+:error_total,activeVertices) schedule(dynamic,1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            if(workListCurr[v])
-            {
-                float oldPageRank =  stats->pageRanks[v];
-                float newPageRank =  aResiduals[v] + stats->pageRanks[v];
-                error_total += fabs(newPageRank / graph->num_vertices - oldPageRank / graph->num_vertices);
+#ifdef GEM5_HARNESS
+        mapArrayToAccelerator(
+            ACCELGRAPH, "aResiduals_dd_push_csr", &(aResiduals[0]), graph->num_vertices * sizeof(float));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "pageRanks_dd_push_csr", &(stats->pageRanks[0]), graph->num_vertices * sizeof(float));
 
-                // #pragma omp atomic write
-                stats->pageRanks[v] = newPageRank;
+        mapArrayToAccelerator(
+            ACCELGRAPH, "out_degree_dd_push_csr", &(graph->vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "out_edges_idx_dd_push_csr", &(graph->vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "out_sorted_edges_array_dd_push_csr", &(graph->sorted_edges_array->edges_array_dest[0]), graph->num_edges * sizeof(__u32));
 
-                degree = graph->vertices->out_degree[v];
-                float delta = stats->damp * (aResiduals[v] / degree);
-                edge_idx = graph->vertices->edges_idx[v];
+        mapArrayToAccelerator(
+            ACCELGRAPH, "workListCurr", &(graph->vertices->out_degree[0]), graph->num_vertices * sizeof(__u8));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "workListNext", &(graph->vertices->edges_idx[0]), graph->num_vertices * sizeof(__u8));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "error_total", &(graph->sorted_edges_array->edges_array_dest[0]), sizeof(double));
 
-                for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-                {
-                    u = graph->sorted_edges_array->edges_array_dest[j];
-                    float prevResidual = 0.0f;
+        invokeAcceleratorAndBlock(ACCELGRAPH);
+#endif
 
-                    prevResidual = aResiduals[u];
+#ifdef CACHE_HARNESS
+        activeVertices += pageRankDataDrivenPushGraphCSRKernelCache(cache, aResiduals, stats->pageRanks,
+                          graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest,
+                          workListCurr, workListNext, &error_total, epsilon, graph->num_vertices);
+#endif
 
-                    #pragma omp atomic update
-                    aResiduals[u] += delta;
-
-                    if ((fabs(prevResidual + delta) >= epsilon) && (prevResidual <= epsilon))
-                    {
-                        activeVertices++;
-                        if(!workListNext[u])
-                        {
-
-                            // #pragma omp atomic write
-                            workListNext[u] = 1;
-
-                        }
-                    }
-                }
-                aResiduals[v] = 0.0f;
-            }
-        }
+#ifdef CPU_HARNESS
+        activeVertices += pageRankDataDrivenPushGraphCSRKernelAladdin(aResiduals, stats->pageRanks,
+                          graph->vertices->out_degree, graph->vertices->edges_idx, graph->sorted_edges_array->edges_array_dest,
+                          workListCurr, workListNext, &error_total, epsilon, graph->num_vertices);
+#endif
 
         // activeVertices = getNumOfSetBits(workListNext);
         swapWorkLists(&workListNext, &workListCurr);
@@ -1905,6 +1903,11 @@ struct PageRankStats *pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iter
     free(timer_inner);
     free(aResiduals);
     free(riDividedOnDiClause);
+
+#ifdef CACHE_HARNESS
+    printStats(cache->cache);
+    freeDoubleTaggedCache(cache);
+#endif
 
     stats->error_total = error_total;
     return stats;

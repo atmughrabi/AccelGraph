@@ -5,7 +5,7 @@ algorithm = int(sys.argv[1])
 direction = int(sys.argv[2])
 
 workloads = [[],["pageRankPullGraphCSRKernelAladdin", "pageRankPushGraphCSRKernelAladdin",
-				 "pageRankPullFixedPointGraphCSRKernelAladdin", "pageRankPushFixedPointGraphCSRKernelAladdin"]]
+				 "pageRankPullFixedPointGraphCSRKernelAladdin", "pageRankPushFixedPointGraphCSRKernelAladdin","qunatize","quantize","pageRankDataDrivenPullGraphCSRKernelAladdin"]]
 
 
 try:

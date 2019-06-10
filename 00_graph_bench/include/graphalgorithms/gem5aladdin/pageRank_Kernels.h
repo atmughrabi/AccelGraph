@@ -30,5 +30,11 @@ __u32 pageRankDataDrivenPullGraphCSRKernelCache(struct DoubleTaggedCache *cache,
                                                 __u32 *out_degree_dd_pull_csr, __u32 *out_edges_idx_dd_pull_csr, __u32 *out_sorted_edges_array_dd_pull_csr,
                                                 __u8  *workListCurr, __u8 *workListNext, double *error_total, double epsilon, __u32 num_vertices);
 // ********************************************************************************************
+__u32 pageRankDataDrivenPushGraphCSRKernelAladdin(float *aResiduals_dd_push_csr, float *pageRanks_dd_push_csr,
+        __u32 *out_degree_dd_push_csr, __u32 *out_edges_idx_dd_push_csr, __u32 *out_sorted_edges_array_dd_push_csr,
+        __u8 *workListCurr, __u8 *workListNext, double *error_total, double epsilon, __u32 num_vertices);
+__u32 pageRankDataDrivenPushGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *aResiduals_dd_push_csr, float *pageRanks_dd_push_csr,
+        __u32 *out_degree_dd_push_csr, __u32 *out_edges_idx_dd_push_csr, __u32 *out_sorted_edges_array_dd_push_csr,
+        __u8 *workListCurr, __u8 *workListNext, double *error_total, double epsilon, __u32 num_vertices);
 
 #endif
