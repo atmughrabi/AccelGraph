@@ -37,4 +37,5 @@ __u32 pageRankDataDrivenPushGraphCSRKernelCache(struct DoubleTaggedCache *cache,
         __u32 *out_degree_dd_push_csr, __u32 *out_edges_idx_dd_push_csr, __u32 *out_sorted_edges_array_dd_push_csr,
         __u8 *workListCurr, __u8 *workListNext, double *error_total, double epsilon, __u32 num_vertices);
 
+
 #endif

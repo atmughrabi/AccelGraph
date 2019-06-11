@@ -104,7 +104,7 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 1
 
 ROOT 			= 5319
-PULL_PUSH 		= 0
+PULL_PUSH 		= 7
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
@@ -571,9 +571,9 @@ dma-trace-binary :
 	$(MAKE) -C . DMA_MODE=1 trace-binary
 
 .PHONY: run-llvm-tracer
-run-llvm-tracer : trace-binary $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz
+run-llvm-tracer : $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz
 	
-$(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz :
+$(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/$(BENCHMARK_SIGNATURE)_dynamic_trace.gz : trace-binary 
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE) && \
 	../../../$(APP_DIR)/$(BIN_DIR)/$(GAPP)-gem5aladdin-instrumented -f ../../../$(FILE_BIN) $(ARGS)
 	mv $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(DYNAMIC_TRACES_DIR)/$(BENCHMARK_SIGNATURE)/dynamic_trace.gz $@
