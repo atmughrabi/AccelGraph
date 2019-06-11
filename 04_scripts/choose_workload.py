@@ -7,7 +7,8 @@ direction = int(sys.argv[2])
 workloads = [[],["pageRankPullGraphCSRKernelAladdin", "pageRankPushGraphCSRKernelAladdin",
 				 "pageRankPullFixedPointGraphCSRKernelAladdin","pageRankPushFixedPointGraphCSRKernelAladdin",
 				 "pageRankPullQuantizationGraphCSRKernelAladdin","pageRankPushQuantizationGraphCSRKernelAladdin",
-				 "pageRankDataDrivenPullGraphCSRKernelAladdin","pageRankDataDrivenPushGraphCSRKernelAladdin"]]
+				 "pageRankDataDrivenPullGraphCSRKernelAladdin","pageRankDataDrivenPushGraphCSRKernelAladdin",
+				 "pageRankDataDrivenPullPushGraphCSRKernelAladdin"]]
 
 
 try:
