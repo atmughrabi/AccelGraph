@@ -695,5 +695,189 @@ __u32 pageRankDataDrivenPushGraphCSRKernelCache(struct DoubleTaggedCache *cache,
         }
     }
     return activeVertices;
+}
+
+// ********************************************************************************************
+
+__u32 pageRankDataDrivenPullPushGraphCSRKernelAladdin(float *aResiduals_dd_pullpush_csr, float *pageRanks_dd_pullpush_csr,
+        __u32 *in_degree_dd_pullpush_csr, __u32 *in_edges_idx_dd_pullpush_csr, __u32 *in_sorted_edges_array_dd_pullpush_csr,
+        __u32 *out_degree_dd_pullpush_csr, __u32 *out_edges_idx_dd_pullpush_csr, __u32 *out_sorted_edges_array_dd_pullpush_csr,
+        __u8 *workListCurr, __u8 *workListNext, double *error_total, double epsilon, __u32 num_vertices)
+{
+    __u32 j;
+    __u32 v;
+    __u32 u;
+    __u32 degree;
+    __u32 edge_idx;
+    __u32 activeVertices = 0;
+    double damp = 0.85;
+    double base_pr = 1.0 - damp;
+
+iter:
+    for(v = 0; v < num_vertices; v++)
+    {
+        if(workListCurr[v])
+        {
+            float nodeIncomingPR = 0.0f;
+            degree = in_degree_dd_pullpush_csr[v];
+            edge_idx = in_edges_idx_dd_pullpush_csr[v];
+            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+            {
+                u = in_sorted_edges_array_dd_pullpush_csr[j];
+                nodeIncomingPR += pageRanks_dd_pullpush_csr[u] / out_degree_dd_pullpush_csr[u];
+            }
+
+            float newPageRank = base_pr + (damp * nodeIncomingPR);
+            float oldPageRank =  pageRanks_dd_pullpush_csr[v];
+
+            (*error_total) += fabs(newPageRank / num_vertices - oldPageRank / num_vertices);
+
+            pageRanks_dd_pullpush_csr[v] = newPageRank;
+
+            degree = out_degree_dd_pullpush_csr[v];
+            float delta = damp * (aResiduals_dd_pullpush_csr[v] / degree);
+            edge_idx = out_edges_idx_dd_pullpush_csr[v];
+
+            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+            {
+                u = out_sorted_edges_array_dd_pullpush_csr[j];
+                float prevResidual = 0.0f;
+
+                prevResidual = aResiduals_dd_pullpush_csr[u];
+
+                aResiduals_dd_pullpush_csr[u] += delta;
+
+                if ((fabs(prevResidual + delta) >= epsilon) && (prevResidual <= epsilon))
+                {
+                    activeVertices++;
+                    if(!workListNext[u])
+                    {
+                        workListNext[u] = 1;
+                    }
+                }
+            }
+            aResiduals_dd_pullpush_csr[v] = 0.0f;
+        }
+    }
+    return activeVertices;
+}
+
+// ********************************************************************************************
+
+__u32 pageRankDataDrivenPullPushGraphCSRKernelCache(struct DoubleTaggedCache *cache, float *aResiduals_dd_pullpush_csr, float *pageRanks_dd_pullpush_csr,
+        __u32 *in_degree_dd_pullpush_csr, __u32 *in_edges_idx_dd_pullpush_csr, __u32 *in_sorted_edges_array_dd_pullpush_csr,
+        __u32 *out_degree_dd_pullpush_csr, __u32 *out_edges_idx_dd_pullpush_csr, __u32 *out_sorted_edges_array_dd_pullpush_csr,
+        __u8  *workListCurr, __u8 *workListNext, double *error_total, double epsilon, __u32 num_vertices)
+{
+
+    __u32 j;
+    __u32 v;
+    __u32 u;
+    __u32 degree;
+    __u32 edge_idx;
+    __u32 activeVertices = 0;
+    double damp = 0.85;
+    double base_pr = 1 - damp;
+
+    for(v = 0; v < num_vertices; v++)
+    {
+
+#ifdef PREFETCH
+        if(workListCurr[v + 1])
+            if((v + 1) < num_vertices)
+            {
+                degree = in_degree_dd_pullpush_csr[v + 1]; // when directed we use inverse graph out degree means in degree
+                edge_idx = in_edges_idx_dd_pullpush_csr[v + 1];
+                for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+                {
+                    u = in_sorted_edges_array_dd_pullpush_csr[j];
+                    if(checkPrefetch(cache->doubleTag, (__u64) & (pageRanks_dd_pullpush_csr[u])))
+                    {
+                        Prefetch(cache->cache, (__u64) & (pageRanks_dd_pullpush_csr[u]), 'r', u);
+                    }
+
+                    if(checkPrefetch(cache->doubleTag, (__u64) & (out_degree_dd_pullpush_csr[u])))
+                    {
+                        Prefetch(cache->cache, (__u64) & (out_degree_dd_pullpush_csr[u]), 'r', u);
+                    }
+
+                }
+
+                if(checkPrefetch(cache->doubleTag, (__u64) & (aResiduals_dd_pullpush_csr[v + 1])))
+                {
+                    Prefetch(cache->cache, (__u64) & (aResiduals_dd_pullpush_csr[v + 1]), 's', (v + 1));
+                }
+            }
+#endif
+
+        Access(cache->cache, (__u64) & (workListCurr[v]), 'r', v);
+        if(workListCurr[v])
+        {
+            float nodeIncomingPR = 0.0f;
+            degree = in_degree_dd_pullpush_csr[v];
+            edge_idx = in_edges_idx_dd_pullpush_csr[v];
+            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+            {
+                u = in_sorted_edges_array_dd_pullpush_csr[j];
+                nodeIncomingPR += pageRanks_dd_pullpush_csr[u] / out_degree_dd_pullpush_csr[u];
+                Access(cache->cache, (__u64) & (pageRanks_dd_pullpush_csr[u]), 'r', u);
+                Access(cache->cache, (__u64) & (out_degree_dd_pullpush_csr[u]), 'r', u);
+
+                Access(cache->doubleTag, (__u64) & (pageRanks_dd_pullpush_csr[u]), 'r', u);
+                Access(cache->doubleTag, (__u64) & (out_degree_dd_pullpush_csr[u]), 'r', u);
+            }
+
+            float newPageRank = base_pr + (damp * nodeIncomingPR);
+            float oldPageRank =  pageRanks_dd_pullpush_csr[v];
+            Access(cache->cache, (__u64) & (pageRanks_dd_pullpush_csr[v]), 'r', v);
+            Access(cache->doubleTag, (__u64) & (pageRanks_dd_pullpush_csr[v]), 'r', v);
+
+            (*error_total) += fabs(newPageRank / num_vertices - oldPageRank / num_vertices);
+
+            pageRanks_dd_pullpush_csr[v] = newPageRank;
+            Access(cache->cache, (__u64) & (pageRanks_dd_pullpush_csr[v]), 'w', v);
+
+            degree = out_degree_dd_pullpush_csr[v];
+            float delta = damp * (aResiduals_dd_pullpush_csr[v] / degree);
+            Access(cache->cache, (__u64) & (aResiduals_dd_pullpush_csr[v]), 'r', v);
+            Access(cache->doubleTag, (__u64) & (aResiduals_dd_pullpush_csr[v]), 'r', v);
+
+            edge_idx = out_edges_idx_dd_pullpush_csr[v];
+
+            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+            {
+                u = out_sorted_edges_array_dd_pullpush_csr[j];
+                float prevResidual = 0.0f;
+
+                prevResidual = aResiduals_dd_pullpush_csr[u];
+                Access(cache->cache, (__u64) & (aResiduals_dd_pullpush_csr[u]), 'r', u);
+                Access(cache->doubleTag, (__u64) & (aResiduals_dd_pullpush_csr[u]), 'r', u);
+
+                aResiduals_dd_pullpush_csr[u] += delta;
+                Access(cache->cache, (__u64) & (aResiduals_dd_pullpush_csr[u]), 'w', u);
+
+
+                if ((fabs(prevResidual + delta) >= epsilon) && (prevResidual <= epsilon))
+                {
+                    activeVertices++;
+
+                    Access(cache->cache, (__u64) & (workListNext[u]), 'r', u);
+                    Access(cache->doubleTag, (__u64) & (workListNext[u]), 'r', u);
+                    if(!workListNext[u])
+                    {
+                        workListNext[u] = 1;
+                        Access(cache->cache, (__u64) & (workListNext[u]), 'w', u);
+                    }
+                }
+            }
+            aResiduals_dd_pullpush_csr[v] = 0.0f;
+            Access(cache->cache, (__u64) & (aResiduals_dd_pullpush_csr[v]), 'w', v);
+            Access(cache->doubleTag, (__u64) & (aResiduals_dd_pullpush_csr[v]), 'w', v);
+        }
+    }
+
+    return activeVertices;
 
 }
+
+// ********************************************************************************************

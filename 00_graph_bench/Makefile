@@ -104,13 +104,13 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 1
 
 ROOT 			= 5319
-PULL_PUSH 		= 7
+PULL_PUSH 		= 8
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
 NUM_THREADS  	= 1
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-NUM_ITERATIONS 	= 1
+NUM_ITERATIONS 	= 100
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
