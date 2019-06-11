@@ -1,17 +1,26 @@
 #!/usr/bin/env python
 import sys
 
-algorithm = int(sys.argv[1])
-direction = int(sys.argv[2])
+datastructure = int(sys.argv[1])
+algorithm = int(sys.argv[2])
+direction = int(sys.argv[3])
 
-workloads = [[],["pageRankPullGraphCSRKernelAladdin", "pageRankPushGraphCSRKernelAladdin",
+workloads_csr = [[],["pageRankPullGraphCSRKernelAladdin", "pageRankPushGraphCSRKernelAladdin",
 				 "pageRankPullFixedPointGraphCSRKernelAladdin","pageRankPushFixedPointGraphCSRKernelAladdin",
 				 "pageRankPullQuantizationGraphCSRKernelAladdin","pageRankPushQuantizationGraphCSRKernelAladdin",
 				 "pageRankDataDrivenPullGraphCSRKernelAladdin","pageRankDataDrivenPushGraphCSRKernelAladdin",
 				 "pageRankDataDrivenPullPushGraphCSRKernelAladdin"]]
 
+workloads_grid = [[],["pageRankPullRowGraphGridKernelAladdin", "pageRankPushColumnGraphGridKernelAladdin",
+				 "pageRankPullRowFixedPointGraphGridKernelAladdin","pageRankPushColumnFixedPointGraphGridKernelAladdin"]]
+
+
+
+
+accel_graph = [workloads_csr,workloads_grid]
 
 try:
-	print(workloads[algorithm][direction])
+	print(accel_graph[datastructure][algorithm][direction])
 except IndexError:
  	print(" ")
+    
