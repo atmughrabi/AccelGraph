@@ -664,6 +664,8 @@ __u32 pageRankDataDrivenPushGraphCSRKernelCache(struct DoubleTaggedCache *cache,
 
             degree = out_degree_dd_push_csr[v];
             float delta = damp * (aResiduals_dd_push_csr[v] / degree);
+            Access(cache->cache, (__u64) & (aResiduals_dd_push_csr[v]), 'r', v);
+            Access(cache->cache, (__u64) & (out_degree_dd_push_csr[v]), 'r', v);
 
             edge_idx = out_edges_idx_dd_push_csr[v];
 
@@ -819,6 +821,8 @@ __u32 pageRankDataDrivenPullPushGraphCSRKernelCache(struct DoubleTaggedCache *ca
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
                 u = in_sorted_edges_array_dd_pullpush_csr[j];
+                // Access(cache->cache, (__u64) & (in_sorted_edges_array_dd_pullpush_csr[j]), 'r', u);
+
                 nodeIncomingPR += pageRanks_dd_pullpush_csr[u] / out_degree_dd_pullpush_csr[u];
                 Access(cache->cache, (__u64) & (pageRanks_dd_pullpush_csr[u]), 'r', u);
                 Access(cache->cache, (__u64) & (out_degree_dd_pullpush_csr[u]), 'r', u);
@@ -835,6 +839,7 @@ __u32 pageRankDataDrivenPullPushGraphCSRKernelCache(struct DoubleTaggedCache *ca
             (*error_total) += fabs(newPageRank / num_vertices - oldPageRank / num_vertices);
 
             pageRanks_dd_pullpush_csr[v] = newPageRank;
+            Access(cache->cache, (__u64) & (pageRanks_dd_pullpush_csr[v]), 'r', v);
             Access(cache->cache, (__u64) & (pageRanks_dd_pullpush_csr[v]), 'w', v);
 
             degree = out_degree_dd_pullpush_csr[v];
@@ -847,6 +852,8 @@ __u32 pageRankDataDrivenPullPushGraphCSRKernelCache(struct DoubleTaggedCache *ca
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
                 u = out_sorted_edges_array_dd_pullpush_csr[j];
+                // Access(cache->cache, (__u64) & (out_sorted_edges_array_dd_pullpush_csr[j]), 'r', u);
+
                 float prevResidual = 0.0f;
 
                 prevResidual = aResiduals_dd_pullpush_csr[u];

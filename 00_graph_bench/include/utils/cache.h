@@ -3,6 +3,9 @@
 
 #include <linux/types.h>
 
+#define BLOCKSIZE 128
+#define L1_SIZE 262144
+#define L1_ASSOC 8
 
 // typedef __u64 ulong;
 typedef unsigned char uchar;
@@ -86,11 +89,11 @@ struct CacheLine *findLineToReplace(struct Cache *cache, ulong addr);
 struct CacheLine *fillLine(struct Cache *cache, ulong addr);
 void printStats(struct Cache *cache);
 
-struct Cache *newCache( __u32 L1_SIZE, __u32 L1_ASSOC, __u32 BLOCKSIZE, __u32 num_vertices);
+struct Cache *newCache( __u32 l1_size, __u32 l1_assoc, __u32 blocksize, __u32 num_vertices);
 void freeCache(struct Cache *cache);
 
 
-struct DoubleTaggedCache *newDoubleTaggedCache(__u32 L1_SIZE, __u32 L1_ASSOC, __u32 BLOCKSIZE, __u32 num_vertices);
+struct DoubleTaggedCache *newDoubleTaggedCache(__u32 l1_size, __u32 l1_assoc, __u32 blocksize, __u32 num_vertices);
 void freeDoubleTaggedCache(struct DoubleTaggedCache *cache);
 
 #endif

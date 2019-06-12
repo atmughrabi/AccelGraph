@@ -104,13 +104,13 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 1
 
 ROOT 			= 5319
-PULL_PUSH 		= 0
+PULL_PUSH 		= 1
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
 NUM_THREADS  	= 1
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-NUM_ITERATIONS 	= 1s
+NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
@@ -126,7 +126,7 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 ##################################################
 #these variables only affect the signature not used in the make file
 
-UNROLLING = 64
+UNROLLING = 16
 PIPELINE = 0
 
 #each diffrenert run would store the output to different folder based on these parameters
@@ -196,7 +196,7 @@ TRACER = $(TRACER_HOME)/lib/full_trace.so
 LOGGER = $(TRACER_HOME)/lib/trace_logger.llvm
 GET_LABELED_STMTS = $(TRACER_HOME)/bin/get-labeled-stmts
 
-export WORKLOAD=$(shell python $(SCRIPT_DIR)/choose_workload.py $(ALGORITHMS) $(PULL_PUSH))
+export WORKLOAD=$(shell python $(SCRIPT_DIR)/choose_workload.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 # export WORKLOAD=pageRankPushGraphCSRKernelAladdin
 
 LLVM_LIBS = -lm -lz -lpthread 
@@ -268,7 +268,6 @@ GEM5_ARGS	= --outdir=./outputs \
 			  --stats-db-file=stats.db \
 			  $(GEM5_DIR)/configs/aladdin/aladdin_se.py \
 			  --num-cpus=1 \
-			  --enable_prefetchers \
 			  --mem-size=8GB \
 			  --mem-type=DDR3_1600_8x8  \
 			  --sys-clock=1GHz \

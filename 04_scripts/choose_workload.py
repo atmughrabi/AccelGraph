@@ -16,7 +16,6 @@ workloads_grid = [[],["pageRankPullRowGraphGridKernelAladdin", "pageRankPushColu
 
 
 
-
 accel_graph = [workloads_csr,workloads_grid]
 
 try:

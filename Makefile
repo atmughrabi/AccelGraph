@@ -4,6 +4,9 @@ BENCHMARKS_DIR      = 00_graph_bench
 NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 ARGS = -C $(APP_DIR)/$(BENCHMARKS_DIR) -j$(NUM_THREADS)
 
+##################################################
+##################################################
+
 ##############################################
 #         ACCEL GRAPH TOP LEVEL RULES        #
 ##############################################
@@ -99,7 +102,7 @@ run-gem5-openmp:
 
 .PHONY: run-gem5-cache-prefetch 
 run-gem5-cache-prefetch:
-	$(MAKE) run-gem5-cache-prefetch -C $(APP_DIR)/$(BENCHMARKS_DIR)  -j$(NUM_THREADS)
+	$(MAKE) run-gem5-cache-prefetch $(ARGS)
 
 .PHONY: run-gem5-cache 
 run-gem5-cache: 
@@ -123,7 +126,6 @@ run-gem5-accel-debug:
 	  
 ##################################################
 ##################################################
-
 
 ############################################
 #      LLVM TRACER  TOP LEVEL RULES        #

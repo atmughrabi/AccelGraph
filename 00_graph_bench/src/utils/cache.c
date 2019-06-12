@@ -104,13 +104,13 @@ void writeBack(struct Cache *cache, ulong addr)
 }
 
 
-struct DoubleTaggedCache *newDoubleTaggedCache(__u32 L1_SIZE, __u32 L1_ASSOC, __u32 BLOCKSIZE, __u32 num_vertices)
+struct DoubleTaggedCache *newDoubleTaggedCache(__u32 l1_size, __u32 l1_assoc, __u32 blocksize, __u32 num_vertices)
 {
 
     struct DoubleTaggedCache *cache = (struct DoubleTaggedCache *) my_malloc(sizeof(struct DoubleTaggedCache));
 
-    cache->cache = newCache( L1_SIZE, L1_ASSOC, BLOCKSIZE, num_vertices);
-    cache->doubleTag = newCache( L1_SIZE, L1_ASSOC, BLOCKSIZE, num_vertices);
+    cache->cache = newCache( l1_size, l1_assoc, blocksize, num_vertices);
+    cache->doubleTag = newCache( l1_size, l1_assoc, blocksize, num_vertices);
 
     return cache;
 
@@ -131,7 +131,7 @@ void freeDoubleTaggedCache(struct DoubleTaggedCache *cache)
 }
 
 
-struct Cache *newCache(__u32 L1_SIZE, __u32 L1_ASSOC, __u32 BLOCKSIZE, __u32 num_vertices)
+struct Cache *newCache(__u32 l1_size, __u32 l1_assoc, __u32 blocksize, __u32 num_vertices)
 {
 
     ulong i;
@@ -139,7 +139,7 @@ struct Cache *newCache(__u32 L1_SIZE, __u32 L1_ASSOC, __u32 BLOCKSIZE, __u32 num
     struct Cache *cache = ( struct Cache *) my_malloc(sizeof(struct Cache));
 
     cache->numVertices = num_vertices;
-    initCache(cache, L1_SIZE, L1_ASSOC, BLOCKSIZE);
+    initCache(cache, l1_size, l1_assoc, blocksize);
 
     cache->verticesMiss = (uint *)my_malloc(sizeof(uint) * num_vertices);
     cache->verticesHit = (uint *)my_malloc(sizeof(uint) * num_vertices);

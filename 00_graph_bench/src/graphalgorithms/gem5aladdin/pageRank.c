@@ -32,9 +32,6 @@
 #include "pageRank_Kernels.h"
 #include "pageRank.h"
 
-#define BLOCKSIZE 128
-#define L1_SIZE 262144
-#define L1_ASSOC 8
 
 // ********************************************************************************************
 // ***************                  Stats DataStructure                          **************
