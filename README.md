@@ -71,7 +71,7 @@ accel@graph:~AccelGraph$ git submodule update --init --recursive
 
 ## Initial compilation for the Graph framework with OpenMP 
 
-1. (Optional)From the root directory go to the graph benchmark directory:
+1. (Optional) From the root directory go to the graph benchmark directory:
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
