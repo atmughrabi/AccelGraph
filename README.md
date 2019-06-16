@@ -98,7 +98,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-openmp
 
 ### Running Aladdin 
 
-1. (Optional)From the root directory go to the graph benchmark directory:
+1. (Optional) From the root directory go to the graph benchmark directory:
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
@@ -127,7 +127,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer-force
 * AGAIN: Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
 * gem5-Aladdin provides the possibility to evaluate the performance of shared memory accelerators.
 
-1. (Optional)From the root directory go to the graph benchmark directory:
+1. (Optional) From the root directory go to the graph benchmark directory:
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
@@ -161,7 +161,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
 
 
-1. (Optional)From the root directory go to the graph benchmark directory:
+1. (Optional) From the root directory go to the graph benchmark directory:
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
