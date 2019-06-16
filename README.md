@@ -31,10 +31,27 @@ Accel-Graph is coded using C giving the researcher full flexibility with modifyi
 
 # Installation 
 
+## Dependencies
+
+### OpenMP
+1. Judy Arrays
+```console
+accel@graph:~$ sudo apt-get install -y libjudy-dev
+```
+2. OpenMP is already a feature of the compiler, so this step is not necessary.
+```console
+accel@graph:~$ sudo apt-get install libomp-dev
+```
+
+### gem5-Aladdin
+1. Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
+
+### CAPI
+1. TODO
+
 ## Setting up the source code 
 
 1. Clone Accel-Graph.
-
 ```console
 accel@graph:~$ git clone https://github.com/atmughrabi/AccelGraph.git
 ```
@@ -54,7 +71,7 @@ accel@graph:~AccelGraph$ git submodule update --init --recursive
 
 ## Initial compilation for the Graph framework with OpenMP 
 
-1. From the root directory go to the graph benchmark directory:
+1. (Optional)From the root directory go to the graph benchmark directory:
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
@@ -81,7 +98,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-openmp
 
 ### Running Aladdin 
 
-1. From the root directory go to the graph benchmark directory:
+1. (Optional)From the root directory go to the graph benchmark directory:
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
@@ -110,7 +127,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer-force
 * AGAIN: Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
 * gem5-Aladdin provides the possibility to evaluate the performance of shared memory accelerators.
 
-1. From the root directory go to the graph benchmark directory:
+1. (Optional)From the root directory go to the graph benchmark directory:
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
@@ -144,7 +161,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
 
 
-1. From the root directory go to the graph benchmark directory:
+1. (Optional)From the root directory go to the graph benchmark directory:
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
