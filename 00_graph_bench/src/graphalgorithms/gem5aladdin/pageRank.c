@@ -399,35 +399,7 @@ struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations
                 riDividedOnDiClause[v] = 0.0f;
         }
 
-        // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
-
-        __u32 i;
-        #pragma omp parallel for private(i)
-        for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
-        {
-            __u32 j;
-            // #pragma omp parallel for private(j)
-            for (j = 0; j < totalPartitions; ++j)
-            {
-                __u32 k;
-                __u32 src;
-                __u32 dest;
-                struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
-                for (k = 0; k < partition->num_edges; ++k)
-                {
-                    src  = partition->edgeList->edges_array_src[k];
-                    dest = partition->edgeList->edges_array_dest[k];
-
-                    // #pragma omp atomic update
-                    // __sync_fetch_and_add(&pageRanksNext[dest],riDividedOnDiClause[src]);
-                    // addAtomicFloat(float *num, float value)
-
-                    #pragma omp atomic update
-                    pageRanksNext[dest] +=  riDividedOnDiClause[src];
-                }
-            }
-        }
-
+        pageRankPullRowGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  &graph->grid->partitions, totalPartitions);
 
         #pragma omp parallel for private(v) shared(epsilon,pageRanksNext,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)

@@ -4,6 +4,13 @@
 #include <linux/types.h>
 #include "cache.h"
 
+// ********************************************************************************************
+// ***************          GRID DataStructure               **************
+// ********************************************************************************************
+
+void pageRankPullRowGraphGridKernelAladdin(float *riDividedOnDiClause_pull_grid, float *pageRanksNext_pull_grid,  struct Partition *partitions, __u32 totalPartitions);
+// ********************************************************************************************
+void pageRankPushColumnGraphGridKernelAladdin(float *riDividedOnDiClause_push_grid, float *pageRanksNext_push_grid,  struct Partition *partitions, __u32 totalPartitions);
 
 // ********************************************************************************************
 // ***************          CSR DataStructure                                    **************
