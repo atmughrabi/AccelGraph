@@ -768,8 +768,8 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
 
 
 
-    float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
-    float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
+    __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Col FP (tolerance/epsilon)");

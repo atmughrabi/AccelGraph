@@ -108,8 +108,8 @@ PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
-# NUM_THREADS  	= 1
-NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
+NUM_THREADS  	= 1
+# NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 1
 

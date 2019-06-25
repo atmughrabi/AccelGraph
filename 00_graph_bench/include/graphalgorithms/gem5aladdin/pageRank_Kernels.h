@@ -11,6 +11,10 @@
 void pageRankPullRowGraphGridKernelAladdin(float *riDividedOnDiClause_pull_grid, float *pageRanksNext_pull_grid,  struct Partition *partitions, __u32 totalPartitions);
 // ********************************************************************************************
 void pageRankPushColumnGraphGridKernelAladdin(float *riDividedOnDiClause_push_grid, float *pageRanksNext_push_grid,  struct Partition *partitions, __u32 totalPartitions);
+// ********************************************************************************************
+void pageRankPullRowFixedPointGraphGridKernelAladdin(__u64 *riDividedOnDiClause_push_grid_fp, __u64 *pageRanksNext_push_grid_fp,  struct Partition *partitions, __u32 totalPartitions);
+// ********************************************************************************************
+void pageRankPushColumnFixedPointGraphGridKernelAladdin(__u64 *riDividedOnDiClause_push_grid_fp, __u64 *pageRanksNext_push_grid_fp,  struct Partition *partitions, __u32 totalPartitions);
 
 // ********************************************************************************************
 // ***************          CSR DataStructure                                    **************

@@ -476,7 +476,7 @@ struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations
     printStats(cache->cache);
     freeDoubleTaggedCache(cache);
 #endif
-    
+
     free(timer);
     free(timer_inner);
     free(pageRanksNext);
@@ -495,6 +495,10 @@ struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 
     double error_total = 0.0;
     __u32 v;
     __u32 activeVertices = 0;
+
+#ifdef CACHE_HARNESS
+    struct DoubleTaggedCache *cache = newDoubleTaggedCache(L1_SIZE,  L1_ASSOC,  BLOCKSIZE, graph->num_vertices);
+#endif
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphGrid(graph);
@@ -539,30 +543,24 @@ struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 
                 riDividedOnDiClause[v] = 0;
         }
 
-        // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
+#ifdef GEM5_HARNESS
+        mapArrayToAccelerator(
+            ACCELGRAPH, "riDividedOnDiClause_pull_grid_fp", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(__u64));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "pageRanksNext_pull_grid_fp", &(pageRanksNext[0]), graph->num_vertices * sizeof(__u64));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "partitions", &(graph->grid->partitions[0]), totalPartitions * totalPartitions * sizeof(struct Partition));
 
-        __u32 i;
-        #pragma omp parallel for private(i)
-        for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
-        {
-            __u32 j;
-            for (j = 0; j < totalPartitions; ++j)
-            {
-                __u32 k;
-                __u32 src;
-                __u32 dest;
-                struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
-                for (k = 0; k < partition->num_edges; ++k)
-                {
-                    src  = partition->edgeList->edges_array_src[k];
-                    dest = partition->edgeList->edges_array_dest[k];
+        invokeAcceleratorAndBlock(ACCELGRAPH);
+#endif
 
-                    #pragma omp atomic update
-                    pageRanksNext[dest] +=  riDividedOnDiClause[src];
-                }
-            }
-        }
+#ifdef CACHE_HARNESS
+        pageRankPullRowFixedPointGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
+#endif
 
+#ifdef CPU_HARNESS
+        pageRankPullRowFixedPointGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
+#endif
 
         #pragma omp parallel for private(v) shared(epsilon, pageRanksNext,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
@@ -611,6 +609,12 @@ struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 
     // printf(" -----------------------------------------------------\n");
 
     // pageRankPrint(pageRanks, graph->num_vertices);
+
+#ifdef CACHE_HARNESS
+    printStats(cache->cache);
+    freeDoubleTaggedCache(cache);
+#endif
+
     free(timer);
     free(timer_inner);
     free(pageRanksNext);
@@ -633,6 +637,10 @@ struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  __u32 iterati
     double error_total = 0.0;
     __u32 v;
     __u32 activeVertices = 0;
+
+#ifdef CACHE_HARNESS
+    struct DoubleTaggedCache *cache = newDoubleTaggedCache(L1_SIZE,  L1_ASSOC,  BLOCKSIZE, graph->num_vertices);
+#endif
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphGrid(graph);
@@ -676,33 +684,24 @@ struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  __u32 iterati
                 riDividedOnDiClause[v] = 0.0f;
         }
 
-        // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
+#ifdef GEM5_HARNESS
+        mapArrayToAccelerator(
+            ACCELGRAPH, "riDividedOnDiClause_push_grid", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(float));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "pageRanksNext_push_grid", &(pageRanksNext[0]), graph->num_vertices * sizeof(float));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "partitions", &(graph->grid->partitions[0]), totalPartitions * totalPartitions * sizeof(struct Partition));
 
-        __u32 j;
-        #pragma omp parallel for private(j)
-        for (j = 0; j < totalPartitions; ++j)  // iterate over partitions columnwise
-        {
-            __u32 i;
+        invokeAcceleratorAndBlock(ACCELGRAPH);
+#endif
 
-            for (i = 0; i < totalPartitions; ++i)
-            {
-                __u32 k;
-                __u32 src;
-                __u32 dest;
-                struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
-                for (k = 0; k < partition->num_edges; ++k)
-                {
-                    src  = partition->edgeList->edges_array_src[k];
-                    dest = partition->edgeList->edges_array_dest[k];
+#ifdef CACHE_HARNESS
+        pageRankPushColumnGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
+#endif
 
-                    #pragma omp atomic update
-                    pageRanksNext[dest] +=  riDividedOnDiClause[src];
-
-                    // addAtomicFloat(&pageRanksNext[dest] , riDividedOnDiClause[src]);
-                }
-            }
-        }
-
+#ifdef CPU_HARNESS
+        pageRankPushColumnGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
+#endif
 
         #pragma omp parallel for private(v) shared(epsilon, pageRanksNext,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
@@ -751,6 +750,12 @@ struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  __u32 iterati
     // printf(" -----------------------------------------------------\n");
 
     // pageRankPrint(pageRanks, graph->num_vertices);
+
+#ifdef CACHE_HARNESS
+    printStats(cache->cache);
+    freeDoubleTaggedCache(cache);
+#endif
+
     free(timer);
     free(timer_inner);
     free(pageRanksNext);
@@ -769,6 +774,11 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
     __u32 v;
     __u32 activeVertices = 0;
 
+
+#ifdef CACHE_HARNESS
+    struct DoubleTaggedCache *cache = newDoubleTaggedCache(L1_SIZE,  L1_ASSOC,  BLOCKSIZE, graph->num_vertices);
+#endif
+
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphGrid(graph);
     __u32 totalPartitions  = graph->grid->num_partitions;
@@ -777,8 +787,8 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
 
 
 
-    float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
-    float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
+    __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Push-Col FP (tolerance/epsilon)");
@@ -811,31 +821,24 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
                 riDividedOnDiClause[v] = 0;
         }
 
-        // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
+#ifdef GEM5_HARNESS
+        mapArrayToAccelerator(
+            ACCELGRAPH, "riDividedOnDiClause_push_grid_fp", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(__u64));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "pageRanksNext_push_grid_fp", &(pageRanksNext[0]), graph->num_vertices * sizeof(__u64));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "partitions", &(graph->grid->partitions[0]), totalPartitions * totalPartitions * sizeof(struct Partition));
 
-        __u32 j;
-        #pragma omp parallel for private(j)
-        for (j = 0; j < totalPartitions; ++j)  // iterate over partitions columnwise
-        {
-            __u32 i;
-            for (i = 0; i < totalPartitions; ++i)
-            {
-                __u32 k;
-                __u32 src;
-                __u32 dest;
-                struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
-                for (k = 0; k < partition->num_edges; ++k)
-                {
-                    src  = partition->edgeList->edges_array_src[k];
-                    dest = partition->edgeList->edges_array_dest[k];
+        invokeAcceleratorAndBlock(ACCELGRAPH);
+#endif
 
-                    #pragma omp atomic update
-                    pageRanksNext[dest] +=  riDividedOnDiClause[src];
+#ifdef CACHE_HARNESS
+        pageRankPushColumnGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
+#endif
 
-                    // addAtomicFloat(&pageRanksNext[dest] , riDividedOnDiClause[src]);
-                }
-            }
-        }
+#ifdef CPU_HARNESS
+        pageRankPushColumnGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
+#endif
 
 
         #pragma omp parallel for private(v) shared(epsilon, pageRanksNext,stats) reduction(+ : error_total, activeVertices)
@@ -885,6 +888,12 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
     // printf(" -----------------------------------------------------\n");
 
     // pageRankPrint(pageRanks, graph->num_vertices);
+
+#ifdef CACHE_HARNESS
+    printStats(cache->cache);
+    freeDoubleTaggedCache(cache);
+#endif
+
     free(timer);
     free(timer_inner);
     free(pageRanksNext);
