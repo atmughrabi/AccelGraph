@@ -362,6 +362,11 @@ struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations
 
     __u32 totalPartitions  = graph->grid->num_partitions;
 
+#ifdef CACHE_HARNESS
+    struct DoubleTaggedCache *cache = newDoubleTaggedCache(L1_SIZE,  L1_ASSOC,  BLOCKSIZE, graph->num_vertices);
+#endif
+
+
     struct PageRankStats *stats = newPageRankStatsGraphGrid(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
@@ -399,7 +404,25 @@ struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations
                 riDividedOnDiClause[v] = 0.0f;
         }
 
-        pageRankPullRowGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  &graph->grid->partitions, totalPartitions);
+#ifdef GEM5_HARNESS
+        mapArrayToAccelerator(
+            ACCELGRAPH, "riDividedOnDiClause_pull_grid", &(riDividedOnDiClause[0]), graph->num_vertices * sizeof(float));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "pageRanksNext_pull_grid", &(pageRanksNext[0]), graph->num_vertices * sizeof(float));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "partitions", &(graph->grid->partitions[0]), totalPartitions * totalPartitions * sizeof(struct Partition));
+
+        invokeAcceleratorAndBlock(ACCELGRAPH);
+#endif
+
+#ifdef CACHE_HARNESS
+        pageRankPullRowGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
+#endif
+
+#ifdef CPU_HARNESS
+        pageRankPullRowGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
+#endif
+
 
         #pragma omp parallel for private(v) shared(epsilon,pageRanksNext,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
@@ -448,6 +471,12 @@ struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations
     // printf(" -----------------------------------------------------\n");
 
     // pageRankPrint(pageRanks, graph->num_vertices);
+
+#ifdef CACHE_HARNESS
+    printStats(cache->cache);
+    freeDoubleTaggedCache(cache);
+#endif
+    
     free(timer);
     free(timer_inner);
     free(pageRanksNext);

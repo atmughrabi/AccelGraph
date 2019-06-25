@@ -78,13 +78,13 @@ GRAPH_NAME = Rabbit
 # GRAPH_NAME = twitter
 # GRAPH_NAME = livejournal
 # GRAPH_NAME = USA-Road
-GRAPH_NAME = enwiki-2013
+# GRAPH_NAME = enwiki-2013
 # GRAPH_NAME = arabic-2005
 
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-# GRAPH_NAME = p2p-Gnutella31
+GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -110,7 +110,7 @@ DELTA 			= 800
 
 # NUM_THREADS  	= 1
 NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-NUM_ITERATIONS 	= 100
+NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
@@ -126,8 +126,8 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 ##################################################
 #these variables only affect the signature not used in the make file
 
-UNROLLING = 64
-PIPELINE = 1
+UNROLLING = 1
+PIPELINE = 0
 
 #each diffrenert run would store the output to different folder based on these parameters
 BENCHMARK_SIGNATURE = $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_$(UNROLLING)_$(PIPELINE)

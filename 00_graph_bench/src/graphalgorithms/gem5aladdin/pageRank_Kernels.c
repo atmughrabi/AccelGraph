@@ -9,6 +9,8 @@
 #include "fixedPoint.h"
 #include "quantization.h"
 
+#include "graphGrid.h"
+
 #ifdef GEM5_HARNESS
 #include "gem5/gem5_harness.h"
 #endif
@@ -27,7 +29,7 @@ unsigned ACCELGRAPH_PAGERANK = 0x310;
 void pageRankPullRowGraphGridKernelAladdin(float *riDividedOnDiClause_pull_grid, float *pageRanksNext_pull_grid,  struct Partition *partitions, __u32 totalPartitions)
 {
 
-    _u32 i;
+    __u32 i;
     for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
     {
         __u32 j;
@@ -38,10 +40,10 @@ iter :
             __u32 src;
             __u32 dest;
 
-            for (k = 0; k < partitions[(i * totalPartitions) + j]->num_edges; ++k)
+            for (k = 0; k < partitions[(i * totalPartitions) + j].num_edges; ++k)
             {
-                src  = (partitions[(i * totalPartitions) + j])->edgeList->edges_array_src[k];
-                dest = (partitions[(i * totalPartitions) + j])->edgeList->edges_array_dest[k];
+                src  = (partitions[(i * totalPartitions) + j]).edgeList->edges_array_src[k];
+                dest = (partitions[(i * totalPartitions) + j]).edgeList->edges_array_dest[k];
 
                 pageRanksNext_pull_grid[dest] +=  riDividedOnDiClause_pull_grid[src];
             }
@@ -58,17 +60,17 @@ void pageRankPushColumnGraphGridKernelAladdin(float *riDividedOnDiClause_push_gr
 iter :
     for (j = 0; j < totalPartitions; ++j)
     {
-        _u32 i;
+        __u32 i;
         for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
         {
             __u32 k;
             __u32 src;
             __u32 dest;
 
-            for (k = 0; k < partitions[(i * totalPartitions) + j]->num_edges; ++k)
+            for (k = 0; k < partitions[(i * totalPartitions) + j].num_edges; ++k)
             {
-                src  = (partitions[(i * totalPartitions) + j])->edgeList->edges_array_src[k];
-                dest = (partitions[(i * totalPartitions) + j])->edgeList->edges_array_dest[k];
+                src  = (partitions[(i * totalPartitions) + j]).edgeList->edges_array_src[k];
+                dest = (partitions[(i * totalPartitions) + j]).edgeList->edges_array_dest[k];
 
                 pageRanksNext_push_grid[dest] +=  riDividedOnDiClause_push_grid[src];
             }
