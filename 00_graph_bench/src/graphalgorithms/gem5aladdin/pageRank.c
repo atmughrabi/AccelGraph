@@ -833,11 +833,11 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
 #endif
 
 #ifdef CACHE_HARNESS
-        pageRankPushColumnGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
+        pageRankPushColumnFixedPointGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
 #endif
 
 #ifdef CPU_HARNESS
-        pageRankPushColumnGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
+        pageRankPushColumnFixedPointGraphGridKernelAladdin(riDividedOnDiClause, pageRanksNext,  graph->grid->partitions, totalPartitions);
 #endif
 
 
