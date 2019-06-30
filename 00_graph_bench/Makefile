@@ -52,6 +52,7 @@ GEM5_STATS_DIR		  		= stats_gem5
 
 # Folders needed when using CAPI
 
+
 #contains the tests use make run-test to compile what in this directory
 TEST_DIR		  	= tests
 
@@ -185,9 +186,20 @@ FAIL = \033[91mFAIL\033[0m
 #      CAPI  GRAPH COMPILATION VARIABLES     #
 ##############################################
 
+PSLSE_DIR         = ../01_capi_integration/pslse
+LIBCXL_DIR        = ../01_capi_integration/libcxl
+CAPI_UTILS_DIR    = ../01_capi_integration/capi-utils
+
+PSLSE_COMMON_DIR  = $(PSLSE_DIR)/common
+PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
+
+CAPI_COMMON_DIR				= capi_common
+
 SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
 OBJ_FILES_ALGO_CAPI 		=  $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
 
+CAPI_LINKFLAGS = -L$(PSLSE_LIBCXL_DIR) -lrt -lcxl -lpthread -DSIM 
+CAPI_INC = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) 
 
 ##################################################
 ##################################################
@@ -362,6 +374,42 @@ clean-obj:
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)/*
 	@rm -fr $(APP_DIR)/$(BIN_DIR)/*
 	@rm -f labelmap
+
+##################################################
+##################################################
+
+#########################################################
+#       		 CAPI GRAPH GENERATION    				#
+#########################################################
+
+.PHONY: pslse-build
+pslse-build:
+	cd $(PSLSE_DIR)/afu_driver/src && make clean && make
+	cd $(PSLSE_DIR)/pslse && make clean && make DEBUG=1
+	cd $(PSLSE_LIBCXL_DIR) && make clean && make
+
+.PHONY: graph-capi
+graph-openmp : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: ./$(word 3,$^)"
+	@echo " ******************************************************************************  \n"
+
+.PHONY: test-capi
+test-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi
+	@echo "\n ******************************************************************************  "
+	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> TEST: ./$(word 3,$^)"
+	@echo " **************
+
+.PHONY: directories-capi
+directories-capi :
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi
+
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
+	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
+	
+$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
+	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
+
 
 ##################################################
 ##################################################
@@ -565,9 +613,13 @@ clean-gem5:
 ##################################################
 
 ############################################
-#     CLEAN OBJ FILES        			   #
+#     CAPI GENERATION      			   #
 ############################################
 
+
+
+##################################################
+##################################################
 
 ############################################
 #      LLVM TRACER  TOP LEVEL RULES        #
