@@ -198,7 +198,7 @@ CAPI_COMMON_DIR				= capi_common
 SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
 OBJ_FILES_ALGO_CAPI 		=  $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
 
-CAPI_LINKFLAGS = -L$(PSLSE_LIBCXL_DIR) -lrt -lcxl -lpthread -DSIM 
+CAPI_LINKFLAGS = -L$(PSLSE_LIBCXL_DIR) -lrt -lcxl -lpthread
 CAPI_INC = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) 
 
 ##################################################
@@ -405,11 +405,13 @@ directories-capi :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi
 
 $(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
+	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS) 
 	
 $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
+	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS) $(CAPI_LINKFLAGS)
 
+$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c
+	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< -DSIM
 
 ##################################################
 ##################################################
