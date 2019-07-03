@@ -157,3 +157,27 @@ run-aladdin-force :
 
 ##################################################
 ##################################################
+
+
+##############################################
+#      ACCEL GRAPH CAPI TOP LEVEL RULES      #
+##############################################
+
+.PHONY: run-capi
+run-capi:
+	$(MAKE) run-capi $(ARGS)
+
+PHONY: run-test-capi
+run-test-capi:
+	$(MAKE) run-test-capi $(ARGS)
+
+.PHONY: run-vsim
+run-vsim:
+	$(MAKE) run-vsim $(ARGS)
+
+.PHONY: run-pslse
+run-pslse:
+	$(MAKE) run-pslse $(ARGS)
+	  
+##################################################
+##################################################

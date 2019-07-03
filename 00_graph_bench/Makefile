@@ -189,11 +189,13 @@ FAIL = \033[91mFAIL\033[0m
 PSLSE_DIR         = ../01_capi_integration/pslse
 LIBCXL_DIR        = ../01_capi_integration/libcxl
 CAPI_UTILS_DIR    = ../01_capi_integration/capi-utils
+CAPI_ACCEL		  = ../01_capi_integration/accelerator
+CAPI_COMMON		  = ../01_capi_integration/capi_common
+
+CAPI_SIM		  = $(CAPI_COMMON)/sim
 
 PSLSE_COMMON_DIR  = $(PSLSE_DIR)/common
 PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
-
-CAPI_COMMON_DIR				= capi_common
 
 SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
 OBJ_FILES_ALGO_CAPI 		=  $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
@@ -389,7 +391,7 @@ pslse-build:
 	cd $(PSLSE_LIBCXL_DIR) && make clean && make
 
 .PHONY: graph-capi
-graph-openmp : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi
+graph-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi
 	@echo "\n ******************************************************************************  "
 	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: ./$(word 3,$^)"
 	@echo " ******************************************************************************  \n"
@@ -405,13 +407,23 @@ directories-capi :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi
 
 $(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS) 
+	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS) $(CAPI_LINKFLAGS)
 	
 $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS) $(CAPI_LINKFLAGS)
 
 $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c
 	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< -DSIM
+
+.PHONY: clean-sim
+clean-sim:
+	@rm -f $(CAPI_SIM)/modelsim.ini
+	@rm -f $(CAPI_SIM)/transcript
+	@rm -f $(CAPI_SIM)/vsim_stacktrace.vstf
+	@rm -f $(CAPI_SIM)/vsim.wlf
+	@rm -rf $(CAPI_SIM)/work
+	@rm -f $(CAPI_SIM)/debug.log
+	@rm -f $(CAPI_SIM)/gmon.out	 
 
 ##################################################
 ##################################################
@@ -781,7 +793,7 @@ run-test-openmp: test-openmp
 
 .PHONY: debug-test-openmp
 debug-test-openmp: test-openmp	
-	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)
+	gdb ./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-openmp
 
 .PHONY: debug-memory-test-openmp
 debug-memory-test-openmp: test-openmp	
@@ -800,6 +812,22 @@ cache-perf-openmp: graph-openmp
 ##############################################
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #
 ##############################################
+
+.PHONY: run-capi
+run-capi: graph-capi
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
+
+PHONY: run-test-capi
+run-test-capi: test-capi
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi
+
+.PHONY: run-vsim
+run-vsim:
+	cd $(CAPI_SIM) && vsim -do vsim.tcl
+
+.PHONY: run-pslse
+run-pslse:
+	cd $(CAPI_SIM) && ./../../pslse/pslse/pslse
 	  
 ##################################################
 ##################################################

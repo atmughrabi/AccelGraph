@@ -12,3 +12,8 @@ nohup.out
 00_graph_bench/aladdin_common/stats_aladdin
 00_graph_bench/aladdin_common/stats_gem5
 
+01_capi_integration/capi_common/sim/modelsim.ini
+01_capi_integration/capi_common/sim/transcript
+01_capi_integration/capi_common/sim/vish_stacktrace.vstf
+01_capi_integration/capi_common/sim/vsim.wlf
+01_capi_integration/capi_common/sim/work
