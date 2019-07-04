@@ -165,11 +165,15 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
 ```console
 accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```
-2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
+2. Run [Modelsim vsim] for `simulation` this step is not needed when running on real hardware, this just simulates the AFU that resides on your (CAPI supported) FPGA  :
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-vsim
+```
+3. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-pslse
 ```
-3. Runs a graph algorithm that communicates with the PSLSE (simulation), or PSL (real HW):
+4. Runs a graph algorithm that communicates with the PSLSE (simulation), or PSL (real HW):
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-capi
 ```
@@ -438,7 +442,7 @@ portable benchmarking suite for various graph processing algorithms.
 - [x] Finish integration with gem5-Aladdin
 - [ ] Finish graph algorithms suite gem5-Aladdin
   - [ ] BFS   (Breadth First Search)
-  - [ ] PR    (Page-Rank)
+  - [x] PR    (Page-Rank)
   - [ ] DFS   (Depth First Search)
   - [ ] IA    (Incremental Aggregation)
   - [ ] SSSP  (BellmanFord)
