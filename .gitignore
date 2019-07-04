@@ -17,3 +17,5 @@ nohup.out
 01_capi_integration/capi_common/sim/vish_stacktrace.vstf
 01_capi_integration/capi_common/sim/vsim.wlf
 01_capi_integration/capi_common/sim/work
+01_capi_integration/capi_common/sim/debug.log
+01_capi_integration/capi_common/sim/gmon.out

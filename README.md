@@ -160,6 +160,7 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
 * CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
 * [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
 
+### Simulation
 
 1. (Optional) From the root directory go to the graph benchmark directory:
 ```console
@@ -169,11 +170,15 @@ accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-vsim
 ```
-3. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
+3. The previous step will execute vsim.tcl script to compile the design, to start the running the simulation just execute the following command at the Transcript terminal of ModelSim :
+```console
+ModelSim> simulate
+```
+4. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-pslse
 ```
-4. Runs a graph algorithm that communicates with the PSLSE (simulation), or PSL (real HW):
+5. Runs a graph algorithm that communicates with the PSLSE (simulation), or PSL (real HW):
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-capi
 ```

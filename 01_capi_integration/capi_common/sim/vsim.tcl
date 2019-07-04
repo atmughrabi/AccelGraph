@@ -1,5 +1,5 @@
 # recompile
-proc r  {} {
+proc recompile  {} {
 
   # compile SystemVerilog files
 
@@ -32,7 +32,7 @@ proc r  {} {
 }
 
 # simulate
-proc s  {} {
+proc simulate {} {
   # vsim -t ns -novopt -c -pli pslse/afu_driver/src/veriuser.sl +nowarnTSCALE work.top
   vsim -t ns -novopt -c -sv_lib ../../pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
   view wave
@@ -52,9 +52,9 @@ proc s  {} {
 }
 
 # shortcut for recompilation + simulation
-proc rs {} {
-  r
-  s
+proc restart {} {
+  recompile
+  simulate
 }
 
 # init libs
@@ -62,4 +62,4 @@ vlib work
 vmap work work
 
 # automatically recompile on first call
-r
+recompile
