@@ -367,7 +367,7 @@ $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 .PHONY: clean
-clean: clean-trace clean-gem5
+clean: clean-trace clean-gem5 clean-sim
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
 
