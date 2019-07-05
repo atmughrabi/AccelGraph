@@ -19,3 +19,6 @@ nohup.out
 01_capi_integration/capi_common/sim/work
 01_capi_integration/capi_common/sim/debug.log
 01_capi_integration/capi_common/sim/gmon.out
+01_capi_integration/capi_common/server/debug.log
+01_capi_integration/capi_common/server/gmon.out
+
