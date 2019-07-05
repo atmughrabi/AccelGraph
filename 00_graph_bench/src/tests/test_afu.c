@@ -1,37 +1,70 @@
+#include <string.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <argp.h>
+#include <stdbool.h>
+#include <omp.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <argp.h>
+#include <stdbool.h>
+#include <omp.h>
+
+
+#include "graphStats.h"
+#include "edgeList.h"
+#include "myMalloc.h"
+
+#include "graphCSR.h"
+#include "graphAdjLinkedList.h"
+#include "graphAdjArrayList.h"
+#include "graphGrid.h"
+
+#include "mt19937.h"
+#include "graphConfig.h"
+#include "timer.h"
+#include "graphRun.h"
+
+#include "BFS.h"
+#include "DFS.h"
+#include "pageRank.h"
+#include "incrementalAggregation.h"
+#include "bellmanFord.h"
+#include "SSSP.h"
+#include "connectedComponents.h"
+#include "triangleCount.h"
+
 #include "libcxl.h"
 
-// #include "adjlist.h"
-#include "capienv.h"
+int numThreads;
+mt19937state *mt19937var;
 
-/* libcxl
-extern "C" {
-  #include "libcxl.h"
-}*/
+#define MMIO_ADDR             0x3fffff8             // 0x3fffff8 >> 2 = 0xfffffe
 
-// #define APP_NAME              "test_afu"
-
-// #define CACHELINE_BYTES       128                   // 0x80
-// #define MMIO_ADDR             0x3fffff8             // 0x3fffff8 >> 2 = 0xfffffe
-
-// #ifdef  SIM
-//   #define DEVICE              "/dev/cxl/afu0.0d"
-// #else
-//   #define DEVICE              "/dev/cxl/afu1.0d"
-// #endif
+#ifdef  SIM
+#define DEVICE              "/dev/cxl/afu0.0d"
+#else
+#define DEVICE              "/dev/cxl/afu1.0d"
+#endif
 
 
-// typedef struct
-// {
-// 	__u64 size;
-// 	void *stripe1;
-// 	void *stripe2;
-// 	void *parity;
-// 	__u64 done;
-// } parity_request;
+typedef struct
+{
+    __u64 size;
+    void *stripe1;
+    void *stripe2;
+    void *parity;
+    __u64 done;
+} parity_request;
 
 
 int main(int argc, char *argv[])
@@ -39,7 +72,7 @@ int main(int argc, char *argv[])
     struct cxl_afu_h *afu;
 
     parity_request *example;
-    size_t size = 256, alignment = CACHELINE_BYTES;
+    size_t size = 256;
 
 
     afu = cxl_afu_open_dev("/dev/cxl/afu0.0d");
@@ -49,11 +82,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    example = aligned_alloc(alignment, sizeof(*example));
+    example = my_malloc(sizeof(*example));
     example->size = 256;
-    example->stripe1 = aligned_alloc(alignment, size);
-    example->stripe2 = aligned_alloc(alignment, size);
-    example->parity = aligned_alloc(alignment, size);
+    example->stripe1 = my_malloc(size);
+    example->stripe2 = my_malloc(size);
+    example->parity = my_malloc(size);
 
     memcpy(example->stripe1,
            "asfb190jwqsefx0amxAqa1nlkaf78sa0g&0ha8dngj3t21078fnajl38n32j3np2"

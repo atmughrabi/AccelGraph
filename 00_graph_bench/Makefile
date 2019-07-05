@@ -5,18 +5,10 @@
 # globals binaary /bin/accel-graph name doesn't need to match main/accel-graph.c
   GAPP               = accel-graph
 
-
 # test name needs to match the file name test/test_accel-graph.c
-  GAPP_TEST          = test_accel-graph
-# GAPP_TEST          = test_quantization
-# GAPP_TEST          = test_bloomfilter
-# GAPP_TEST          = test_bloomStream
-# GAPP_TEST          = fixedpoint
-# GAPP_TEST          = graphCSR
-# GAPP_TEST          = graphGrid
-# GAPP_TEST          = graphAdjLinkedList
-# GAPP_TEST          = graphAdjArray
-# GAPP_TEST          = grid
+#   GAPP_TEST          = test_accel-graph
+  GAPP_TEST          = test_afu
+
 
 # dirs Root app 
 APP_DIR           	= .
@@ -193,6 +185,7 @@ CAPI_ACCEL		  = ../01_capi_integration/accelerator
 CAPI_COMMON		  = ../01_capi_integration/capi_common
 
 CAPI_SIM		  = $(CAPI_COMMON)/sim
+CAPI_SERVER		  = $(CAPI_COMMON)/server
 
 PSLSE_COMMON_DIR  = $(PSLSE_DIR)/common
 PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
@@ -200,7 +193,7 @@ PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
 OBJ_FILES_ALGO_CAPI 		=  $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
 
-CAPI_LINKFLAGS = -L$(PSLSE_LIBCXL_DIR) -lrt -lcxl -lpthread
+CAPI_LINKFLAGS = -lrt -lpthread 
 CAPI_INC = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) 
 
 ##################################################
@@ -367,7 +360,7 @@ $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 .PHONY: clean
-clean: clean-trace clean-gem5 clean-sim
+clean: clean-trace clean-gem5 clean-sim clean-pslse
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
 
@@ -384,11 +377,17 @@ clean-obj:
 #       		 CAPI GRAPH GENERATION    				#
 #########################################################
 
+.PHONY: clean-pslse
+clean-pslse:
+	@cd $(PSLSE_DIR)/afu_driver/src && make clean
+	@cd $(PSLSE_DIR)/pslse && make clean
+	@cd $(PSLSE_LIBCXL_DIR) && make clean
+
 .PHONY: pslse-build
 pslse-build:
-	cd $(PSLSE_DIR)/afu_driver/src && make clean && make
-	cd $(PSLSE_DIR)/pslse && make clean && make DEBUG=1
-	cd $(PSLSE_LIBCXL_DIR) && make clean && make
+	@cd $(PSLSE_DIR)/afu_driver/src && make clean && BIT32=y make
+	@cd $(PSLSE_DIR)/pslse && make clean && make DEBUG=1
+	@cd $(PSLSE_LIBCXL_DIR) && make clean && make
 
 .PHONY: graph-capi
 graph-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi
@@ -400,19 +399,28 @@ graph-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi
 test-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi
 	@echo "\n ******************************************************************************  "
 	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> TEST: ./$(word 3,$^)"
-	@echo " **************
+	@echo " ******************************************************************************  \n"
 
 .PHONY: directories-capi
 directories-capi :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi
 
-$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS) $(CAPI_LINKFLAGS)
+$(PSLSE_LIBCXL_DIR)/libcxl.a:
+	@cd $(PSLSE_LIBCXL_DIR) && make
+
+.PHONY: libcxl-build
+libcxl-build: $(PSLSE_LIBCXL_DIR)/libcxl.a
 	
-$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS) $(CAPI_LINKFLAGS)
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) $(PSLSE_LIBCXL_DIR)/libcxl.a
+	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(CAPI_LINKFLAGS) 
+	
+$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST)-capi.o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) $(PSLSE_LIBCXL_DIR)/libcxl.a
+	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(CAPI_LINKFLAGS)
 
 $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c
+	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< -DSIM
+
+$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST)-capi.o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP_TEST).c 
 	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< -DSIM
 
 .PHONY: clean-sim
@@ -627,15 +635,6 @@ clean-gem5:
 ##################################################
 
 ############################################
-#     CAPI GENERATION      			   #
-############################################
-
-
-
-##################################################
-##################################################
-
-############################################
 #      LLVM TRACER  TOP LEVEL RULES        #
 ############################################
 
@@ -822,11 +821,11 @@ run-test-capi: test-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi
 
 .PHONY: run-vsim
-run-vsim:
+run-vsim: 
 	cd $(CAPI_SIM) && vsim -do vsim.tcl
 
 .PHONY: run-pslse
-run-pslse:
+run-pslse: 
 	cd $(CAPI_SIM) && ./../../pslse/pslse/pslse
 	  
 ##################################################

@@ -47,7 +47,9 @@ accel@graph:~$ sudo apt-get install libomp-dev
 1. Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
 
 ### CAPI
-1. TODO
+1. Simulation
+2. Synthesis
+3. Hardware
 
 ## Setting up the source code 
 
