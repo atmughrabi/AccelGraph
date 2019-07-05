@@ -36,7 +36,7 @@ Accel-Graph is coded using C giving the researcher full flexibility with modifyi
 ### OpenMP
 1. Judy Arrays
 ```console
-accel@graph:~$ sudo apt-get install -y libjudy-dev
+accel@graph:~$ sudo apt-get install libjudy-dev
 ```
 2. OpenMP is already a feature of the compiler, so this step is not necessary.
 ```console
@@ -48,6 +48,22 @@ accel@graph:~$ sudo apt-get install libomp-dev
 
 ### CAPI
 1. Simulation
+  * Environment Variable setup
+```bash
+#CAPI framework env variables
+export PSLSE_INSTALL_DIR="~/00_AccelGraph/01_capi_integration/pslse"
+export VPI_USER_H_DIR="${ALTERAPATH}/modelsim_ase/include"
+export PSLVER=8
+export BIT32=n
+export export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PSLSE_INSTALL_DIR/libcxl:$PSLSE_INSTALL_DIR/afu_driver/src"
+
+#PSLSE env variables
+export PSLSE_SERVER_DIR="~/00_AccelGraph/01_capi_integration/capi_common"
+export PSLSE_SERVER_DAT="${PSLSE_SERVER_DIR}/server/pslse_server.dat"
+export SHIM_HOST_DAT="${PSLSE_SERVER_DIR}/server/shim_host.dat"
+export PSLSE_PARMS="${PSLSE_SERVER_DIR}/server/pslse.parms"
+export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/server/debug.log"
+```
 2. Synthesis
 3. Hardware
 
