@@ -48,7 +48,7 @@ accel@graph:~$ sudo apt-get install libomp-dev
 
 ### CAPI
 1. Simulation
-  * Environment Variable setup, HOME and ALTERPATH depend on where you cloned the repository and installed ModelSim.
+  * Environment Variable setup, `HOME` and `ALTERAPATH` depend on where you clone the repository and install ModelSim.
 ```bash
 #CAPI framework env variables
 export PSLSE_INSTALL_DIR="${HOME}/00_AccelGraph/01_capi_integration/pslse"
