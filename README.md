@@ -47,7 +47,7 @@ accel@graph:~$ sudo apt-get install libomp-dev
 1. Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
 
 ### CAPI
-1. Simulation
+1. Simulation with ModelSim
   * Environment Variable setup, `HOME` and `ALTERAPATH` depend on where you clone the repository and install ModelSim.
 ```bash
 #CAPI framework env variables
@@ -58,11 +58,11 @@ export BIT32=n
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PSLSE_INSTALL_DIR/libcxl:$PSLSE_INSTALL_DIR/afu_driver/src"
 
 #PSLSE env variables
-export PSLSE_SERVER_DIR="~/00_AccelGraph/01_capi_integration/capi_common"
-export PSLSE_SERVER_DAT="${PSLSE_SERVER_DIR}/server/pslse_server.dat"
-export SHIM_HOST_DAT="${PSLSE_SERVER_DIR}/server/shim_host.dat"
-export PSLSE_PARMS="${PSLSE_SERVER_DIR}/server/pslse.parms"
-export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/server/debug.log"
+export PSLSE_SERVER_DIR="${HOME}/00_AccelGraph/01_capi_integration/capi_common/server"
+export PSLSE_SERVER_DAT="${PSLSE_SERVER_DIR}/pslse_server.dat"
+export SHIM_HOST_DAT="${PSLSE_SERVER_DIR}/shim_host.dat"
+export PSLSE_PARMS="${PSLSE_SERVER_DIR}/pslse.parms"
+export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
 ```
 
 ## Setting up the source code 
@@ -443,7 +443,8 @@ portable benchmarking suite for various graph processing algorithms.
 - [x] Finish preprocessing sort
   - [x] Radix sort
   - [x] Count sort 
-- [x] Finish preprocessing Graph-Datastructures
+  - [ ] Bitonic sort 
+- [x] Finish preprocessing Graph Data-structures
   - [x] CSR   (Compressed Sparse Row)
   - [x] Grid   
   - [x] Adjacency Linked List
@@ -472,7 +473,9 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] BC    (Betweenness Centrality)
   - [ ] TC    (Triangle Counting)
   - [ ] SPMV  (Sparse Matrix-vector Multiplication)
-- [x] Finish integration with CAPI
+- [x] Finish integration with CAPI Simulation
+- [ ] Finish integration with CAPI Cache
+- [ ] Finish Synthesis with CAPI (Meets time requirements)
 - [ ] Finish graph algorithms suite CAPI
   - [ ] BFS   (Breadth First Search)
   - [ ] PR    (Page-Rank)
