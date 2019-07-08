@@ -17,10 +17,10 @@ typedef enum {
 } state;
 
 typedef struct {
-  longint unsigned size;
-  pointer_t stripe1;
-  pointer_t stripe2;
-  pointer_t parity;
+  logic [0:63] size;
+  logic [0:63] stripe1;
+  logic [0:63] stripe2;
+  logic [0:63] parity;
 } parity_request;
 
 typedef enum logic [0:7] {

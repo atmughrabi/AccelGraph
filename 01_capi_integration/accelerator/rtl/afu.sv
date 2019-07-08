@@ -62,7 +62,7 @@ module afu (
   input          ha_pclock       // clock
 );
 
-  parity_afu svAFU(
+  cached_afu svAFU(
     .clock(ha_pclock),
     .timebase_request(ah_tbreq),
     .parity_enabled(ah_paren),

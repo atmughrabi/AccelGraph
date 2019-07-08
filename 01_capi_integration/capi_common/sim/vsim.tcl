@@ -9,20 +9,20 @@ proc recompile  {} {
   # compile packages
   echo "Compiling Packages"
   vlog -quiet ../../accelerator/pkg/capi_pkg.sv
-  vlog -quiet ../../accelerator/pkg/cu_pkg.sv
+  # vlog -quiet ../../accelerator/pkg/cu_pkg.sv
 
   # compile rtl
   echo "Compiling RTL"
-  vlog -quiet ../../accelerator/rtl/shift_register.sv
+  # vlog -quiet ../../accelerator/rtl/shift_register.sv
   vlog -quiet ../../accelerator/rtl/job.sv
-  vlog -quiet ../../accelerator/rtl/control.sv
-  vlog -quiet ../../accelerator/rtl/mmio.sv
+  # vlog -quiet ../../accelerator/rtl/control.sv
+  # vlog -quiet ../../accelerator/rtl/mmio.sv
   vlog -quiet ../../accelerator/rtl/afu.sv
-  vlog -quiet ../../accelerator/rtl/parity_afu.sv
+  vlog -quiet ../../accelerator/rtl/cached_afu.sv
 
   # compile rtl
   echo "Compiling Compute Unit"
-  vlog -quiet ../../accelerator/cu/cu.sv
+  # vlog -quiet ../../accelerator/cu/cu.sv
 
   # compile top level
   echo "Compiling top level"
@@ -40,15 +40,16 @@ proc simulate {} {
   log * -r
   # do wave.do
   do watch_job_interface.do
-  do watch_mmio_interface.do
-  do watch_command_interface.do
-  do watch_buffer_interface.do
-  do watch_response_interface.do
+  # do watch_mmio_interface.do
+  # do watch_command_interface.do
+  # do watch_buffer_interface.do
+  # do watch_response_interface.do
   
   view structure
   view signals
   view wave
-  run -all
+  # run -all
+  run 40
 }
 
 # shortcut for recompilation + simulation

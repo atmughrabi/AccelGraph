@@ -179,8 +179,8 @@ run-vsim:
 run-pslse:
 	$(MAKE) run-pslse $(ARGS)
 
-.PHONY: pslse-build
-pslse-build:
-	  $(MAKE) pslse-build $(ARGS)
+.PHONY: build-pslse
+build-pslse:
+	  $(MAKE) build-pslse $(ARGS)
 ##################################################
 ##################################################

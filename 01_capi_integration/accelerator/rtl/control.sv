@@ -6,7 +6,7 @@ module control (
   input logic clock,
   input logic enabled,
   input logic reset,
-  input pointer_t wed,
+  input logic [0:63] wed,
   input BufferInterfaceInput buffer_in,
   input ResponseInterface response,
   output CommandInterfaceOutput command_out,
@@ -23,12 +23,12 @@ module control (
   	logic stripe_received1;
   	logic stripe_received2;
   	logic [0:511] write_buffer;
-  	longint unsigned offset;
+  	logic [0:63] offset;
 
 
   assign command_out.abt = 0,
          command_out.context_handle = 0,
-         buffer_out.read_latency = 3;
+         buffer_out.read_latency = 1;
 
 
 
@@ -135,7 +135,7 @@ module control (
             		stripe_received2 	<= 0;
 				end // AFU_IDLE:
 				WED_REQ: begin
-		          command_out.command 	<= READ_CL_NA;
+		          command_out.command <= READ_CL_NA;
 		          command_out.tag 		<= WED_TAG;
 		          command_out.size 		<= 32;
 		          command_out.address 	<= wed;
@@ -146,7 +146,7 @@ module control (
 		      	  	if (buffer_in.write_valid &&
              	  	 	buffer_in.write_tag == WED_TAG &&
               	 		buffer_in.write_address == 0) begin
-         					request.size 	<= swap_endianness(buffer_in.write_data[0:63]);
+         					  request.size 	  <= swap_endianness(buffer_in.write_data[0:63]);
             				request.stripe1 <= swap_endianness(buffer_in.write_data[64:127]);
             				request.stripe2 <= swap_endianness(buffer_in.write_data[128:191]);
             				request.parity 	<= swap_endianness(buffer_in.write_data[192:255]);

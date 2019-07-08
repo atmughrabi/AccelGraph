@@ -14,6 +14,7 @@
 APP_DIR           	= .
 SCRIPT_DIR          = ../04_scripts
 BENCHMARKS_DIR    	= ../../01_GraphDatasets
+BENCHMARKS_DIR    	= ../03_test_graphs
 
 #dir root/managed_folders
 SRC_DIR           	= src
@@ -95,11 +96,11 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 #GRAPH RUN
 SORT_TYPE 		= 0
 REORDER 		= 0
-DATA_STRUCTURES = 1
+DATA_STRUCTURES = 0
 ALGORITHMS 		= 1
 
 ROOT 			= 5319
-PULL_PUSH 		= 3
+PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
@@ -360,7 +361,11 @@ $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 .PHONY: clean
-clean: clean-trace clean-gem5 clean-sim clean-pslse
+clean: clean-trace clean-gem5
+	@rm -fr $(APP_DIR)/$(OBJ_DIR)
+	@rm -fr $(APP_DIR)/$(BIN_DIR)
+
+clean-all: clean-trace clean-gem5 clean-sim clean-pslse
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
 
@@ -383,12 +388,6 @@ clean-pslse:
 	@cd $(PSLSE_DIR)/pslse && make clean
 	@cd $(PSLSE_LIBCXL_DIR) && make clean
 
-.PHONY: pslse-build
-pslse-build:
-	@cd $(PSLSE_DIR)/afu_driver/src && make clean && BIT32=y make
-	@cd $(PSLSE_DIR)/pslse && make clean && make DEBUG=1
-	@cd $(PSLSE_LIBCXL_DIR) && make clean && make
-
 .PHONY: graph-capi
 graph-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi
 	@echo "\n ******************************************************************************  "
@@ -405,11 +404,23 @@ test-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi
 directories-capi :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi
 
-$(PSLSE_LIBCXL_DIR)/libcxl.a:
-	@cd $(PSLSE_LIBCXL_DIR) && make
+$(PSLSE_DIR)/afu_driver/src/libdpi.so:
+	@cd $(PSLSE_DIR)/afu_driver/src && make clean && BIT32=y make
 
-.PHONY: libcxl-build
-libcxl-build: $(PSLSE_LIBCXL_DIR)/libcxl.a
+$(PSLSE_LIBCXL_DIR)/libcxl.a:
+	@cd $(PSLSE_LIBCXL_DIR) && make clean && make
+
+$(PSLSE_DIR)/pslse/pslse:
+	@cd $(PSLSE_DIR)/pslse && make clean && make DEBUG=1
+
+.PHONY: build-libdpi
+build-libdpi: $(PSLSE_DIR)/afu_driver/src/libdpi.so
+
+.PHONY: build-libcxl
+build-libcxl: $(PSLSE_LIBCXL_DIR)/libcxl.a
+
+.PHONY: build-pslse
+build-pslse: $(PSLSE_DIR)/pslse/pslse
 	
 $(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) $(PSLSE_LIBCXL_DIR)/libcxl.a
 	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(CAPI_LINKFLAGS) 
@@ -821,11 +832,11 @@ run-test-capi: test-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi
 
 .PHONY: run-vsim
-run-vsim: 
+run-vsim: build-libdpi
 	cd $(CAPI_SIM) && vsim -do vsim.tcl
 
 .PHONY: run-pslse
-run-pslse: 
+run-pslse: build-pslse
 	cd $(CAPI_SIM) && ./../../pslse/pslse/pslse
 	  
 ##################################################
