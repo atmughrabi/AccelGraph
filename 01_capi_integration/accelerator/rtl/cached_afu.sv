@@ -1,6 +1,10 @@
 import CAPI_PKG::*;
 
-module cached_afu (
+module cached_afu  #(
+  parameter NUM_EXTERNAL_RESETS = 1,
+  parameter NUM_DOMAINS = 1,
+  parameter SEQUENTIAL_RELEASE = 1'b0
+  )(
   input  logic clock,
   output logic timebase_request,
   output logic parity_enabled,
@@ -16,6 +20,9 @@ module cached_afu (
   );
 
   // logic jdone;
+
+  logic [0:NUM_EXTERNAL_RESETS-1] external_rstn;
+  logic reset_afu;
 
   
   // mmio mmio_instant(
@@ -38,7 +45,20 @@ module cached_afu (
     .job_in          (job_in),
     .job_out         (job_out),
     .timebase_request(timebase_request),
-    .parity_enabled  (parity_enabled));
+    .parity_enabled  (parity_enabled),
+    .reset_job   (external_rstn[0])
+    );
+
+  reset_control #(
+    .NUM_EXTERNAL_RESETS(NUM_EXTERNAL_RESETS),
+    .NUM_DOMAINS(NUM_DOMAINS),
+    .SEQUENTIAL_RELEASE(SEQUENTIAL_RELEASE)
+    )
+   reset_instant(
+      .clk(clock),
+      .external_rstn(external_rstn),
+      .rstn(reset_afu)
+  );
 
   // shift_register jdone_shift(
   //   .clock(clock),

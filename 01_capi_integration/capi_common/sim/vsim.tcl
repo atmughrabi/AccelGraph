@@ -14,6 +14,9 @@ proc recompile  {} {
   # compile rtl
   echo "Compiling RTL"
   # vlog -quiet ../../accelerator/rtl/shift_register.sv
+  vlog -quiet ../../accelerator/rtl/parity.sv
+  vlog -quiet ../../accelerator/rtl/reset_filter.sv
+  vlog -quiet ../../accelerator/rtl/reset_control.sv
   vlog -quiet ../../accelerator/rtl/job.sv
   # vlog -quiet ../../accelerator/rtl/control.sv
   # vlog -quiet ../../accelerator/rtl/mmio.sv

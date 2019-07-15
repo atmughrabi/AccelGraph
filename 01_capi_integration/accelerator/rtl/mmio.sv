@@ -9,16 +9,6 @@ module mmio (
   logic [0:63] data;
   AFUDescriptor afu_desc;
 
-  // shift_register ack_shift(
-  //   .clock(clock),
-  //   .in(ack),
-  //   .out(mmio_out.ack));
-
-  // shift_register #(64) data_shift(
-  //   .clock(clock),
-  //   .in(data),
-  //   .out(mmio_out.data));
-
   // Set our AFU Descriptor values refer to page 
   assign afu_desc.num_ints_per_process = 0,
          afu_desc.num_of_processes = 1,

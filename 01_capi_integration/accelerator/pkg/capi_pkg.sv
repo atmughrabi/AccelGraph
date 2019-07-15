@@ -133,6 +133,23 @@ package CAPI_PKG;
     logic [0:63] afu_eb_offset;
   } AFUDescriptor;
 
+    // AFU descriptor
+  // Offset 0x00(0), bit 31 -> AFU supports only 1 process at a time
+  // Offset 0x00(0), bit 47 -> AFU has one Configuration Record (CR).
+  // Offset 0x00(0), bit 59 -> AFU supports dedicated process
+  // Offset 0x20(4), bits 0:7 -> 0x00 to indicate implementation specific CR.
+  // bits 8:63 -> 0x1 to indicate minimum possible length of 256 bytes per CR. 
+  // Offset 0x28(5), bits 0:63 -> point to next descr read offset for CR.
+  // the lowest 8 bits are 0 because it must be 256 byte aligned address.
+  // Offset 0x30(6), bit 07 -> AFU Problem State Area Required
+  // Offset 0x100(32), start of little endian CR data as per pointer at 0x28.
+  // First 4 bytes for device ID, vendor id set to DEAD in ascii.
+  // Next 4 bytes 0.
+  // Offset 0x108(33), next little endian data
+  // First 4 bytes BEEF in ascii for rev ID, class code. 
+  // Next 4 bytes 0.
+  // Though 256 bytes allocated, don't care about rest.
+
   function logic [0:63] read_afu_descriptor(AFUDescriptor descriptor, logic [0:23] address);
     case(address)
       'h0: begin
