@@ -39,7 +39,7 @@
 //    operating, and enable = 1
 
 module reset_filter #(
-	parameter PULSE_HOLD = 3
+	parameter PULSE_HOLD = 2
 	)(
 	input enable,
 	input rstn_raw,

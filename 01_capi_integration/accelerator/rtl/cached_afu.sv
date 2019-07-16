@@ -53,17 +53,10 @@ module cached_afu  #(
     .NUM_EXTERNAL_RESETS(NUM_EXTERNAL_RESETS),
     .NUM_DOMAINS(NUM_DOMAINS),
     .SEQUENTIAL_RELEASE(SEQUENTIAL_RELEASE)
-    )
-   reset_instant(
+    )reset_instant(
       .clk(clock),
       .external_rstn(external_rstn),
       .rstn(reset_afu)
   );
-
-  // shift_register jdone_shift(
-  //   .clock(clock),
-  //   .in(jdone),
-  //   .out(job_out.done));
-
 
 endmodule

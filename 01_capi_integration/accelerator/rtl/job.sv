@@ -21,29 +21,30 @@ module job (
     job_out_reg.cack = 0;
     job_out_reg.error = 0;
     job_out_reg.yield = 0;
+    job_out_reg.done = 0;
     timebase_request_reg = 0;
     parity_enabled_reg = 0;
     reset_job_reg = 1;
+
 
     if(job_in.valid) begin
       case(job_in.command)
         RESET: begin
           job_out_reg.done = 1;
           reset_job_reg = 0;
-          // job_out.running <= 0;
+          job_out_reg.running = 0;
         end
         START: begin
           job_out_reg.done = 0;
-          // job_out.running <= 1;
+          job_out_reg.running  = 1;
         end
         default : begin
-          job_out_reg.done = 0;
-          // job_out.running <= 1;
+          job_out_reg.done = 1;
+          job_out_reg.running  = 0;
         end
       endcase
-    end else begin
-      job_out_reg.done = 0;
-    end
+    end 
+    
   end
 
 
@@ -52,7 +53,6 @@ module job (
           timebase_request  <= timebase_request_reg;
           parity_enabled    <= parity_enabled_reg;
           reset_job         <= reset_job_reg;
-
   end
 
 endmodule
