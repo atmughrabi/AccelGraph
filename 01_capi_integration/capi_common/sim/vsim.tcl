@@ -1,5 +1,5 @@
 # recompile
-proc recompile  {} {
+proc r  {} {
 
   # compile SystemVerilog files
 
@@ -35,7 +35,7 @@ proc recompile  {} {
 }
 
 # simulate
-proc simulate {} {
+proc c {} {
   # vsim -t ns -novopt -c -pli pslse/afu_driver/src/veriuser.sl +nowarnTSCALE work.top
   vsim -t ns -novopt -c -sv_lib ../../pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
   view wave
@@ -43,7 +43,7 @@ proc simulate {} {
   log * -r
   # do wave.do
   do watch_job_interface.do
-  # do watch_mmio_interface.do
+  do watch_mmio_interface.do
   # do watch_command_interface.do
   # do watch_buffer_interface.do
   # do watch_response_interface.do
@@ -51,12 +51,12 @@ proc simulate {} {
   view structure
   view signals
   view wave
-  # run -all
-  run 40
+  run -all
+  # run 40
 }
 
 # shortcut for recompilation + simulation
-proc restart {} {
+proc rc {} {
   recompile
   simulate
 }
@@ -66,4 +66,4 @@ vlib work
 vmap work work
 
 # automatically recompile on first call
-recompile
+r

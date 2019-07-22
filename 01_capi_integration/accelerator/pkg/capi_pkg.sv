@@ -120,15 +120,16 @@ package CAPI_PKG;
     logic [0:15] num_of_processes;
     logic [0:15] num_of_afu_crs;
     logic [0:15] req_prog_model;
-    logic [0:199] reserved_1;
+    logic [0:63] reserved_1;
+    logic [0:7] reserved_2; //0x20
     logic [0:55] afu_cr_len;
     logic [0:63] afu_cr_offset;
-    logic [0:5] reserved_2;
+    logic [0:5] reserved_3;
     logic psa_per_process_required;
     logic psa_required;
     logic [0:55] psa_length;
     logic [0:63] psa_offset;
-    logic [0:7] reserved_3;
+    logic [0:7] reserved_4;
     logic [0:55] afu_eb_len;
     logic [0:63] afu_eb_offset;
   } AFUDescriptor;
@@ -152,14 +153,43 @@ package CAPI_PKG;
 
   function logic [0:63] read_afu_descriptor(AFUDescriptor descriptor, logic [0:23] address);
     case(address)
-      'h0: begin
+      0: begin //Offset 0x00
         return {descriptor.num_ints_per_process,
                 descriptor.num_of_processes,
                 descriptor.num_of_afu_crs,
                 descriptor.req_prog_model};
       end
+      4: begin //Offset 0x20
+        return {descriptor.reserved_2,
+                descriptor.afu_cr_len};
+      end
+      5: begin //Offset 0x20
+        return {descriptor.afu_cr_offset};
+      end
+      6: begin //Offset 0x30
+        return {descriptor.reserved_3,
+                descriptor.psa_per_process_required,
+                descriptor.psa_required,
+                descriptor.psa_length};
+      end
+      7: begin //Offset 0x38
+        return {descriptor.psa_offset};
+      end
+      8: begin //Offset 0x40
+        return {descriptor.reserved_4,
+                descriptor.afu_eb_len};
+      end
+      9: begin //Offset 0x48
+        return {descriptor.afu_eb_offset};
+      end
+      32: begin //Offset 0x100
+        return 64'h4441454400000000;
+      end
+      33: begin //Offset 0x108
+        return 64'h4645454200000000;
+      end
       default: begin
-        return 0;
+        return 64'h0000000000000000;
       end
     endcase
   endfunction

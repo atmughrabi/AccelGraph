@@ -1,9 +1,7 @@
 import CAPI_PKG::*;
 
 module cached_afu  #(
-  parameter NUM_EXTERNAL_RESETS = 1,
-  parameter NUM_DOMAINS = 1,
-  parameter SEQUENTIAL_RELEASE = 1'b0
+  parameter NUM_EXTERNAL_RESETS = 1
   )(
   input  logic clock,
   output logic timebase_request,
@@ -25,10 +23,14 @@ module cached_afu  #(
   logic reset_afu;
 
   
+  assign buffer_out.read_latency = 3'b001;
+
   // mmio mmio_instant(
   //   .clock      (clock),
-  //   .mmio_in    (mmio_in_1),
-  //   .mmio_out   (mmio_out_1));
+  //   .rst_n      (reset_afu),
+  //   .mmio_in    (mmio_in),
+  //   .mmio_out   (mmio_out),
+  //   .reset_mmio (external_rstn[1]));
 
   // control control_instant(
   //   .clock      (clock),
@@ -40,8 +42,11 @@ module cached_afu  #(
   //   .command_out(command_out_1),
   //   .buffer_out (buffer_out_1));
 
-  job job_instant(
+  job #(
+    .NUM_EXTERNAL_RESETS(1)
+    )job_instant(
     .clock           (clock),
+    .rstn           (reset_afu),
     .job_in          (job_in),
     .job_out         (job_out),
     .timebase_request(timebase_request),
@@ -50,9 +55,7 @@ module cached_afu  #(
     );
 
   reset_control #(
-    .NUM_EXTERNAL_RESETS(NUM_EXTERNAL_RESETS),
-    .NUM_DOMAINS(NUM_DOMAINS),
-    .SEQUENTIAL_RELEASE(SEQUENTIAL_RELEASE)
+    .NUM_EXTERNAL_RESETS(NUM_EXTERNAL_RESETS)
     )reset_instant(
       .clk(clock),
       .external_rstn(external_rstn),

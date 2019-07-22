@@ -1,7 +1,10 @@
 import CAPI_PKG::*;
 
-module job (
-  input clock,    // Clock
+module job  #(
+  parameter NUM_EXTERNAL_RESETS = 1
+  )(
+  input logic clock,    // Clock
+  input logic rstn,
   input  JobInterfaceInput job_in,
   output JobInterfaceOutput job_out,
   output logic timebase_request,
@@ -9,50 +12,61 @@ module job (
   output logic reset_job
 );
 
+logic prev_rstn;
+logic next_rstn;
+logic start_job;
+logic done_job;
 
-  JobInterfaceOutput job_out_reg;
-  logic timebase_request_reg;
-  logic parity_enabled_reg;
-  logic reset_job_reg;
-         
-  always_comb begin
-
-    job_out_reg.running = 0;
-    job_out_reg.cack = 0;
-    job_out_reg.error = 0;
-    job_out_reg.yield = 0;
-    job_out_reg.done = 0;
-    timebase_request_reg = 0;
-    parity_enabled_reg = 0;
-    reset_job_reg = 1;
-
-
-    if(job_in.valid) begin
-      case(job_in.command)
-        RESET: begin
-          job_out_reg.done = 1;
-          reset_job_reg = 0;
-          job_out_reg.running = 0;
-        end
-        START: begin
-          job_out_reg.done = 0;
-          job_out_reg.running  = 1;
-        end
-        default : begin
-          job_out_reg.done = 1;
-          job_out_reg.running  = 0;
-        end
-      endcase
-    end 
-    
+  always_ff @(posedge clock) begin
+      if(job_in.valid) begin
+        case(job_in.command)
+          RESET: begin
+            start_job <= 1'b0;
+            reset_job <= 1'b0;
+            prev_rstn <= 1'b0;
+            next_rstn <= 1'b0;
+          end
+          START: begin
+            start_job <= 1'b1;
+            reset_job <= 1'b1;  
+          end
+          default: begin
+            start_job  <= 1'b0;
+            reset_job  <= 1'b1;  
+            prev_rstn  <= 1'b0;
+            next_rstn  <= 1'b0;
+          end
+        endcase
+      end else begin
+        start_job <= 1'b0;
+        reset_job <= 1'b1;
+      end
   end
 
 
+  // Detect when the reset signal is done so we send jdone signal
+  // This is detected for one pulse when reset transition from low to high.
   always_ff @(posedge clock) begin
-          job_out           <= job_out_reg;
-          timebase_request  <= timebase_request_reg;
-          parity_enabled    <= parity_enabled_reg;
-          reset_job         <= reset_job_reg;
+    next_rstn <= rstn;
+    prev_rstn <= next_rstn;
+    done_job  <= ~prev_rstn && next_rstn;
+  end
+
+
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      job_out.running <= 1'b0;
+    end else if(start_job || job_out.running) begin
+      job_out.running <= 1'b1;
+    end
+  end
+
+  always_ff @(posedge clock) begin
+    if(done_job) begin
+      job_out.done <= 1'b1;
+    end else begin
+      job_out.done <= 1'b0;
+    end
   end
 
 endmodule
