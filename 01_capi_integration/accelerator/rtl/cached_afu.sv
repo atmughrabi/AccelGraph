@@ -20,9 +20,18 @@ module cached_afu  #(
   // logic jdone;
 
   logic [0:NUM_EXTERNAL_RESETS-1] external_rstn;
-  logic reset_afu;
+  logic [0:12]    external_errors;
+  logic [0:1]     mmio_parity_err;
+  logic [0:3]     dma_parity_err;
+  logic [0:6]     dma_resp_err;
 
+  logic reset_afu;
   
+  assign mmio_parity_err  = 0;
+  assign dma_parity_err   = 0;
+  assign external_errors  = 0; //{mmio_parity_err, dma_parity_err, dma_resp_err};
+
+
   assign buffer_out.read_latency = 3'b001;
 
   // mmio mmio_instant(
@@ -47,6 +56,7 @@ module cached_afu  #(
     )job_instant(
       .clock           (clock),
       .rstn            (reset_afu),
+      .external_errors (external_errors),
       .job_in          (job_in),
       .job_out         (job_out),
       .timebase_request(timebase_request),

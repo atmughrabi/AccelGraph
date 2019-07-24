@@ -5,6 +5,7 @@ module job  #(
   )(
   input logic clock,    // Clock
   input logic rstn,
+  input logic [0:12] external_errors,
   input  JobInterfaceInput job_in,
   output JobInterfaceOutput job_out,
   output logic timebase_request,
@@ -27,12 +28,15 @@ logic [0:63] address;
 
 logic job_command_error;
 logic job_address_error;
+logic error_flag;
+logic enable_errors;
+logic [0:63] detected_errors;
 
 assign odd_parity       = 1'b1; // Odd parity
 assign parity_enabled   = 1'b1;
 assign job_out.cack     = 1'b0; // Dedicated mode AFU, LLCMD not supported
 assign job_out.yield    = 1'b0; // Job yield not used
-assign enable_errors    = 1'b1;
+// assign enable_errors    = 1'b1;
 assign timebase_request = 1'b0;   // Timebase request not used
 
   always_ff @(posedge clock) begin
@@ -43,18 +47,28 @@ assign timebase_request = 1'b0;   // Timebase request not used
             reset_job <= 1'b0;
             prev_rstn <= 1'b0;
             next_rstn <= 1'b0;
+            enable_errors <= 1'b1;
           end
           START: begin
             start_job <= 1'b1;
-            reset_job <= 1'b1;  
+            reset_job <= 1'b1;
+            enable_errors <= 1'b1; 
           end
           default: begin
             start_job  <= 1'b0;
             reset_job  <= 1'b1;  
             prev_rstn  <= 1'b0;
             next_rstn  <= 1'b0;
+            enable_errors <= 1'b1;
           end
         endcase
+      end else if (error_flag) begin
+        start_job <= 1'b0;
+        reset_job <= 1'b0;
+        prev_rstn <= 1'b0;
+        next_rstn <= 1'b0;
+        enable_errors <= 1'b0;
+        error_flag    <= 1'b0;
       end else begin
         start_job <= 1'b0;
         reset_job <= 1'b1;
@@ -122,14 +136,24 @@ assign timebase_request = 1'b0;   // Timebase request not used
   );
 
   // Error logic
-  assign job_command_error = command_parity_out ^ command_parity;
-  assign job_address_error = address_parity_out ^ address_parity;
 
   always_ff @(posedge clock) begin
     if(enable_errors) begin
-      job_out.error <= 64'h0000_0000_0000_0000;
-    end else begin
-      job_out.error <= 64'h0000_0000_0000_0000;
+      job_command_error <= command_parity_out ^ command_parity;
+      job_address_error <= address_parity_out ^ address_parity;
+      detected_errors   <= {48'h0000_0000_0000,job_command_error,job_address_error, external_errors};
+      error_flag        <= enable_errors & |detected_errors;
+    end
+  end
+
+  always_ff @(posedge clock) begin
+    if(done_job) begin
+      job_out.error     <= detected_errors;
+      detected_errors   <= 64'h0000_0000_0000_0000;
+      job_command_error <= 1'b0;
+      job_address_error <= 1'b0;
+    end else  begin
+      job_out.error     <= 64'h0000_0000_0000_0000;
     end
   end
 
