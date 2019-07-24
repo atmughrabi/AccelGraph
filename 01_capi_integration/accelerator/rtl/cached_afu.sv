@@ -45,13 +45,13 @@ module cached_afu  #(
   job #(
     .NUM_EXTERNAL_RESETS(1)
     )job_instant(
-    .clock           (clock),
-    .rstn           (reset_afu),
-    .job_in          (job_in),
-    .job_out         (job_out),
-    .timebase_request(timebase_request),
-    .parity_enabled  (parity_enabled),
-    .reset_job   (external_rstn[0])
+      .clock           (clock),
+      .rstn            (reset_afu),
+      .job_in          (job_in),
+      .job_out         (job_out),
+      .timebase_request(timebase_request),
+      .parity_enabled  (parity_enabled),
+      .reset_job       (external_rstn[0])
     );
 
   reset_control #(

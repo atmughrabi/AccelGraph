@@ -183,13 +183,13 @@ package CAPI_PKG;
         return {descriptor.afu_eb_offset};
       end
       32: begin //Offset 0x100
-        return 64'h4441454400000000;
+        return 64'h4441_4544_0000_0000;
       end
       33: begin //Offset 0x108
-        return 64'h4645454200000000;
+        return 64'h4645_4542_0000_0000;
       end
       default: begin
-        return 64'h0000000000000000;
+        return 64'h0000_0000_0000_0000;
       end
     endcase
   endfunction

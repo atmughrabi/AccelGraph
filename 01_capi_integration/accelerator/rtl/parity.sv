@@ -1,11 +1,12 @@
 module parity #(
   parameter BITS = 1
 )(
-  input  [0:BITS-1] data,
-  input             odd,
-  output            parity
+	input logic clock,    // Clock
+  	input logic [0:BITS-1] data,
+  	input logic odd,
+  	output logic par
 );
 
-  assign parity = ^{data, odd};
+assign par = ^{data, odd};
 
 endmodule

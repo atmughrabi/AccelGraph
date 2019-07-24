@@ -16,6 +16,24 @@ logic prev_rstn;
 logic next_rstn;
 logic start_job;
 logic done_job;
+logic odd_parity;
+
+logic command_parity_out;
+logic address_parity_out;
+logic command_parity;
+logic address_parity;
+logic [0:7]  command;
+logic [0:63] address;
+
+logic job_command_error;
+logic job_address_error;
+
+assign odd_parity       = 1'b1; // Odd parity
+assign parity_enabled   = 1'b1;
+assign job_out.cack     = 1'b0; // Dedicated mode AFU, LLCMD not supported
+assign job_out.yield    = 1'b0; // Job yield not used
+assign enable_errors    = 1'b1;
+assign timebase_request = 1'b0;   // Timebase request not used
 
   always_ff @(posedge clock) begin
       if(job_in.valid) begin
@@ -66,6 +84,52 @@ logic done_job;
       job_out.done <= 1'b1;
     end else begin
       job_out.done <= 1'b0;
+    end
+  end
+
+  // Parity check
+  always_ff @(posedge clock) begin
+      if(job_in.valid) begin
+        command_parity <= job_in.command_parity;
+        address_parity <= job_in.address_parity;
+        command        <= job_in.command;
+        address        <= job_in.address;
+      end else if(done_job) begin
+        command_parity <= odd_parity;
+        address_parity <= odd_parity;
+        command        <= 8'h00;
+        address        <= 64'h0000_0000_0000_0000;
+    end
+  end
+
+
+  parity #(
+    .BITS(8)
+  ) job_command_parity (
+    .clock           (clock),
+    .data            (command),
+    .odd             (odd_parity),
+    .par             (command_parity_out)
+  );
+
+  parity #(
+    .BITS(64)
+  ) job_address_parity (
+    .clock           (clock),
+    .data            (address),
+    .odd             (odd_parity),
+    .par             (address_parity_out)
+  );
+
+  // Error logic
+  assign job_command_error = command_parity_out ^ command_parity;
+  assign job_address_error = address_parity_out ^ address_parity;
+
+  always_ff @(posedge clock) begin
+    if(enable_errors) begin
+      job_out.error <= 64'h0000_0000_0000_0000;
+    end else begin
+      job_out.error <= 64'h0000_0000_0000_0000;
     end
   end
 
