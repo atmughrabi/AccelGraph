@@ -1,8 +1,6 @@
 import CAPI_PKG::*;
 
-module job  #(
-  parameter NUM_EXTERNAL_RESETS = 1
-  )(
+module job (
   input logic clock,    // Clock
   input logic rstn,
   input logic [0:12] external_errors,
@@ -19,8 +17,8 @@ logic start_job;
 logic done_job;
 logic odd_parity;
 
-logic command_parity_out;
-logic address_parity_out;
+logic command_parity_link;
+logic address_parity_link;
 logic command_parity;
 logic address_parity;
 logic [0:7]  command;
@@ -36,7 +34,6 @@ assign odd_parity       = 1'b1; // Odd parity
 assign parity_enabled   = 1'b1;
 assign job_out.cack     = 1'b0; // Dedicated mode AFU, LLCMD not supported
 assign job_out.yield    = 1'b0; // Job yield not used
-// assign enable_errors    = 1'b1;
 assign timebase_request = 1'b0;   // Timebase request not used
 
   always_ff @(posedge clock) begin
@@ -123,7 +120,7 @@ assign timebase_request = 1'b0;   // Timebase request not used
     .clock           (clock),
     .data            (command),
     .odd             (odd_parity),
-    .par             (command_parity_out)
+    .par             (command_parity_link)
   );
 
   parity #(
@@ -132,15 +129,15 @@ assign timebase_request = 1'b0;   // Timebase request not used
     .clock           (clock),
     .data            (address),
     .odd             (odd_parity),
-    .par             (address_parity_out)
+    .par             (address_parity_link)
   );
 
   // Error logic
 
   always_ff @(posedge clock) begin
     if(enable_errors) begin
-      job_command_error <= command_parity_out ^ command_parity;
-      job_address_error <= address_parity_out ^ address_parity;
+      job_command_error <= command_parity_link ^ command_parity;
+      job_address_error <= address_parity_link ^ address_parity;
       detected_errors   <= {48'h0000_0000_0000,job_command_error,job_address_error, external_errors};
       error_flag        <= enable_errors & |detected_errors;
     end

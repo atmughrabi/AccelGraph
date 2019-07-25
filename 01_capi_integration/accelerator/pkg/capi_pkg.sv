@@ -151,7 +151,7 @@ package CAPI_PKG;
   // Next 4 bytes 0.
   // Though 256 bytes allocated, don't care about rest.
 
-  function logic [0:63] read_afu_descriptor(AFUDescriptor descriptor, logic [0:23] address);
+  function logic [0:63] read_afu_descriptor(AFUDescriptor descriptor, logic [0:22] address);
     case(address)
       0: begin //Offset 0x00
         return {descriptor.num_ints_per_process,
@@ -163,7 +163,7 @@ package CAPI_PKG;
         return {descriptor.reserved_2,
                 descriptor.afu_cr_len};
       end
-      5: begin //Offset 0x20
+      5: begin //Offset 0x28
         return {descriptor.afu_cr_offset};
       end
       6: begin //Offset 0x30

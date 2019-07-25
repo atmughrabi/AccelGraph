@@ -1,7 +1,7 @@
 import CAPI_PKG::*;
 
 module cached_afu  #(
-  parameter NUM_EXTERNAL_RESETS = 1
+  parameter NUM_EXTERNAL_RESETS = 2
   )(
   input  logic clock,
   output logic timebase_request,
@@ -21,25 +21,19 @@ module cached_afu  #(
 
   logic [0:NUM_EXTERNAL_RESETS-1] external_rstn;
   logic [0:12]    external_errors;
-  logic [0:1]     mmio_parity_err;
+  logic [0:1]     mmio_errors;
   logic [0:3]     dma_parity_err;
   logic [0:6]     dma_resp_err;
 
   logic reset_afu;
   
-  assign mmio_parity_err  = 0;
   assign dma_parity_err   = 0;
-  assign external_errors  = 0; //{mmio_parity_err, dma_parity_err, dma_resp_err};
+  assign dma_resp_err     = 0;
+  assign external_errors  = {mmio_errors, dma_parity_err, dma_resp_err};
 
 
-  assign buffer_out.read_latency = 3'b001;
+  assign buffer_out.read_latency = 4'h1;
 
-  // mmio mmio_instant(
-  //   .clock      (clock),
-  //   .rst_n      (reset_afu),
-  //   .mmio_in    (mmio_in),
-  //   .mmio_out   (mmio_out),
-  //   .reset_mmio (external_rstn[1]));
 
   // control control_instant(
   //   .clock      (clock),
@@ -51,9 +45,15 @@ module cached_afu  #(
   //   .command_out(command_out_1),
   //   .buffer_out (buffer_out_1));
 
-  job #(
-    .NUM_EXTERNAL_RESETS(1)
-    )job_instant(
+  mmio mmio_instant(
+      .clock       (clock),
+      .rstn        (reset_afu),
+      .mmio_in     (mmio_in),
+      .mmio_out    (mmio_out),
+      .mmio_errors (mmio_errors),
+      .reset_mmio  (external_rstn[1]));
+
+  job job_instant(
       .clock           (clock),
       .rstn            (reset_afu),
       .external_errors (external_errors),

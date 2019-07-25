@@ -18,8 +18,10 @@ proc r  {} {
   vlog -quiet ../../accelerator/rtl/reset_filter.sv
   vlog -quiet ../../accelerator/rtl/reset_control.sv
   vlog -quiet ../../accelerator/rtl/job.sv
+  vlog -quiet ../../accelerator/rtl/mmio.sv
+  
   # vlog -quiet ../../accelerator/rtl/control.sv
-  # vlog -quiet ../../accelerator/rtl/mmio.sv
+ 
   vlog -quiet ../../accelerator/rtl/afu.sv
   vlog -quiet ../../accelerator/rtl/cached_afu.sv
 
