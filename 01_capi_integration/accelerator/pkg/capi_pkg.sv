@@ -134,6 +134,12 @@ package CAPI_PKG;
     logic [0:63] afu_eb_offset;
   } AFUDescriptor;
 
+  
+    // MMIO Registers mapping
+    parameter REG_1= 26'h 3FFFFF8 >> 2;
+    parameter REG_2= 26'h 3FFFFF0 >> 2;
+ 
+
     // AFU descriptor
   // Offset 0x00(0), bit 31 -> AFU supports only 1 process at a time
   // Offset 0x00(0), bit 47 -> AFU has one Configuration Record (CR).

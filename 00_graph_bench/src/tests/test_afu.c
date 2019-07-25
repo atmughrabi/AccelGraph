@@ -48,7 +48,8 @@
 int numThreads;
 mt19937state *mt19937var;
 
-#define MMIO_ADDR             0x3fffff8             // 0x3fffff8 >> 2 = 0xfffffe
+#define MMIO_ADDR1             0x3fffff8             // 0x3fffff8 >> 2 = 0xfffffe
+#define MMIO_ADDR2             0x3fffff0             // 0x3fffff8 >> 2 = 0xfffffc
 
 #ifdef  SIM
 #define DEVICE              "/dev/cxl/afu0.0d"
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
     }
 
     example = my_malloc(sizeof(*example));
-    example->size = 256;
+    example->size = size;
     example->stripe1 = my_malloc(size);
     example->stripe2 = my_malloc(size);
     example->parity = my_malloc(size);
@@ -125,15 +126,31 @@ int main(int argc, char *argv[])
     cxl_afu_attach(afu, (__u64)example);
     printf("Attached to AFU\n");
 
+    int base_address = cxl_mmio_map (afu, CXL_MMIO_BIG_ENDIAN);
+
+    if (base_address < 0) {
+      printf("fail cxl_mmio_map %d", base_address);
+      return -1;
+    } else {
+      printf("succ cxl_mmio_map %d", base_address);
+    }
+
+    uint64_t rc1 = 0;
+   
     printf("Waiting for completion by AFU\n");
     while(!example->done)
     {
-        sleep(1);
+      cxl_mmio_read64(afu, MMIO_ADDR1, &rc1);
+      printf("Response counter1: %lu\n", rc1);
+      cxl_mmio_write64(afu, MMIO_ADDR2, rc1);
+      if(rc1 > 20)
+        break;
     }
 
     printf("PARITY:\n%s\n", (char *)example->parity);
 
     printf("Releasing AFU\n");
+    cxl_mmio_unmap (afu);
     cxl_afu_free(afu);
 
     return 0;

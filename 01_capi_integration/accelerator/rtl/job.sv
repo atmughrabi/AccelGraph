@@ -45,6 +45,7 @@ assign timebase_request = 1'b0;   // Timebase request not used
             prev_rstn <= 1'b0;
             next_rstn <= 1'b0;
             enable_errors <= 1'b1;
+            done_job  <= 1'b0;
           end
           START: begin
             start_job <= 1'b1;
@@ -64,22 +65,19 @@ assign timebase_request = 1'b0;   // Timebase request not used
         reset_job <= 1'b0;
         prev_rstn <= 1'b0;
         next_rstn <= 1'b0;
+        done_job  <= 1'b0;
         enable_errors <= 1'b0;
-        error_flag    <= 1'b0;
       end else begin
         start_job <= 1'b0;
         reset_job <= 1'b1;
+        next_rstn <= rstn;
+        prev_rstn <= next_rstn;
+        done_job  <= ~prev_rstn && next_rstn;
       end
+
   end
-
-
-  // Detect when the reset signal is done so we send jdone signal
+   // Detect when the reset signal is done so we send jdone signal
   // This is detected for one pulse when reset transition from low to high.
-  always_ff @(posedge clock) begin
-    next_rstn <= rstn;
-    prev_rstn <= next_rstn;
-    done_job  <= ~prev_rstn && next_rstn;
-  end
 
 
   always_ff @(posedge clock or negedge rstn) begin
@@ -132,23 +130,29 @@ assign timebase_request = 1'b0;   // Timebase request not used
     .par             (address_parity_link)
   );
 
+  
   // Error logic
-
+  // once error flag is asserted enable errors gets disabled and last error gets latched for reporting
+  // after the reset signal is finished done job is asserted with any error if exists.
   always_ff @(posedge clock) begin
     if(enable_errors) begin
       job_command_error <= command_parity_link ^ command_parity;
       job_address_error <= address_parity_link ^ address_parity;
       detected_errors   <= {48'h0000_0000_0000,job_command_error,job_address_error, external_errors};
-      error_flag        <= enable_errors & |detected_errors;
+      error_flag        <= |detected_errors;
+    end else if(done_job) begin
+      detected_errors   <= 64'h0000_0000_0000_0000;
+      job_command_error <= 1'b0;
+      job_address_error <= 1'b0;
+      error_flag        <= 1'b0;
+    end else begin
+      error_flag        <= 1'b0;
     end
   end
 
   always_ff @(posedge clock) begin
     if(done_job) begin
       job_out.error     <= detected_errors;
-      detected_errors   <= 64'h0000_0000_0000_0000;
-      job_command_error <= 1'b0;
-      job_address_error <= 1'b0;
     end else  begin
       job_out.error     <= 64'h0000_0000_0000_0000;
     end
