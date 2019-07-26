@@ -1,9 +1,39 @@
 package CAPI_PKG;
- 
+  
+   // MMIO Registers mapping
+  parameter REG_1= 26'h 3FFFFF8 >> 2;
+  parameter REG_2= 26'h 3FFFFF0 >> 2;
+
+  // typedef enum logic [0:23] {
+  //   REG_1=26'h3FF_FFF8 >> 2,
+  //   REG_2=26'h3FF_FFF0 >> 2,
+  //   CLEAR=24'h00_0000
+  // } mmio_reg_addr_t;
+
   typedef enum logic [0:7] {
     RESET=8'h80,
     START=8'h90
   } job_command_t;
+
+  typedef enum logic [0:2] {
+    STRICT=3'b000,
+    ABORT=3'b001,
+    PAGE=3'b010,
+    PERF=3'b011,
+    SPEC=3'b111
+  } trans_order_behavior_t;
+
+   typedef enum logic [0:7] {
+    DONE=8'h00,
+    AERROR=8'h01,
+    DERROR=8'h03,
+    NLOCK=8'h04,
+    NRES=8'h05,
+    FLUSHED=8'h06,
+    FAULT=8'h07,
+    FAILED=8'h08,
+    PAGED=8'h0A
+  } psl_response_t;
 
   typedef enum logic [0:12] {
     // Cache-directed commands
@@ -60,7 +90,7 @@ package CAPI_PKG;
     logic tag_parity;           // ah_ctagpar,     // Command tag parity
     afu_command_t command;      // ah_com,         // Command code
     logic command_parity;       // ah_compar,      // Command code parity
-    logic [0:2] abt;            // ah_cabt,        // Command ABT
+    trans_order_behavior_t abt;            // ah_cabt,        // Command ABT
     logic [0:63] address;       // ah_cea,         // Command address
     logic address_parity;       // ah_ceapar,      // Command address parity
     logic [0:15] context_handle;// ah_cch,         // Command context handle
@@ -92,7 +122,7 @@ package CAPI_PKG;
     logic valid;              // ha_rvalid,     // Response valid
     logic [0:7] tag;          // ha_rtag,       // Response tag
     logic tag_parity;         // ha_rtagpar,    // Response tag parity
-    logic [0:7] response;     // ha_response,   // Response
+    psl_response_t response;  // ha_response,   // Response
     logic [0:8] credits;      // ha_rcredits,   // Response credits
     logic [0:1] cache_state;  // ha_rcachestate,// Response cache state
     logic [0:12] cache_pos;   // ha_rcachepos   // Response cache pos
@@ -135,11 +165,6 @@ package CAPI_PKG;
   } AFUDescriptor;
 
   
-    // MMIO Registers mapping
-    parameter REG_1= 26'h 3FFFFF8 >> 2;
-    parameter REG_2= 26'h 3FFFFF0 >> 2;
- 
-
     // AFU descriptor
   // Offset 0x00(0), bit 31 -> AFU supports only 1 process at a time
   // Offset 0x00(0), bit 47 -> AFU has one Configuration Record (CR).

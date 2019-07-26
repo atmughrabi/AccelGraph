@@ -13,7 +13,6 @@ proc r  {} {
 
   # compile rtl
   echo "Compiling RTL"
-  # vlog -quiet ../../accelerator/rtl/shift_register.sv
   vlog -quiet ../../accelerator/rtl/parity.sv
   vlog -quiet ../../accelerator/rtl/reset_filter.sv
   vlog -quiet ../../accelerator/rtl/reset_control.sv
@@ -46,9 +45,9 @@ proc c {} {
   # do wave.do
   do watch_job_interface.do
   do watch_mmio_interface.do
-  # do watch_command_interface.do
-  # do watch_buffer_interface.do
-  # do watch_response_interface.do
+  do watch_command_interface.do
+  do watch_buffer_interface.do
+  do watch_response_interface.do
   
   view structure
   view signals

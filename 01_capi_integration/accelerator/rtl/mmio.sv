@@ -53,22 +53,22 @@ module mmio (
   logic [0:63] reg2;
 
   // Set our AFU Descriptor values refer to page
-  assign afu_desc.num_ints_per_process  = 0;
-  assign afu_desc.num_of_processes      = 1;
-  assign afu_desc.num_of_afu_crs        = 1;
+  assign afu_desc.num_ints_per_process  = 16'h0000;
+  assign afu_desc.num_of_processes      = 16'h0001;
+  assign afu_desc.num_of_afu_crs        = 16'h0001;
   assign afu_desc.req_prog_model        = 16'h8010; // dedicated process
-  assign afu_desc.reserved_1            = 0;
-  assign afu_desc.reserved_2            = 0;
-  assign afu_desc.afu_cr_len            = 1;
-  assign afu_desc.afu_cr_offset         = 64'h0000000000000100;
-  assign afu_desc.reserved_3            = 0;
-  assign afu_desc.psa_per_process_required = 0;
-  assign afu_desc.psa_required          = 1;
-  assign afu_desc.psa_length            = 0;
-  assign afu_desc.psa_offset            = 0;
-  assign afu_desc.reserved_4            = 0;
-  assign afu_desc.afu_eb_len            = 0;
-  assign afu_desc.afu_eb_offset         = 0;
+  assign afu_desc.reserved_1            = 64'h0000_0000_0000_0000;
+  assign afu_desc.reserved_2            = 8'h00;
+  assign afu_desc.afu_cr_len            = 56'h0000_0000_0000_01;
+  assign afu_desc.afu_cr_offset         = 64'h0000_0000_0000_0100;
+  assign afu_desc.reserved_3            = 6'b00_0000;
+  assign afu_desc.psa_per_process_required = 1'b0;
+  assign afu_desc.psa_required          = 1'b1;
+  assign afu_desc.psa_length            = 56'h0000_0000_0000_00;
+  assign afu_desc.psa_offset            = 64'h0000_0000_0000_0000;
+  assign afu_desc.reserved_4            = 8'h00;
+  assign afu_desc.afu_eb_len            = 56'h0000_0000_0000_00;
+  assign afu_desc.afu_eb_offset         = 64'h0000_0000_0000_0000;
 
   assign odd_parity       = 1'b1; // Odd parity
   assign enable_errors    = 1'b1; // enable errors
@@ -127,10 +127,9 @@ module mmio (
 // Write DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-        data_out        <= 0;
         reg1         <= 0;
         reg2         <= 0;
-    end if (mmio_write_latched) begin
+    end else if (mmio_write_latched) begin
       case (address_latched)
         REG_1:begin 
           reg1 <= data_in_latched;
@@ -166,11 +165,11 @@ module mmio (
     end else if (mmio_read_latched) begin
       case (address_latched)
         REG_1:begin 
-          counter1  <= counter1 + 1;
+          counter1  <= counter1 + 1; // example could data input from other module
           data_out <= counter1;
         end
         REG_2:begin 
-          counter2  <= counter2 + 3;
+          counter2  <= counter2 + 3; // example
           data_out <= counter2;
         end
         default : begin
@@ -202,13 +201,13 @@ module mmio (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
         address_parity  <= odd_parity;
-        address         <= 24'h0;
+        address         <= 24'h00_0000;
     end else if(mmio_in.valid) begin
         address_parity  <= mmio_in.address_parity;
         address         <= mmio_in.address;
     end else begin
         address_parity  <= odd_parity;
-        address         <= 24'h0;
+        address         <= 24'h00_0000;
     end
   end
 
