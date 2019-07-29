@@ -4,30 +4,37 @@ proc r  {} {
   # compile SystemVerilog files
 
   # compile libs
-  # echo "Compiling libs"
+  echo "Compiling libs"
   
   # compile packages
   echo "Compiling Packages"
   vlog -quiet ../../accelerator/pkg/capi_pkg.sv
-  # vlog -quiet ../../accelerator/pkg/cu_pkg.sv
+  vlog -quiet ../../accelerator/pkg/wed_pkg.sv
 
   # compile rtl
-  echo "Compiling RTL"
+  echo "Compiling RTL General"
   vlog -quiet ../../accelerator/rtl/parity.sv
   vlog -quiet ../../accelerator/rtl/reset_filter.sv
   vlog -quiet ../../accelerator/rtl/reset_control.sv
+  vlog -quiet ../../accelerator/rtl/ram.sv
+
+  echo "Compiling RTL Job"
   vlog -quiet ../../accelerator/rtl/job.sv
+
+  echo "Compiling RTL MMIO"
   vlog -quiet ../../accelerator/rtl/mmio.sv
   
-  # vlog -quiet ../../accelerator/rtl/control.sv
+  echo "Compiling RTL WED_control"
+  vlog -quiet ../../accelerator/rtl/wed_control.sv
  
+  # echo "Compiling Compute Unit"
+  # vlog -quiet ../../accelerator/cu/cu.sv
+
+  echo "Compiling RTL AFU"
   vlog -quiet ../../accelerator/rtl/afu.sv
   vlog -quiet ../../accelerator/rtl/cached_afu.sv
 
-  # compile rtl
-  echo "Compiling Compute Unit"
-  # vlog -quiet ../../accelerator/cu/cu.sv
-
+  
   # compile top level
   echo "Compiling top level"
   # vlog -quiet       pslse/afu_driver/verilog/top.v

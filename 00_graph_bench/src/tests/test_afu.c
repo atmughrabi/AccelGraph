@@ -64,7 +64,6 @@ typedef struct
     void *stripe1;
     void *stripe2;
     void *parity;
-    __u64 done;
 } parity_request;
 
 
@@ -87,7 +86,7 @@ int main(int argc, char *argv[])
     example->size = size;
     example->stripe1 = my_malloc(size);
     example->stripe2 = my_malloc(size);
-    example->parity = my_malloc(size);
+    example->parity  = my_malloc(size);
 
     memcpy(example->stripe1,
            "asfb190jwqsefx0amxAqa1nlkaf78sa0g&0ha8dngj3t21078fnajl38n32j3np2"
@@ -113,7 +112,6 @@ int main(int argc, char *argv[])
            "\x45\x07\x17\x09\x08\x0b\x1b\x06\x50\x18\x00\x4a\x0b\x04\x0a\x55"
            "\x19\x14\x55\x16\x55\x45\x14\x5d\x51\x4a\x17\x41\x56\x57\x5f",
            size);
-    example->done = 0;
 
     printf("[example structure\n");
     printf("  example: %p\n", example);
@@ -121,7 +119,6 @@ int main(int argc, char *argv[])
     printf("  example->stripe1: %p\n", example->stripe1);
     printf("  example->stripe2: %p\n", example->stripe2);
     printf("  example->parity: %p\n", example->parity);
-    printf("  &(example->done): %p\n", &(example->done));
 
     cxl_afu_attach(afu, (__u64)example);
     printf("Attached to AFU\n");
@@ -138,14 +135,14 @@ int main(int argc, char *argv[])
     uint64_t rc1 = 0;
    
     printf("Waiting for completion by AFU\n");
-    while(!example->done)
+    do
     {
       cxl_mmio_read64(afu, MMIO_ADDR1, &rc1);
       printf("Response counter1: %lu\n", rc1);
       cxl_mmio_write64(afu, MMIO_ADDR2, rc1);
       if(rc1 > 20)
         break;
-    }
+    }while(1);
 
     printf("PARITY:\n%s\n", (char *)example->parity);
 

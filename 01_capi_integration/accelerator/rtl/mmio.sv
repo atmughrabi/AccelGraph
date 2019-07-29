@@ -267,7 +267,7 @@ module mmio (
     if(enable_errors) begin
       mmio_errors <= detected_errors;
     end else  begin
-      mmio_errors <= 0;
+      mmio_errors <= 2'b00;
     end
   end
 

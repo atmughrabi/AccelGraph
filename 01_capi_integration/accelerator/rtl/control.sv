@@ -26,9 +26,9 @@ module control (
   	logic [0:63] offset;
 
 
-  assign command_out.abt = 0,
-         command_out.context_handle = 0,
-         buffer_out.read_latency = 1;
+  assign  command_out.abt = 0,
+          command_out.context_handle = 0,
+          buffer_out.read_latency = 4'h1;
 
 
 
@@ -138,7 +138,7 @@ module control (
 		          command_out.command <= READ_CL_NA;
 		          command_out.tag 		<= WED_TAG;
 		          command_out.size 		<= 32;
-		          command_out.address 	<= wed;
+		          command_out.address <= wed;
 		          command_out.valid 	<= 1;
 		          offset 				<= 0;
 		        end

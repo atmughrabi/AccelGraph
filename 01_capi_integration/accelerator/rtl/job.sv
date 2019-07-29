@@ -34,7 +34,7 @@ assign odd_parity       = 1'b1; // Odd parity
 assign parity_enabled   = 1'b1;
 assign job_out.cack     = 1'b0; // Dedicated mode AFU, LLCMD not supported
 assign job_out.yield    = 1'b0; // Job yield not used
-assign timebase_request = 1'b0;   // Timebase request not used
+assign timebase_request = 1'b0; // Timebase request not used
 
   always_ff @(posedge clock) begin
       if(job_in.valid) begin

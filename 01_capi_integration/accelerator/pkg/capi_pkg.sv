@@ -64,6 +64,16 @@ package CAPI_PKG;
     RESTART=13'h0001
   } afu_command_t;
 
+  typedef enum logic [0:7] {
+    WED_TAG,
+    STRIPE1_READ,
+    STRIPE2_READ,
+    PARITY_WRITE,
+    DONE_WRITE
+  } request_tag;
+
+
+
   typedef struct packed {
     logic valid;              // ha_jval,        // Job valid
     job_command_t command;    // ha_jcom,        // Job command
@@ -86,7 +96,7 @@ package CAPI_PKG;
 
   typedef struct packed {
     logic valid;                // ah_cvalid,      // Command valid
-    logic [0:7] tag;            // ah_ctag,        // Command tag
+    request_tag tag;            // ah_ctag,        // Command tag
     logic tag_parity;           // ah_ctagpar,     // Command tag parity
     afu_command_t command;      // ah_com,         // Command code
     logic command_parity;       // ah_compar,      // Command code parity
@@ -120,7 +130,7 @@ package CAPI_PKG;
     
   typedef struct packed {
     logic valid;              // ha_rvalid,     // Response valid
-    logic [0:7] tag;          // ha_rtag,       // Response tag
+    request_tag tag;          // ha_rtag,       // Response tag
     logic tag_parity;         // ha_rtagpar,    // Response tag parity
     psl_response_t response;  // ha_response,   // Response
     logic [0:8] credits;      // ha_rcredits,   // Response credits
@@ -164,7 +174,7 @@ package CAPI_PKG;
     logic [0:63] afu_eb_offset;
   } AFUDescriptor;
 
-  
+ 
     // AFU descriptor
   // Offset 0x00(0), bit 31 -> AFU supports only 1 process at a time
   // Offset 0x00(0), bit 47 -> AFU has one Configuration Record (CR).

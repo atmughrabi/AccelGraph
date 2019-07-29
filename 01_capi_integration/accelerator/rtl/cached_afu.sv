@@ -1,4 +1,5 @@
 import CAPI_PKG::*;
+import WED_PKG::*;
 
 module cached_afu  #(
   parameter NUM_EXTERNAL_RESETS = 2
@@ -27,23 +28,24 @@ module cached_afu  #(
 
   logic reset_afu;
   
+  
+  assign buffer_out.read_latency    = 4'h1;
+
   assign dma_parity_err   = 0;
   assign dma_resp_err     = 0;
   assign external_errors  = {mmio_errors, dma_parity_err, dma_resp_err};
 
+  WEDInterfaceOutput wed_request;
 
-  assign buffer_out.read_latency = 4'h1;
-
-
-  // control control_instant(
-  //   .clock      (clock),
-  //   .enabled    (job_out_1.running),
-  //   .reset      (job_out_1.done),
-  //   .wed        (job_in_1.address),
-  //   .buffer_in  (buffer_in_1),
-  //   .response   (response_1),
-  //   .command_out(command_out_1),
-  //   .buffer_out (buffer_out_1));
+  wed_control wed_control_instant(
+    .clock      (clock),
+    .enabled    (job_out.running),
+    .rstn       (reset_afu),
+    .wed_address(job_in.address),
+    .buffer_in  (buffer_in),
+    .response   (response),
+    .command_out(command_out),
+    .wed_request_out(wed_request));
 
   mmio mmio_instant(
       .clock       (clock),
