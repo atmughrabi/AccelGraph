@@ -109,10 +109,7 @@ main (int argc, char **argv)
     void *ref_data;
     void *cmp_data;
 
-    // ********************************************************************************************
-    // ***************                  CSR DataStructure                            **************
-    // ********************************************************************************************
-
+  
     for(arguments.algorithm = 0 ; arguments.algorithm < 8; arguments.algorithm++)
     {
         for(arguments.datastructure = 0 ; arguments.datastructure < 4; arguments.datastructure++)

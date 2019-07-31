@@ -233,12 +233,41 @@ package CAPI_PKG;
         return 64'h0000_0000_0000_0000;
       end
     endcase
-  endfunction
+  endfunction : read_afu_descriptor
 
 
-  function logic [0:63] swap_endianness(logic [0:63] in);
-    return {in[56:63], in[48:55], in[40:47], in[32:39], in[24:31], in[16:23],
-            in[8:15], in[0:7]};
-  endfunction
+  function logic [0:31] swap_endianness_word(logic [0:31] in);
+    return {in[24:31], 
+            in[16:23],
+            in[ 8:15], 
+            in[ 0:7]};
+  endfunction : swap_endianness_word
+
+  function logic [0:63] swap_endianness_double_word(logic [0:63] in);
+    return {in[56:63],
+            in[48:55], 
+            in[40:47], 
+            in[32:39], 
+            in[24:31], 
+            in[16:23],
+            in[ 8:15], 
+            in[ 0:7]};
+  endfunction : swap_endianness_double_word
+
+  function logic [0:511] swap_endianness_half_cacheline128(logic [0:511] in);
+    return {swap_endianness_double_word(in[448:511]),
+            swap_endianness_double_word(in[384:447]),
+            swap_endianness_double_word(in[320:383]),
+            swap_endianness_double_word(in[256:319]),
+            swap_endianness_double_word(in[192:255]),
+            swap_endianness_double_word(in[128:191]),
+            swap_endianness_double_word(in[ 64:127]),
+            swap_endianness_double_word(in[  0: 63])};
+  endfunction : swap_endianness_half_cacheline128
+
+  function logic [0:1023] swap_endianness_full_cacheline128(logic [0:1023] in);
+    return {swap_endianness_half_cacheline128(in[512:1023]),
+            swap_endianness_half_cacheline128(in[0:511])};
+  endfunction : swap_endianness_full_cacheline128
 
 endpackage

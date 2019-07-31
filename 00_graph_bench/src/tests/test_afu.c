@@ -57,23 +57,120 @@ mt19937state *mt19937var;
 #define DEVICE              "/dev/cxl/afu1.0d"
 #endif
 
-
-typedef struct
+struct __attribute__((__packed__)) WEDGraphCSR
 {
-    __u64 size;
-    void *stripe1;
-    void *stripe2;
-    void *parity;
-} parity_request;
+    __u32 num_edges;                    // 4-Bytes
+    __u32 num_vertices;                 // 4-Bytes
+    __u32 max_weight;                   // 4-Bytes
+    void *vertex_out_degree;            // 8-Bytes
+    void *vertex_in_degree;             // 8-Bytes
+    void *vertex_edges_idx;             // 8-Bytes
+    void *edges_array_weight;           // 8-Bytes
+    void *edges_array_src;              // 8-Bytes
+    void *edges_array_dest;             // 8-Bytes
+    void *inverse_vertex_out_degree;    // 8-Bytes
+    void *inverse_vertex_in_degree;     // 8-Bytes
+    void *inverse_vertex_edges_idx;     // 8-Bytes
+    void *inverse_edges_array_weight;   // 8-Bytes
+    void *inverse_edges_array_src;      // 8-Bytes
+    void *inverse_edges_array_dest;     // 8-Bytes
+    __u32 reserved1;   // 8-Bytes
+    __u64 reserved2;      // 8-Bytes
+    __u64 reserved3;     // 8-Bytes
+}; // 108-bytes used from 128-Bytes WED
 
 
-int main(int argc, char *argv[])
+// "   mm                        ""#             mmm                       #     \n"
+// "   ##    mmm    mmm    mmm     #           m"   "  m mm   mmm   mmmm   # mm  \n"
+// "  #  #  #"  "  #"  "  #"  #    #           #   mm  #"  " "   #  #" "#  #"  # \n"
+// "  #mm#  #      #      #""""    #     """   #    #  #     m"""#  #   #  #   # \n"
+// " #    # "#mm"  "#mm"  "#mm"    "mm          "mmm"  #     "mm"#  ##m#"  #   # \n"
+// "                                                                #            \n"
+
+struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
 {
+
+    struct WEDGraphCSR *wed = my_malloc(sizeof(struct WEDGraphCSR));
+
+    wed->num_edges    = graph->num_edges;
+    wed->num_vertices = graph->num_vertices;
+#if WEIGHTED
+    wed->max_weight   = graph->max_weight;
+#else
+    wed->max_weight   = 0;
+#endif
+
+    wed->vertex_out_degree  = graph->vertices->out_degree;
+    wed->vertex_in_degree   = graph->vertices->in_degree;
+    wed->vertex_edges_idx   = graph->vertices->edges_idx;
+
+    wed->edges_array_src    = graph->sorted_edges_array->edges_array_src;
+    wed->edges_array_dest   = graph->sorted_edges_array->edges_array_dest;
+#if WEIGHTED
+    wed->edges_array_weight = graph->sorted_edges_array->edges_array_weight;
+#endif
+
+#if DIRECTED
+    wed->inverse_vertex_out_degree  = graph->inverse_vertices->out_degree;
+    wed->inverse_vertex_in_degree   = graph->inverse_vertices->in_degree;
+    wed->inverse_vertex_edges_idx   = graph->inverse_vertices->edges_idx;
+
+    wed->inverse_edges_array_src    = graph->inverse_sorted_edges_array->edges_array_src;
+    wed->inverse_edges_array_dest   = graph->inverse_sorted_edges_array->edges_array_dest;
+#if WEIGHTED
+    wed->inverse_edges_array_weight = graph->inverse_sorted_edges_array->edges_array_weight;
+#endif
+#endif
+
+    wed->reserved1 = 0;
+    wed->reserved2 = 0;
+    wed->reserved3 = 0;
+
+    return wed;
+}
+
+
+void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
+{
+
+    printf("[WEDGraphCSR structure\n");
+    printf("  wed: %p\n", wed);
+    printf("  wed->num_edges: %u\n", wed->num_edges);
+    printf("  wed->num_vertices: %u\n", wed->num_vertices);
+#if WEIGHTED
+    printf("  wed->max_weight: %u\n", wed->max_weight);
+#endif
+    printf("  wed->vertex_out_degree: %p\n", wed->vertex_out_degree);
+    printf("  wed->vertex_in_degree: %p\n", wed->vertex_in_degree);
+    printf("  wed->vertex_edges_idx: %p\n", wed->vertex_edges_idx);
+
+    printf("  wed->edges_array_src: %p\n", wed->edges_array_src);
+    printf("  wed->edges_array_dest: %p\n", wed->edges_array_dest);
+#if WEIGHTED
+    printf("  wed->edges_array_weight: %p\n", wed->edges_array_weight);
+#endif
+
+#if DIRECTED
+    printf("  wed->inverse_vertex_out_degree: %p\n", wed->inverse_vertex_out_degree);
+    printf("  wed->inverse_vertex_in_degree: %p\n", wed->inverse_vertex_in_degree);
+    printf("  wed->inverse_vertex_edges_idx: %p\n", wed->inverse_vertex_edges_idx);
+
+    printf("  wed->inverse_edges_array_src: %p\n", wed->inverse_edges_array_src);
+    printf("  wed->inverse_edges_array_dest: %p\n", wed->inverse_edges_array_dest);
+#if WEIGHTED
+    printf("  wed->inverse_edges_array_weight: %p\n", wed->inverse_edges_array_weight);
+#endif
+#endif
+
+
+}
+
+int
+main (int argc, char **argv)
+{
+
     struct cxl_afu_h *afu;
-
-    parity_request *example;
-    size_t size = 256;
-
+    struct WEDGraphCSR *wedGraphCSR;
 
     afu = cxl_afu_open_dev("/dev/cxl/afu0.0d");
     if(!afu)
@@ -82,73 +179,101 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    example = my_malloc(sizeof(*example));
-    example->size = size;
-    example->stripe1 = my_malloc(size);
-    example->stripe2 = my_malloc(size);
-    example->parity  = my_malloc(size);
 
-    memcpy(example->stripe1,
-           "asfb190jwqsefx0amxAqa1nlkaf78sa0g&0ha8dngj3t21078fnajl38n32j3np2"
-           "x3t8wefiankxkfmgm ncmbqx8ehn2jkaeubgfbuapwnjxkg09f0w9es80872981"
-           "asfb190jwqsefx0amxAqa1nlkaf78sa0g&0ha8dngj3t21078fnajl38n32j3np2"
-           "x3t8wefiankxkfmgm ncmbqx8ehn2jkaeubgfbuapwnjxkg09f0w9es80872981",
-           size);
-    memcpy(example->stripe2,
-           "\x35\x1b\x07\x16\x11\x50\x43\x4a\x04\x1e\x1e\x00\x46\x08\x42\x0e"
-           "\x1d\x1d\x33\x51\x11\x50\x1c\x05\x1f\x18\x47\x17\x6c\x1b\x08\x43"
-           "\x47\x4f\x43\x48\x04\x40\x05\x0d\x13\x06\x4a\x54\x45\x59\x51\x43"
-           "\x18\x2f\x49\x0c\x4a\x09\x4b\x48\x0b\x50\x46\x03\x5d\x09\x50\x46"
-           "\x17\x13\x07\x5d\x12\x4b\x46\x20\x46\x0a\x4b\x19\x07\x15\x02\x47"
-           "\x01\x49\x05\x06\x4d\x16\x1e\x58\x4b\x00\x0d\x4e\x46\x02\x02\x12"
-           "\x45\x07\x17\x09\x08\x0b\x1b\x06\x50\x18\x00\x4a\x0b\x04\x0a\x55"
-           "\x19\x14\x55\x16\x55\x45\x14\x5d\x51\x4a\x17\x41\x56\x57\x5f"
-           "\x35\x1b\x07\x16\x11\x50\x43\x4a\x04\x1e\x1e\x00\x46\x08\x42\x0e"
-           "\x1d\x1d\x33\x51\x11\x50\x1c\x05\x1f\x18\x47\x17\x6c\x1b\x08\x43"
-           "\x47\x4f\x43\x48\x04\x40\x05\x0d\x13\x06\x4a\x54\x45\x59\x51\x43"
-           "\x18\x2f\x49\x0c\x4a\x09\x4b\x48\x0b\x50\x46\x03\x5d\x09\x50\x46"
-           "\x17\x13\x07\x5d\x12\x4b\x46\x20\x46\x0a\x4b\x19\x07\x15\x02\x47"
-           "\x01\x49\x05\x06\x4d\x16\x1e\x58\x4b\x00\x0d\x4e\x46\x02\x02\x12"
-           "\x45\x07\x17\x09\x08\x0b\x1b\x06\x50\x18\x00\x4a\x0b\x04\x0a\x55"
-           "\x19\x14\x55\x16\x55\x45\x14\x5d\x51\x4a\x17\x41\x56\x57\x5f",
-           size);
+    struct Arguments arguments;
+    /* Default values. */
 
-    printf("[example structure\n");
-    printf("  example: %p\n", example);
-    printf("  example->size: %llu\n", example->size);
-    printf("  example->stripe1: %p\n", example->stripe1);
-    printf("  example->stripe2: %p\n", example->stripe2);
-    printf("  example->parity: %p\n", example->parity);
+    arguments.wflag = 0;
+    arguments.xflag = 0;
+    arguments.sflag = 0;
 
-    cxl_afu_attach(afu, (__u64)example);
+    arguments.iterations = 200;
+    arguments.trials = 100;
+    arguments.epsilon = 0.0001;
+    arguments.root = 5319;
+    arguments.algorithm = 0;
+    arguments.datastructure = 0; // CSR DataStructure
+    arguments.pushpull = 0;
+    arguments.sort = 0;
+    arguments.lmode = 0;
+    arguments.symmetric = 0;
+    arguments.weighted = 0;
+    arguments.delta = 1;
+    arguments.numThreads = 4;
+    arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
+    arguments.fnameb_format = 1;
+    arguments.convert_format = 1;
+
+    void *graph = NULL;
+
+    numThreads =  arguments.numThreads;
+
+    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+
+    mt19937var = (mt19937state *) my_malloc(sizeof(mt19937state));
+    initializeMersenneState (mt19937var, 27491095);
+
+    omp_set_nested(1);
+    omp_set_num_threads(numThreads);
+
+
+
+
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-20s %-30u | \n", "Number of Threads :", numThreads);
+    printf(" -----------------------------------------------------\n");
+
+
+
+    // ********************************************************************************************
+    // ***************                  CSR DataStructure                            **************
+    // ********************************************************************************************
+
+
+    graph = generateGraphDataStructure(&arguments);
+    // (struct GraphCSR *)graph
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+
+    printWEDGraphCSRPointers(wedGraphCSR);
+
+    cxl_afu_attach(afu, (__u64)wedGraphCSR);
     printf("Attached to AFU\n");
 
     int base_address = cxl_mmio_map (afu, CXL_MMIO_BIG_ENDIAN);
 
-    if (base_address < 0) {
-      printf("fail cxl_mmio_map %d", base_address);
-      return -1;
-    } else {
-      printf("succ cxl_mmio_map %d", base_address);
+    if (base_address < 0)
+    {
+        printf("fail cxl_mmio_map %d", base_address);
+        return -1;
+    }
+    else
+    {
+        printf("succ cxl_mmio_map %d", base_address);
     }
 
     uint64_t rc1 = 0;
-   
+
     printf("Waiting for completion by AFU\n");
     do
     {
-      cxl_mmio_read64(afu, MMIO_ADDR1, &rc1);
-      printf("Response counter1: %lu\n", rc1);
-      cxl_mmio_write64(afu, MMIO_ADDR2, rc1);
-      if(rc1 > 20)
-        break;
-    }while(1);
+        cxl_mmio_read64(afu, MMIO_ADDR1, &rc1);
+        printf("Response counter1: %lu\n", rc1);
+        cxl_mmio_write64(afu, MMIO_ADDR2, rc1);
+        if(rc1 > 20)
+            break;
+    }
+    while(1);
 
-    printf("PARITY:\n%s\n", (char *)example->parity);
 
     printf("Releasing AFU\n");
     cxl_mmio_unmap (afu);
     cxl_afu_free(afu);
 
-    return 0;
+    free(timer);
+    exit (0);
 }
+
+
+
+
+
