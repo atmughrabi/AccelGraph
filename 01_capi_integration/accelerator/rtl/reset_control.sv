@@ -35,31 +35,30 @@
 //
 
 module reset_control #(
-	parameter NUM_EXTERNAL_RESETS = 1,
-	parameter NUM_DOMAINS = 1,
-	parameter SEQUENTIAL_RELEASE = 1'b0
+	parameter NUM_EXTERNAL_RESETS = 1
 	)(
-	input [0:NUM_DOMAINS-1] clk,
-	input [0:NUM_EXTERNAL_RESETS-1] external_rstn,
-	output [0:NUM_DOMAINS-1] rstn
+	input logic clock,
+	input logic [0:NUM_EXTERNAL_RESETS-1] external_rstn,
+	output logic rstn
 );
 
-
 genvar i;
+logic sys_rstn;
+logic [0:NUM_EXTERNAL_RESETS-1] filtered_rstn;
 
 //////////////////////////////////
 // filter the resets to ensure 
 // min pulse width, and synch
 // removal, with respect to clock 0
 //////////////////////////////////
-logic [0:NUM_EXTERNAL_RESETS-1] filtered_rstn;
+
 generate
 for (i=0; i<NUM_EXTERNAL_RESETS; i=i+1)
 begin : lp0
   reset_filter rf_extern (
     .enable(1'b1),
 	.rstn_raw(external_rstn[i]),
-	.clk(clk[0]),
+	.clock(clock),
 	.rstn_filtered(filtered_rstn[i]));
 end
 endgenerate
@@ -69,28 +68,12 @@ endgenerate
 // to form a single system reset with respect 
 // to clock 0
 //////////////////////////////////////////////
-wire sys_rstn = &filtered_rstn;
+assign sys_rstn = &filtered_rstn;
 
 reset_filter rf_sys (
     .enable(1'b1),
 	.rstn_raw(sys_rstn),
-	.clk(clk[0]),
-	.rstn_filtered(rstn[0]));
-
-//////////////////////////////////////////////
-// release remaining resets either as convenient
-// or sequentially, according to parameter
-//////////////////////////////////////////////
-generate 
-for (i=1;i<NUM_DOMAINS;i=i+1)
-begin : lp1
-    reset_filter rf_out (
-	    .enable(SEQUENTIAL_RELEASE ? rstn[i-1] : 1'b1),
-	    .rstn_raw(sys_rstn),
-	    .clk(clk[i]),
-	    .rstn_filtered(rstn[i])
-	);
-end
-endgenerate
+	.clock(clock),
+	.rstn_filtered(rstn));
 
 endmodule

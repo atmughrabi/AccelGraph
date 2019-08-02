@@ -43,7 +43,7 @@ module reset_filter #(
 	)(
 	input enable,
 	input rstn_raw,
-	input clk,
+	input clock,
 	output rstn_filtered
 );
 
@@ -58,7 +58,7 @@ module reset_filter #(
 
 logic [0:PULSE_HOLD-1] rstn_reg /* synthesis preserve */;
 
-always_ff @(posedge clk or negedge rstn_raw) begin
+always_ff @(posedge clock or negedge rstn_raw) begin
   if (!rstn_raw) begin
     rstn_reg <= {PULSE_HOLD{1'b0}};
   end

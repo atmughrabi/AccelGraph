@@ -69,7 +69,7 @@ module cached_afu  #(
   reset_control #(
     .NUM_EXTERNAL_RESETS(NUM_EXTERNAL_RESETS)
     )reset_instant(
-      .clk(clock),
+      .clock(clock),
       .external_rstn(external_rstn),
       .rstn(reset_afu)
   );

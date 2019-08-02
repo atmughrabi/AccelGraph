@@ -51,15 +51,15 @@ typedef struct packed{
     wed.edges_array_weight = swap_endianness_double_word(in[288:351]);         // 8-Bytes
     wed.edges_array_src    = swap_endianness_double_word(in[352:415]);         // 8-Bytes
     wed.edges_array_dest   = swap_endianness_double_word(in[416:479]);         // 8-Bytes
-    wed.inverse_vertex_out_degree   = swap_endianness_double_word(in[480:543]);   // 8-Bytes
-    wed.inverse_vertex_in_degree    = swap_endianness_double_word(in[544:607]);    // 8-Bytes
-    wed.inverse_vertex_edges_idx    = swap_endianness_double_word(in[608:671]);    // 8-Bytes
-    wed.inverse_edges_array_weight  = swap_endianness_double_word(in[672:735]);  // 8-Bytes
+    wed.inverse_vertex_out_degree   = swap_endianness_double_word(in[480:543]);     // 8-Bytes
+    wed.inverse_vertex_in_degree    = swap_endianness_double_word(in[544:607]);     // 8-Bytes
+    wed.inverse_vertex_edges_idx    = swap_endianness_double_word(in[608:671]);     // 8-Bytes
+    wed.inverse_edges_array_weight  = swap_endianness_double_word(in[672:735]);     // 8-Bytes
     wed.inverse_edges_array_src     = swap_endianness_double_word(in[736:799]);     // 8-Bytes
-    wed.inverse_edges_array_dest    = swap_endianness_double_word(in[800:863]);    // 8-Bytes
-    wed.reserved1 = 0;                   // 4-Bytes
-    wed.reserved2 = 0;                   // 8-Bytes
-    wed.reserved3 = 0;                   // 8-Bytes
+    wed.inverse_edges_array_dest    = swap_endianness_double_word(in[800:863]);     // 8-Bytes
+    wed.reserved1 = 32'h0000_0000;                                                  // 4-Bytes
+    wed.reserved2 = 64'h0000_0000_0000_0000;                   // 8-Bytes
+    wed.reserved3 = 64'h0000_0000_0000_0000;                  // 8-Bytes
 
     return wed;
 

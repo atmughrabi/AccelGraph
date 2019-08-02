@@ -111,11 +111,11 @@ module mmio (
 // data out to host logic
   always_ff @(posedge clock or negedge rstn) begin
      if(~rstn) begin
-        data_cfg <= 0;
+        data_cfg <= 64'h0000_0000_0000_0000;
      end else if(cfg_read) begin
         data_cfg  <= read_afu_descriptor(afu_desc, address[0:22]);
       end else begin
-        data_cfg <= 0;
+        data_cfg <= 64'h0000_0000_0000_0000;
       end
   end
 
@@ -127,8 +127,8 @@ module mmio (
 // Write DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-        reg1         <= 0;
-        reg2         <= 0;
+        reg1         <= 64'h0000_0000_0000_0000;
+        reg2         <= 64'h0000_0000_0000_0000;
     end else if (mmio_write_latched) begin
       case (address_latched)
         REG_1:begin 
@@ -138,22 +138,22 @@ module mmio (
           reg2 <= data_in_latched;
         end
         default : begin
-          reg1         <= 0;
-          reg2         <= 0;
+          reg1         <= 64'h0000_0000_0000_0000;
+          reg2         <= 64'h0000_0000_0000_0000;
         end
       endcase  
     end else begin 
-        reg1         <= 0;
-        reg2         <= 0;
+        reg1         <= 64'h0000_0000_0000_0000;
+        reg2         <= 64'h0000_0000_0000_0000;
     end
   end
 
   // Read DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-        data_out        <= 0;
-        counter1         <= 0;
-        counter2         <= 0;
+        data_out        <= 64'h0000_0000_0000_0000;
+        counter1         <= 64'h0000_0000_0000_0000;
+        counter2         <= 64'h0000_0000_0000_0000;
     end else if(cfg_read_latched) begin
       if(doubleword_latched) begin 
         data_out        <= data_cfg;
@@ -173,11 +173,11 @@ module mmio (
           data_out <= counter2;
         end
         default : begin
-          data_out <= 0;
+          data_out <= 64'h0000_0000_0000_0000;
         end
       endcase  
     end else begin 
-      data_out <= 0;
+      data_out <= 64'h0000_0000_0000_0000;
     end
   end
 
@@ -253,9 +253,9 @@ module mmio (
    // Error logic
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      mmio_data_error    <= 0;
-      mmio_address_error <= 0;
-      detected_errors    <= {mmio_data_error, mmio_address_error};
+      mmio_data_error    <= 1'b0;
+      mmio_address_error <= 1'b0;
+      detected_errors    <= 2'b00;
     end else begin
       mmio_data_error    <= data_in_parity_link ^ data_in_parity;
       mmio_address_error <= address_parity_link ^ address_parity;
