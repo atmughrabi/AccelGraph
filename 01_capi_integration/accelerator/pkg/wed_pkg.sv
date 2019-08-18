@@ -35,7 +35,7 @@ typedef struct packed{
   logic valid;
   logic [0:63] address;
   WED_request wed;
-} WEDInterfaceOutput;
+} WEDInterface;
 
 
   function WED_request map_to_WED(logic [0:1023] in);

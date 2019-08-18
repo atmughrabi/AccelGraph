@@ -10,7 +10,7 @@ module wed_control (
   input BufferInterfaceInput buffer_in,
   input ResponseInterface response,
   output CommandInterfaceOutput command_out,
-  output WEDInterfaceOutput wed_request_out
+  output WEDInterface wed_request_out
 );
 
 	wed_state current_state, next_state;

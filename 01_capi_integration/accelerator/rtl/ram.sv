@@ -7,7 +7,7 @@ module ram #(
   input  logic                  we,
   input  logic [0:ADDR_BITS-1]  wr_addr,
   input  logic [0:WIDTH-1]      data_in,
-  input  logic [0:ADDR_BITS-1]  rd__addr,
+  input  logic [0:ADDR_BITS-1]  rd_addr,
   output logic [0:WIDTH-1]      data_out  
 );
 
@@ -17,6 +17,9 @@ module ram #(
   always @ (posedge clock) begin
     if (we)
       memory[wr_addr] <= data_in;
-    data_out <= memory[rd__addr];
+  end
+
+  always @ (posedge clock) begin
+    data_out <= memory[rd_addr];
   end
 endmodule

@@ -10,13 +10,24 @@ proc r  {} {
   echo "Compiling Packages"
   vlog -quiet ../../accelerator/pkg/capi_pkg.sv
   vlog -quiet ../../accelerator/pkg/wed_pkg.sv
+  vlog -quiet ../../accelerator/pkg/credit_pkg.sv
+  vlog -quiet ../../accelerator/pkg/command_pkg.sv
 
   # compile rtl
   echo "Compiling RTL General"
   vlog -quiet ../../accelerator/rtl/parity.sv
   vlog -quiet ../../accelerator/rtl/reset_filter.sv
   vlog -quiet ../../accelerator/rtl/reset_control.sv
+  vlog -quiet ../../accelerator/rtl/error_control.sv
   vlog -quiet ../../accelerator/rtl/ram.sv
+  vlog -quiet ../../accelerator/rtl/fifo.sv
+  vlog -quiet ../../accelerator/rtl/priority_arbiter.sv
+
+  echo "Compiling RTL Command"
+  vlog -quiet ../../accelerator/rtl/credit_control.sv
+  vlog -quiet ../../accelerator/rtl/response_control.sv
+  vlog -quiet ../../accelerator/rtl/command_control.sv
+  vlog -quiet ../../accelerator/rtl/command_buffer_arbiter.sv
 
   echo "Compiling RTL Job"
   vlog -quiet ../../accelerator/rtl/job.sv
