@@ -41,29 +41,29 @@ module cached_afu  #(
 //WED 
 ////////////////////////////////////////////////////////////////////////////
 
-  WEDInterface wed_request;
+  WEDInterface wed; // work element descriptor -> addresses and other into
+  CommandBufferLine wed_command_out; // command for populatin WED
 
-  // wed_control wed_control_instant(
-  //   .clock      (clock),
-  //   .enabled    (job_out.running),
-  //   .rstn       (reset_afu),
-  //   .wed_address(job_in.address),
-  //   .buffer_in  (buffer_in),
-  //   .response   (response),
-  //   .command_out(command_out),
-  //   .wed_request_out(wed_request));
+  wed_control wed_control_instant(
+    .clock      (clock),
+    .enabled    (job_out.running),
+    .rstn       (reset_afu),
+    .wed_address(job_in.address),
+    .buffer_in  (buffer_in),
+    .response   (response),
+    .command_out(wed_command_out),
+    .wed_request_out(wed));
 
 ////////////////////////////////////////////////////////////////////////////
 //Command 
 ////////////////////////////////////////////////////////////////////////////
   CommandBufferLine read_command_in;
   CommandBufferLine write_command_in;
-  CommandBufferLine wed_command_in;
   CommandBufferLine restart_command_in;
+  CommandBufferStatusInterfaceOut command_buffer_status;
 
   assign read_command_in = 0;
   assign write_command_in = 0;
-  assign wed_command_in = 0;
   assign restart_command_in = 0;
 
  command command_instant(
@@ -72,11 +72,12 @@ module cached_afu  #(
     .enabled      (job_out.running),
     .read_command_in    (read_command_in),
     .write_command_in   (write_command_in),
-    .wed_command_in     (wed_command_in),
+    .wed_command_in     (wed_command_out),
     .restart_command_in (restart_command_in),
     .command_in   (command_in),
     .response     (response),
-    .command_out  (command_out)
+    .command_out  (command_out),
+    .command_buffer_status (command_buffer_status)
     );
 
 ////////////////////////////////////////////////////////////////////////////

@@ -61,10 +61,12 @@ package CAPI_PKG;
     // Management commands
     FLUSH=13'h0100,
     INTREQ=13'h0000,
-    RESTART=13'h0001
+    RESTART=13'h0001,
+    INVALID
   } afu_command_t;
 
   typedef enum logic [0:7] {
+    INVALID_TAG,
     WED_TAG,
     STRIPE1_READ,
     STRIPE2_READ,

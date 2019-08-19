@@ -29,12 +29,37 @@ module command_control (
   logic read_request;
   logic restart_request;
 
-  assign wed_request = 0;
-  assign write_request = 0;
-  assign read_request = 0;
-  assign restart_request = 0;
+  assign wed_request      = command_arbiter_in.wed_ready;
+  assign write_request    = command_arbiter_in.write_ready;
+  assign read_request     = command_arbiter_in.read_ready;
+  assign restart_request  = command_arbiter_in.restart_ready;
 
   logic valid_request;
+
+
+////////////////////////////////////////////////////////////////////////////
+//drive command
+////////////////////////////////////////////////////////////////////////////
+
+
+
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+        command_out.valid    <= 1'b0;
+        command_out.command  <= INVALID; // just zero it out
+        command_out.address  <= 64'h0000_0000_0000_0000;
+        command_out.tag      <= INVALID_TAG;
+        command_out.size     <= 12'h000;
+    end 
+    else begin
+        command_out.valid    <= command_arbiter_in.command_buffer_out.valid;
+        command_out.command  <= command_arbiter_in.command_buffer_out.command;
+        command_out.address  <= command_arbiter_in.command_buffer_out.address;
+        command_out.tag      <= command_arbiter_in.command_buffer_out.tag;
+        command_out.size     <= command_arbiter_in.command_buffer_out.size;
+      end
+  end // always_ff @(posedge clock)
+
 
 
 ////////////////////////////////////////////////////////////////////////////

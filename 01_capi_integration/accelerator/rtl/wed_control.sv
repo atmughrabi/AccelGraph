@@ -1,5 +1,7 @@
 import CAPI_PKG::*;
 import WED_PKG::*;
+import COMMAND_PKG::*;
+
 
 module wed_control (
   
@@ -9,7 +11,7 @@ module wed_control (
   input logic [0:63] wed_address,
   input BufferInterfaceInput buffer_in,
   input ResponseInterface response,
-  output CommandInterfaceOutput command_out,
+  output CommandBufferLine command_out,
   output WEDInterface wed_request_out
 );
 
@@ -53,20 +55,15 @@ module wed_control (
 		endcase
 	end // always_comb
 
-  assign command_out.command_parity  = ~^command_out.command;
-  assign command_out.address_parity  = ~^command_out.address;
-  assign command_out.tag_parity      = ~^command_out.tag;
-  assign command_out.abt             = STRICT;
-  assign command_out.context_handle  = 16'h00;
-
 	always_ff @(posedge clock) begin
 			case (current_state)
         WED_RESET: begin
           command_out.valid    <= 1'b0;
-          command_out.command  <= RESTART; // just zero it out
+          command_out.command  <= INVALID; // just zero it out
           command_out.address  <= 64'h0000_0000_0000_0000;
-          command_out.tag      <= WED_TAG;
+          command_out.tag      <= INVALID_TAG;
           command_out.size     <= 12'h000;
+        
           wed_cacheline128        <= 1024'h0;
           wed_request_out.wed     <= 512'h0;
           wed_request_out.valid   <= 1'b0;

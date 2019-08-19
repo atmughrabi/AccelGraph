@@ -26,8 +26,7 @@ module command_buffer_arbiter #(
  logic [0:NUM_REQUESTS-1] requests;
  logic [0:NUM_REQUESTS-1] grant;
 
- assign requests = {command_arbiter_in.wed_request,command_arbiter_in.write_request,
-                    command_arbiter_in.read_request,command_arbiter_in.restart_request};
+ assign requests = command_arbiter_in;
  
 //------------------------------------------------------------------------
 // vc_FixedArb
@@ -47,65 +46,64 @@ vc_FixedArb #(
 
 always @(posedge clock or negedge rstn) begin
   if (~rstn) begin
-    command_arbiter_out.command_buffer_out <= 0;
-    command_arbiter_out.valid <= 1'b0;
-    command_arbiter_out.wed_ready <= 1'b0;
-    command_arbiter_out.write_ready <= 1'b0;
-    command_arbiter_out.read_ready <= 1'b0;
-    command_arbiter_out.restart_ready <= 1'b0;
+      command_arbiter_out.command_buffer_out.valid    <= 1'b0;
+      command_arbiter_out.command_buffer_out.command  <= INVALID; // just zero it out
+      command_arbiter_out.command_buffer_out.address  <= 64'h0000_0000_0000_0000;
+      command_arbiter_out.command_buffer_out.tag      <= INVALID_TAG;
+      command_arbiter_out.command_buffer_out.size     <= 12'h000;
   end
   else begin
     if (enabled) begin
       if (grant ==   4'b1000) begin
-        command_arbiter_out.valid <= 1'b1;
-        command_arbiter_out.wed_ready <= 1'b1;
-        command_arbiter_out.command_buffer_out.tag <= wed_command_buffer_in.tag;
+        command_arbiter_out.command_buffer_out.valid   <= wed_command_buffer_in.valid;
+        command_arbiter_out.command_buffer_out.tag     <= wed_command_buffer_in.tag;
         command_arbiter_out.command_buffer_out.command <= wed_command_buffer_in.command ;
         command_arbiter_out.command_buffer_out.address <= wed_command_buffer_in.address ;
-        command_arbiter_out.command_buffer_out.size <= wed_command_buffer_in.size;
+        command_arbiter_out.command_buffer_out.size    <= wed_command_buffer_in.size;
       end
       else if (grant == 4'b0100) begin
-        command_arbiter_out.valid <= 1'b1;
-        command_arbiter_out.write_ready <= 1'b1;
-        command_arbiter_out.command_buffer_out.tag <= write_command_buffer_in.tag;
+        command_arbiter_out.command_buffer_out.valid   <= write_command_buffer_in.valid;
+        command_arbiter_out.command_buffer_out.tag     <= write_command_buffer_in.tag;
         command_arbiter_out.command_buffer_out.command <= write_command_buffer_in.command ;
         command_arbiter_out.command_buffer_out.address <= write_command_buffer_in.address ;
-        command_arbiter_out.command_buffer_out.size <= write_command_buffer_in.size;
+        command_arbiter_out.command_buffer_out.size    <= write_command_buffer_in.size;
       end
       else if (grant == 4'b0010) begin
-        command_arbiter_out.valid <= 1'b1;
-        command_arbiter_out.read_ready <= 1'b1;
-        command_arbiter_out.command_buffer_out.tag <= read_command_buffer_in.tag;
+        command_arbiter_out.command_buffer_out.valid   <= read_command_buffer_in.valid;
+        command_arbiter_out.command_buffer_out.tag     <= read_command_buffer_in.tag;
         command_arbiter_out.command_buffer_out.command <= read_command_buffer_in.command ;
         command_arbiter_out.command_buffer_out.address <= read_command_buffer_in.address ;
-        command_arbiter_out.command_buffer_out.size <= read_command_buffer_in.size;
+        command_arbiter_out.command_buffer_out.size    <= read_command_buffer_in.size;
       end
       else if (grant == 4'b0001) begin
-        command_arbiter_out.valid <= 1'b1;
-        command_arbiter_out.restart_ready <= 1'b1;
-        command_arbiter_out.command_buffer_out.tag <= restart_command_buffer_in.tag;
+        command_arbiter_out.command_buffer_out.valid   <= restart_command_buffer_in.valid;
+        command_arbiter_out.command_buffer_out.tag     <= restart_command_buffer_in.tag;
         command_arbiter_out.command_buffer_out.command <= restart_command_buffer_in.command ;
         command_arbiter_out.command_buffer_out.address <= restart_command_buffer_in.address ;
-        command_arbiter_out.command_buffer_out.size <= restart_command_buffer_in.size;
+        command_arbiter_out.command_buffer_out.size    <= restart_command_buffer_in.size;
       end   
       else begin
-        command_arbiter_out.command_buffer_out <= 0;
-        command_arbiter_out.valid <= 1'b0;
-        command_arbiter_out.wed_ready <= 1'b0;
-        command_arbiter_out.write_ready <= 1'b0;
-        command_arbiter_out.read_ready <= 1'b0;
-        command_arbiter_out.restart_ready <= 1'b0;
+        command_arbiter_out.command_buffer_out.valid    <= 1'b0;
+        command_arbiter_out.command_buffer_out.command  <= INVALID; // just zero it out
+        command_arbiter_out.command_buffer_out.address  <= 64'h0000_0000_0000_0000;
+        command_arbiter_out.command_buffer_out.tag      <= INVALID_TAG;
+        command_arbiter_out.command_buffer_out.size     <= 12'h000;
       end
     end
     else begin
-      command_arbiter_out.command_buffer_out <= 0;
-      command_arbiter_out.valid <= 1'b0;
-      command_arbiter_out.wed_ready <= 1'b0;
-      command_arbiter_out.write_ready <= 1'b0;
-      command_arbiter_out.read_ready <= 1'b0;
-      command_arbiter_out.restart_ready <= 1'b0;
+      command_arbiter_out.command_buffer_out.valid    <= 1'b0;
+      command_arbiter_out.command_buffer_out.command  <= INVALID; // just zero it out
+      command_arbiter_out.command_buffer_out.address  <= 64'h0000_0000_0000_0000;
+      command_arbiter_out.command_buffer_out.tag      <= INVALID_TAG;
+      command_arbiter_out.command_buffer_out.size     <= 12'h000;
     end
   end
 end
+
+  assign command_arbiter_out.wed_ready     = grant[0] & enabled;
+  assign command_arbiter_out.write_ready   = grant[1] & enabled;
+  assign command_arbiter_out.read_ready    = grant[2] & enabled;
+  assign command_arbiter_out.restart_ready = grant[3] & enabled;
+  assign command_arbiter_out.valid         = (command_arbiter_out.command_buffer_out.valid) & enabled;
 
 endmodule
