@@ -8,9 +8,10 @@ module command_control (
 	input logic rstn, 	
 	input logic enabled,
 	input CommandInterfaceInput command_in,
-  input CommandBufferLine command_buffer_in,
+  input CommandBufferArbiterInterfaceOut command_arbiter_in,
   input ResponseInterface response,
   output CommandInterfaceOutput command_out
+
 );
 
   assign command_out.command_parity  = ~^command_out.command;

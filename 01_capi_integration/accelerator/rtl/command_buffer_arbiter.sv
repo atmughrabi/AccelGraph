@@ -8,7 +8,7 @@ module command_buffer_arbiter #(
 )(
 	input logic clock,    // Clock
 	input logic rstn,
-  input logic ready,
+  input logic enabled,
   input CommandBufferArbiterInterfaceIn command_arbiter_in,
   input CommandBufferLine read_command_buffer_in,
   input CommandBufferLine write_command_buffer_in,
@@ -26,7 +26,8 @@ module command_buffer_arbiter #(
  logic [0:NUM_REQUESTS-1] requests;
  logic [0:NUM_REQUESTS-1] grant;
 
- assign requests = {command_arbiter_in.wed_request,1'b0,1'b0,1'b0};
+ assign requests = {command_arbiter_in.wed_request,command_arbiter_in.write_request,
+                    command_arbiter_in.read_request,command_arbiter_in.restart_request};
  
 //------------------------------------------------------------------------
 // vc_FixedArb
@@ -54,7 +55,7 @@ always @(posedge clock or negedge rstn) begin
     command_arbiter_out.restart_ready <= 1'b0;
   end
   else begin
-    if (ready) begin
+    if (enabled) begin
       if (grant ==   4'b1000) begin
         command_arbiter_out.valid <= 1'b1;
         command_arbiter_out.wed_ready <= 1'b1;
@@ -65,7 +66,7 @@ always @(posedge clock or negedge rstn) begin
       end
       else if (grant == 4'b0100) begin
         command_arbiter_out.valid <= 1'b1;
-        command_arbiter_out.wed_ready <= 1'b1;
+        command_arbiter_out.write_ready <= 1'b1;
         command_arbiter_out.command_buffer_out.tag <= write_command_buffer_in.tag;
         command_arbiter_out.command_buffer_out.command <= write_command_buffer_in.command ;
         command_arbiter_out.command_buffer_out.address <= write_command_buffer_in.address ;
@@ -73,7 +74,7 @@ always @(posedge clock or negedge rstn) begin
       end
       else if (grant == 4'b0010) begin
         command_arbiter_out.valid <= 1'b1;
-        command_arbiter_out.wed_ready <= 1'b1;
+        command_arbiter_out.read_ready <= 1'b1;
         command_arbiter_out.command_buffer_out.tag <= read_command_buffer_in.tag;
         command_arbiter_out.command_buffer_out.command <= read_command_buffer_in.command ;
         command_arbiter_out.command_buffer_out.address <= read_command_buffer_in.address ;
@@ -81,7 +82,7 @@ always @(posedge clock or negedge rstn) begin
       end
       else if (grant == 4'b0001) begin
         command_arbiter_out.valid <= 1'b1;
-        command_arbiter_out.wed_ready <= 1'b1;
+        command_arbiter_out.restart_ready <= 1'b1;
         command_arbiter_out.command_buffer_out.tag <= restart_command_buffer_in.tag;
         command_arbiter_out.command_buffer_out.command <= restart_command_buffer_in.command ;
         command_arbiter_out.command_buffer_out.address <= restart_command_buffer_in.address ;

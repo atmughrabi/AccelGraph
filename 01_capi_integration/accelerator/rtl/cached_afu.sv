@@ -1,5 +1,6 @@
 import CAPI_PKG::*;
 import WED_PKG::*;
+import COMMAND_PKG::*;
 
 module cached_afu  #(
   parameter NUM_EXTERNAL_RESETS = 2
@@ -35,6 +36,11 @@ module cached_afu  #(
   assign dma_resp_err     = 0;
   assign external_errors  = {mmio_errors, dma_parity_err, dma_resp_err};
 
+
+////////////////////////////////////////////////////////////////////////////
+//WED 
+////////////////////////////////////////////////////////////////////////////
+
   WEDInterface wed_request;
 
   // wed_control wed_control_instant(
@@ -47,7 +53,35 @@ module cached_afu  #(
   //   .command_out(command_out),
   //   .wed_request_out(wed_request));
 
-  
+////////////////////////////////////////////////////////////////////////////
+//Command 
+////////////////////////////////////////////////////////////////////////////
+  CommandBufferLine read_command_in;
+  CommandBufferLine write_command_in;
+  CommandBufferLine wed_command_in;
+  CommandBufferLine restart_command_in;
+
+  assign read_command_in = 0;
+  assign write_command_in = 0;
+  assign wed_command_in = 0;
+  assign restart_command_in = 0;
+
+ command command_instant(
+    .clock        (clock),
+    .rstn         (reset_afu),
+    .enabled      (job_out.running),
+    .read_command_in    (read_command_in),
+    .write_command_in   (write_command_in),
+    .wed_command_in     (wed_command_in),
+    .restart_command_in (restart_command_in),
+    .command_in   (command_in),
+    .response     (response),
+    .command_out  (command_out)
+    );
+
+////////////////////////////////////////////////////////////////////////////
+//MMIO 
+////////////////////////////////////////////////////////////////////////////
 
 
   mmio mmio_instant(
@@ -57,6 +91,10 @@ module cached_afu  #(
       .mmio_out    (mmio_out),
       .mmio_errors (mmio_errors),
       .reset_mmio  (external_rstn[1]));
+
+////////////////////////////////////////////////////////////////////////////
+//JOB 
+////////////////////////////////////////////////////////////////////////////
 
   job job_instant(
       .clock           (clock),

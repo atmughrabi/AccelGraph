@@ -3,6 +3,7 @@ package COMMAND_PKG;
 import CAPI_PKG::*;
 
 typedef struct packed {
+	logic valid;
     request_tag tag;            // ah_ctag,        // Command tag
     afu_command_t command;      // ah_com,         // Command code
     logic [0:63] address;       // ah_cea,         // Command address
