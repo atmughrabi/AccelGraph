@@ -51,6 +51,7 @@ module cached_afu  #(
     .wed_address(job_in.address),
     .buffer_in  (buffer_in),
     .response   (response),
+    .wed_buffer (command_buffer_status.wed_buffer),
     .command_out(wed_command_out),
     .wed_request_out(wed));
 

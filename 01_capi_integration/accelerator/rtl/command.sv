@@ -33,7 +33,7 @@ module command (
 
 	CommandBufferArbiterInterfaceOut command_arbiter_out;
 
-	//As long as there is commands in the fifo set it request for bus access
+	//As long as there are commands in the fifo set it request for bus access
 
 	assign command_arbiter_in.wed_request 		= ~command_buffer_status.wed_buffer.empty;
 	assign command_arbiter_in.read_request 		= ~command_buffer_status.read_buffer.empty;

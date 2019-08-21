@@ -74,7 +74,8 @@ package CAPI_PKG;
     DONE_WRITE
   } request_tag;
 
-
+  // parameter INVALID_TAG= 8'h00;
+  // parameter WED_TAG= 8'h01;
 
   typedef struct packed {
     logic valid;              // ha_jval,        // Job valid

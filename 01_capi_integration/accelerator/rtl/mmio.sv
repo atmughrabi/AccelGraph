@@ -189,14 +189,16 @@ module mmio (
 
   parity #(
     .BITS(64)
-  ) mmio_data_out_parity (
+  ) mmio_data_out_parity_instant (
     .clock           (clock),
     .data            (data_out),
     .odd             (odd_parity),
     .par             (data_out_parity)
   );
 
-  
+////////////////////////////////////////////////////////////////////////////
+//partity check Logic
+////////////////////////////////////////////////////////////////////////////
   // Parity check
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
@@ -234,7 +236,7 @@ module mmio (
 
   parity #(
     .BITS(64)
-  ) mmio_data_in_parity (
+  ) mmio_data_in_parity_instant (
     .clock           (clock),
     .data            (data_in),
     .odd             (odd_parity),
@@ -243,7 +245,7 @@ module mmio (
 
   parity #(
     .BITS(24)
-  ) mmio_address_parity (
+  ) mmio_address_parity_instant (
     .clock           (clock),
     .data            (address),
     .odd             (odd_parity),

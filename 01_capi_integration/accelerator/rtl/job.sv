@@ -114,7 +114,7 @@ assign timebase_request = 1'b0; // Timebase request not used
 
   parity #(
     .BITS(8)
-  ) job_command_parity (
+  ) job_command_parity_instant (
     .clock           (clock),
     .data            (command),
     .odd             (odd_parity),
@@ -123,7 +123,7 @@ assign timebase_request = 1'b0; // Timebase request not used
 
   parity #(
     .BITS(64)
-  ) job_address_parity (
+  ) job_address_parity_instant (
     .clock           (clock),
     .data            (address),
     .odd             (odd_parity),

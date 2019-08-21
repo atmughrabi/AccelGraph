@@ -13,12 +13,16 @@ module command_control (
   output CommandInterfaceOutput command_out
 
 );
+  
+  
+  logic odd_parity;
+  logic command_parity;
+  logic address_parity;
+  logic tag_parity;
 
-  assign command_out.command_parity  = ~^command_out.command;
-  assign command_out.address_parity  = ~^command_out.address;
-  assign command_out.tag_parity      = ~^command_out.tag;
+  assign odd_parity = 1'b1; // Odd parity
   assign command_out.abt             = STRICT;
-  assign command_out.context_handle  = 16'h00;
+  assign command_out.context_handle  = 16'h00; // dedicated mode cch always zero
 
 ////////////////////////////////////////////////////////////////////////////
 //request type
@@ -34,14 +38,9 @@ module command_control (
   assign read_request     = command_arbiter_in.read_ready;
   assign restart_request  = command_arbiter_in.restart_ready;
 
-  logic valid_request;
-
-
 ////////////////////////////////////////////////////////////////////////////
 //drive command
 ////////////////////////////////////////////////////////////////////////////
-
-
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
@@ -50,6 +49,9 @@ module command_control (
         command_out.address  <= 64'h0000_0000_0000_0000;
         command_out.tag      <= INVALID_TAG;
         command_out.size     <= 12'h000;
+        command_out.command_parity  <= command_parity;
+        command_out.address_parity  <= address_parity;
+        command_out.tag_parity      <= tag_parity; 
     end 
     else begin
         command_out.valid    <= command_arbiter_in.command_buffer_out.valid;
@@ -57,9 +59,11 @@ module command_control (
         command_out.address  <= command_arbiter_in.command_buffer_out.address;
         command_out.tag      <= command_arbiter_in.command_buffer_out.tag;
         command_out.size     <= command_arbiter_in.command_buffer_out.size;
+        command_out.command_parity  <= command_parity;
+        command_out.address_parity  <= address_parity;
+        command_out.tag_parity      <= tag_parity;
       end
   end // always_ff @(posedge clock)
-
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -73,5 +77,36 @@ module command_control (
       .rstn          (rstn),
       .credit_in     ({response.valid,wed_request,write_request,read_request,restart_request,response.credits,command_in}),
       .credit_out    (credits));
+
+
+////////////////////////////////////////////////////////////////////////////
+//partity check Logic
+////////////////////////////////////////////////////////////////////////////
+  
+//Generate parity for command tag, command code, and cea. Latch parity info.
+  parity #(
+    .BITS(8)
+  ) tag_parity_instant (
+    .data(command_arbiter_in.command_buffer_out.tag),
+    .odd(odd_parity),
+    .par(tag_parity)
+  );
+
+  parity #(
+    .BITS(13)
+  ) command_parity_instant (
+    .data(command_arbiter_in.command_buffer_out.command),
+    .odd(odd_parity),
+    .par(command_parity)
+  );
+
+  parity #(
+    .BITS(64)
+  ) address_parity_instant (
+    .data(command_arbiter_in.command_buffer_out.address),
+    .odd(odd_parity),
+    .par(address_parity)
+  );
+
 
 endmodule

@@ -11,6 +11,7 @@ module wed_control (
   input logic [0:63] wed_address,
   input BufferInterfaceInput buffer_in,
   input ResponseInterface response,
+  input CommandBufferStatus wed_buffer,
   output CommandBufferLine command_out,
   output WEDInterface wed_request_out
 );
@@ -32,7 +33,7 @@ module wed_control (
           next_state = WED_IDLE;
       end // WED_RESET
 			WED_IDLE: begin
-				if(enabled && ~wed_request_out.valid)
+				if(enabled && ~wed_request_out.valid && ~wed_buffer.full)
 						next_state = WED_REQ;
 				else
 						next_state = WED_IDLE;
