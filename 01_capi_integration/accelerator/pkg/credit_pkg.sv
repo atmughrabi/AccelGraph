@@ -3,11 +3,8 @@ package CREDIT_PKG;
 import CAPI_PKG::*;
 
 typedef struct packed{
-  logic valid;
-  logic wed_request;
-  logic write_request;
-  logic read_request;
-  logic restart_request;
+  logic valid_request;
+  logic valid_response;
   logic [0:8] response_credits;  
   CommandInterfaceInput command_in;
 } CreditInterfaceInput;

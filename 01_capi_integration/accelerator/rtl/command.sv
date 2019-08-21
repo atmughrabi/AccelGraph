@@ -2,7 +2,7 @@
 import CAPI_PKG::*;
 import CREDIT_PKG::*;
 import COMMAND_PKG::*;
-
+import CREDIT_PKG::*;
 
 module command (
 	input logic clock,    // Clock
@@ -33,12 +33,20 @@ module command (
 
 	CommandBufferArbiterInterfaceOut command_arbiter_out;
 
-	//As long as there are commands in the fifo set it request for bus access
+	//As long as there are commands in the fifo set it request for bus access / if there are credits
 
-	assign command_arbiter_in.wed_request 		= ~command_buffer_status.wed_buffer.empty;
-	assign command_arbiter_in.read_request 		= ~command_buffer_status.read_buffer.empty;
-	assign command_arbiter_in.write_request 	= ~command_buffer_status.write_buffer.empty;
-	assign command_arbiter_in.restart_request 	= ~command_buffer_status.restart_buffer.empty;
+	CreditInterfaceOutput credits;
+	logic valid_request;
+
+	assign command_arbiter_in.wed_request 		= ~command_buffer_status.wed_buffer.empty 	 && |credits.credits;
+	assign command_arbiter_in.read_request 		= ~command_buffer_status.read_buffer.empty   && |credits.credits;
+	assign command_arbiter_in.write_request 	= ~command_buffer_status.write_buffer.empty  && |credits.credits;
+	assign command_arbiter_in.restart_request 	= ~command_buffer_status.restart_buffer.empty&&	|credits.credits;
+	assign valid_request = |command_arbiter_in;
+
+////////////////////////////////////////////////////////////////////////////
+//Buffer arbitration logic
+////////////////////////////////////////////////////////////////////////////
 
 	command_buffer_arbiter command_buffer_arbiter_instant(
 	.clock      (clock),
@@ -51,6 +59,10 @@ module command (
 	.restart_command_buffer_in  (restart_command_buffer_out),
 	.command_arbiter_out 		(command_arbiter_out));
 
+////////////////////////////////////////////////////////////////////////////
+//command interface control logic
+////////////////////////////////////////////////////////////////////////////
+
 	command_control command_control_instant(
 	.clock        (clock),
 	.rstn         (rstn),
@@ -60,6 +72,16 @@ module command (
 	.response               (response),
 	.command_out            (command_out)
 	);
+
+////////////////////////////////////////////////////////////////////////////
+//Credit Tracking Logic
+////////////////////////////////////////////////////////////////////////////
+
+ credit_control credit_control_instant(
+      .clock         (clock),
+      .rstn          (rstn),
+      .credit_in     ({valid_request,response.valid,response.credits,command_in}),
+      .credit_out    (credits));
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffer Read Commands

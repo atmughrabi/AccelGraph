@@ -1,5 +1,4 @@
 import CAPI_PKG::*;
-import CREDIT_PKG::*;
 import COMMAND_PKG::*;
 
 
@@ -11,7 +10,6 @@ module command_control (
   input CommandBufferArbiterInterfaceOut command_arbiter_in,
   input ResponseInterface response,
   output CommandInterfaceOutput command_out
-
 );
   
   
@@ -21,7 +19,7 @@ module command_control (
   logic tag_parity;
 
   assign odd_parity = 1'b1; // Odd parity
-  assign command_out.abt             = STRICT;
+  assign command_out.abt             = ABORT;
   assign command_out.context_handle  = 16'h00; // dedicated mode cch always zero
 
 ////////////////////////////////////////////////////////////////////////////
@@ -64,19 +62,6 @@ module command_control (
         command_out.tag_parity      <= tag_parity;
       end
   end // always_ff @(posedge clock)
-
-
-////////////////////////////////////////////////////////////////////////////
-//Credit Tracking Logic
-////////////////////////////////////////////////////////////////////////////
-
- CreditInterfaceOutput credits;
-
- credit_control credit_control_instant(
-      .clock         (clock),
-      .rstn          (rstn),
-      .credit_in     ({response.valid,wed_request,write_request,read_request,restart_request,response.credits,command_in}),
-      .credit_out    (credits));
 
 
 ////////////////////////////////////////////////////////////////////////////

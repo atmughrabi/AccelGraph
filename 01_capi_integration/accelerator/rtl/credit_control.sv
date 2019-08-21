@@ -21,12 +21,10 @@ module credit_control (
 always @ (posedge clock or negedge rstn) begin
     if (~rstn)
       credit_out.credits <= credit_in.command_in.room;
-    else if ((credit_in.wed_request || credit_in.write_request || credit_in.read_request
-              || credit_in.restart_request) && !credit_in.valid)
+    else if (credit_in.valid_request && ~credit_in.valid_response)
       credit_out.credits <= credit_out.credits-8'h01;
-    else if (credit_in) begin
-      if (!(credit_in.wed_request || credit_in.write_request || credit_in.read_request ||
-            credit_in.restart_request))
+    else if (credit_in.valid_response) begin
+      if (~credit_in.valid_request )
         begin
         if (credit_in.response_credits[0])
           credit_out.credits <= credit_out.credits-(~credit_in.response_credits[1:8]+8'h01);
