@@ -8,7 +8,6 @@ module command_control (
 	input logic enabled,
 	input CommandInterfaceInput command_in,
   input CommandBufferArbiterInterfaceOut command_arbiter_in,
-  input ResponseInterface response,
   output CommandInterfaceOutput command_out
 );
   
@@ -18,18 +17,18 @@ module command_control (
   logic address_parity;
   logic tag_parity;
 
+  logic wed_request;
+  logic write_request;
+  logic read_request;
+  logic restart_request;
+
   assign odd_parity = 1'b1; // Odd parity
-  assign command_out.abt             = ABORT;
+  assign command_out.abt             = STRICT;
   assign command_out.context_handle  = 16'h00; // dedicated mode cch always zero
 
 ////////////////////////////////////////////////////////////////////////////
 //request type
 ////////////////////////////////////////////////////////////////////////////
-
-  logic wed_request;
-  logic write_request;
-  logic read_request;
-  logic restart_request;
 
   assign wed_request      = command_arbiter_in.wed_ready;
   assign write_request    = command_arbiter_in.write_ready;

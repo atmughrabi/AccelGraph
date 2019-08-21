@@ -30,19 +30,27 @@ module cached_afu  #(
   logic reset_afu;
   
   
+ 
+
+  CommandBufferLine read_command_in;
+  CommandBufferLine write_command_in;
+  CommandBufferLine restart_command_in;
+  CommandBufferStatusInterfaceOut command_buffer_status;
+
+  WEDInterface wed; // work element descriptor -> addresses and other into
+  CommandBufferLine wed_command_out; // command for populatin WED
+
   assign buffer_out.read_latency    = 4'h1;
 
   assign dma_parity_err   = 0;
   assign dma_resp_err     = 0;
   assign external_errors  = {mmio_errors, dma_parity_err, dma_resp_err};
 
-
 ////////////////////////////////////////////////////////////////////////////
 //WED 
 ////////////////////////////////////////////////////////////////////////////
 
-  WEDInterface wed; // work element descriptor -> addresses and other into
-  CommandBufferLine wed_command_out; // command for populatin WED
+ 
 
   wed_control wed_control_instant(
     .clock      (clock),
@@ -58,10 +66,7 @@ module cached_afu  #(
 ////////////////////////////////////////////////////////////////////////////
 //Command 
 ////////////////////////////////////////////////////////////////////////////
-  CommandBufferLine read_command_in;
-  CommandBufferLine write_command_in;
-  CommandBufferLine restart_command_in;
-  CommandBufferStatusInterfaceOut command_buffer_status;
+ 
 
   assign read_command_in = 0;
   assign write_command_in = 0;

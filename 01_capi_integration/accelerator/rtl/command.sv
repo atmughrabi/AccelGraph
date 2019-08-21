@@ -69,7 +69,6 @@ module command (
 	.enabled      (enabled),
 	.command_in             (command_in),
 	.command_arbiter_in     (command_arbiter_out),
-	.response               (response),
 	.command_out            (command_out)
 	);
 

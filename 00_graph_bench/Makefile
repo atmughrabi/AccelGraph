@@ -61,7 +61,7 @@ MAIN_DIR		  	= main
 
 #small test graphs
 # GRAPH_NAME = test
-GRAPH_NAME = Rabbit
+# GRAPH_NAME = Rabbit
 
 # synthetic graphs
 # GRAPH_NAME = RMAT20
@@ -100,14 +100,14 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 0
 
 ROOT 			= 5319
-PULL_PUSH 		= 0
+PULL_PUSH 		= 2
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
 NUM_THREADS  	= 1
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 NUM_ITERATIONS 	= 1
-NUM_TRIALS 		= 1
+NUM_TRIALS 		= 10
 
 FILE_FORMAT 	= 1
 CONVERT_FORMAT 	= 1
