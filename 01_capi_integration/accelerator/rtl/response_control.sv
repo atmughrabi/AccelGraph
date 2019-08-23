@@ -35,8 +35,6 @@ always_ff @(posedge clock or negedge rstn) begin
         response_in <= 0;
     end else if(enabled && response.valid) begin
         response_in  <= response;
-        response_in.tag  		<= 2'b11;
-    	response_in.response  	<= AERROR;
     end else begin
     	response_in  <= 0;
     end
