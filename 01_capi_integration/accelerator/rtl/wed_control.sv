@@ -10,7 +10,6 @@ module wed_control (
   input logic rstn,
   input logic [0:63] wed_address,
   input BufferInterfaceInput buffer_in,
-  input ResponseInterface response,
   input ResponseBufferLine response_in,
   input BufferStatus response_buffer,
   input BufferStatus wed_buffer,
@@ -44,7 +43,7 @@ module wed_control (
 						next_state = WED_WAITING_FOR_REQUEST;
 			end // WED_REQ
 			WED_WAITING_FOR_REQUEST: begin
-				 if (response.valid && response.tag == WED_TAG && response.response == DONE) begin
+				 if (response_in.valid && response_in.tag == WED_TAG && response_in.response == DONE) begin
 						next_state = WED_DONE_REQ;
 				 end
 				 else

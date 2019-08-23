@@ -62,7 +62,6 @@ module cached_afu  #(
     .rstn       (reset_afu),
     .wed_address(job_in.address),
     .buffer_in  (buffer_in),
-    .response   (response),
     .response_in (wed_response_out),
     .response_buffer(response_buffer_status.wed_buffer),
     .wed_buffer (command_buffer_status.wed_buffer),
