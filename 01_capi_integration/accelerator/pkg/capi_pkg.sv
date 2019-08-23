@@ -4,6 +4,14 @@ package CAPI_PKG;
   parameter REG_1= 26'h 3FFFFF8 >> 2;
   parameter REG_2= 26'h 3FFFFF0 >> 2;
 
+   // request Tag ranges
+  parameter INVALID_TAG      = 8'h00;
+  parameter WED_TAG          = 8'h01;
+  parameter RESTART_TAG      = 8'h02;
+  parameter WRITE_TAG_BASE   = 8'h03; // 30% write
+  parameter READ_TAG_BASE    = 8'h50; // 70% reads
+  parameter TAG_UPPER        = 8'hFF; // 70% reads
+
   // typedef enum logic [0:23] {
   //   REG_1=26'h3FF_FFF8 >> 2,
   //   REG_2=26'h3FF_FFF0 >> 2,
@@ -65,14 +73,17 @@ package CAPI_PKG;
     INVALID
   } afu_command_t;
 
-  typedef enum logic [0:7] {
-    INVALID_TAG,
-    WED_TAG,
-    STRIPE1_READ,
-    STRIPE2_READ,
-    PARITY_WRITE,
-    DONE_WRITE
-  } request_tag;
+  // typedef enum logic [0:7] {
+  //   INVALID_TAG,
+  //   WED_TAG,
+  //   STRIPE1_READ,
+  //   STRIPE2_READ,
+  //   PARITY_WRITE,
+  //   DONE_WRITE
+  // } request_tag;
+
+
+
 
   // parameter INVALID_TAG= 8'h00;
   // parameter WED_TAG= 8'h01;
@@ -99,7 +110,7 @@ package CAPI_PKG;
 
   typedef struct packed {
     logic valid;                // ah_cvalid,      // Command valid
-    request_tag tag;            // ah_ctag,        // Command tag
+    logic [0:7] tag;            // ah_ctag,        // Command tag
     logic tag_parity;           // ah_ctagpar,     // Command tag parity
     afu_command_t command;      // ah_com,         // Command code
     logic command_parity;       // ah_compar,      // Command code parity
@@ -133,7 +144,7 @@ package CAPI_PKG;
     
   typedef struct packed {
     logic valid;              // ha_rvalid,     // Response valid
-    request_tag tag;          // ha_rtag,       // Response tag
+    logic [0:7] tag;          // ha_rtag,       // Response tag
     logic tag_parity;         // ha_rtagpar,    // Response tag parity
     psl_response_t response;  // ha_response,   // Response
     logic [0:8] credits;      // ha_rcredits,   // Response credits

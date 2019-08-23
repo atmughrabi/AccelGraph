@@ -14,7 +14,7 @@
 APP_DIR           	= .
 SCRIPT_DIR          = ../04_scripts
 BENCHMARKS_DIR    	= ../../01_GraphDatasets
-BENCHMARKS_DIR    	= ../03_test_graphs
+# BENCHMARKS_DIR    	= ../03_test_graphs
 
 #dir root/managed_folders
 SRC_DIR           	= src
@@ -69,7 +69,7 @@ MAIN_DIR		  	= main
 
 # real world large graphs binary format
 # GRAPH_NAME = orkut
-# GRAPH_NAME = gplus
+GRAPH_NAME = gplus
 # GRAPH_NAME = sk-2005
 # GRAPH_NAME = twitter
 # GRAPH_NAME = livejournal
@@ -80,7 +80,7 @@ MAIN_DIR		  	= main
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-GRAPH_NAME = p2p-Gnutella31
+# GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -97,10 +97,10 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 0
+ALGORITHMS 		= 1
 
 ROOT 			= 5319
-PULL_PUSH 		= 2
+PULL_PUSH 		= 1
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 

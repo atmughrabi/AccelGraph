@@ -190,7 +190,6 @@ module mmio (
   parity #(
     .BITS(64)
   ) mmio_data_out_parity_instant (
-    .clock           (clock),
     .data            (data_out),
     .odd             (odd_parity),
     .par             (data_out_parity)
@@ -237,7 +236,6 @@ module mmio (
   parity #(
     .BITS(64)
   ) mmio_data_in_parity_instant (
-    .clock           (clock),
     .data            (data_in),
     .odd             (odd_parity),
     .par             (data_in_parity_link)
@@ -246,7 +244,6 @@ module mmio (
   parity #(
     .BITS(24)
   ) mmio_address_parity_instant (
-    .clock           (clock),
     .data            (address),
     .odd             (odd_parity),
     .par             (address_parity_link)

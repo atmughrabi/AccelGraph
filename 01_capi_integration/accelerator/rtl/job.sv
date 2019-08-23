@@ -96,6 +96,9 @@ assign timebase_request = 1'b0; // Timebase request not used
     end
   end
 
+////////////////////////////////////////////////////////////////////////////
+//partity check Logic
+////////////////////////////////////////////////////////////////////////////
   // Parity check
   always_ff @(posedge clock) begin
       if(job_in.valid) begin
@@ -115,7 +118,6 @@ assign timebase_request = 1'b0; // Timebase request not used
   parity #(
     .BITS(8)
   ) job_command_parity_instant (
-    .clock           (clock),
     .data            (command),
     .odd             (odd_parity),
     .par             (command_parity_link)
@@ -124,29 +126,30 @@ assign timebase_request = 1'b0; // Timebase request not used
   parity #(
     .BITS(64)
   ) job_address_parity_instant (
-    .clock           (clock),
     .data            (address),
     .odd             (odd_parity),
     .par             (address_parity_link)
   );
 
   
+////////////////////////////////////////////////////////////////////////////
+// Error Logic
+////////////////////////////////////////////////////////////////////////////
   // Error logic
   // once error flag is asserted enable errors gets disabled and last error gets latched for reporting
   // after the reset signal is finished done job is asserted with any error if exists.
+
+  assign error_flag = (|detected_errors) && enable_errors;
+
   always_ff @(posedge clock) begin
-    if(enable_errors) begin
+    if(enable_errors && ~error_flag) begin
       job_command_error <= command_parity_link ^ command_parity;
       job_address_error <= address_parity_link ^ address_parity;
       detected_errors   <= {48'h0000_0000_0000,job_command_error,job_address_error, external_errors};
-      error_flag        <= |detected_errors;
     end else if(done_job) begin
       detected_errors   <= 64'h0000_0000_0000_0000;
       job_command_error <= 1'b0;
       job_address_error <= 1'b0;
-      error_flag        <= 1'b0;
-    end else begin
-      error_flag        <= 1'b0;
     end
   end
 

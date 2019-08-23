@@ -15,9 +15,17 @@ module command (
 
 	input CommandInterfaceInput command_in,
   	input ResponseInterface response,
- 
+
+  	output ResponseBufferLine read_response_out,
+	output ResponseBufferLine write_response_out,
+	output ResponseBufferLine wed_response_out,
+	output ResponseBufferLine restart_response_out,
+ 	
+	output logic [0:6] command_response_error,
+
 	output CommandInterfaceOutput command_out,
-	output CommandBufferStatusInterfaceOut command_buffer_status
+	output CommandBufferStatusInterfaceOut command_buffer_status,
+	output ResponseBufferStatusInterfaceOut response_buffer_status
 );
 
 ////////////////////////////////////////////////////////////////////////////
@@ -33,6 +41,8 @@ module command (
 
 	CommandBufferArbiterInterfaceOut command_arbiter_out;
 
+	ResponseControlInterfaceOut response_control_out;
+	logic wed_buffer_pop;
 	//As long as there are commands in the fifo set it request for bus access / if there are credits
 
 	CreditInterfaceOutput credits;
@@ -76,18 +86,31 @@ module command (
 //Credit Tracking Logic
 ////////////////////////////////////////////////////////////////////////////
 
- credit_control credit_control_instant(
+ 	credit_control credit_control_instant(
       .clock         (clock),
       .rstn          (rstn),
       .credit_in     ({valid_request,response.valid,response.credits,command_in}),
       .credit_out    (credits));
 
 ////////////////////////////////////////////////////////////////////////////
+//response control 
+////////////////////////////////////////////////////////////////////////////
+
+	assign command_response_error = response_control_out.response_error;
+
+	response_control response_control_instant(
+      .clock         (clock),
+      .rstn          (rstn),
+      .enabled 		 (enabled),
+      .response      (response),
+      .response_control_out    (response_control_out));
+
+////////////////////////////////////////////////////////////////////////////
 //Buffer Read Commands
 ////////////////////////////////////////////////////////////////////////////
 	fifo  #(
 	    .WIDTH($bits(CommandBufferLine)),
-	    .DEPTH(32)
+	    .DEPTH(256)
 	    )read_command_buffer_fifo_instant(
 	      .clock(clock),
 	      .rstn(rstn),
@@ -108,7 +131,7 @@ module command (
 ////////////////////////////////////////////////////////////////////////////
 	fifo  #(
 	    .WIDTH($bits(CommandBufferLine)),
-	    .DEPTH(32)
+	    .DEPTH(256)
 	    )write_command_buffer_fifo_instant(
 	      .clock(clock),
 	      .rstn(rstn),
@@ -147,7 +170,7 @@ module command (
 
 
 ////////////////////////////////////////////////////////////////////////////
-//restart Read Commands
+//Buffers Restart Commands
 ////////////////////////////////////////////////////////////////////////////
 	fifo  #(
 	    .WIDTH($bits(CommandBufferLine)),
@@ -159,12 +182,48 @@ module command (
 	      .push(restart_command_in.valid),
 	      .data_in(restart_command_in),
 	      .full(command_buffer_status.restart_buffer.full),
-	      .alFull(command_buffer_status.read_buffer.alfull),
+	      .alFull(command_buffer_status.restart_buffer.alfull),
 
 	      .pop(command_arbiter_out.restart_ready),
 	      .valid(command_buffer_status.restart_buffer.valid),
 	      .data_out(restart_command_buffer_out),
 	      .empty(command_buffer_status.restart_buffer.empty)
+	  );
+
+////////////////////////////////////////////////////////////////////////////
+//Buffers Write Responses
+////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
+//Buffers WED Responses
+////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
+//restart Read Responses
+////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
+//Buffers WED Responses
+////////////////////////////////////////////////////////////////////////////
+
+assign wed_buffer_pop = ~response_buffer_status.wed_buffer.empty;
+
+	fifo  #(
+	    .WIDTH($bits(ResponseBufferLine)),
+	    .DEPTH(2)
+	    )wed_response_buffer_fifo_instant(
+	      .clock(clock),
+	      .rstn(rstn),
+	      
+	      .push(response_control_out.wed_response),
+	      .data_in(response_control_out.response),
+	      .full(response_buffer_status.wed_buffer.full),
+	      .alFull(response_buffer_status.wed_buffer.alfull),
+
+	      .pop(wed_buffer_pop),
+	      .valid(response_buffer_status.wed_buffer.valid),
+	      .data_out(wed_response_out),
+	      .empty(response_buffer_status.wed_buffer.empty)
 	  );
 
 

@@ -11,7 +11,9 @@ module wed_control (
   input logic [0:63] wed_address,
   input BufferInterfaceInput buffer_in,
   input ResponseInterface response,
-  input CommandBufferStatus wed_buffer,
+  input ResponseBufferLine response_in,
+  input BufferStatus response_buffer,
+  input BufferStatus wed_buffer,
   output CommandBufferLine command_out,
   output WEDInterface wed_request_out
 );

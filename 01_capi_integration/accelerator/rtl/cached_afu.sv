@@ -24,8 +24,8 @@ module cached_afu  #(
   logic [0:NUM_EXTERNAL_RESETS-1] external_rstn;
   logic [0:12]    external_errors;
   logic [0:1]     mmio_errors;
-  logic [0:3]     dma_parity_err;
-  logic [0:6]     dma_resp_err;
+  logic [0:3]     buffer_parity_err;
+  logic [0:6]     command_response_error;
 
   logic reset_afu;
   
@@ -36,15 +36,19 @@ module cached_afu  #(
   CommandBufferLine write_command_in;
   CommandBufferLine restart_command_in;
   CommandBufferStatusInterfaceOut command_buffer_status;
+  ResponseBufferStatusInterfaceOut response_buffer_status;
+
+  ResponseBufferLine read_response_out;
+  ResponseBufferLine write_response_out;
+  ResponseBufferLine wed_response_out;
+  ResponseBufferLine restart_response_out;
 
   WEDInterface wed; // work element descriptor -> addresses and other into
   CommandBufferLine wed_command_out; // command for populatin WED
 
   assign buffer_out.read_latency    = 4'h1;
-
-  assign dma_parity_err   = 0;
-  assign dma_resp_err     = 0;
-  assign external_errors  = {mmio_errors, dma_parity_err, dma_resp_err};
+  assign buffer_parity_err = 0;
+  assign external_errors  = {mmio_errors, buffer_parity_err, command_response_error};
 
 ////////////////////////////////////////////////////////////////////////////
 //WED 
@@ -59,6 +63,8 @@ module cached_afu  #(
     .wed_address(job_in.address),
     .buffer_in  (buffer_in),
     .response   (response),
+    .response_in (wed_response_out),
+    .response_buffer(response_buffer_status.wed_buffer),
     .wed_buffer (command_buffer_status.wed_buffer),
     .command_out(wed_command_out),
     .wed_request_out(wed));
@@ -82,8 +88,14 @@ module cached_afu  #(
     .restart_command_in (restart_command_in),
     .command_in   (command_in),
     .response     (response),
+    .read_response_out     (read_response_out),
+    .write_response_out    (write_response_out),
+    .wed_response_out      (wed_response_out),
+    .restart_response_out  (restart_response_out),
+    .command_response_error(command_response_error),
     .command_out  (command_out),
-    .command_buffer_status (command_buffer_status)
+    .command_buffer_status (command_buffer_status),
+    .response_buffer_status (response_buffer_status)
     );
 
 ////////////////////////////////////////////////////////////////////////////
