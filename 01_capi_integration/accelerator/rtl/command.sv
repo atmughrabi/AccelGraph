@@ -43,6 +43,9 @@ module command (
 
 	ResponseControlInterfaceOut response_control_out;
 	logic wed_buffer_pop;
+	logic read_buffer_pop;
+	logic write_buffer_pop;
+	logic restart_buffer_pop;
 	//As long as there are commands in the fifo set it request for bus access / if there are credits
 
 	CreditInterfaceOutput credits;
@@ -191,16 +194,80 @@ module command (
 	  );
 
 ////////////////////////////////////////////////////////////////////////////
-//Buffers Write Responses
+//Response Buffers
 ////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////
-//Buffers WED Responses
+//Buffers Write Responses
 ////////////////////////////////////////////////////////////////////////////
+
+assign write_buffer_pop = ~response_buffer_status.write_buffer.empty;
+
+	fifo  #(
+	    .WIDTH($bits(ResponseBufferLine)),
+	    .DEPTH(256)
+	    )write_response_buffer_fifo_instant(
+	      .clock(clock),
+	      .rstn(rstn),
+	      
+	      .push(response_control_out.write_response),
+	      .data_in(response_control_out.response),
+	      .full(response_buffer_status.write_buffer.full),
+	      .alFull(response_buffer_status.write_buffer.alfull),
+
+	      .pop(write_buffer_pop),
+	      .valid(response_buffer_status.write_buffer.valid),
+	      .data_out(write_response_out),
+	      .empty(response_buffer_status.write_buffer.empty)
+	  );
+
+////////////////////////////////////////////////////////////////////////////
+//Buffers Read Responses
+////////////////////////////////////////////////////////////////////////////
+
+assign read_buffer_pop = ~response_buffer_status.read_buffer.empty;
+
+	fifo  #(
+	    .WIDTH($bits(ResponseBufferLine)),
+	    .DEPTH(256)
+	    )read_response_buffer_fifo_instant(
+	      .clock(clock),
+	      .rstn(rstn),
+	      
+	      .push(response_control_out.read_response),
+	      .data_in(response_control_out.response),
+	      .full(response_buffer_status.read_buffer.full),
+	      .alFull(response_buffer_status.read_buffer.alfull),
+
+	      .pop(read_buffer_pop),
+	      .valid(response_buffer_status.read_buffer.valid),
+	      .data_out(read_response_out),
+	      .empty(response_buffer_status.read_buffer.empty)
+	  );
 
 ////////////////////////////////////////////////////////////////////////////
 //restart Read Responses
 ////////////////////////////////////////////////////////////////////////////
+
+assign restart_buffer_pop = ~response_buffer_status.restart_buffer.empty;
+
+	fifo  #(
+	    .WIDTH($bits(ResponseBufferLine)),
+	    .DEPTH(2)
+	    )restart_response_buffer_fifo_instant(
+	      .clock(clock),
+	      .rstn(rstn),
+	      
+	      .push(response_control_out.restart_response),
+	      .data_in(response_control_out.response),
+	      .full(response_buffer_status.restart_buffer.full),
+	      .alFull(response_buffer_status.restart_buffer.alfull),
+
+	      .pop(restart_buffer_pop),
+	      .valid(response_buffer_status.restart_buffer.valid),
+	      .data_out(restart_response_out),
+	      .empty(response_buffer_status.restart_buffer.empty)
+	  );
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffers WED Responses
