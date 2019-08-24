@@ -99,13 +99,12 @@ module command (
 //response control 
 ////////////////////////////////////////////////////////////////////////////
 
-	assign command_response_error = response_control_out.response_error;
-
 	response_control response_control_instant(
       .clock         (clock),
       .rstn          (rstn),
       .enabled 		 (enabled),
       .response      (response),
+      .response_error (command_response_error),
       .response_control_out    (response_control_out));
 
 ////////////////////////////////////////////////////////////////////////////

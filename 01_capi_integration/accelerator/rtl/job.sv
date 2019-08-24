@@ -3,8 +3,9 @@ import CAPI_PKG::*;
 module job (
   input logic clock,    // Clock
   input logic rstn,
-  input logic [0:12] external_errors,
-  input  JobInterfaceInput job_in,
+  input JobInterfaceInput job_in,
+  input logic [0:63]  report_errors,
+  output logic [0:1]  job_errors,
   output JobInterfaceOutput job_out,
   output logic timebase_request,
   output logic parity_enabled,
@@ -26,15 +27,16 @@ logic [0:63] address;
 
 logic job_command_error;
 logic job_address_error;
-logic error_flag;
 logic enable_errors;
-logic [0:63] detected_errors;
+logic [0:1] detected_errors;
 
 assign odd_parity       = 1'b1; // Odd parity
 assign parity_enabled   = 1'b1;
 assign job_out.cack     = 1'b0; // Dedicated mode AFU, LLCMD not supported
 assign job_out.yield    = 1'b0; // Job yield not used
 assign timebase_request = 1'b0; // Timebase request not used
+
+assign enable_errors    = 1'b1;
 
   always_ff @(posedge clock) begin
       if(job_in.valid) begin
@@ -44,29 +46,19 @@ assign timebase_request = 1'b0; // Timebase request not used
             reset_job <= 1'b0;
             prev_rstn <= 1'b0;
             next_rstn <= 1'b0;
-            enable_errors <= 1'b1;
             done_job  <= 1'b0;
           end
           START: begin
             start_job <= 1'b1;
             reset_job <= 1'b1;
-            enable_errors <= 1'b1; 
           end
           default: begin
             start_job  <= 1'b0;
             reset_job  <= 1'b1;  
             prev_rstn  <= 1'b0;
             next_rstn  <= 1'b0;
-            enable_errors <= 1'b1;
           end
         endcase
-      end else if (error_flag) begin
-        start_job <= 1'b0;
-        reset_job <= 1'b0;
-        prev_rstn <= 1'b0;
-        next_rstn <= 1'b0;
-        done_job  <= 1'b0;
-        enable_errors <= 1'b0;
       end else begin
         start_job <= 1'b0;
         reset_job <= 1'b1;
@@ -139,23 +131,32 @@ assign timebase_request = 1'b0; // Timebase request not used
   // once error flag is asserted enable errors gets disabled and last error gets latched for reporting
   // after the reset signal is finished done job is asserted with any error if exists.
 
-  assign error_flag = (|detected_errors) && enable_errors;
+  // assign error_flag = (|detected_errors) && enable_errors;
+
 
   always_ff @(posedge clock) begin
-    if(enable_errors && ~error_flag) begin
+    if(~rstn) begin
+      job_command_error    <= 1'b0;
+      job_address_error <= 1'b0;
+      detected_errors    <= 2'b00;
+    end else begin
       job_command_error <= command_parity_link ^ command_parity;
       job_address_error <= address_parity_link ^ address_parity;
-      detected_errors   <= {48'h0000_0000_0000,job_command_error,job_address_error, external_errors};
-    end else if(done_job) begin
-      detected_errors   <= 64'h0000_0000_0000_0000;
-      job_command_error <= 1'b0;
-      job_address_error <= 1'b0;
+      detected_errors   <= {job_command_error,job_address_error};
+    end 
+  end
+
+  always_ff @(posedge clock) begin
+    if(enable_errors) begin
+      job_errors <= detected_errors;
+    end else  begin
+      job_errors <= 2'b00;
     end
   end
 
   always_ff @(posedge clock) begin
     if(done_job) begin
-      job_out.error     <= detected_errors;
+      job_out.error     <= report_errors;
     end else  begin
       job_out.error     <= 64'h0000_0000_0000_0000;
     end

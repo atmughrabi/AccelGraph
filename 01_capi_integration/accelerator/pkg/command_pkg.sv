@@ -60,7 +60,6 @@ typedef struct packed {
 } ResponseBufferLine;
 
 typedef struct packed {
-    logic [0:6] response_error;
     logic read_response;
 	logic write_response;
 	logic wed_response;

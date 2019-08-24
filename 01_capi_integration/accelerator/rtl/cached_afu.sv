@@ -3,7 +3,7 @@ import WED_PKG::*;
 import COMMAND_PKG::*;
 
 module cached_afu  #(
-  parameter NUM_EXTERNAL_RESETS = 2
+  parameter NUM_EXTERNAL_RESETS = 3
   )(
   input  logic clock,
   output logic timebase_request,
@@ -22,14 +22,14 @@ module cached_afu  #(
   // logic jdone;
 
   logic [0:NUM_EXTERNAL_RESETS-1] external_rstn;
-  logic [0:12]    external_errors;
+  logic [0:1]     job_errors;
   logic [0:1]     mmio_errors;
   logic [0:3]     buffer_parity_err;
   logic [0:6]     command_response_error;
-
+  logic [0:63]    external_errors;
+  logic [0:63]    report_errors;
+  logic report_errors_ack;
   logic reset_afu;
-  
-  
  
 
   CommandBufferLine read_command_in;
@@ -46,15 +46,28 @@ module cached_afu  #(
   WEDInterface wed; // work element descriptor -> addresses and other into
   CommandBufferLine wed_command_out; // command for populatin WED
 
-  assign buffer_out.read_latency    = 4'h1;
+  assign buffer_out.read_latency = 4'h1;
   assign buffer_parity_err = 0;
-  assign external_errors  = {mmio_errors, buffer_parity_err, command_response_error};
+  assign external_errors  = {49'b0, job_errors, mmio_errors, buffer_parity_err, command_response_error};
+
+
+////////////////////////////////////////////////////////////////////////////
+//ERROR  
+////////////////////////////////////////////////////////////////////////////
+
+error_control error_control_instant(
+    .clock          (clock),
+    .rstn           (reset_afu),
+    .enabled        (job_out.running),
+    .external_errors(external_errors),
+    .report_errors_ack(report_errors_ack),
+    .reset_error    (external_rstn[2]),
+    .report_errors  (report_errors)
+    );
 
 ////////////////////////////////////////////////////////////////////////////
 //WED 
 ////////////////////////////////////////////////////////////////////////////
-
- 
 
   wed_control wed_control_instant(
     .clock      (clock),
@@ -66,13 +79,13 @@ module cached_afu  #(
     .response_buffer(response_buffer_status.wed_buffer),
     .wed_buffer (command_buffer_status.wed_buffer),
     .command_out(wed_command_out),
-    .wed_request_out(wed));
+    .wed_request_out(wed)
+    );
 
 ////////////////////////////////////////////////////////////////////////////
 //Command 
 ////////////////////////////////////////////////////////////////////////////
  
-
   assign read_command_in = 0;
   assign write_command_in = 0;
   assign restart_command_in = 0;
@@ -101,14 +114,16 @@ module cached_afu  #(
 //MMIO 
 ////////////////////////////////////////////////////////////////////////////
 
-
   mmio mmio_instant(
       .clock       (clock),
       .rstn        (reset_afu),
+      .report_errors(report_errors),
       .mmio_in     (mmio_in),
       .mmio_out    (mmio_out),
       .mmio_errors (mmio_errors),
-      .reset_mmio  (external_rstn[1]));
+      .report_errors_ack(report_errors_ack),
+      .reset_mmio  (external_rstn[1])
+      );
 
 ////////////////////////////////////////////////////////////////////////////
 //JOB 
@@ -117,13 +132,18 @@ module cached_afu  #(
   job job_instant(
       .clock           (clock),
       .rstn            (reset_afu),
-      .external_errors (external_errors),
       .job_in          (job_in),
+      .report_errors   (report_errors),
+      .job_errors      (job_errors),
       .job_out         (job_out),
       .timebase_request(timebase_request),
       .parity_enabled  (parity_enabled),
       .reset_job       (external_rstn[0])
     );
+
+////////////////////////////////////////////////////////////////////////////
+//RESET  
+////////////////////////////////////////////////////////////////////////////
 
   reset_control #(
     .NUM_EXTERNAL_RESETS(NUM_EXTERNAL_RESETS)

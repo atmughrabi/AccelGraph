@@ -50,6 +50,7 @@ mt19937state *mt19937var;
 
 #define MMIO_ADDR1             0x3fffff8             // 0x3fffff8 >> 2 = 0xfffffe
 #define MMIO_ADDR2             0x3fffff0             // 0x3fffff8 >> 2 = 0xfffffc
+#define ERROR_REG              0x3FFFFE8
 
 #ifdef  SIM
 #define DEVICE              "/dev/cxl/afu0.0d"
@@ -252,6 +253,7 @@ main (int argc, char **argv)
     }
 
     uint64_t rc1 = 0;
+    uint64_t error = 0;
 
     printf("Waiting for completion by AFU\n");
     do
@@ -259,6 +261,9 @@ main (int argc, char **argv)
         cxl_mmio_read64(afu, MMIO_ADDR1, &rc1);
         printf("Response counter1: %lu\n", rc1);
         cxl_mmio_write64(afu, MMIO_ADDR2, rc1);
+
+        cxl_mmio_read64(afu, ERROR_REG, &error);
+        printf("ERROR_REG %X\n", error);
         if(rc1 > 20)
             break;
     }

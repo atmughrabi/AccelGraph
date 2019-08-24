@@ -3,6 +3,7 @@ package CAPI_PKG;
    // MMIO Registers mapping
   parameter REG_1= 26'h 3FFFFF8 >> 2;
   parameter REG_2= 26'h 3FFFFF0 >> 2;
+  parameter ERROR_REG= 26'h 3FFFFE8 >> 2;
 
    // request Tag ranges
   parameter INVALID_TAG      = 8'h00;

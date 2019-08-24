@@ -3,9 +3,11 @@ import CAPI_PKG::*;
 module mmio (
   input logic clock,
   input logic rstn,
+  input logic [0:63] report_errors,
   input MMIOInterfaceInput mmio_in,
   output MMIOInterfaceOutput mmio_out,
   output logic [0:1] mmio_errors,
+  output logic report_errors_ack, // each register has an ack
   output logic reset_mmio);
 
   AFUDescriptor afu_desc;
@@ -29,7 +31,7 @@ module mmio (
   logic cfg_write;
   logic doubleword_latched;
   logic doubleword;
-  
+  logic report_errors_ack_latched;
 
   logic [0:23] address;
   logic [0:23] address_latched;
@@ -151,9 +153,10 @@ module mmio (
   // Read DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-        data_out        <= 64'h0000_0000_0000_0000;
+        data_out         <= 64'h0000_0000_0000_0000;
         counter1         <= 64'h0000_0000_0000_0000;
         counter2         <= 64'h0000_0000_0000_0000;
+        report_errors_ack_latched <= 1'b0;
     end else if(cfg_read_latched) begin
       if(doubleword_latched) begin 
         data_out        <= data_cfg;
@@ -172,12 +175,18 @@ module mmio (
           counter2  <= counter2 + 3; // example
           data_out <= counter2;
         end
+        ERROR_REG:begin 
+          data_out <= report_errors;
+          report_errors_ack_latched <= 1'b1;
+        end
         default : begin
           data_out <= 64'h0000_0000_0000_0000;
+          report_errors_ack_latched <= 1'b0;
         end
       endcase  
     end else begin 
       data_out <= 64'h0000_0000_0000_0000;
+      report_errors_ack_latched <= 1'b0;
     end
   end
 
@@ -185,6 +194,7 @@ module mmio (
     mmio_out.ack          <= data_ack;
     mmio_out.data         <= data_out;
     mmio_out.data_parity  <= data_out_parity;
+    report_errors_ack <= report_errors_ack_latched;
   end
 
   parity #(
@@ -249,7 +259,10 @@ module mmio (
     .par             (address_parity_link)
   );
 
-   // Error logic
+////////////////////////////////////////////////////////////////////////////
+// Error Logic
+////////////////////////////////////////////////////////////////////////////
+
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       mmio_data_error    <= 1'b0;

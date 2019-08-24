@@ -8,6 +8,7 @@ module response_control (
 	input logic rstn, 	
 	input logic enabled, 
   	input ResponseInterface response,
+  	output logic [0:6] response_error,
   	output ResponseControlInterfaceOut response_control_out
 );
 
@@ -118,9 +119,9 @@ always_ff @(posedge clock or negedge rstn) begin
 
   always_ff @(posedge clock) begin
     if(enable_errors) begin
-      response_control_out.response_error  <= detected_errors;
+      response_error  <= detected_errors;
     end else  begin
-      response_control_out.response_error  <= 7'h00;
+      response_error  <= 7'h00;
     end
   end
 
