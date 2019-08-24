@@ -133,12 +133,11 @@ assign enable_errors    = 1'b1;
 
   // assign error_flag = (|detected_errors) && enable_errors;
 
-
   always_ff @(posedge clock) begin
     if(~rstn) begin
       job_command_error    <= 1'b0;
-      job_address_error <= 1'b0;
-      detected_errors    <= 2'b00;
+      job_address_error    <= 1'b0;
+      detected_errors      <= 2'b00;
     end else begin
       job_command_error <= command_parity_link ^ command_parity;
       job_address_error <= address_parity_link ^ address_parity;

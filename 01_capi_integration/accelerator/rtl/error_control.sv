@@ -21,9 +21,6 @@ typedef enum int unsigned {
 
 error_state current_state, next_state;
 
-logic error_flag;
-logic external_errors_latched;
-
 always_ff @(posedge clock or negedge rstn) begin
 	if(~rstn)
 		current_state <= ERROR_RESET;
@@ -38,7 +35,7 @@ always_comb begin
 		next_state = ERROR_IDLE;
 		end 
 		ERROR_IDLE: begin
-			if(error_flag)
+			if(|external_errors)
 				next_state = MMIO_REQ;
 			else
 				next_state = ERROR_IDLE;
@@ -58,18 +55,15 @@ end
 always_ff @(posedge clock) begin
 	case (current_state)
         ERROR_RESET: begin
-        	report_errors <= 64'h0000_0000_0000_0000;
-        	external_errors_latched <= 64'h0000_0000_0000_0000;
+        	report_errors <= external_errors;
         	reset_error	  <= 1'b1;
-        	error_flag 	  <= 1'b0;
 		end 
 		ERROR_IDLE: begin
-			external_errors_latched <= external_errors;
+			report_errors <= external_errors;
         	reset_error	  <= 1'b1;
-        	error_flag 	  <= |external_errors;
 		end 
 		MMIO_REQ: begin
-			report_errors <= external_errors_latched;
+			
 		end 		
 		RESET_REQ: begin
 			reset_error	  <= 1'b0;
