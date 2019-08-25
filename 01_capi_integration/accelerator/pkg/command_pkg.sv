@@ -2,12 +2,30 @@ package COMMAND_PKG;
   
 import CAPI_PKG::*;
 
+typedef enum logic [0:2]{
+ CMD_INVALID,
+ CMD_READ,
+ CMD_WRITE,
+ CMD_PREFETCH,
+ CMD_WED,
+ CMD_RESTART
+} command_type;
+
+typedef logic [0:1] cu_id_t;
+
+typedef struct packed {
+	cu_id_t cu_id;			// Compute unit id generating the command for now we support four
+	command_type cmd_type;		// The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
+} CommandTagLine;
+
 ////////////////////////////////////////////////////////////////////////////
 //Command Buffer fifo line
 ////////////////////////////////////////////////////////////////////////////
 
 typedef struct packed {
 	logic valid;
+	cu_id_t cu_id;			// Compute unit id generating the command for now we support four
+	command_type cmd_type;		// The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
     logic [0:7] tag;            // ah_ctag,        // Command tag
     afu_command_t command;      // ah_com,         // Command code
     logic [0:63] address;       // ah_cea,         // Command address
@@ -55,6 +73,8 @@ typedef struct packed {
 
 typedef struct packed {
     logic valid;              // ha_rvalid,     // Response valid
+    cu_id_t cu_id;			// Compute unit id generating the command for now we support four
+	command_type cmd_type;		// The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
     logic [0:7] tag;          // ha_rtag,       // Response tag
     psl_response_t response;  // ha_response,   // Response
 } ResponseBufferLine;

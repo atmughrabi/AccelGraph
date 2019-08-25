@@ -84,7 +84,7 @@ always @(posedge clock or negedge rstn) begin
       end   
       else begin
         command_arbiter_out.command_buffer_out.valid    <= 1'b0;
-        command_arbiter_out.command_buffer_out.command  <= INVALID; // just zero it out
+        command_arbiter_out.command_buffer_out.command  <= INVALID; // for debugging purposes
         command_arbiter_out.command_buffer_out.address  <= 64'h0000_0000_0000_0000;
         command_arbiter_out.command_buffer_out.tag      <= INVALID_TAG;
         command_arbiter_out.command_buffer_out.size     <= 12'h000;
@@ -92,7 +92,7 @@ always @(posedge clock or negedge rstn) begin
     end
     else begin
       command_arbiter_out.command_buffer_out.valid    <= 1'b0;
-      command_arbiter_out.command_buffer_out.command  <= INVALID; // just zero it out
+      command_arbiter_out.command_buffer_out.command  <= INVALID;  // for debugging purposes
       command_arbiter_out.command_buffer_out.address  <= 64'h0000_0000_0000_0000;
       command_arbiter_out.command_buffer_out.tag      <= INVALID_TAG;
       command_arbiter_out.command_buffer_out.size     <= 12'h000;
