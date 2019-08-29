@@ -18,7 +18,8 @@ module credit_control (
 //1 returned credit. Issuing a command and getting a return in the same cycle
 //normally nullfies to no change in credit.
 
-always @ (posedge clock or negedge rstn) begin
+
+always_ff @ (posedge clock or negedge rstn) begin
     if (~rstn)
       credit_out.credits <= credit_in.command_in.room;
     else if (credit_in.valid_request && ~credit_in.valid_response)

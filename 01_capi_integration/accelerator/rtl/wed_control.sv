@@ -19,6 +19,15 @@ module wed_control (
 
 	wed_state current_state, next_state;
   logic [0:1023] wed_cacheline128;
+
+  BufferInterfaceInput buffer_in_latched;
+////////////////////////////////////////////////////////////////////////////
+//latch the inputs from the PSL 
+////////////////////////////////////////////////////////////////////////////
+
+always_ff @(posedge clock) begin
+  buffer_in_latched  <= buffer_in;
+end
  
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn)
@@ -65,7 +74,9 @@ module wed_control (
           command_out.address  <= 64'h0000_0000_0000_0000;
           command_out.tag      <= INVALID_TAG;
           command_out.size     <= 12'h000;
-        
+          command_out.cu_id    <= INVALID_ID;
+          command_out.cmd_type <= CMD_INVALID;
+
           wed_cacheline128        <= 1024'h0;
           wed_request_out.wed     <= 512'h0;
           wed_request_out.valid   <= 1'b0;
@@ -80,19 +91,23 @@ module wed_control (
 		      command_out.command <= READ_CL_NA;
           command_out.tag 		<= WED_TAG;
           command_out.address <= wed_address;
+          command_out.cu_id    <= WED_ID;
+          command_out.cmd_type <= CMD_READ;
+
+
           wed_request_out.address <= wed_address;
         end // WED_REQ
         WED_WAITING_FOR_REQUEST: begin
           command_out.valid   <= 0;
-    	  	if (buffer_in.write_valid &&
-       	  	 	buffer_in.write_tag == WED_TAG &&
-        	 		buffer_in.write_address == 6'h00) begin;
-              wed_cacheline128 [0:511] <= buffer_in.write_data;
+    	  	if (buffer_in_latched.write_valid &&
+       	  	 	buffer_in_latched.write_tag == WED_TAG &&
+        	 		buffer_in_latched.write_address == 6'h00) begin;
+              wed_cacheline128 [0:511] <= buffer_in_latched.write_data;
     			end
-          if (buffer_in.write_valid &&
-              buffer_in.write_tag == WED_TAG &&
-              buffer_in.write_address == 6'h01) begin 
-              wed_cacheline128[512:1023] <= buffer_in.write_data;
+          if (buffer_in_latched.write_valid &&
+              buffer_in_latched.write_tag == WED_TAG &&
+              buffer_in_latched.write_address == 6'h01) begin 
+              wed_cacheline128[512:1023] <= buffer_in_latched.write_data;
           end
         end // WED_WAITING_FOR_REQUEST
         WED_DONE_REQ: begin

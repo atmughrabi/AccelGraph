@@ -5,6 +5,9 @@ package CAPI_PKG;
   parameter REG_2= 26'h 3FFFFF0 >> 2;
   parameter ERROR_REG= 26'h 3FFFFE8 >> 2;
 
+  // this is for reset state each CU has an ID issues with the command.
+  parameter INVALID_ID = 8'h00; 
+
    // request Tag ranges
   parameter INVALID_TAG      = 8'h00;
   parameter WED_TAG          = 8'h01;

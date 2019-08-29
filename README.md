@@ -63,7 +63,10 @@ export PSLSE_SERVER_DAT="${PSLSE_SERVER_DIR}/pslse_server.dat"
 export SHIM_HOST_DAT="${PSLSE_SERVER_DIR}/shim_host.dat"
 export PSLSE_PARMS="${PSLSE_SERVER_DIR}/pslse.parms"
 export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
+
 ```
+2. AFU Communication with PSL
+  * please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf).
 
 ## Setting up the source code 
 

@@ -29,6 +29,14 @@ module command (
 );
 
 ////////////////////////////////////////////////////////////////////////////
+//latch the inputs from the PSL 
+////////////////////////////////////////////////////////////////////////////
+
+CommandInterfaceInput command_in_latched;
+ResponseInterface response_latched;
+
+
+////////////////////////////////////////////////////////////////////////////
 //Command 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +58,19 @@ module command (
 
 	CreditInterfaceOutput credits;
 	logic valid_request;
+
+////////////////////////////////////////////////////////////////////////////
+//latch the inputs from the PSL 
+////////////////////////////////////////////////////////////////////////////
+
+always_ff @(posedge clock) begin
+	command_in_latched 	<= command_in;
+	response_latched 	<= response;
+end
+
+////////////////////////////////////////////////////////////////////////////
+//command request logic
+////////////////////////////////////////////////////////////////////////////
 
 	assign command_arbiter_in.wed_request 		= ~command_buffer_status.wed_buffer.empty 	 && |credits.credits;
 	assign command_arbiter_in.read_request 		= ~command_buffer_status.read_buffer.empty   && |credits.credits;
@@ -80,7 +101,7 @@ module command (
 	.clock        (clock),
 	.rstn         (rstn),
 	.enabled      (enabled),
-	.command_in             (command_in),
+	.command_in             (command_in_latched),
 	.command_arbiter_in     (command_arbiter_out),
 	.command_out            (command_out)
 	);
@@ -92,7 +113,7 @@ module command (
  	credit_control credit_control_instant(
       .clock         (clock),
       .rstn          (rstn),
-      .credit_in     ({valid_request,response.valid,response.credits,command_in}),
+      .credit_in     ({valid_request,response_latched.valid,response_latched.credits,command_in_latched}),
       .credit_out    (credits));
 
 ////////////////////////////////////////////////////////////////////////////
@@ -103,7 +124,7 @@ module command (
       .clock         (clock),
       .rstn          (rstn),
       .enabled 		 (enabled),
-      .response      (response),
+      .response      (response_latched),
       .response_error (command_response_error),
       .response_control_out    (response_control_out));
 

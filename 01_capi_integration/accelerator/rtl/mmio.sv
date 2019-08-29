@@ -54,6 +54,8 @@ module mmio (
   logic [0:63] reg1;
   logic [0:63] reg2;
 
+  MMIOInterfaceInput mmio_in_latched;
+
   // Set our AFU Descriptor values refer to page
   assign afu_desc.num_ints_per_process  = 16'h0000;
   assign afu_desc.num_of_processes      = 16'h0001;
@@ -78,10 +80,18 @@ module mmio (
 
   assign reset_mmio = 1;
 
+////////////////////////////////////////////////////////////////////////////
+//latch the inputs from the PSL 
+////////////////////////////////////////////////////////////////////////////
+
+always_ff @(posedge clock) begin
+  mmio_in_latched  <= mmio_in;
+end
+
 // MMIO Config Logic
   always_ff @(posedge clock) begin
-    cfg_read  <= mmio_in.valid && mmio_in.cfg && mmio_in.read;
-    cfg_write <= mmio_in.valid && mmio_in.cfg && ~mmio_in.read;
+    cfg_read  <= mmio_in_latched.valid && mmio_in_latched.cfg && mmio_in_latched.read;
+    cfg_write <= mmio_in_latched.valid && mmio_in_latched.cfg && ~mmio_in_latched.read;
   end
 
   always_ff @(posedge clock) begin
@@ -91,8 +101,8 @@ module mmio (
 
 // MMIO READ/WRITE Logic
   always_ff @(posedge clock) begin
-    mmio_read  <= mmio_in.valid && ~mmio_in.cfg && mmio_in.read;
-    mmio_write <= mmio_in.valid && ~mmio_in.cfg && ~mmio_in.read;
+    mmio_read  <= mmio_in_latched.valid && ~mmio_in_latched.cfg && mmio_in_latched.read;
+    mmio_write <= mmio_in_latched.valid && ~mmio_in_latched.cfg && ~mmio_in_latched.read;
   end
 
   always_ff @(posedge clock) begin
@@ -102,8 +112,8 @@ module mmio (
 
 // MMIO READ/WRITE double or single word
   always_ff @(posedge clock) begin
-    if(mmio_in.valid)
-      doubleword <= mmio_in.doubleword;
+    if(mmio_in_latched.valid)
+      doubleword <= mmio_in_latched.doubleword;
   end
 
   always_ff @(posedge clock) begin
@@ -213,9 +223,9 @@ module mmio (
     if(~rstn) begin
         address_parity  <= odd_parity;
         address         <= 24'h00_0000;
-    end else if(mmio_in.valid) begin
-        address_parity  <= mmio_in.address_parity;
-        address         <= mmio_in.address;
+    end else if(mmio_in_latched.valid) begin
+        address_parity  <= mmio_in_latched.address_parity;
+        address         <= mmio_in_latched.address;
     end else begin
         address_parity  <= odd_parity;
         address         <= 24'h00_0000;
@@ -230,9 +240,9 @@ module mmio (
     if(~rstn) begin
         data_in_parity  <= odd_parity;
         data_in         <= 64'h0000_0000_0000_0000;
-    end else if(mmio_in.valid && ~mmio_in.read) begin
-        data_in_parity  <= mmio_in.data_parity;
-        data_in         <= mmio_in.data;
+    end else if(mmio_in_latched.valid && ~mmio_in_latched.read) begin
+        data_in_parity  <= mmio_in_latched.data_parity;
+        data_in         <= mmio_in_latched.data;
     end else begin
         data_in_parity  <= odd_parity;
         data_in         <= 64'h0000_0000_0000_0000;

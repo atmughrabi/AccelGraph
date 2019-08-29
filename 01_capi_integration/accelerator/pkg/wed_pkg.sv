@@ -2,6 +2,9 @@ package WED_PKG;
   
 import CAPI_PKG::*;
 
+// since Wed control interact with PSL it is considered a simple CU with an ID
+parameter WED_ID = 8'h01;
+
 typedef enum int unsigned {
   WED_RESET,
   WED_IDLE,

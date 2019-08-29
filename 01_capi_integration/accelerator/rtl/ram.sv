@@ -49,7 +49,7 @@ ram #(
 )ram1_instant
 (
     .clock( clock ),
-    .we( wen ),
+    .we( we ),
     .wr_addr( wr_addr ),
     .data_in( wr_data ),
   
@@ -64,7 +64,7 @@ ram #(
 )ram2_instant
 (
     .clock( clock ),
-    .we( wen ),
+    .we( we ),
     .wr_addr( wr_addr ),
     .data_in( wr_data ),
   

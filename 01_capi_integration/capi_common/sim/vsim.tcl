@@ -28,6 +28,7 @@ proc r  {} {
   vlog -quiet ../../accelerator/rtl/response_control.sv
   vlog -quiet ../../accelerator/rtl/command_control.sv
   vlog -quiet ../../accelerator/rtl/command_buffer_arbiter.sv
+  vlog -quiet ../../accelerator/rtl/tag_control.sv
   vlog -quiet ../../accelerator/rtl/command.sv
 
   echo "Compiling RTL Job"

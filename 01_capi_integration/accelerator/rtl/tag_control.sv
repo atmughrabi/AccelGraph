@@ -1,26 +1,31 @@
 import CAPI_PKG::*;
+import COMMAND_PKG::*;
 
 module tag_control (
   input logic clock,    // Clock
   input logic rstn,
   input logic enabled,
 
-  input response tag
-  output response ID
+  input logic tag_response_valid,
+  input logic [0:7] response_tag,
+  output CommandTagLine response_tag_id,
 
-  input read data tag
-  output response ID
+  input logic [0:7] data_read_tag,
+  output CommandTagLine data_read_tag_id,
 
-  input  wr_write data tag
-  output wr_cachelinedata
+  input logic tag_command_valid,
+  input CommandTagLine tag__command_id,
+  output logic [0:7] command_tag,
 
-  input  rd_write data tag
-  output rd_cachelinedata
-
-  input CommandTagLine
-  output command tag
- 
+  output BufferStatus tag_buffer,
+  output logic tag_buffer_ready
 );
+
+typedef enum int unsigned {
+  TAG_BUFFER_RESET,
+  TAG_BUFFER_INIT,
+  TAG_BUFFER_READY
+} tag_buffer_state;
 
 // reset state machine 
 // reset signal
@@ -28,8 +33,86 @@ module tag_control (
 // push tags to fifo till full
 // ready signal tag fifo is not empty and full 
 
+////////////////////////////////////////////////////////////////////////////
+// Tag Initialization Flush logic.
+////////////////////////////////////////////////////////////////////////////
 // if tag fifo is ready and not empty you can send tags other wise command buffer need to stall. 
 
+tag_buffer_state current_state, next_state;
+CommandTagLine tag_ram_read;
+CommandTagLine tag_ram_write;
+
+
+logic tag_buffer_push;
+logic [0:7] tag_fifo_input;
+
+logic [0:7] tag_counter_valid;
+logic [0:7] tag_counter;
+
+
+logic tag_buffer_pop;
+
+
+
+logic tag_init_flag;
+
+
+
+always_ff @(posedge clock or negedge rstn) begin
+	if(~rstn)
+		current_state <= TAG_BUFFER_RESET;
+	else
+		current_state <= next_state;
+end // always_ff @(posedge clock)
+
+
+always_comb begin
+	next_state = TAG_BUFFER_RESET;
+	case (current_state)
+		TAG_BUFFER_RESET: begin
+			next_state = TAG_BUFFER_INIT;
+		end 
+		TAG_BUFFER_INIT: begin
+			if(tag_buffer.full)
+				next_state = TAG_BUFFER_READY;
+		end
+		TAG_BUFFER_READY: begin
+			next_state = TAG_BUFFER_READY;
+		end 
+	endcase
+end 
+
+always_ff @(posedge clock) begin
+	case (current_state)
+        TAG_BUFFER_RESET: begin
+        	tag_counter 	 <= 8'b0;
+        	tag_buffer_ready <= 1'b0;
+        	tag_init_flag	 <= 1'b1;
+        	tag_counter_valid<= 1'b0;
+		end 
+		TAG_BUFFER_INIT: begin
+			tag_counter 	   	 <= tag_counter + 1'b1;
+      		tag_counter_valid    <= 1'b1;
+		end
+		TAG_BUFFER_READY: begin
+			tag_counter 	  <= 8'b0;
+        	tag_buffer_ready  <= 1'b1;
+        	tag_init_flag	  <= 1'b0;
+        	tag_counter_valid <= 1'b0;
+		end 
+	endcase
+end
+
+
+always_comb begin
+	if(tag_init_flag) begin
+		tag_buffer_push = tag_counter_valid;
+		tag_fifo_input 	= tag_counter;
+	end else begin
+		tag_buffer_push = tag_response_valid;
+		tag_fifo_input  = response_tag;
+	end
+end
 
 ////////////////////////////////////////////////////////////////////////////
 // Tag -> CU bookeeping for response/read buffer interface
@@ -43,15 +126,15 @@ ram_2xrd #(
 )tag_ram_instant
 (
     .clock( clock ),
-    .we( wen ),
-    .wr_addr( wr_addr ),
-    .data_in( wr_data ),
+    .we(tag_command_valid),
+    .wr_addr(tag_fifo_input),
+    .data_in( tag__command_id ),
   
-    .rd_addr1( rd_addr1 ),
-    .data_out1( rd_data1 ),
+    .rd_addr1( response_tag ),
+    .data_out1( response_tag_id ),
 
-    .rd_addr2( rd_addr2 ),
-    .data_out2( rd_data2 )
+    .rd_addr2( data_read_tag ),
+    .data_out2( data_read_tag_id )
 );
 
 ////////////////////////////////////////////////////////////////////////////
@@ -67,15 +150,15 @@ fifo  #(
 	.clock(clock),
 	.rstn(rstn),
 
-	.push(response_control_out.wed_response),
-	.data_in(response_control_out.response),
-	.full(response_buffer_status.wed_buffer.full),
-	.alFull(response_buffer_status.wed_buffer.alfull),
+	.push(tag_buffer_push),
+	.data_in(tag_fifo_input),
+	.full(tag_buffer.full),
+	.alFull(tag_buffer.alfull),
 
 	.pop(wed_buffer_pop),
-	.valid(response_buffer_status.wed_buffer.valid),
+	.valid(tag_buffer.valid),
 	.data_out(wed_response_out),
-	.empty(response_buffer_status.wed_buffer.empty)
+	.empty(tag_buffer.empty)
 	);
 
 endmodule

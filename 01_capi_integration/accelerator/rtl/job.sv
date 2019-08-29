@@ -30,6 +30,8 @@ logic job_address_error;
 logic enable_errors;
 logic [0:1] detected_errors;
 
+JobInterfaceInput job_in_latched;
+
 assign odd_parity       = 1'b1; // Odd parity
 assign parity_enabled   = 1'b1;
 assign job_out.cack     = 1'b0; // Dedicated mode AFU, LLCMD not supported
@@ -38,9 +40,23 @@ assign timebase_request = 1'b0; // Timebase request not used
 
 assign enable_errors    = 1'b1;
 
+
+////////////////////////////////////////////////////////////////////////////
+//latch the inputs from the PSL 
+////////////////////////////////////////////////////////////////////////////
+
+always_ff @(posedge clock) begin
+  job_in_latched  <= job_in;
+end
+
+////////////////////////////////////////////////////////////////////////////
+//latch the inputs from the PSL 
+////////////////////////////////////////////////////////////////////////////
+
+
   always_ff @(posedge clock) begin
-      if(job_in.valid) begin
-        case(job_in.command)
+      if(job_in_latched.valid) begin
+        case(job_in_latched.command)
           RESET: begin
             start_job <= 1'b0;
             reset_job <= 1'b0;
@@ -93,11 +109,11 @@ assign enable_errors    = 1'b1;
 ////////////////////////////////////////////////////////////////////////////
   // Parity check
   always_ff @(posedge clock) begin
-      if(job_in.valid) begin
-        command_parity <= job_in.command_parity;
-        address_parity <= job_in.address_parity;
-        command        <= job_in.command;
-        address        <= job_in.address;
+      if(job_in_latched.valid) begin
+        command_parity <= job_in_latched.command_parity;
+        address_parity <= job_in_latched.address_parity;
+        command        <= job_in_latched.command;
+        address        <= job_in_latched.address;
       end else if(done_job) begin
         command_parity <= odd_parity;
         address_parity <= odd_parity;

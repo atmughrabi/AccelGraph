@@ -11,7 +11,12 @@ typedef enum logic [0:2]{
  CMD_RESTART
 } command_type;
 
-typedef logic [0:1] cu_id_t;
+typedef logic [0:7] cu_id_t;
+
+
+////////////////////////////////////////////////////////////////////////////
+// Tag Buffer data
+////////////////////////////////////////////////////////////////////////////
 
 typedef struct packed {
 	cu_id_t cu_id;			// Compute unit id generating the command for now we support four
