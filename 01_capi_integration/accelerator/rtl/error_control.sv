@@ -38,7 +38,7 @@ always_ff @(posedge clock or negedge rstn) begin
 end // always_ff @(posedge clock)
 
 always_comb begin
-	next_state = ERROR_IDLE;
+	next_state = current_state;
 	case (current_state)
 		ERROR_RESET: begin
 			next_state = ERROR_IDLE;

@@ -46,6 +46,8 @@ module cached_afu  #(
   WEDInterface wed; // work element descriptor -> addresses and other into
   CommandBufferLine wed_command_out; // command for populatin WED
 
+  BufferInterfaceOutput buffer_out_latched;
+
   assign buffer_out.read_latency = 4'h1;
   assign buffer_parity_err = 0;
   assign external_errors  = {49'b0, job_errors, mmio_errors, buffer_parity_err, command_response_error};
@@ -69,7 +71,7 @@ error_control error_control_instant(
 //WED 
 ////////////////////////////////////////////////////////////////////////////
 
-  wed_control wed_control_instant(
+wed_control wed_control_instant(
     .clock      (clock),
     .enabled    (job_out.running),
     .rstn       (reset_afu),
@@ -100,11 +102,13 @@ error_control error_control_instant(
     .restart_command_in (restart_command_in),
     .command_in   (command_in),
     .response     (response),
+    .buffer_in             (buffer_in),
     .read_response_out     (read_response_out),
     .write_response_out    (write_response_out),
     .wed_response_out      (wed_response_out),
     .restart_response_out  (restart_response_out),
     .command_response_error(command_response_error),
+    .buffer_out            (buffer_out_latched),
     .command_out  (command_out),
     .command_buffer_status (command_buffer_status),
     .response_buffer_status (response_buffer_status)

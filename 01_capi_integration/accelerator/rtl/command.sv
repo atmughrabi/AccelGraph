@@ -8,6 +8,7 @@ module command (
 	input logic clock,    // Clock
 	input logic rstn, 	
 	input logic enabled, 	
+
 	input CommandBufferLine read_command_in,
 	input CommandBufferLine write_command_in,
 	input CommandBufferLine wed_command_in,
@@ -15,6 +16,7 @@ module command (
 
 	input CommandInterfaceInput command_in,
   	input ResponseInterface response,
+  	input BufferInterfaceInput buffer_in,
 
   	output ResponseBufferLine read_response_out,
 	output ResponseBufferLine write_response_out,
@@ -22,6 +24,8 @@ module command (
 	output ResponseBufferLine restart_response_out,
  	
 	output logic [0:6] command_response_error,
+
+	output BufferInterfaceOutput buffer_out,
 
 	output CommandInterfaceOutput command_out,
 	output CommandBufferStatusInterfaceOut command_buffer_status,
@@ -32,8 +36,9 @@ module command (
 //latch the inputs from the PSL 
 ////////////////////////////////////////////////////////////////////////////
 
-CommandInterfaceInput command_in_latched;
-ResponseInterface response_latched;
+CommandInterfaceInput 	command_in_latched;
+ResponseInterface 		response_latched;
+BufferInterfaceInput 	buffer_in_latched;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -66,6 +71,7 @@ ResponseInterface response_latched;
 always_ff @(posedge clock) begin
 	command_in_latched 	<= command_in;
 	response_latched 	<= response;
+	buffer_in_latched	<= buffer_in;
 end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -129,8 +135,39 @@ end
       .response_control_out    (response_control_out));
 
 ////////////////////////////////////////////////////////////////////////////
+//tag control 
+////////////////////////////////////////////////////////////////////////////
+
+CommandTagLine response_tag_id;
+CommandTagLine read_tag_id;
+CommandTagLine command_tag_id;
+logic [0:7] command_tag;
+BufferStatus tag_buffer;
+logic tag_buffer_ready;
+
+assign command_tag_id.cu_id = command_arbiter_out.command_buffer_out.cu_id;
+assign command_tag_id.cmd_type = command_arbiter_out.command_buffer_out.cmd_type;
+
+	tag_control tag_control_instant(
+      	.clock         (clock),
+      	.rstn          (rstn),
+      	.enabled 		 (enabled),
+		.tag_response_valid(response_latched.valid),
+		.response_tag(response_latched.tag),
+	  	.response_tag_id(response_tag_id),
+	  	.data_read_tag(buffer_in_latched.read_tag),
+	  	.data_read_tag_id(read_tag_id),
+	  	.tag_command_valid(command_arbiter_out.command_buffer_out.valid),
+	  	.tag_command_id(command_tag_id),
+	  	.command_tag(command_tag),
+	  	.tag_buffer(tag_buffer),
+	  	.tag_buffer_ready(tag_buffer_ready)
+      );
+
+////////////////////////////////////////////////////////////////////////////
 //Buffer Read Commands
 ////////////////////////////////////////////////////////////////////////////
+
 	fifo  #(
 	    .WIDTH($bits(CommandBufferLine)),
 	    .DEPTH(256)

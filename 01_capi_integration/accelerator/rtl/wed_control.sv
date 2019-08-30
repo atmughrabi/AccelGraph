@@ -37,7 +37,7 @@ end
 	end // always_ff @(posedge clock)
 
 	always_comb begin
-    next_state = WED_IDLE;
+    next_state = current_state;
 		case (current_state)
       WED_RESET: begin
           next_state = WED_IDLE;

@@ -51,10 +51,10 @@ ram #(
     .clock( clock ),
     .we( we ),
     .wr_addr( wr_addr ),
-    .data_in( wr_data ),
+    .data_in( data_in ),
   
     .rd_addr( rd_addr1 ),
-    .data_out( rd_data1 )
+    .data_out( data_out1 )
 );
 
 
@@ -66,10 +66,10 @@ ram #(
     .clock( clock ),
     .we( we ),
     .wr_addr( wr_addr ),
-    .data_in( wr_data ),
+    .data_in( data_in ),
   
     .rd_addr( rd_addr2 ),
-    .data_out( rd_data2 )
+    .data_out( data_out2 )
 );
 
 endmodule
