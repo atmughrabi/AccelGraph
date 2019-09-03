@@ -24,6 +24,7 @@ module tag_control (
 typedef enum int unsigned {
   TAG_BUFFER_RESET,
   TAG_BUFFER_INIT,
+  TAG_BUFFER_POP,
   TAG_BUFFER_READY
 } tag_buffer_state;
 
@@ -47,6 +48,7 @@ logic [0:7] tag_fifo_input;
 logic tag_buffer_pop;
 
 logic tag_counter_valid;
+logic tag_counter_pop;
 logic [0:7] tag_counter;
 
 
@@ -67,7 +69,11 @@ always_comb begin
 			next_state = TAG_BUFFER_INIT;
 		end 
 		TAG_BUFFER_INIT: begin
-			if(tag_buffer.full)
+			if(tag_buffer.alfull)
+				next_state = TAG_BUFFER_POP;
+		end
+		TAG_BUFFER_POP: begin
+			if(tag_buffer.empty)
 				next_state = TAG_BUFFER_READY;
 		end
 		TAG_BUFFER_READY: begin
@@ -82,7 +88,7 @@ always_ff @(posedge clock) begin
         	tag_counter 	 <= 8'b0;
 		end 
 		TAG_BUFFER_INIT: begin
-			if(~tag_buffer.full) begin
+			if(~tag_buffer.alfull) begin
 				tag_counter 	   	 <= tag_counter + 1'b1;
       		end
 		end
@@ -98,16 +104,37 @@ always_comb begin
         	tag_buffer_ready  = 1'b0;
         	tag_init_flag	  = 1'b1;
         	tag_counter_valid = 1'b0;
+        	tag_counter_pop   = 1'b0;
 		end 
 		TAG_BUFFER_INIT: begin
-			if(~tag_buffer.full) begin
+			tag_init_flag	  = 1'b1;
+			tag_counter_pop   = 1'b0;
+			tag_buffer_ready  = 1'b0;
+
+			if(~tag_buffer.alfull) begin
 	      		tag_counter_valid     = 1'b1;
+      		end
+      		else begin
+      			tag_counter_valid     = 1'b0;
+      		end
+		end
+		TAG_BUFFER_POP: begin
+			tag_counter_valid     = 1'b0;
+			tag_init_flag	  = 1'b1;
+			tag_buffer_ready  = 1'b0;
+
+			if(~tag_buffer.empty && tag_buffer.valid) begin
+	      		tag_counter_pop     = 1'b1;
+      		end
+      		else begin
+      			tag_counter_pop     = 1'b0;
       		end
 		end
 		TAG_BUFFER_READY: begin
         	tag_buffer_ready   = 1'b1;
         	tag_init_flag	   = 1'b0;
         	tag_counter_valid  = 1'b0;
+        	tag_counter_pop    = 1'b0;
 		end 
 	endcase
 end
@@ -116,7 +143,7 @@ always_comb begin
 	if(tag_init_flag) begin
 		tag_buffer_push = tag_counter_valid;
 		tag_fifo_input 	= tag_counter;
-		tag_buffer_pop  = 1'b0;
+		tag_buffer_pop  = tag_counter_pop;
 	end else begin
 		tag_buffer_push = tag_response_valid;
 		tag_fifo_input  = response_tag;

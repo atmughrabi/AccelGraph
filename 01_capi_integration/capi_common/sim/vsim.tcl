@@ -58,7 +58,7 @@ proc r  {} {
 # simulate
 proc c {} {
   # vsim -t ns -novopt -c -pli pslse/afu_driver/src/veriuser.sl +nowarnTSCALE work.top
-  vsim -t ns -novopt -c -sv_lib ../../pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
+  vsim -t ns -novopt  -voptargs=+acc=npr -c -sv_lib ../../pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
   view wave
   radix h
   log * -r

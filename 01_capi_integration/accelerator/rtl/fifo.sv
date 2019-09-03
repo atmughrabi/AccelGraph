@@ -3,7 +3,7 @@ module fifo
     parameter WIDTH = 24,
     parameter DEPTH = 32,
     parameter ADDR_BITS = $clog2(DEPTH),
-    parameter HEADROOM = 0
+    parameter HEADROOM = 3
 )
 (
     input logic clock,
