@@ -64,6 +64,9 @@ BufferInterfaceInput 	buffer_in_latched;
 	CreditInterfaceOutput credits;
 	logic valid_request;
 
+	logic [0:7] command_tag;
+	logic tag_buffer_ready;
+	CommandTagLine response_tag_id;
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL 
 ////////////////////////////////////////////////////////////////////////////
@@ -78,10 +81,10 @@ end
 //command request logic
 ////////////////////////////////////////////////////////////////////////////
 
-	assign command_arbiter_in.wed_request 		= ~command_buffer_status.wed_buffer.empty 	 && |credits.credits;
-	assign command_arbiter_in.read_request 		= ~command_buffer_status.read_buffer.empty   && |credits.credits;
-	assign command_arbiter_in.write_request 	= ~command_buffer_status.write_buffer.empty  && |credits.credits;
-	assign command_arbiter_in.restart_request 	= ~command_buffer_status.restart_buffer.empty&&	|credits.credits;
+	assign command_arbiter_in.wed_request 		= ~command_buffer_status.wed_buffer.empty 	 && |credits.credits && tag_buffer_ready;
+	assign command_arbiter_in.read_request 		= ~command_buffer_status.read_buffer.empty   && |credits.credits && tag_buffer_ready;
+	assign command_arbiter_in.write_request 	= ~command_buffer_status.write_buffer.empty  && |credits.credits && tag_buffer_ready;
+	assign command_arbiter_in.restart_request 	= ~command_buffer_status.restart_buffer.empty&&	|credits.credits && tag_buffer_ready;
 	assign valid_request = |command_arbiter_in;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -109,6 +112,7 @@ end
 	.enabled      (enabled),
 	.command_in             (command_in_latched),
 	.command_arbiter_in     (command_arbiter_out),
+	.command_tag_in			(command_tag),
 	.command_out            (command_out)
 	);
 
@@ -131,6 +135,7 @@ end
       .rstn          (rstn),
       .enabled 		 (enabled),
       .response      (response_latched),
+      .response_tag_id_in (response_tag_id),
       .response_error (command_response_error),
       .response_control_out    (response_control_out));
 
@@ -138,12 +143,10 @@ end
 //tag control 
 ////////////////////////////////////////////////////////////////////////////
 
-CommandTagLine response_tag_id;
+
 CommandTagLine read_tag_id;
 CommandTagLine command_tag_id;
-logic [0:7] command_tag;
-BufferStatus tag_buffer;
-logic tag_buffer_ready;
+
 
 assign command_tag_id.cu_id = command_arbiter_out.command_buffer_out.cu_id;
 assign command_tag_id.cmd_type = command_arbiter_out.command_buffer_out.cmd_type;
@@ -154,13 +157,12 @@ assign command_tag_id.cmd_type = command_arbiter_out.command_buffer_out.cmd_type
       	.enabled 		 (enabled),
 		.tag_response_valid(response_latched.valid),
 		.response_tag(response_latched.tag),
-	  	.response_tag_id(response_tag_id),
-	  	.data_read_tag(buffer_in_latched.read_tag),
-	  	.data_read_tag_id(read_tag_id),
+	  	.response_tag_id_out(response_tag_id),
+	  	.data_read_tag(buffer_in_latched.write_tag), // reminder PSL sees read as write and opposite
+	  	.data_read_tag_id_out(read_tag_id),
 	  	.tag_command_valid(command_arbiter_out.command_buffer_out.valid),
 	  	.tag_command_id(command_tag_id),
-	  	.command_tag(command_tag),
-	  	.tag_buffer(tag_buffer),
+	  	.command_tag_out(command_tag),
 	  	.tag_buffer_ready(tag_buffer_ready)
       );
 

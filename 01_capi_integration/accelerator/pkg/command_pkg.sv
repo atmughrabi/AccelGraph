@@ -31,7 +31,6 @@ typedef struct packed {
 	logic valid;
 	cu_id_t cu_id;			// Compute unit id generating the command for now we support four
 	command_type cmd_type;		// The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
-    logic [0:7] tag;            // ah_ctag,        // Command tag
     afu_command_t command;      // ah_com,         // Command code
     logic [0:63] address;       // ah_cea,         // Command address
     logic [0:11] size;          // ah_csize,       // Command size

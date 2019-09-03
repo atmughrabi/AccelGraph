@@ -72,7 +72,6 @@ end
           command_out.valid    <= 1'b0;
           command_out.command  <= INVALID; // just zero it out
           command_out.address  <= 64'h0000_0000_0000_0000;
-          command_out.tag      <= INVALID_TAG;
           command_out.size     <= 12'h000;
           command_out.cu_id    <= INVALID_ID;
           command_out.cmd_type <= CMD_INVALID;
@@ -89,10 +88,9 @@ end
           command_out.valid   <= 1'b1;
           command_out.size    <= 12'h080;
 		      command_out.command <= READ_CL_NA;
-          command_out.tag 		<= WED_TAG;
           command_out.address <= wed_address;
           command_out.cu_id    <= WED_ID;
-          command_out.cmd_type <= CMD_READ;
+          command_out.cmd_type <= CMD_WED;
 
 
           wed_request_out.address <= wed_address;

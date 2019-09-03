@@ -8,6 +8,7 @@ module response_control (
 	input logic rstn, 	
 	input logic enabled, 
   	input ResponseInterface response,
+  	input CommandTagLine response_tag_id_in,
   	output logic [0:6] response_error,
   	output ResponseControlInterfaceOut response_control_out
 );
@@ -49,32 +50,45 @@ always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
         response_control_out <= 0;
     end else if(enabled && response_in.valid) begin
-        if(response_in.tag == WED_TAG) begin
-    		response_control_out.wed_response 		<= response_in.valid;
-    		response_control_out.response.valid  	<= response_in.valid;
-    		response_control_out.response.tag  		<= response_in.tag;
-    		response_control_out.response.response  <= response_in.response;
-		end 
-		else if(response_in.tag == RESTART_TAG) begin
-			response_control_out.restart_response   <= response_in.valid;
-			response_control_out.response.valid  	<= response_in.valid;
-    		response_control_out.response.tag  		<= response_in.tag;
-    		response_control_out.response.response  <= response_in.response;
-		end 
-		else if(response_in.tag >= WRITE_TAG_BASE 	&& response_in.tag < READ_TAG_BASE) begin // write tag ranges
-			response_control_out.write_response  	<= response_in.valid;
-			response_control_out.response.valid  	<= response_in.valid;
-    		response_control_out.response.tag  		<= response_in.tag;
-    		response_control_out.response.response  <= response_in.response;
-		end 
-		else if(response_in.tag >= READ_TAG_BASE	&& response_in.tag <= TAG_UPPER) begin // read tag ranges
-			response_control_out.read_response 		<= response_in.valid;
-			response_control_out.response.valid  	<= response_in.valid;
-    		response_control_out.response.tag  		<= response_in.tag;
-    		response_control_out.response.response  <= response_in.response;
-		end else begin
-			response_control_out  <= 0;
-		end 
+
+		case (response_tag_id_in.cmd_type)
+			CMD_READ: begin 
+				response_control_out.read_response 		<= 1'b1;
+				response_control_out.write_response 	<= 1'b0;
+				response_control_out.wed_response 		<= 1'b0;
+				response_control_out.restart_response 	<= 1'b0;
+			end
+			CMD_WRITE: begin 
+				response_control_out.read_response 		<= 1'b0;
+				response_control_out.write_response 	<= 1'b1;
+				response_control_out.wed_response 		<= 1'b0;
+				response_control_out.restart_response 	<= 1'b0;
+			end
+			CMD_WED: begin 
+				response_control_out.read_response 		<= 1'b0;
+				response_control_out.write_response 	<= 1'b0;
+				response_control_out.wed_response 		<= 1'b1;
+				response_control_out.restart_response 	<= 1'b0;
+			end
+			CMD_RESTART: begin 
+				response_control_out.read_response 		<= 1'b0;
+				response_control_out.write_response 	<= 1'b0;
+				response_control_out.wed_response 		<= 1'b0;
+				response_control_out.restart_response 	<= 1'b1;
+			end
+			default : begin
+				response_control_out.read_response 		<= 1'b0;
+				response_control_out.write_response 	<= 1'b0;
+				response_control_out.wed_response 		<= 1'b0;
+				response_control_out.restart_response 	<= 1'b0;
+			end
+		endcase
+
+		response_control_out.response.valid  	<= response_in.valid;
+		response_control_out.response.tag  		<= response_in.tag;
+		response_control_out.response.cu_id     <= response_tag_id_in.cu_id;
+		response_control_out.response.cmd_type  <= response_tag_id_in.cmd_type;
+		response_control_out.response.response  <= response_in.response;
 
     end else begin
     	response_control_out  <= 0;

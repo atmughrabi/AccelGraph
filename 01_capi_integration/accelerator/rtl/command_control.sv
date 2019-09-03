@@ -8,6 +8,7 @@ module command_control (
 	input logic enabled,
 	input CommandInterfaceInput command_in,
   input CommandBufferArbiterInterfaceOut command_arbiter_in,
+  input logic [0:7] command_tag_in,
   output CommandInterfaceOutput command_out
 );
   
@@ -54,7 +55,7 @@ module command_control (
         command_out.valid    <= command_arbiter_in.command_buffer_out.valid;
         command_out.command  <= command_arbiter_in.command_buffer_out.command;
         command_out.address  <= command_arbiter_in.command_buffer_out.address;
-        command_out.tag      <= command_arbiter_in.command_buffer_out.tag;
+        command_out.tag      <= command_tag_in;
         command_out.size     <= command_arbiter_in.command_buffer_out.size;
         command_out.command_parity  <= command_parity;
         command_out.address_parity  <= address_parity;
@@ -71,7 +72,7 @@ module command_control (
   parity #(
     .BITS(8)
   ) tag_parity_instant (
-    .data(command_arbiter_in.command_buffer_out.tag),
+    .data(command_tag_in),
     .odd(odd_parity),
     .par(tag_parity)
   );
