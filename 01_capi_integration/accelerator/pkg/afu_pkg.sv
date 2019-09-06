@@ -114,10 +114,8 @@ typedef struct packed {
 } DataControlInterfaceOut;
 
 typedef struct packed {
-    BufferStatus wed_buffer_0;
-    BufferStatus wed_buffer_1;
-    BufferStatus read_buffer_0;
-    BufferStatus read_buffer_1;
+    BufferStatus buffer_0;
+    BufferStatus buffer_1;
 } DataBufferStatusInterface;
 
 // Deal with not "done" responses. Not ever expecting most response codes,

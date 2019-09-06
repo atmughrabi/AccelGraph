@@ -43,6 +43,8 @@ module cached_afu  #(
   ReadWriteDataLine wed_data_1_out;
   ReadWriteDataLine read_data_0_out;
   ReadWriteDataLine read_data_1_out;
+  ReadWriteDataLine write_data_0_out;
+  ReadWriteDataLine write_data_1_out;
 
   CommandBufferStatusInterface command_buffer_status;
 
@@ -54,7 +56,6 @@ module cached_afu  #(
   WEDInterface wed; // work element descriptor -> addresses and other into
   CommandBufferLine wed_command_out; // command for populatin WED
 
-  assign data_write_error = 0;
   assign external_errors  = {50'b0, job_errors, mmio_errors, data_write_error ,data_read_error, command_response_error};
 
 ////////////////////////////////////////////////////////////////////////////
@@ -80,7 +81,6 @@ wed_control wed_control_instant(
     .enabled    (job_out.running),
     .rstn       (reset_afu),
     .wed_address(job_in.address),
-    .buffer_in  (buffer_in),
     .wed_data_0_in        (wed_data_0_out),
     .wed_data_1_in        (wed_data_1_out),
     .wed_response_in (wed_response_out),
@@ -107,6 +107,8 @@ wed_control wed_control_instant(
     .command_in   (command_in),
     .response     (response),
     .buffer_in             (buffer_in),
+    .write_data_0_in       (write_data_0_out),
+    .write_data_1_in       (write_data_1_out),
     .wed_data_0_out        (wed_data_0_out),
     .wed_data_1_out        (wed_data_1_out),
     .read_data_0_out       (read_data_0_out),
@@ -117,6 +119,7 @@ wed_control wed_control_instant(
     .restart_response_out  (restart_response_out),
     .command_response_error(command_response_error),
     .data_read_error       (data_read_error),
+    .data_write_error      (data_write_error),
     .buffer_out            (buffer_out),
     .command_out  (command_out),
     .command_buffer_status (command_buffer_status)
@@ -134,11 +137,14 @@ cu_control cu_control_instant(
     .wed_request_in     (wed),
     .read_response_in   (read_response_out),
     .write_response_in  (write_response_out),
+    .read_data_0_in     (read_data_0_out),
+    .read_data_1_in     (read_data_1_out),
     .read_buffer_status (command_buffer_status.read_buffer),
     .read_command_out   (read_command_out),
     .write_buffer_status(command_buffer_status.write_buffer),
     .write_command_out  (write_command_out),
-    .write_data_out     (write_data_out)
+    .write_data_0_out   (write_data_0_out),
+    .write_data_1_out   (write_data_1_out)
   );
 
 

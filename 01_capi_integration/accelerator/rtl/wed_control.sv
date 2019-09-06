@@ -9,7 +9,6 @@ module wed_control (
   input logic enabled,
   input logic rstn,
   input logic [0:63] wed_address,
-  input BufferInterfaceInput buffer_in,
   input ReadWriteDataLine wed_data_0_in,
   input ReadWriteDataLine wed_data_1_in,
   input ResponseBufferLine wed_response_in,
@@ -25,10 +24,6 @@ module wed_control (
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL 
 ////////////////////////////////////////////////////////////////////////////
-
-always_ff @(posedge clock) begin
-  buffer_in_latched  <= buffer_in;
-end
  
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn)
@@ -98,15 +93,11 @@ end
         end // WED_REQ
         WED_WAITING_FOR_REQUEST: begin
           command_out.valid   <= 0;
-    	  	if (buffer_in_latched.write_valid &&
-       	  	 	buffer_in_latched.write_tag == WED_TAG &&
-        	 		buffer_in_latched.write_address == 6'h00) begin;
-              wed_cacheline128 [0:511] <= buffer_in_latched.write_data;
+    	  	if (wed_data_0_in.cu_id == WED_ID) begin
+              wed_cacheline128 [0:511]   <= wed_data_0_in.data;
     			end
-          if (buffer_in_latched.write_valid &&
-              buffer_in_latched.write_tag == WED_TAG &&
-              buffer_in_latched.write_address == 6'h01) begin 
-              wed_cacheline128[512:1023] <= buffer_in_latched.write_data;
+          if (wed_data_1_in.cu_id == WED_ID) begin
+              wed_cacheline128[512:1023] <= wed_data_1_in.data;
           end
         end // WED_WAITING_FOR_REQUEST
         WED_DONE_REQ: begin

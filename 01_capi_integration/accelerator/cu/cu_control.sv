@@ -12,18 +12,23 @@ module cu_control (
   	
   	input ResponseBufferLine read_response_in,
 	input ResponseBufferLine write_response_in,
+	input ReadWriteDataLine read_data_0_in,
+    input ReadWriteDataLine read_data_1_in,
 
 	input BufferStatus read_buffer_status,
 	output CommandBufferLine read_command_out,
 	
 	input BufferStatus write_buffer_status,
-	output CommandBufferLine      write_command_out,
-	output ReadWriteDataLine   write_data_out
+	output CommandBufferLine write_command_out,
+	output ReadWriteDataLine write_data_0_out,
+    output ReadWriteDataLine write_data_1_out
 );
 
 
   assign read_command_out  = 0;
   assign write_command_out = 0;
-  assign write_data_out    = 0;
+  assign write_data_0_out    = 0;
+  assign write_data_1_out    = 0;
+
 
 endmodule
