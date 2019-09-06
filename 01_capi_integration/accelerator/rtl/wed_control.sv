@@ -1,6 +1,6 @@
 import CAPI_PKG::*;
 import WED_PKG::*;
-import COMMAND_PKG::*;
+import AFU_PKG::*;
 
 
 module wed_control (
@@ -10,9 +10,10 @@ module wed_control (
   input logic rstn,
   input logic [0:63] wed_address,
   input BufferInterfaceInput buffer_in,
-  input ResponseBufferLine response_in,
-  input BufferStatus response_buffer,
-  input BufferStatus wed_buffer,
+  input ReadWriteDataLine wed_data_0_in,
+  input ReadWriteDataLine wed_data_1_in,
+  input ResponseBufferLine wed_response_in,
+  input BufferStatus command_buffer_status,
   output CommandBufferLine command_out,
   output WEDInterface wed_request_out
 );
@@ -43,7 +44,7 @@ end
           next_state = WED_IDLE;
       end // WED_RESET
 			WED_IDLE: begin
-				if(enabled && ~wed_request_out.valid && ~wed_buffer.full)
+				if(enabled && ~wed_request_out.valid && ~command_buffer_status.alfull)
 						next_state = WED_REQ;
 				else
 						next_state = WED_IDLE;
@@ -52,7 +53,7 @@ end
 						next_state = WED_WAITING_FOR_REQUEST;
 			end // WED_REQ
 			WED_WAITING_FOR_REQUEST: begin
-				 if (response_in.valid && response_in.tag == WED_TAG && response_in.response == DONE) begin
+				 if (wed_response_in.valid && wed_response_in.cu_id == WED_ID && wed_response_in.response == DONE) begin
 						next_state = WED_DONE_REQ;
 				 end
 				 else

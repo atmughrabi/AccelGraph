@@ -1,7 +1,5 @@
 import CAPI_PKG::*;
-import CREDIT_PKG::*;
-import COMMAND_PKG::*;
-import CREDIT_PKG::*;
+import AFU_PKG::*;
 
 module response_control (
 	input logic clock,    // Clock
@@ -85,7 +83,6 @@ always_ff @(posedge clock or negedge rstn) begin
 		endcase
 
 		response_control_out.response.valid  	<= response_in.valid;
-		response_control_out.response.tag  		<= response_in.tag;
 		response_control_out.response.cu_id     <= response_tag_id_in.cu_id;
 		response_control_out.response.cmd_type  <= response_tag_id_in.cmd_type;
 		response_control_out.response.response  <= response_in.response;

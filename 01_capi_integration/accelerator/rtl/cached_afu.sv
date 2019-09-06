@@ -1,6 +1,6 @@
 import CAPI_PKG::*;
 import WED_PKG::*;
-import COMMAND_PKG::*;
+import AFU_PKG::*;
 
 module cached_afu  #(
   parameter NUM_EXTERNAL_RESETS = 3
@@ -24,7 +24,8 @@ module cached_afu  #(
   logic [0:NUM_EXTERNAL_RESETS-1] external_rstn;
   logic [0:1]     job_errors;
   logic [0:1]     mmio_errors;
-  logic [0:3]     buffer_parity_err;
+  logic [0:1]     data_read_error;
+  logic           data_write_error;
   logic [0:6]     command_response_error;
   logic [0:63]    external_errors;
   logic [0:63]    report_errors;
@@ -32,11 +33,18 @@ module cached_afu  #(
   logic reset_afu;
  
 
-  CommandBufferLine read_command_in;
-  CommandBufferLine write_command_in;
-  CommandBufferLine restart_command_in;
-  CommandBufferStatusInterfaceOut command_buffer_status;
-  ResponseBufferStatusInterfaceOut response_buffer_status;
+  CommandBufferLine read_command_out;
+  CommandBufferLine write_command_out;
+  CommandBufferLine restart_command_out;
+
+  ReadWriteDataLine write_data_out;
+
+  ReadWriteDataLine wed_data_0_out;
+  ReadWriteDataLine wed_data_1_out;
+  ReadWriteDataLine read_data_0_out;
+  ReadWriteDataLine read_data_1_out;
+
+  CommandBufferStatusInterface command_buffer_status;
 
   ResponseBufferLine read_response_out;
   ResponseBufferLine write_response_out;
@@ -46,12 +54,8 @@ module cached_afu  #(
   WEDInterface wed; // work element descriptor -> addresses and other into
   CommandBufferLine wed_command_out; // command for populatin WED
 
-  BufferInterfaceOutput buffer_out_latched;
-
-  assign buffer_out.read_latency = 4'h1;
-  assign buffer_parity_err = 0;
-  assign external_errors  = {49'b0, job_errors, mmio_errors, buffer_parity_err, command_response_error};
-
+  assign data_write_error = 0;
+  assign external_errors  = {50'b0, job_errors, mmio_errors, data_write_error ,data_read_error, command_response_error};
 
 ////////////////////////////////////////////////////////////////////////////
 //ERROR  
@@ -77,9 +81,10 @@ wed_control wed_control_instant(
     .rstn       (reset_afu),
     .wed_address(job_in.address),
     .buffer_in  (buffer_in),
-    .response_in (wed_response_out),
-    .response_buffer(response_buffer_status.wed_buffer),
-    .wed_buffer (command_buffer_status.wed_buffer),
+    .wed_data_0_in        (wed_data_0_out),
+    .wed_data_1_in        (wed_data_1_out),
+    .wed_response_in (wed_response_out),
+    .command_buffer_status (command_buffer_status.wed_buffer),
     .command_out(wed_command_out),
     .wed_request_out(wed)
     );
@@ -88,31 +93,55 @@ wed_control wed_control_instant(
 //Command 
 ////////////////////////////////////////////////////////////////////////////
  
-  assign read_command_in = 0;
-  assign write_command_in = 0;
-  assign restart_command_in = 0;
+  assign restart_command_out = 0;
 
- command command_instant(
+ afu_control afu_control_instant(
     .clock        (clock),
     .rstn         (reset_afu),
     .enabled      (job_out.running),
-    .read_command_in    (read_command_in),
-    .write_command_in   (write_command_in),
+    .read_command_in    (read_command_out),
+    .write_command_in   (write_command_out),
     .wed_command_in     (wed_command_out),
-    .restart_command_in (restart_command_in),
+    .restart_command_in (restart_command_out),
+    .write_data_in         (write_data_out),
     .command_in   (command_in),
     .response     (response),
     .buffer_in             (buffer_in),
+    .wed_data_0_out        (wed_data_0_out),
+    .wed_data_1_out        (wed_data_1_out),
+    .read_data_0_out       (read_data_0_out),
+    .read_data_1_out       (read_data_1_out),
     .read_response_out     (read_response_out),
     .write_response_out    (write_response_out),
     .wed_response_out      (wed_response_out),
     .restart_response_out  (restart_response_out),
     .command_response_error(command_response_error),
-    .buffer_out            (buffer_out_latched),
+    .data_read_error       (data_read_error),
+    .buffer_out            (buffer_out),
     .command_out  (command_out),
-    .command_buffer_status (command_buffer_status),
-    .response_buffer_status (response_buffer_status)
+    .command_buffer_status (command_buffer_status)
     );
+
+////////////////////////////////////////////////////////////////////////////
+//Compute Unit
+////////////////////////////////////////////////////////////////////////////
+
+
+cu_control cu_control_instant(
+    .clock        (clock),
+    .rstn         (reset_afu),
+    .enabled      (job_out.running),
+    .wed_request_in     (wed),
+    .read_response_in   (read_response_out),
+    .write_response_in  (write_response_out),
+    .read_buffer_status (command_buffer_status.read_buffer),
+    .read_command_out   (read_command_out),
+    .write_buffer_status(command_buffer_status.write_buffer),
+    .write_command_out  (write_command_out),
+    .write_data_out     (write_data_out)
+  );
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 //MMIO 

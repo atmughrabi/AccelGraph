@@ -1,6 +1,6 @@
 import CAPI_PKG::*;
 import CREDIT_PKG::*;
-import COMMAND_PKG::*;
+import AFU_PKG::*;
 
 
 module command_buffer_arbiter #(
@@ -57,7 +57,7 @@ always @(posedge clock or negedge rstn) begin
     if (enabled) begin
       if (grant ==   4'b1000) begin
         command_arbiter_out.command_buffer_out.valid   <= wed_command_buffer_in.valid;
-        command_arbiter_out.command_buffer_out.cu_id     <= wed_command_buffer_in.cu_id;
+        command_arbiter_out.command_buffer_out.cu_id    <= wed_command_buffer_in.cu_id;
         command_arbiter_out.command_buffer_out.cmd_type  <= wed_command_buffer_in.cmd_type ;
         command_arbiter_out.command_buffer_out.command <= wed_command_buffer_in.command ;
         command_arbiter_out.command_buffer_out.address <= wed_command_buffer_in.address ;

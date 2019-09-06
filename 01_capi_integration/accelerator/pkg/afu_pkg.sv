@@ -1,4 +1,4 @@
-package COMMAND_PKG;
+package AFU_PKG;
   
 import CAPI_PKG::*;
 
@@ -34,7 +34,8 @@ typedef struct packed {
     afu_command_t command;      // ah_com,         // Command code
     logic [0:63] address;       // ah_cea,         // Command address
     logic [0:11] size;          // ah_csize,       // Command size
-  } CommandBufferLine;
+} CommandBufferLine;
+
 
 typedef struct packed {
     logic full;
@@ -68,18 +69,17 @@ typedef struct packed {
     BufferStatus write_buffer;
     BufferStatus read_buffer;
     BufferStatus restart_buffer;
-} CommandBufferStatusInterfaceOut;
+} CommandBufferStatusInterface;
 
 
 ////////////////////////////////////////////////////////////////////////////
-//Command Response Buffer line
+//Response Control
 ////////////////////////////////////////////////////////////////////////////
 
 typedef struct packed {
     logic valid;              // ha_rvalid,     // Response valid
     cu_id_t cu_id;			// Compute unit id generating the command for now we support four
 	command_type cmd_type;		// The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
-    logic [0:7] tag;          // ha_rtag,       // Response tag
     psl_response_t response;  // ha_response,   // Response
 } ResponseBufferLine;
 
@@ -96,7 +96,29 @@ typedef struct packed {
     BufferStatus write_buffer;
     BufferStatus read_buffer;
     BufferStatus restart_buffer;
-} ResponseBufferStatusInterfaceOut;
+} ResponseBufferStatusInterface;
+
+////////////////////////////////////////////////////////////////////////////
+//Data Control
+////////////////////////////////////////////////////////////////////////////
+typedef struct packed { // one cacheline is 128bytes each sent on separate 64bytes chunks
+	cu_id_t cu_id;
+	command_type cmd_type;
+    logic [0:511] data;
+} ReadWriteDataLine;
+
+typedef struct packed {
+    logic read_data;
+    logic wed_data;
+	ReadWriteDataLine line;
+} DataControlInterfaceOut;
+
+typedef struct packed {
+    BufferStatus wed_buffer_0;
+    BufferStatus wed_buffer_1;
+    BufferStatus read_buffer_0;
+    BufferStatus read_buffer_1;
+} DataBufferStatusInterface;
 
 // Deal with not "done" responses. Not ever expecting most response codes,
   // so afu should signal error if these occur. Never asked for reservation or
@@ -109,16 +131,16 @@ typedef struct packed {
  	logic [0:5] cmd_response_error;
 
     case(reponse_code)
-      AERROR: begin //Offset 0x00
+      AERROR: begin 
         cmd_response_error = 6'b000001;
       end
-      DERROR: begin //Offset 0x20
+      DERROR: begin 
         cmd_response_error = 6'b000010;
       end
-      FAILED: begin //Offset 0x28
+      FAILED: begin 
         cmd_response_error = 6'b000100;
       end
-      FAULT: begin //Offset 0x30
+      FAULT: begin 
       	cmd_response_error = 6'b001000;
       end
       default: begin

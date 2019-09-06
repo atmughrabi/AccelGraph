@@ -11,7 +11,8 @@ proc r  {} {
   vlog -quiet ../../accelerator/pkg/capi_pkg.sv
   vlog -quiet ../../accelerator/pkg/wed_pkg.sv
   vlog -quiet ../../accelerator/pkg/credit_pkg.sv
-  vlog -quiet ../../accelerator/pkg/command_pkg.sv
+  vlog -quiet ../../accelerator/pkg/afu_pkg.sv
+  vlog -quiet ../../accelerator/pkg/cu_pkg.sv
 
   # compile rtl
   echo "Compiling RTL General"
@@ -23,15 +24,16 @@ proc r  {} {
   vlog -quiet ../../accelerator/rtl/fifo.sv
   vlog -quiet ../../accelerator/rtl/priority_arbiter.sv
 
-  echo "Compiling RTL Command"
+  echo "Compiling RTL AFU Control"
   vlog -quiet ../../accelerator/rtl/credit_control.sv
   vlog -quiet ../../accelerator/rtl/response_control.sv
   vlog -quiet ../../accelerator/rtl/command_control.sv
   vlog -quiet ../../accelerator/rtl/command_buffer_arbiter.sv
   vlog -quiet ../../accelerator/rtl/tag_control.sv
-  vlog -quiet ../../accelerator/rtl/command.sv
+  vlog -quiet ../../accelerator/rtl/read_data_control.sv
+  vlog -quiet ../../accelerator/rtl/afu_control.sv
 
-  echo "Compiling RTL Job"
+  echo "Compiling RTL JOB"
   vlog -quiet ../../accelerator/rtl/job.sv
 
   echo "Compiling RTL MMIO"
@@ -39,10 +41,10 @@ proc r  {} {
   
   echo "Compiling RTL WED_control"
   vlog -quiet ../../accelerator/rtl/wed_control.sv
- 
-  # echo "Compiling Compute Unit"
-  # vlog -quiet ../../accelerator/cu/cu.sv
 
+  echo "Compiling RTL CU Contorl"
+  vlog -quiet ../../accelerator/cu/cu_control.sv
+ 
   echo "Compiling RTL AFU"
   vlog -quiet ../../accelerator/rtl/afu.sv
   vlog -quiet ../../accelerator/rtl/cached_afu.sv

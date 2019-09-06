@@ -1,5 +1,5 @@
 import CAPI_PKG::*;
-import COMMAND_PKG::*;
+import AFU_PKG::*;
 
 module tag_control (
   input logic clock,    // Clock

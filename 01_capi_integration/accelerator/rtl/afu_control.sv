@@ -1,10 +1,9 @@
 
 import CAPI_PKG::*;
 import CREDIT_PKG::*;
-import COMMAND_PKG::*;
-import CREDIT_PKG::*;
+import AFU_PKG::*;
 
-module command (
+module afu_control (
 	input logic clock,    // Clock
 	input logic rstn, 	
 	input logic enabled, 	
@@ -13,10 +12,16 @@ module command (
 	input CommandBufferLine write_command_in,
 	input CommandBufferLine wed_command_in,
 	input CommandBufferLine restart_command_in,
+	input ReadWriteDataLine write_data_in,
 
 	input CommandInterfaceInput command_in,
   	input ResponseInterface response,
   	input BufferInterfaceInput buffer_in,
+
+  	output ReadWriteDataLine wed_data_0_out,
+  	output ReadWriteDataLine wed_data_1_out,
+  	output ReadWriteDataLine read_data_0_out,
+  	output ReadWriteDataLine read_data_1_out,
 
   	output ResponseBufferLine read_response_out,
 	output ResponseBufferLine write_response_out,
@@ -24,13 +29,16 @@ module command (
 	output ResponseBufferLine restart_response_out,
  	
 	output logic [0:6] command_response_error,
+	output logic [0:1] data_read_error,
 
 	output BufferInterfaceOutput buffer_out,
 
 	output CommandInterfaceOutput command_out,
-	output CommandBufferStatusInterfaceOut command_buffer_status,
-	output ResponseBufferStatusInterfaceOut response_buffer_status
+	output CommandBufferStatusInterface command_buffer_status
 );
+
+
+assign buffer_out.read_latency = 4'h1;
 
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL 
@@ -40,10 +48,12 @@ CommandInterfaceInput 	command_in_latched;
 ResponseInterface 		response_latched;
 BufferInterfaceInput 	buffer_in_latched;
 
-
 ////////////////////////////////////////////////////////////////////////////
 //Command 
 ////////////////////////////////////////////////////////////////////////////
+
+	ResponseBufferStatusInterface response_buffer_status;
+	DataBufferStatusInterface read_data_buffer_status;
 
 	CommandBufferArbiterInterfaceIn command_arbiter_in;
 
@@ -55,11 +65,19 @@ BufferInterfaceInput 	buffer_in_latched;
 	CommandBufferArbiterInterfaceOut command_arbiter_out;
 
 	ResponseControlInterfaceOut response_control_out;
-	logic wed_buffer_pop;
-	logic read_buffer_pop;
-	logic write_buffer_pop;
-	logic restart_buffer_pop;
-	//As long as there are commands in the fifo set it request for bus access / if there are credits
+	logic wed_response_buffer_pop;
+	logic read_responsee_buffer_pop;
+	logic write_response_buffer_pop;
+	logic restart_response_buffer_pop;
+
+	DataControlInterfaceOut read_data_control_out_0;
+	DataControlInterfaceOut read_data_control_out_1;
+	logic wed_read_data_0_buffer_pop;
+	logic wed_read_data_1_buffer_pop;
+	logic read_data_0_buffer_pop;
+	logic read_data_1_buffer_pop;
+
+	//As long as there are commands in the FIFO set it request for bus access / if there are credits
 
 	CreditInterfaceOutput credits;
 	logic valid_request;
@@ -67,6 +85,9 @@ BufferInterfaceInput 	buffer_in_latched;
 	logic [0:7] command_tag;
 	logic tag_buffer_ready;
 	CommandTagLine response_tag_id;
+	CommandTagLine read_tag_id;
+	CommandTagLine command_tag_id;
+
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL 
 ////////////////////////////////////////////////////////////////////////////
@@ -110,7 +131,6 @@ end
 	.clock        (clock),
 	.rstn         (rstn),
 	.enabled      (enabled),
-	.command_in             (command_in_latched),
 	.command_arbiter_in     (command_arbiter_out),
 	.command_tag_in			(command_tag),
 	.command_out            (command_out)
@@ -140,12 +160,25 @@ end
       .response_control_out    (response_control_out));
 
 ////////////////////////////////////////////////////////////////////////////
+//read data control 
+////////////////////////////////////////////////////////////////////////////
+	
+	
+	read_data_control read_data_control_instant(
+		.clock                (clock),
+		.rstn                 (rstn),
+		.enabled              (enabled),
+		.buffer_in            (buffer_in_latched),
+		.data_read_tag_id_in  (read_tag_id),
+		.data_read_error      (data_read_error),
+		.read_data_control_out_0(read_data_control_out_0),
+		.read_data_control_out_1(read_data_control_out_1)
+		);
+
+
+////////////////////////////////////////////////////////////////////////////
 //tag control 
 ////////////////////////////////////////////////////////////////////////////
-
-
-CommandTagLine read_tag_id;
-CommandTagLine command_tag_id;
 
 
 assign command_tag_id.cu_id = command_arbiter_out.command_buffer_out.cu_id;
@@ -260,7 +293,7 @@ assign command_tag_id.cmd_type = command_arbiter_out.command_buffer_out.cmd_type
 //Buffers Write Responses
 ////////////////////////////////////////////////////////////////////////////
 
-assign write_buffer_pop = ~response_buffer_status.write_buffer.empty;
+assign write_response_buffer_pop = ~response_buffer_status.write_buffer.empty;
 
 	fifo  #(
 	    .WIDTH($bits(ResponseBufferLine)),
@@ -274,7 +307,7 @@ assign write_buffer_pop = ~response_buffer_status.write_buffer.empty;
 	      .full(response_buffer_status.write_buffer.full),
 	      .alFull(response_buffer_status.write_buffer.alfull),
 
-	      .pop(write_buffer_pop),
+	      .pop(write_response_buffer_pop),
 	      .valid(response_buffer_status.write_buffer.valid),
 	      .data_out(write_response_out),
 	      .empty(response_buffer_status.write_buffer.empty)
@@ -284,7 +317,7 @@ assign write_buffer_pop = ~response_buffer_status.write_buffer.empty;
 //Buffers Read Responses
 ////////////////////////////////////////////////////////////////////////////
 
-assign read_buffer_pop = ~response_buffer_status.read_buffer.empty;
+assign read_response_buffer_pop = ~response_buffer_status.read_buffer.empty;
 
 	fifo  #(
 	    .WIDTH($bits(ResponseBufferLine)),
@@ -298,7 +331,7 @@ assign read_buffer_pop = ~response_buffer_status.read_buffer.empty;
 	      .full(response_buffer_status.read_buffer.full),
 	      .alFull(response_buffer_status.read_buffer.alfull),
 
-	      .pop(read_buffer_pop),
+	      .pop(read_response_buffer_pop),
 	      .valid(response_buffer_status.read_buffer.valid),
 	      .data_out(read_response_out),
 	      .empty(response_buffer_status.read_buffer.empty)
@@ -308,7 +341,7 @@ assign read_buffer_pop = ~response_buffer_status.read_buffer.empty;
 //restart Read Responses
 ////////////////////////////////////////////////////////////////////////////
 
-assign restart_buffer_pop = ~response_buffer_status.restart_buffer.empty;
+assign restart_response_buffer_pop = ~response_buffer_status.restart_buffer.empty;
 
 	fifo  #(
 	    .WIDTH($bits(ResponseBufferLine)),
@@ -322,7 +355,7 @@ assign restart_buffer_pop = ~response_buffer_status.restart_buffer.empty;
 	      .full(response_buffer_status.restart_buffer.full),
 	      .alFull(response_buffer_status.restart_buffer.alfull),
 
-	      .pop(restart_buffer_pop),
+	      .pop(restart_response_buffer_pop),
 	      .valid(response_buffer_status.restart_buffer.valid),
 	      .data_out(restart_response_out),
 	      .empty(response_buffer_status.restart_buffer.empty)
@@ -332,7 +365,7 @@ assign restart_buffer_pop = ~response_buffer_status.restart_buffer.empty;
 //Buffers WED Responses
 ////////////////////////////////////////////////////////////////////////////
 
-assign wed_buffer_pop = ~response_buffer_status.wed_buffer.empty;
+assign wed_response_buffer_pop = ~response_buffer_status.wed_buffer.empty;
 
 	fifo  #(
 	    .WIDTH($bits(ResponseBufferLine)),
@@ -346,12 +379,100 @@ assign wed_buffer_pop = ~response_buffer_status.wed_buffer.empty;
 	      .full(response_buffer_status.wed_buffer.full),
 	      .alFull(response_buffer_status.wed_buffer.alfull),
 
-	      .pop(wed_buffer_pop),
+	      .pop(wed_response_buffer_pop),
 	      .valid(response_buffer_status.wed_buffer.valid),
 	      .data_out(wed_response_out),
 	      .empty(response_buffer_status.wed_buffer.empty)
 	  );
 
+////////////////////////////////////////////////////////////////////////////
+//Buffers WED Read Data
+////////////////////////////////////////////////////////////////////////////
+
+assign wed_read_data_0_buffer_pop = ~read_data_buffer_status.wed_buffer_0.empty;
+
+	fifo  #(
+	    .WIDTH($bits(ReadWriteDataLine)),
+	    .DEPTH(2)
+	    )wed_read_data_0_buffer_fifo_instant(
+	      .clock(clock),
+	      .rstn(rstn),
+
+	      .push(read_data_control_out_0.wed_data),
+	      .data_in(read_data_control_out_0.line),
+	      .full(read_data_buffer_status.wed_buffer_0.full),
+	      .alFull(read_data_buffer_status.wed_buffer_0.alfull),
+
+	      .pop(wed_read_data_0_buffer_pop),
+	      .valid(read_data_buffer_status.wed_buffer_0.valid),
+	      .data_out(wed_data_0_out),
+	      .empty(read_data_buffer_status.wed_buffer_0.empty)
+	);
+
+assign wed_read_data_1_buffer_pop = ~read_data_buffer_status.wed_buffer_1.empty;
+
+	fifo  #(
+	    .WIDTH($bits(ReadWriteDataLine)),
+	    .DEPTH(2)
+	    )wed_read_data_1_buffer_fifo_instant(
+	      .clock(clock),
+	      .rstn(rstn),
+
+	      .push(read_data_control_out_1.wed_data),
+	      .data_in(read_data_control_out_1.line),
+	      .full(read_data_buffer_status.wed_buffer_1.full),
+	      .alFull(read_data_buffer_status.wed_buffer_1.alfull),
+
+	      .pop(wed_read_data_1_buffer_pop),
+	      .valid(read_data_buffer_status.wed_buffer_1.valid),
+	      .data_out(wed_data_1_out),
+	      .empty(read_data_buffer_status.wed_buffer_1.empty)
+	);
+
+
+////////////////////////////////////////////////////////////////////////////
+//Buffers CU Read Data
+////////////////////////////////////////////////////////////////////////////
+
+assign read_data_0_buffer_pop = ~read_data_buffer_status.read_buffer_0.empty;
+
+	fifo  #(
+	    .WIDTH($bits(ReadWriteDataLine)),
+	    .DEPTH(2)
+	    )cu_read_data_0_buffer_fifo_instant(
+	      .clock(clock),
+	      .rstn(rstn),
+
+	      .push(read_data_control_out_0.read_data),
+	      .data_in(read_data_control_out_0.line),
+	      .full(read_data_buffer_status.read_buffer_0.full),
+	      .alFull(read_data_buffer_status.read_buffer_0.alfull),
+
+	      .pop(read_data_0_buffer_pop),
+	      .valid(read_data_buffer_status.read_buffer_0.valid),
+	      .data_out(read_data_0_out),
+	      .empty(read_data_buffer_status.read_buffer_0.empty)
+	);
+
+assign read_data_1_buffer_pop = ~read_data_buffer_status.read_buffer_1.empty;
+
+	fifo  #(
+	    .WIDTH($bits(ReadWriteDataLine)),
+	    .DEPTH(2)
+	    )cu_read_data_1_buffer_fifo_instant(
+	      .clock(clock),
+	      .rstn(rstn),
+
+	      .push(read_data_control_out_1.read_data),
+	      .data_in(read_data_control_out_1.line),
+	      .full(read_data_buffer_status.read_buffer_1.full),
+	      .alFull(read_data_buffer_status.read_buffer_1.alfull),
+
+	      .pop(read_data_1_buffer_pop),
+	      .valid(read_data_buffer_status.read_buffer_1.valid),
+	      .data_out(read_data_1_out),
+	      .empty(read_data_buffer_status.read_buffer_1.empty)
+	);
 
 endmodule
 

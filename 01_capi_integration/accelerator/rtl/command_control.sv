@@ -1,12 +1,11 @@
 import CAPI_PKG::*;
-import COMMAND_PKG::*;
+import AFU_PKG::*;
 
 
 module command_control (
 	input logic clock,    // Clock
 	input logic rstn, 	
 	input logic enabled,
-	input CommandInterfaceInput command_in,
   input CommandBufferArbiterInterfaceOut command_arbiter_in,
   input logic [0:7] command_tag_in,
   output CommandInterfaceOutput command_out
