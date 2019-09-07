@@ -67,8 +67,8 @@ module cu_control (
         write_data_1_out_latched.cmd_type  <= CMD_WRITE;
         write_data_0_out_latched.cu_id     <= 8'h02;
         write_data_0_out_latched.cmd_type  <= CMD_WRITE;
-        write_data_1_out_latched.data[384:391]  <= 1;
-        write_data_0_out_latched.data[384:391]  <= 1;
+        write_data_1_out_latched.data[384:391]  <= 8'hFF;
+        write_data_0_out_latched.data[384:391]  <= 8'hFF;
   		send_test <= 1'b1;
   	end else begin
   		write_command_out_latched.valid    <= 1'b0;

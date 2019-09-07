@@ -180,7 +180,7 @@ always_ff @(posedge clock or negedge rstn) begin
     if(enable_errors) begin
       data_read_error  <= detected_errors;
     end else  begin
-      data_read_error  <= 7'h00;
+      data_read_error  <= 2'b00;
     end
   end
 

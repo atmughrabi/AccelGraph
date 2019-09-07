@@ -268,6 +268,7 @@ main (int argc, char **argv)
         printf("ERROR_REG %X\n", error);
 
         printf("wed done %u \n", wedGraphCSR->done);
+        printWEDGraphCSRPointers(wedGraphCSR);
 
         if(rc1 > 20)
             break;
