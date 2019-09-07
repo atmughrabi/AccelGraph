@@ -72,7 +72,7 @@ BufferInterfaceInput 	buffer_in_latched;
 
 	ResponseControlInterfaceOut response_control_out;
 	logic wed_response_buffer_pop;
-	logic read_responsee_buffer_pop;
+	logic read_response_buffer_pop;
 	logic write_response_buffer_pop;
 	logic restart_response_buffer_pop;
 

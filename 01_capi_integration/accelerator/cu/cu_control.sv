@@ -60,15 +60,15 @@ module cu_control (
   		write_command_out_latched.valid    <= 1'b1;
         write_command_out_latched.size     <= 12'h001;
 		write_command_out_latched.command  <= WRITE_MS;
-        write_command_out_latched.address  <= wed_request_in.address + 108;
+        write_command_out_latched.address  <= (wed_request_in.address + 108);
         write_command_out_latched.cu_id    <= 8'h02;
         write_command_out_latched.cmd_type <= CMD_WRITE;
         write_data_1_out_latched.cu_id     <= 8'h02;
         write_data_1_out_latched.cmd_type  <= CMD_WRITE;
         write_data_0_out_latched.cu_id     <= 8'h02;
         write_data_0_out_latched.cmd_type  <= CMD_WRITE;
-        write_data_1_out_latched.data[384:391]  <= 8'hFF;
-        write_data_0_out_latched.data[384:391]  <= 8'hFF;
+        write_data_1_out_latched.data[352:359]  <= 8'b10;
+        write_data_0_out_latched.data[352:359]  <= 8'b10;
   		send_test <= 1'b1;
   	end else begin
   		write_command_out_latched.valid    <= 1'b0;

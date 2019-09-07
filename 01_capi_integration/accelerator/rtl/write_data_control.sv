@@ -28,6 +28,7 @@ ReadWriteDataLine write_data_1_in_latched;
 
 ReadWriteDataLine write_data_0_out;
 ReadWriteDataLine write_data_1_out;
+ReadWriteDataLine write_data;
 
 logic read_valid;           // ha_brvalid,     // Buffer Read valid
 logic [0:7] read_tag;       // ha_brtag,       // Buffer Read tag
@@ -107,13 +108,29 @@ dw_parity #(
 //Ram Data each hold half cache line
 ////////////////////////////////////////////////////////////////////////////
 
+// always_ff @(posedge clock or negedge rstn) begin
+// 	if(~rstn) 
+//         write_data<=  ~0;
+//     else if(~(|read_address) && read_valid)
+// 		write_data <= write_data_0_out.data;
+// 	else if((|read_address) && read_valid)
+// 		write_data <= write_data_1_out.data;
+// 	else
+// 		write_data <=  ~0;
+// end
+
+// always_ff @(posedge clock) begin
+// 		buffer_out.read_data <=  write_data;
+// end
+
+
 always_comb begin
-	if(~(|read_address) && read_valid)
-		buffer_out.read_data = write_data_0_out.data;
+    if(~(|read_address) && read_valid)
+		buffer_out.read_data  = write_data_0_out.data;
 	else if((|read_address) && read_valid)
-		buffer_out.read_data = write_data_1_out.data;
+		buffer_out.read_data  = write_data_1_out.data;
 	else
-		buffer_out.read_data =  ~0;
+		buffer_out.read_data  =  ~0;
 end
 
 ram #(

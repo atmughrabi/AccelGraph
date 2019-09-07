@@ -49,7 +49,7 @@ proc r  {} {
   echo "Compiling RTL AFU"
   vlog -quiet ../../accelerator/rtl/afu.sv
   vlog -quiet ../../accelerator/rtl/cached_afu.sv
-
+  
   
   # compile top level
   echo "Compiling top level"

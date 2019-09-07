@@ -165,6 +165,7 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
 #endif
 #endif
 
+    printf("  wed->done: %p\n", &(wed->done));
 
 }
 
@@ -268,7 +269,7 @@ main (int argc, char **argv)
         printf("ERROR_REG %X\n", error);
 
         printf("wed done %u \n", wedGraphCSR->done);
-        printWEDGraphCSRPointers(wedGraphCSR);
+  
 
         if(rc1 > 20)
             break;
