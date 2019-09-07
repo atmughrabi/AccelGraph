@@ -191,6 +191,7 @@ end
 		.rstn                 (rstn),
 		.enabled              (enabled),
 		.buffer_in            (buffer_in_latched),
+		.command_write_valid  (command_arbiter_out.write_ready),
 		.command_tag_in  (command_tag),
 		.write_data_0_in (write_data_0),
 		.write_data_1_in (write_data_1),

@@ -69,13 +69,15 @@ struct __attribute__((__packed__)) WEDGraphCSR
     void *edges_array_weight;           // 8-Bytes
     void *edges_array_src;              // 8-Bytes
     void *edges_array_dest;             // 8-Bytes
-    void *inverse_vertex_out_degree;    // 8-Bytes
+//---------------------------------------------------//
+    void *inverse_vertex_out_degree;    // 8-Bytes --// 64bytes
+//---------------------------------------------------//  
     void *inverse_vertex_in_degree;     // 8-Bytes
     void *inverse_vertex_edges_idx;     // 8-Bytes
     void *inverse_edges_array_weight;   // 8-Bytes
     void *inverse_edges_array_src;      // 8-Bytes
     void *inverse_edges_array_dest;     // 8-Bytes
-    __u32 reserved1;   // 8-Bytes
+    __u32 done;   // 4-Bytes
     __u64 reserved2;      // 8-Bytes
     __u64 reserved3;     // 8-Bytes
 }; // 108-bytes used from 128-Bytes WED
@@ -123,7 +125,7 @@ struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
 #endif
 #endif
 
-    wed->reserved1 = 0;
+    wed->done = 0;
     wed->reserved2 = 0;
     wed->reserved3 = 0;
 
@@ -264,6 +266,9 @@ main (int argc, char **argv)
 
         cxl_mmio_read64(afu, ERROR_REG, &error);
         printf("ERROR_REG %X\n", error);
+
+        printf("wed done %u \n", wedGraphCSR->done);
+
         if(rc1 > 20)
             break;
     }

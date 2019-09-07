@@ -25,10 +25,62 @@ module cu_control (
 );
 
 
-  assign read_command_out  = 0;
-  assign write_command_out = 0;
-  assign write_data_0_out    = 0;
-  assign write_data_1_out    = 0;
+  
+  CommandBufferLine write_command_out_latched;
+  ReadWriteDataLine write_data_0_out_latched;
+  ReadWriteDataLine write_data_1_out_latched;
+  logic send_test;
+
+  always_ff @(posedge clock or negedge rstn) begin
+  	if(~rstn) begin
+  		write_command_out <= 0;
+  		read_command_out  <= 0;
+  		write_data_0_out  <= 0;
+  		write_data_1_out  <= 0;
+  	end else begin
+  		write_command_out <= write_command_out_latched;
+  		write_data_0_out  <= write_data_0_out_latched;
+  		write_data_1_out  <= write_data_1_out_latched;
+  	end
+  end
+
+
+   always_ff @(posedge clock or negedge rstn) begin
+  	if(~rstn) begin
+  		write_command_out_latched.valid    <= 1'b0;
+        write_command_out_latched.command  <= INVALID; // just zero it out
+        write_command_out_latched.address  <= 64'h0000_0000_0000_0000;
+        write_command_out_latched.size     <= 12'h000;
+        write_command_out_latched.cu_id    <= INVALID_ID;
+        write_command_out_latched.cmd_type <= CMD_INVALID;
+        write_data_1_out_latched <= 0;
+        write_data_0_out_latched <= 0;
+  		send_test <= 1'b0;
+  	end else if (wed_request_in.valid && ~send_test) begin
+  		write_command_out_latched.valid    <= 1'b1;
+        write_command_out_latched.size     <= 12'h001;
+		write_command_out_latched.command  <= WRITE_MS;
+        write_command_out_latched.address  <= wed_request_in.address + 108;
+        write_command_out_latched.cu_id    <= 8'h02;
+        write_command_out_latched.cmd_type <= CMD_WRITE;
+        write_data_1_out_latched.cu_id     <= 8'h02;
+        write_data_1_out_latched.cmd_type  <= CMD_WRITE;
+        write_data_0_out_latched.cu_id     <= 8'h02;
+        write_data_0_out_latched.cmd_type  <= CMD_WRITE;
+        write_data_1_out_latched.data[384:391]  <= 1;
+        write_data_0_out_latched.data[384:391]  <= 1;
+  		send_test <= 1'b1;
+  	end else begin
+  		write_command_out_latched.valid    <= 1'b0;
+        write_command_out_latched.command  <= INVALID; // just zero it out
+        write_command_out_latched.address  <= 64'h0000_0000_0000_0000;
+        write_command_out_latched.size     <= 12'h000;
+        write_command_out_latched.cu_id    <= INVALID_ID;
+        write_command_out_latched.cmd_type <= CMD_INVALID;
+        write_data_1_out_latched <= 0;
+        write_data_0_out_latched <= 0;
+  	end
+  end
 
 
 endmodule

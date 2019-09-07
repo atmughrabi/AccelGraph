@@ -1,6 +1,7 @@
 echo Watching Buffer interface waveforms
 
 # PSL to AFU signals
+add wave -position insertpoint -group "Buffer Interface" sim:/top/a0/ha_brvalid
 add wave -position insertpoint -group "Buffer Interface" -radix hexadecimal sim:/top/a0/ha_brtag
 add wave -position insertpoint -group "Buffer Interface" sim:/top/a0/ha_brtagpar
 add wave -position insertpoint -group "Buffer Interface" -radix hexadecimal sim:/top/a0/ha_brad
