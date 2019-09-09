@@ -43,8 +43,13 @@ proc r  {} {
   echo "Compiling RTL WED_control"
   vlog -quiet ../../accelerator/rtl/wed_control.sv
 
-  echo "Compiling RTL CU Contorl"
+  echo "Compiling RTL CU control"
+  vlog -quiet ../../accelerator/cu/cu_edge_control.sv
+  vlog -quiet ../../accelerator/cu/cu_vertex_control.sv
+  vlog -quiet ../../accelerator/cu/cu_pagerank.sv
+  vlog -quiet ../../accelerator/cu/cu_bfs.sv
   vlog -quiet ../../accelerator/cu/cu_control.sv
+
  
   echo "Compiling RTL AFU"
   vlog -quiet ../../accelerator/rtl/afu.sv

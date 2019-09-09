@@ -1,14 +1,14 @@
 package CAPI_PKG;
-  
-   // MMIO Registers mapping
+
+  // MMIO Registers mapping
   parameter REG_1= 26'h 3FFFFF8 >> 2;
   parameter REG_2= 26'h 3FFFFF0 >> 2;
   parameter ERROR_REG= 26'h 3FFFFE8 >> 2;
 
   // this is for reset state each CU has an ID issues with the command.
-  parameter INVALID_ID = 8'h00; 
+  parameter INVALID_ID = 8'h00;
 
-   // request Tag ranges
+  // request Tag ranges
   parameter INVALID_TAG      = 8'h00;
   parameter WED_TAG          = 8'h01;
   parameter RESTART_TAG      = 8'h02;
@@ -35,7 +35,7 @@ package CAPI_PKG;
     SPEC=3'b111
   } trans_order_behavior_t;
 
-   typedef enum logic [0:7] {
+  typedef enum logic [0:7] {
     DONE=8'h00,
     AERROR=8'h01,
     DERROR=8'h03,
@@ -145,7 +145,7 @@ package CAPI_PKG;
   } BufferInterfaceOutput;
 
 
-    
+
   typedef struct packed {
     logic valid;              // ha_rvalid,     // Response valid
     logic [0:7] tag;          // ha_rtag,       // Response tag
@@ -192,13 +192,13 @@ package CAPI_PKG;
     logic [0:63] afu_eb_offset;
   } AFUDescriptor;
 
- 
-    // AFU descriptor
+
+  // AFU descriptor
   // Offset 0x00(0), bit 31 -> AFU supports only 1 process at a time
   // Offset 0x00(0), bit 47 -> AFU has one Configuration Record (CR).
   // Offset 0x00(0), bit 59 -> AFU supports dedicated process
   // Offset 0x20(4), bits 0:7 -> 0x00 to indicate implementation specific CR.
-  // bits 8:63 -> 0x1 to indicate minimum possible length of 256 bytes per CR. 
+  // bits 8:63 -> 0x1 to indicate minimum possible length of 256 bytes per CR.
   // Offset 0x28(5), bits 0:63 -> point to next descr read offset for CR.
   // the lowest 8 bits are 0 because it must be 256 byte aligned address.
   // Offset 0x30(6), bit 07 -> AFU Problem State Area Required
@@ -206,7 +206,7 @@ package CAPI_PKG;
   // First 4 bytes for device ID, vendor id set to DEAD in ascii.
   // Next 4 bytes 0.
   // Offset 0x108(33), next little endian data
-  // First 4 bytes BEEF in ascii for rev ID, class code. 
+  // First 4 bytes BEEF in ascii for rev ID, class code.
   // Next 4 bytes 0.
   // Though 256 bytes allocated, don't care about rest.
 
@@ -214,29 +214,29 @@ package CAPI_PKG;
     case(address)
       0: begin //Offset 0x00
         return {descriptor.num_ints_per_process,
-                descriptor.num_of_processes,
-                descriptor.num_of_afu_crs,
-                descriptor.req_prog_model};
+          descriptor.num_of_processes,
+          descriptor.num_of_afu_crs,
+          descriptor.req_prog_model};
       end
       4: begin //Offset 0x20
         return {descriptor.reserved_2,
-                descriptor.afu_cr_len};
+          descriptor.afu_cr_len};
       end
       5: begin //Offset 0x28
         return {descriptor.afu_cr_offset};
       end
       6: begin //Offset 0x30
         return {descriptor.reserved_3,
-                descriptor.psa_per_process_required,
-                descriptor.psa_required,
-                descriptor.psa_length};
+          descriptor.psa_per_process_required,
+          descriptor.psa_required,
+          descriptor.psa_length};
       end
       7: begin //Offset 0x38
         return {descriptor.psa_offset};
       end
       8: begin //Offset 0x40
         return {descriptor.reserved_4,
-                descriptor.afu_eb_len};
+          descriptor.afu_eb_len};
       end
       9: begin //Offset 0x48
         return {descriptor.afu_eb_offset};
@@ -255,37 +255,37 @@ package CAPI_PKG;
 
 
   function logic [0:31] swap_endianness_word(logic [0:31] in);
-    return {in[24:31], 
-            in[16:23],
-            in[ 8:15], 
-            in[ 0:7]};
+    return {in[24:31],
+      in[16:23],
+      in[ 8:15],
+      in[ 0:7]};
   endfunction : swap_endianness_word
 
   function logic [0:63] swap_endianness_double_word(logic [0:63] in);
     return {in[56:63],
-            in[48:55], 
-            in[40:47], 
-            in[32:39], 
-            in[24:31], 
-            in[16:23],
-            in[ 8:15], 
-            in[ 0:7]};
+      in[48:55],
+      in[40:47],
+      in[32:39],
+      in[24:31],
+      in[16:23],
+      in[ 8:15],
+      in[ 0:7]};
   endfunction : swap_endianness_double_word
 
   function logic [0:511] swap_endianness_half_cacheline128(logic [0:511] in);
     return {swap_endianness_double_word(in[448:511]),
-            swap_endianness_double_word(in[384:447]),
-            swap_endianness_double_word(in[320:383]),
-            swap_endianness_double_word(in[256:319]),
-            swap_endianness_double_word(in[192:255]),
-            swap_endianness_double_word(in[128:191]),
-            swap_endianness_double_word(in[ 64:127]),
-            swap_endianness_double_word(in[  0: 63])};
+      swap_endianness_double_word(in[384:447]),
+      swap_endianness_double_word(in[320:383]),
+      swap_endianness_double_word(in[256:319]),
+      swap_endianness_double_word(in[192:255]),
+      swap_endianness_double_word(in[128:191]),
+      swap_endianness_double_word(in[ 64:127]),
+      swap_endianness_double_word(in[  0: 63])};
   endfunction : swap_endianness_half_cacheline128
 
   function logic [0:1023] swap_endianness_full_cacheline128(logic [0:1023] in);
     return {swap_endianness_half_cacheline128(in[512:1023]),
-            swap_endianness_half_cacheline128(in[0:511])};
+      swap_endianness_half_cacheline128(in[0:511])};
   endfunction : swap_endianness_full_cacheline128
 
 endpackage

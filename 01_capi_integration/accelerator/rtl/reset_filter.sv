@@ -1,26 +1,26 @@
-// Copyright 2008 Altera Corporation. All rights reserved.  
-// Altera products are protected under numerous U.S. and foreign patents, 
-// maskwork rights, copyrights and other intellectual property laws.  
+// Copyright 2008 Altera Corporation. All rights reserved.
+// Altera products are protected under numerous U.S. and foreign patents,
+// maskwork rights, copyrights and other intellectual property laws.
 //
 // This reference design file, and your use thereof, is subject to and governed
-// by the terms and conditions of the applicable Altera Reference Design 
+// by the terms and conditions of the applicable Altera Reference Design
 // License Agreement (either as signed by you or found at www.altera.com).  By
 // using this reference design file, you indicate your acceptance of such terms
 // and conditions between you and Altera Corporation.  In the event that you do
-// not agree with such terms and conditions, you may not use the reference 
+// not agree with such terms and conditions, you may not use the reference
 // design file and please promptly destroy any copies you have made.
 //
-// This reference design file is being provided on an "as-is" basis and as an 
-// accommodation and therefore all warranties, representations or guarantees of 
-// any kind (whether express, implied or statutory) including, without 
+// This reference design file is being provided on an "as-is" basis and as an
+// accommodation and therefore all warranties, representations or guarantees of
+// any kind (whether express, implied or statutory) including, without
 // limitation, warranties of merchantability, non-infringement, or fitness for
 // a particular purpose, are specifically disclaimed.  By making this reference
-// design file available, Altera expressly does not recommend, suggest or 
-// require that this reference design file be used in combination with any 
+// design file available, Altera expressly does not recommend, suggest or
+// require that this reference design file be used in combination with any
 // other product not provided by Altera.
 /////////////////////////////////////////////////////////////////////////////
 
-// 
+//
 // Asynchronous reset filter
 // Important properties :
 //
@@ -28,19 +28,17 @@
 //    even if the clock is not operating.
 //
 //  2) The reset pulse will last for at least (PULSE_HOLD - 1)
-//    clock ticks. 
+//    clock ticks.
 //
-//  3) The removal (de-assertion) of the reset will occur 
+//  3) The removal (de-assertion) of the reset will occur
 //    synchronously
 //
 //  4) circuit powers up in the reset asserted state
 //
-//  5) circuit can only leave the reset state if clock is 
+//  5) circuit can only leave the reset state if clock is
 //    operating, and enable = 1
 
-module reset_filter #(
-	parameter PULSE_HOLD = 2
-	)(
+module reset_filter #(parameter PULSE_HOLD = 2) (
 	input enable,
 	input rstn_raw,
 	input clock,
@@ -56,17 +54,17 @@ module reset_filter #(
 // clr is already selected, might as well USE it.
 //
 
-logic [0:PULSE_HOLD-1] rstn_reg /* synthesis preserve */;
+	logic [0:PULSE_HOLD-1] rstn_reg /* synthesis preserve */;
 
-always_ff @(posedge clock or negedge rstn_raw) begin
-  if (!rstn_raw) begin
-    rstn_reg <= {PULSE_HOLD{1'b0}};
-  end
-  else begin
-	rstn_reg <= {enable,rstn_reg[0:PULSE_HOLD-2]};
-  end
-end
+	always_ff @(posedge clock or negedge rstn_raw) begin
+		if (!rstn_raw) begin
+			rstn_reg <= {PULSE_HOLD{1'b0}};
+		end
+		else begin
+			rstn_reg <= {enable,rstn_reg[0:PULSE_HOLD-2]};
+		end
+	end
 
-assign rstn_filtered = rstn_reg[PULSE_HOLD-1];
+	assign rstn_filtered = rstn_reg[PULSE_HOLD-1];
 
 endmodule

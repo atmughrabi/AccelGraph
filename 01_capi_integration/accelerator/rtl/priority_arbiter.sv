@@ -13,10 +13,7 @@
 // reqs[0] has the highest priority, reqs[1] has the second
 // highest priority, etc.
 
-module vc_FixedArbChain
-#(
-  parameter p_num_reqs = 2
-)(
+module vc_FixedArbChain #(parameter p_num_reqs = 2) (
   input  logic                  kin,    // kill in
   input  logic [p_num_reqs-1:0] reqs,   // 1 = making a req, 0 = no req
   output logic [p_num_reqs-1:0] grants, // (one-hot) 1 indicates req won grant
@@ -40,20 +37,20 @@ module vc_FixedArbChain
 
   genvar i;
   generate
-  for ( i = 0; i < p_num_reqs; i = i + 1 )
-  begin : per_req_logic
+    for ( i = 0; i < p_num_reqs; i = i + 1 )
+      begin : per_req_logic
 
-    // Grant is true if this requester is not killed and it is actually
-    // making a req.
+        // Grant is true if this requester is not killed and it is actually
+        // making a req.
 
-    assign grants_int[i] = !kills[i] && reqs[i];
+        assign grants_int[i] = !kills[i] && reqs[i];
 
-    // Kill is true if this requester was either killed or it received
-    // the grant.
+        // Kill is true if this requester was either killed or it received
+        // the grant.
 
-    assign kills[i+1] = kills[i] || grants_int[i];
+        assign kills[i+1] = kills[i] || grants_int[i];
 
-  end
+      end
   endgenerate
 
   // We AND kin into the grant and kout signals afterwards so that we can
@@ -72,10 +69,7 @@ endmodule
 // reqs[0] has the highest priority, reqs[1] has the second highest
 // priority, etc.
 
-module vc_FixedArb
-#(
-  parameter p_num_reqs = 2
-)(
+module vc_FixedArb #(parameter p_num_reqs = 2) (
   input  logic [p_num_reqs-1:0] reqs,  // 1 = making a req, 0 = no req
   output logic [p_num_reqs-1:0] grants // (one-hot) 1 = which req won grant
 );
@@ -83,12 +77,12 @@ module vc_FixedArb
   logic dummy_kout;
 
   vc_FixedArbChain#(p_num_reqs) fixed_arb_chain
-  (
-    .kin    (1'b0),
-    .reqs   (reqs),
-    .grants (grants),
-    .kout   (dummy_kout)
-  );
+    (
+      .kin    (1'b0),
+      .reqs   (reqs),
+      .grants (grants),
+      .kout   (dummy_kout)
+    );
 
 endmodule
 //------------------------------------------------------------------------
@@ -97,10 +91,7 @@ endmodule
 // The input priority signal is a one-hot signal where the one indicates
 // which request should be given highest priority.
 
-module vc_VariableArbChain
-#(
-  parameter p_num_reqs = 2
-)(
+module vc_VariableArbChain #(parameter p_num_reqs = 2) (
   input  logic                  kin,       // kill in
   input  logic [p_num_reqs-1:0] priority_, // (one-hot) 1 is req w/ highest pri
   input  logic [p_num_reqs-1:0] reqs,      // 1 = making a req, 0 = no req
@@ -134,24 +125,24 @@ module vc_VariableArbChain
   localparam p_num_reqs_x2 = (p_num_reqs << 1);
   genvar i;
   generate
-  for ( i = 0; i < 2*p_num_reqs; i = i + 1 )
-  begin : per_req_logic
+    for ( i = 0; i < 2*p_num_reqs; i = i + 1 )
+      begin : per_req_logic
 
-    // If this is the highest priority requester, then we ignore the
-    // input kill signal, otherwise grant is true if this requester is
-    // not killed and it is actually making a req.
+        // If this is the highest priority requester, then we ignore the
+        // input kill signal, otherwise grant is true if this requester is
+        // not killed and it is actually making a req.
 
-    assign grants_int[i]
-      = priority_int[i] ? reqs_int[i] : (!kills[i] && reqs_int[i]);
+        assign grants_int[i]
+          = priority_int[i] ? reqs_int[i] : (!kills[i] && reqs_int[i]);
 
-    // If this is the highest priority requester, then we ignore the
-    // input kill signal, otherwise kill is true if this requester was
-    // either killed or it received the grant.
+        // If this is the highest priority requester, then we ignore the
+        // input kill signal, otherwise kill is true if this requester was
+        // either killed or it received the grant.
 
-    assign kills[i+1]
-      = priority_int[i] ? grants_int[i] : (kills[i] || grants_int[i]);
+        assign kills[i+1]
+          = priority_int[i] ? grants_int[i] : (kills[i] || grants_int[i]);
 
-  end
+      end
   endgenerate
 
   // To calculate final grants we OR the two grants from the replicated
@@ -159,7 +150,7 @@ module vc_VariableArbChain
 
   assign grants
     = (grants_int[p_num_reqs-1:0] | grants_int[2*p_num_reqs-1:p_num_reqs])
-    & {p_num_reqs{~kin}};
+      & {p_num_reqs{~kin}};
 
   assign kout = kills[2*p_num_reqs] || kin;
 
@@ -171,10 +162,7 @@ endmodule
 // The input priority signal is a one-hot signal where the one indicates
 // which request should be given highest priority.
 
-module vc_VariableArb
-#(
-  parameter p_num_reqs = 2
-)(
+module vc_VariableArb #(parameter p_num_reqs = 2) (
   input  logic [p_num_reqs-1:0] priority_,  // (one-hot) 1 is req w/ highest pri
   input  logic [p_num_reqs-1:0] reqs,      // 1 = making a req, 0 = no req
   output logic [p_num_reqs-1:0] grants     // (one-hot) 1 is req won grant
@@ -183,13 +171,13 @@ module vc_VariableArb
   logic dummy_kout;
 
   vc_VariableArbChain#(p_num_reqs) variable_arb_chain
-  (
-    .kin       (1'b0),
-    .priority_ (priority_),
-    .reqs      (reqs),
-    .grants    (grants),
-    .kout      (dummy_kout)
-  );
+    (
+      .kin       (1'b0),
+      .priority_ (priority_),
+      .reqs      (reqs),
+      .grants    (grants),
+      .kout      (dummy_kout)
+    );
 
 endmodule
 
@@ -199,11 +187,10 @@ endmodule
 // Ensures strong fairness among the requesters. The requester which wins
 // the grant will be the lowest priority requester the next cycle.
 
-module vc_RoundRobinArbChain
-#(
+module vc_RoundRobinArbChain #(
   parameter p_num_reqs             = 2,
   parameter p_priority_reset_value = 1  // (one-hot) 1 = high priority req
-)(
+) (
   input  logic                  clk,
   input  logic                  reset,
   input  logic                  kin,    // kill in
@@ -233,13 +220,13 @@ module vc_RoundRobinArbChain
   // Variable arbiter chain
 
   vc_VariableArbChain#(p_num_reqs) variable_arb_chain
-  (
-    .kin       (kin),
-    .priority_ (priority_),
-    .reqs      (reqs),
-    .grants    (grants),
-    .kout      (kout)
-  );
+    (
+      .kin       (kin),
+      .priority_ (priority_),
+      .reqs      (reqs),
+      .grants    (grants),
+      .kout      (kout)
+    );
 
 endmodule
 
@@ -255,8 +242,7 @@ endmodule
 //         for now we just duplicate the code from vc_RoundRobinArbChain
 //
 
-module vc_RoundRobinArb #( parameter p_num_reqs = 2 )
-(
+module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
   input  logic                clk,
   input  logic                reset,
   input  logic [p_num_reqs-1:0] reqs,    // 1 = making a req, 0 = no req
@@ -286,12 +272,12 @@ module vc_RoundRobinArb #( parameter p_num_reqs = 2 )
   logic dummy_kout;
 
   vc_VariableArbChain#(p_num_reqs) variable_arb_chain
-  (
-    .kin       (1'b0),
-    .priority_ (priority_),
-    .reqs      (reqs),
-    .grants    (grants),
-    .kout      (dummy_kout)
-  );
+    (
+      .kin       (1'b0),
+      .priority_ (priority_),
+      .reqs      (reqs),
+      .grants    (grants),
+      .kout      (dummy_kout)
+    );
 
 endmodule

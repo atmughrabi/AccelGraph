@@ -8,18 +8,19 @@ module mmio (
   output MMIOInterfaceOutput mmio_out,
   output logic [0:1] mmio_errors,
   output logic report_errors_ack, // each register has an ack
-  output logic reset_mmio);
+  output logic reset_mmio
+);
 
   AFUDescriptor afu_desc;
   logic odd_parity;
-  
+
   logic enable_errors;
   logic [0:1] detected_errors;
   logic mmio_data_error;
   logic mmio_address_error;
 
- 
-  
+
+
   logic mmio_read_latched;
   logic mmio_read;
   logic mmio_write_latched;
@@ -57,36 +58,36 @@ module mmio (
   MMIOInterfaceInput mmio_in_latched;
 
   // Set our AFU Descriptor values refer to page
-  assign afu_desc.num_ints_per_process  = 16'h0000;
-  assign afu_desc.num_of_processes      = 16'h0001;
-  assign afu_desc.num_of_afu_crs        = 16'h0001;
-  assign afu_desc.req_prog_model        = 16'h8010; // dedicated process
-  assign afu_desc.reserved_1            = 64'h0000_0000_0000_0000;
-  assign afu_desc.reserved_2            = 8'h00;
-  assign afu_desc.afu_cr_len            = 56'h0000_0000_0000_01;
-  assign afu_desc.afu_cr_offset         = 64'h0000_0000_0000_0100;
-  assign afu_desc.reserved_3            = 6'b00_0000;
+  assign afu_desc.num_ints_per_process     = 16'h0000;
+  assign afu_desc.num_of_processes         = 16'h0001;
+  assign afu_desc.num_of_afu_crs           = 16'h0001;
+  assign afu_desc.req_prog_model           = 16'h8010; // dedicated process
+  assign afu_desc.reserved_1               = 64'h0000_0000_0000_0000;
+  assign afu_desc.reserved_2               = 8'h00;
+  assign afu_desc.afu_cr_len               = 56'h0000_0000_0000_01;
+  assign afu_desc.afu_cr_offset            = 64'h0000_0000_0000_0100;
+  assign afu_desc.reserved_3               = 6'b00_0000;
   assign afu_desc.psa_per_process_required = 1'b0;
-  assign afu_desc.psa_required          = 1'b1;
-  assign afu_desc.psa_length            = 56'h0000_0000_0000_00;
-  assign afu_desc.psa_offset            = 64'h0000_0000_0000_0000;
-  assign afu_desc.reserved_4            = 8'h00;
-  assign afu_desc.afu_eb_len            = 56'h0000_0000_0000_00;
-  assign afu_desc.afu_eb_offset         = 64'h0000_0000_0000_0000;
+  assign afu_desc.psa_required             = 1'b1;
+  assign afu_desc.psa_length               = 56'h0000_0000_0000_00;
+  assign afu_desc.psa_offset               = 64'h0000_0000_0000_0000;
+  assign afu_desc.reserved_4               = 8'h00;
+  assign afu_desc.afu_eb_len               = 56'h0000_0000_0000_00;
+  assign afu_desc.afu_eb_offset            = 64'h0000_0000_0000_0000;
 
-  assign odd_parity       = 1'b1; // Odd parity
-  assign enable_errors    = 1'b1; // enable errors
+  assign odd_parity    = 1'b1; // Odd parity
+  assign enable_errors = 1'b1; // enable errors
 
 
   assign reset_mmio = 1;
 
 ////////////////////////////////////////////////////////////////////////////
-//latch the inputs from the PSL 
+//latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
 
-always_ff @(posedge clock) begin
-  mmio_in_latched  <= mmio_in;
-end
+  always_ff @(posedge clock) begin
+    mmio_in_latched  <= mmio_in;
+  end
 
 // MMIO Config Logic
   always_ff @(posedge clock) begin
@@ -117,14 +118,14 @@ end
   end
 
   always_ff @(posedge clock) begin
-      doubleword_latched <= doubleword;
+    doubleword_latched <= doubleword;
   end
 
 // data out to host logic
   always_ff @(posedge clock or negedge rstn) begin
-     if(~rstn) begin
-        data_cfg <= 64'h0000_0000_0000_0000;
-     end else  begin
+    if(~rstn) begin
+      data_cfg <= 64'h0000_0000_0000_0000;
+    end else  begin
       if(cfg_read) begin
         data_cfg  <= read_afu_descriptor(afu_desc, address[0:22]);
       end else begin
@@ -135,31 +136,31 @@ end
 
 // Data acknowledege signal
   always_ff @(posedge clock) begin
-        data_ack  <= cfg_read_latched || cfg_write_latched || mmio_read_latched || mmio_write_latched;
+    data_ack  <= cfg_read_latched || cfg_write_latched || mmio_read_latched || mmio_write_latched;
   end
 
 // Write DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-        reg1         <= 64'h0000_0000_0000_0000;
-        reg2         <= 64'h0000_0000_0000_0000;
+      reg1         <= 64'h0000_0000_0000_0000;
+      reg2         <= 64'h0000_0000_0000_0000;
     end else begin
       if (mmio_write_latched) begin
         case (address_latched)
-          REG_1:begin 
+          REG_1:begin
             reg1 <= data_in_latched;
           end
-          REG_2:begin 
+          REG_2:begin
             reg2 <= data_in_latched;
           end
           default : begin
             reg1         <= 64'h0000_0000_0000_0000;
             reg2         <= 64'h0000_0000_0000_0000;
           end
-        endcase  
-      end else begin 
-          reg1         <= 64'h0000_0000_0000_0000;
-          reg2         <= 64'h0000_0000_0000_0000;
+        endcase
+      end else begin
+        reg1         <= 64'h0000_0000_0000_0000;
+        reg2         <= 64'h0000_0000_0000_0000;
       end
     end
   end
@@ -167,30 +168,30 @@ end
   // Read DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-        data_out         <= 64'h0000_0000_0000_0000;
-        counter1         <= 64'h0000_0000_0000_0000;
-        counter2         <= 64'h0000_0000_0000_0000;
-        report_errors_ack_latched <= 1'b0;
+      data_out         <= 64'h0000_0000_0000_0000;
+      counter1         <= 64'h0000_0000_0000_0000;
+      counter2         <= 64'h0000_0000_0000_0000;
+      report_errors_ack_latched <= 1'b0;
     end else begin
       if(cfg_read_latched) begin
-        if(doubleword_latched) begin 
+        if(doubleword_latched) begin
           data_out        <= data_cfg;
-        end else if (address_latched[23]) begin 
+        end else if (address_latched[23]) begin
           data_out        <= {data_cfg[32:63], data_cfg[32:63]};
         end else begin
           data_out        <= {data_cfg[0:31], data_cfg[0:31]};
         end
       end else if (mmio_read_latched) begin
         case (address_latched)
-          REG_1:begin 
+          REG_1:begin
             counter1  <= counter1 + 1; // example could data input from other module
             data_out <= counter1;
           end
-          REG_2:begin 
+          REG_2:begin
             counter2  <= counter2 + 3; // example
             data_out <= counter2;
           end
-          ERROR_REG:begin 
+          ERROR_REG:begin
             data_out <= report_errors;
             report_errors_ack_latched <= 1'b1;
           end
@@ -198,15 +199,15 @@ end
             data_out <= 64'h0000_0000_0000_0000;
             report_errors_ack_latched <= 1'b0;
           end
-        endcase  
-      end else begin 
+        endcase
+      end else begin
         data_out <= 64'h0000_0000_0000_0000;
         report_errors_ack_latched <= 1'b0;
       end
     end
   end
 
-  always_ff @(posedge clock) begin 
+  always_ff @(posedge clock) begin
     mmio_out.ack          <= data_ack;
     mmio_out.data         <= data_out;
     mmio_out.data_parity  <= data_out_parity;
@@ -227,40 +228,40 @@ end
   // Parity check
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-        address_parity  <= odd_parity;
-        address         <= 24'h00_0000;
+      address_parity  <= odd_parity;
+      address         <= 24'h00_0000;
     end else begin
       if(mmio_in_latched.valid) begin
-          address_parity  <= mmio_in_latched.address_parity;
-          address         <= mmio_in_latched.address;
+        address_parity  <= mmio_in_latched.address_parity;
+        address         <= mmio_in_latched.address;
       end else begin
-          address_parity  <= odd_parity;
-          address         <= 24'h00_0000;
+        address_parity  <= odd_parity;
+        address         <= 24'h00_0000;
       end
     end
   end
 
   always_ff @(posedge clock) begin
-      address_latched <= address;
+    address_latched <= address;
   end
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-        data_in_parity  <= odd_parity;
-        data_in         <= 64'h0000_0000_0000_0000;
+      data_in_parity  <= odd_parity;
+      data_in         <= 64'h0000_0000_0000_0000;
     end else begin
       if(mmio_in_latched.valid && ~mmio_in_latched.read) begin
         data_in_parity  <= mmio_in_latched.data_parity;
         data_in         <= mmio_in_latched.data;
       end else begin
-          data_in_parity  <= odd_parity;
-          data_in         <= 64'h0000_0000_0000_0000;
+        data_in_parity  <= odd_parity;
+        data_in         <= 64'h0000_0000_0000_0000;
       end
     end
   end
 
   always_ff @(posedge clock) begin
-      data_in_latched <= data_in;
+    data_in_latched <= data_in;
   end
 
   parity #(

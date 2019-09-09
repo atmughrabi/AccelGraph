@@ -1,50 +1,50 @@
 package WED_PKG;
-  
-import CAPI_PKG::*;
+
+  import CAPI_PKG::*;
 
 // since Wed control interact with PSL it is considered a simple CU with an ID
-parameter WED_ID = 8'h01;
+  parameter WED_ID = 8'h01;
 
-typedef enum int unsigned {
-  WED_RESET,
-  WED_IDLE,
-  WED_REQ,
-  WED_WAITING_FOR_REQUEST,
-  WED_DONE_REQ
-} wed_state;
+  typedef enum int unsigned {
+    WED_RESET,
+    WED_IDLE,
+    WED_REQ,
+    WED_WAITING_FOR_REQUEST,
+    WED_DONE_REQ
+  } wed_state;
 
-typedef struct packed{
-  logic [0:31] num_edges;                   // 4-Bytes
-  logic [0:31] num_vertices;                // 4-Bytes
-  logic [0:31] max_weight;                  // 4-Bytes
-  logic [0:63] vertex_out_degree;           // 8-Bytes
-  logic [0:63] vertex_in_degree;            // 8-Bytes
-  logic [0:63] vertex_edges_idx;            // 8-Bytes
-  logic [0:63] edges_array_weight;          // 8-Bytes
-  logic [0:63] edges_array_src;             // 8-Bytes
-  logic [0:63] edges_array_dest;            // 8-Bytes
-  logic [0:63] inverse_vertex_out_degree;   // 8-Bytes
-  logic [0:63] inverse_vertex_in_degree;    // 8-Bytes
-  logic [0:63] inverse_vertex_edges_idx;    // 8-Bytes
-  logic [0:63] inverse_edges_array_weight;  // 8-Bytes
-  logic [0:63] inverse_edges_array_src;     // 8-Bytes
-  logic [0:63] inverse_edges_array_dest;    // 8-Bytes
-  logic [0:31] reserved1;                   // 4-Bytes
-  logic [0:63] reserved2;                   // 8-Bytes
-  logic [0:63] reserved3;                   // 8-Bytes
-} WED_request; // 108-bytes used from 128-Bytes WED
+  typedef struct packed{
+    logic [0:31] num_edges;                   // 4-Bytes
+    logic [0:31] num_vertices;                // 4-Bytes
+    logic [0:31] max_weight;                  // 4-Bytes
+    logic [0:63] vertex_out_degree;           // 8-Bytes
+    logic [0:63] vertex_in_degree;            // 8-Bytes
+    logic [0:63] vertex_edges_idx;            // 8-Bytes
+    logic [0:63] edges_array_weight;          // 8-Bytes
+    logic [0:63] edges_array_src;             // 8-Bytes
+    logic [0:63] edges_array_dest;            // 8-Bytes
+    logic [0:63] inverse_vertex_out_degree;   // 8-Bytes
+    logic [0:63] inverse_vertex_in_degree;    // 8-Bytes
+    logic [0:63] inverse_vertex_edges_idx;    // 8-Bytes
+    logic [0:63] inverse_edges_array_weight;  // 8-Bytes
+    logic [0:63] inverse_edges_array_src;     // 8-Bytes
+    logic [0:63] inverse_edges_array_dest;    // 8-Bytes
+    logic [0:31] reserved1;                   // 4-Bytes
+    logic [0:63] reserved2;                   // 8-Bytes
+    logic [0:63] reserved3;                   // 8-Bytes
+  } WED_request;// 108-bytes used from 128-Bytes WED
 
-typedef struct packed{
-  logic valid;
-  logic [0:63] address;
-  WED_request wed;
-} WEDInterface;
+  typedef struct packed{
+    logic valid;
+    logic [0:63] address;
+    WED_request wed;
+  } WEDInterface;
 
 
   function WED_request map_to_WED(logic [0:1023] in);
 
     WED_request wed;
-    
+
     wed.num_edges          = swap_endianness_word(in[0:31]);                   // 4-Bytes
     wed.num_vertices       = swap_endianness_word(in[32:63]);                  // 4-Bytes
     wed.max_weight         = swap_endianness_word(in[64:95]);                  // 4-Bytes

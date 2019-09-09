@@ -2,9 +2,7 @@ import CAPI_PKG::*;
 import WED_PKG::*;
 import AFU_PKG::*;
 
-module cached_afu  #(
-  parameter NUM_EXTERNAL_RESETS = 3
-  )(
+module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   input  logic clock,
   output logic timebase_request,
   output logic parity_enabled,
@@ -17,7 +15,7 @@ module cached_afu  #(
   input ResponseInterface response,
   input MMIOInterfaceInput mmio_in,
   output MMIOInterfaceOutput mmio_out
-  );
+);
 
   // logic jdone;
 
@@ -31,7 +29,7 @@ module cached_afu  #(
   logic [0:63]    report_errors;
   logic report_errors_ack;
   logic reset_afu;
- 
+
 
   CommandBufferLine read_command_out;
   CommandBufferLine write_command_out;
@@ -54,13 +52,13 @@ module cached_afu  #(
   WEDInterface wed; // work element descriptor -> addresses and other into
   CommandBufferLine wed_command_out; // command for populatin WED
 
-  assign external_errors  = {50'b0, job_errors, mmio_errors, data_write_error ,data_read_error, command_response_error};
+  assign external_errors = {50'b0, job_errors, mmio_errors, data_write_error ,data_read_error, command_response_error};
 
 ////////////////////////////////////////////////////////////////////////////
-//ERROR  
+//ERROR
 ////////////////////////////////////////////////////////////////////////////
 
-error_control error_control_instant(
+  error_control error_control_instant(
     .clock          (clock),
     .rstn           (reset_afu),
     .enabled        (job_out.running),
@@ -68,13 +66,13 @@ error_control error_control_instant(
     .report_errors_ack(report_errors_ack),
     .reset_error    (external_rstn[2]),
     .report_errors  (report_errors)
-    );
+  );
 
 ////////////////////////////////////////////////////////////////////////////
-//WED 
+//WED
 ////////////////////////////////////////////////////////////////////////////
 
-wed_control wed_control_instant(
+  wed_control wed_control_instant(
     .clock      (clock),
     .enabled    (job_out.running),
     .rstn       (reset_afu),
@@ -85,15 +83,15 @@ wed_control wed_control_instant(
     .command_buffer_status (command_buffer_status.wed_buffer),
     .command_out(wed_command_out),
     .wed_request_out(wed)
-    );
+  );
 
 ////////////////////////////////////////////////////////////////////////////
-//Command 
+//Command
 ////////////////////////////////////////////////////////////////////////////
- 
+
   assign restart_command_out = 0;
 
- afu_control afu_control_instant(
+  afu_control afu_control_instant(
     .clock        (clock),
     .rstn         (reset_afu),
     .enabled      (job_out.running),
@@ -120,14 +118,14 @@ wed_control wed_control_instant(
     .buffer_out            (buffer_out),
     .command_out  (command_out),
     .command_buffer_status (command_buffer_status)
-    );
+  );
 
 ////////////////////////////////////////////////////////////////////////////
 //Compute Unit
 ////////////////////////////////////////////////////////////////////////////
 
 
-cu_control cu_control_instant(
+  cu_control cu_control_instant(
     .clock        (clock),
     .rstn         (reset_afu),
     .enabled      (job_out.running),
@@ -147,46 +145,46 @@ cu_control cu_control_instant(
 
 
 ////////////////////////////////////////////////////////////////////////////
-//MMIO 
+//MMIO
 ////////////////////////////////////////////////////////////////////////////
 
   mmio mmio_instant(
-      .clock       (clock),
-      .rstn        (reset_afu),
-      .report_errors(report_errors),
-      .mmio_in     (mmio_in),
-      .mmio_out    (mmio_out),
-      .mmio_errors (mmio_errors),
-      .report_errors_ack(report_errors_ack),
-      .reset_mmio  (external_rstn[1])
-      );
+    .clock       (clock),
+    .rstn        (reset_afu),
+    .report_errors(report_errors),
+    .mmio_in     (mmio_in),
+    .mmio_out    (mmio_out),
+    .mmio_errors (mmio_errors),
+    .report_errors_ack(report_errors_ack),
+    .reset_mmio  (external_rstn[1])
+  );
 
 ////////////////////////////////////////////////////////////////////////////
-//JOB 
+//JOB
 ////////////////////////////////////////////////////////////////////////////
 
   job job_instant(
-      .clock           (clock),
-      .rstn            (reset_afu),
-      .job_in          (job_in),
-      .report_errors   (report_errors),
-      .job_errors      (job_errors),
-      .job_out         (job_out),
-      .timebase_request(timebase_request),
-      .parity_enabled  (parity_enabled),
-      .reset_job       (external_rstn[0])
-    );
+    .clock           (clock),
+    .rstn            (reset_afu),
+    .job_in          (job_in),
+    .report_errors   (report_errors),
+    .job_errors      (job_errors),
+    .job_out         (job_out),
+    .timebase_request(timebase_request),
+    .parity_enabled  (parity_enabled),
+    .reset_job       (external_rstn[0])
+  );
 
 ////////////////////////////////////////////////////////////////////////////
-//RESET  
+//RESET
 ////////////////////////////////////////////////////////////////////////////
 
   reset_control #(
     .NUM_EXTERNAL_RESETS(NUM_EXTERNAL_RESETS)
-    )reset_instant(
-      .clock(clock),
-      .external_rstn(external_rstn),
-      .rstn(reset_afu)
+  )reset_instant(
+    .clock(clock),
+    .external_rstn(external_rstn),
+    .rstn(reset_afu)
   );
 
 endmodule

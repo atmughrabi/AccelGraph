@@ -70,14 +70,14 @@ module afu (
     .job_out({ah_jrunning, ah_jdone, ah_jcack, ah_jerror, ah_jyield}),
     .command_in({ha_croom}),
     .command_out({ah_cvalid, ah_ctag, ah_ctagpar, ah_com, ah_compar, ah_cabt,
-                  ah_cea, ah_ceapar, ah_cch, ah_csize}),
+        ah_cea, ah_ceapar, ah_cch, ah_csize}),
     .buffer_in({ha_brvalid, ha_brtag, ha_brtagpar, ha_brad, ha_bwvalid,
-                ha_bwtag, ha_bwtagpar, ha_bwad, ha_bwdata, ha_bwpar}),
+        ha_bwtag, ha_bwtagpar, ha_bwad, ha_bwdata, ha_bwpar}),
     .buffer_out({ah_brlat, ah_brdata, ah_brpar}),
     .response({ha_rvalid, ha_rtag, ha_rtagpar, ha_response, ha_rcredits,
-               ha_rcachestate, ha_rcachepos}),
+        ha_rcachestate, ha_rcachepos}),
     .mmio_in({ha_mmval, ha_mmcfg, ha_mmrnw, ha_mmdw, ha_mmad, ha_mmadpar,
-              ha_mmdata, ha_mmdatapar}),
+        ha_mmdata, ha_mmdatapar}),
     .mmio_out({ah_mmack, ah_mmdata, ah_mmdatapar}));
 
 endmodule
