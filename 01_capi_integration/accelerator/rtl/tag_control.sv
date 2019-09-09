@@ -58,10 +58,12 @@ BufferStatus tag_buffer;
 always_ff @(posedge clock or negedge rstn) begin
 	if(~rstn)
 		current_state <= TAG_BUFFER_RESET;
-	else if (enabled)
-		current_state <= next_state;
-	else
-		current_state <= TAG_BUFFER_RESET;
+	else begin 
+		if (enabled)
+			current_state <= next_state;
+		else
+			current_state <= TAG_BUFFER_RESET;
+	end
 end // always_ff @(posedge clock)
 
 

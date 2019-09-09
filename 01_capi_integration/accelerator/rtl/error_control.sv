@@ -28,12 +28,9 @@ logic error_flag_latched;
 assign error_flag = |external_errors;
 
 always_ff @(posedge clock or negedge rstn) begin
-	if(~rstn)
-		if(error_flag_latched)
-			current_state <= ERROR_REPORT;
-		else
-			current_state <= ERROR_RESET;
-	else
+	if(~rstn) begin
+		current_state <= ERROR_RESET;
+	end else
 		current_state <= next_state;
 end // always_ff @(posedge clock)
 
@@ -41,7 +38,10 @@ always_comb begin
 	next_state = current_state;
 	case (current_state)
 		ERROR_RESET: begin
-			next_state = ERROR_IDLE;
+			if(error_flag_latched)
+				next_state = ERROR_REPORT;
+			else
+				next_state = ERROR_IDLE;
 		end 
 		ERROR_IDLE: begin
 			if(error_flag)

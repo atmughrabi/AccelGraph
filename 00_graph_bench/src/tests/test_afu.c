@@ -204,7 +204,7 @@ main (int argc, char **argv)
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
-    arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
+    arguments.fnameb = "../03_test_graphs/test/graph.wbin";
     arguments.fnameb_format = 1;
     arguments.convert_format = 1;
 
@@ -266,12 +266,12 @@ main (int argc, char **argv)
         cxl_mmio_write64(afu, MMIO_ADDR2, rc1);
 
         cxl_mmio_read64(afu, ERROR_REG, &error);
-        printf("ERROR_REG %X\n", error);
+        printf("ERROR_REG %lX\n", error);
 
         printf("wed done %u \n", wedGraphCSR->done);
   
 
-        if(rc1 > 20)
+        if(wedGraphCSR->done)
             break;
     }
     while(1);

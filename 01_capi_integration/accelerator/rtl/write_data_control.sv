@@ -28,7 +28,7 @@ ReadWriteDataLine write_data_1_in_latched;
 
 ReadWriteDataLine write_data_0_out;
 ReadWriteDataLine write_data_1_out;
-ReadWriteDataLine write_data;
+// ReadWriteDataLine write_data;
 
 logic read_valid;           // ha_brvalid,     // Buffer Read valid
 logic [0:7] read_tag;       // ha_brtag,       // Buffer Read tag
@@ -59,14 +59,16 @@ always_ff @(posedge clock or negedge rstn) begin
   		read_valid <= 0;
   		read_tag  <= 0;
   		read_address	 <= 0;
-  	end else if(buffer_in.read_valid && enabled) begin
-  		read_valid 		 <= buffer_in.read_valid;
-  		read_tag   		 <= buffer_in.read_tag;
-  		read_address	 <= buffer_in.read_address;
   	end else begin
-  		read_valid <= 0;
-  		read_tag  <= 0;
-  		read_address<= 0;
+	  	if(buffer_in.read_valid && enabled) begin
+	  		read_valid 		 <= buffer_in.read_valid;
+	  		read_tag   		 <= buffer_in.read_tag;
+	  		read_address	 <= buffer_in.read_address;
+	  	end else begin
+	  		read_valid <= 0;
+	  		read_tag  <= 0;
+	  		read_address<= 0;
+	  	end
   	end
 end
 
@@ -89,10 +91,12 @@ dw_parity #(
  always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
         tag_parity  <= odd_parity;
-    end else if(enabled && buffer_in.read_valid) begin
-        tag_parity  <= buffer_in.read_tag;
     end else begin
-        tag_parity  <= odd_parity;
+		if(enabled && buffer_in.read_valid) begin
+			tag_parity  <= buffer_in.read_tag;
+		end else begin
+		    tag_parity  <= odd_parity;
+		end
     end
   end
 
@@ -107,7 +111,7 @@ dw_parity #(
 ////////////////////////////////////////////////////////////////////////////
 //Ram Data each hold half cache line
 ////////////////////////////////////////////////////////////////////////////
-
+// uncoment for latency 4 cycles
 // always_ff @(posedge clock or negedge rstn) begin
 // 	if(~rstn) 
 //         write_data<=  ~0;

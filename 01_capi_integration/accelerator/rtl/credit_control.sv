@@ -18,27 +18,37 @@ module credit_control (
 //1 returned credit. Issuing a command and getting a return in the same cycle
 //normally nullfies to no change in credit.
 
+logic [0:7] credits;
+logic init_credits;
+
 
 always_ff @ (posedge clock or negedge rstn) begin
-    if (~rstn)
-      credit_out.credits <= credit_in.command_in.room;
-    else if (credit_in.valid_request && ~credit_in.valid_response)
-      credit_out.credits <= credit_out.credits-8'h01;
+  if (~rstn) begin
+    credits <= 8'h00;
+    init_credits <= 1'b0;
+  end else begin
+    if(~init_credits) begin
+      credits <= credit_in.command_in.room;
+      init_credits <= 1'b1;
+    end else if (credit_in.valid_request && ~credit_in.valid_response)
+      credits <= credits-8'h01;
     else if (credit_in.valid_response) begin
-      if (~credit_in.valid_request )
-        begin
+      if (~credit_in.valid_request ) begin
         if (credit_in.response_credits[0])
-          credit_out.credits <= credit_out.credits-(~credit_in.response_credits[1:8]+8'h01);
+          credits <= credits-(~credit_in.response_credits[1:8]+8'h01);
         else
-          credit_out.credits <= credit_out.credits+credit_in.response_credits[1:8];
+          credits <= credits+credit_in.response_credits[1:8];
       end
       else begin
         if (credit_in.response_credits[0])
-          credit_out.credits <= credit_out.credits-(~credit_in.response_credits[1:8]);
+          credits <= credits-(~credit_in.response_credits[1:8]);
         else
-          credit_out.credits <= credit_out.credits+credit_in.response_credits[1:8]-8'h01;
+          credits <= credits+credit_in.response_credits[1:8]-8'h01;
       end
     end
   end
+end
+
+assign credit_out.credits = credits;
 
 endmodule

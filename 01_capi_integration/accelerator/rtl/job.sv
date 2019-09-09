@@ -91,8 +91,9 @@ end
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       job_out.running <= 1'b0;
-    end else if(start_job || job_out.running) begin
-      job_out.running <= 1'b1;
+    end else begin
+      if(start_job || job_out.running) 
+        job_out.running <= 1'b1;
     end
   end
 

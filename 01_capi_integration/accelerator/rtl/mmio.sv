@@ -124,11 +124,13 @@ end
   always_ff @(posedge clock or negedge rstn) begin
      if(~rstn) begin
         data_cfg <= 64'h0000_0000_0000_0000;
-     end else if(cfg_read) begin
+     end else  begin
+      if(cfg_read) begin
         data_cfg  <= read_afu_descriptor(afu_desc, address[0:22]);
       end else begin
         data_cfg <= 64'h0000_0000_0000_0000;
       end
+    end
   end
 
 // Data acknowledege signal
@@ -141,22 +143,24 @@ end
     if(~rstn) begin
         reg1         <= 64'h0000_0000_0000_0000;
         reg2         <= 64'h0000_0000_0000_0000;
-    end else if (mmio_write_latched) begin
-      case (address_latched)
-        REG_1:begin 
-          reg1 <= data_in_latched;
-        end
-        REG_2:begin 
-          reg2 <= data_in_latched;
-        end
-        default : begin
+    end else begin
+      if (mmio_write_latched) begin
+        case (address_latched)
+          REG_1:begin 
+            reg1 <= data_in_latched;
+          end
+          REG_2:begin 
+            reg2 <= data_in_latched;
+          end
+          default : begin
+            reg1         <= 64'h0000_0000_0000_0000;
+            reg2         <= 64'h0000_0000_0000_0000;
+          end
+        endcase  
+      end else begin 
           reg1         <= 64'h0000_0000_0000_0000;
           reg2         <= 64'h0000_0000_0000_0000;
-        end
-      endcase  
-    end else begin 
-        reg1         <= 64'h0000_0000_0000_0000;
-        reg2         <= 64'h0000_0000_0000_0000;
+      end
     end
   end
 
@@ -167,36 +171,38 @@ end
         counter1         <= 64'h0000_0000_0000_0000;
         counter2         <= 64'h0000_0000_0000_0000;
         report_errors_ack_latched <= 1'b0;
-    end else if(cfg_read_latched) begin
-      if(doubleword_latched) begin 
-        data_out        <= data_cfg;
-      end else if (address_latched[23]) begin 
-        data_out        <= {data_cfg[32:63], data_cfg[32:63]};
-      end else begin
-        data_out        <= {data_cfg[0:31], data_cfg[0:31]};
+    end else begin
+      if(cfg_read_latched) begin
+        if(doubleword_latched) begin 
+          data_out        <= data_cfg;
+        end else if (address_latched[23]) begin 
+          data_out        <= {data_cfg[32:63], data_cfg[32:63]};
+        end else begin
+          data_out        <= {data_cfg[0:31], data_cfg[0:31]};
+        end
+      end else if (mmio_read_latched) begin
+        case (address_latched)
+          REG_1:begin 
+            counter1  <= counter1 + 1; // example could data input from other module
+            data_out <= counter1;
+          end
+          REG_2:begin 
+            counter2  <= counter2 + 3; // example
+            data_out <= counter2;
+          end
+          ERROR_REG:begin 
+            data_out <= report_errors;
+            report_errors_ack_latched <= 1'b1;
+          end
+          default : begin
+            data_out <= 64'h0000_0000_0000_0000;
+            report_errors_ack_latched <= 1'b0;
+          end
+        endcase  
+      end else begin 
+        data_out <= 64'h0000_0000_0000_0000;
+        report_errors_ack_latched <= 1'b0;
       end
-    end else if (mmio_read_latched) begin
-      case (address_latched)
-        REG_1:begin 
-          counter1  <= counter1 + 1; // example could data input from other module
-          data_out <= counter1;
-        end
-        REG_2:begin 
-          counter2  <= counter2 + 3; // example
-          data_out <= counter2;
-        end
-        ERROR_REG:begin 
-          data_out <= report_errors;
-          report_errors_ack_latched <= 1'b1;
-        end
-        default : begin
-          data_out <= 64'h0000_0000_0000_0000;
-          report_errors_ack_latched <= 1'b0;
-        end
-      endcase  
-    end else begin 
-      data_out <= 64'h0000_0000_0000_0000;
-      report_errors_ack_latched <= 1'b0;
     end
   end
 
@@ -223,12 +229,14 @@ end
     if(~rstn) begin
         address_parity  <= odd_parity;
         address         <= 24'h00_0000;
-    end else if(mmio_in_latched.valid) begin
-        address_parity  <= mmio_in_latched.address_parity;
-        address         <= mmio_in_latched.address;
     end else begin
-        address_parity  <= odd_parity;
-        address         <= 24'h00_0000;
+      if(mmio_in_latched.valid) begin
+          address_parity  <= mmio_in_latched.address_parity;
+          address         <= mmio_in_latched.address;
+      end else begin
+          address_parity  <= odd_parity;
+          address         <= 24'h00_0000;
+      end
     end
   end
 
@@ -240,12 +248,14 @@ end
     if(~rstn) begin
         data_in_parity  <= odd_parity;
         data_in         <= 64'h0000_0000_0000_0000;
-    end else if(mmio_in_latched.valid && ~mmio_in_latched.read) begin
+    end else begin
+      if(mmio_in_latched.valid && ~mmio_in_latched.read) begin
         data_in_parity  <= mmio_in_latched.data_parity;
         data_in         <= mmio_in_latched.data;
-    end else begin
-        data_in_parity  <= odd_parity;
-        data_in         <= 64'h0000_0000_0000_0000;
+      end else begin
+          data_in_parity  <= odd_parity;
+          data_in         <= 64'h0000_0000_0000_0000;
+      end
     end
   end
 

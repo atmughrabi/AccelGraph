@@ -46,9 +46,6 @@ module command_control (
         command_out.address  <= 64'h0000_0000_0000_0000;
         command_out.tag      <= INVALID_TAG;
         command_out.size     <= 12'h000;
-        command_out.command_parity  <= command_parity;
-        command_out.address_parity  <= address_parity;
-        command_out.tag_parity      <= tag_parity; 
     end 
     else begin
         command_out.valid    <= command_arbiter_in.command_buffer_out.valid;
@@ -56,10 +53,7 @@ module command_control (
         command_out.address  <= command_arbiter_in.command_buffer_out.address;
         command_out.tag      <= command_tag_in;
         command_out.size     <= command_arbiter_in.command_buffer_out.size;
-        command_out.command_parity  <= command_parity;
-        command_out.address_parity  <= address_parity;
-        command_out.tag_parity      <= tag_parity;
-      end
+    end
   end // always_ff @(posedge clock)
 
 
@@ -71,25 +65,25 @@ module command_control (
   parity #(
     .BITS(8)
   ) tag_parity_instant (
-    .data(command_tag_in),
+    .data(command_out.tag),
     .odd(odd_parity),
-    .par(tag_parity)
+    .par(command_out.tag_parity)
   );
 
   parity #(
     .BITS(13)
   ) command_parity_instant (
-    .data(command_arbiter_in.command_buffer_out.command),
+    .data(command_out.command),
     .odd(odd_parity),
-    .par(command_parity)
+    .par(command_out.command_parity )
   );
 
   parity #(
     .BITS(64)
   ) address_parity_instant (
-    .data(command_arbiter_in.command_buffer_out.address),
+    .data(command_out.address),
     .odd(odd_parity),
-    .par(address_parity)
+    .par(command_out.address_parity )
   );
 
 

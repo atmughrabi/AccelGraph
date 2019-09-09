@@ -38,13 +38,17 @@ always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
         buffer_in_latched <= 0;
         data_write_parity_latched <= 0;
-    end else if(enabled) begin
+        write_valid_latched <= 0;
+    end else begin
+      if(enabled) begin
         buffer_in_latched  <= buffer_in;
         data_write_parity_latched <= buffer_in_latched.write_parity;
         write_valid_latched       <= buffer_in_latched.write_valid;
-    end else begin
+      end else begin
         buffer_in_latched  <= 0;
         data_write_parity_latched <= 0;
+        write_valid_latched <= 0;
+      end
     end
 end
 

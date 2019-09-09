@@ -12,7 +12,6 @@ module afu_control (
 	input CommandBufferLine write_command_in,
 	input CommandBufferLine wed_command_in,
 	input CommandBufferLine restart_command_in,
-	input ReadWriteDataLine write_data_in,
 
 	input CommandInterfaceInput command_in,
   	input ResponseInterface response,

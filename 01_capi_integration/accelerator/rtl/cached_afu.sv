@@ -37,8 +37,6 @@ module cached_afu  #(
   CommandBufferLine write_command_out;
   CommandBufferLine restart_command_out;
 
-  ReadWriteDataLine write_data_out;
-
   ReadWriteDataLine wed_data_0_out;
   ReadWriteDataLine wed_data_1_out;
   ReadWriteDataLine read_data_0_out;
@@ -103,7 +101,6 @@ wed_control wed_control_instant(
     .write_command_in   (write_command_out),
     .wed_command_in     (wed_command_out),
     .restart_command_in (restart_command_out),
-    .write_data_in         (write_data_out),
     .command_in   (command_in),
     .response     (response),
     .buffer_in             (buffer_in),
