@@ -81,13 +81,10 @@ module wed_control (
       WED_REQ: begin
         command_out.valid     <= 1'b1;
         command_out.size      <= 12'h080;
-        // command_out.size      <= 12'h004;
         command_out.command   <= READ_CL_NA;
-        command_out.address   <= wed_address+4;
+        command_out.address   <= wed_address;
         command_out.cu_id     <= WED_ID;
         command_out.cmd_type  <= CMD_WED;
-
-
         wed_request_out.address <= wed_address;
       end // WED_REQ
       WED_WAITING_FOR_REQUEST: begin
