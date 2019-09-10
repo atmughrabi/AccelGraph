@@ -6,21 +6,10 @@ package CAPI_PKG;
   parameter ERROR_REG= 26'h 3FFFFE8 >> 2;
 
   // this is for reset state each CU has an ID issues with the command.
-  parameter INVALID_ID = 8'h00;
-
+  parameter INVALID_ID      = 8'h00;
   // request Tag ranges
-  parameter INVALID_TAG      = 8'h00;
-  parameter WED_TAG          = 8'h01;
-  parameter RESTART_TAG      = 8'h02;
-  parameter WRITE_TAG_BASE   = 8'h03; // 30% write
-  parameter READ_TAG_BASE    = 8'h50; // 70% reads
-  parameter TAG_UPPER        = 8'hFF; // 70% reads
-
-  // typedef enum logic [0:23] {
-  //   REG_1=26'h3FF_FFF8 >> 2,
-  //   REG_2=26'h3FF_FFF0 >> 2,
-  //   CLEAR=24'h00_0000
-  // } mmio_reg_addr_t;
+  parameter INVALID_TAG     = 8'h00;
+  // parameter WED_ID = 8'h01; defined in wed package
 
   typedef enum logic [0:7] {
     RESET=8'h80,
