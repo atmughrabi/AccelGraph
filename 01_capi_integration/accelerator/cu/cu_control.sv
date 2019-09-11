@@ -22,23 +22,59 @@ module cu_control (
 );
 
 
+	logic send_test;
 
+	//output latched
 	CommandBufferLine write_command_out_latched;
 	ReadWriteDataLine write_data_0_out_latched;
 	ReadWriteDataLine write_data_1_out_latched;
-	logic send_test;
+	CommandBufferLine read_command_out_latched;
 
-	assign read_command_out = 0;
 
+	//input lateched
+	WEDInterface wed_request_in_latched;
+	ResponseBufferLine read_response_in_latched;
+	ResponseBufferLine write_response_in_latched;
+	ReadWriteDataLine read_data_0_in_latched;
+	ReadWriteDataLine read_data_1_in_latched;
+	BufferStatus 	  read_buffer_status_latched;
+	BufferStatus write_buffer_status_latched;
+
+	assign read_command_out_latched = 0;
+
+	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			write_command_out <= 0;
 			write_data_0_out  <= 0;
 			write_data_1_out  <= 0;
+			read_command_out  <= 0;
 		end else begin
 			write_command_out <= write_command_out_latched;
 			write_data_0_out  <= write_data_0_out_latched;
 			write_data_1_out  <= write_data_1_out_latched;
+			read_command_out  <= read_command_out_latched;
+		end
+	end
+
+	// drive inputs
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			wed_request_in_latched		<= 0;
+			read_response_in_latched	<= 0;
+			write_response_in_latched	<= 0;
+			read_data_0_in_latched		<= 0;
+			read_data_1_in_latched		<= 0;
+			read_buffer_status_latched	<= 0;
+			write_buffer_status_latched	<= 0;
+		end else begin
+			wed_request_in_latched 		<= wed_request_in;
+			read_response_in_latched	<= read_response_in;
+			write_response_in_latched	<= write_response_in;
+			read_data_0_in_latched		<= read_data_0_in;
+			read_data_1_in_latched		<= read_data_1_in;
+			read_buffer_status_latched	<= read_buffer_status;
+			write_buffer_status_latched	<= write_buffer_status;
 		end
 	end
 
@@ -55,7 +91,7 @@ module cu_control (
 			write_data_0_out_latched <= 0;
 			send_test <= 1'b0;
 		end else begin
-			if (wed_request_in.valid && ~send_test) begin
+			if (wed_request_in_latched.valid && ~send_test) begin
 				write_command_out_latched.valid    <= 1'b1;
 				write_command_out_latched.size     <= 12'h001;
 				write_command_out_latched.command  <= WRITE_MS;

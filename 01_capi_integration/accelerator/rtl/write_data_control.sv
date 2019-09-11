@@ -93,7 +93,7 @@ module write_data_control (
       tag_parity  <= odd_parity;
     end else begin
       if(enabled && buffer_in.read_valid) begin
-        tag_parity  <= buffer_in.read_tag;
+        tag_parity  <= buffer_in.read_tag_parity;
       end else begin
         tag_parity  <= odd_parity;
       end
