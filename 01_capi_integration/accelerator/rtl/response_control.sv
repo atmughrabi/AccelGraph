@@ -1,5 +1,6 @@
 import CAPI_PKG::*;
 import AFU_PKG::*;
+import CU_PKG::*;
 
 module response_control (
   input logic clock,    // Clock
@@ -83,10 +84,11 @@ module response_control (
             response_control_out.restart_response   <= 1'b0;
           end
         endcase
-        response_control_out.response.valid     <= response_in.valid;
-        response_control_out.response.cu_id     <= response_tag_id_in.cu_id;
-        response_control_out.response.cmd_type  <= response_tag_id_in.cmd_type;
-        response_control_out.response.response  <= response_in.response;
+        response_control_out.response.valid                  <= response_in.valid;
+        response_control_out.response.cmd.cu_id              <= response_tag_id_in.cu_id;
+        response_control_out.response.cmd.cmd_type               <= response_tag_id_in.cmd_type;
+        response_control_out.response.cmd.vertex_struct      <= response_tag_id_in.vertex_struct;
+        response_control_out.response.response      <= response_in.response;
       end else begin
         response_control_out  <= 0;
       end

@@ -2,6 +2,8 @@
 import CAPI_PKG::*;
 import CREDIT_PKG::*;
 import AFU_PKG::*;
+import CU_PKG::*;
+
 
 module afu_control (
 	input logic clock,    // Clock
@@ -197,8 +199,9 @@ module afu_control (
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign command_tag_id.cu_id    = command_arbiter_out.command_buffer_out.cu_id;
-	assign command_tag_id.cmd_type = command_arbiter_out.command_buffer_out.cmd_type;
+	assign command_tag_id.cu_id    		= command_arbiter_out.command_buffer_out.cmd.cu_id;
+	assign command_tag_id.cmd_type 		= command_arbiter_out.command_buffer_out.cmd.cmd_type;
+	assign command_tag_id.vertex_struct = command_arbiter_out.command_buffer_out.cmd.vertex_struct;
 
 	tag_control tag_control_instant(
 		.clock         (clock),

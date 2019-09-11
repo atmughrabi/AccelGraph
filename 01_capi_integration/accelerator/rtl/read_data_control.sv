@@ -42,8 +42,8 @@ module read_data_control (
     end else begin
       if(enabled) begin
         buffer_in_latched  <= buffer_in;
-        data_write_parity_latched <= buffer_in_latched.write_parity;
-        write_valid_latched       <= buffer_in_latched.write_valid;
+        data_write_parity_latched <= buffer_in.write_parity;
+        write_valid_latched       <= buffer_in.write_valid;
       end else begin
         buffer_in_latched  <= 0;
         data_write_parity_latched <= 0;
@@ -60,29 +60,32 @@ module read_data_control (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       read_data_control_out_0 <= 0;
-    end else if(enabled && buffer_in_latched.write_valid && ~(|buffer_in_latched.write_address)) begin
-
-      case (data_read_tag_id_in.cmd_type)
-        CMD_READ: begin
-          read_data_control_out_0.read_data    <= 1'b1;
-          read_data_control_out_0.wed_data     <= 1'b0;
-        end
-        CMD_WED: begin
-          read_data_control_out_0.read_data    <= 1'b0;
-          read_data_control_out_0.wed_data     <= 1'b1;
-        end
-        default : begin
-          read_data_control_out_0.read_data    <= 1'b0;
-          read_data_control_out_0.wed_data     <= 1'b0;
-        end
-      endcase
-
-      read_data_control_out_0.line.cu_id       <= data_read_tag_id_in.cu_id;
-      read_data_control_out_0.line.cmd_type    <= data_read_tag_id_in.cmd_type;
-      read_data_control_out_0.line.data        <= buffer_in_latched.write_data;
-
     end else begin
-      read_data_control_out_0  <= 0;
+      if(enabled && buffer_in_latched.write_valid && ~(|buffer_in_latched.write_address)) begin
+
+        case (data_read_tag_id_in.cmd_type)
+          CMD_READ: begin
+            read_data_control_out_0.read_data    <= 1'b1;
+            read_data_control_out_0.wed_data     <= 1'b0;
+          end
+          CMD_WED: begin
+            read_data_control_out_0.read_data    <= 1'b0;
+            read_data_control_out_0.wed_data     <= 1'b1;
+          end
+          default : begin
+            read_data_control_out_0.read_data    <= 1'b0;
+            read_data_control_out_0.wed_data     <= 1'b0;
+          end
+        endcase
+
+        read_data_control_out_0.line.cmd.cu_id          <= data_read_tag_id_in.cu_id;
+        read_data_control_out_0.line.cmd.cmd_type       <= data_read_tag_id_in.cmd_type;
+        read_data_control_out_0.line.cmd.vertex_struct  <= data_read_tag_id_in.vertex_struct;
+        read_data_control_out_0.line.data               <= buffer_in_latched.write_data;
+
+      end else begin
+        read_data_control_out_0  <= 0;
+      end
     end
   end
 
@@ -94,29 +97,32 @@ module read_data_control (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       read_data_control_out_1 <= 0;
-    end else if(enabled && buffer_in_latched.write_valid && (|buffer_in_latched.write_address)) begin
-
-      case (data_read_tag_id_in.cmd_type)
-        CMD_READ: begin
-          read_data_control_out_1.read_data    <= 1'b1;
-          read_data_control_out_1.wed_data     <= 1'b0;
-        end
-        CMD_WED: begin
-          read_data_control_out_1.read_data    <= 1'b0;
-          read_data_control_out_1.wed_data     <= 1'b1;
-        end
-        default : begin
-          read_data_control_out_1.read_data    <= 1'b0;
-          read_data_control_out_1.wed_data     <= 1'b0;
-        end
-      endcase
-
-      read_data_control_out_1.line.cu_id       <= data_read_tag_id_in.cu_id;
-      read_data_control_out_1.line.cmd_type    <= data_read_tag_id_in.cmd_type;
-      read_data_control_out_1.line.data        <= buffer_in_latched.write_data;
-
     end else begin
-      read_data_control_out_1  <= 0;
+      if(enabled && buffer_in_latched.write_valid && (|buffer_in_latched.write_address)) begin
+
+        case (data_read_tag_id_in.cmd_type)
+          CMD_READ: begin
+            read_data_control_out_1.read_data    <= 1'b1;
+            read_data_control_out_1.wed_data     <= 1'b0;
+          end
+          CMD_WED: begin
+            read_data_control_out_1.read_data    <= 1'b0;
+            read_data_control_out_1.wed_data     <= 1'b1;
+          end
+          default : begin
+            read_data_control_out_1.read_data    <= 1'b0;
+            read_data_control_out_1.wed_data     <= 1'b0;
+          end
+        endcase
+
+        read_data_control_out_1.line.cmd.cu_id          <= data_read_tag_id_in.cu_id;
+        read_data_control_out_1.line.cmd.cmd_type       <= data_read_tag_id_in.cmd_type;
+        read_data_control_out_1.line.cmd.vertex_struct  <= data_read_tag_id_in.vertex_struct;
+        read_data_control_out_1.line.data               <= buffer_in_latched.write_data;
+
+      end else begin
+        read_data_control_out_1  <= 0;
+      end
     end
   end
 
@@ -126,10 +132,12 @@ module read_data_control (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       tag_parity  <= odd_parity;
-    end else if(enabled && buffer_in.write_valid) begin
-      tag_parity  <= buffer_in.write_tag_parity;
     end else begin
-      tag_parity  <= odd_parity;
+      if(enabled && buffer_in.write_valid) begin
+        tag_parity  <= buffer_in.write_tag_parity;
+      end else begin
+        tag_parity  <= odd_parity;
+      end
     end
   end
 
@@ -144,10 +152,12 @@ module read_data_control (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       data_write_parity  <= 8'hff;
-    end else if(enabled && buffer_in.write_valid) begin
-      data_write_parity  <= buffer_in.write_parity;
     end else begin
-      data_write_parity  <= 8'hff;
+      if(enabled && buffer_in.write_valid) begin
+        data_write_parity  <= buffer_in.write_parity;
+      end else begin
+        data_write_parity  <= 8'hff;
+      end
     end
   end
 
@@ -172,7 +182,7 @@ module read_data_control (
       tag_parity_error    <= tag_parity_link ^ tag_parity;
 
       if(write_valid_latched)
-        data_parity_error   <= |(data_write_parity_link ^ data_write_parity_latched);
+        data_parity_error   <= |(data_write_parity_link ^ buffer_in.write_parity);
       else
         data_parity_error   <= 1'b0;
 

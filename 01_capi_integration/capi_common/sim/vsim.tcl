@@ -8,11 +8,12 @@ proc r  {} {
   
   # compile packages
   echo "Compiling Packages"
+  vlog -quiet ../../accelerator/pkg/cu_pkg.sv
   vlog -quiet ../../accelerator/pkg/capi_pkg.sv
   vlog -quiet ../../accelerator/pkg/wed_pkg.sv
   vlog -quiet ../../accelerator/pkg/credit_pkg.sv
   vlog -quiet ../../accelerator/pkg/afu_pkg.sv
-  vlog -quiet ../../accelerator/pkg/cu_pkg.sv
+
 
   # compile rtl
   echo "Compiling RTL General"

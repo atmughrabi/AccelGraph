@@ -41,7 +41,7 @@ package WED_PKG;
   } WEDInterface;
 
 
-  function WED_request map_to_WED(logic [0:1023] in);
+  function WED_request map_GraphCSR_to_WED(logic [0:1023] in);
 
     WED_request wed;
 
@@ -66,6 +66,6 @@ package WED_PKG;
 
     return wed;
 
-  endfunction : map_to_WED
+  endfunction : map_GraphCSR_to_WED
 
 endpackage
