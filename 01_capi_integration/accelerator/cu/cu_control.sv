@@ -21,7 +21,10 @@ module cu_control (
 	output ReadWriteDataLine write_data_1_out
 );
 
-
+	// vertex control variables
+	BufferStatus vertex_buffer_status_latched;
+	VertexInterface vertex_latched;
+	logic vertex_request_latched;
 	logic send_test;
 
 	//output latched
@@ -98,7 +101,7 @@ module cu_control (
 				write_command_out_latched.valid    <= 1'b1;
 				write_command_out_latched.size     <= 12'h001;
 				write_command_out_latched.command  <= WRITE_MS;
-				write_command_out_latched.address  <= (wed_request_in.address + 108);
+				write_command_out_latched.address  <= (wed_request_in_latched.address + 108);
 				
 				write_command_out_latched.cmd.cu_id    <= 8'h02;
 				write_command_out_latched.cmd.cmd_type <= CMD_WRITE;
@@ -132,5 +135,22 @@ module cu_control (
 		end
 	end
 
+////////////////////////////////////////////////////////////////////////////
+//vertex job buffer/control
+////////////////////////////////////////////////////////////////////////////
+
+cu_vertex_control cu_vertex_control_instant(
+	.clock               (clock),
+	.rstn                (rstn),
+	.enabled             (enabled),
+	.wed_request_in      (wed_request_in_latched),
+	.read_response_in    (read_response_in_latched),
+	.read_data_0_in      (read_data_0_in_latched),
+	.read_data_1_in      (read_data_1_in_latched),
+	.read_buffer_status  (read_buffer_status_latched),
+	.vertex_request      (vertex_request_latched),
+	.read_command_out    (read_command_out_latched),
+	.vertex_buffer_status(vertex_buffer_status_latched),
+	.vertex              (vertex_latched));
 
 endmodule

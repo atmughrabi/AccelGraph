@@ -17,7 +17,7 @@ module cu_vertex_control (
 	output BufferStatus vertex_buffer_status,
 	output VertexInterface vertex
 );
-	
+
 	//output latched
 	BufferStatus vertex_buffer_status_latched;
 	VertexInterface vertex_latched;
@@ -31,9 +31,26 @@ module cu_vertex_control (
 	BufferStatus 	  read_buffer_status_latched;
 	logic vertex_request_latched;
 
+	// internal registers to track logic
+	logic [0:8] response_counter;
+	logic [0:32] vertex_num_counter;
+	logic [0:32] vertex_id_counter;
+	VertexInterface vertex_variable;
+
+	logic fill_vertex_buffer;
+	logic in_degree_ready;
+	logic out_degree_ready;
+	logic edge_idx_ready;
+	logic inverse_in_degree_ready;
+	logic inverse_out_degree_ready;
+	logic inverse_edge_idx_ready;
+
+
 	assign read_command_out_latched = 0;
 
-// drive outputs
+////////////////////////////////////////////////////////////////////////////
+//drive outputs
+////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			vertex_buffer_status <= 0;
@@ -46,7 +63,9 @@ module cu_vertex_control (
 		end
 	end
 
-// drive inputs
+////////////////////////////////////////////////////////////////////////////
+//drive inputs
+////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			wed_request_in_latched		<= 0;
@@ -64,6 +83,33 @@ module cu_vertex_control (
 			vertex_request_latched		<= vertex_request;
 		end
 	end
+
+////////////////////////////////////////////////////////////////////////////
+//vertex job buffer filling logic
+////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////
+//Buffers Vertcies
+////////////////////////////////////////////////////////////////////////////
+
+	fifo  #(
+		.WIDTH($bits(VertexInterface)),
+		.DEPTH((2 << CACHELINE_VERTEX_NUM))
+	)read_response_buffer_fifo_instant(
+		.clock(clock),
+		.rstn(rstn),
+
+		.push(fill_vertex_buffer),
+		.data_in(vertex_variable),
+		.full(vertex_buffer_status_latched.full),
+		.alFull(vertex_buffer_status_latched.alfull),
+
+		.pop(vertex_request_latched),
+		.valid(vertex_buffer_status_latched.valid),
+		.data_out(vertex_latched),
+		.empty(vertex_buffer_status_latched.empty)
+	);
+
 
 
 endmodule
