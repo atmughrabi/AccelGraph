@@ -271,7 +271,7 @@ main (int argc, char **argv)
         printf("wed done %u \n", wedGraphCSR->done);
   
 
-        if(wedGraphCSR->done)
+        if(rc1 > 20)
             break;
     }
     while(1);

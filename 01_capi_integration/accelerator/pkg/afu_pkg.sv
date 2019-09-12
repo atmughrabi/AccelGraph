@@ -56,7 +56,6 @@ package AFU_PKG;
   } CommandBufferArbiterInterfaceIn;
 
   typedef struct packed {
-    logic valid;
     logic wed_ready;
     logic write_ready;
     logic read_ready;

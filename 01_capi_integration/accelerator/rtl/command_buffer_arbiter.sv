@@ -21,10 +21,14 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
 //requests
 ////////////////////////////////////////////////////////////////////////////
 
-  logic [0:NUM_REQUESTS-1] requests;
-  logic [0:NUM_REQUESTS-1] grant;
+  logic [NUM_REQUESTS-1:0] requests;
+  logic [NUM_REQUESTS-1:0] grant;
 
-  assign requests = command_arbiter_in;
+  assign requests[0] = command_arbiter_in.restart_request;
+  assign requests[1] = command_arbiter_in.wed_request;
+  assign requests[2] = command_arbiter_in.write_request;
+  assign requests[3] = command_arbiter_in.read_request;
+
 
 //------------------------------------------------------------------------
 // vc_FixedArb
@@ -54,7 +58,7 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
     end
     else begin
       if (enabled) begin
-        if (grant ==   4'b1000) begin
+        if (grant[1]) begin
           command_arbiter_out.command_buffer_out.valid   <= wed_command_buffer_in.valid;
           command_arbiter_out.command_buffer_out.cmd.cu_id     <= wed_command_buffer_in.cmd.cu_id;
           command_arbiter_out.command_buffer_out.cmd.cmd_type  <= wed_command_buffer_in.cmd.cmd_type;
@@ -63,7 +67,7 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
           command_arbiter_out.command_buffer_out.address <= wed_command_buffer_in.address ;
           command_arbiter_out.command_buffer_out.size    <= wed_command_buffer_in.size;
         end
-        else if (grant == 4'b0100) begin
+        else if (grant[2]) begin
           command_arbiter_out.command_buffer_out.valid   <= write_command_buffer_in.valid;
           command_arbiter_out.command_buffer_out.cmd.cu_id     <= write_command_buffer_in.cmd.cu_id;
           command_arbiter_out.command_buffer_out.cmd.cmd_type  <= write_command_buffer_in.cmd.cmd_type;
@@ -72,7 +76,7 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
           command_arbiter_out.command_buffer_out.address <= write_command_buffer_in.address ;
           command_arbiter_out.command_buffer_out.size    <= write_command_buffer_in.size;
         end
-        else if (grant == 4'b0010) begin
+        else if (grant[3]) begin
           command_arbiter_out.command_buffer_out.valid   <= read_command_buffer_in.valid;
           command_arbiter_out.command_buffer_out.cmd.cu_id     <= read_command_buffer_in.cmd.cu_id;
           command_arbiter_out.command_buffer_out.cmd.cmd_type  <= read_command_buffer_in.cmd.cmd_type;
@@ -81,7 +85,7 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
           command_arbiter_out.command_buffer_out.address <= read_command_buffer_in.address ;
           command_arbiter_out.command_buffer_out.size    <= read_command_buffer_in.size;
         end
-        else if (grant == 4'b0001) begin
+        else if (grant[0]) begin
           command_arbiter_out.command_buffer_out.valid   <= restart_command_buffer_in.valid;
           command_arbiter_out.command_buffer_out.cmd.cu_id     <= restart_command_buffer_in.cmd.cu_id;
           command_arbiter_out.command_buffer_out.cmd.cmd_type  <= restart_command_buffer_in.cmd.cmd_type;
@@ -112,10 +116,9 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
     end
   end
 
-  assign command_arbiter_out.wed_ready     = grant[0] & enabled;
-  assign command_arbiter_out.write_ready   = grant[1] & enabled;
-  assign command_arbiter_out.read_ready    = grant[2] & enabled;
-  assign command_arbiter_out.restart_ready = grant[3] & enabled;
-  assign command_arbiter_out.valid         = (command_arbiter_out.command_buffer_out.valid) & enabled;
+  assign command_arbiter_out.wed_ready     = grant[1] & enabled;
+  assign command_arbiter_out.write_ready   = grant[2] & enabled;
+  assign command_arbiter_out.read_ready    = grant[3] & enabled;
+  assign command_arbiter_out.restart_ready = grant[0] & enabled;
 
 endmodule

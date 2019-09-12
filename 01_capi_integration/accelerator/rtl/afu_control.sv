@@ -103,9 +103,9 @@ module afu_control (
 ////////////////////////////////////////////////////////////////////////////
 
 	assign command_arbiter_in.wed_request     = ~command_buffer_status.wed_buffer.empty 	 && |credits.credits && tag_buffer_ready;
-	assign command_arbiter_in.read_request    = ~command_buffer_status.read_buffer.empty   && |credits.credits && tag_buffer_ready;
-	assign command_arbiter_in.write_request   = ~command_buffer_status.write_buffer.empty  && |credits.credits && tag_buffer_ready;
-	assign command_arbiter_in.restart_request = ~command_buffer_status.restart_buffer.empty&&	|credits.credits && tag_buffer_ready;
+	assign command_arbiter_in.read_request    = ~command_buffer_status.read_buffer.empty   	 && |credits.credits && tag_buffer_ready;
+	assign command_arbiter_in.write_request   = ~command_buffer_status.write_buffer.empty  	 && |credits.credits && tag_buffer_ready;
+	assign command_arbiter_in.restart_request = ~command_buffer_status.restart_buffer.empty  &&	|credits.credits && tag_buffer_ready;
 	assign valid_request                      = |command_arbiter_in;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -199,8 +199,8 @@ module afu_control (
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign command_tag_id.cu_id    		= command_arbiter_out.command_buffer_out.cmd.cu_id;
-	assign command_tag_id.cmd_type 		= command_arbiter_out.command_buffer_out.cmd.cmd_type;
+	assign command_tag_id.cu_id         = command_arbiter_out.command_buffer_out.cmd.cu_id;
+	assign command_tag_id.cmd_type      = command_arbiter_out.command_buffer_out.cmd.cmd_type;
 	assign command_tag_id.vertex_struct = command_arbiter_out.command_buffer_out.cmd.vertex_struct;
 
 	tag_control tag_control_instant(

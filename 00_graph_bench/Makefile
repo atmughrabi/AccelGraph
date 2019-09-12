@@ -814,7 +814,7 @@ cachegrind-perf-openmp: graph-openmp
 	valgrind --tool=cachegrind ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
 .PHONY: cache-perf
 cache-perf-openmp: graph-openmp
-	sudo perf stat -d ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
+	sudo perf record -d ./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp -f $(FILE_BIN) $(ARGS)
 
 ##################################################
 ##################################################

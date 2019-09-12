@@ -23,6 +23,19 @@ package CU_PKG;
 		INV_EDGES_IDX
 	} vertex_struct;
 
+	typedef enum int unsigned {
+		SEND_VERTEX_RESET,
+		SEND_VERTEX_INIT,
+		SEND_VERTEX_IDLE,
+		CALC_VERTEX_REQ_SIZE,
+		SEND_VERTEX_IN_DEGREE,
+		SEND_VERTEX_OUT_DEGREE,
+		SEND_VERTEX_EDGES_IDX,
+		SEND_VERTEX_INV_IN_DEGREE,
+		SEND_VERTEX_INV_OUT_DEGREE,
+		SEND_VERTEX_INV_EDGES_IDX
+	} vertex_struct_state;
+
 // Vertex data to travers neighbors
 	typedef struct packed {
 		logic valid;
