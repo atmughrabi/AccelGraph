@@ -5,7 +5,7 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 
-module afu_control (
+module afu_control  #(parameter NUM_REQUESTS = 4)(
 	input logic clock,    // Clock
 	input logic rstn,
 	input logic enabled,
@@ -55,14 +55,11 @@ module afu_control (
 	ReadWriteDataLine write_data_0;
 	ReadWriteDataLine write_data_1;
 
-	CommandBufferArbiterInterfaceIn command_arbiter_in;
-
 	CommandBufferLine read_command_buffer_out;
 	CommandBufferLine write_command_buffer_out;
 	CommandBufferLine wed_command_buffer_out;
 	CommandBufferLine restart_command_buffer_out;
 
-	CommandBufferArbiterInterfaceOut command_arbiter_out;
 
 	ResponseControlInterfaceOut response_control_out;
 	logic wed_response_buffer_pop;
@@ -80,7 +77,7 @@ module afu_control (
 	//As long as there are commands in the FIFO set it request for bus access / if there are credits
 
 	CreditInterfaceOutput credits;
-	logic valid_request;
+	
 
 	logic [0:7] command_tag;
 	logic tag_buffer_ready;
@@ -88,6 +85,12 @@ module afu_control (
 	CommandTagLine read_tag_id;
 	CommandTagLine command_tag_id;
 
+	CommandBufferLine command_arbiter_out;
+	logic [NUM_REQUESTS-1:0] requests;
+	logic [NUM_REQUESTS-1:0] ready;
+	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in;
+	logic valid_request;
+	
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
@@ -102,26 +105,32 @@ module afu_control (
 //command request logic
 ////////////////////////////////////////////////////////////////////////////
 
-	assign command_arbiter_in.wed_request     = ~command_buffer_status.wed_buffer.empty 	 && |credits.credits && tag_buffer_ready;
-	assign command_arbiter_in.read_request    = ~command_buffer_status.read_buffer.empty   	 && |credits.credits && tag_buffer_ready;
-	assign command_arbiter_in.write_request   = ~command_buffer_status.write_buffer.empty  	 && |credits.credits && tag_buffer_ready;
-	assign command_arbiter_in.restart_request = ~command_buffer_status.restart_buffer.empty  &&	|credits.credits && tag_buffer_ready;
-	assign valid_request                      = |command_arbiter_in;
+	assign requests[0]   = ~command_buffer_status.restart_buffer.empty 	 &&	|credits.credits && tag_buffer_ready;
+	assign requests[1]   = ~command_buffer_status.wed_buffer.empty 		 && |credits.credits && tag_buffer_ready;
+	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && |credits.credits && tag_buffer_ready;
+	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && |credits.credits && tag_buffer_ready;
+	assign valid_request = |requests;
+
+	assign command_buffer_in[0] = restart_command_buffer_out;
+	assign command_buffer_in[1] = wed_command_buffer_out;
+	assign command_buffer_in[2] = write_command_buffer_out;
+	assign command_buffer_in[3] = read_command_buffer_out;
+
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffer arbitration logic
 ////////////////////////////////////////////////////////////////////////////
 
-	command_buffer_arbiter command_buffer_arbiter_instant(
+	command_buffer_arbiter#(
+		.NUM_REQUESTS(NUM_REQUESTS)
+	)command_buffer_arbiter_instant(
 		.clock      (clock),
 		.rstn       (rstn),
 		.enabled    (enabled),
-		.command_arbiter_in         (command_arbiter_in),
-		.read_command_buffer_in     (read_command_buffer_out),
-		.write_command_buffer_in    (write_command_buffer_out),
-		.wed_command_buffer_in      (wed_command_buffer_out),
-		.restart_command_buffer_in  (restart_command_buffer_out),
-		.command_arbiter_out 		(command_arbiter_out));
+		.requests 	(requests),
+		.command_buffer_in 			(command_buffer_in),
+		.command_arbiter_out 		(command_arbiter_out),
+		.ready              		(ready));
 
 ////////////////////////////////////////////////////////////////////////////
 //command interface control logic
@@ -132,6 +141,7 @@ module afu_control (
 		.rstn         (rstn),
 		.enabled      (enabled),
 		.command_arbiter_in     (command_arbiter_out),
+		.ready             		(ready),
 		.command_tag_in			(command_tag),
 		.command_out            (command_out)
 	);
@@ -185,7 +195,7 @@ module afu_control (
 		.rstn                 (rstn),
 		.enabled              (enabled),
 		.buffer_in            (buffer_in_latched),
-		.command_write_valid  (command_arbiter_out.write_ready),
+		.command_write_valid  (ready[2]),
 		.command_tag_in  (command_tag),
 		.write_data_0_in (write_data_0),
 		.write_data_1_in (write_data_1),
@@ -199,9 +209,9 @@ module afu_control (
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign command_tag_id.cu_id         = command_arbiter_out.command_buffer_out.cmd.cu_id;
-	assign command_tag_id.cmd_type      = command_arbiter_out.command_buffer_out.cmd.cmd_type;
-	assign command_tag_id.vertex_struct = command_arbiter_out.command_buffer_out.cmd.vertex_struct;
+	assign command_tag_id.cu_id         = command_arbiter_out.cmd.cu_id;
+	assign command_tag_id.cmd_type      = command_arbiter_out.cmd.cmd_type;
+	assign command_tag_id.vertex_struct = command_arbiter_out.cmd.vertex_struct;
 
 	tag_control tag_control_instant(
 		.clock         (clock),
@@ -212,7 +222,7 @@ module afu_control (
 		.response_tag_id_out(response_tag_id),
 		.data_read_tag(buffer_in_latched.write_tag), // reminder PSL sees read as write and opposite
 		.data_read_tag_id_out(read_tag_id),
-		.tag_command_valid(command_arbiter_out.command_buffer_out.valid),
+		.tag_command_valid(command_arbiter_out.valid),
 		.tag_command_id(command_tag_id),
 		.command_tag_out(command_tag),
 		.tag_buffer_ready(tag_buffer_ready)
@@ -234,7 +244,7 @@ module afu_control (
 		.full(command_buffer_status.read_buffer.full),
 		.alFull(command_buffer_status.read_buffer.alfull),
 
-		.pop(command_arbiter_out.read_ready),
+		.pop(ready[3]),
 		.valid(command_buffer_status.read_buffer.valid),
 		.data_out(read_command_buffer_out),
 		.empty(command_buffer_status.read_buffer.empty)
@@ -255,7 +265,7 @@ module afu_control (
 		.full(command_buffer_status.write_buffer.full),
 		.alFull(command_buffer_status.write_buffer.alfull),
 
-		.pop(command_arbiter_out.write_ready),
+		.pop(ready[2]),
 		.valid(command_buffer_status.write_buffer.valid),
 		.data_out(write_command_buffer_out),
 		.empty(command_buffer_status.write_buffer.empty)
@@ -276,7 +286,7 @@ module afu_control (
 		.full(command_buffer_status.wed_buffer.full),
 		.alFull(command_buffer_status.wed_buffer.alfull),
 
-		.pop(command_arbiter_out.wed_ready),
+		.pop(ready[1]),
 		.valid(command_buffer_status.wed_buffer.valid),
 		.data_out(wed_command_buffer_out),
 		.empty(command_buffer_status.wed_buffer.empty)
@@ -298,7 +308,7 @@ module afu_control (
 		.full(command_buffer_status.restart_buffer.full),
 		.alFull(command_buffer_status.restart_buffer.alfull),
 
-		.pop(command_arbiter_out.restart_ready),
+		.pop(ready[0]),
 		.valid(command_buffer_status.restart_buffer.valid),
 		.data_out(restart_command_buffer_out),
 		.empty(command_buffer_status.restart_buffer.empty)
@@ -509,7 +519,7 @@ module afu_control (
 		.full(write_data_buffer_status.buffer_0.full),
 		.alFull(write_data_buffer_status.buffer_0.alfull),
 
-		.pop(command_arbiter_out.write_ready),
+		.pop(ready[2]),
 		.valid(write_data_buffer_status.buffer_0.valid),
 		.data_out(write_data_0),
 		.empty(write_data_buffer_status.buffer_0.empty)
@@ -528,7 +538,7 @@ module afu_control (
 		.full(write_data_buffer_status.buffer_1.full),
 		.alFull(write_data_buffer_status.buffer_1.alfull),
 
-		.pop(command_arbiter_out.write_ready),
+		.pop(ready[2]),
 		.valid(write_data_buffer_status.buffer_1.valid),
 		.data_out(write_data_1),
 		.empty(write_data_buffer_status.buffer_1.empty)

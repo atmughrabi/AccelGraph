@@ -6,7 +6,8 @@ module command_control (
   input logic clock,    // Clock
   input logic rstn,
   input logic enabled,
-  input CommandBufferArbiterInterfaceOut command_arbiter_in,
+  input CommandBufferLine command_arbiter_in,
+  input logic [3:0] ready,
   input logic [0:7] command_tag_in,
   output CommandInterfaceOutput command_out
 );
@@ -27,10 +28,10 @@ module command_control (
 //request type
 ////////////////////////////////////////////////////////////////////////////
 
-  assign wed_request     = command_arbiter_in.wed_ready;
-  assign write_request   = command_arbiter_in.write_ready;
-  assign read_request    = command_arbiter_in.read_ready;
-  assign restart_request = command_arbiter_in.restart_ready;
+  assign wed_request     = ready[1];
+  assign write_request   = ready[2];
+  assign read_request    = ready[3];
+  assign restart_request = ready[0];
 
 ////////////////////////////////////////////////////////////////////////////
 //drive command
@@ -45,11 +46,11 @@ module command_control (
       command_out.size     <= 12'h000;
     end
     else begin
-      command_out.valid    <= command_arbiter_in.command_buffer_out.valid;
-      command_out.command  <= command_arbiter_in.command_buffer_out.command;
-      command_out.address  <= command_arbiter_in.command_buffer_out.address;
+      command_out.valid    <= command_arbiter_in.valid;
+      command_out.command  <= command_arbiter_in.command;
+      command_out.address  <= command_arbiter_in.address;
       command_out.tag      <= command_tag_in;
-      command_out.size     <= command_arbiter_in.command_buffer_out.size;
+      command_out.size     <= command_arbiter_in.size;
     end
   end // always_ff @(posedge clock)
 

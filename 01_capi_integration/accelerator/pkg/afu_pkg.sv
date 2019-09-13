@@ -20,7 +20,7 @@ package AFU_PKG;
 
   typedef struct packed {
     cu_id_t cu_id;      // Compute unit id generating the command for now we support four
-    vertex_struct vertex_struct;
+    vertex_struct_type vertex_struct;
     command_type cmd_type;    // The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
   } CommandTagLine;
 
@@ -54,14 +54,6 @@ package AFU_PKG;
     logic read_request;
     logic restart_request;
   } CommandBufferArbiterInterfaceIn;
-
-  typedef struct packed {
-    logic wed_ready;
-    logic write_ready;
-    logic read_ready;
-    logic restart_ready;
-    CommandBufferLine command_buffer_out;
-  } CommandBufferArbiterInterfaceOut;
 
   typedef struct packed {
     BufferStatus wed_buffer;

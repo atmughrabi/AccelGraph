@@ -7,12 +7,10 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
   input logic clock,    // Clock
   input logic rstn,
   input logic enabled,
-  input CommandBufferArbiterInterfaceIn command_arbiter_in,
-  input CommandBufferLine read_command_buffer_in,
-  input CommandBufferLine write_command_buffer_in,
-  input CommandBufferLine wed_command_buffer_in,
-  input CommandBufferLine restart_command_buffer_in,
-  output CommandBufferArbiterInterfaceOut command_arbiter_out
+  input CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in,
+  input logic [NUM_REQUESTS-1:0] requests,
+  output CommandBufferLine command_arbiter_out,
+  output logic [NUM_REQUESTS-1:0] ready
 );
 
 
@@ -21,13 +19,8 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
 //requests
 ////////////////////////////////////////////////////////////////////////////
 
-  logic [NUM_REQUESTS-1:0] requests;
   logic [NUM_REQUESTS-1:0] grant;
-
-  assign requests[0] = command_arbiter_in.restart_request;
-  assign requests[1] = command_arbiter_in.wed_request;
-  assign requests[2] = command_arbiter_in.write_request;
-  assign requests[3] = command_arbiter_in.read_request;
+  CommandBufferLine command_arbiter_out_latch;
 
 
 //------------------------------------------------------------------------
@@ -45,80 +38,60 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
 
 /////////////////////////////////////
 // ready the winner if any
+  integer i;
+  integer j;
 
-  always @(posedge clock or negedge rstn) begin
-    if (~rstn) begin
-      command_arbiter_out.command_buffer_out.valid    <= 1'b0;
-      command_arbiter_out.command_buffer_out.command  <= INVALID; // just zero it out
-      command_arbiter_out.command_buffer_out.address  <= 64'h0000_0000_0000_0000;
-      command_arbiter_out.command_buffer_out.size     <= 12'h000;
-      command_arbiter_out.command_buffer_out.cmd.cu_id     <= 0;
-      command_arbiter_out.command_buffer_out.cmd.cmd_type  <= CMD_INVALID;
-      command_arbiter_out.command_buffer_out.cmd.vertex_struct  <= STRUCT_INVALID;
-    end
-    else begin
-      if (enabled) begin
-        if (grant[1]) begin
-          command_arbiter_out.command_buffer_out.valid   <= wed_command_buffer_in.valid;
-          command_arbiter_out.command_buffer_out.cmd.cu_id     <= wed_command_buffer_in.cmd.cu_id;
-          command_arbiter_out.command_buffer_out.cmd.cmd_type  <= wed_command_buffer_in.cmd.cmd_type;
-          command_arbiter_out.command_buffer_out.cmd.vertex_struct  <= wed_command_buffer_in.cmd.vertex_struct;
-          command_arbiter_out.command_buffer_out.command <= wed_command_buffer_in.command ;
-          command_arbiter_out.command_buffer_out.address <= wed_command_buffer_in.address ;
-          command_arbiter_out.command_buffer_out.size    <= wed_command_buffer_in.size;
-        end
-        else if (grant[2]) begin
-          command_arbiter_out.command_buffer_out.valid   <= write_command_buffer_in.valid;
-          command_arbiter_out.command_buffer_out.cmd.cu_id     <= write_command_buffer_in.cmd.cu_id;
-          command_arbiter_out.command_buffer_out.cmd.cmd_type  <= write_command_buffer_in.cmd.cmd_type;
-          command_arbiter_out.command_buffer_out.cmd.vertex_struct  <= write_command_buffer_in.cmd.vertex_struct;
-          command_arbiter_out.command_buffer_out.command <= write_command_buffer_in.command ;
-          command_arbiter_out.command_buffer_out.address <= write_command_buffer_in.address ;
-          command_arbiter_out.command_buffer_out.size    <= write_command_buffer_in.size;
-        end
-        else if (grant[3]) begin
-          command_arbiter_out.command_buffer_out.valid   <= read_command_buffer_in.valid;
-          command_arbiter_out.command_buffer_out.cmd.cu_id     <= read_command_buffer_in.cmd.cu_id;
-          command_arbiter_out.command_buffer_out.cmd.cmd_type  <= read_command_buffer_in.cmd.cmd_type;
-          command_arbiter_out.command_buffer_out.cmd.vertex_struct  <= read_command_buffer_in.cmd.vertex_struct;
-          command_arbiter_out.command_buffer_out.command <= read_command_buffer_in.command ;
-          command_arbiter_out.command_buffer_out.address <= read_command_buffer_in.address ;
-          command_arbiter_out.command_buffer_out.size    <= read_command_buffer_in.size;
-        end
-        else if (grant[0]) begin
-          command_arbiter_out.command_buffer_out.valid   <= restart_command_buffer_in.valid;
-          command_arbiter_out.command_buffer_out.cmd.cu_id     <= restart_command_buffer_in.cmd.cu_id;
-          command_arbiter_out.command_buffer_out.cmd.cmd_type  <= restart_command_buffer_in.cmd.cmd_type;
-          command_arbiter_out.command_buffer_out.cmd.vertex_struct  <= restart_command_buffer_in.cmd.vertex_struct;
-          command_arbiter_out.command_buffer_out.command <= restart_command_buffer_in.command ;
-          command_arbiter_out.command_buffer_out.address <= restart_command_buffer_in.address ;
-          command_arbiter_out.command_buffer_out.size    <= restart_command_buffer_in.size;
-        end
-        else begin
-          command_arbiter_out.command_buffer_out.valid    <= 1'b0;
-          command_arbiter_out.command_buffer_out.cmd.cu_id     <= 0;
-          command_arbiter_out.command_buffer_out.cmd.cmd_type  <= CMD_INVALID;
-          command_arbiter_out.command_buffer_out.cmd.vertex_struct  <= STRUCT_INVALID;
-          command_arbiter_out.command_buffer_out.command  <= INVALID; // for debugging purposes
-          command_arbiter_out.command_buffer_out.address  <= 64'h0000_0000_0000_0000;
-          command_arbiter_out.command_buffer_out.size     <= 12'h000;
-        end
-      end
-      else begin
-        command_arbiter_out.command_buffer_out.valid    <= 1'b0;
-        command_arbiter_out.command_buffer_out.cmd.cu_id     <= 0;
-        command_arbiter_out.command_buffer_out.cmd.cmd_type  <= CMD_INVALID;
-        command_arbiter_out.command_buffer_out.cmd.vertex_struct  <= STRUCT_INVALID;
-        command_arbiter_out.command_buffer_out.command  <= INVALID; // for debugging purposes
-        command_arbiter_out.command_buffer_out.address  <= 64'h0000_0000_0000_0000;
-        command_arbiter_out.command_buffer_out.size     <= 12'h000;
+  always_comb begin
+    command_arbiter_out_latch.valid              = 1'b0;
+    command_arbiter_out_latch.cmd.cu_id          = 0;
+    command_arbiter_out_latch.cmd.cmd_type       = CMD_INVALID;
+    command_arbiter_out_latch.cmd.vertex_struct  = STRUCT_INVALID;
+    command_arbiter_out_latch.command            = INVALID; // for debugging purposes
+    command_arbiter_out_latch.address            = 64'h0000_0000_0000_0000;
+    command_arbiter_out_latch.size               = 12'h000;
+    for (i = 0; i < NUM_REQUESTS; i++) begin
+      if (grant[i]) begin
+        command_arbiter_out_latch.valid              = command_buffer_in[i].valid;
+        command_arbiter_out_latch.cmd.cu_id          = command_buffer_in[i].cmd.cu_id;
+        command_arbiter_out_latch.cmd.cmd_type       = command_buffer_in[i].cmd.cmd_type;
+        command_arbiter_out_latch.cmd.vertex_struct  = command_buffer_in[i].cmd.vertex_struct;
+        command_arbiter_out_latch.command            = command_buffer_in[i].command ;
+        command_arbiter_out_latch.address            = command_buffer_in[i].address ;
+        command_arbiter_out_latch.size               = command_buffer_in[i].size;
       end
     end
   end
 
-  assign command_arbiter_out.wed_ready     = grant[1] & enabled;
-  assign command_arbiter_out.write_ready   = grant[2] & enabled;
-  assign command_arbiter_out.read_ready    = grant[3] & enabled;
-  assign command_arbiter_out.restart_ready = grant[0] & enabled;
+  always @(posedge clock or negedge rstn) begin
+    if (~rstn) begin
+      command_arbiter_out.valid              <= 1'b0;
+      command_arbiter_out.cmd.cu_id          <= 0;
+      command_arbiter_out.cmd.cmd_type       <= CMD_INVALID;
+      command_arbiter_out.cmd.vertex_struct  <= STRUCT_INVALID;
+      command_arbiter_out.command            <= INVALID; // for debugging purposes
+      command_arbiter_out.address            <= 64'h0000_0000_0000_0000;
+      command_arbiter_out.size               <= 12'h000;
+    end
+    else begin
+      if (enabled) begin
+        command_arbiter_out <= command_arbiter_out_latch;
+      end
+      else begin
+        command_arbiter_out.valid         <= 1'b0;
+        command_arbiter_out.cmd.cu_id     <= 0;
+        command_arbiter_out.cmd.cmd_type  <= CMD_INVALID;
+        command_arbiter_out.cmd.vertex_struct  <= STRUCT_INVALID;
+        command_arbiter_out.command       <= INVALID; // for debugging purposes
+        command_arbiter_out.address       <= 64'h0000_0000_0000_0000;
+        command_arbiter_out.size          <= 12'h000;
+      end
+    end
+  end
+
+  always_comb begin
+    for (j = 0; j < NUM_REQUESTS; j++) begin
+      ready[j] = grant[j] & enabled;
+    end
+  end
 
 endmodule

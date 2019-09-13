@@ -4,7 +4,7 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 
-module cu_control (
+module cu_control #(parameter NUM_REQUESTS = 2) (
 	input logic clock,    // Clock
 	input logic rstn,
 	input logic enabled,
@@ -23,10 +23,9 @@ module cu_control (
 
 	// vertex control variables
 	BufferStatus vertex_buffer_status_latched;
-	BufferStatus read_command_vertex_buffer_latched;
+	BufferStatus read_command_vertex_buffer_status;
 	VertexInterface vertex_latched;
 	logic vertex_request_latched;
-	logic pop_read_command;
 
 	//output latched
 	CommandBufferLine write_command_out_latched;
@@ -46,6 +45,10 @@ module cu_control (
 	BufferStatus 	  read_buffer_status_latched;
 	BufferStatus write_buffer_status_latched;
 
+	CommandBufferLine command_arbiter_out;
+	logic [NUM_REQUESTS-1:0] requests;
+	logic [NUM_REQUESTS-1:0] ready;
+	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in;
 
 	assign vertex_request_latched = 0;
 
@@ -56,7 +59,7 @@ module cu_control (
 	assign write_command_out_latched = 0;
 	assign write_data_0_out_latched  = 0;
 	assign write_data_1_out_latched  = 0;
-	assign read_command_out_latched  = read_command_vertex_buffer;
+	assign read_command_out_latched  = command_arbiter_out;
 
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
@@ -81,8 +84,8 @@ module cu_control (
 			write_response_in_latched	<= 0;
 			read_data_0_in_latched		<= 0;
 			read_data_1_in_latched		<= 0;
-			read_buffer_status_latched	<= 0;
-			write_buffer_status_latched	<= 0;
+			read_buffer_status_latched	<= 4'b0001;
+			write_buffer_status_latched	<= 4'b0001;
 		end else begin
 			wed_request_in_latched 		<= wed_request_in;
 			read_response_in_latched	<= read_response_in;
@@ -93,6 +96,31 @@ module cu_control (
 			write_buffer_status_latched	<= write_buffer_status;
 		end
 	end
+
+////////////////////////////////////////////////////////////////////////////
+//command request logic
+////////////////////////////////////////////////////////////////////////////
+
+	assign requests[0] = ~read_command_vertex_buffer_status.empty && ~read_buffer_status_latched.alfull;
+	assign requests[1] = 0;
+
+	assign command_buffer_in[0] = read_command_vertex_buffer;
+	assign command_buffer_in[1] = 0;
+
+////////////////////////////////////////////////////////////////////////////
+//Buffer arbitration logic
+////////////////////////////////////////////////////////////////////////////
+
+	command_buffer_arbiter#(
+		.NUM_REQUESTS(NUM_REQUESTS)
+	)command_buffer_arbiter_instant(
+		.clock      (clock),
+		.rstn       (rstn),
+		.enabled    (enabled),
+		.requests 	(requests),
+		.command_buffer_in 			(command_buffer_in),
+		.command_arbiter_out 		(command_arbiter_out),
+		.ready              		(ready));
 
 ////////////////////////////////////////////////////////////////////////////
 //cu_vertex_control
@@ -106,18 +134,17 @@ module cu_control (
 		.read_response_in    (read_response_in_latched),
 		.read_data_0_in      (read_data_0_in_latched),
 		.read_data_1_in      (read_data_1_in_latched),
-		.read_buffer_status  (read_command_vertex_buffer_latched),
+		.read_buffer_status  (read_command_vertex_buffer_status),
 		.vertex_request      (vertex_request_latched),
 		.read_command_out    (read_command_out_vertex),
 		.vertex_buffer_status(vertex_buffer_status_latched),
 		.vertex              (vertex_latched));
 
+
 ////////////////////////////////////////////////////////////////////////////
 //cu_vertex_control command buffer
 ////////////////////////////////////////////////////////////////////////////
 
-assign pop_read_command = ~read_buffer_status_latched.empty;
-	
 	fifo  #(
 		.WIDTH($bits(CommandBufferLine)),
 		.DEPTH(64)
@@ -127,13 +154,12 @@ assign pop_read_command = ~read_buffer_status_latched.empty;
 
 		.push(read_command_out_vertex.valid),
 		.data_in(read_command_out_vertex),
-		.full(read_command_vertex_buffer_latched.full),
-		.alFull(read_command_vertex_buffer_latched.alfull),
+		.full(read_command_vertex_buffer_status.full),
+		.alFull(read_command_vertex_buffer_status.alfull),
 
-		.pop(pop_read_command),
-		.valid(read_command_vertex_buffer_latched.valid),
+		.pop(ready[0]),
+		.valid(read_command_vertex_buffer_status.valid),
 		.data_out(read_command_vertex_buffer),
-		.empty(read_command_vertex_buffer_latched.empty)
-	);
+		.empty(read_command_vertex_buffer_status.empty));
 
 endmodule
