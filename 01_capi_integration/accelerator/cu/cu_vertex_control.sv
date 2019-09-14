@@ -7,10 +7,10 @@ module cu_vertex_control (
 	input logic clock,    // Clock
 	input logic rstn,
 	input logic enabled,
-	input WEDInterface 	wed_request_in,
-	input ResponseBufferLine read_response_in,
-	input ReadWriteDataLine read_data_0_in,
-	input ReadWriteDataLine read_data_1_in,
+	input WEDInterface 			wed_request_in,
+	input ResponseBufferLine 	read_response_in,
+	input ReadWriteDataLine 	read_data_0_in,
+	input ReadWriteDataLine 	read_data_1_in,
 	input BufferStatus read_buffer_status,
 	input logic vertex_request,
 	output CommandBufferLine read_command_out,
@@ -39,7 +39,8 @@ module cu_vertex_control (
 	logic [0:31] vertex_next_offest;
 	logic [0:31] vertex_num_counter;
 	logic [0:31] vertex_id_counter;
-	logic [0:7] vertex_byte_counter;
+	logic [0:7] vertex_shift_counter;
+	logic [0:7] request_real_size;
 	VertexInterface vertex_variable;
 
 	logic fill_vertex_buffer;
@@ -160,13 +161,10 @@ module cu_vertex_control (
 				read_command_out_latched.command  <= INVALID; // just zero it out
 				read_command_out_latched.address  <= 64'h0000_0000_0000_0000;
 				read_command_out_latched.size     <= 12'h000;
-
-				read_command_out_latched.cmd.cu_id    <= INVALID_ID;
-				read_command_out_latched.cmd.cmd_type <= CMD_INVALID;
-				read_command_out_latched.cmd.vertex_struct <= STRUCT_INVALID;
-
-				request_size 			<= 0;
-				vertex_next_offest  	<= 0;
+				read_command_out_latched.cmd 	  <= 0;
+				request_size 			<= 	0;
+				vertex_next_offest  	<= 	0;
+				vertex_num_counter 		<=	0;
 			end
 			SEND_VERTEX_INIT: begin
 				vertex_num_counter <= wed_request_in_latched.wed.num_vertices;
@@ -176,10 +174,7 @@ module cu_vertex_control (
 				read_command_out_latched.command  <= INVALID; // just zero it out
 				read_command_out_latched.address  <= 64'h0000_0000_0000_0000;
 				read_command_out_latched.size     <= 12'h000;
-
-				read_command_out_latched.cmd.cu_id    <= INVALID_ID;
-				read_command_out_latched.cmd.cmd_type <= CMD_INVALID;
-				read_command_out_latched.cmd.vertex_struct <= STRUCT_INVALID;
+				read_command_out_latched.cmd 	  <= 0;
 
 				request_size <= 0;
 			end
@@ -188,9 +183,11 @@ module cu_vertex_control (
 
 				if(vertex_num_counter >= CACHELINE_VERTEX_NUM)begin
 					vertex_num_counter <= vertex_num_counter - CACHELINE_VERTEX_NUM;
+					read_command_out_latched.cmd.real_size <= CACHELINE_VERTEX_NUM;
 				end
 				else if (vertex_num_counter < CACHELINE_VERTEX_NUM) begin
 					vertex_num_counter <= 0;
+					read_command_out_latched.cmd.real_size <= vertex_num_counter;
 				end
 			end
 			SEND_VERTEX_IN_DEGREE: begin
@@ -287,6 +284,7 @@ module cu_vertex_control (
 		if(~rstn)begin
 			in_degree_cacheline <= 0;
 			in_degree_cacheline_ready <= 0;
+			request_real_size <= 0;
 		end
 		else begin
 			if (read_data_0_in.cmd.vertex_struct == IN_DEGREE) begin
@@ -297,17 +295,19 @@ module cu_vertex_control (
 				in_degree_cacheline[512:1023] <= read_data_1_in.data;
 			end
 
-			if(fill_vertex_buffer && (vertex_id_counter < wed_request_in_latched.wed.num_vertices) && (vertex_byte_counter < CACHELINE_VERTEX_NUM))begin
+			if(fill_vertex_buffer && (vertex_shift_counter < request_real_size))begin
 				in_degree_cacheline <= {32'b0,in_degree_cacheline[0:(CACHELINE_SIZE_BITS-1-VERTEX_SIZE_BITS)]};
 			end
 
 			if (read_response_in.valid && read_response_in.cmd.vertex_struct == IN_DEGREE)begin
 				in_degree_cacheline_ready <= 1'b1;
 				in_degree_cacheline <= swap_endianness_full_cacheline128(in_degree_cacheline);
+				request_real_size  <= read_response_in.cmd.real_size;
 			end
 
-			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_byte_counter >= CACHELINE_VERTEX_NUM)))begin
+			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_shift_counter >= CACHELINE_VERTEX_NUM)))begin
 				in_degree_cacheline_ready <= 1'b0;
+				request_real_size <= 0;
 			end
 
 		end
@@ -326,7 +326,7 @@ module cu_vertex_control (
 				out_degree_cacheline[512:1023] <= read_data_1_in.data;
 			end
 
-			if(fill_vertex_buffer && (vertex_id_counter < wed_request_in_latched.wed.num_vertices) && (vertex_byte_counter < CACHELINE_VERTEX_NUM))begin
+			if(fill_vertex_buffer && (vertex_shift_counter < request_real_size))begin
 				out_degree_cacheline <= {32'b0,out_degree_cacheline[0:(CACHELINE_SIZE_BITS-1-VERTEX_SIZE_BITS)]};
 			end
 
@@ -335,7 +335,7 @@ module cu_vertex_control (
 				out_degree_cacheline <= swap_endianness_full_cacheline128(out_degree_cacheline);
 			end
 
-			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_byte_counter >= CACHELINE_VERTEX_NUM)))begin
+			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_shift_counter >= CACHELINE_VERTEX_NUM)))begin
 				out_degree_cacheline_ready <= 1'b0;
 			end
 		end
@@ -354,7 +354,7 @@ module cu_vertex_control (
 				edges_idx_degree_cacheline[512:1023] <= read_data_1_in.data;
 			end
 
-			if(fill_vertex_buffer && (vertex_id_counter < wed_request_in_latched.wed.num_vertices) && (vertex_byte_counter < CACHELINE_VERTEX_NUM))begin
+			if(fill_vertex_buffer && (vertex_shift_counter < request_real_size))begin
 				edges_idx_degree_cacheline <= {32'b0,edges_idx_degree_cacheline[0:(CACHELINE_SIZE_BITS-1-VERTEX_SIZE_BITS)]};
 			end
 
@@ -363,7 +363,7 @@ module cu_vertex_control (
 				edges_idx_degree_cacheline <= swap_endianness_full_cacheline128(edges_idx_degree_cacheline);
 			end
 
-			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_byte_counter >= CACHELINE_VERTEX_NUM)))begin
+			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_shift_counter >= CACHELINE_VERTEX_NUM)))begin
 				edges_idx_degree_cacheline_ready <= 1'b0;
 			end
 		end
@@ -382,7 +382,7 @@ module cu_vertex_control (
 				inverse_in_degree_cacheline[512:1023] <= read_data_1_in.data;
 			end
 
-			if(fill_vertex_buffer && (vertex_id_counter < wed_request_in_latched.wed.num_vertices) && (vertex_byte_counter < CACHELINE_VERTEX_NUM))begin
+			if(fill_vertex_buffer && (vertex_shift_counter < request_real_size))begin
 				inverse_in_degree_cacheline <= {32'b0,32'b0,inverse_in_degree_cacheline[0:(CACHELINE_SIZE_BITS-1-VERTEX_SIZE_BITS)]};
 			end
 
@@ -391,7 +391,7 @@ module cu_vertex_control (
 				inverse_in_degree_cacheline <= swap_endianness_full_cacheline128(inverse_in_degree_cacheline);
 			end
 
-			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_byte_counter >= CACHELINE_VERTEX_NUM)))begin
+			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_shift_counter >= CACHELINE_VERTEX_NUM)))begin
 				inverse_in_degree_cacheline_ready <= 1'b0;
 			end
 		end
@@ -409,7 +409,7 @@ module cu_vertex_control (
 			if (read_data_1_in.cmd.vertex_struct == INV_OUT_DEGREE) begin
 				inverse_out_degree_cacheline[512:1023] <= read_data_1_in.data;
 			end
-			if(fill_vertex_buffer && (vertex_id_counter < wed_request_in_latched.wed.num_vertices) && (vertex_byte_counter < CACHELINE_VERTEX_NUM))begin
+			if(fill_vertex_buffer && (vertex_shift_counter < request_real_size))begin
 				inverse_out_degree_cacheline <= {32'b0,inverse_out_degree_cacheline[0:(CACHELINE_SIZE_BITS-1-VERTEX_SIZE_BITS)]};
 			end
 
@@ -418,7 +418,7 @@ module cu_vertex_control (
 				inverse_out_degree_cacheline <= swap_endianness_full_cacheline128(inverse_out_degree_cacheline);
 			end
 
-			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_byte_counter >= CACHELINE_VERTEX_NUM)))begin
+			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_shift_counter >= CACHELINE_VERTEX_NUM)))begin
 				inverse_out_degree_cacheline_ready <= 1'b0;
 			end
 		end
@@ -436,7 +436,7 @@ module cu_vertex_control (
 			if (read_data_1_in.cmd.vertex_struct == INV_EDGES_IDX) begin
 				inverse_edges_idx_degree_cacheline[512:1023] <= read_data_1_in.data;
 			end
-			if(fill_vertex_buffer && (vertex_id_counter < wed_request_in_latched.wed.num_vertices) && (vertex_byte_counter < CACHELINE_VERTEX_NUM))begin
+			if(fill_vertex_buffer && (vertex_shift_counter < request_real_size))begin
 				inverse_edges_idx_degree_cacheline <= {32'b0,inverse_edges_idx_degree_cacheline[0:(CACHELINE_SIZE_BITS-1-VERTEX_SIZE_BITS)]};
 			end
 
@@ -445,7 +445,7 @@ module cu_vertex_control (
 				inverse_edges_idx_degree_cacheline <= swap_endianness_full_cacheline128(inverse_edges_idx_degree_cacheline);
 			end
 
-			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_byte_counter >= CACHELINE_VERTEX_NUM)))begin
+			if(fill_vertex_buffer && ((vertex_id_counter >= wed_request_in_latched.wed.num_vertices) || (vertex_shift_counter >= CACHELINE_VERTEX_NUM)))begin
 				inverse_edges_idx_degree_cacheline_ready <= 1'b0;
 			end
 		end
@@ -467,14 +467,14 @@ module cu_vertex_control (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_variable    	<= 0;
-			vertex_id_counter 	<= 0;
-			vertex_byte_counter <= 0;
+			vertex_variable    	 <= 0;
+			vertex_id_counter 	 <= 0;
+			vertex_shift_counter <= 0;
 		end
 		else begin
-			if(fill_vertex_buffer && (vertex_id_counter < wed_request_in_latched.wed.num_vertices) && (vertex_byte_counter < CACHELINE_VERTEX_NUM))begin
-				vertex_byte_counter <= vertex_byte_counter+1;
-				vertex_id_counter  	<= vertex_id_counter+1;
+			if(fill_vertex_buffer && (vertex_shift_counter < request_real_size))begin
+				vertex_shift_counter <= vertex_shift_counter+1;
+				vertex_id_counter  	 <= vertex_id_counter+1;
 
 				vertex_variable.valid 		<= 1'b1;
 				vertex_variable.id 			<= vertex_id_counter;
@@ -487,7 +487,7 @@ module cu_vertex_control (
 
 			end else begin
 				vertex_variable  <= 0;
-				vertex_byte_counter <= 0;
+				vertex_shift_counter <= 0;
 			end
 		end
 	end

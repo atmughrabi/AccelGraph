@@ -208,9 +208,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign command_tag_id.cu_id         = command_arbiter_out.cmd.cu_id;
-	assign command_tag_id.cmd_type      = command_arbiter_out.cmd.cmd_type;
-	assign command_tag_id.vertex_struct = command_arbiter_out.cmd.vertex_struct;
+	assign command_tag_id         = command_arbiter_out.cmd;
 
 	tag_control tag_control_instant(
 		.clock         (clock),

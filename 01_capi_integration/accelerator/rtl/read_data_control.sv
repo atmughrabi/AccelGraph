@@ -78,9 +78,7 @@ module read_data_control (
           end
         endcase
 
-        read_data_control_out_0.line.cmd.cu_id          <= data_read_tag_id_in.cu_id;
-        read_data_control_out_0.line.cmd.cmd_type       <= data_read_tag_id_in.cmd_type;
-        read_data_control_out_0.line.cmd.vertex_struct  <= data_read_tag_id_in.vertex_struct;
+        read_data_control_out_0.line.cmd                <= data_read_tag_id_in;
         read_data_control_out_0.line.data               <= buffer_in_latched.write_data;
 
       end else begin
@@ -115,9 +113,7 @@ module read_data_control (
           end
         endcase
 
-        read_data_control_out_1.line.cmd.cu_id          <= data_read_tag_id_in.cu_id;
-        read_data_control_out_1.line.cmd.cmd_type       <= data_read_tag_id_in.cmd_type;
-        read_data_control_out_1.line.cmd.vertex_struct  <= data_read_tag_id_in.vertex_struct;
+        read_data_control_out_1.line.cmd                <= data_read_tag_id_in;
         read_data_control_out_1.line.data               <= buffer_in_latched.write_data;
 
       end else begin

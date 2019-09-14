@@ -43,18 +43,14 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
 
   always_comb begin
     command_arbiter_out_latch.valid              = 1'b0;
-    command_arbiter_out_latch.cmd.cu_id          = 0;
-    command_arbiter_out_latch.cmd.cmd_type       = CMD_INVALID;
-    command_arbiter_out_latch.cmd.vertex_struct  = STRUCT_INVALID;
+    command_arbiter_out_latch.cmd                = 0;
     command_arbiter_out_latch.command            = INVALID; // for debugging purposes
     command_arbiter_out_latch.address            = 64'h0000_0000_0000_0000;
     command_arbiter_out_latch.size               = 12'h000;
     for (i = 0; i < NUM_REQUESTS; i++) begin
       if (grant[i]) begin
         command_arbiter_out_latch.valid              = command_buffer_in[i].valid;
-        command_arbiter_out_latch.cmd.cu_id          = command_buffer_in[i].cmd.cu_id;
-        command_arbiter_out_latch.cmd.cmd_type       = command_buffer_in[i].cmd.cmd_type;
-        command_arbiter_out_latch.cmd.vertex_struct  = command_buffer_in[i].cmd.vertex_struct;
+        command_arbiter_out_latch.cmd                = command_buffer_in[i].cmd;
         command_arbiter_out_latch.command            = command_buffer_in[i].command ;
         command_arbiter_out_latch.address            = command_buffer_in[i].address ;
         command_arbiter_out_latch.size               = command_buffer_in[i].size;
@@ -65,9 +61,7 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
   always @(posedge clock or negedge rstn) begin
     if (~rstn) begin
       command_arbiter_out.valid              <= 1'b0;
-      command_arbiter_out.cmd.cu_id          <= 0;
-      command_arbiter_out.cmd.cmd_type       <= CMD_INVALID;
-      command_arbiter_out.cmd.vertex_struct  <= STRUCT_INVALID;
+      command_arbiter_out.cmd                <= 0;
       command_arbiter_out.command            <= INVALID; // for debugging purposes
       command_arbiter_out.address            <= 64'h0000_0000_0000_0000;
       command_arbiter_out.size               <= 12'h000;
@@ -78,9 +72,7 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
       end
       else begin
         command_arbiter_out.valid         <= 1'b0;
-        command_arbiter_out.cmd.cu_id     <= 0;
-        command_arbiter_out.cmd.cmd_type  <= CMD_INVALID;
-        command_arbiter_out.cmd.vertex_struct  <= STRUCT_INVALID;
+        command_arbiter_out.cmd           <= 0;
         command_arbiter_out.command       <= INVALID; // for debugging purposes
         command_arbiter_out.address       <= 64'h0000_0000_0000_0000;
         command_arbiter_out.size          <= 12'h000;

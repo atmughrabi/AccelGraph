@@ -22,6 +22,8 @@ package AFU_PKG;
     cu_id_t cu_id;      // Compute unit id generating the command for now we support four
     vertex_struct_type vertex_struct;
     command_type cmd_type;    // The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
+    logic [0:7] real_size;
+    logic [0:7] cacheline_offest;
   } CommandTagLine;
 
 ////////////////////////////////////////////////////////////////////////////

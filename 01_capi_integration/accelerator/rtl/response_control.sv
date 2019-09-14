@@ -85,9 +85,7 @@ module response_control (
           end
         endcase
         response_control_out.response.valid                  <= response_in.valid;
-        response_control_out.response.cmd.cu_id              <= response_tag_id_in.cu_id;
-        response_control_out.response.cmd.cmd_type           <= response_tag_id_in.cmd_type;
-        response_control_out.response.cmd.vertex_struct      <= response_tag_id_in.vertex_struct;
+        response_control_out.response.cmd                    <= response_tag_id_in;
         response_control_out.response.response               <= response_in.response;
       end else begin
         response_control_out  <= 0;

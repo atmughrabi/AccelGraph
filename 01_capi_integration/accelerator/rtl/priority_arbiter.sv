@@ -189,10 +189,10 @@ endmodule
 
 module vc_RoundRobinArbChain #(
   parameter p_num_reqs             = 2,
-  parameter p_priority_reset_value = 1  // (one-hot) 1 = high priority req
+  parameter p_priority_rstn_value = 1  // (one-hot) 1 = high priority req
 ) (
   input  logic                  clk,
-  input  logic                  reset,
+  input  logic                  rstn,
   input  logic                  kin,    // kill in
   input  logic [p_num_reqs-1:0] reqs,   // 1 = making a req, 0 = no req
   output logic [p_num_reqs-1:0] grants, // (one-hot) 1 is req won grant
@@ -213,9 +213,18 @@ module vc_RoundRobinArbChain #(
 
   logic [p_num_reqs-1:0] priority_;
 
-  always @( posedge clk )
-    if ( reset || priority_en )
-      priority_ <= reset ? p_priority_reset_value : priority_next;
+  always_ff @(posedge clk or negedge rstn) begin
+    if(~rstn) begin
+      priority_ <= p_priority_rstn_value;
+    end else begin
+      if(priority_en)
+        priority_ <= priority_next;
+    end
+  end
+
+  // always @( posedge clk )
+  //   if ( rstn || priority_en )
+  //     priority_ <= rstn ? p_priority_rstn_value : priority_next;
 
   // Variable arbiter chain
 
@@ -244,7 +253,7 @@ endmodule
 
 module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
   input  logic                clk,
-  input  logic                reset,
+  input  logic                rstn,
   input  logic [p_num_reqs-1:0] reqs,    // 1 = making a req, 0 = no req
   output logic [p_num_reqs-1:0] grants   // (one-hot) 1 is req won grant
 );
@@ -263,9 +272,18 @@ module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
 
   logic [p_num_reqs-1:0] priority_;
 
-  always @( posedge clk )
-    if ( reset || priority_en )
-      priority_ <= reset ? 1 : priority_next;
+  // always @( posedge clk )
+  //   if ( rstn || priority_en )
+  //     priority_ <= rstn ? 1 : priority_next;
+
+  always_ff @(posedge clk or negedge rstn) begin
+    if(~rstn) begin
+      priority_ <= 1;
+    end else begin
+      if(priority_en)
+        priority_ <= priority_next;
+    end
+  end
 
   // Variable arbiter chain
 
