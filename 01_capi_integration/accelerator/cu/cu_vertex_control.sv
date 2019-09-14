@@ -452,12 +452,12 @@ module cu_vertex_control (
 	end
 
 ////////////////////////////////////////////////////////////////////////////
-//Read Vertex registers into vertex
+//Read Vertex registers into vertex job queue
 ////////////////////////////////////////////////////////////////////////////
 
 
 ////////////////////////////////////////////////////////////////////////////
-//Buffers Vertcies
+//Buffers Vertices
 ////////////////////////////////////////////////////////////////////////////
 
 	assign send_request_ready = vertex_buffer_status_latched.empty && (|vertex_num_counter) && ~(|response_counter) && wed_request_in_latched.valid;
@@ -498,7 +498,7 @@ module cu_vertex_control (
 	fifo  #(
 		.WIDTH($bits(VertexInterface)),
 		.DEPTH((CACHELINE_VERTEX_NUM))
-	)read_response_buffer_fifo_instant(
+	)vertex_job_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
 
