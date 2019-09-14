@@ -40,7 +40,13 @@ module fifo #(
 // asserted together i.e., pop && valid
     assign ren = pop && !empty;
 
-    assign data_out = rd_data;
+    // assign data_out = rd_data;
+    always_comb begin 
+        if(valid)
+            data_out = rd_data;
+        else
+            data_out = 0;
+    end
 
 // user samples data when pop && valid are both true... user drives pop, FIFO
 // logic determines valid here

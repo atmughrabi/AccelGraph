@@ -31,7 +31,11 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 	output logic data_write_error,
 	output BufferInterfaceOutput buffer_out,
 	output CommandInterfaceOutput command_out,
-	output CommandBufferStatusInterface command_buffer_status
+	output CommandBufferStatusInterface command_buffer_status,
+	output ResponseBufferStatusInterface response_buffer_status,
+	output DataBufferStatusInterface read_data_buffer_status,
+	output DataBufferStatusInterface wed_data_buffer_status,
+	output DataBufferStatusInterface write_data_buffer_status
 );
 
 
@@ -46,11 +50,6 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 ////////////////////////////////////////////////////////////////////////////
 //Command
 ////////////////////////////////////////////////////////////////////////////
-
-	ResponseBufferStatusInterface response_buffer_status;
-	DataBufferStatusInterface read_data_buffer_status;
-	DataBufferStatusInterface wed_data_buffer_status;
-	DataBufferStatusInterface write_data_buffer_status;
 
 	ReadWriteDataLine write_data_0;
 	ReadWriteDataLine write_data_1;
@@ -90,7 +89,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 	logic [NUM_REQUESTS-1:0] ready;
 	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in;
 	logic valid_request;
-	
+
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////

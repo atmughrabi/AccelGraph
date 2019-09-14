@@ -43,6 +43,10 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   ReadWriteDataLine write_data_1_out;
 
   CommandBufferStatusInterface command_buffer_status;
+  ResponseBufferStatusInterface response_buffer_status;
+  DataBufferStatusInterface read_data_buffer_status;
+  DataBufferStatusInterface wed_data_buffer_status;
+  DataBufferStatusInterface write_data_buffer_status;
 
   ResponseBufferLine read_response_out;
   ResponseBufferLine write_response_out;
@@ -116,8 +120,12 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     .data_read_error       (data_read_error),
     .data_write_error      (data_write_error),
     .buffer_out            (buffer_out),
-    .command_out  (command_out),
-    .command_buffer_status (command_buffer_status)
+    .command_out           (command_out),
+    .command_buffer_status   (command_buffer_status),
+    .response_buffer_status  (response_buffer_status),
+    .read_data_buffer_status (read_data_buffer_status),
+    .wed_data_buffer_status  (wed_data_buffer_status),
+    .write_data_buffer_status(write_data_buffer_status)
   );
 
 ////////////////////////////////////////////////////////////////////////////
