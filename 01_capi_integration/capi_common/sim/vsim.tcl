@@ -45,10 +45,12 @@ proc r  {} {
   vlog -quiet ../../accelerator/rtl/wed_control.sv
 
   echo "Compiling RTL CU control"
-  vlog -quiet ../../accelerator/cu/cu_edge_control.sv
-  vlog -quiet ../../accelerator/cu/cu_vertex_control.sv
-  vlog -quiet ../../accelerator/cu/cu_pagerank.sv
-  vlog -quiet ../../accelerator/cu/cu_bfs.sv
+  vlog -quiet ../../accelerator/cu/cu_cacheline_stream.sv
+  vlog -quiet ../../accelerator/cu/cu_edge_job_control.sv
+  vlog -quiet ../../accelerator/cu/cu_vertex_job_control.sv
+  vlog -quiet ../../accelerator/cu/cu_vertex_pagerank.sv
+  vlog -quiet ../../accelerator/cu/cu_vertex_bfs.sv
+  vlog -quiet ../../accelerator/cu/cu_graph_algorithm_control.sv
   vlog -quiet ../../accelerator/cu/cu_control.sv
 
  

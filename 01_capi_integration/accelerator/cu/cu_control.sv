@@ -22,8 +22,9 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 );
 
 	// vertex control variables
+	
+	
 	BufferStatus vertex_buffer_status_latched;
-	BufferStatus read_command_vertex_buffer_status;
 	VertexInterface vertex_latched;
 	logic vertex_request_latched;
 
@@ -35,6 +36,11 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	CommandBufferLine read_command_out_vertex;
 	CommandBufferLine read_command_vertex_buffer;
+	BufferStatus read_command_vertex_buffer_status;
+
+	CommandBufferLine read_command_graph_algorithm_edge;
+	CommandBufferLine read_command_graph_algorithm_buffer;
+	BufferStatus read_command_graph_algorithm_buffer_status;
 
 	//input lateched
 	WEDInterface wed_request_in_latched;
@@ -102,10 +108,10 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 ////////////////////////////////////////////////////////////////////////////
 
 	assign requests[0] = ~read_command_vertex_buffer_status.empty && ~read_buffer_status_latched.alfull;
-	assign requests[1] = 0;
+	assign requests[1] = ~read_command_graph_algorithm_buffer_status.empty && ~read_buffer_status_latched.alfull;
 
 	assign command_buffer_in[0] = read_command_vertex_buffer;
-	assign command_buffer_in[1] = 0;
+	assign command_buffer_in[1] = read_command_graph_algorithm_buffer;
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffer arbitration logic
@@ -113,7 +119,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	command_buffer_arbiter#(
 		.NUM_REQUESTS(NUM_REQUESTS)
-	)command_buffer_arbiter_instant(
+	)read_command_buffer_arbiter_instant(
 		.clock      (clock),
 		.rstn       (rstn),
 		.enabled    (enabled),
@@ -126,7 +132,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 //cu_vertex_control
 ////////////////////////////////////////////////////////////////////////////
 
-	cu_vertex_control cu_vertex_control_instant(
+	cu_vertex_job_control cu_vertex_job_control_instant(
 		.clock               (clock),
 		.rstn                (rstn),
 		.enabled             (enabled),
@@ -148,7 +154,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	fifo  #(
 		.WIDTH($bits(CommandBufferLine)),
 		.DEPTH(64)
-	)read_command_vertex_buffer_fifo_instant(
+	)read_command_job_vertex_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
 
@@ -161,5 +167,27 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.valid(read_command_vertex_buffer_status.valid),
 		.data_out(read_command_vertex_buffer),
 		.empty(read_command_vertex_buffer_status.empty));
+
+////////////////////////////////////////////////////////////////////////////
+//cu_vertex_control command buffer
+////////////////////////////////////////////////////////////////////////////
+	assign read_command_graph_algorithm_edge = 0;
+	
+	fifo  #(
+		.WIDTH($bits(CommandBufferLine)),
+		.DEPTH(256)
+	)read_command_graph_algorithm_buffer_fifo_instant(
+		.clock(clock),
+		.rstn(rstn),
+
+		.push(read_command_graph_algorithm_edge.valid),
+		.data_in(read_command_graph_algorithm_edge),
+		.full(read_command_graph_algorithm_buffer_status.full),
+		.alFull(read_command_graph_algorithm_buffer_status.alfull),
+
+		.pop(ready[1]),
+		.valid(read_command_graph_algorithm_buffer_status.valid),
+		.data_out(read_command_graph_algorithm_buffer),
+		.empty(read_command_graph_algorithm_buffer_status.empty));
 
 endmodule

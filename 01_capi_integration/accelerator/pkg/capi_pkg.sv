@@ -9,7 +9,7 @@ package CAPI_PKG;
   parameter INVALID_ID      = 8'h00;
   // request Tag ranges
   parameter INVALID_TAG     = 8'h00;
-  // parameter WED_ID = 8'h01; defined in wed package
+
 
   typedef enum logic [0:7] {
     RESET=8'h80,
@@ -65,21 +65,6 @@ package CAPI_PKG;
     RESTART=13'h0001,
     INVALID
   } afu_command_t;
-
-  // typedef enum logic [0:7] {
-  //   INVALID_TAG,
-  //   WED_TAG,
-  //   STRIPE1_READ,
-  //   STRIPE2_READ,
-  //   PARITY_WRITE,
-  //   DONE_WRITE
-  // } request_tag;
-
-
-
-
-  // parameter INVALID_TAG= 8'h00;
-  // parameter WED_TAG= 8'h01;
 
   typedef struct packed {
     logic valid;              // ha_jval,        // Job valid
