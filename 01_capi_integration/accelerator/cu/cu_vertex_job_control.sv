@@ -11,11 +11,11 @@ module cu_vertex_job_control (
 	input ResponseBufferLine 	read_response_in,
 	input ReadWriteDataLine 	read_data_0_in,
 	input ReadWriteDataLine 	read_data_1_in,
-	input BufferStatus read_buffer_status,
-	input logic vertex_request,
-	output CommandBufferLine read_command_out,
-	output BufferStatus vertex_buffer_status,
-	output VertexInterface vertex
+	input BufferStatus 			read_buffer_status,
+	input logic 				vertex_request,
+	output CommandBufferLine 	read_command_out,
+	output BufferStatus 		vertex_buffer_status,
+	output VertexInterface 		vertex
 );
 
 	//output latched
@@ -385,7 +385,6 @@ module cu_vertex_job_control (
 ////////////////////////////////////////////////////////////////////////////
 //Read Vertex registers into vertex job queue
 ////////////////////////////////////////////////////////////////////////////
-
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffers Vertices

@@ -1,5 +1,6 @@
 package CU_PKG;
 
+	import WED_PKG::*;
 	// parameter INVALID_ID      	= 8'h00; 		defined at capi_pkg
 	// parameter WED_ID 			= 8'h01; 		defined at wed_pkg
 
@@ -14,7 +15,8 @@ package CU_PKG;
 	parameter CACHELINE_VERTEX_NUM 		= (128 >> $clog2(VERTEX_SIZE)); // number of vertices in one cacheline
 	parameter CACHELINE_EDGE_NUM   		= (128 >> $clog2(EDGE_SIZE)); // number of edges in one cacheline
 // Relating to CU IDs
-	parameter VERTEX_CONTROL_ID 		= 8'h02;			// This is the CU that requests and schedules graph vertices to other CUs
+	parameter VERTEX_CONTROL_ID 		= (WED_ID - 1);			// This is the CU that requests and schedules graph vertices to other CUs
+	
 	
 	typedef enum int unsigned{
 		STRUCT_INVALID,
@@ -97,69 +99,69 @@ package CU_PKG;
 		
 		
 		if(0 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(0*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(0*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(0*VERTEX_SIZE_BITS))]};
 		end else if(1 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(1*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(1*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(1*VERTEX_SIZE_BITS))]};
 		end else if(2 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(2*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(2*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(2*VERTEX_SIZE_BITS))]};
 		end else if(3 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(3*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(3*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(3*VERTEX_SIZE_BITS))]};
 		end else if(4 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(4*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(4*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(4*VERTEX_SIZE_BITS))]};
 		end else if(5 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(5*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(5*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(5*VERTEX_SIZE_BITS))]};
 		end else if(6 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(6*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(6*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(6*VERTEX_SIZE_BITS))]};
 		end else if(7 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(7*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(7*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(7*VERTEX_SIZE_BITS))]};
 		end else if(8 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(8*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(8*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(8*VERTEX_SIZE_BITS))]};
 		end else if(9 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(9*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(9*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(9*VERTEX_SIZE_BITS))]};
 		end else if(10 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(10*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(10*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(10*VERTEX_SIZE_BITS))]};
 		end else if(11 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(11*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(11*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(11*VERTEX_SIZE_BITS))]};
 		end else if(12 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(12*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(12*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(12*VERTEX_SIZE_BITS))]};
 		end else if(13 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(13*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(13*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(13*VERTEX_SIZE_BITS))]};
 		end else if(14 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(14*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(14*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(14*VERTEX_SIZE_BITS))]};
 		end else if(15 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(15*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(15*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(15*VERTEX_SIZE_BITS))]};
 		end else if(16 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(16*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(16*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(16*VERTEX_SIZE_BITS))]};
 		end else if(17 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(17*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(17*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(17*VERTEX_SIZE_BITS))]};
 		end else if(18 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(18*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(18*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(18*VERTEX_SIZE_BITS))]};
 		end else if(19 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(19*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(19*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(19*VERTEX_SIZE_BITS))]};
 		end else if(20 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(20*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(20*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(20*VERTEX_SIZE_BITS))]};
 		end else if(21 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(21*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(21*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(21*VERTEX_SIZE_BITS))]};
 		end else if(22 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(22*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(22*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(22*VERTEX_SIZE_BITS))]};
 		end else if(23 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(23*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(23*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(23*VERTEX_SIZE_BITS))]};
 		end else if(24 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(24*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(24*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(24*VERTEX_SIZE_BITS))]};
 		end else if(25 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(25*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(25*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(25*VERTEX_SIZE_BITS))]};
 		end else if(26 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(26*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(26*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(26*VERTEX_SIZE_BITS))]};
 		end else if(27 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(27*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(27*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(27*VERTEX_SIZE_BITS))]};
 		end else if(28 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(28*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(28*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(28*VERTEX_SIZE_BITS))]};
 		end else if(29 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(29*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(29*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(29*VERTEX_SIZE_BITS))]};
 		end else if(30 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(30*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(30*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(30*VERTEX_SIZE_BITS))]};
 		end else if(31 == shift_seek) begin
-			cacheline_out = cacheline_in[0:(CACHELINE_SIZE_BITS-1-(31*VERTEX_SIZE_BITS))];
+			cacheline_out = {{(31*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(31*VERTEX_SIZE_BITS))]};
 		end 
 	
 		return cacheline_out;
