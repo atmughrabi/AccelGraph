@@ -48,8 +48,8 @@
 int numThreads;
 mt19937state *mt19937var;
 
-#define MMIO_ADDR1             0x3fffff8             // 0x3fffff8 >> 2 = 0xfffffe
-#define MMIO_ADDR2             0x3fffff0             // 0x3fffff8 >> 2 = 0xfffffc
+#define ALGO_STATUS            0x3fffff8             // 0x3fffff8 >> 2 = 0xfffffe
+#define ALGO_REQUEST           0x3fffff0             // 0x3fffff8 >> 2 = 0xfffffc
 #define ERROR_REG              0x3FFFFE8
 
 #ifdef  SIM
@@ -256,23 +256,20 @@ main (int argc, char **argv)
         printf("succ cxl_mmio_map %d", base_address);
     }
 
-    uint64_t rc1 = 0;
+    uint64_t algo_status = 0;
     uint64_t error = 0;
 
     printf("Waiting for completion by AFU\n");
     do
     {
-        cxl_mmio_read64(afu, MMIO_ADDR1, &rc1);
-        printf("Response counter1: %lu\n", rc1);
-        cxl_mmio_write64(afu, MMIO_ADDR2, rc1);
+        cxl_mmio_read64(afu, ALGO_STATUS, &algo_status);
+        printf("algo_status: %lu\n", algo_status);
+        cxl_mmio_write64(afu, ALGO_REQUEST, algo_status);
 
         cxl_mmio_read64(afu, ERROR_REG, &error);
         printf("ERROR_REG %lX\n", error);
 
-        printf("wed done %u \n", wedGraphCSR->done);
-  
-
-        if(rc1 > 20)
+        if(algo_status)
             break;
     }
     while(1);
