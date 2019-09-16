@@ -13,8 +13,8 @@
 # dirs Root app 
 APP_DIR           	= .
 SCRIPT_DIR          = ../04_scripts
-BENCHMARKS_DIR    	= ../../01_GraphDatasets
-# BENCHMARKS_DIR    	= ../03_test_graphs
+# BENCHMARKS_DIR    	= ../../01_GraphDatasets
+BENCHMARKS_DIR    	= ../03_test_graphs
 
 #dir root/managed_folders
 SRC_DIR           	= src
@@ -62,14 +62,14 @@ MAIN_DIR		  	= main
 #small test graphs
 # GRAPH_NAME = test
 # GRAPH_NAME = Rabbit
-
+ GRAPH_NAME = v51_e1021
 # synthetic graphs
 # GRAPH_NAME = RMAT20
 # GRAPH_NAME = RMAT22
 
 # real world large graphs binary format
 # GRAPH_NAME = orkut
-GRAPH_NAME = gplus
+# GRAPH_NAME = gplus
 # GRAPH_NAME = sk-2005
 # GRAPH_NAME = twitter
 # GRAPH_NAME = livejournal
