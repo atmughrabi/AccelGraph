@@ -42,7 +42,7 @@ module fifo #(
 
     // assign data_out = rd_data;
     always_comb begin 
-        if(valid)
+        if(ren)
             data_out = rd_data;
         else
             data_out = 0;

@@ -41,7 +41,7 @@ module cu_cacheline_stream (
 
 				if(fill_vertex_buffer && (vertex_shift_counter < shift_limit))begin
 					vertex_shift_counter 	<= vertex_shift_counter + 1;
-					cacheline 				<= {32'b0,cacheline[0:(CACHELINE_SIZE_BITS-1-VERTEX_SIZE_BITS)]};
+					cacheline 				<= {{VERTEX_SIZE_BITS{1'b0}},cacheline[0:(CACHELINE_SIZE_BITS-1-VERTEX_SIZE_BITS)]};
 				end
 
 				if (vertex_shift_counter >= shift_limit) begin

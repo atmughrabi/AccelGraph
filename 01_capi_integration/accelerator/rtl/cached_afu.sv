@@ -27,6 +27,8 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   logic [0:6]     command_response_error;
   logic [0:63]    external_errors;
   logic [0:63]    report_errors;
+  logic [0:63] algorithm_status;
+  logic [0:63] algorithm_requests;
   logic report_errors_ack;
   logic reset_afu;
 
@@ -143,6 +145,8 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     .read_data_0_in     (read_data_0_out),
     .read_data_1_in     (read_data_1_out),
     .read_buffer_status (command_buffer_status.read_buffer),
+    .algorithm_status   (algorithm_status),
+    .algorithm_requests (algorithm_requests),
     .read_command_out   (read_command_out),
     .write_buffer_status(command_buffer_status.write_buffer),
     .write_command_out  (write_command_out),
@@ -160,6 +164,8 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     .clock       (clock),
     .rstn        (reset_afu),
     .report_errors(report_errors),
+    .algorithm_status  (algorithm_status),
+    .algorithm_requests(algorithm_requests),
     .mmio_in     (mmio_in),
     .mmio_out    (mmio_out),
     .mmio_errors (mmio_errors),

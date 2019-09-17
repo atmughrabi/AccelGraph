@@ -1,9 +1,9 @@
 package CAPI_PKG;
 
   // MMIO Registers mapping
-  parameter REG_1= 26'h 3FFFFF8 >> 2;
-  parameter REG_2= 26'h 3FFFFF0 >> 2;
-  parameter ERROR_REG= 26'h 3FFFFE8 >> 2;
+  parameter ALGO_STATUS  = 26'h 3FFFFF8 >> 2; // algorithm status DONE/RUNNING HOST reads this address
+  parameter ALGO_REQUEST = 26'h 3FFFFF0 >> 2; // algorithm status START/STOP/RESET AFU reads this address
+  parameter ERROR_REG    = 26'h 3FFFFE8 >> 2; // AFU error reporting HOST reads this address
 
   // this is for reset state each CU has an ID issues with the command.
   parameter INVALID_ID      = 8'h00;

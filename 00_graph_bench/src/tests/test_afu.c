@@ -190,7 +190,7 @@ main (int argc, char **argv)
     arguments.wflag = 0;
     arguments.xflag = 0;
     arguments.sflag = 0;
-
+    arguments.dflag = 0;
     arguments.iterations = 200;
     arguments.trials = 100;
     arguments.epsilon = 0.0001;

@@ -78,6 +78,7 @@ module read_data_control (
           end
         endcase
 
+        read_data_control_out_0.line.valid              <= buffer_in_latched.write_valid;
         read_data_control_out_0.line.cmd                <= data_read_tag_id_in;
         read_data_control_out_0.line.data               <= buffer_in_latched.write_data;
 
@@ -113,6 +114,7 @@ module read_data_control (
           end
         endcase
 
+        read_data_control_out_1.line.valid              <= buffer_in_latched.write_valid;
         read_data_control_out_1.line.cmd                <= data_read_tag_id_in;
         read_data_control_out_1.line.data               <= buffer_in_latched.write_data;
 

@@ -35,6 +35,7 @@ module cu_vertex_job_control (
 	// Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
 	logic [0:11] request_size;
 	logic send_request_ready;
+	logic fill_vertex_buffer_pending;
 	logic [0:7]  response_counter;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_next_offest;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter;
@@ -389,8 +390,10 @@ module cu_vertex_job_control (
 ////////////////////////////////////////////////////////////////////////////
 //Buffers Vertices
 ////////////////////////////////////////////////////////////////////////////
-
-	assign send_request_ready = vertex_buffer_status_latched.empty && (|vertex_num_counter) && ~(|response_counter) && wed_request_in_latched.valid;
+	assign fill_vertex_buffer_pending = in_degree_cacheline_ready || out_degree_cacheline_ready || edges_idx_degree_cacheline_ready||
+		inverse_in_degree_cacheline_ready || inverse_out_degree_cacheline_ready || inverse_edges_idx_degree_cacheline_ready ||
+		(|response_counter);
+	assign send_request_ready = ~fill_vertex_buffer_pending && vertex_buffer_status_latched.empty && (|vertex_num_counter) && ~(|response_counter) && wed_request_in_latched.valid;
 	assign fill_vertex_buffer = in_degree_cacheline_ready && out_degree_cacheline_ready && edges_idx_degree_cacheline_ready &&
 		inverse_in_degree_cacheline_ready && inverse_out_degree_cacheline_ready && inverse_edges_idx_degree_cacheline_ready &&
 		~(|response_counter);

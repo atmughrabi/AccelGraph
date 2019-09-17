@@ -104,10 +104,10 @@ PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
-NUM_THREADS  	= 1
+NUM_THREADS  	= 4
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 NUM_ITERATIONS 	= 1
-NUM_TRIALS 		= 10
+NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
 CONVERT_FORMAT 	= 1
@@ -769,7 +769,7 @@ run-openmp: graph-openmp
 
 .PHONY: convert
 convert: graph-openmp
-	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp  -x -c $(CONVERT_FORMAT) -f $(FILE_BIN) -z $(FILE_FORMAT)
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-openmp  -w -x -c $(CONVERT_FORMAT) -f $(FILE_BIN) -z $(FILE_FORMAT)
 
 .PHONY: stats-openmp
 stats-openmp: graph-openmp

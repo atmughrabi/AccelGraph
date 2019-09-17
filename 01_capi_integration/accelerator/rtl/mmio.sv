@@ -4,6 +4,8 @@ module mmio (
   input logic clock,
   input logic rstn,
   input logic [0:63] report_errors,
+  input logic [0:63] algorithm_status,
+  output logic [0:63] algorithm_requests,
   input MMIOInterfaceInput mmio_in,
   output MMIOInterfaceOutput mmio_out,
   output logic [0:1] mmio_errors,
@@ -47,13 +49,6 @@ module mmio (
   logic address_parity;
   logic data_ack;
 
-  // Register MMIO_Read
-  logic [0:63] counter1;
-  logic [0:63] counter2;
-
-  // Register MMIO_Write
-  logic [0:63] reg1;
-  logic [0:63] reg2;
 
   MMIOInterfaceInput mmio_in_latched;
 
@@ -142,25 +137,19 @@ module mmio (
 // Write DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      reg1         <= 64'h0000_0000_0000_0000;
-      reg2         <= 64'h0000_0000_0000_0000;
+      algorithm_requests <= 64'h0000_0000_0000_0000;
     end else begin
       if (mmio_write_latched) begin
         case (address_latched)
-          REG_1:begin
-            reg1 <= data_in_latched;
-          end
-          REG_2:begin
-            reg2 <= data_in_latched;
+          ALGO_REQUEST:begin
+            algorithm_requests <= data_in_latched;
           end
           default : begin
-            reg1         <= 64'h0000_0000_0000_0000;
-            reg2         <= 64'h0000_0000_0000_0000;
+            algorithm_requests <= algorithm_requests;
           end
         endcase
       end else begin
-        reg1         <= 64'h0000_0000_0000_0000;
-        reg2         <= 64'h0000_0000_0000_0000;
+        algorithm_requests <= algorithm_requests;
       end
     end
   end
@@ -169,8 +158,6 @@ module mmio (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       data_out         <= 64'h0000_0000_0000_0000;
-      counter1         <= 64'h0000_0000_0000_0000;
-      counter2         <= 64'h0000_0000_0000_0000;
       report_errors_ack_latched <= 1'b0;
     end else begin
       if(cfg_read_latched) begin
@@ -183,25 +170,20 @@ module mmio (
         end
       end else if (mmio_read_latched) begin
         case (address_latched)
-          REG_1:begin
-            counter1  <= counter1 + 1; // example could data input from other module
-            data_out <= counter1;
-          end
-          REG_2:begin
-            counter2  <= counter2 + 3; // example
-            data_out <= counter2;
+          ALGO_STATUS:begin
+            data_out <= algorithm_status;
           end
           ERROR_REG:begin
             data_out <= report_errors;
             report_errors_ack_latched <= 1'b1;
           end
           default : begin
-            data_out <= 64'h0000_0000_0000_0000;
+            data_out <= data_out;
             report_errors_ack_latched <= 1'b0;
           end
         endcase
       end else begin
-        data_out <= 64'h0000_0000_0000_0000;
+        data_out <= data_out;
         report_errors_ack_latched <= 1'b0;
       end
     end

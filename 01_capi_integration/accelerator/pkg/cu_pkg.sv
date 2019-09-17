@@ -56,6 +56,7 @@ package CU_PKG;
 	typedef struct packed {
 		logic valid;
 		logic [0:(EDGE_SIZE_BITS-1)] id;
+		logic [0:(EDGE_SIZE_BITS-1)] weight;
 	} EdgeInterface;
 
 // Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
@@ -92,8 +93,6 @@ package CU_PKG;
 	function logic [0:(CACHELINE_SIZE_BITS-1)] seek_cacheline(logic [0:7]  shift_seek, logic [0:(CACHELINE_SIZE_BITS-1)] cacheline_in);
 
 		logic [0:(CACHELINE_SIZE_BITS-1)] cacheline_out;
-
-		int unsigned i;
 
 		cacheline_out = cacheline_in;
 		

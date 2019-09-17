@@ -8,7 +8,7 @@
 # # generated the IP script, relative to the directory from which you launch
 # # the simulator.
 # #
-set QSYS_SIMDIR /home/ab/Documents/github_repos/CAPI-Synthesize/capi_cache_afu/quartus_ip/fp/fp_add_sim
+set QSYS_SIMDIR /home/ab/Documents/github_repos/CAPI-Synthesize/capi_cache_afu/quartus_ip/fp/fp_acc_sim
 # #
 # # Source the generated IP simulation script.
 source $QSYS_SIMDIR/mentor/msim_setup.tcl

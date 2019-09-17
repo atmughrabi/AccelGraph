@@ -94,6 +94,7 @@ package AFU_PKG;
 //Data Control
 ////////////////////////////////////////////////////////////////////////////
   typedef struct packed { // one cacheline is 128bytes each sent on separate 64bytes chunks
+    logic valid;  
     CommandTagLine cmd;
     logic [0:511] data;
   } ReadWriteDataLine;

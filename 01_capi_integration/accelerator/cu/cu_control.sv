@@ -14,8 +14,10 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	input ReadWriteDataLine read_data_0_in,
 	input ReadWriteDataLine read_data_1_in,
 	input BufferStatus 		read_buffer_status,
+	output logic [0:63] 	algorithm_status,
+	input  logic [0:63] 	algorithm_requests,
 	output CommandBufferLine read_command_out,
-	input BufferStatus 		write_buffer_status,
+	input  BufferStatus 		write_buffer_status,
 	output CommandBufferLine write_command_out,
 	output ReadWriteDataLine write_data_0_out,
 	output ReadWriteDataLine write_data_1_out
@@ -38,33 +40,40 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	CommandBufferLine read_command_vertex_buffer;
 	BufferStatus read_command_vertex_buffer_status;
 
-	CommandBufferLine read_command_graph_algorithm_edge;
+	CommandBufferLine read_command_graph_algorithm;
 	CommandBufferLine read_command_graph_algorithm_buffer;
 	BufferStatus read_command_graph_algorithm_buffer_status;
 
 	//input lateched
 	WEDInterface wed_request_in_latched;
 	ResponseBufferLine read_response_in_latched;
+	ResponseBufferLine read_response_vertex_job;
+	ResponseBufferLine read_response_graph_algorithm;
+
 	ResponseBufferLine write_response_in_latched;
 	ReadWriteDataLine read_data_0_in_latched;
 	ReadWriteDataLine read_data_1_in_latched;
+	ReadWriteDataLine read_data_0_vertex_job;
+	ReadWriteDataLine read_data_1_vertex_job;
+	ReadWriteDataLine read_data_0_graph_algorithm;
+	ReadWriteDataLine read_data_1_graph_algorithm;
 	BufferStatus 	  read_buffer_status_latched;
-	BufferStatus write_buffer_status_latched;
+	BufferStatus      write_buffer_status_latched;
 
 	CommandBufferLine command_arbiter_out;
 	logic [NUM_REQUESTS-1:0] requests;
 	logic [NUM_REQUESTS-1:0] ready;
 	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in;
 
-	assign vertex_job_request = 0;
+	logic [0:63] 	algorithm_status_latched;
+	logic [0:63] 	algorithm_requests_latched;
+	logic done_graph_algorithm;
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
 ////////////////////////////////////////////////////////////////////////////
 
-	assign write_command_out_latched = 0;
-	assign write_data_0_out_latched  = 0;
-	assign write_data_1_out_latched  = 0;
+	assign algorithm_status_latched  = done_graph_algorithm;
 	assign read_command_out_latched  = command_arbiter_out;
 
 	// drive outputs
@@ -74,12 +83,14 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			write_data_0_out  <= 0;
 			write_data_1_out  <= 0;
 			read_command_out  <= 0;
+			algorithm_status  <= 0;
 		end else begin
 			if(enabled)begin
 				write_command_out <= write_command_out_latched;
 				write_data_0_out  <= write_data_0_out_latched;
 				write_data_1_out  <= write_data_1_out_latched;
 				read_command_out  <= read_command_out_latched;
+				algorithm_status  <= algorithm_status_latched;
 			end
 		end
 	end
@@ -94,6 +105,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			read_data_1_in_latched		<= 0;
 			read_buffer_status_latched	<= 4'b0001;
 			write_buffer_status_latched	<= 4'b0001;
+			algorithm_requests_latched  <= 0;
 		end else begin
 			if(enabled)begin
 				wed_request_in_latched 		<= wed_request_in;
@@ -103,6 +115,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 				read_data_1_in_latched		<= read_data_1_in;
 				read_buffer_status_latched	<= read_buffer_status;
 				write_buffer_status_latched	<= write_buffer_status;
+				algorithm_requests_latched  <= algorithm_requests;
 			end
 		end
 	end
@@ -136,12 +149,81 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 //read response arbitration logic - input
 ////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////
-//read command request logic - input
-////////////////////////////////////////////////////////////////////////////
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_response_vertex_job  <= 0;
+			read_response_graph_algorithm <= 0;
+		end else begin
+			if(enabled && read_response_in_latched.valid) begin
+				case (read_response_in_latched.cmd.cu_id)
+					VERTEX_CONTROL_ID: begin
+						read_response_vertex_job <= read_response_in_latched;
+						read_response_graph_algorithm <= 0;
+					end
+					default : begin
+						read_response_graph_algorithm <= read_response_in_latched;
+						read_response_vertex_job  <= 0;
+					end
+				endcase
+			end else begin
+				read_response_vertex_job  <= 0;
+				read_response_graph_algorithm <= 0;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
-//cu_vertex_control
+//read data request logic - input
+////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_data_0_vertex_job  <= 0;
+			read_data_0_graph_algorithm <= 0;
+		end else begin
+			if(enabled && read_data_0_in_latched.valid) begin
+				case (read_data_0_in_latched.cmd.cu_id)
+					VERTEX_CONTROL_ID: begin
+						read_data_0_vertex_job <= read_data_0_in_latched;
+						read_data_0_graph_algorithm <= 0;
+					end
+					default : begin
+						read_data_0_graph_algorithm <= read_data_0_in_latched;
+						read_data_0_vertex_job  <= 0;
+					end
+				endcase
+			end else begin
+				read_data_0_vertex_job  <= 0;
+				read_data_0_graph_algorithm <= 0;
+			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_data_1_vertex_job  <= 0;
+			read_data_1_graph_algorithm <= 0;
+		end else begin
+			if(enabled && read_data_1_in_latched.valid) begin
+				case (read_data_1_in_latched.cmd.cu_id)
+					VERTEX_CONTROL_ID: begin
+						read_data_1_vertex_job <= read_data_1_in_latched;
+						read_data_1_graph_algorithm <= 0;
+					end
+					default : begin
+						read_data_1_graph_algorithm <= read_data_1_in_latched;
+						read_data_1_vertex_job  <= 0;
+					end
+				endcase
+			end else begin
+				read_data_1_vertex_job  <= 0;
+				read_data_1_graph_algorithm <= 0;
+			end
+		end
+	end
+
+////////////////////////////////////////////////////////////////////////////
+//cu_vertex_control - vertex job queue
 ////////////////////////////////////////////////////////////////////////////
 
 	cu_vertex_job_control cu_vertex_job_control_instant(
@@ -149,15 +231,38 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.rstn                (rstn),
 		.enabled             (enabled),
 		.wed_request_in      (wed_request_in_latched),
-		.read_response_in    (read_response_in_latched),
-		.read_data_0_in      (read_data_0_in_latched),
-		.read_data_1_in      (read_data_1_in_latched),
+		.read_response_in    (read_response_vertex_job),
+		.read_data_0_in      (read_data_0_vertex_job),
+		.read_data_1_in      (read_data_1_vertex_job),
 		.read_buffer_status  (read_command_vertex_buffer_status),
 		.vertex_request      (vertex_job_request),
 		.read_command_out    (read_command_out_vertex),
 		.vertex_buffer_status(vertex_buffer_status_latched),
 		.vertex              (vertex_job));
 
+////////////////////////////////////////////////////////////////////////////
+//graph algorithm control - graph algorithm CU - edge processing
+////////////////////////////////////////////////////////////////////////////
+
+	cu_graph_algorithm_control cu_graph_algorithm_control_instant(
+		.clock               (clock),
+		.rstn                (rstn),
+		.enabled             (enabled),
+		.wed_request_in      (wed_request_in_latched),
+		.read_response_in    (read_response_graph_algorithm),
+		.write_response_in   (write_response_in_latched),
+		.read_data_0_in      (read_data_0_graph_algorithm),
+		.read_data_1_in      (read_data_1_graph_algorithm),
+		.read_buffer_status  (read_command_graph_algorithm_buffer_status),
+		.read_command_out    (read_command_graph_algorithm),
+		.write_buffer_status (write_buffer_status_latched),
+		.write_command_out   (write_command_out_latched),
+		.write_data_0_out    (write_data_0_out_latched),
+		.write_data_1_out    (write_data_1_out_latched),
+		.vertex_buffer_status(vertex_buffer_status_latched),
+		.vertex_job          (vertex_job),
+		.vertex_job_request  (vertex_job_request),
+		.done_graph_algorithm(done_graph_algorithm));
 
 ////////////////////////////////////////////////////////////////////////////
 //cu_vertex_control command buffer
@@ -183,7 +288,6 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 ////////////////////////////////////////////////////////////////////////////
 //cu_vertex_control command buffer
 ////////////////////////////////////////////////////////////////////////////
-	assign read_command_graph_algorithm_edge = 0;
 
 	fifo  #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -192,8 +296,8 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.clock(clock),
 		.rstn(rstn),
 
-		.push(read_command_graph_algorithm_edge.valid),
-		.data_in(read_command_graph_algorithm_edge),
+		.push(read_command_graph_algorithm.valid),
+		.data_in(read_command_graph_algorithm),
 		.full(read_command_graph_algorithm_buffer_status.full),
 		.alFull(read_command_graph_algorithm_buffer_status.alfull),
 
