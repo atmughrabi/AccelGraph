@@ -477,7 +477,7 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] TC    (Triangle Counting)
   - [ ] SPMV  (Sparse Matrix-vector Multiplication)
 - [x] Finish integration with CAPI Simulation
-- [ ] Finish integration with CAPI Cache
+- [x] Finish integration with CAPI Cache
 - [ ] Finish Synthesis with CAPI (Meets time requirements)
 - [ ] Finish graph algorithms suite CAPI
   - [ ] BFS   (Breadth First Search)
