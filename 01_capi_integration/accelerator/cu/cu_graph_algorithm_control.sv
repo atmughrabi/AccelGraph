@@ -3,7 +3,7 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_graph_algorithm_control #(parameter NUM_CU = 2) (
+module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = 1) (
 	input logic clock,    // Clock
 	input logic rstn,
 	input logic enabled,
@@ -57,12 +57,22 @@ module cu_graph_algorithm_control #(parameter NUM_CU = 2) (
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter;
 
 
-	CommandBufferLine command_arbiter_out;
-	logic [NUM_CU-1:0] requests;
-	logic [NUM_CU-1:0] ready;
-	CommandBufferLine [NUM_CU-1:0] read_command_buffer;
-	CommandBufferLine [NUM_CU-1:0] write_command_buffer;
-	VertexInterface   [NUM_CU-1:0] vertex_job_rcv;
+	CommandBufferLine read_command_arbiter_out;
+	CommandBufferLine write_command_arbiter_out;
+
+	logic [NUM_VERTEX_CU-1:0] requests;
+	logic [NUM_VERTEX_CU-1:0] ready;
+	CommandBufferLine [NUM_VERTEX_CU-1:0] read_command_cu;
+	CommandBufferLine [NUM_VERTEX_CU-1:0] write_command_cu;
+	
+	ResponseBufferLine [NUM_VERTEX_CU-1:0] read_response_cu;
+	ResponseBufferLine [NUM_VERTEX_CU-1:0] write_response_cu;
+	ReadWriteDataLine  [NUM_VERTEX_CU-1:0] read_data_0_cu;
+	ReadWriteDataLine  [NUM_VERTEX_CU-1:0] read_data_1_cu;
+	ReadWriteDataLine  [NUM_VERTEX_CU-1:0] write_data_0_cu;
+	ReadWriteDataLine  [NUM_VERTEX_CU-1:0] write_data_1_cu;
+	VertexInterface    [NUM_VERTEX_CU-1:0] vertex_job_cu;
+	logic 			   [NUM_VERTEX_CU-1:0] vertex_job_request_cu;
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
@@ -120,6 +130,55 @@ module cu_graph_algorithm_control #(parameter NUM_CU = 2) (
 	end
 
 	////////////////////////////////////////////////////////////////////////////
+	genvar i;
+	////////////////////////////////////////////////////////////////////////////
+	// Vertex job request Arbitration
+	////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////
+	// Vertex CU Read Command Arbitration
+	////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////
+	// Vertex CU Write Command/ Write Data Arbitration
+	////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////
+	// Vertex CU Read Data Arbitration
+	////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////
+	// Vertex CU Response Arbitration
+	////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////
+	// Vertex-centric Algorithm Module Generate
+	////////////////////////////////////////////////////////////////////////////
+	generate
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_pagerank_cu
+			cu_vertex_pagerank #(
+				.PAGERANK_CU_ID(i))cu_vertex_pagerank_instant
+			(
+				.clock               (clock),
+				.rstn                (rstn),
+				.enabled             (enabled),
+				.wed_request_in      (wed_request_in_latched),
+				.read_response_in    (read_response_cu[i]),
+				.write_response_in   (write_response_cu[i]),
+				.read_data_0_in      (read_data_0_cu[i]),
+				.read_data_1_in      (read_data_1_cu[i]),
+				.read_buffer_status  (read_command_graph_algorithm_buffer_status),
+				.read_command_out    (read_command_cu[i]),
+				.write_buffer_status (write_buffer_status_latched),
+				.write_command_out   (write_command_cu[i]),
+				.write_data_0_out    (write_data_0_cu[i]),
+				.write_data_1_out    (write_data_1_cu[i]),
+				.vertex_buffer_status(vertex_buffer_status_latched),
+				.vertex_job          (vertex_job_cu[i]),
+				.vertex_job_request  (vertex_job_request_cu[i]));
+		end
+	endgenerate
+	////////////////////////////////////////////////////////////////////////////
 	// test vertex request
 	////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
@@ -133,7 +192,7 @@ module cu_graph_algorithm_control #(parameter NUM_CU = 2) (
 				end
 				if(vertex_job_latched.valid) begin
 					vertex_num_counter <= vertex_num_counter + 1;
-				end		
+				end
 			end
 		end
 	end

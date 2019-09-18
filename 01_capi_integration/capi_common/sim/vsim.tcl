@@ -24,7 +24,9 @@ proc r  {} {
   vlog -quiet ../../accelerator/rtl/error_control.sv
   vlog -quiet ../../accelerator/rtl/ram.sv
   vlog -quiet ../../accelerator/rtl/fifo.sv
-  vlog -quiet ../../accelerator/rtl/priority_arbiter.sv
+  vlog -quiet ../../accelerator/rtl/priority_arbiters.sv
+  vlog -quiet ../../accelerator/rtl/round_robin_priority_arbiter.sv
+  vlog -quiet ../../accelerator/rtl/fixed_priority_arbiter.sv
 
   echo "Compiling RTL AFU Control"
   vlog -quiet ../../accelerator/rtl/credit_control.sv

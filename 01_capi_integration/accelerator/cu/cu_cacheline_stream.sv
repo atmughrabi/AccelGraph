@@ -31,11 +31,11 @@ module cu_cacheline_stream (
 		end
 		else begin
 			if(enabled)begin
-				if (read_data_0_in.cmd.vertex_struct == vertex_struct) begin
+				if (read_data_0_in.cmd.vertex_struct == vertex_struct && read_data_0_in.valid) begin
 					cacheline [0:511]	<= read_data_0_in.data;
 				end
 
-				if (read_data_1_in.cmd.vertex_struct == vertex_struct) begin
+				if (read_data_1_in.cmd.vertex_struct == vertex_struct && read_data_1_in.valid) begin
 					cacheline[512:(CACHELINE_SIZE_BITS-1)]	<= read_data_1_in.data;
 				end
 

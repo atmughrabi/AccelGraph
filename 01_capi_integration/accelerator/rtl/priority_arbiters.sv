@@ -191,7 +191,7 @@ module vc_RoundRobinArbChain #(
   parameter p_num_reqs             = 2,
   parameter p_priority_rstn_value = 1  // (one-hot) 1 = high priority req
 ) (
-  input  logic                  clk,
+  input  logic                  clock,
   input  logic                  rstn,
   input  logic                  kin,    // kill in
   input  logic [p_num_reqs-1:0] reqs,   // 1 = making a req, 0 = no req
@@ -213,7 +213,7 @@ module vc_RoundRobinArbChain #(
 
   logic [p_num_reqs-1:0] priority_;
 
-  always_ff @(posedge clk or negedge rstn) begin
+  always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       priority_ <= p_priority_rstn_value;
     end else begin
@@ -222,7 +222,7 @@ module vc_RoundRobinArbChain #(
     end
   end
 
-  // always @( posedge clk )
+  // always @( posedge clock )
   //   if ( rstn || priority_en )
   //     priority_ <= rstn ? p_priority_rstn_value : priority_next;
 
@@ -252,7 +252,7 @@ endmodule
 //
 
 module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
-  input  logic                clk,
+  input  logic                clock,
   input  logic                rstn,
   input  logic [p_num_reqs-1:0] reqs,    // 1 = making a req, 0 = no req
   output logic [p_num_reqs-1:0] grants   // (one-hot) 1 is req won grant
@@ -272,11 +272,11 @@ module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
 
   logic [p_num_reqs-1:0] priority_;
 
-  // always @( posedge clk )
+  // always @( posedge clock )
   //   if ( rstn || priority_en )
   //     priority_ <= rstn ? 1 : priority_next;
 
-  always_ff @(posedge clk or negedge rstn) begin
+  always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       priority_ <= 1;
     end else begin
