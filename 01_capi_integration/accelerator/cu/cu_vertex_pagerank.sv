@@ -21,7 +21,8 @@ module cu_vertex_pagerank #(parameter NUM_EDGE_CU = 1,
 	output ReadWriteDataLine write_data_1_out,
 	input  BufferStatus 	 vertex_buffer_status,
 	input  VertexInterface 	 vertex_job,
-	output logic 			 vertex_job_request
+	output logic 			 vertex_job_request,
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter
 );
 
 // vertex control variables
@@ -54,7 +55,7 @@ module cu_vertex_pagerank #(parameter NUM_EDGE_CU = 1,
 	ReadWriteDataLine read_data_1_in_latched;
 	BufferStatus 	  read_buffer_status_latched;
 	BufferStatus write_buffer_status_latched;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter;
+	
 
 
 	CommandBufferLine command_arbiter_out;
@@ -120,15 +121,14 @@ module cu_vertex_pagerank #(parameter NUM_EDGE_CU = 1,
 	////////////////////////////////////////////////////////////////////////////
 	// test vertex request
 	////////////////////////////////////////////////////////////////////////////
+
+	assign vertex_job_request_latched = ~vertex_buffer_status_latched.empty;
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			vertex_num_counter <= 0;
-			vertex_job_request_latched <= 0;
 		end else begin
 			if(enabled)begin
-				if(~vertex_buffer_status_latched.empty) begin
-					vertex_job_request_latched <= 1;
-				end
 				if(vertex_job_latched.valid) begin
 					vertex_num_counter <= vertex_num_counter + 1;
 				end		

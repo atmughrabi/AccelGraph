@@ -26,7 +26,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	// vertex control variables
 
 
-	BufferStatus vertex_buffer_status_latched;
+	BufferStatus vertex_buffer_status;
 	VertexInterface vertex_job;
 	logic vertex_job_request;
 
@@ -103,8 +103,6 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			write_response_in_latched	<= 0;
 			read_data_0_in_latched		<= 0;
 			read_data_1_in_latched		<= 0;
-			read_buffer_status_latched	<= 4'b0001;
-			write_buffer_status_latched	<= 4'b0001;
 			algorithm_requests_latched  <= 0;
 		end else begin
 			if(enabled)begin
@@ -113,8 +111,6 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 				write_response_in_latched	<= write_response_in;
 				read_data_0_in_latched		<= read_data_0_in;
 				read_data_1_in_latched		<= read_data_1_in;
-				read_buffer_status_latched	<= read_buffer_status;
-				write_buffer_status_latched	<= write_buffer_status;
 				algorithm_requests_latched  <= algorithm_requests;
 			end
 		end
@@ -124,8 +120,8 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 //read command request logic - output
 ////////////////////////////////////////////////////////////////////////////
 
-	assign requests[0] = ~read_command_vertex_buffer_status.empty && ~read_buffer_status_latched.alfull;
-	assign requests[1] = ~read_command_graph_algorithm_buffer_status.empty && ~read_buffer_status_latched.alfull;
+	assign requests[0] = ~read_command_vertex_buffer_status.empty && ~read_buffer_status.alfull;
+	assign requests[1] = ~read_command_graph_algorithm_buffer_status.empty && ~read_buffer_status.alfull;
 
 	assign command_buffer_in[0] = read_command_vertex_buffer;
 	assign command_buffer_in[1] = read_command_graph_algorithm_buffer;
@@ -237,7 +233,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.read_buffer_status  (read_command_vertex_buffer_status),
 		.vertex_request      (vertex_job_request),
 		.read_command_out    (read_command_out_vertex),
-		.vertex_buffer_status(vertex_buffer_status_latched),
+		.vertex_buffer_status(vertex_buffer_status),
 		.vertex              (vertex_job));
 
 ////////////////////////////////////////////////////////////////////////////
@@ -255,11 +251,11 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.read_data_1_in      (read_data_1_graph_algorithm),
 		.read_buffer_status  (read_command_graph_algorithm_buffer_status),
 		.read_command_out    (read_command_graph_algorithm),
-		.write_buffer_status (write_buffer_status_latched),
+		.write_buffer_status (write_buffer_status),
 		.write_command_out   (write_command_out_latched),
 		.write_data_0_out    (write_data_0_out_latched),
 		.write_data_1_out    (write_data_1_out_latched),
-		.vertex_buffer_status(vertex_buffer_status_latched),
+		.vertex_buffer_status(vertex_buffer_status),
 		.vertex_job          (vertex_job),
 		.vertex_job_request  (vertex_job_request),
 		.done_graph_algorithm(done_graph_algorithm));

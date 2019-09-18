@@ -3,7 +3,7 @@ import CREDIT_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module round_robin_priority_arbiter #(
+module fixed_priority_arbiter #(
   parameter NUM_REQUESTS = 4,
   parameter WIDTH = 8
 ) (

@@ -3,7 +3,7 @@ import CREDIT_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module round_robin_priority_arbiter #(
+module round_robin_priority_arbiter_N_input_1_ouput #(
   parameter NUM_REQUESTS = 4,
   parameter WIDTH = 8
 ) (
@@ -70,6 +70,81 @@ module round_robin_priority_arbiter #(
   always_comb begin
     for (j = 0; j < NUM_REQUESTS; j++) begin
       ready[j] = grant[j] & enabled;
+    end
+  end
+
+endmodule
+
+
+module round_robin_priority_arbiter_1_input_N_ouput #(
+  parameter NUM_REQUESTS = 4,
+  parameter WIDTH = 8
+) (
+  input logic clock,    // Clock
+  input logic rstn,
+  input logic enabled,
+  input logic [ 0:WIDTH-1] buffer_in,
+  input  logic [NUM_REQUESTS-1:0] requests,
+  output logic [0:WIDTH-1] arbiter_out [0:NUM_REQUESTS-1],
+  output logic [NUM_REQUESTS-1:0] ready
+);
+
+
+
+////////////////////////////////////////////////////////////////////////////
+//requests
+////////////////////////////////////////////////////////////////////////////
+
+  logic [NUM_REQUESTS-1:0] grant;
+  logic [NUM_REQUESTS-1:0] grant_latched;
+  logic [0:WIDTH-1] arbiter_out_latch [0:NUM_REQUESTS-1];
+
+
+// vc_RoundRobinArb
+//------------------------------------------------------------------------
+// Ensures strong fairness among the requesters. The requester which wins
+// the grant will be the lowest priority requester the next cycle.
+
+  vc_RoundRobinArb #(
+    .p_num_reqs(NUM_REQUESTS)
+  )round_robin_arbiter_instance(
+    .clock (clock),
+    .rstn  (rstn),
+    .reqs (requests),
+    .grants(grant)
+  );
+
+/////////////////////////////////////
+// ready the winner if any
+  integer i;
+  integer j;
+
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+        grant_latched <= 0;
+    end else begin
+      if(enabled)begin
+        grant_latched <= grant;
+      end
+    end
+  end
+
+  always_comb begin
+    for (i = 0; i < NUM_REQUESTS; i++) begin
+      arbiter_out_latch[i] = 0;
+      if (grant_latched[i]) begin
+        arbiter_out_latch[i] = buffer_in;
+      end
+    end
+  end
+
+  always @(posedge clock ) begin
+    arbiter_out <= arbiter_out_latch;
+  end
+
+  always_comb begin
+    for (j = 0; j < NUM_REQUESTS; j++) begin
+      ready[j] = grant_latched[j] & enabled;
     end
   end
 

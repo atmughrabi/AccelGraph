@@ -16,7 +16,7 @@ package CU_PKG;
 	parameter CACHELINE_EDGE_NUM   		= (128 >> $clog2(EDGE_SIZE)); // number of edges in one cacheline
 // Relating to CU IDs
 	parameter VERTEX_CONTROL_ID 		= (WED_ID - 1);			// This is the CU that requests and schedules graph vertices to other CUs
-	
+	parameter NUM_VERTEX_CU_GLOBAL 		= 2;
 	
 	typedef enum int unsigned{
 		STRUCT_INVALID,

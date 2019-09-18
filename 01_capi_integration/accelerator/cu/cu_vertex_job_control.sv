@@ -19,7 +19,6 @@ module cu_vertex_job_control (
 );
 
 	//output latched
-	BufferStatus vertex_buffer_status_latched;
 	VertexInterface vertex_latched;
 	CommandBufferLine read_command_out_latched;
 
@@ -68,12 +67,10 @@ module cu_vertex_job_control (
 ////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_buffer_status <= 4'b0001;
 			vertex 	  			 <= 0;
 			read_command_out  	 <= 0;
 		end else begin
 			if(enabled) begin
-				vertex_buffer_status 	<= vertex_buffer_status_latched;
 				vertex 	  			 	<= vertex_latched;
 				read_command_out  		<= read_command_out_latched;
 			end
@@ -393,7 +390,7 @@ module cu_vertex_job_control (
 	assign fill_vertex_buffer_pending = in_degree_cacheline_ready || out_degree_cacheline_ready || edges_idx_degree_cacheline_ready||
 		inverse_in_degree_cacheline_ready || inverse_out_degree_cacheline_ready || inverse_edges_idx_degree_cacheline_ready ||
 		(|response_counter);
-	assign send_request_ready = ~fill_vertex_buffer_pending && vertex_buffer_status_latched.empty && (|vertex_num_counter) && ~(|response_counter) && wed_request_in_latched.valid;
+	assign send_request_ready = ~fill_vertex_buffer_pending && ~vertex_buffer_status.alfull && (|vertex_num_counter) && ~(|response_counter) && wed_request_in_latched.valid;
 	assign fill_vertex_buffer = in_degree_cacheline_ready && out_degree_cacheline_ready && edges_idx_degree_cacheline_ready &&
 		inverse_in_degree_cacheline_ready && inverse_out_degree_cacheline_ready && inverse_edges_idx_degree_cacheline_ready &&
 		~(|response_counter);
@@ -429,20 +426,20 @@ module cu_vertex_job_control (
 
 	fifo  #(
 		.WIDTH($bits(VertexInterface)),
-		.DEPTH((CACHELINE_VERTEX_NUM))
+		.DEPTH((2*CACHELINE_VERTEX_NUM))
 	)vertex_job_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
 
 		.push(push_vertex),
 		.data_in(vertex_variable),
-		.full(vertex_buffer_status_latched.full),
-		.alFull(vertex_buffer_status_latched.alfull),
+		.full(vertex_buffer_status.full),
+		.alFull(vertex_buffer_status.alfull),
 
 		.pop(vertex_request_latched),
-		.valid(vertex_buffer_status_latched.valid),
+		.valid(vertex_buffer_status.valid),
 		.data_out(vertex_latched),
-		.empty(vertex_buffer_status_latched.empty)
+		.empty(vertex_buffer_status.empty)
 	);
 
 
