@@ -13,13 +13,13 @@ module cu_cacheline_stream (
 	input ResponseBufferLine 	read_response_in,
 	input vertex_struct_type	vertex_struct,
 	input logic [0:7]  shift_limit,
-	input logic [0:7]  shift_seek,
 	output logic [0:(CACHELINE_SIZE_BITS-1)] cacheline,
 	output logic cacheline_ready
 );
 
 	logic [0:7] vertex_shift_counter;
 	logic seek_flag;
+	logic [0:7] shift_seek;
 
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -28,15 +28,18 @@ module cu_cacheline_stream (
 			cacheline_ready <= 1'b0;
 			vertex_shift_counter <= 0;
 			seek_flag <= 1'b0;
+			shift_seek <= 0;
 		end
 		else begin
 			if(enabled)begin
 				if (read_data_0_in.cmd.vertex_struct == vertex_struct && read_data_0_in.valid) begin
 					cacheline [0:511]	<= read_data_0_in.data;
+					shift_seek			<= read_data_0_in.cmd.cacheline_offest;
 				end
 
 				if (read_data_1_in.cmd.vertex_struct == vertex_struct && read_data_1_in.valid) begin
 					cacheline[512:(CACHELINE_SIZE_BITS-1)]	<= read_data_1_in.data;
+					shift_seek								<= read_data_0_in.cmd.cacheline_offest;
 				end
 
 				if(fill_vertex_buffer && (vertex_shift_counter < shift_limit))begin
@@ -58,6 +61,7 @@ module cu_cacheline_stream (
 				if(seek_flag) begin
 					seek_flag  			<= 1'b0;
 					cacheline_ready 	<= 1'b1;
+					shift_seek			<= 0;
 					cacheline 	   		<= seek_cacheline(shift_seek, cacheline);
 				end
 
@@ -66,6 +70,7 @@ module cu_cacheline_stream (
 				cacheline_ready <= 1'b0;
 				vertex_shift_counter <= 0;
 				seek_flag <= 1'b0;
+				shift_seek			<= 0;
 			end
 		end
 	end

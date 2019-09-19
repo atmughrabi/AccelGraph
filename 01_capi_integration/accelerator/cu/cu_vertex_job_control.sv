@@ -299,7 +299,6 @@ module cu_vertex_job_control (
 		.read_response_in(read_response_in_latched),
 		.vertex_struct   (IN_DEGREE),
 		.shift_limit     (request_real_size),
-		.shift_seek      (8'h00),
 		.cacheline       (in_degree_cacheline),
 		.cacheline_ready (in_degree_cacheline_ready)
 	);
@@ -314,7 +313,6 @@ module cu_vertex_job_control (
 		.read_response_in(read_response_in_latched),
 		.vertex_struct   (OUT_DEGREE),
 		.shift_limit     (request_real_size),
-		.shift_seek      (8'h00),
 		.cacheline       (out_degree_cacheline),
 		.cacheline_ready (out_degree_cacheline_ready)
 	);
@@ -329,7 +327,6 @@ module cu_vertex_job_control (
 		.read_response_in(read_response_in_latched),
 		.vertex_struct   (EDGES_IDX),
 		.shift_limit     (request_real_size),
-		.shift_seek      (8'h00),
 		.cacheline       (edges_idx_degree_cacheline),
 		.cacheline_ready (edges_idx_degree_cacheline_ready)
 	);
@@ -344,7 +341,6 @@ module cu_vertex_job_control (
 		.read_response_in(read_response_in_latched),
 		.vertex_struct   (INV_IN_DEGREE),
 		.shift_limit     (request_real_size),
-		.shift_seek      (8'h00),
 		.cacheline       (inverse_in_degree_cacheline),
 		.cacheline_ready (inverse_in_degree_cacheline_ready)
 	);
@@ -359,7 +355,6 @@ module cu_vertex_job_control (
 		.read_response_in(read_response_in_latched),
 		.vertex_struct   (INV_OUT_DEGREE),
 		.shift_limit     (request_real_size),
-		.shift_seek      (8'h00),
 		.cacheline       (inverse_out_degree_cacheline),
 		.cacheline_ready (inverse_out_degree_cacheline_ready)
 	);
@@ -374,7 +369,6 @@ module cu_vertex_job_control (
 		.read_response_in(read_response_in_latched),
 		.vertex_struct   (INV_EDGES_IDX),
 		.shift_limit     (request_real_size),
-		.shift_seek      (8'h00),
 		.cacheline       (inverse_edges_idx_degree_cacheline),
 		.cacheline_ready (inverse_edges_idx_degree_cacheline_ready)
 	);

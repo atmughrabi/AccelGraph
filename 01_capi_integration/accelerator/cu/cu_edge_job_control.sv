@@ -52,6 +52,10 @@ module cu_edge_job_control #(parameter CU_ID = 1)(
 	logic [0:63] aligend_base_address_inverse_dest;
 	logic [0:63] aligend_base_address_inverse_weight;
 
+	logic [0:63] base_address_inverse_src;
+	logic [0:63] base_address_inverse_dest;
+	logic [0:63] base_address_inverse_weight;
+
 	logic [0:(CACHELINE_SIZE_BITS-1)] in_degree_cacheline;
 	logic [0:(CACHELINE_SIZE_BITS-1)] out_degree_cacheline;
 	logic [0:(CACHELINE_SIZE_BITS-1)] edges_idx_degree_cacheline;
@@ -133,11 +137,14 @@ module cu_edge_job_control #(parameter CU_ID = 1)(
 			end
 			SEND_EDGE_IDLE: begin
 				if(send_request_ready )
-					next_state = CALC_EDGE_REQ_SIZE;
+					next_state = CALC_VERTEX_REQ_SIZE_S1;
 				else
 					next_state = SEND_EDGE_IDLE;
 			end
-			CALC_EDGE_REQ_SIZE: begin
+			CALC_VERTEX_REQ_SIZE_S1: begin
+				next_state = CALC_VERTEX_REQ_SIZE_S2;
+			end
+			CALC_VERTEX_REQ_SIZE_S2: begin
 				next_state = SEND_EDGE_INV_SRC;
 			end
 			SEND_EDGE_INV_SRC: begin
@@ -170,6 +177,9 @@ module cu_edge_job_control #(parameter CU_ID = 1)(
 			end
 			SEND_EDGE_INIT: begin
 				edge_num_counter <= vertex_job_latched.inverse_out_degree;
+				aligend_base_address_inverse_src 	<=  wed_request_in_latched.wed.inverse_edges_array_src;
+				aligend_base_address_inverse_dest 	<=  wed_request_in_latched.wed.inverse_edges_array_dest;
+	 			aligend_base_address_inverse_weight <=  wed_request_in_latched.wed.inverse_edges_array_weight;
 			end
 			SEND_EDGE_IDLE: begin
 				read_command_out_latched.valid    <= 1'b0;
@@ -271,7 +281,6 @@ module cu_edge_job_control #(parameter CU_ID = 1)(
 		.read_response_in(read_response_in_latched),
 		.vertex_struct   (INV_EDGE_ARRAY_SRC),
 		.shift_limit     (request_real_size),
-		.shift_seek      (shift_seek),
 		.cacheline       (src_cacheline),
 		.cacheline_ready (src_cacheline_ready)
 	);
@@ -286,7 +295,6 @@ module cu_edge_job_control #(parameter CU_ID = 1)(
 		.read_response_in(read_response_in_latched),
 		.vertex_struct   (INV_EDGE_ARRAY_DEST),
 		.shift_limit     (request_real_size),
-		.shift_seek      (shift_seek),
 		.cacheline       (dest_cacheline),
 		.cacheline_ready (dest_cacheline_ready)
 	);
@@ -301,7 +309,6 @@ module cu_edge_job_control #(parameter CU_ID = 1)(
 		.read_response_in(read_response_in_latched),
 		.vertex_struct   (INV_EDGE_ARRAY_WEIGHT),
 		.shift_limit     (request_real_size),
-		.shift_seek      (shift_seek),
 		.cacheline       (weight_cacheline),
 		.cacheline_ready (weight_cacheline_ready)
 	);
