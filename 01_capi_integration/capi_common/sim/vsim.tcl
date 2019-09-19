@@ -49,6 +49,8 @@ proc r  {} {
 
   echo "Compiling RTL CU control"
   vlog -quiet ../../accelerator/cu/cu_cacheline_stream.sv
+  vlog -quiet ../../accelerator/cu/cu_sum_kernel_control.sv
+  vlog -quiet ../../accelerator/cu/cu_edge_data_control.sv
   vlog -quiet ../../accelerator/cu/cu_edge_job_control.sv
   vlog -quiet ../../accelerator/cu/cu_vertex_job_control.sv
   vlog -quiet ../../accelerator/cu/cu_vertex_pagerank.sv

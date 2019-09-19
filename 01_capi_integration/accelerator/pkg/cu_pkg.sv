@@ -25,7 +25,14 @@ package CU_PKG;
 		EDGES_IDX,
 		INV_IN_DEGREE,
 		INV_OUT_DEGREE,
-		INV_EDGES_IDX
+		INV_EDGES_IDX,
+		EDGE_ARRAY_SRC,
+		EDGE_ARRAY_DEST,
+		EDGE_ARRAY_WEIGHT,
+		INV_EDGE_ARRAY_SRC,
+		INV_EDGE_ARRAY_DEST,
+		INV_EDGE_ARRAY_WEIGHT,
+		GRAPH_DATA
 	} vertex_struct_type;
 
 	typedef enum int unsigned {
@@ -40,6 +47,19 @@ package CU_PKG;
 		SEND_VERTEX_INV_OUT_DEGREE,
 		SEND_VERTEX_INV_EDGES_IDX
 	} vertex_struct_state;
+
+	typedef enum int unsigned {
+		SEND_EDGE_RESET,
+		SEND_EDGE_INIT,
+		SEND_EDGE_IDLE,
+		CALC_EDGE_REQ_SIZE,
+		SEND_EDGE_SRC,
+		SEND_EDGE_DEST,
+		SEND_EDGE_WEIGHT,
+		SEND_EDGE_INV_SRC,
+		SEND_EDGE_INV_DEST,
+		SEND_EDGE_INV_WEIGHT
+	} edge_struct_state;
 
 // Vertex data to travers neighbors
 	typedef struct packed {
@@ -56,6 +76,8 @@ package CU_PKG;
 	typedef struct packed {
 		logic valid;
 		logic [0:(EDGE_SIZE_BITS-1)] id;
+		logic [0:(EDGE_SIZE_BITS-1)] src;
+		logic [0:(EDGE_SIZE_BITS-1)] dest;
 		logic [0:(EDGE_SIZE_BITS-1)] weight;
 	} EdgeInterface;
 
