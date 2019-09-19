@@ -3,8 +3,10 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_vertex_pagerank #(parameter NUM_EDGE_CU = 1,
-							parameter PAGERANK_CU_ID = 1) (
+module cu_vertex_pagerank #(
+	parameter NUM_EDGE_CU = 1,
+	parameter PAGERANK_CU_ID = 1
+) (
 	input logic clock,    // Clock
 	input logic rstn,
 	input logic enabled,
@@ -55,7 +57,7 @@ module cu_vertex_pagerank #(parameter NUM_EDGE_CU = 1,
 	ReadWriteDataLine read_data_1_in_latched;
 	BufferStatus 	  read_buffer_status_latched;
 	BufferStatus write_buffer_status_latched;
-	
+
 
 
 	CommandBufferLine command_arbiter_out;
@@ -64,6 +66,23 @@ module cu_vertex_pagerank #(parameter NUM_EDGE_CU = 1,
 	CommandBufferLine [NUM_EDGE_CU-1:0] read_command_buffer;
 	CommandBufferLine [NUM_EDGE_CU-1:0] write_command_buffer;
 	VertexInterface   [NUM_EDGE_CU-1:0] vertex_job_rcv;
+
+
+	BufferStatus 	 read_data_0_buffer_status;
+	BufferStatus 	 read_data_1_buffer_status;
+	BufferStatus 	 read_response_buffer_status;
+	BufferStatus 	 write_response_buffer_status;
+
+	ReadWriteDataLine read_data_cu_0_buffer;
+	ReadWriteDataLine read_data_cu_1_buffer;
+	logic read_data_cu_0_pop;
+	logic read_data_cu_1_pop;
+
+	logic read_response_buffer_pop;
+	logic write_response_buffer_pop;
+	ResponseBufferLine read_response_buffer;
+	ResponseBufferLine write_response_buffer;
+
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
@@ -131,10 +150,96 @@ module cu_vertex_pagerank #(parameter NUM_EDGE_CU = 1,
 			if(enabled)begin
 				if(vertex_job_latched.valid) begin
 					vertex_num_counter <= vertex_num_counter + 1;
-				end		
+				end
 			end
 		end
 	end
+
+	////////////////////////////////////////////////////////////////////////////
+	// Read DATA Buffers
+	////////////////////////////////////////////////////////////////////////////
+
+	assign read_data_cu_0_pop = 0;
+	assign read_data_cu_1_pop = 0;
+
+	fifo  #(
+		.WIDTH($bits(ReadWriteDataLine)),
+		.DEPTH(256)
+	)read_data_cu_0_buffer_fifo_instant(
+		.clock(clock),
+		.rstn(rstn),
+
+		.push(read_data_0_in_latched.valid),
+		.data_in(read_data_0_in_latched),
+		.full(read_data_0_buffer_status.full),
+		.alFull(read_data_0_buffer_status.alfull),
+
+		.pop(read_data_cu_0_pop),
+		.valid(read_data_0_buffer_status.valid),
+		.data_out(read_data_cu_0_buffer),
+		.empty(read_data_0_buffer_status.empty));
+
+
+	fifo  #(
+		.WIDTH($bits(ReadWriteDataLine)),
+		.DEPTH(256)
+	)read_data_cu_1_buffer_fifo_instant(
+		.clock(clock),
+		.rstn(rstn),
+
+		.push(read_data_1_in_latched.valid),
+		.data_in(read_data_1_in_latched),
+		.full(read_data_1_buffer_status.full),
+		.alFull(read_data_1_buffer_status.alfull),
+
+		.pop(read_data_cu_1_pop),
+		.valid(read_data_1_buffer_status.valid),
+		.data_out(read_data_cu_1_buffer),
+		.empty(read_data_1_buffer_status.empty));
+
+	////////////////////////////////////////////////////////////////////////////
+	// Read/Write Response Buffers
+	////////////////////////////////////////////////////////////////////////////
+
+	assign read_response_buffer_pop = 0;
+	assign write_response_buffer_pop = 0;
+
+	fifo  #(
+		.WIDTH($bits(ReadWriteDataLine)),
+		.DEPTH(256)
+	)read_response_cu_buffer_fifo_instant(
+		.clock(clock),
+		.rstn(rstn),
+
+		.push(read_response_in_latched.valid),
+		.data_in(read_response_in_latched),
+		.full(read_response_buffer_status.full),
+		.alFull(read_response_buffer_status.alfull),
+
+		.pop(read_response_buffer_pop),
+		.valid(read_response_buffer_status.valid),
+		.data_out(read_response_buffer),
+		.empty(read_response_buffer_status.empty));
+
+	fifo  #(
+		.WIDTH($bits(ReadWriteDataLine)),
+		.DEPTH(256)
+	)write_response_cu_buffer_fifo_instant(
+		.clock(clock),
+		.rstn(rstn),
+
+		.push(write_response_in_latched.valid),
+		.data_in(write_response_in_latched),
+		.full(write_response_buffer_status.full),
+		.alFull(write_response_buffer_status.alfull),
+
+		.pop(write_response_buffer_pop),
+		.valid(write_response_buffer_status.valid),
+		.data_out(write_response_buffer),
+		.empty(write_response_buffer_status.empty));
+
+
+
 
 
 endmodule

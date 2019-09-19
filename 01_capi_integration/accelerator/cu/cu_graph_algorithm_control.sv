@@ -250,7 +250,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	end
 
 	always_ff @(posedge clock) begin
-		read_data_1_cu <= read_data_0_cu_internal;
+		read_data_1_cu <= read_data_1_cu_internal;
 	end
 
 	////////////////////////////////////////////////////////////////////////////
