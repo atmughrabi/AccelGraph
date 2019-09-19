@@ -13,8 +13,8 @@
 # dirs Root app 
 APP_DIR           	= .
 SCRIPT_DIR          = ../04_scripts
-# BENCHMARKS_DIR    	= ../../01_GraphDatasets
-BENCHMARKS_DIR    	= ../03_test_graphs
+BENCHMARKS_DIR    	= ../../01_GraphDatasets
+# BENCHMARKS_DIR    	= ../03_test_graphs
 
 #dir root/managed_folders
 SRC_DIR           	= src
@@ -68,7 +68,7 @@ MAIN_DIR		  	= main
 # GRAPH_NAME = RMAT22
 
 # real world large graphs binary format
-# GRAPH_NAME = orkut
+GRAPH_NAME = orkut
 # GRAPH_NAME = gplus
 # GRAPH_NAME = sk-2005
 # GRAPH_NAME = twitter
@@ -97,10 +97,10 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 1
+ALGORITHMS 		= 0
 
-ROOT 			= 5319
-PULL_PUSH 		= 0
+ROOT 			= 43608
+PULL_PUSH 		= 2
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
