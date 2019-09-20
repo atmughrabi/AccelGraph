@@ -36,7 +36,7 @@ module cu_vertex_job_control (
 	logic send_request_ready;
 	logic fill_vertex_buffer_pending;
 	logic [0:7]  response_counter;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_next_offest;
+	logic [0:63] vertex_next_offest;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_id_counter;
 	logic [0:7] vertex_shift_counter;

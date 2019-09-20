@@ -10,13 +10,15 @@ package CU_PKG;
 	parameter VERTEX_SIZE_BITS 			= VERTEX_SIZE * 8; // vertex size is 4 bytes
 	parameter EDGE_SIZE 				= 4; // vertex size is 4 bytes
 	parameter EDGE_SIZE_BITS 			= EDGE_SIZE * 8; // vertex size is 4 bytes
+	parameter [0:63] ADDRESS_ALIGN_MASK 	   	= {{57{1'b1}},{7{1'b0}}}; // cacheline is 128bytes
+	parameter [0:63] ADDRESS_MOD_MASK	   		= {{57{1'b0}},{7{1'b1}}};  // cacheline is 128bytes
 	parameter CACHELINE_SIZE 	   		= 128; // cacheline is 128bytes
 	parameter CACHELINE_SIZE_BITS 	   	= CACHELINE_SIZE * 8; // cacheline is 128bytes
 	parameter CACHELINE_VERTEX_NUM 		= (128 >> $clog2(VERTEX_SIZE)); // number of vertices in one cacheline
 	parameter CACHELINE_EDGE_NUM   		= (128 >> $clog2(EDGE_SIZE)); // number of edges in one cacheline
 // Relating to CU IDs
 	parameter VERTEX_CONTROL_ID 		= (WED_ID - 1);			// This is the CU that requests and schedules graph vertices to other CUs
-	parameter NUM_VERTEX_CU_GLOBAL 		= 2;
+	parameter NUM_VERTEX_CU_GLOBAL 		= 1;
 	
 	typedef enum int unsigned{
 		STRUCT_INVALID,
@@ -39,8 +41,7 @@ package CU_PKG;
 		SEND_VERTEX_RESET,
 		SEND_VERTEX_INIT,
 		SEND_VERTEX_IDLE,
-		CALC_VERTEX_REQ_SIZE_S1,
-		CALC_VERTEX_REQ_SIZE_S2,
+		CALC_VERTEX_REQ_SIZE,
 		SEND_VERTEX_IN_DEGREE,
 		SEND_VERTEX_OUT_DEGREE,
 		SEND_VERTEX_EDGES_IDX,

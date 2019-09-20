@@ -3,7 +3,7 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_edge_job_control #(parameter CU_ID = 1)(
+module cu_edge_job_control #(parameter CU_ID = 1) (
 	input logic clock,    // Clock
 	input logic rstn,
 	input logic enabled,
@@ -37,12 +37,13 @@ module cu_edge_job_control #(parameter CU_ID = 1)(
 	logic send_request_ready;
 	logic fill_edge_buffer_pending;
 	logic [0:7]  response_counter;
-	logic [0:(EDGE_SIZE_BITS-1)] edge_next_offest;
+	logic [0:63] edge_next_offest;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_num_counter;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_id_counter;
 	logic [0:7] edge_shift_counter;
 	logic [0:7] request_real_size;
 	logic [0:7] shift_seek;
+	logic [0:7] remainder;
 	EdgeInterface edge_variable;
 
 	logic fill_edge_buffer;
@@ -137,14 +138,11 @@ module cu_edge_job_control #(parameter CU_ID = 1)(
 			end
 			SEND_EDGE_IDLE: begin
 				if(send_request_ready )
-					next_state = CALC_VERTEX_REQ_SIZE_S1;
+					next_state = CALC_EDGE_REQ_SIZE;
 				else
 					next_state = SEND_EDGE_IDLE;
 			end
-			CALC_VERTEX_REQ_SIZE_S1: begin
-				next_state = CALC_VERTEX_REQ_SIZE_S2;
-			end
-			CALC_VERTEX_REQ_SIZE_S2: begin
+			CALC_EDGE_REQ_SIZE: begin
 				next_state = SEND_EDGE_INV_SRC;
 			end
 			SEND_EDGE_INV_SRC: begin
@@ -171,15 +169,13 @@ module cu_edge_job_control #(parameter CU_ID = 1)(
 				edge_next_offest  		<= 	0;
 				edge_num_counter 		<=	0;
 				shift_seek				<=  0;
-				aligend_base_address_inverse_src <=  0;
-				aligend_base_address_inverse_dest <=  0;
-	 			aligend_base_address_inverse_weight <=  0;
+				aligend_base_address_inverse_src 	<=  0;
+				aligend_base_address_inverse_dest 	<=  0;
+				aligend_base_address_inverse_weight <=  0;
 			end
 			SEND_EDGE_INIT: begin
 				edge_num_counter <= vertex_job_latched.inverse_out_degree;
-				aligend_base_address_inverse_src 	<=  wed_request_in_latched.wed.inverse_edges_array_src;
-				aligend_base_address_inverse_dest 	<=  wed_request_in_latched.wed.inverse_edges_array_dest;
-	 			aligend_base_address_inverse_weight <=  wed_request_in_latched.wed.inverse_edges_array_weight;
+				edge_next_offest <= (vertex_job_latched.inverse_edges_idx << $clog2(EDGE_SIZE));
 			end
 			SEND_EDGE_IDLE: begin
 				read_command_out_latched.valid    <= 1'b0;
@@ -187,52 +183,69 @@ module cu_edge_job_control #(parameter CU_ID = 1)(
 				read_command_out_latched.address  <= 64'h0000_0000_0000_0000;
 				read_command_out_latched.size     <= 12'h000;
 				read_command_out_latched.cmd 	  <= 0;
-
 				request_size <= 0;
+				remainder <= (edge_next_offest & ADDRESS_MOD_MASK);
 			end
 			CALC_EDGE_REQ_SIZE: begin
-				request_size <= cmd_size_calculate(edge_num_counter);
+				if(|remainder) begin // misaligned access
+					request_size <= 128; // bring the whole cacheline
 
-				if(edge_num_counter >= CACHELINE_EDGE_NUM)begin
-					edge_num_counter <= edge_num_counter - CACHELINE_EDGE_NUM;
-					read_command_out_latched.cmd.real_size <= CACHELINE_EDGE_NUM;
-				end
-				else if (edge_num_counter < CACHELINE_EDGE_NUM) begin
-					edge_num_counter <= 0;
-					read_command_out_latched.cmd.real_size <= edge_num_counter;
+					if(edge_num_counter >= (CACHELINE_EDGE_NUM - remainder)) begin
+						edge_num_counter <= edge_num_counter - (CACHELINE_EDGE_NUM - remainder);
+						read_command_out_latched.cmd.real_size <= ((128 - remainder) >> $clog2(EDGE_SIZE));
+					end
+					else if (edge_num_counter < (CACHELINE_EDGE_NUM - remainder)) begin
+						edge_num_counter <= 0;
+						read_command_out_latched.cmd.real_size <= edge_num_counter;
+					end
+				end else begin
+					request_size <= cmd_size_calculate(edge_num_counter);
+
+					if(edge_num_counter >= CACHELINE_EDGE_NUM)begin
+						edge_num_counter <= edge_num_counter - CACHELINE_EDGE_NUM;
+						read_command_out_latched.cmd.real_size <= CACHELINE_EDGE_NUM;
+					end
+					else if (edge_num_counter < CACHELINE_EDGE_NUM) begin
+						edge_num_counter <= 0;
+						read_command_out_latched.cmd.real_size <= edge_num_counter;
+					end
 				end
 			end
 			SEND_EDGE_INV_SRC: begin
 				read_command_out_latched.valid    <= 1'b1;
 				read_command_out_latched.command  <= READ_CL_NA; // just zero it out
-				read_command_out_latched.address  <= aligend_base_address_inverse_src + edge_next_offest;
+				read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_src + edge_next_offest;
 				read_command_out_latched.size     <= request_size;
 
 				read_command_out_latched.cmd.cu_id    		<= CU_ID;
 				read_command_out_latched.cmd.cmd_type 		<= CMD_READ;
-				read_command_out_latched.cmd.vertex_struct 	<= INV_IN_DEGREE;
+				read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_SRC;
 			end
 			SEND_EDGE_INV_DEST: begin
 				read_command_out_latched.valid    <= 1'b1;
 				read_command_out_latched.command  <= READ_CL_NA; // just zero it out
-				read_command_out_latched.address  <= aligend_base_address_inverse_dest + edge_next_offest;
+				read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_dest + edge_next_offest;
 				read_command_out_latched.size     <= request_size;
 
 				read_command_out_latched.cmd.cu_id    		<= CU_ID;
 				read_command_out_latched.cmd.cmd_type 		<= CMD_READ;
-				read_command_out_latched.cmd.vertex_struct 	<= INV_OUT_DEGREE;
+				read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_DEST;
 			end
 			SEND_EDGE_INV_WEIGHT: begin
 				read_command_out_latched.valid    <= 1'b1;
 				read_command_out_latched.command  <= READ_CL_NA; // just zero it out
-				read_command_out_latched.address  <= aligend_base_address_inverse_weight + edge_next_offest;
+				read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_weight + edge_next_offest;
 				read_command_out_latched.size     <= request_size;
 
 				read_command_out_latched.cmd.cu_id    		<= CU_ID;
 				read_command_out_latched.cmd.cmd_type 		<= CMD_READ;
-				read_command_out_latched.cmd.vertex_struct 	<= INV_EDGES_IDX;
+				read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_WEIGHT;
 
-				edge_next_offest <= edge_next_offest + CACHELINE_SIZE;
+				if(|remainder)
+					edge_next_offest <= edge_next_offest + (CACHELINE_SIZE-remainder);
+				else
+					edge_next_offest <= edge_next_offest + CACHELINE_SIZE;
+
 			end
 		endcase
 	end // always_ff @(posedge clock)
