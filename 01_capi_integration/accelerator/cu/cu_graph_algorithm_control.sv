@@ -51,7 +51,10 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_temp;
+	logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter;
+	logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter_temp;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_cu [0:NUM_VERTEX_CU-1];
+	logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter_cu [0:NUM_VERTEX_CU-1];
 
 	CommandBufferLine read_command_cu       [0:NUM_VERTEX_CU-1];
 	CommandBufferLine read_command_arbiter_cu       [0:NUM_VERTEX_CU-1];
@@ -137,6 +140,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	////////////////////////////////////////////////////////////////////////////
 	genvar i;
+	integer ii;
 	integer j;
 	integer k;
 	integer kkk;
@@ -312,11 +316,12 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 					.vertex_buffer_status(vertex_buffer_status_internal),
 					.vertex_job          (vertex_job_cu[i]),
 					.vertex_job_request  (request_vertex_job_cu[i]),
-					.vertex_num_counter  (vertex_num_counter_cu[i]));
+					.vertex_num_counter  (vertex_num_counter_cu[i]),
+					.edge_num_counter    (edge_num_counter_cu[i]));
 		end
 	endgenerate
 	////////////////////////////////////////////////////////////////////////////
-	// test vertex request
+	// count vertices
 	////////////////////////////////////////////////////////////////////////////
 
 	always_comb begin
@@ -335,6 +340,31 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 			end
 		end
 	end
+
+	////////////////////////////////////////////////////////////////////////////
+	// count edges
+	////////////////////////////////////////////////////////////////////////////
+
+	always_comb begin
+		edge_num_counter_temp = 0;
+		for (ii = 0; ii < NUM_VERTEX_CU; ii++) begin
+			edge_num_counter_temp = edge_num_counter_temp + edge_num_counter_cu[ii];
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_num_counter <= 0;
+		end else begin
+			if(enabled)begin
+				edge_num_counter <= vertex_num_counter_temp;
+			end
+		end
+	end
+
+	////////////////////////////////////////////////////////////////////////////
+	// Once processed all verticess and edges send done signal
+	////////////////////////////////////////////////////////////////////////////
 
 	always_comb begin
 		done_graph_algorithm_latched = 0;
