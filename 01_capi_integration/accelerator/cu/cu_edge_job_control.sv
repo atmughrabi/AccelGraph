@@ -42,6 +42,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic [0:(EDGE_SIZE_BITS-1)] edge_id_counter;
 	logic [0:7] shift_seek;
 	logic [0:7] remainder;
+	logic [0:63] aligned;
 	EdgeInterface edge_variable;
 
 	logic fill_edge_buffer;
@@ -87,7 +88,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		end
 	end
 
-assign vertex_job_request_send = ~(|edge_num_counter) && ~send_request_ready && edge_buffer_status.empty;
+assign vertex_job_request_send = ~(|edge_num_counter) && edge_buffer_status.empty && ~fill_edge_buffer_pending;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive inputs
@@ -180,6 +181,7 @@ assign vertex_job_request_send = ~(|edge_num_counter) && ~send_request_ready && 
 				edge_num_counter 		<=	0;
 				shift_seek				<=  0;
 				remainder 				<=  0;
+				aligned					<=  0;
 				src_cacheline_sent		<=  0;
 				dest_cacheline_sent		<=  0;
 				weight_cacheline_sent	<=  0;
@@ -199,16 +201,17 @@ assign vertex_job_request_send = ~(|edge_num_counter) && ~send_request_ready && 
 				weight_cacheline_sent	<=  0;
 				request_size <= 0;
 				remainder <= (edge_next_offest & ADDRESS_MOD_MASK);
+				aligned	  <= (edge_next_offest & ADDRESS_ALIGN_MASK);
 			end
 			CALC_EDGE_REQ_SIZE: begin
 				if(|remainder) begin // misaligned access
-					request_size <= 128; // bring the whole cacheline
+					request_size <= CACHELINE_SIZE; // bring the whole cacheline
 
-					if(edge_num_counter >= (CACHELINE_EDGE_NUM - remainder)) begin
-						edge_num_counter <= edge_num_counter - (CACHELINE_EDGE_NUM - remainder);
-						read_command_out_latched.cmd.real_size <= ((128 - remainder) >> $clog2(EDGE_SIZE));
+					if(edge_num_counter >= ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE))) begin
+						edge_num_counter <= edge_num_counter - ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE));
+						read_command_out_latched.cmd.real_size <= ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE));
 					end
-					else if (edge_num_counter < (CACHELINE_EDGE_NUM - remainder)) begin
+					else if (edge_num_counter < ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE))) begin
 						edge_num_counter <= 0;
 						read_command_out_latched.cmd.real_size <= edge_num_counter;
 					end
@@ -237,7 +240,7 @@ assign vertex_job_request_send = ~(|edge_num_counter) && ~send_request_ready && 
 
 					read_command_out_latched.valid    <= 1'b1;
 					read_command_out_latched.command  <= READ_CL_NA; // just zero it out
-					read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_src + edge_next_offest;
+					read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_src + aligned;
 					read_command_out_latched.size     <= request_size;
 
 					read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_SRC;
@@ -249,7 +252,7 @@ assign vertex_job_request_send = ~(|edge_num_counter) && ~send_request_ready && 
 
 					read_command_out_latched.valid    <= 1'b1;
 					read_command_out_latched.command  <= READ_CL_NA; // just zero it out
-					read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_dest + edge_next_offest;
+					read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_dest + aligned;
 					read_command_out_latched.size     <= request_size;
 
 					read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_DEST;
@@ -261,7 +264,7 @@ assign vertex_job_request_send = ~(|edge_num_counter) && ~send_request_ready && 
 
 					read_command_out_latched.valid    <= 1'b1;
 					read_command_out_latched.command  <= READ_CL_NA; // just zero it out
-					read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_weight + edge_next_offest;
+					read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_weight + aligned;
 					read_command_out_latched.size     <= request_size;
 
 					read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_WEIGHT;
@@ -375,7 +378,7 @@ assign vertex_job_request_send = ~(|edge_num_counter) && ~send_request_ready && 
 
 	fifo  #(
 		.WIDTH($bits(EdgeInterface)),
-		.DEPTH((2*CACHELINE_EDGE_NUM))
+		.DEPTH((256))
 	)edge_job_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),

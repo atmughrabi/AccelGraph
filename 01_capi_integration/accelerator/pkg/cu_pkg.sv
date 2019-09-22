@@ -14,13 +14,13 @@ package CU_PKG;
 	parameter [0:63] ADDRESS_MOD_MASK	   		= {{57{1'b0}},{7{1'b1}}};  // cacheline is 128bytes
 	parameter CACHELINE_SIZE 	   				= 128; // cacheline is 128bytes
 	parameter CACHELINE_SIZE_BITS 	   			= CACHELINE_SIZE * 8; // cacheline is 128bytes
-	parameter CACHELINE_VERTEX_NUM 				= (128 >> $clog2(VERTEX_SIZE)); // number of vertices in one cacheline
-	parameter CACHELINE_EDGE_NUM   				= (128 >> $clog2(EDGE_SIZE)); // number of edges in one cacheline
+	parameter CACHELINE_VERTEX_NUM 				= (CACHELINE_SIZE >> $clog2(VERTEX_SIZE)); // number of vertices in one cacheline
+	parameter CACHELINE_EDGE_NUM   				= (CACHELINE_SIZE >> $clog2(EDGE_SIZE)); // number of edges in one cacheline
 	parameter CACHELINE_INT_COUNTER_BITS 		= $clog2((VERTEX_SIZE_BITS < 512) ? (2 * 512)/VERTEX_SIZE_BITS : 2);
 
 // Relating to CU IDs
 	parameter VERTEX_CONTROL_ID 				= (WED_ID - 1);			// This is the CU that requests and schedules graph vertices to other CUs
-	parameter NUM_VERTEX_CU_GLOBAL 				= 2;
+	parameter NUM_VERTEX_CU_GLOBAL 				= 1;
 	
 	typedef enum int unsigned{
 		STRUCT_INVALID,

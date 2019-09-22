@@ -43,7 +43,8 @@ module cu_cacheline_stream (
 
 				valid <= valid_internal;
 				if(we)begin
-					shift_counter <= shift_seek_latched;
+					shift_counter <= 0;
+					addr_counter  <= shift_seek_latched;
 					shift_limit   <= shift_limit_latched;
 					pending 	  <= pending_latched;
 				end

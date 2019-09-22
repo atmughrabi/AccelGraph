@@ -211,8 +211,8 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
 #if WEIGHTED
     printf("  wed->max_weight: %u\n", wed->max_weight);
 #endif
-    printf("  wed->vertex_out_degree: %p\n", wed->vertex_out_degree);
     printf("  wed->vertex_in_degree: %p\n", wed->vertex_in_degree);
+    printf("  wed->vertex_out_degree: %p\n", wed->vertex_out_degree);
     printf("  wed->vertex_edges_idx: %p\n", wed->vertex_edges_idx);
 
     printf("  wed->edges_array_src: %p\n", wed->edges_array_src);
@@ -222,8 +222,8 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
 #endif
 
 #if DIRECTED
-    printf("  wed->inverse_vertex_out_degree: %p\n", wed->inverse_vertex_out_degree);
     printf("  wed->inverse_vertex_in_degree: %p\n", wed->inverse_vertex_in_degree);
+    printf("  wed->inverse_vertex_out_degree: %p\n", wed->inverse_vertex_out_degree);
     printf("  wed->inverse_vertex_edges_idx: %p\n", wed->inverse_vertex_edges_idx);
 
     printf("  wed->inverse_edges_array_src: %p\n", wed->inverse_edges_array_src);
@@ -256,6 +256,9 @@ void printWEDGraphCSRVertex(struct  WEDGraphCSR *wed)
 #endif
     }
 
+    for(i= 0; i < 88 ; i++){
+        printf("  wed->inverse_edges_array_dest: %u\n", ((__u32 *)wed->inverse_edges_array_dest)[i]);
+    }
 
 }
 

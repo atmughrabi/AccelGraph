@@ -169,9 +169,10 @@ module cu_vertex_pagerank #(
 			if(enabled)begin
 				if(vertex_job.valid && ~processing_vertex) begin
 					processing_vertex <= 1;
-				end else if (vertex_job_request_latched) begin
-					processing_vertex <= 0;
-				end
+				end 
+				// else if (vertex_job_request_latched) begin
+				// 	processing_vertex <= 0;
+				// end
 			end
 		end
 	end
