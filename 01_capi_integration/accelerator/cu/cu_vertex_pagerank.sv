@@ -25,13 +25,10 @@ module cu_vertex_pagerank #(
 	input  VertexInterface 	 vertex_job,
 	output logic 			 vertex_job_request,
 	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter
-
 );
 
 // vertex control variables
-
-
-	BufferStatus vertex_buffer_status_latched;
+	logic vertex_job_request_send;
 	logic vertex_job_request_latched;
 	VertexInterface  vertex_job_latched;
 
@@ -79,6 +76,7 @@ module cu_vertex_pagerank #(
 	logic edge_request_internal;
 	EdgeInterface 		edge_job;
 	BufferStatus edge_buffer_status;
+	logic processing_vertex;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -102,11 +100,14 @@ module cu_vertex_pagerank #(
 			write_data_0_out  		<= write_data_0_out_latched;
 			write_data_1_out  		<= write_data_1_out_latched;
 			read_command_out  		<= read_command_out_latched;
-			vertex_job_request 		<= vertex_job_request_latched & (~vertex_buffer_status.empty);
+			vertex_job_request 		<= vertex_job_request_send;
 		end
 	end
 
+	////////////////////////////////////////////////////////////////////////////
 	// drive inputs
+	////////////////////////////////////////////////////////////////////////////
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			wed_request_in_latched		 <= 0;
@@ -114,8 +115,6 @@ module cu_vertex_pagerank #(
 			write_response_in_latched	 <= 0;
 			read_data_0_in_latched		 <= 0;
 			read_data_1_in_latched		 <= 0;
-			vertex_job_latched           <= 0;
-			vertex_buffer_status_latched <= 4'b0001;
 		end else begin
 			if(enabled)begin
 				wed_request_in_latched 		 <= wed_request_in;
@@ -123,8 +122,22 @@ module cu_vertex_pagerank #(
 				write_response_in_latched	 <= write_response_in;
 				read_data_0_in_latched		 <= read_data_0_in;
 				read_data_1_in_latched		 <= read_data_1_in;
-				vertex_buffer_status_latched <= vertex_buffer_status;
-				vertex_job_latched 			 <= vertex_job;
+			end
+		end
+	end
+
+	////////////////////////////////////////////////////////////////////////////
+	// count complete vertex request
+	////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			vertex_job_latched <= 0;
+		end else begin
+			if(enabled)begin
+				if(vertex_job.valid && ~processing_vertex) begin
+					vertex_job_latched <= vertex_job;
+				end
 			end
 		end
 	end
@@ -138,12 +151,32 @@ module cu_vertex_pagerank #(
 			vertex_num_counter <= 0;
 		end else begin
 			if(enabled)begin
-				if(vertex_job_latched.valid) begin
+				if(vertex_job.valid && ~processing_vertex) begin
 					vertex_num_counter <= vertex_num_counter + 1;
 				end
 			end
 		end
 	end
+
+	////////////////////////////////////////////////////////////////////////////
+	// If a vertex job is recieved set flag
+	////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			processing_vertex <= 0;
+		end else begin
+			if(enabled)begin
+				if(vertex_job.valid && ~processing_vertex) begin
+					processing_vertex <= 1;
+				end else if (vertex_job_request_latched) begin
+					processing_vertex <= 0;
+				end
+			end
+		end
+	end
+
+	assign vertex_job_request_send = ~processing_vertex & vertex_job_request_latched & (~vertex_buffer_status.empty);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Edge job control

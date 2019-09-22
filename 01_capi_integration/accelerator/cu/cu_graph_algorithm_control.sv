@@ -21,7 +21,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	input  BufferStatus 	 vertex_buffer_status,
 	input  VertexInterface 	 vertex_job,
 	output logic 			 vertex_job_request,
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done
 );
 
 // vertex control variables

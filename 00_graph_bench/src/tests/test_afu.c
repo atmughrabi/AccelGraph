@@ -69,9 +69,9 @@ struct __attribute__((__packed__)) WEDGraphCSR
     void *edges_array_weight;           // 8-Bytes
     void *edges_array_src;              // 8-Bytes
     void *edges_array_dest;             // 8-Bytes
-//---------------------------------------------------//
+    //---------------------------------------------------//
     void *inverse_vertex_out_degree;    // 8-Bytes --// 64bytes
-//---------------------------------------------------//  
+    //---------------------------------------------------//
     void *inverse_vertex_in_degree;     // 8-Bytes
     void *inverse_vertex_edges_idx;     // 8-Bytes
     void *inverse_edges_array_weight;   // 8-Bytes
@@ -132,6 +132,74 @@ struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
     return wed;
 }
 
+void printMMIO_error( uint64_t error )
+{
+
+    if(error >> 12)
+    {
+        switch(error >> 12)
+        {
+        case 1:
+            printf("(BIT-12) Job Address Error\n");
+            break;
+        case 2:
+            printf("(BIT-13) Job Command Error\n");
+            break;
+        }
+    }
+    else if(error >> 10)
+    {
+        switch(error >> 10)
+        {
+        case 1:
+            printf("(BIT-10) MMIO Address Parity-Error\n");
+            break;
+        case 2:
+            printf("(BIT-11) MMIO Data Parity-Error\n");
+            break;
+        }
+
+    }
+    else if(error >> 9)
+    {
+        printf("(BIT-9) Write Tag Parity-Error\n");
+    }
+    else if(error >> 7)
+    {
+        switch(error >> 7)
+        {
+        case 1:
+            printf("(BIT-7) Read Data Parity-Error\n");
+            break;
+        case 2:
+            printf("(BIT-8) Read Tag Parity-Error\n");
+            break;
+        }
+
+    }
+    else if(error >> 0)
+    {
+        switch(error >> 0)
+        {
+        case 1:
+            printf("(BIT-0) Response AERROR\n");
+            break;
+        case 2:
+            printf("(BIT-1) Response DERROR\n");
+            break;
+        case 4:
+            printf("(BIT-2) Response FAILD\n");
+            break;
+        case 8:
+            printf("(BIT-3) Response FAULT\n");
+            break;
+        case 64:
+            printf("(BIT-6) Response tag Parity-Error\n");
+            break;
+        }
+    }
+
+}
 
 void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
 {
@@ -174,19 +242,19 @@ void printWEDGraphCSRVertex(struct  WEDGraphCSR *wed)
 
     __u32 i;
 
- for (i = 0; i <  wed->num_vertices; ++i)
- {
-    printf("v-> %u\n",i);
-    printf("  wed->vertex_out_degree: %u\n",    ((__u32 *)wed->vertex_out_degree)[i]);
-    printf("  wed->vertex_in_degree: %u\n",     ((__u32 *)wed->vertex_in_degree)[i]);
-    printf("  wed->vertex_edges_idx: %u\n",     ((__u32 *)wed->vertex_edges_idx)[i]);
+    for (i = 0; i <  wed->num_vertices; ++i)
+    {
+        printf("v-> %u\n", i);
+        printf("  wed->vertex_out_degree: %u\n",    ((__u32 *)wed->vertex_out_degree)[i]);
+        printf("  wed->vertex_in_degree: %u\n",     ((__u32 *)wed->vertex_in_degree)[i]);
+        printf("  wed->vertex_edges_idx: %u\n",     ((__u32 *)wed->vertex_edges_idx)[i]);
 
-     #if DIRECTED
+#if DIRECTED
         printf("  wed->inverse_vertex_out_degree:%u\n", ((__u32 *)wed->inverse_vertex_out_degree)[i]);
         printf("  wed->inverse_vertex_in_degree: %u\n", ((__u32 *)wed->inverse_vertex_in_degree)[i]);
         printf("  wed->inverse_vertex_edges_idx: %u\n", ((__u32 *)wed->inverse_vertex_edges_idx)[i]);
-    #endif
- }
+#endif
+    }
 
 
 }
@@ -226,7 +294,7 @@ main (int argc, char **argv)
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
-     // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
+    // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
     arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
@@ -291,8 +359,7 @@ main (int argc, char **argv)
         cxl_mmio_write64(afu, ALGO_REQUEST, algo_status);
 
         cxl_mmio_read64(afu, ERROR_REG, &error);
-        printf("ERROR_REG %lX\n", error);
-
+        printMMIO_error(error);
         // if(algo_status)
         //     break;
     }

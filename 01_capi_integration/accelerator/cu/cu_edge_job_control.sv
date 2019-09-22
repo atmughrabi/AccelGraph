@@ -64,6 +64,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	logic start_shift;
 	logic push_edge;
+	logic vertex_job_request_send;
 
 	edge_struct_state current_state, next_state;
 
@@ -74,18 +75,19 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 ////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_job 	  		 <= 0;
-			read_command_out  	 <= 0;
-			read_command_out  	 <= 0;
+			edge_job 	  		 		<= 0;
+			read_command_out  	 		<= 0;
+			vertex_job_request  		<= 0;
 		end else begin
 			if(enabled) begin
 				edge_job 	  			<= edge_latched;
 				read_command_out  		<= read_command_out_latched;
-				vertex_job_request		<= ~send_request_ready;
-				// vertex_job_request		<= ~(|edge_num_counter) && ~send_request_ready;
+				vertex_job_request		<= vertex_job_request_send;
 			end
 		end
 	end
+
+assign vertex_job_request_send = ~(|edge_num_counter) && ~send_request_ready && edge_buffer_status.empty;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive inputs
