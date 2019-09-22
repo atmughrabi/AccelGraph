@@ -57,8 +57,6 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	ReadWriteDataLine read_data_1_vertex_job;
 	ReadWriteDataLine read_data_0_graph_algorithm;
 	ReadWriteDataLine read_data_1_graph_algorithm;
-	BufferStatus 	  read_buffer_status_latched;
-	BufferStatus      write_buffer_status_latched;
 
 	CommandBufferLine command_arbiter_out;
 	logic [NUM_REQUESTS-1:0] requests;
@@ -68,13 +66,31 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	logic [0:63] 	algorithm_status_latched;
 	logic [0:63] 	algorithm_requests_latched;
 	logic done_graph_algorithm;
+	logic cu_vertex_job_control_done;
+
+
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_pushed;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done;
+
+////////////////////////////////////////////////////////////////////////////
+//Done signal
+////////////////////////////////////////////////////////////////////////////
+
+	assign read_command_out_latched = command_arbiter_out;
+
+	always_comb begin : proc_done
+		algorithm_status_latched = 0;
+		if(wed_request_in_latched.valid)begin
+			if(wed_request_in_latched.wed.num_vertices == (vertex_job_counter_filtered+vertex_job_counter_done))begin
+				algorithm_status_latched = 1;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
 ////////////////////////////////////////////////////////////////////////////
-
-	assign algorithm_status_latched  = done_graph_algorithm;
-	assign read_command_out_latched  = command_arbiter_out;
 
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
@@ -234,7 +250,9 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.vertex_request      (vertex_job_request),
 		.read_command_out    (read_command_out_vertex),
 		.vertex_buffer_status(vertex_buffer_status),
-		.vertex              (vertex_job));
+		.vertex              (vertex_job),
+		.vertex_job_counter_pushed  (vertex_job_counter_pushed),
+		.vertex_job_counter_filtered(vertex_job_counter_filtered));
 
 ////////////////////////////////////////////////////////////////////////////
 //graph algorithm control - graph algorithm CU - edge processing
@@ -258,7 +276,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.vertex_buffer_status(vertex_buffer_status),
 		.vertex_job          (vertex_job),
 		.vertex_job_request  (vertex_job_request),
-		.done_graph_algorithm(done_graph_algorithm));
+		.vertex_job_counter_done(vertex_job_counter_done));
 
 ////////////////////////////////////////////////////////////////////////////
 //cu_vertex_control command buffer

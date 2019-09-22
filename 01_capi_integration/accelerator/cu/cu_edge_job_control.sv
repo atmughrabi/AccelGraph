@@ -29,7 +29,6 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	ResponseBufferLine read_response_in_latched;
 	ReadWriteDataLine read_data_0_in_latched;
 	ReadWriteDataLine read_data_1_in_latched;
-	BufferStatus 	  read_buffer_status_latched;
 	logic edge_request_latched;
 
 	// internal registers to track logic
@@ -41,24 +40,29 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic [0:63] edge_next_offest;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_num_counter;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_id_counter;
-	logic [0:7] edge_shift_counter;
-	logic [0:7] request_real_size;
 	logic [0:7] shift_seek;
 	logic [0:7] remainder;
 	EdgeInterface edge_variable;
 
 	logic fill_edge_buffer;
 	VertexInterface 	 	vertex_job_latched;
+	logic [0:(EDGE_SIZE_BITS-1)] src_cacheline;
+	logic [0:(EDGE_SIZE_BITS-1)] dest_cacheline;
+	logic [0:(EDGE_SIZE_BITS-1)] weight_cacheline;
 
-	logic [0:63] aligend_base_address_inverse_src;
-	logic [0:63] aligend_base_address_inverse_dest;
-	logic [0:63] aligend_base_address_inverse_weight;
-	logic [0:(CACHELINE_SIZE_BITS-1)] src_cacheline;
-	logic [0:(CACHELINE_SIZE_BITS-1)] dest_cacheline;
-	logic [0:(CACHELINE_SIZE_BITS-1)] weight_cacheline;
+	logic src_cacheline_pending;
+	logic dest_cacheline_pending;
+	logic weight_cacheline_pending;
+
 	logic src_cacheline_ready;
 	logic dest_cacheline_ready;
 	logic weight_cacheline_ready;
+
+	logic src_cacheline_sent;
+	logic dest_cacheline_sent;
+	logic weight_cacheline_sent;
+
+	logic start_shift;
 	logic push_edge;
 
 	edge_struct_state current_state, next_state;
@@ -77,7 +81,8 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			if(enabled) begin
 				edge_job 	  			<= edge_latched;
 				read_command_out  		<= read_command_out_latched;
-				vertex_job_request		<= ~(|edge_num_counter);
+				vertex_job_request		<= ~send_request_ready;
+				// vertex_job_request		<= ~(|edge_num_counter) && ~send_request_ready;
 			end
 		end
 	end
@@ -125,25 +130,37 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 					next_state = SEND_EDGE_RESET;
 			end
 			SEND_EDGE_INIT: begin
-				next_state = SEND_EDGE_IDLE;
+				next_state = SEND_EDGE_WAIT;
 			end
-			SEND_EDGE_IDLE: begin
+			SEND_EDGE_WAIT: begin
 				if(send_request_ready )
 					next_state = CALC_EDGE_REQ_SIZE;
 				else
-					next_state = SEND_EDGE_IDLE;
+					next_state = SEND_EDGE_WAIT;
 			end
 			CALC_EDGE_REQ_SIZE: begin
-				next_state = SEND_EDGE_INV_SRC;
+				next_state = SEND_EDGE_IDLE;
+			end
+			SEND_EDGE_IDLE: begin
+				if(~read_buffer_status.alfull)
+					next_state = SEND_EDGE_INV_SRC;
+				else
+					next_state = SEND_EDGE_IDLE;
 			end
 			SEND_EDGE_INV_SRC: begin
-				next_state = SEND_EDGE_INV_DEST;
+				if(~read_buffer_status.alfull)
+					next_state = SEND_EDGE_INV_DEST;
+				else
+					next_state = SEND_EDGE_INV_SRC;
 			end
 			SEND_EDGE_INV_DEST: begin
-				next_state = SEND_EDGE_INV_WEIGHT;
+				if(~read_buffer_status.alfull)
+					next_state = SEND_EDGE_INV_WEIGHT;
+				else
+					next_state = SEND_EDGE_INV_DEST;
 			end
 			SEND_EDGE_INV_WEIGHT: begin
-				next_state = SEND_EDGE_IDLE;
+				next_state = SEND_EDGE_WAIT;
 			end
 		endcase
 	end // always_comb
@@ -160,20 +177,24 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				edge_next_offest  		<= 	0;
 				edge_num_counter 		<=	0;
 				shift_seek				<=  0;
-				aligend_base_address_inverse_src 	<=  0;
-				aligend_base_address_inverse_dest 	<=  0;
-				aligend_base_address_inverse_weight <=  0;
+				remainder 				<=  0;
+				src_cacheline_sent		<=  0;
+				dest_cacheline_sent		<=  0;
+				weight_cacheline_sent	<=  0;
 			end
 			SEND_EDGE_INIT: begin
 				edge_num_counter <= vertex_job_latched.inverse_out_degree;
 				edge_next_offest <= (vertex_job_latched.inverse_edges_idx << $clog2(EDGE_SIZE));
 			end
-			SEND_EDGE_IDLE: begin
+			SEND_EDGE_WAIT: begin
 				read_command_out_latched.valid    <= 1'b0;
 				read_command_out_latched.command  <= INVALID; // just zero it out
 				read_command_out_latched.address  <= 64'h0000_0000_0000_0000;
 				read_command_out_latched.size     <= 12'h000;
 				read_command_out_latched.cmd 	  <= 0;
+				src_cacheline_sent		<=  0;
+				dest_cacheline_sent		<=  0;
+				weight_cacheline_sent	<=  0;
 				request_size <= 0;
 				remainder <= (edge_next_offest & ADDRESS_MOD_MASK);
 			end
@@ -201,48 +222,53 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 						read_command_out_latched.cmd.real_size <= edge_num_counter;
 					end
 				end
+
+				read_command_out_latched.cmd.cacheline_offest <= (remainder >> $clog2(EDGE_SIZE));
+				read_command_out_latched.cmd.cu_id    		<= CU_ID;
+				read_command_out_latched.cmd.cmd_type 		<= CMD_READ;
+			end
+			SEND_EDGE_IDLE: begin
 			end
 			SEND_EDGE_INV_SRC: begin
-				read_command_out_latched.valid    <= 1'b1;
-				read_command_out_latched.command  <= READ_CL_NA; // just zero it out
-				read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_src + edge_next_offest;
-				read_command_out_latched.size     <= request_size;
+				if(~src_cacheline_sent) begin
+					src_cacheline_sent		<=  1;
 
-				read_command_out_latched.cmd.cu_id    		<= CU_ID;
-				read_command_out_latched.cmd.cmd_type 		<= CMD_READ;
-				read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_SRC;
-				read_command_out_latched.cmd.cacheline_offest <= remainder;
+					read_command_out_latched.valid    <= 1'b1;
+					read_command_out_latched.command  <= READ_CL_NA; // just zero it out
+					read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_src + edge_next_offest;
+					read_command_out_latched.size     <= request_size;
 
+					read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_SRC;
+				end
 			end
 			SEND_EDGE_INV_DEST: begin
-				read_command_out_latched.valid    <= 1'b1;
-				read_command_out_latched.command  <= READ_CL_NA; // just zero it out
-				read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_dest + edge_next_offest;
-				read_command_out_latched.size     <= request_size;
+				if(~dest_cacheline_sent) begin
+					dest_cacheline_sent		<=  1;
 
-				read_command_out_latched.cmd.cu_id    		<= CU_ID;
-				read_command_out_latched.cmd.cmd_type 		<= CMD_READ;
-				read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_DEST;
-				read_command_out_latched.cmd.cacheline_offest <= remainder;
+					read_command_out_latched.valid    <= 1'b1;
+					read_command_out_latched.command  <= READ_CL_NA; // just zero it out
+					read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_dest + edge_next_offest;
+					read_command_out_latched.size     <= request_size;
 
+					read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_DEST;
+				end
 			end
 			SEND_EDGE_INV_WEIGHT: begin
-				read_command_out_latched.valid    <= 1'b1;
-				read_command_out_latched.command  <= READ_CL_NA; // just zero it out
-				read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_weight + edge_next_offest;
-				read_command_out_latched.size     <= request_size;
+				if(~weight_cacheline_sent) begin
+					weight_cacheline_sent		<=  1;
 
-				read_command_out_latched.cmd.cu_id    		<= CU_ID;
-				read_command_out_latched.cmd.cmd_type 		<= CMD_READ;
-				read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_WEIGHT;
-				read_command_out_latched.cmd.cacheline_offest <= remainder;
+					read_command_out_latched.valid    <= 1'b1;
+					read_command_out_latched.command  <= READ_CL_NA; // just zero it out
+					read_command_out_latched.address  <= wed_request_in_latched.wed.inverse_edges_array_weight + edge_next_offest;
+					read_command_out_latched.size     <= request_size;
 
+					read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_WEIGHT;
 
-				if(|remainder)
-					edge_next_offest <= edge_next_offest + (CACHELINE_SIZE-remainder);
-				else
-					edge_next_offest <= edge_next_offest + CACHELINE_SIZE;
-
+					if(|remainder)
+						edge_next_offest <= edge_next_offest + (CACHELINE_SIZE-remainder);
+					else
+						edge_next_offest <= edge_next_offest + CACHELINE_SIZE;
+				end
 			end
 		endcase
 	end // always_ff @(posedge clock)
@@ -264,19 +290,6 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn)
-			request_real_size <= 0;
-		else begin
-			if (read_response_in_latched.valid) begin
-				request_real_size <= read_response_in_latched.cmd.real_size;
-			end else begin
-				request_real_size  <= request_real_size;
-			end
-		end
-	end
-
-
 ////////////////////////////////////////////////////////////////////////////
 //Read Vertex data into registers
 ////////////////////////////////////////////////////////////////////////////
@@ -284,43 +297,40 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	cu_cacheline_stream cu_cacheline_stream_inverse_src(
 		.clock(clock),
 		.rstn(rstn),
-		.enabled         	(enabled),
-		.fill_vertex_buffer	(fill_edge_buffer),
+		.enabled         (enabled),
+		.start_shift	 (start_shift),
 		.read_data_0_in  (read_data_0_in_latched),
 		.read_data_1_in  (read_data_1_in_latched),
-		.read_response_in(read_response_in_latched),
 		.vertex_struct   (INV_EDGE_ARRAY_SRC),
-		.shift_limit     (request_real_size),
-		.cacheline       (src_cacheline),
-		.cacheline_ready (src_cacheline_ready)
+		.vertex       (src_cacheline),
+		.pending      (src_cacheline_pending),
+		.valid		  (src_cacheline_ready)
 	);
 
 	cu_cacheline_stream cu_cacheline_stream_inverse_dest(
 		.clock(clock),
 		.rstn(rstn),
-		.enabled         	(enabled),
-		.fill_vertex_buffer	(fill_edge_buffer),
+		.enabled         (enabled),
+		.start_shift	 (start_shift),
 		.read_data_0_in  (read_data_0_in_latched),
 		.read_data_1_in  (read_data_1_in_latched),
-		.read_response_in(read_response_in_latched),
 		.vertex_struct   (INV_EDGE_ARRAY_DEST),
-		.shift_limit     (request_real_size),
-		.cacheline       (dest_cacheline),
-		.cacheline_ready (dest_cacheline_ready)
+		.vertex       	(dest_cacheline),
+		.pending      	(dest_cacheline_pending),
+		.valid 			(dest_cacheline_ready)
 	);
 
 	cu_cacheline_stream cu_cacheline_stream_inverse_weight(
 		.clock(clock),
 		.rstn(rstn),
 		.enabled         	(enabled),
-		.fill_vertex_buffer	(fill_edge_buffer),
+		.start_shift	(start_shift),
 		.read_data_0_in  (read_data_0_in_latched),
 		.read_data_1_in  (read_data_1_in_latched),
-		.read_response_in(read_response_in_latched),
 		.vertex_struct   (INV_EDGE_ARRAY_WEIGHT),
-		.shift_limit     (request_real_size),
-		.cacheline       (weight_cacheline),
-		.cacheline_ready (weight_cacheline_ready)
+		.vertex       (weight_cacheline),
+		.pending      (weight_cacheline_pending),
+		.valid 		  (weight_cacheline_ready)
 	);
 
 
@@ -331,30 +341,29 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 ////////////////////////////////////////////////////////////////////////////
 //Buffers Vertices
 ////////////////////////////////////////////////////////////////////////////
-	assign fill_edge_buffer_pending = src_cacheline_ready || dest_cacheline_ready || weight_cacheline_ready || (|response_counter);
-	assign send_request_ready       = ~read_buffer_status.alfull && ~fill_edge_buffer_pending && ~edge_buffer_status.alfull && (|edge_num_counter) && ~(|response_counter) 
-										&& wed_request_in_latched.valid && vertex_job_latched.valid;
-	assign fill_edge_buffer         = src_cacheline_ready && dest_cacheline_ready && weight_cacheline_ready && ~(|response_counter);
+	assign fill_edge_buffer_pending = src_cacheline_pending || dest_cacheline_pending || weight_cacheline_pending;
+	assign send_request_ready       = ~read_buffer_status.alfull && ~fill_edge_buffer_pending && ~edge_buffer_status.alfull && (|edge_num_counter) && ~(|response_counter)
+		&& wed_request_in_latched.valid && vertex_job_latched.valid;
+	assign fill_edge_buffer = src_cacheline_ready && dest_cacheline_ready && weight_cacheline_ready;
+	assign start_shift      = fill_edge_buffer_pending && ~(|response_counter);
+
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			edge_variable    	 <= 0;
 			edge_id_counter 	 <= 0;
-			edge_shift_counter   <= 0;
 		end
 		else begin
-			if(fill_edge_buffer && (edge_shift_counter < request_real_size)) begin
-				edge_id_counter    <= edge_id_counter + 1;
-				edge_shift_counter <= edge_shift_counter + 1;
-				edge_variable.valid 		<= 1'b1;
+			if(fill_edge_buffer) begin
+				edge_id_counter    			<= edge_id_counter + 1;
+				edge_variable.valid 		<= fill_edge_buffer;
 				edge_variable.id 			<= edge_id_counter;
-				edge_variable.src 	        <= src_cacheline[(CACHELINE_SIZE_BITS-EDGE_SIZE_BITS):(CACHELINE_SIZE_BITS-1)];
-				edge_variable.dest 	        <= dest_cacheline[(CACHELINE_SIZE_BITS-EDGE_SIZE_BITS):(CACHELINE_SIZE_BITS-1)];
-				edge_variable.weight 	    <= weight_cacheline[(CACHELINE_SIZE_BITS-EDGE_SIZE_BITS):(CACHELINE_SIZE_BITS-1)];
+				edge_variable.src 	        <= src_cacheline;
+				edge_variable.dest 	        <= dest_cacheline;
+				edge_variable.weight 	    <= weight_cacheline;
 
 			end else begin
 				edge_variable  <= 0;
-				edge_shift_counter <= 0;
 			end
 		end
 	end

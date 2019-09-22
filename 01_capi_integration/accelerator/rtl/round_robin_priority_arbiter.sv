@@ -99,22 +99,30 @@ module round_robin_priority_arbiter_1_input_N_ouput #(
   logic [NUM_REQUESTS-1:0] grant_latched;
   logic [0:WIDTH-1] arbiter_out_latch [0:NUM_REQUESTS-1];
 
-  logic [NUM_REQUESTS-1:0] sel;
 // vc_RoundRobinArb
 //------------------------------------------------------------------------
 // Ensures strong fairness among the requesters. The requester which wins
 // the grant will be the lowest priority requester the next cycle.
 
-
-  vc_RoundRobinArb #(
-    .p_num_reqs(NUM_REQUESTS)
-  )round_robin_arbiter_instance(
-    .clock (clock),
-    .rstn  (rstn),
-    .reqs (requests),
-    .grants(grant)
-  );
-
+  generate if(NUM_REQUESTS > 1) begin
+      vc_RoundRobinArb #(
+        .p_num_reqs(NUM_REQUESTS)
+      )round_robin_arbiter_instance(
+        .clock (clock),
+        .rstn  (rstn),
+        .reqs (requests),
+        .grants(grant)
+      );
+    end else begin
+      always_ff @(posedge clock or negedge rstn) begin : proc_grant
+        if(~rstn) begin
+          grant <= 0;
+        end else begin
+          grant <= requests;
+        end
+      end
+    end
+  endgenerate
 
 /////////////////////////////////////
 // ready the winner if any

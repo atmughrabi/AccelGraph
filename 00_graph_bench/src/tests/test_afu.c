@@ -169,6 +169,28 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
 
 }
 
+void printWEDGraphCSRVertex(struct  WEDGraphCSR *wed)
+{
+
+    __u32 i;
+
+ for (i = 0; i <  wed->num_vertices; ++i)
+ {
+    printf("v-> %u\n",i);
+    printf("  wed->vertex_out_degree: %u\n",    ((__u32 *)wed->vertex_out_degree)[i]);
+    printf("  wed->vertex_in_degree: %u\n",     ((__u32 *)wed->vertex_in_degree)[i]);
+    printf("  wed->vertex_edges_idx: %u\n",     ((__u32 *)wed->vertex_edges_idx)[i]);
+
+     #if DIRECTED
+        printf("  wed->inverse_vertex_out_degree:%u\n", ((__u32 *)wed->inverse_vertex_out_degree)[i]);
+        printf("  wed->inverse_vertex_in_degree: %u\n", ((__u32 *)wed->inverse_vertex_in_degree)[i]);
+        printf("  wed->inverse_vertex_edges_idx: %u\n", ((__u32 *)wed->inverse_vertex_edges_idx)[i]);
+    #endif
+ }
+
+
+}
+
 int
 main (int argc, char **argv)
 {
@@ -204,6 +226,7 @@ main (int argc, char **argv)
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
+     // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
     arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
@@ -238,6 +261,7 @@ main (int argc, char **argv)
     graph = generateGraphDataStructure(&arguments);
     // (struct GraphCSR *)graph
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+    printWEDGraphCSRVertex(wedGraphCSR);
 
     printWEDGraphCSRPointers(wedGraphCSR);
 

@@ -7,72 +7,111 @@ module cu_cacheline_stream (
 	input logic clock,    // Clock
 	input logic rstn,
 	input logic enabled,
-	input logic fill_vertex_buffer,
+	input logic start_shift,
 	input ReadWriteDataLine 	read_data_0_in,
 	input ReadWriteDataLine 	read_data_1_in,
-	input ResponseBufferLine 	read_response_in,
 	input vertex_struct_type	vertex_struct,
-	input logic [0:7]  shift_limit,
-	output logic [0:(CACHELINE_SIZE_BITS-1)] cacheline,
-	output logic cacheline_ready
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex,
+	output logic pending,
+	output logic valid
 );
 
-	logic [0:7] vertex_shift_counter;
-	logic seek_flag;
-	logic [0:7] shift_seek;
+	logic [0:CACHELINE_INT_COUNTER_BITS]  shift_limit;
+	logic [0:CACHELINE_INT_COUNTER_BITS-1] addr_counter;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_seek_latched;
+	logic [0:CACHELINE_INT_COUNTER_BITS]  shift_limit_latched;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_latched;
+	logic address;
+	logic we;
+	logic valid_internal;
+	logic pending_latched;
+	logic [0:511] read_data_in;
 
+	assign vertex         = swap_endianness_word(vertex_latched);
+	assign valid_internal = (shift_counter < shift_limit) && start_shift && enabled;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			cacheline <= 0;
-			cacheline_ready <= 1'b0;
-			vertex_shift_counter <= 0;
-			seek_flag <= 1'b0;
-			shift_seek <= 0;
+			shift_counter 	<= 0;
+			addr_counter    <= 0;
+			shift_limit     <= 0;
+			pending     	<= 0;
 		end
 		else begin
 			if(enabled)begin
-				if (read_data_0_in.cmd.vertex_struct == vertex_struct && read_data_0_in.valid) begin
-					cacheline [0:511]	<= read_data_0_in.data;
-					shift_seek			<= read_data_0_in.cmd.cacheline_offest;
+
+				valid <= valid_internal;
+				if(we)begin
+					shift_counter <= shift_seek_latched;
+					shift_limit   <= shift_limit_latched;
+					pending 	  <= pending_latched;
 				end
 
-				if (read_data_1_in.cmd.vertex_struct == vertex_struct && read_data_1_in.valid) begin
-					cacheline[512:(CACHELINE_SIZE_BITS-1)]	<= read_data_1_in.data;
-					shift_seek								<= read_data_0_in.cmd.cacheline_offest;
+				if(valid)begin
+					if((shift_counter >= shift_limit)) begin
+						pending 	  <= 0;
+					end
 				end
 
-				if(fill_vertex_buffer && (vertex_shift_counter < shift_limit))begin
-					vertex_shift_counter 	<= vertex_shift_counter + 1;
-					cacheline 				<= {{VERTEX_SIZE_BITS{1'b0}},cacheline[0:(CACHELINE_SIZE_BITS-1-VERTEX_SIZE_BITS)]};
-				end
-
-				if (vertex_shift_counter >= shift_limit) begin
-					cacheline <= 0;
-					cacheline_ready <= 1'b0;
-					vertex_shift_counter <= 0;
-				end
-
-				if (read_response_in.valid && read_response_in.cmd.vertex_struct == vertex_struct)begin
-					seek_flag 		<= 1'b1;
-					cacheline 	   	<= swap_endianness_full_cacheline128(cacheline);
-				end
-
-				if(seek_flag) begin
-					seek_flag  			<= 1'b0;
-					cacheline_ready 	<= 1'b1;
-					shift_seek			<= 0;
-					cacheline 	   		<= seek_cacheline(shift_seek, cacheline);
+				if(valid_internal)begin
+					if((shift_counter < shift_limit)) begin
+						shift_counter 	<= shift_counter + 1;
+						addr_counter    <= addr_counter + 1;
+					end else begin
+						pending 	  <= 0;
+						shift_counter <= 0;
+						addr_counter  <= 0;
+						shift_limit   <= 0;
+					end
 				end
 
 			end else begin
-				cacheline <= 0;
-				cacheline_ready <= 1'b0;
-				vertex_shift_counter <= 0;
-				seek_flag <= 1'b0;
-				shift_seek			<= 0;
+				shift_counter <= 0;
+				addr_counter  <= 0;
+				shift_limit   <= 0;
+				pending 	  <= 0;
 			end
 		end
 	end
+
+	always_comb begin
+		we = 0;
+		address = 0;
+		read_data_in = 0;
+		shift_seek_latched = 0;
+		shift_limit_latched = 0;
+		pending_latched	= 0;
+		if((read_data_0_in.cmd.vertex_struct == vertex_struct) && read_data_0_in.valid)begin
+			we = 1;
+			address = 0;
+			read_data_in = read_data_0_in.data;
+			shift_seek_latched = read_data_0_in.cmd.cacheline_offest;
+			shift_limit_latched = read_data_0_in.cmd.real_size;
+			pending_latched = 1;
+		end else if((read_data_1_in.cmd.vertex_struct == vertex_struct) && read_data_1_in.valid)begin
+			we = 1;
+			address = 1;
+			read_data_in = read_data_1_in.data;
+			shift_seek_latched = read_data_1_in.cmd.cacheline_offest;
+			shift_limit_latched = read_data_1_in.cmd.real_size;
+			pending_latched = 1;
+		end
+	end
+
+	mixed_width_ram #(
+		.WORDS(2),
+		.WW(CACHELINE_SIZE_BITS/2),
+		.RW(VERTEX_SIZE_BITS)
+	)cacheline_instant
+	(
+		.clock( clock ),
+		.we( we ),
+		.wr_addr(address),
+		.data_in(read_data_in),
+
+		.rd_addr(addr_counter),
+		.data_out(vertex_latched)
+	);
 
 endmodule

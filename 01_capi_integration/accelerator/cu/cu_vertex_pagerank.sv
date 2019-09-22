@@ -24,8 +24,8 @@ module cu_vertex_pagerank #(
 	input  BufferStatus 	 vertex_buffer_status,
 	input  VertexInterface 	 vertex_job,
 	output logic 			 vertex_job_request,
-	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter,
-	output logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter
+
 );
 
 // vertex control variables
@@ -42,22 +42,12 @@ module cu_vertex_pagerank #(
 	ReadWriteDataLine write_data_1_out_latched;
 	CommandBufferLine read_command_out_latched;
 
-	CommandBufferLine read_command_out_vertex;
-	CommandBufferLine read_command_vertex_buffer;
-	BufferStatus read_command_vertex_buffer_status;
-
-	CommandBufferLine read_command_graph_algorithm_edge;
-	CommandBufferLine read_command_graph_algorithm_buffer;
-	BufferStatus read_command_graph_algorithm_buffer_status;
-
 	//input lateched
 	WEDInterface wed_request_in_latched;
 	ResponseBufferLine read_response_in_latched;
 	ResponseBufferLine write_response_in_latched;
 	ReadWriteDataLine read_data_0_in_latched;
 	ReadWriteDataLine read_data_1_in_latched;
-	BufferStatus 	  read_buffer_status_latched;
-	BufferStatus write_buffer_status_latched;
 
 
 	ResponseBufferLine read_response_in_edge_job;
@@ -67,13 +57,6 @@ module cu_vertex_pagerank #(
 	ResponseBufferLine read_response_in_edge_data;
 	ReadWriteDataLine  read_data_0_in_edge_data;
 	ReadWriteDataLine  read_data_1_in_edge_data;
-
-	CommandBufferLine command_arbiter_out;
-	logic [NUM_EDGE_CU-1:0] requests;
-	logic [NUM_EDGE_CU-1:0] ready;
-	CommandBufferLine [NUM_EDGE_CU-1:0] read_command_buffer;
-	CommandBufferLine [NUM_EDGE_CU-1:0] write_command_buffer;
-	VertexInterface   [NUM_EDGE_CU-1:0] vertex_job_rcv;
 
 
 	BufferStatus 	 read_data_0_buffer_status;
@@ -93,6 +76,7 @@ module cu_vertex_pagerank #(
 	ResponseBufferLine write_response_buffer;
 
 	logic edge_request;
+	logic edge_request_internal;
 	EdgeInterface 		edge_job;
 	BufferStatus edge_buffer_status;
 
@@ -118,7 +102,7 @@ module cu_vertex_pagerank #(
 			write_data_0_out  		<= write_data_0_out_latched;
 			write_data_1_out  		<= write_data_1_out_latched;
 			read_command_out  		<= read_command_out_latched;
-			vertex_job_request 		<= (vertex_job_request_latched && ~vertex_buffer_status_latched.empty);
+			vertex_job_request 		<= vertex_job_request_latched & (~vertex_buffer_status.empty);
 		end
 	end
 
@@ -146,7 +130,7 @@ module cu_vertex_pagerank #(
 	end
 
 	////////////////////////////////////////////////////////////////////////////
-	// count vertex request
+	// count complete vertex request
 	////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -162,26 +146,12 @@ module cu_vertex_pagerank #(
 	end
 
 	////////////////////////////////////////////////////////////////////////////
-	// count edge request
-	////////////////////////////////////////////////////////////////////////////
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			edge_num_counter <= 0;
-		end else begin
-			if(enabled)begin
-				if(edge_job.valid) begin
-					edge_num_counter <= edge_num_counter + 1;
-				end
-			end
-		end
-	end
-
-	////////////////////////////////////////////////////////////////////////////
 	// Edge job control
 	////////////////////////////////////////////////////////////////////////////
 
-	assign edge_request = ~edge_buffer_status.empty;
+	assign edge_request = 1;
+
+	assign edge_request_internal = edge_request;
 
 	cu_edge_job_control #(
 		.CU_ID(PAGERANK_CU_ID)
@@ -194,7 +164,7 @@ module cu_vertex_pagerank #(
 		.read_data_0_in    (read_data_0_in_edge_job),
 		.read_data_1_in    (read_data_1_in_edge_job),
 		.read_buffer_status(read_buffer_status),
-		.edge_request      (edge_request),
+		.edge_request      (edge_request_internal),
 		.vertex_job        (vertex_job_latched),
 		.read_command_out  (read_command_out_latched),
 		.edge_buffer_status(edge_buffer_status),
