@@ -454,9 +454,9 @@ module cu_vertex_job_control (
 		end
 	end
 
-	// if the vertex has no in/out neighbors don't schedule it
-	assign push_vertex   = (vertex_variable.valid)   && ((|vertex_variable.in_degree) || (|vertex_variable.out_degree));
-	assign filter_vertex = (vertex_variable.valid) && (~(|vertex_variable.in_degree) && ~(|vertex_variable.out_degree));
+	// if the vertex has no in/out neighbors don't schedule it vertex_job_latched.inverse_out_degree;
+	assign push_vertex   = (vertex_variable.valid)   && ((|vertex_variable.inverse_out_degree));
+	assign filter_vertex = (vertex_variable.valid) && (~(|vertex_variable.inverse_out_degree));
 
 
 	always_ff @(posedge clock or negedge rstn) begin

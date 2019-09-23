@@ -17,7 +17,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	output CommandBufferLine 	read_command_out,
 	output BufferStatus 		edge_buffer_status,
 	output EdgeInterface 		edge_job,
-	output logic 				vertex_job_request
+	output logic [0:(EDGE_SIZE_BITS-1)] edge_job_counter_pushed
 );
 
 	//output latched
@@ -38,6 +38,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic fill_edge_buffer_pending;
 	logic [0:7]  response_counter;
 	logic [0:63] edge_next_offest;
+
 	logic [0:(EDGE_SIZE_BITS-1)] edge_num_counter;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_id_counter;
 	logic [0:7] shift_seek;
@@ -65,8 +66,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	logic start_shift;
 	logic push_edge;
-	logic vertex_job_request_send;
-
+	
 	edge_struct_state current_state, next_state;
 
 
@@ -78,17 +78,13 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		if(~rstn) begin
 			edge_job 	  		 		<= 0;
 			read_command_out  	 		<= 0;
-			vertex_job_request  		<= 0;
 		end else begin
 			if(enabled) begin
 				edge_job 	  			<= edge_latched;
 				read_command_out  		<= read_command_out_latched;
-				vertex_job_request		<= vertex_job_request_send;
 			end
 		end
 	end
-
-assign vertex_job_request_send = ~(|edge_num_counter) && edge_buffer_status.empty && ~fill_edge_buffer_pending;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive inputs
@@ -126,44 +122,50 @@ assign vertex_job_request_send = ~(|edge_num_counter) && edge_buffer_status.empt
 	always_comb begin
 		next_state = current_state;
 		case (current_state)
-			SEND_EDGE_RESET: begin
+			SEND_EDGE_RESET : begin
 				if(vertex_job_latched.valid && wed_request_in_latched.valid)
 					next_state = SEND_EDGE_INIT;
 				else
 					next_state = SEND_EDGE_RESET;
 			end
-			SEND_EDGE_INIT: begin
-				next_state = SEND_EDGE_WAIT;
+			SEND_EDGE_INIT : begin
+				if(|edge_num_counter)
+					next_state = SEND_EDGE_WAIT;
+				else
+					next_state = SEND_EDGE_INIT;
 			end
-			SEND_EDGE_WAIT: begin
-				if(send_request_ready )
+			SEND_EDGE_WAIT : begin
+				if(send_request_ready)
 					next_state = CALC_EDGE_REQ_SIZE;
 				else
 					next_state = SEND_EDGE_WAIT;
 			end
-			CALC_EDGE_REQ_SIZE: begin
+			CALC_EDGE_REQ_SIZE : begin
 				next_state = SEND_EDGE_IDLE;
 			end
-			SEND_EDGE_IDLE: begin
+			SEND_EDGE_IDLE : begin
 				if(~read_buffer_status.alfull)
 					next_state = SEND_EDGE_INV_SRC;
 				else
 					next_state = SEND_EDGE_IDLE;
 			end
-			SEND_EDGE_INV_SRC: begin
+			SEND_EDGE_INV_SRC : begin
 				if(~read_buffer_status.alfull)
 					next_state = SEND_EDGE_INV_DEST;
 				else
 					next_state = SEND_EDGE_INV_SRC;
 			end
-			SEND_EDGE_INV_DEST: begin
+			SEND_EDGE_INV_DEST : begin
 				if(~read_buffer_status.alfull)
 					next_state = SEND_EDGE_INV_WEIGHT;
 				else
 					next_state = SEND_EDGE_INV_DEST;
 			end
-			SEND_EDGE_INV_WEIGHT: begin
-				next_state = SEND_EDGE_WAIT;
+			SEND_EDGE_INV_WEIGHT : begin
+				if(|edge_num_counter)
+					next_state = SEND_EDGE_WAIT;
+				else
+					next_state = SEND_EDGE_INIT;
 			end
 		endcase
 	end // always_comb
@@ -375,6 +377,21 @@ assign vertex_job_request_send = ~(|edge_num_counter) && edge_buffer_status.empt
 
 	// if the edge has no in/out neighbors don't schedule it
 	assign push_edge = (edge_variable.valid);
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_job_counter_pushed <= 0;
+		end else begin
+			if(vertex_job_latched.valid)begin
+				if(push_edge)begin
+					edge_job_counter_pushed <= edge_job_counter_pushed + 1;
+				end
+				if(edge_job_counter_pushed == vertex_job_latched.inverse_out_degree)begin
+					edge_job_counter_pushed <= 0;
+				end
+			end
+		end
+	end
 
 	fifo  #(
 		.WIDTH($bits(EdgeInterface)),

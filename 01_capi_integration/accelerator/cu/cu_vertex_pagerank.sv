@@ -29,7 +29,6 @@ module cu_vertex_pagerank #(
 
 // vertex control variables
 	logic vertex_job_request_send;
-	logic vertex_job_request_latched;
 	VertexInterface  vertex_job_latched;
 
 
@@ -77,7 +76,8 @@ module cu_vertex_pagerank #(
 	EdgeInterface 		edge_job;
 	BufferStatus edge_buffer_status;
 	logic processing_vertex;
-
+	logic [0:(EDGE_SIZE_BITS-1)] edge_job_counter_pushed;
+	logic [0:2] request_pulse;
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
@@ -138,6 +138,9 @@ module cu_vertex_pagerank #(
 				if(vertex_job.valid && ~processing_vertex) begin
 					vertex_job_latched <= vertex_job;
 				end
+				if ((edge_job_counter_pushed == vertex_job_latched.inverse_out_degree) && vertex_job_latched.valid) begin
+					vertex_job_latched <= 0;
+				end
 			end
 		end
 	end
@@ -151,7 +154,7 @@ module cu_vertex_pagerank #(
 			vertex_num_counter <= 0;
 		end else begin
 			if(enabled)begin
-				if(vertex_job.valid && ~processing_vertex) begin
+				if(vertex_job_latched.valid && ~processing_vertex) begin
 					vertex_num_counter <= vertex_num_counter + 1;
 				end
 			end
@@ -167,17 +170,31 @@ module cu_vertex_pagerank #(
 			processing_vertex <= 0;
 		end else begin
 			if(enabled)begin
-				if(vertex_job.valid && ~processing_vertex) begin
-					processing_vertex <= 1;
-				end 
-				// else if (vertex_job_request_latched) begin
-				// 	processing_vertex <= 0;
-				// end
+				if(vertex_job_latched.valid) begin
+					if(~processing_vertex) begin
+						processing_vertex <= 1;
+					end
+					if (edge_job_counter_pushed == vertex_job_latched.inverse_out_degree) begin
+						processing_vertex <= 0;
+					end
+				end
 			end
 		end
 	end
 
-	assign vertex_job_request_send = ~processing_vertex & vertex_job_request_latched & (~vertex_buffer_status.empty);
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			request_pulse  		<= 0;
+		end else begin
+			if(processing_vertex) begin
+				request_pulse <= 0;
+			end else begin
+				request_pulse 		<= request_pulse+1;
+			end
+		end
+	end
+
+	assign vertex_job_request_send = ~processing_vertex & ~(|request_pulse) & (~vertex_buffer_status.empty);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Edge job control
@@ -203,7 +220,7 @@ module cu_vertex_pagerank #(
 		.read_command_out  (read_command_out_latched),
 		.edge_buffer_status(edge_buffer_status),
 		.edge_job          (edge_job),
-		.vertex_job_request(vertex_job_request_latched));
+		.edge_job_counter_pushed(edge_job_counter_pushed));
 
 
 ////////////////////////////////////////////////////////////////////////////
