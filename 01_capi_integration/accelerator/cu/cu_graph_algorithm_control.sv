@@ -21,7 +21,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	input  BufferStatus 	 vertex_buffer_status,
 	input  VertexInterface 	 vertex_job,
 	output logic 			 vertex_job_request,
-	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done,
+	output logic [0:(VERTEX_SIZE_BITS-1)] edge_job_counter_done
 );
 
 // vertex control variables
@@ -35,6 +36,10 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_temp;
 
+	logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter;
+	logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter_temp;
+
+
 	//output latched
 	CommandBufferLine write_command_out_latched;
 	ReadWriteDataLine write_data_0_out_latched;
@@ -47,6 +52,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	ResponseBufferLine write_response_in_latched;
 	ReadWriteDataLine read_data_0_in_latched;
 	ReadWriteDataLine read_data_1_in_latched;
+
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_cu [0:NUM_VERTEX_CU-1];
 	logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter_cu [0:NUM_VERTEX_CU-1];
 
@@ -134,10 +140,11 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	genvar i;
 	integer j;
 	integer k;
-	integer kkk;
-	integer jjj;
+	integer ii;
 	integer kk;
 	integer jj;
+	integer kkk;
+	integer jjj;
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex job request Arbitration
 	////////////////////////////////////////////////////////////////////////////
@@ -307,12 +314,13 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 					.vertex_buffer_status(vertex_buffer_status_internal),
 					.vertex_job          (vertex_job_cu[i]),
 					.vertex_job_request  (request_vertex_job_cu[i]),
-					.vertex_num_counter  (vertex_num_counter_cu[i]));
+					.vertex_num_counter  (vertex_num_counter_cu[i]),
+					.edge_num_counter    (edge_num_counter_cu[i]));
 		end
 	endgenerate
 	
 	////////////////////////////////////////////////////////////////////////////
-	// Once processed all verticess and edges send done signal
+	// Once processed all verticess edges send done signal
 	////////////////////////////////////////////////////////////////////////////
 
 	always_comb begin
@@ -328,6 +336,27 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		end else begin
 			if(enabled)begin
 				vertex_job_counter_done <= vertex_num_counter_temp;
+			end
+		end
+	end
+
+	////////////////////////////////////////////////////////////////////////////
+	// Once processed all edges send done signal
+	////////////////////////////////////////////////////////////////////////////
+
+	always_comb begin
+		edge_num_counter_temp = 0;
+		for (ii = 0; ii < NUM_VERTEX_CU; ii++) begin
+			edge_num_counter_temp = edge_num_counter_temp + edge_num_counter_cu[ii];
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_num_counter <= 0;
+		end else begin
+			if(enabled)begin
+				edge_job_counter_done <= edge_num_counter_temp;
 			end
 		end
 	end

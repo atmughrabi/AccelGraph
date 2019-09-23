@@ -191,11 +191,7 @@ module cu_vertex_job_control (
 	always_ff @(posedge clock) begin
 		case (current_state)
 			SEND_VERTEX_RESET: begin
-				read_command_out_latched.valid    <= 1'b0;
-				read_command_out_latched.command  <= INVALID; // just zero it out
-				read_command_out_latched.address  <= 64'h0000_0000_0000_0000;
-				read_command_out_latched.size     <= 12'h000;
-				read_command_out_latched.cmd 	  <= 0;
+				read_command_out_latched	 		<= 0;
 				in_degree_cacheline_sent 			<= 0;
 				out_degree_cacheline_sent 			<= 0;
 				edges_idx_degree_cacheline_sent 	<= 0;
@@ -206,14 +202,11 @@ module cu_vertex_job_control (
 				vertex_num_counter 		<=	0;
 			end
 			SEND_VERTEX_INIT: begin
-				vertex_num_counter <= wed_request_in_latched.wed.num_vertices;
+				read_command_out_latched	 		<= 0;
+				vertex_num_counter 					<= wed_request_in_latched.wed.num_vertices;
 			end
 			SEND_VERTEX_WAIT: begin
-				read_command_out_latched.valid    <= 1'b0;
-				read_command_out_latched.command  <= INVALID; // just zero it out
-				read_command_out_latched.address  <= 64'h0000_0000_0000_0000;
-				read_command_out_latched.size     <= 12'h000;
-				read_command_out_latched.cmd 	  <= 0;
+				read_command_out_latched	 		<= 0;
 				in_degree_cacheline_sent 			<= 0;
 				out_degree_cacheline_sent 			<= 0;
 				edges_idx_degree_cacheline_sent 	<= 0;
@@ -251,6 +244,9 @@ module cu_vertex_job_control (
 
 					read_command_out_latched.cmd.vertex_struct 	<= IN_DEGREE;
 				end
+				else begin
+					read_command_out_latched.valid    <= 1'b0;
+				end
 			end
 			SEND_VERTEX_OUT_DEGREE: begin
 				if(~out_degree_cacheline_sent) begin
@@ -262,6 +258,9 @@ module cu_vertex_job_control (
 					read_command_out_latched.size     <= request_size;
 
 					read_command_out_latched.cmd.vertex_struct 	<= OUT_DEGREE;
+				end
+				else begin
+					read_command_out_latched.valid    <= 1'b0;
 				end
 			end
 			SEND_VERTEX_EDGES_IDX: begin
@@ -275,6 +274,9 @@ module cu_vertex_job_control (
 
 					read_command_out_latched.cmd.vertex_struct 	<= EDGES_IDX;
 				end
+				else begin
+					read_command_out_latched.valid    <= 1'b0;
+				end
 			end
 			SEND_VERTEX_INV_IN_DEGREE: begin
 				if(~inverse_in_degree_cacheline_sent) begin
@@ -287,6 +289,9 @@ module cu_vertex_job_control (
 
 					read_command_out_latched.cmd.vertex_struct 	<= INV_IN_DEGREE;
 				end
+				else begin
+					read_command_out_latched.valid    <= 1'b0;
+				end
 			end
 			SEND_VERTEX_INV_OUT_DEGREE: begin
 				if(~inverse_out_degree_cacheline_sent) begin
@@ -298,6 +303,9 @@ module cu_vertex_job_control (
 					read_command_out_latched.size     <= request_size;
 
 					read_command_out_latched.cmd.vertex_struct 	<= INV_OUT_DEGREE;
+				end
+				else begin
+					read_command_out_latched.valid    <= 1'b0;
 				end
 			end
 			SEND_VERTEX_INV_EDGES_IDX: begin
@@ -312,6 +320,9 @@ module cu_vertex_job_control (
 					read_command_out_latched.cmd.vertex_struct 	<= INV_EDGES_IDX;
 
 					vertex_next_offest <= vertex_next_offest + CACHELINE_SIZE;
+				end
+				else begin
+					read_command_out_latched.valid    <= 1'b0;
 				end
 			end
 		endcase

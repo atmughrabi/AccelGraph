@@ -24,7 +24,8 @@ module cu_vertex_pagerank #(
 	input  BufferStatus 	 vertex_buffer_status,
 	input  VertexInterface 	 vertex_job,
 	output logic 			 vertex_job_request,
-	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter,
+	output logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter
 );
 
 // vertex control variables
@@ -156,6 +157,22 @@ module cu_vertex_pagerank #(
 			if(enabled)begin
 				if(vertex_job_latched.valid && ~processing_vertex) begin
 					vertex_num_counter <= vertex_num_counter + 1;
+				end
+			end
+		end
+	end
+
+	////////////////////////////////////////////////////////////////////////////
+	// count complete edge request
+	////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_num_counter <= 0;
+		end else begin
+			if(enabled)begin
+				if(edge_job.valid && ~processing_vertex) begin
+					edge_num_counter <= edge_num_counter + 1;
 				end
 			end
 		end

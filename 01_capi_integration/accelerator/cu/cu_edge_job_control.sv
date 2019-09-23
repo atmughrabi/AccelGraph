@@ -23,6 +23,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	//output latched
 	EdgeInterface edge_latched;
 	CommandBufferLine read_command_out_latched;
+	logic finished_vertex_edge_job;
 
 	//input lateched
 	WEDInterface wed_request_in_latched;
@@ -66,7 +67,12 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	logic start_shift;
 	logic push_edge;
-	
+
+	logic done_vertex_edge_processing;
+	logic read_vertex;
+	logic read_vertex_new;
+	logic read_vertex_new_latched;
+
 	edge_struct_state current_state, next_state;
 
 
@@ -97,14 +103,40 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			read_data_1_in_latched		<= 0;
 			edge_request_latched		<= 0;
 			vertex_job_latched			<= 0;
-		end else begin
+			read_vertex_new				<= 0;
+			read_vertex_new_latched 	<= 0;
+		end else begin 
 			if(enabled) begin
 				wed_request_in_latched 		<= wed_request_in;
 				read_response_in_latched	<= read_response_in;
 				read_data_0_in_latched		<= read_data_0_in;
 				read_data_1_in_latched		<= read_data_1_in;
 				edge_request_latched		<= edge_request;
-				vertex_job_latched 			<= vertex_job;
+
+				if(read_vertex)begin
+					vertex_job_latched <= vertex_job;
+					read_vertex_new <= 1;
+				end
+
+				if(read_vertex_new && (~(|edge_num_counter)))begin
+					read_vertex_new <= 0;
+				end
+
+				read_vertex_new_latched <= read_vertex_new;
+
+			end
+		end
+	end
+
+	always_comb begin : proc_read_vertex
+		read_vertex = 0;
+		if(done_vertex_edge_processing && vertex_job.valid && ~vertex_job_latched.valid)begin
+			read_vertex =1;
+		end
+
+		if(done_vertex_edge_processing && vertex_job.valid && vertex_job_latched.valid)begin
+			if(vertex_job_latched.id != vertex_job.id)begin
+				read_vertex=1;
 			end
 		end
 	end
@@ -173,35 +205,32 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	always_ff @(posedge clock) begin
 		case (current_state)
 			SEND_EDGE_RESET: begin
-				read_command_out_latched.valid    <= 1'b0;
-				read_command_out_latched.command  <= INVALID; // just zero it out
-				read_command_out_latched.address  <= 64'h0000_0000_0000_0000;
-				read_command_out_latched.size     <= 12'h000;
-				read_command_out_latched.cmd 	  <= 0;
-				request_size 			<= 	0;
-				edge_next_offest  		<= 	0;
-				edge_num_counter 		<=	0;
-				shift_seek				<=  0;
-				remainder 				<=  0;
-				aligned					<=  0;
-				src_cacheline_sent		<=  0;
-				dest_cacheline_sent		<=  0;
-				weight_cacheline_sent	<=  0;
+				read_command_out_latched 	<=  0;
+				request_size 				<= 	0;
+				edge_next_offest  			<= 	0;
+				edge_num_counter 			<=	0;
+				shift_seek					<=  0;
+				remainder 					<=  0;
+				aligned						<=  0;
+				src_cacheline_sent			<=  0;
+				dest_cacheline_sent			<=  0;
+				weight_cacheline_sent		<=  0;
+				done_vertex_edge_processing <=  1;
 			end
 			SEND_EDGE_INIT: begin
-				edge_num_counter <= vertex_job_latched.inverse_out_degree;
-				edge_next_offest <= (vertex_job_latched.inverse_edges_idx << $clog2(EDGE_SIZE));
+				read_command_out_latched 	<= 0;
+				if(read_vertex_new_latched)begin
+					edge_num_counter 			<=  vertex_job_latched.inverse_out_degree;
+					edge_next_offest 			<= (vertex_job_latched.inverse_edges_idx << $clog2(EDGE_SIZE));
+				end
 			end
 			SEND_EDGE_WAIT: begin
-				read_command_out_latched.valid    <= 1'b0;
-				read_command_out_latched.command  <= INVALID; // just zero it out
-				read_command_out_latched.address  <= 64'h0000_0000_0000_0000;
-				read_command_out_latched.size     <= 12'h000;
-				read_command_out_latched.cmd 	  <= 0;
-				src_cacheline_sent		<=  0;
-				dest_cacheline_sent		<=  0;
-				weight_cacheline_sent	<=  0;
-				request_size <= 0;
+				done_vertex_edge_processing <= 0;
+				read_command_out_latched 	<= 0;
+				src_cacheline_sent			<= 0;
+				dest_cacheline_sent			<= 0;
+				weight_cacheline_sent		<= 0;
+				request_size 				<= 0;
 				remainder <= (edge_next_offest & ADDRESS_MOD_MASK);
 				aligned	  <= (edge_next_offest & ADDRESS_ALIGN_MASK);
 			end
@@ -247,6 +276,9 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 					read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_SRC;
 				end
+				else begin
+					read_command_out_latched.valid    <= 1'b0;
+				end
 			end
 			SEND_EDGE_INV_DEST: begin
 				if(~dest_cacheline_sent) begin
@@ -258,6 +290,9 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 					read_command_out_latched.size     <= request_size;
 
 					read_command_out_latched.cmd.vertex_struct 	<= INV_EDGE_ARRAY_DEST;
+				end
+				else begin
+					read_command_out_latched.valid    <= 1'b0;
 				end
 			end
 			SEND_EDGE_INV_WEIGHT: begin
@@ -275,6 +310,12 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 						edge_next_offest <= edge_next_offest + (CACHELINE_SIZE-remainder);
 					else
 						edge_next_offest <= edge_next_offest + CACHELINE_SIZE;
+
+					if(~(|edge_num_counter))
+						done_vertex_edge_processing <= 1;
+				end
+				else begin
+					read_command_out_latched.valid    <= 1'b0;
 				end
 			end
 		endcase
@@ -349,7 +390,8 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 //Buffers Vertices
 ////////////////////////////////////////////////////////////////////////////
 	assign fill_edge_buffer_pending = src_cacheline_pending || dest_cacheline_pending || weight_cacheline_pending;
-	assign send_request_ready       = ~read_buffer_status.alfull && ~fill_edge_buffer_pending && ~edge_buffer_status.alfull && (|edge_num_counter) && ~(|response_counter)
+	assign send_request_ready       = ~read_buffer_status.alfull && ~fill_edge_buffer_pending && ~edge_buffer_status.alfull && (|edge_num_counter)
+		&& ~(|response_counter) && (edge_job_counter_pushed < vertex_job_latched.inverse_out_degree) && ~fill_edge_buffer
 		&& wed_request_in_latched.valid && vertex_job_latched.valid;
 	assign fill_edge_buffer = src_cacheline_ready && dest_cacheline_ready && weight_cacheline_ready;
 	assign start_shift      = fill_edge_buffer_pending && ~(|response_counter);
@@ -368,7 +410,6 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				edge_variable.src 	        <= src_cacheline;
 				edge_variable.dest 	        <= dest_cacheline;
 				edge_variable.weight 	    <= weight_cacheline;
-
 			end else begin
 				edge_variable  <= 0;
 			end
@@ -381,6 +422,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			edge_job_counter_pushed <= 0;
+			finished_vertex_edge_job <= 0;
 		end else begin
 			if(vertex_job_latched.valid)begin
 				if(push_edge)begin

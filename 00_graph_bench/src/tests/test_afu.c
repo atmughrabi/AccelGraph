@@ -255,9 +255,9 @@ void printWEDGraphCSRVertex(struct  WEDGraphCSR *wed)
         printf("  wed->inverse_vertex_edges_idx: %u\n", ((__u32 *)wed->inverse_vertex_edges_idx)[i]);
 #endif
     }
-
-    for(i= 0; i < 88 ; i++){
-        printf("  wed->inverse_edges_array_dest: %u\n", ((__u32 *)wed->inverse_edges_array_dest)[i]);
+    printf("\n");
+    for(i= 0; i < wed->num_edges ; i++){
+        printf("src:  %u dest %u\n", ((__u32 *)wed->inverse_edges_array_src)[i], ((__u32 *)wed->inverse_edges_array_dest)[i]);
     }
 
 }
@@ -358,7 +358,8 @@ main (int argc, char **argv)
     do
     {
         cxl_mmio_read64(afu, ALGO_STATUS, &algo_status);
-        // printf("algo_status: %lu\n", algo_status);
+        printf("Vertices: %lu\n", ((algo_status << 32) >> 32));
+        printf("Edges: %lu\n", ((algo_status) >> 32));
         // cxl_mmio_write64(afu, ALGO_REQUEST, algo_status);
 
         cxl_mmio_read64(afu, ERROR_REG, &error);
