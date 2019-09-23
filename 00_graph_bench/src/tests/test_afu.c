@@ -297,9 +297,9 @@ main (int argc, char **argv)
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
-    arguments.fnameb = "../03_test_graphs/test/graph.wbin";
+    // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
-    // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
+    arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
     arguments.convert_format = 1;
 
@@ -358,17 +358,19 @@ main (int argc, char **argv)
     do
     {
         cxl_mmio_read64(afu, ALGO_STATUS, &algo_status);
-        printf("Vertices: %lu\n", ((algo_status << 32) >> 32));
-        printf("Edges: %lu\n", ((algo_status) >> 32));
+      
         // cxl_mmio_write64(afu, ALGO_REQUEST, algo_status);
 
         cxl_mmio_read64(afu, ERROR_REG, &error);
-        printMMIO_error(error);
+      
         // if(algo_status)
         //     break;
     }
-    while(!algo_status);
+    while((!algo_status) && (!error));
 
+    printMMIO_error(error);
+    printf("Vertices: %lu\n", ((algo_status << 32) >> 32));
+    printf("Edges: %lu\n", ((algo_status) >> 32));
 
     printf("Releasing AFU\n");
     cxl_mmio_unmap (afu);

@@ -171,7 +171,7 @@ module cu_vertex_pagerank #(
 			edge_num_counter <= 0;
 		end else begin
 			if(enabled)begin
-				if(edge_job.valid && ~processing_vertex) begin
+				if(edge_job.valid) begin
 					edge_num_counter <= edge_num_counter + 1;
 				end
 			end

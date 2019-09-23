@@ -66,7 +66,6 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	logic [0:63] 	algorithm_status_latched;
 	logic [0:63] 	algorithm_requests_latched;
 	logic done_graph_algorithm;
-	logic cu_vertex_job_control_done;
 
 
 

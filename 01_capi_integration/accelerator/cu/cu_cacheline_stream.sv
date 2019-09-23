@@ -27,9 +27,36 @@ module cu_cacheline_stream (
 	logic valid_internal;
 	logic pending_latched;
 	logic [0:511] read_data_in;
+	logic read_data_part;
+	ReadWriteDataLine read_data_in_latched;
+	vertex_struct_type	vertex_struct_latched;
 
 	assign vertex         = swap_endianness_word(vertex_latched);
 	assign valid_internal = (shift_counter < shift_limit) && start_shift && enabled;
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_data_in_latched  		<= 0;
+			vertex_struct_latched		<= STRUCT_INVALID;
+			read_data_part 				<= 0;
+		end else begin
+			if(enabled) begin
+				vertex_struct_latched		<= vertex_struct;
+
+				if(read_data_0_in.valid)begin
+					read_data_in_latched <= read_data_0_in;
+					read_data_part 				<= 0;
+				end else if(read_data_1_in.valid) begin
+					read_data_in_latched <= read_data_1_in;
+					read_data_part 				<= 1;
+				end else begin
+					read_data_in_latched <= 0;
+					read_data_part 		 <= 0;
+				end
+			end
+		end
+	end
+
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -83,19 +110,19 @@ module cu_cacheline_stream (
 		shift_seek_latched = 0;
 		shift_limit_latched = 0;
 		pending_latched	= 0;
-		if((read_data_0_in.cmd.vertex_struct == vertex_struct) && read_data_0_in.valid)begin
+		if((read_data_in_latched.cmd.vertex_struct == vertex_struct_latched) && ~read_data_part && (read_data_in_latched.valid))begin
 			we = 1;
 			address = 0;
-			read_data_in = read_data_0_in.data;
-			shift_seek_latched = read_data_0_in.cmd.cacheline_offest;
-			shift_limit_latched = read_data_0_in.cmd.real_size;
+			read_data_in = read_data_in_latched.data;
+			shift_seek_latched = read_data_in_latched.cmd.cacheline_offest;
+			shift_limit_latched = read_data_in_latched.cmd.real_size;
 			pending_latched = 1;
-		end else if((read_data_1_in.cmd.vertex_struct == vertex_struct) && read_data_1_in.valid)begin
+		end else if((read_data_in_latched.cmd.vertex_struct == vertex_struct_latched) && read_data_part && (read_data_in_latched.valid))begin
 			we = 1;
 			address = 1;
-			read_data_in = read_data_1_in.data;
-			shift_seek_latched = read_data_1_in.cmd.cacheline_offest;
-			shift_limit_latched = read_data_1_in.cmd.real_size;
+			read_data_in = read_data_in_latched.data;
+			shift_seek_latched = read_data_in_latched.cmd.cacheline_offest;
+			shift_limit_latched = read_data_in_latched.cmd.real_size;
 			pending_latched = 1;
 		end
 	end

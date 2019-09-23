@@ -88,16 +88,15 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	
 
 	VertexInterface    	vertex_job_cu 		[0:NUM_VERTEX_CU-1];
-
-	logic 			    [NUM_VERTEX_CU-1:0] cu_vertex_pagerank_done;
 	logic 			   	[NUM_VERTEX_CU-1:0] request_vertex_job_cu;
 	logic 				[NUM_VERTEX_CU-1:0] ready_vertex_job_cu;
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
 ////////////////////////////////////////////////////////////////////////////
-
-
+	
+	assign vertex_job_request = vertex_job_request_latched;
+	assign vertex_job_latched = vertex_job;
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -105,13 +104,13 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 			write_data_0_out   		<= 0;
 			write_data_1_out   		<= 0;
 			read_command_out   		<= 0;
-			vertex_job_request 		<= 0;
+			// vertex_job_request 		<= 0;
 		end else begin
 			write_command_out 		<= write_command_out_latched;
 			write_data_0_out  		<= write_data_0_out_latched;
 			write_data_1_out  		<= write_data_1_out_latched;
 			read_command_out  		<= read_command_out_latched;
-			vertex_job_request 		<= vertex_job_request_latched;
+			// vertex_job_request 		<= vertex_job_request_latched;
 		end
 	end
 
@@ -123,7 +122,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 			write_response_in_latched	 <= 0;
 			read_data_0_in_latched		 <= 0;
 			read_data_1_in_latched		 <= 0;
-			vertex_job_latched           <= 0;
+			// vertex_job_latched           <= 0;
 		end else begin
 			if(enabled)begin
 				wed_request_in_latched 		 <= wed_request_in;
@@ -131,7 +130,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 				write_response_in_latched	 <= write_response_in;
 				read_data_0_in_latched		 <= read_data_0_in;
 				read_data_1_in_latched		 <= read_data_1_in;
-				vertex_job_latched 			 <= vertex_job;
+				// vertex_job_latched 			 <= vertex_job;
 			end
 		end
 	end

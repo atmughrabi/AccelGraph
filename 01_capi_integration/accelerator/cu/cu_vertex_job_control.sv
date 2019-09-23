@@ -78,16 +78,20 @@ module cu_vertex_job_control (
 
 	vertex_struct_state current_state, next_state;
 
+
+	assign vertex = vertex_latched;
+	assign vertex_request_latched = vertex_request;
+
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
 ////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex 	  			 <= 0;
+			// vertex 	  			 <= 0;
 			read_command_out  	 <= 0;
 		end else begin
 			if(enabled) begin
-				vertex 	  			 	<= vertex_latched;
+				// vertex 	  			 	<= vertex_latched;
 				read_command_out  		<= read_command_out_latched;
 			end
 		end
@@ -102,14 +106,14 @@ module cu_vertex_job_control (
 			read_response_in_latched	<= 0;
 			read_data_0_in_latched		<= 0;
 			read_data_1_in_latched		<= 0;
-			vertex_request_latched		<= 0;
+			// vertex_request_latched		<= 0;
 		end else begin
 			if(enabled) begin
 				wed_request_in_latched 		<= wed_request_in;
 				read_response_in_latched	<= read_response_in;
 				read_data_0_in_latched		<= read_data_0_in;
 				read_data_1_in_latched		<= read_data_1_in;
-				vertex_request_latched		<= vertex_request;
+				// vertex_request_latched		<= vertex_request;
 			end
 		end
 	end
