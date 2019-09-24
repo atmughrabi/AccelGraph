@@ -5,7 +5,7 @@ module read_data_control (
   input logic clock,    // Clock
   input logic rstn,
   input logic enabled,
-  input BufferInterfaceInput buffer_in,
+  input ReadDataControlInterface buffer_in,
   input CommandTagLine data_read_tag_id_in,
   output logic [0:1] data_read_error,
   output DataControlInterfaceOut read_data_control_out_0,
@@ -16,10 +16,9 @@ module read_data_control (
   logic tag_parity;
   logic tag_parity_link;
   logic [0:7] data_write_parity;
-  logic [0:7] data_write_parity_latched;
   logic write_valid_latched;
   logic [0:7] data_write_parity_link;
-  BufferInterfaceInput buffer_in_latched;
+  ReadDataControlInterface buffer_in_latched;
 
   logic enable_errors;
   logic [0:1] detected_errors;
@@ -37,16 +36,13 @@ module read_data_control (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       buffer_in_latched           <= 0;
-      data_write_parity_latched   <= 0;
       write_valid_latched         <= 0;
     end else begin
       if(enabled) begin
         buffer_in_latched         <= buffer_in;
-        data_write_parity_latched <= buffer_in.write_parity;
         write_valid_latched       <= buffer_in.write_valid;
       end else begin
         buffer_in_latched         <= 0;
-        data_write_parity_latched <= 0;
         write_valid_latched       <= 0;
       end
     end

@@ -5,7 +5,7 @@ module write_data_control (
   input logic clock,    // Clock
   input logic rstn,
   input logic enabled,
-  input BufferInterfaceInput buffer_in,
+  input WriteDataControlInterface buffer_in,
   input logic command_write_valid,
   input logic [0:7] command_tag_in,
   input ReadWriteDataLine write_data_0_in,

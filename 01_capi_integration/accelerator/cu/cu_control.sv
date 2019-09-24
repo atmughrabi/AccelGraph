@@ -1,18 +1,4 @@
-// This is a simple example.
-// You can make a your own header file and set its path to settings.
-// (Preferences > Package Settings > Verilog Gadget > Settings - User)
-//
-//		"header": "Packages/Verilog Gadget/template/verilog_header.v"
-//
-// -----------------------------------------------------------------------------
-// Copyright (c) 2014-2019 All rights reserved
-// -----------------------------------------------------------------------------
-// Author : yongchan jeon (Kris) poucotm@gmail.com
-// File   : cu_control.sv
-// Create : 2019-09-24 04:28:45
-// Revise : 2019-09-24 11:54:58
-// Editor : sublime text3, tab size (4)
-// -----------------------------------------------------------------------------
+
 import CAPI_PKG::*;
 import WED_PKG::*;
 import AFU_PKG::*;

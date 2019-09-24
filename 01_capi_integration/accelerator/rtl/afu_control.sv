@@ -45,7 +45,9 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	CommandInterfaceInput 	command_in_latched;
 	ResponseInterface 		response_latched;
-	BufferInterfaceInput 	buffer_in_latched;
+
+	ReadDataControlInterface read_buffer_in;
+	WriteDataControlInterface write_buffer_in;
 
 ////////////////////////////////////////////////////////////////////////////
 //Command
@@ -77,8 +79,9 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	CreditInterfaceOutput credits;
 	
-
+	logic [0:7] write_tag;
 	logic [0:7] command_tag;
+
 	logic tag_buffer_ready;
 	CommandTagLine response_tag_id;
 	CommandTagLine read_tag_id;
@@ -95,9 +98,22 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 ////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock) begin
-		command_in_latched 	<= command_in;
-		response_latched 	<= response;
-		buffer_in_latched	<= buffer_in;
+		command_in_latched              <= command_in;
+		response_latched                <= response;
+
+		write_tag                       <= buffer_in.write_tag;
+
+		read_buffer_in.write_valid      <= buffer_in.write_valid;         
+        read_buffer_in.write_tag        <= buffer_in.write_tag;     
+        read_buffer_in.write_tag_parity <= buffer_in.write_tag_parity;    
+        read_buffer_in.write_address    <= buffer_in.write_address; 
+        read_buffer_in.write_data       <= buffer_in.write_data;   
+        read_buffer_in.write_parity     <= buffer_in.write_parity;   
+
+	    write_buffer_in.read_valid      <= buffer_in.read_valid;       
+		write_buffer_in.read_tag        <= buffer_in.read_tag;     
+	    write_buffer_in.read_tag_parity <= buffer_in.read_tag_parity;      
+	    write_buffer_in.read_address    <= buffer_in.read_address;  
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -177,7 +193,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 		.clock                (clock),
 		.rstn                 (rstn),
 		.enabled              (enabled),
-		.buffer_in            (buffer_in_latched),
+		.buffer_in            (read_buffer_in),
 		.data_read_tag_id_in  (read_tag_id),
 		.data_read_error      (data_read_error),
 		.read_data_control_out_0(read_data_control_out_0),
@@ -193,7 +209,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 		.clock                (clock),
 		.rstn                 (rstn),
 		.enabled              (enabled),
-		.buffer_in            (buffer_in_latched),
+		.buffer_in            (write_buffer_in),
 		.command_write_valid  (ready[2]),
 		.command_tag_in  (command_tag),
 		.write_data_0_in (write_data_0),
@@ -217,7 +233,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 		.tag_response_valid(response_latched.valid),
 		.response_tag(response_latched.tag),
 		.response_tag_id_out(response_tag_id),
-		.data_read_tag(buffer_in_latched.write_tag), // reminder PSL sees read as write and opposite
+		.data_read_tag(write_tag), // reminder PSL sees read as write and opposite
 		.data_read_tag_id_out(read_tag_id),
 		.tag_command_valid(command_arbiter_out.valid),
 		.tag_command_id(command_tag_id),

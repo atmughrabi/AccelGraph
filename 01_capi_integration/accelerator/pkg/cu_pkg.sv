@@ -3,7 +3,10 @@ package CU_PKG;
 	import WED_PKG::*;
 	// parameter INVALID_ID                      = 8'h00;        defined at capi_pkg
 	// parameter WED_ID                          = 8'h01;        defined at wed_pkg
+	
+	parameter NUM_GRAPH_CU_GLOBAL = 1;
 
+	parameter NUM_VERTEX_CU_GLOBAL = 32;
 // Relating to Vertex int types and sizes
 
 	parameter VERTEX_SIZE                = 4; // vertex size is 4 bytes
@@ -20,7 +23,7 @@ package CU_PKG;
 
 // Relating to CU IDs
 	parameter VERTEX_CONTROL_ID    = (WED_ID - 1);         // This is the CU that requests and schedules graph vertices to other CUs
-	parameter NUM_VERTEX_CU_GLOBAL = 1;
+	
 
 	typedef enum int unsigned{
 		STRUCT_INVALID,

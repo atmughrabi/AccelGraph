@@ -94,6 +94,22 @@ package AFU_PKG;
 //Data Control
 ////////////////////////////////////////////////////////////////////////////
   typedef struct packed { // one cacheline is 128bytes each sent on separate 64bytes chunks
+    logic write_valid;          // ha_bwvalid,     // Buffer Write valid
+    logic [0:7] write_tag;      // ha_bwtag,       // Buffer Write tag
+    logic write_tag_parity;     // ha_bwtagpar,    // Buffer Write tag parity
+    logic [0:5] write_address;  // ha_bwad,        // Buffer Write address
+    logic [0:511] write_data;   // ha_bwdata,      // Buffer Write data
+    logic [0:7] write_parity;   // ha_bwpar,       // Buffer Write parity
+  } ReadDataControlInterface;
+
+   typedef struct packed { // one cacheline is 128bytes each sent on separate 64bytes chunks
+    logic read_valid;           // ha_brvalid,     // Buffer Read valid
+    logic [0:7] read_tag;       // ha_brtag,       // Buffer Read tag
+    logic read_tag_parity;      // ha_brtagpar,    // Buffer Read tag parity
+    logic [0:5] read_address;   // ha_brad,        // Buffer Read address
+  } WriteDataControlInterface;
+
+  typedef struct packed { // one cacheline is 128bytes each sent on separate 64bytes chunks
     logic valid;  
     CommandTagLine cmd;
     logic [0:511] data;
