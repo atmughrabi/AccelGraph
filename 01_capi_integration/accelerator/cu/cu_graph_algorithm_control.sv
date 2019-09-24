@@ -371,7 +371,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	fifo  #(
 		.WIDTH($bits(VertexInterface)),
-		.DEPTH((128))
+		.DEPTH(256)
 	)vertex_job_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),

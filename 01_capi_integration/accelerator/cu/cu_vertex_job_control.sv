@@ -443,7 +443,7 @@ module cu_vertex_job_control (
 ////////////////////////////////////////////////////////////////////////////
 	assign fill_vertex_buffer_pending = in_degree_cacheline_pending || out_degree_cacheline_pending|| edges_idx_degree_cacheline_pending ||
 		inverse_in_degree_cacheline_pending || inverse_out_degree_cacheline_pending || inverse_edges_idx_degree_cacheline_pending;
-	assign send_request_ready         = (vertex_job_counter_pushed < (128-CACHELINE_VERTEX_NUM)) && ~fill_vertex_buffer_pending && ~vertex_buffer_status.alfull && (|vertex_num_counter) && ~(|response_counter) && wed_request_in_latched.valid;
+	assign send_request_ready         = (vertex_job_counter_pushed < (256-(CACHELINE_VERTEX_NUM*2))) && ~fill_vertex_buffer_pending && ~vertex_buffer_status.alfull && (|vertex_num_counter) && ~(|response_counter) && wed_request_in_latched.valid;
 	assign fill_vertex_buffer         = in_degree_cacheline_ready && out_degree_cacheline_ready && edges_idx_degree_cacheline_ready &&
 		inverse_in_degree_cacheline_ready && inverse_out_degree_cacheline_ready && inverse_edges_idx_degree_cacheline_ready;
 	assign start_shift                = ~vertex_buffer_status.alfull && fill_vertex_buffer_pending && ~(|response_counter);
@@ -500,7 +500,7 @@ module cu_vertex_job_control (
 
 	fifo  #(
 		.WIDTH($bits(VertexInterface)),
-		.DEPTH(128)
+		.DEPTH(256)
 	)vertex_job_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),

@@ -15,14 +15,16 @@ module read_data_control (
   logic odd_parity;
   logic tag_parity;
   logic tag_parity_link;
-  logic [0:7] data_write_parity;
+  logic [0:7] data_write_parity_latched;
   logic write_valid_latched;
   logic [0:7] data_write_parity_link;
+  logic [0:7] data_write_parity_link_s2;
   ReadDataControlInterface buffer_in_latched;
 
   logic enable_errors;
   logic [0:1] detected_errors;
   logic data_parity_error;
+  logic data_parity_error_latched;
   logic tag_parity_error;
 
 
@@ -35,16 +37,11 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      buffer_in_latched           <= 0;
-      write_valid_latched         <= 0;
+      buffer_in_latched <= 0;
     end else begin
-      if(enabled) begin
-        buffer_in_latched         <= buffer_in;
-        write_valid_latched       <= buffer_in.write_valid;
-      end else begin
-        buffer_in_latched         <= 0;
-        write_valid_latched       <= 0;
-      end
+      if(enabled && buffer_in.write_valid) begin
+        buffer_in_latched  <= buffer_in;
+      end 
     end
   end
 
@@ -55,31 +52,31 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_data_control_out_0                 <= 0;
+      read_data_control_out_0 <= 0;
     end else begin
       if(enabled && buffer_in_latched.write_valid && ~(|buffer_in_latched.write_address)) begin
 
         case (data_read_tag_id_in.cmd_type)
           CMD_READ: begin
-            read_data_control_out_0.read_data <= 1'b1;
-            read_data_control_out_0.wed_data  <= 1'b0;
+            read_data_control_out_0.read_data    <= 1'b1;
+            read_data_control_out_0.wed_data     <= 1'b0;
           end
           CMD_WED: begin
-            read_data_control_out_0.read_data <= 1'b0;
-            read_data_control_out_0.wed_data  <= 1'b1;
+            read_data_control_out_0.read_data    <= 1'b0;
+            read_data_control_out_0.wed_data     <= 1'b1;
           end
           default : begin
-            read_data_control_out_0.read_data <= 1'b0;
-            read_data_control_out_0.wed_data  <= 1'b0;
+            read_data_control_out_0.read_data    <= 1'b0;
+            read_data_control_out_0.wed_data     <= 1'b0;
           end
         endcase
 
-        read_data_control_out_0.line.valid    <= buffer_in_latched.write_valid;
-        read_data_control_out_0.line.cmd      <= data_read_tag_id_in;
-        read_data_control_out_0.line.data     <= buffer_in_latched.write_data;
+        read_data_control_out_0.line.valid              <= buffer_in_latched.write_valid;
+        read_data_control_out_0.line.cmd                <= data_read_tag_id_in;
+        read_data_control_out_0.line.data               <= buffer_in_latched.write_data;
 
       end else begin
-        read_data_control_out_0               <= 0;
+        read_data_control_out_0  <= 0;
       end
     end
   end
@@ -91,47 +88,45 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_data_control_out_1                 <= 0;
+      read_data_control_out_1 <= 0;
     end else begin
       if(enabled && buffer_in_latched.write_valid && (|buffer_in_latched.write_address)) begin
 
         case (data_read_tag_id_in.cmd_type)
           CMD_READ: begin
-            read_data_control_out_1.read_data <= 1'b1;
-            read_data_control_out_1.wed_data  <= 1'b0;
+            read_data_control_out_1.read_data    <= 1'b1;
+            read_data_control_out_1.wed_data     <= 1'b0;
           end
           CMD_WED: begin
-            read_data_control_out_1.read_data <= 1'b0;
-            read_data_control_out_1.wed_data  <= 1'b1;
+            read_data_control_out_1.read_data    <= 1'b0;
+            read_data_control_out_1.wed_data     <= 1'b1;
           end
           default : begin
-            read_data_control_out_1.read_data <= 1'b0;
-            read_data_control_out_1.wed_data  <= 1'b0;
+            read_data_control_out_1.read_data    <= 1'b0;
+            read_data_control_out_1.wed_data     <= 1'b0;
           end
         endcase
 
-        read_data_control_out_1.line.valid    <= buffer_in_latched.write_valid;
-        read_data_control_out_1.line.cmd      <= data_read_tag_id_in;
-        read_data_control_out_1.line.data     <= buffer_in_latched.write_data;
+        read_data_control_out_1.line.valid              <= buffer_in_latched.write_valid;
+        read_data_control_out_1.line.cmd                <= data_read_tag_id_in;
+        read_data_control_out_1.line.data               <= buffer_in_latched.write_data;
 
       end else begin
-        read_data_control_out_1               <= 0;
+        read_data_control_out_1  <= 0;
       end
     end
   end
 
 ////////////////////////////////////////////////////////////////////////////
-//partity check Logic
+//partity check Logic tag
 ////////////////////////////////////////////////////////////////////////////
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      tag_parity   <= odd_parity;
+      tag_parity  <= odd_parity;
     end else begin
-      if(enabled && buffer_in.write_valid) begin
-        tag_parity <= buffer_in.write_tag_parity;
-      end else begin
-        tag_parity <= odd_parity;
-      end
+      if(buffer_in.write_valid) begin
+        tag_parity  <= buffer_in.write_tag_parity;
+      end 
     end
   end
 
@@ -143,15 +138,20 @@ module read_data_control (
     .par(tag_parity_link)
   );
 
-  always_ff @(posedge clock or negedge rstn) begin
-    if(~rstn) begin
-      data_write_parity   <= 8'hff;
-    end else begin
-      if(enabled && buffer_in.write_valid) begin
-        data_write_parity <= buffer_in.write_parity;
-      end else begin
-        data_write_parity <= 8'hff;
-      end
+  
+////////////////////////////////////////////////////////////////////////////
+//partity check Logic Data
+////////////////////////////////////////////////////////////////////////////
+
+  always @ (posedge clock)
+      write_valid_latched <= buffer_in.write_valid;
+
+  always @ (posedge clock or negedge rstn) begin
+    if (~rstn)
+      data_write_parity_latched <= 8'hff;
+    else  begin
+      if (write_valid_latched)
+        data_write_parity_latched <= buffer_in.write_parity;
     end
   end
 
@@ -163,6 +163,15 @@ module read_data_control (
     .par(data_write_parity_link)
   );
 
+  always @ (posedge clock or negedge rstn) begin
+    if (~rstn)
+      data_write_parity_link_s2 <= 8'hff;
+    else begin
+      data_write_parity_link_s2 <= data_write_parity_link;
+    end
+  end
+
+  assign data_parity_error_latched = |(data_write_parity_link_s2 ^ data_write_parity_latched);
 
 ////////////////////////////////////////////////////////////////////////////
 // Error Logic
@@ -175,20 +184,17 @@ module read_data_control (
     end else begin
       tag_parity_error    <= tag_parity_link ^ tag_parity;
 
-      if(write_valid_latched)
-        data_parity_error <= |(data_write_parity_link ^ buffer_in.write_parity);
-      else
-        data_parity_error <= 1'b0;
-
+      data_parity_error   <= data_parity_error_latched;
+    
       detected_errors     <= {tag_parity_error, data_parity_error};
     end
   end
 
   always_ff @(posedge clock) begin
     if(enable_errors) begin
-      data_read_error <= detected_errors;
+      data_read_error  <= detected_errors;
     end else  begin
-      data_read_error <= 2'b00;
+      data_read_error  <= 2'b00;
     end
   end
 

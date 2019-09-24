@@ -6,7 +6,7 @@ package CU_PKG;
 	
 	parameter NUM_GRAPH_CU_GLOBAL = 1;
 
-	parameter NUM_VERTEX_CU_GLOBAL = 32;
+	parameter NUM_VERTEX_CU_GLOBAL = 16;
 // Relating to Vertex int types and sizes
 
 	parameter VERTEX_SIZE                = 4; // vertex size is 4 bytes
