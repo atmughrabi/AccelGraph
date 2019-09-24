@@ -4,8 +4,8 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_vertex_pagerank #(
-	parameter NUM_EDGE_CU = 1,
-	parameter PAGERANK_CU_ID = 1
+	parameter NUM_EDGE_CU                          = 1,
+	parameter PAGERANK_CU_ID                       = 1
 ) (
 	input logic clock,    // Clock
 	input logic rstn,
@@ -84,24 +84,24 @@ module cu_vertex_pagerank #(
 //Drive input out put
 ////////////////////////////////////////////////////////////////////////////
 
-	assign write_command_out_latched = 0;
-	assign write_data_0_out_latched  = 0;
-	assign write_data_1_out_latched  = 0;
+	assign write_command_out_latched               = 0;
+	assign write_data_0_out_latched                = 0;
+	assign write_data_1_out_latched                = 0;
 
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			write_command_out  		<= 0;
-			write_data_0_out   		<= 0;
-			write_data_1_out   		<= 0;
-			read_command_out   		<= 0;
-			vertex_job_request 		<= 0;
+			write_command_out                      <= 0;
+			write_data_0_out                       <= 0;
+			write_data_1_out                       <= 0;
+			read_command_out                       <= 0;
+			vertex_job_request                     <= 0;
 		end else begin
-			write_command_out 		<= write_command_out_latched;
-			write_data_0_out  		<= write_data_0_out_latched;
-			write_data_1_out  		<= write_data_1_out_latched;
-			read_command_out  		<= read_command_out_latched;
-			vertex_job_request 		<= vertex_job_request_send;
+			write_command_out                      <= write_command_out_latched;
+			write_data_0_out                       <= write_data_0_out_latched;
+			write_data_1_out                       <= write_data_1_out_latched;
+			read_command_out                       <= read_command_out_latched;
+			vertex_job_request                     <= vertex_job_request_send;
 		end
 	end
 
@@ -111,18 +111,18 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched		 <= 0;
-			read_response_in_latched	 <= 0;
-			write_response_in_latched	 <= 0;
-			read_data_0_in_latched		 <= 0;
-			read_data_1_in_latched		 <= 0;
+			wed_request_in_latched                 <= 0;
+			read_response_in_latched               <= 0;
+			write_response_in_latched              <= 0;
+			read_data_0_in_latched                 <= 0;
+			read_data_1_in_latched                 <= 0;
 		end else begin
 			if(enabled)begin
-				wed_request_in_latched 		 <= wed_request_in;
-				read_response_in_latched	 <= read_response_in;
-				write_response_in_latched	 <= write_response_in;
-				read_data_0_in_latched		 <= read_data_0_in;
-				read_data_1_in_latched		 <= read_data_1_in;
+				wed_request_in_latched             <= wed_request_in;
+				read_response_in_latched           <= read_response_in;
+				write_response_in_latched          <= write_response_in;
+				read_data_0_in_latched             <= read_data_0_in;
+				read_data_1_in_latched             <= read_data_1_in;
 			end
 		end
 	end
@@ -133,14 +133,14 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_job_latched <= 0;
+			vertex_job_latched                     <= 0;
 		end else begin
 			if(enabled)begin
 				if(vertex_job.valid && ~processing_vertex) begin
-					vertex_job_latched <= vertex_job;
+					vertex_job_latched             <= vertex_job;
 				end
 				if ((edge_job_counter_pushed == vertex_job_latched.inverse_out_degree) && vertex_job_latched.valid) begin
-					vertex_job_latched <= 0;
+					vertex_job_latched             <= 0;
 				end
 			end
 		end
@@ -152,11 +152,11 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_num_counter <= 0;
+			vertex_num_counter                     <= 0;
 		end else begin
 			if(enabled)begin
 				if(vertex_job_latched.valid && ~processing_vertex) begin
-					vertex_num_counter <= vertex_num_counter + 1;
+					vertex_num_counter             <= vertex_num_counter + 1;
 				end
 			end
 		end
@@ -168,11 +168,11 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_num_counter <= 0;
+			edge_num_counter                       <= 0;
 		end else begin
 			if(enabled)begin
 				if(edge_job.valid) begin
-					edge_num_counter <= edge_num_counter + 1;
+					edge_num_counter               <= edge_num_counter + 1;
 				end
 			end
 		end
@@ -184,15 +184,15 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			processing_vertex <= 0;
+			processing_vertex                      <= 0;
 		end else begin
 			if(enabled)begin
 				if(vertex_job_latched.valid) begin
 					if(~processing_vertex) begin
-						processing_vertex <= 1;
+						processing_vertex          <= 1;
 					end
 					if (edge_job_counter_pushed == vertex_job_latched.inverse_out_degree) begin
-						processing_vertex <= 0;
+						processing_vertex          <= 0;
 					end
 				end
 			end
@@ -201,25 +201,25 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			request_pulse  		<= 0;
+			request_pulse                          <= 0;
 		end else begin
 			if(processing_vertex) begin
-				request_pulse <= 0;
+				request_pulse                      <= 0;
 			end else begin
-				request_pulse 		<= request_pulse+1;
+				request_pulse                      <= request_pulse+1;
 			end
 		end
 	end
 
-	assign vertex_job_request_send = ~processing_vertex & ~(|request_pulse) & (~vertex_buffer_status.empty);
+	assign vertex_job_request_send                 = ~processing_vertex & ~(|request_pulse) & (~vertex_buffer_status.empty);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Edge job control
 	////////////////////////////////////////////////////////////////////////////
 
-	assign edge_request = 1;
+	assign edge_request                            = 1;
 
-	assign edge_request_internal = edge_request;
+	assign edge_request_internal                   = edge_request;
 
 	cu_edge_job_control #(
 		.CU_ID(PAGERANK_CU_ID)
@@ -246,27 +246,27 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_response_in_edge_job 	<= 0;
-			read_response_in_edge_data 	<= 0;
+			read_response_in_edge_job              <= 0;
+			read_response_in_edge_data             <= 0;
 		end else begin
 			if(enabled && read_response_buffer.valid) begin
 				case (read_response_buffer.cmd.vertex_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT, EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_response_in_edge_job 	<= read_response_buffer;
-						read_response_in_edge_data 	<= 0;
+						read_response_in_edge_job  <= read_response_buffer;
+						read_response_in_edge_data <= 0;
 					end
 					GRAPH_DATA: begin
-						read_response_in_edge_job 	<= 0;
-						read_response_in_edge_data 	<= read_response_buffer;
+						read_response_in_edge_job  <= 0;
+						read_response_in_edge_data <= read_response_buffer;
 					end
 					default : begin
-						read_response_in_edge_job 	<= 0;
-						read_response_in_edge_data 	<= 0;
+						read_response_in_edge_job  <= 0;
+						read_response_in_edge_data <= 0;
 					end
 				endcase
 			end else begin
-				read_response_in_edge_job 	<= 0;
-				read_response_in_edge_data 	<= 0;
+				read_response_in_edge_job          <= 0;
+				read_response_in_edge_data         <= 0;
 			end
 		end
 	end
@@ -277,54 +277,54 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_in_edge_job 	<= 0;
-			read_data_0_in_edge_data 	<= 0;
+			read_data_0_in_edge_job                <= 0;
+			read_data_0_in_edge_data               <= 0;
 		end else begin
 			if(enabled && read_data_cu_0_buffer.valid) begin
 				case (read_data_cu_0_buffer.cmd.vertex_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_data_0_in_edge_job 	<= read_data_cu_0_buffer;
-						read_data_0_in_edge_data 	<= 0;
+						read_data_0_in_edge_job    <= read_data_cu_0_buffer;
+						read_data_0_in_edge_data   <= 0;
 					end
 					GRAPH_DATA: begin
-						read_data_0_in_edge_job 	<= 0;
-						read_data_0_in_edge_data 	<= read_data_cu_0_buffer;
+						read_data_0_in_edge_job    <= 0;
+						read_data_0_in_edge_data   <= read_data_cu_0_buffer;
 					end
 					default : begin
-						read_data_0_in_edge_job 	<= 0;
-						read_data_0_in_edge_data 	<= 0;
+						read_data_0_in_edge_job    <= 0;
+						read_data_0_in_edge_data   <= 0;
 					end
 				endcase
 			end else begin
-				read_data_0_in_edge_job 	<= 0;
-				read_data_0_in_edge_data 	<= 0;
+				read_data_0_in_edge_job            <= 0;
+				read_data_0_in_edge_data           <= 0;
 			end
 		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_1_in_edge_job 	<= 0;
-			read_data_1_in_edge_data 	<= 0;
+			read_data_1_in_edge_job                <= 0;
+			read_data_1_in_edge_data               <= 0;
 		end else begin
 			if(enabled && read_data_cu_1_buffer.valid) begin
 				case (read_data_cu_1_buffer.cmd.vertex_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_data_1_in_edge_job 	<= read_data_cu_1_buffer;
-						read_data_1_in_edge_data 	<= 0;
+						read_data_1_in_edge_job    <= read_data_cu_1_buffer;
+						read_data_1_in_edge_data   <= 0;
 					end
 					GRAPH_DATA: begin
-						read_data_1_in_edge_job 	<= 0;
-						read_data_1_in_edge_data 	<= read_data_cu_1_buffer;
+						read_data_1_in_edge_job    <= 0;
+						read_data_1_in_edge_data   <= read_data_cu_1_buffer;
 					end
 					default : begin
-						read_data_1_in_edge_job 	<= 0;
-						read_data_1_in_edge_data 	<= 0;
+						read_data_1_in_edge_job    <= 0;
+						read_data_1_in_edge_data   <= 0;
 					end
 				endcase
 			end else begin
-				read_data_1_in_edge_job 	<= 0;
-				read_data_1_in_edge_data 	<= 0;
+				read_data_1_in_edge_job            <= 0;
+				read_data_1_in_edge_data           <= 0;
 			end
 		end
 	end
@@ -333,9 +333,9 @@ module cu_vertex_pagerank #(
 	// Read DATA Buffers
 	////////////////////////////////////////////////////////////////////////////
 
-	assign read_data_buffer_request = 1'b1;
-	assign read_data_cu_0_pop       = ~read_data_0_buffer_status.empty && read_data_buffer_request;
-	assign read_data_cu_1_pop       = ~read_data_1_buffer_status.empty && read_data_buffer_request;
+	assign read_data_buffer_request                = 1'b1;
+	assign read_data_cu_0_pop                      = ~read_data_0_buffer_status.empty && read_data_buffer_request;
+	assign read_data_cu_1_pop                      = ~read_data_1_buffer_status.empty && read_data_buffer_request;
 
 	fifo  #(
 		.WIDTH($bits(ReadWriteDataLine)),
@@ -376,8 +376,8 @@ module cu_vertex_pagerank #(
 	// Read/Write Response Buffers
 	////////////////////////////////////////////////////////////////////////////
 
-	assign read_response_buffer_pop  = ~read_response_buffer_status.empty;
-	assign write_response_buffer_pop = 0;
+	assign read_response_buffer_pop                = ~read_response_buffer_status.empty;
+	assign write_response_buffer_pop               = 0;
 
 	fifo  #(
 		.WIDTH($bits(ResponseBufferLine)),

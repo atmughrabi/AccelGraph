@@ -1,3 +1,18 @@
+// This is a simple example.
+// You can make a your own header file and set its path to settings.
+// (Preferences > Package Settings > Verilog Gadget > Settings - User)
+//
+//		"header": "Packages/Verilog Gadget/template/verilog_header.v"
+//
+// -----------------------------------------------------------------------------
+// Copyright (c) 2014-2019 All rights reserved
+// -----------------------------------------------------------------------------
+// Author : yongchan jeon (Kris) poucotm@gmail.com
+// File   : cu_control.sv
+// Create : 2019-09-24 04:28:45
+// Revise : 2019-09-24 11:54:58
+// Editor : sublime text3, tab size (4)
+// -----------------------------------------------------------------------------
 import CAPI_PKG::*;
 import WED_PKG::*;
 import AFU_PKG::*;
@@ -17,7 +32,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	output logic [0:63] 	algorithm_status,
 	input  logic [0:63] 	algorithm_requests,
 	output CommandBufferLine read_command_out,
-	input  BufferStatus 		write_buffer_status,
+	input  BufferStatus 	 write_buffer_status,
 	output CommandBufferLine write_command_out,
 	output ReadWriteDataLine write_data_0_out,
 	output ReadWriteDataLine write_data_1_out
@@ -68,19 +83,21 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	logic done_graph_algorithm;
 
 
-
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_pushed;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done;
 	logic [0:(VERTEX_SIZE_BITS-1)] edge_job_counter_done;
+
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered_latched;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_latched;
+	logic [0:(VERTEX_SIZE_BITS-1)] edge_job_counter_done_latched;
 
 ////////////////////////////////////////////////////////////////////////////
 //Done signal
 ////////////////////////////////////////////////////////////////////////////a
 
-	assign done_graph_algorithm = (wed_request_in_latched.wed.num_vertices == (vertex_job_counter_filtered+vertex_job_counter_done)) &&
-		(wed_request_in_latched.wed.num_edges == edge_job_counter_done);
-		
+	assign done_graph_algorithm = (wed_request_in_latched.wed.num_vertices == (vertex_job_counter_filtered_latched+vertex_job_counter_done_latched)) &&
+		(wed_request_in_latched.wed.num_edges == edge_job_counter_done_latched);
+
 	always_comb begin : proc_done
 		algorithm_status_latched = 0;
 		if(wed_request_in_latched.valid)begin
@@ -94,23 +111,29 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 //Drive input output
 ////////////////////////////////////////////////////////////////////////////
 
-	assign read_command_out_latched = command_arbiter_out;
+	assign read_command_out_latched                   = command_arbiter_out;
 
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			write_command_out <= 0;
-			write_data_0_out  <= 0;
-			write_data_1_out  <= 0;
-			read_command_out  <= 0;
-			algorithm_status  <= 0;
+			write_command_out                       <= 0;
+			write_data_0_out                        <= 0;
+			write_data_1_out                        <= 0;
+			read_command_out                        <= 0;
+			algorithm_status                        <= 0;
+			vertex_job_counter_filtered_latched     <= 0;
+			vertex_job_counter_done_latched         <= 0;
+			edge_job_counter_done_latched           <= 0;
 		end else begin
 			if(enabled)begin
-				write_command_out <= write_command_out_latched;
-				write_data_0_out  <= write_data_0_out_latched;
-				write_data_1_out  <= write_data_1_out_latched;
-				read_command_out  <= read_command_out_latched;
-				algorithm_status  <= algorithm_status_latched;
+				write_command_out                   <= write_command_out_latched;
+				write_data_0_out                    <= write_data_0_out_latched;
+				write_data_1_out                    <= write_data_1_out_latched;
+				read_command_out                    <= read_command_out_latched;
+				algorithm_status                    <= algorithm_status_latched;
+				vertex_job_counter_filtered_latched <= vertex_job_counter_filtered;
+				vertex_job_counter_done_latched     <= vertex_job_counter_done;
+				edge_job_counter_done_latched       <= edge_job_counter_done;
 			end
 		end
 	end
@@ -118,20 +141,20 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	// drive inputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched		<= 0;
-			read_response_in_latched	<= 0;
-			write_response_in_latched	<= 0;
-			read_data_0_in_latched		<= 0;
-			read_data_1_in_latched		<= 0;
-			algorithm_requests_latched  <= 0;
+			wed_request_in_latched         <= 0;
+			read_response_in_latched       <= 0;
+			write_response_in_latched      <= 0;
+			read_data_0_in_latched         <= 0;
+			read_data_1_in_latched         <= 0;
+			algorithm_requests_latched     <= 0;
 		end else begin
 			if(enabled)begin
-				wed_request_in_latched 		<= wed_request_in;
-				read_response_in_latched	<= read_response_in;
-				write_response_in_latched	<= write_response_in;
-				read_data_0_in_latched		<= read_data_0_in;
-				read_data_1_in_latched		<= read_data_1_in;
-				algorithm_requests_latched  <= algorithm_requests;
+				wed_request_in_latched     <= wed_request_in;
+				read_response_in_latched   <= read_response_in;
+				write_response_in_latched  <= write_response_in;
+				read_data_0_in_latched     <= read_data_0_in;
+				read_data_1_in_latched     <= read_data_1_in;
+				algorithm_requests_latched <= algorithm_requests;
 			end
 		end
 	end
@@ -140,8 +163,8 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 //read command request logic - output
 ////////////////////////////////////////////////////////////////////////////
 
-	assign requests[0] = ~read_command_vertex_buffer_status.empty && ~read_buffer_status.alfull;
-	assign requests[1] = ~read_command_graph_algorithm_buffer_status.empty && ~read_buffer_status.alfull;
+	assign requests[0]          = ~read_command_vertex_buffer_status.empty && ~read_buffer_status.alfull;
+	assign requests[1]          = ~read_command_graph_algorithm_buffer_status.empty && ~read_buffer_status.alfull;
 
 	assign command_buffer_in[0] = read_command_vertex_buffer;
 	assign command_buffer_in[1] = read_command_graph_algorithm_buffer;
@@ -167,23 +190,23 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_response_vertex_job  <= 0;
-			read_response_graph_algorithm <= 0;
+			read_response_vertex_job                  <= 0;
+			read_response_graph_algorithm             <= 0;
 		end else begin
 			if(enabled && read_response_in_latched.valid) begin
 				case (read_response_in_latched.cmd.cu_id)
 					VERTEX_CONTROL_ID: begin
-						read_response_vertex_job <= read_response_in_latched;
+						read_response_vertex_job      <= read_response_in_latched;
 						read_response_graph_algorithm <= 0;
 					end
 					default : begin
 						read_response_graph_algorithm <= read_response_in_latched;
-						read_response_vertex_job  <= 0;
+						read_response_vertex_job      <= 0;
 					end
 				endcase
 			end else begin
-				read_response_vertex_job  <= 0;
-				read_response_graph_algorithm <= 0;
+				read_response_vertex_job              <= 0;
+				read_response_graph_algorithm         <= 0;
 			end
 		end
 	end
@@ -194,46 +217,46 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_vertex_job  <= 0;
-			read_data_0_graph_algorithm <= 0;
+			read_data_0_vertex_job                  <= 0;
+			read_data_0_graph_algorithm             <= 0;
 		end else begin
 			if(enabled && read_data_0_in_latched.valid) begin
 				case (read_data_0_in_latched.cmd.cu_id)
 					VERTEX_CONTROL_ID: begin
-						read_data_0_vertex_job <= read_data_0_in_latched;
+						read_data_0_vertex_job      <= read_data_0_in_latched;
 						read_data_0_graph_algorithm <= 0;
 					end
 					default : begin
 						read_data_0_graph_algorithm <= read_data_0_in_latched;
-						read_data_0_vertex_job  <= 0;
+						read_data_0_vertex_job      <= 0;
 					end
 				endcase
 			end else begin
-				read_data_0_vertex_job  <= 0;
-				read_data_0_graph_algorithm <= 0;
+				read_data_0_vertex_job              <= 0;
+				read_data_0_graph_algorithm         <= 0;
 			end
 		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_1_vertex_job  <= 0;
-			read_data_1_graph_algorithm <= 0;
+			read_data_1_vertex_job                  <= 0;
+			read_data_1_graph_algorithm             <= 0;
 		end else begin
 			if(enabled && read_data_1_in_latched.valid) begin
 				case (read_data_1_in_latched.cmd.cu_id)
 					VERTEX_CONTROL_ID: begin
-						read_data_1_vertex_job <= read_data_1_in_latched;
+						read_data_1_vertex_job      <= read_data_1_in_latched;
 						read_data_1_graph_algorithm <= 0;
 					end
 					default : begin
 						read_data_1_graph_algorithm <= read_data_1_in_latched;
-						read_data_1_vertex_job  <= 0;
+						read_data_1_vertex_job      <= 0;
 					end
 				endcase
 			end else begin
-				read_data_1_vertex_job  <= 0;
-				read_data_1_graph_algorithm <= 0;
+				read_data_1_vertex_job              <= 0;
+				read_data_1_graph_algorithm         <= 0;
 			end
 		end
 	end
@@ -255,7 +278,6 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.read_command_out    (read_command_out_vertex),
 		.vertex_buffer_status(vertex_buffer_status),
 		.vertex              (vertex_job),
-		.vertex_job_counter_pushed  (vertex_job_counter_pushed),
 		.vertex_job_counter_filtered(vertex_job_counter_filtered));
 
 ////////////////////////////////////////////////////////////////////////////

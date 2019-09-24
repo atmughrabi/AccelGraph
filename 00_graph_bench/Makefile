@@ -13,7 +13,7 @@
 # dirs Root app 
 APP_DIR           	= .
 SCRIPT_DIR          = ../04_scripts
-# BENCHMARKS_DIR    	= ../../01_GraphDatasets
+BENCHMARKS_DIR    	= ../../01_GraphDatasets
 BENCHMARKS_DIR    	= ../03_test_graphs
 
 #dir root/managed_folders
@@ -62,7 +62,7 @@ MAIN_DIR		  	= main
 #small test graphs
 # GRAPH_NAME = test
 # GRAPH_NAME = Rabbit
- GRAPH_NAME = v51_e1021
+#  GRAPH_NAME = v51_e1021
 # synthetic graphs
 # GRAPH_NAME = RMAT20
 # GRAPH_NAME = RMAT22
@@ -80,7 +80,7 @@ MAIN_DIR		  	= main
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-# GRAPH_NAME = p2p-Gnutella31
+GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -89,7 +89,7 @@ MAIN_DIR		  	= main
 # FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
 
 #WEIGHTED
-FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/out.txt.wbin
 
 
 

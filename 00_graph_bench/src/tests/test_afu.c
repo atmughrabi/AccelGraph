@@ -257,7 +257,7 @@ void printWEDGraphCSRVertex(struct  WEDGraphCSR *wed)
     }
     printf("\n");
     for(i= 0; i < wed->num_edges ; i++){
-        printf("src:  %u dest %u\n", ((__u32 *)wed->inverse_edges_array_src)[i], ((__u32 *)wed->inverse_edges_array_dest)[i]);
+        printf("%u src:  %u dest %u\n",i, ((__u32 *)wed->inverse_edges_array_src)[i], ((__u32 *)wed->inverse_edges_array_dest)[i]);
     }
 
 }
@@ -269,12 +269,7 @@ main (int argc, char **argv)
     struct cxl_afu_h *afu;
     struct WEDGraphCSR *wedGraphCSR;
 
-    afu = cxl_afu_open_dev("/dev/cxl/afu0.0d");
-    if(!afu)
-    {
-        printf("Failed to open AFU: %m\n");
-        return 1;
-    }
+    
 
 
     struct Arguments arguments;
@@ -298,8 +293,9 @@ main (int argc, char **argv)
     arguments.delta = 1;
     arguments.numThreads = 4;
     // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
-    // arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
-    arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
+    // arguments.fnameb = "../03_test_graphs/out.txt.wbin";
+    arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
+    // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
     arguments.convert_format = 1;
 
@@ -336,6 +332,13 @@ main (int argc, char **argv)
 
     printWEDGraphCSRPointers(wedGraphCSR);
 
+    afu = cxl_afu_open_dev("/dev/cxl/afu0.0d");
+    if(!afu)
+    {
+        printf("Failed to open AFU: %m\n");
+        return 1;
+    }
+
     cxl_afu_attach(afu, (__u64)wedGraphCSR);
     printf("Attached to AFU\n");
 
@@ -352,14 +355,17 @@ main (int argc, char **argv)
     }
 
     uint64_t algo_status = 0;
+    uint64_t num_cu      = 64;
     uint64_t error = 0;
+
+    cxl_mmio_write64(afu, ALGO_REQUEST, num_cu);
 
     printf("Waiting for completion by AFU\n");
     do
     {
         cxl_mmio_read64(afu, ALGO_STATUS, &algo_status);
       
-        // cxl_mmio_write64(afu, ALGO_REQUEST, algo_status);
+        
 
         cxl_mmio_read64(afu, ERROR_REG, &error);
       

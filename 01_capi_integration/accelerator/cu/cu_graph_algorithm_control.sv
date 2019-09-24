@@ -95,42 +95,42 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 //Drive input out put
 ////////////////////////////////////////////////////////////////////////////
 	
-	assign vertex_job_request = vertex_job_request_latched;
-	assign vertex_job_latched = vertex_job;
+	assign vertex_job_request                               = vertex_job_request_latched;
+	assign vertex_job_latched                               = vertex_job;
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			write_command_out  		<= 0;
-			write_data_0_out   		<= 0;
-			write_data_1_out   		<= 0;
-			read_command_out   		<= 0;
-			// vertex_job_request 		<= 0;
+			write_command_out     <= 0;
+			write_data_0_out      <= 0;
+			write_data_1_out      <= 0;
+			read_command_out      <= 0;
+			// vertex_job_request <= 0;
 		end else begin
-			write_command_out 		<= write_command_out_latched;
-			write_data_0_out  		<= write_data_0_out_latched;
-			write_data_1_out  		<= write_data_1_out_latched;
-			read_command_out  		<= read_command_out_latched;
-			// vertex_job_request 		<= vertex_job_request_latched;
+			write_command_out     <= write_command_out_latched;
+			write_data_0_out      <= write_data_0_out_latched;
+			write_data_1_out      <= write_data_1_out_latched;
+			read_command_out      <= read_command_out_latched;
+			// vertex_job_request <= vertex_job_request_latched;
 		end
 	end
 
 	// drive inputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched		 <= 0;
-			read_response_in_latched	 <= 0;
-			write_response_in_latched	 <= 0;
-			read_data_0_in_latched		 <= 0;
-			read_data_1_in_latched		 <= 0;
-			// vertex_job_latched           <= 0;
+			wed_request_in_latched        <= 0;
+			read_response_in_latched      <= 0;
+			write_response_in_latched     <= 0;
+			read_data_0_in_latched        <= 0;
+			read_data_1_in_latched        <= 0;
+			// vertex_job_latched         <= 0;
 		end else begin
 			if(enabled)begin
-				wed_request_in_latched 		 <= wed_request_in;
-				read_response_in_latched	 <= read_response_in;
-				write_response_in_latched	 <= write_response_in;
-				read_data_0_in_latched		 <= read_data_0_in;
-				read_data_1_in_latched		 <= read_data_1_in;
-				// vertex_job_latched 			 <= vertex_job;
+				wed_request_in_latched    <= wed_request_in;
+				read_response_in_latched  <= read_response_in;
+				write_response_in_latched <= write_response_in;
+				read_data_0_in_latched    <= read_data_0_in;
+				read_data_1_in_latched    <= read_data_1_in;
+				// vertex_job_latched     <= vertex_job;
 			end
 		end
 	end
@@ -212,8 +212,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	////////////////////////////////////////////////////////////////////////////
 
 	always_comb begin
-		write_data_0_out_latched = 0;
-		write_data_1_out_latched = 0;
+		write_data_0_out_latched         = 0;
+		write_data_1_out_latched         = 0;
 		for (k = 0; k < NUM_VERTEX_CU; k++) begin
 			if(ready_write_command_cu[k])begin
 				write_data_0_out_latched = write_data_0_arbiter_cu[k];
@@ -261,9 +261,9 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	always_comb  begin
 		for (jj = 0; jj < NUM_VERTEX_CU; jj++) begin
 			if(read_response_in_latched.cmd.cu_id == jj && enabled && read_response_in_latched.valid)begin
-				read_response_cu_internal[jj] = read_response_in_latched;
+				read_response_cu_internal[jj]  = read_response_in_latched;
 			end else begin
-				read_response_cu_internal[jj] = 0;
+				read_response_cu_internal[jj]  = 0;
 			end
 		end
 	end
@@ -323,15 +323,15 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	////////////////////////////////////////////////////////////////////////////
 
 	always_comb begin
-		vertex_num_counter_temp = 0;
+		vertex_num_counter_temp         = 0;
 		for (j = 0; j < NUM_VERTEX_CU; j++) begin
-			vertex_num_counter_temp = vertex_num_counter_temp + vertex_num_counter_cu[j];
+			vertex_num_counter_temp     = vertex_num_counter_temp + vertex_num_counter_cu[j];
 		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_num_counter <= 0;
+			vertex_num_counter          <= 0;
 		end else begin
 			if(enabled)begin
 				vertex_job_counter_done <= vertex_num_counter_temp;
@@ -344,15 +344,15 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	////////////////////////////////////////////////////////////////////////////
 
 	always_comb begin
-		edge_num_counter_temp = 0;
+		edge_num_counter_temp         = 0;
 		for (ii = 0; ii < NUM_VERTEX_CU; ii++) begin
-			edge_num_counter_temp = edge_num_counter_temp + edge_num_counter_cu[ii];
+			edge_num_counter_temp     = edge_num_counter_temp + edge_num_counter_cu[ii];
 		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_num_counter <= 0;
+			edge_num_counter          <= 0;
 		end else begin
 			if(enabled)begin
 				edge_job_counter_done <= edge_num_counter_temp;
@@ -371,7 +371,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	fifo  #(
 		.WIDTH($bits(VertexInterface)),
-		.DEPTH((CACHELINE_VERTEX_NUM))
+		.DEPTH((128))
 	)vertex_job_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),

@@ -1,6 +1,6 @@
 module ram #(
-  parameter WIDTH = 64,
-  parameter DEPTH = 32,
+  parameter WIDTH     = 64,
+  parameter DEPTH     = 32,
   parameter ADDR_BITS = $clog2(DEPTH)
 ) (
   input  logic                  clock,
@@ -18,7 +18,7 @@ module ram #(
   end
 
   always @ (posedge clock) begin
-    data_out <= memory[rd_addr];
+    data_out          <= memory[rd_addr];
   end
 endmodule
 
@@ -27,8 +27,8 @@ endmodule
 
 
 module ram_2xrd #(
-  parameter WIDTH = 64,
-  parameter DEPTH = 32,
+  parameter WIDTH     = 64,
+  parameter DEPTH     = 32,
   parameter ADDR_BITS = $clog2(DEPTH)
 ) (
   input  logic                  clock,
@@ -81,9 +81,9 @@ endmodule
 
 module mixed_width_ram
   #(parameter int
-    WORDS = 256,
-    RW = 8,
-    WW = 32)
+    WORDS             = 256,
+    RW                = 8,
+    WW                = 32)
 (
   input we, 
   input clock,
@@ -95,8 +95,8 @@ module mixed_width_ram
    
   // Use a multi-dimensional packed array to model the different read/write
   // width
-  localparam int R = (RW < WW) ? WW/RW : RW/WW;
-  localparam int B = (RW < WW) ? RW: WW;
+  localparam int R    = (RW < WW) ? WW/RW : RW/WW;
+  localparam int B    = (RW < WW) ? RW: WW;
 
   logic [0:R-1][0:B-1] ram[0:WORDS-1];
 
@@ -105,7 +105,7 @@ module mixed_width_ram
     always_ff@(posedge clock)
     begin
       if(we) ram[wr_addr] <= data_in;
-      data_out <= ram[rd_addr / R][rd_addr % R];
+      data_out        <= ram[rd_addr / R][rd_addr % R];
     end
   end
   else begin 
@@ -113,7 +113,7 @@ module mixed_width_ram
     always_ff@(posedge clock)
     begin
       if(we) ram[wr_addr / R][wr_addr % R] <= data_in;
-      data_out <= ram[rd_addr];
+      data_out        <= ram[rd_addr];
     end
   end 
   endgenerate

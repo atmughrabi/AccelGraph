@@ -21,9 +21,9 @@ module command_control (
   logic restart_request;
   CommandInterfaceOutput command_out_latch;
 
-  assign odd_parity                 = 1'b1; // Odd parity
-  // assign command_out_latch.abt            = STRICT;
-  assign command_out_latch.abt            = ABORT;
+  assign odd_parity                       = 1'b1; // Odd parity
+  assign command_out_latch.abt            = STRICT;
+  // assign command_out_latch.abt            = ABORT;
   // assign command_out_latch.abt            = PERF;
   // assign command_out_latch.abt            = PAGE;
   // assign command_out_latch.abt            = SPEC;
@@ -48,18 +48,18 @@ module command_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      command_out_latch.valid    <= 1'b0;
-      command_out_latch.command  <= INVALID; // just zero it out
-      command_out_latch.address  <= 64'h0000_0000_0000_0000;
-      command_out_latch.tag      <= INVALID_TAG;
-      command_out_latch.size     <= 12'h000;
+      command_out_latch.valid   <= 1'b0;
+      command_out_latch.command <= INVALID; // just zero it out
+      command_out_latch.address <= 64'h0000_0000_0000_0000;
+      command_out_latch.tag     <= INVALID_TAG;
+      command_out_latch.size    <= 12'h000;
     end
     else begin
-      command_out_latch.valid    <= command_arbiter_in.valid;
-      command_out_latch.command  <= command_arbiter_in.command;
-      command_out_latch.address  <= command_arbiter_in.address;
-      command_out_latch.tag      <= command_tag_in;
-      command_out_latch.size     <= command_arbiter_in.size;
+      command_out_latch.valid   <= command_arbiter_in.valid;
+      command_out_latch.command <= command_arbiter_in.command;
+      command_out_latch.address <= command_arbiter_in.address;
+      command_out_latch.tag     <= command_tag_in;
+      command_out_latch.size    <= command_arbiter_in.size;
     end
   end // always_ff @(posedge clock)
 

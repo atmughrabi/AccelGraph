@@ -1,8 +1,8 @@
 module fifo #(
-    parameter WIDTH = 24,
-    parameter DEPTH = 32,
+    parameter WIDTH     = 24,
+    parameter DEPTH     = 32,
     parameter ADDR_BITS = $clog2(DEPTH),
-    parameter HEADROOM = 3
+    parameter HEADROOM  = 3
 ) (
     input logic clock,
     input logic rstn,
@@ -19,7 +19,7 @@ module fifo #(
 // =======================================================================
 // Declarations & Parameters
 
-    localparam CW = ADDR_BITS + 1;
+    localparam CW       = ADDR_BITS + 1;
 
     logic [ CW - 1:0 ] count;
     logic [ WIDTH - 1:0 ] rd_data;
@@ -38,28 +38,28 @@ module fifo #(
 // only pop a non-empty FIFO... note that user may assert pop without regard
 // to empty.  Data will be should be sampled only when pop and !empty are
 // asserted together i.e., pop && valid
-    assign ren = pop && !empty;
+    assign ren          = pop && !empty;
 
-    // assign data_out = rd_data;
+    // assign data_out  = rd_data;
     always_comb begin 
         if(ren)
-            data_out = rd_data;
+            data_out    = rd_data;
         else
-            data_out = 0;
+            data_out    = 0;
     end
 
 // user samples data when pop && valid are both true... user drives pop, FIFO
 // logic determines valid here
-    assign valid = !empty;
+    assign valid        = !empty;
 
 // the combinational version of the read address is used to immediately
 // change the address into memory on a pop since there's a one-cycle delay
 // to get the data out
-    assign rd_addr_c = rd_addr_q + 'd1;
+    assign rd_addr_c    = rd_addr_q + 'd1;
 
 // this is the signal into memory; the mux ensures that the next read
 // data is available on the next cycle
-    assign rd_addr = ren ? rd_addr_c : rd_addr_q;
+    assign rd_addr      = ren ? rd_addr_c : rd_addr_q;
 
 // =======================================================================
 // Registered Logic
@@ -73,10 +73,10 @@ module fifo #(
     always @( posedge clock or negedge rstn)
 
         if ( !rstn )
-            wen <= 1'b0;
+            wen         <= 1'b0;
 
         else
-            wen <= push && !full;
+            wen         <= push && !full;
 
 // Register:  wr_data
 //
@@ -85,10 +85,10 @@ module fifo #(
     always @( posedge clock or negedge rstn)
 
         if ( !rstn )
-            wr_data <= {WIDTH{1'b0}};
+            wr_data     <= {WIDTH{1'b0}};
 
         else
-            wr_data <= data_in;
+            wr_data     <= data_in;
 
 // Register:  wen_q
 //
@@ -98,10 +98,10 @@ module fifo #(
     always @( posedge clock or negedge rstn)
 
         if ( !rstn )
-            wen_q <= 1'b0;
+            wen_q       <= 1'b0;
 
         else
-            wen_q <= wen;
+            wen_q       <= wen;
 
 // Register: count
 //
@@ -110,13 +110,13 @@ module fifo #(
     always @( posedge clock or negedge rstn)
 
         if ( !rstn )
-            count <= {CW{1'b0}};
+            count       <= {CW{1'b0}};
 
         else if ( wen_q && ~ren )
-            count <= count + 'd1;
+            count       <= count + 'd1;
 
         else if ( ~wen_q && ren )
-            count <= count - 'd1;
+            count       <= count - 'd1;
 
 // Register: empty
 //
@@ -126,14 +126,14 @@ module fifo #(
     always @( posedge clock or negedge rstn)
 
         if ( !rstn )
-            empty <= 1'b1;
+            empty       <= 1'b1;
 
         else if ( count == 'd0 && ~wen_q ||
             count == 'd1 && ~wen_q && ren )
-        empty <= 1'b1;
+        empty           <= 1'b1;
 
         else
-            empty <= 1'b0;
+            empty       <= 1'b0;
 
 // Register: alFull
 //
@@ -143,13 +143,13 @@ module fifo #(
     always @( posedge clock or negedge rstn)
 
         if ( !rstn )
-            alFull <= 1'b0;
+            alFull      <= 1'b0;
 
         else if ( count >= DEPTH - HEADROOM )
-            alFull <= 1'b1;
+            alFull      <= 1'b1;
 
         else
-            alFull <= 1'b0;
+            alFull      <= 1'b0;
 
 // Register: full
 //
@@ -159,14 +159,14 @@ module fifo #(
     always @( posedge clock or negedge rstn)
 
         if ( !rstn )
-            full <= 1'b0;
+            full        <= 1'b0;
 
         else if ( count == DEPTH && ~ren ||
             count == DEPTH - 1 && wen_q && ~ren )
-        full <= 1'b1;
+        full            <= 1'b1;
 
         else
-            full <= 1'b0;
+            full        <= 1'b0;
 
 // Register:  wr_addr
 //
@@ -175,10 +175,10 @@ module fifo #(
     always @( posedge clock or negedge rstn)
 
         if ( !rstn )
-            wr_addr <= {ADDR_BITS{1'b0}};
+            wr_addr     <= {ADDR_BITS{1'b0}};
 
         else if ( wen )
-            wr_addr <= wr_addr + 'd1;
+            wr_addr     <= wr_addr + 'd1;
 
 // Register:  red_addr
 //
@@ -190,10 +190,10 @@ module fifo #(
     always @( posedge clock or negedge rstn)
 
         if ( !rstn )
-            rd_addr_q <= {ADDR_BITS{1'b0}};
+            rd_addr_q   <= {ADDR_BITS{1'b0}};
 
         else if ( ren )
-            rd_addr_q <= rd_addr_c;
+            rd_addr_q   <= rd_addr_c;
 
 // =======================================================================
 // Module Instantiations

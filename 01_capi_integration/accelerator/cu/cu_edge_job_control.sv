@@ -394,7 +394,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		&& ~(|response_counter) && (edge_job_counter_pushed < vertex_job_latched.inverse_out_degree) && ~fill_edge_buffer
 		&& wed_request_in_latched.valid && vertex_job_latched.valid;
 	assign fill_edge_buffer = src_cacheline_ready && dest_cacheline_ready && weight_cacheline_ready;
-	assign start_shift      = fill_edge_buffer_pending && ~(|response_counter);
+	assign start_shift      = ~edge_buffer_status.alfull && fill_edge_buffer_pending && ~(|response_counter);
 
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -437,7 +437,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	fifo  #(
 		.WIDTH($bits(EdgeInterface)),
-		.DEPTH((256))
+		.DEPTH(256)
 	)edge_job_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
