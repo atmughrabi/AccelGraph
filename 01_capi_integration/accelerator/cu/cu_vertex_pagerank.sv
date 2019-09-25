@@ -5,8 +5,8 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_vertex_pagerank #(
-	parameter NUM_EDGE_CU                          = 1,
-	parameter PAGERANK_CU_ID                       = 1
+	parameter NUM_EDGE_CU    = 1,
+	parameter PAGERANK_CU_ID = 1
 ) (
 	input logic clock,    // Clock
 	input logic rstn,
@@ -22,7 +22,6 @@ module cu_vertex_pagerank #(
 	output CommandBufferLine write_command_out,
 	output ReadWriteDataLine write_data_0_out,
 	output ReadWriteDataLine write_data_1_out,
-	input  BufferStatus 	 vertex_buffer_status,
 	input  VertexInterface 	 vertex_job,
 	output logic 			 vertex_job_request,
 	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter,
@@ -79,7 +78,6 @@ module cu_vertex_pagerank #(
 	BufferStatus edge_buffer_status;
 	logic processing_vertex;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_job_counter_pushed;
-	logic [0:2] request_pulse;
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
@@ -200,19 +198,7 @@ module cu_vertex_pagerank #(
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			request_pulse                          <= 0;
-		end else begin
-			if(processing_vertex) begin
-				request_pulse                      <= 0;
-			end else begin
-				request_pulse                      <= request_pulse+1;
-			end
-		end
-	end
-
-	assign vertex_job_request_send                 = ~processing_vertex & ~(|request_pulse) & (~vertex_buffer_status.empty);
+	assign vertex_job_request_send                 = ~processing_vertex;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Edge job control

@@ -130,10 +130,10 @@ always_ff @(posedge clock or negedge rstn) begin
 	end
 end
 
-	assign requests[0]   = ~command_buffer_status.restart_buffer.empty 	 &&	|credits.credits && tag_buffer_ready && request_pulse;
-	assign requests[1]   = ~command_buffer_status.wed_buffer.empty 		 && |credits.credits && tag_buffer_ready && request_pulse;
-	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && |credits.credits && tag_buffer_ready && request_pulse;
-	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && |credits.credits && tag_buffer_ready && request_pulse;
+	assign requests[0]   = ~command_buffer_status.restart_buffer.empty 	 &&	|credits.credits && tag_buffer_ready && ~(|request_pulse);
+	assign requests[1]   = ~command_buffer_status.wed_buffer.empty 		 && |credits.credits && tag_buffer_ready && ~(|request_pulse);
+	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && |credits.credits && tag_buffer_ready && ~(|request_pulse);
+	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && |credits.credits && tag_buffer_ready && ~(|request_pulse);
 	assign valid_request = |requests;
 
 	assign command_buffer_in[0] = restart_command_buffer_out;

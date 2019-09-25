@@ -4,11 +4,12 @@ package GLOBALS_PKG;
 // CU-Control CU Globals
 ////////////////////////////////////////////////////////////////////////////
 
-// How many compute unites you want : each graph_cu contains N vertex_cu's 
+// How many compute unites you want : each 1 graph_cu contains N vertex_cu's 
+// TOTAL CUS = NUM_GRAPH_CU_GLOBAL X NUM_VERTEX_CU_GLOBAL
 ////////////////////////////////////////////////////////////////////////////
 
 	parameter NUM_GRAPH_CU_GLOBAL        = 1;
-	parameter NUM_VERTEX_CU_GLOBAL       = 16;
+	parameter NUM_VERTEX_CU_GLOBAL       = 64;
 
 ////////////////////////////////////////////////////////////////////////////
 //  AFU-Control CAPI Globals
@@ -18,6 +19,11 @@ package GLOBALS_PKG;
 	parameter CACHELINE_SIZE_BITS    = (CACHELINE_SIZE * 8); // cacheline is 128bytes
 	parameter CACHELINE_SIZE_HF      = (CACHELINE_SIZE >> 1); // cacheline is 128bytes
 	parameter CACHELINE_SIZE_BITS_HF = (CACHELINE_SIZE_HF * 8); // cacheline is 128bytes
+
+	parameter WORD        = 4;
+	parameter WORD_BITS   = WORD * 8;
+	parameter WORD_DOUBLE = WORD * 2;
+	parameter WORD_DOUBLE_BITS   = WORD_DOUBLE * 8;
 
 ////////////////////////////////////////////////////////////////////////////
 // AFU-Control Command Tags generation (Buffer size)

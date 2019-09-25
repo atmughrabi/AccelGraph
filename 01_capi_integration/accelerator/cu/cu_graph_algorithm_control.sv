@@ -90,8 +90,10 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	VertexInterface    	vertex_job_cu 		[0:NUM_VERTEX_CU-1];
 	logic 			   	[NUM_VERTEX_CU-1:0] request_vertex_job_cu;
+	logic 			   	[NUM_VERTEX_CU-1:0] request_vertex_job_cu_latched;
 	logic 				[NUM_VERTEX_CU-1:0] ready_vertex_job_cu;
 	logic [0:1] request_pulse;
+	logic [0:2] request_pulse_vertex;
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
@@ -146,9 +148,36 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	integer jj;
 	integer kkk;
 	integer jjj;
+
+	////////////////////////////////////////////////////////////////////////////
+	// Request Pulse generation
+	////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			request_pulse <= 0;
+		end else begin
+			request_pulse <= request_pulse + 1;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			request_pulse_vertex <= 0;
+		end else begin
+			request_pulse_vertex <= request_pulse_vertex + 1;
+		end
+	end
+
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex job request Arbitration
 	////////////////////////////////////////////////////////////////////////////
+
+	generate
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_request_vertex_job_cu
+			assign request_vertex_job_cu_latched[i] = ~vertex_buffer_status_internal.empty && request_vertex_job_cu[i] && ~(|request_pulse_vertex);
+		end
+	endgenerate
 
 	round_robin_priority_arbiter_1_input_N_ouput #(
 		.NUM_REQUESTS(NUM_VERTEX_CU),
@@ -159,7 +188,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		.rstn       (rstn),
 		.enabled    (enabled),
 		.buffer_in  (vertex_job_arbiter_in),
-		.requests   (request_vertex_job_cu),
+		.requests   (request_vertex_job_cu_latched),
 		.arbiter_out(vertex_job_cu),
 		.ready      (ready_vertex_job_cu)
 	);
@@ -167,14 +196,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex CU Read Command Arbitration
 	////////////////////////////////////////////////////////////////////////////
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			request_pulse <= 0;
-		end else begin
-			request_pulse <= request_pulse + 1;
-		end
-	end
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_request_read_command_cu
@@ -321,7 +342,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 					.write_command_out   (write_command_cu[i]),
 					.write_data_0_out    (write_data_0_cu[i]),
 					.write_data_1_out    (write_data_1_cu[i]),
-					.vertex_buffer_status(vertex_buffer_status_internal),
 					.vertex_job          (vertex_job_cu[i]),
 					.vertex_job_request  (request_vertex_job_cu[i]),
 					.vertex_num_counter  (vertex_num_counter_cu[i]),
