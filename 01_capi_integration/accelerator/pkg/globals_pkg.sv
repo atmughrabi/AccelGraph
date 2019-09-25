@@ -8,7 +8,7 @@ package GLOBALS_PKG;
 ////////////////////////////////////////////////////////////////////////////
 
 	parameter NUM_GRAPH_CU_GLOBAL        = 1;
-	parameter NUM_VERTEX_CU_GLOBAL       = 32;
+	parameter NUM_VERTEX_CU_GLOBAL       = 16;
 
 ////////////////////////////////////////////////////////////////////////////
 //  AFU-Control CAPI Globals
@@ -23,7 +23,7 @@ package GLOBALS_PKG;
 // AFU-Control Command Tags generation (Buffer size)
 ////////////////////////////////////////////////////////////////////////////
 	
-	parameter TAG_COUNT               = 32;
+	parameter TAG_COUNT               = 256;
 	parameter INVALID_TAG             = 8'h00;
 
 	parameter READ_CMD_BUFFER_SIZE    = 256;

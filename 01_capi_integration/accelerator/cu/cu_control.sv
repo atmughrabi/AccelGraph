@@ -78,7 +78,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_latched;
 	logic [0:(VERTEX_SIZE_BITS-1)] edge_job_counter_done_latched;
 
-	logic request_pulse;
+	logic [0:1]request_pulse;
 
 ////////////////////////////////////////////////////////////////////////////
 //Done signal
@@ -160,8 +160,8 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		end
 	end
 
-	assign requests[0]          = ~read_command_vertex_buffer_status.empty && ~read_buffer_status.alfull && request_pulse;
-	assign requests[1]          = ~read_command_graph_algorithm_buffer_status.empty && ~read_buffer_status.alfull && request_pulse;
+	assign requests[0]          = ~read_command_vertex_buffer_status.empty && ~read_buffer_status.alfull && ~(|request_pulse);
+	assign requests[1]          = ~read_command_graph_algorithm_buffer_status.empty && ~read_buffer_status.alfull && ~(|request_pulse);
 
 	assign command_buffer_in[0] = read_command_vertex_buffer;
 	assign command_buffer_in[1] = read_command_graph_algorithm_buffer;

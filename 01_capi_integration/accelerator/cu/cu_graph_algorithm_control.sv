@@ -91,7 +91,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	VertexInterface    	vertex_job_cu 		[0:NUM_VERTEX_CU-1];
 	logic 			   	[NUM_VERTEX_CU-1:0] request_vertex_job_cu;
 	logic 				[NUM_VERTEX_CU-1:0] ready_vertex_job_cu;
-	logic request_pulse;
+	logic [0:1] request_pulse;
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
@@ -178,7 +178,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_request_read_command_cu
-			assign request_read_command_cu[i] = ~read_command_buffer_states_cu[i].empty && ~read_buffer_status.alfull && request_pulse;
+			assign request_read_command_cu[i] = ~read_command_buffer_states_cu[i].empty && ~read_buffer_status.alfull && ~(|request_pulse);
 		end
 	endgenerate
 
@@ -201,7 +201,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_request_write_command_cu
-			assign request_write_command_cu[i] = ~write_command_buffer_states_cu[i].empty && ~write_buffer_status.alfull && request_pulse;
+			assign request_write_command_cu[i] = ~write_command_buffer_states_cu[i].empty && ~write_buffer_status.alfull && ~(|request_pulse);
 		end
 	endgenerate
 
