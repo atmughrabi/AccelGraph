@@ -1,3 +1,4 @@
+import GLOBALS_PKG::*;
 import CAPI_PKG::*;
 import AFU_PKG::*;
 
@@ -41,12 +42,12 @@ module write_data_control (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       command_write_valid_latched <= 0;
-      write_data_0_in_latched  <= 0;
-      write_data_1_in_latched  <= 0;
+      write_data_0_in_latched     <= 0;
+      write_data_1_in_latched     <= 0;
     end else begin
       command_write_valid_latched <= command_write_valid;
-      write_data_0_in_latched   <= write_data_0_in;
-      write_data_1_in_latched   <= write_data_1_in;
+      write_data_0_in_latched     <= write_data_0_in;
+      write_data_1_in_latched     <= write_data_1_in;
     end
   end
 
@@ -56,18 +57,18 @@ module write_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_valid <= 0;
-      read_tag  <= 0;
+      read_valid     <= 0;
+      read_tag       <= 0;
       read_address   <= 0;
     end else begin
       if(buffer_in.read_valid && enabled) begin
-        read_valid     <= buffer_in.read_valid;
-        read_tag       <= buffer_in.read_tag;
-        read_address   <= buffer_in.read_address;
+        read_valid   <= buffer_in.read_valid;
+        read_tag     <= buffer_in.read_tag;
+        read_address <= buffer_in.read_address;
       end else begin
-        read_valid <= 0;
-        read_tag  <= 0;
-        read_address<= 0;
+        read_valid   <= 0;
+        read_tag     <= 0;
+        read_address <= 0;
       end
     end
   end
@@ -90,12 +91,12 @@ module write_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      tag_parity  <= odd_parity;
+      tag_parity   <= odd_parity;
     end else begin
       if(enabled && buffer_in.read_valid) begin
-        tag_parity  <= buffer_in.read_tag_parity;
+        tag_parity <= buffer_in.read_tag_parity;
       end else begin
-        tag_parity  <= odd_parity;
+        tag_parity <= odd_parity;
       end
     end
   end
@@ -130,11 +131,11 @@ module write_data_control (
 
   always_comb begin
     if(~(|read_address) && read_valid)
-      buffer_out.read_data  = write_data_0_out.data;
+      buffer_out.read_data = write_data_0_out.data;
     else if((|read_address) && read_valid)
-      buffer_out.read_data  = write_data_1_out.data;
+      buffer_out.read_data = write_data_1_out.data;
     else
-      buffer_out.read_data  =  ~0;
+      buffer_out.read_data =  ~0;
   end
 
   ram #(
@@ -171,19 +172,19 @@ module write_data_control (
 ////////////////////////////////////////////////////////////////////////////
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      tag_parity_error    <= 1'b0;
-      detected_errors     <= 1'b0;
+      tag_parity_error <= 1'b0;
+      detected_errors  <= 1'b0;
     end else begin
-      tag_parity_error    <= tag_parity_link ^ tag_parity;
-      detected_errors     <= {tag_parity_error};
+      tag_parity_error <= tag_parity_link ^ tag_parity;
+      detected_errors  <= {tag_parity_error};
     end
   end
 
   always_ff @(posedge clock) begin
     if(enable_errors) begin
-      data_write_error  <= detected_errors;
+      data_write_error <= detected_errors;
     end else  begin
-      data_write_error  <= 1'b0;
+      data_write_error <= 1'b0;
     end
   end
 

@@ -1,29 +1,8 @@
 package CU_PKG;
 
-	import WED_PKG::*;
-	// parameter INVALID_ID                      = 8'h00;        defined at capi_pkg
-	// parameter WED_ID                          = 8'h01;        defined at wed_pkg
-	
-	parameter NUM_GRAPH_CU_GLOBAL = 1;
-
-	parameter NUM_VERTEX_CU_GLOBAL = 16;
 // Relating to Vertex int types and sizes
-
-	parameter VERTEX_SIZE                = 4; // vertex size is 4 bytes
-	parameter VERTEX_SIZE_BITS           = VERTEX_SIZE * 8; // vertex size is 4 bytes
-	parameter EDGE_SIZE                  = 4; // vertex size is 4 bytes
-	parameter EDGE_SIZE_BITS             = EDGE_SIZE * 8; // vertex size is 4 bytes
-	parameter [0:63] ADDRESS_ALIGN_MASK  = {{57{1'b1}},{7{1'b0}}}; // cacheline is 128bytes
-	parameter [0:63] ADDRESS_MOD_MASK    = {{57{1'b0}},{7{1'b1}}};  // cacheline is 128bytes
-	parameter CACHELINE_SIZE             = 128; // cacheline is 128bytes
-	parameter CACHELINE_SIZE_BITS        = CACHELINE_SIZE * 8; // cacheline is 128bytes
-	parameter CACHELINE_VERTEX_NUM       = (CACHELINE_SIZE >> $clog2(VERTEX_SIZE)); // number of vertices in one cacheline
-	parameter CACHELINE_EDGE_NUM         = (CACHELINE_SIZE >> $clog2(EDGE_SIZE)); // number of edges in one cacheline
-	parameter CACHELINE_INT_COUNTER_BITS = $clog2((VERTEX_SIZE_BITS < 512) ? (2 * 512)/VERTEX_SIZE_BITS : 2);
-
-// Relating to CU IDs
-	parameter VERTEX_CONTROL_ID    = (WED_ID - 1);         // This is the CU that requests and schedules graph vertices to other CUs
 	
+	import GLOBALS_PKG::*;
 
 	typedef enum int unsigned{
 		STRUCT_INVALID,

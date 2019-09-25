@@ -1,4 +1,5 @@
 
+import GLOBALS_PKG::*;
 import CAPI_PKG::*;
 import WED_PKG::*;
 import AFU_PKG::*;

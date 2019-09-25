@@ -1,9 +1,7 @@
 package WED_PKG;
 
+  import GLOBALS_PKG::*;
   import CAPI_PKG::*;
-
-// since Wed control interact with PSL it is considered a simple CU with an ID
-  parameter WED_ID = 8'hFF;
 
   typedef enum int unsigned {
     WED_RESET,
@@ -41,28 +39,28 @@ package WED_PKG;
   } WEDInterface;
 
 
-  function WED_request map_GraphCSR_to_WED(logic [0:1023] in);
+  function WED_request map_GraphCSR_to_WED(logic [0:(CACHELINE_SIZE_BITS-1)] in);
 
     WED_request wed;
 
-    wed.num_edges          = swap_endianness_word(in[0:31]);                   // 4-Bytes
-    wed.num_vertices       = swap_endianness_word(in[32:63]);                  // 4-Bytes
-    wed.max_weight         = swap_endianness_word(in[64:95]);                  // 4-Bytes
-    wed.vertex_out_degree  = swap_endianness_double_word(in[96:159]);          // 8-Bytes
-    wed.vertex_in_degree   = swap_endianness_double_word(in[160:223]);         // 8-Bytes
-    wed.vertex_edges_idx   = swap_endianness_double_word(in[224:287]);         // 8-Bytes
-    wed.edges_array_weight = swap_endianness_double_word(in[288:351]);         // 8-Bytes
-    wed.edges_array_src    = swap_endianness_double_word(in[352:415]);         // 8-Bytes
-    wed.edges_array_dest   = swap_endianness_double_word(in[416:479]);         // 8-Bytes
-    wed.inverse_vertex_out_degree   = swap_endianness_double_word(in[480:543]);     // 8-Bytes
-    wed.inverse_vertex_in_degree    = swap_endianness_double_word(in[544:607]);     // 8-Bytes
-    wed.inverse_vertex_edges_idx    = swap_endianness_double_word(in[608:671]);     // 8-Bytes
-    wed.inverse_edges_array_weight  = swap_endianness_double_word(in[672:735]);     // 8-Bytes
-    wed.inverse_edges_array_src     = swap_endianness_double_word(in[736:799]);     // 8-Bytes
-    wed.inverse_edges_array_dest    = swap_endianness_double_word(in[800:863]);     // 8-Bytes
-    wed.reserved1 = 32'h0000_0000;                                                  // 4-Bytes
-    wed.reserved2 = 64'h0000_0000_0000_0000;                   // 8-Bytes
-    wed.reserved3 = 64'h0000_0000_0000_0000;                  // 8-Bytes
+    wed.num_edges                  = swap_endianness_word(in[0:31]);                   // 4-Bytes
+    wed.num_vertices               = swap_endianness_word(in[32:63]);                  // 4-Bytes
+    wed.max_weight                 = swap_endianness_word(in[64:95]);                  // 4-Bytes
+    wed.vertex_out_degree          = swap_endianness_double_word(in[96:159]);          // 8-Bytes
+    wed.vertex_in_degree           = swap_endianness_double_word(in[160:223]);         // 8-Bytes
+    wed.vertex_edges_idx           = swap_endianness_double_word(in[224:287]);         // 8-Bytes
+    wed.edges_array_weight         = swap_endianness_double_word(in[288:351]);         // 8-Bytes
+    wed.edges_array_src            = swap_endianness_double_word(in[352:415]);         // 8-Bytes
+    wed.edges_array_dest           = swap_endianness_double_word(in[416:479]);         // 8-Bytes
+    wed.inverse_vertex_out_degree  = swap_endianness_double_word(in[480:543]);     // 8-Bytes
+    wed.inverse_vertex_in_degree   = swap_endianness_double_word(in[544:607]);     // 8-Bytes
+    wed.inverse_vertex_edges_idx   = swap_endianness_double_word(in[608:671]);     // 8-Bytes
+    wed.inverse_edges_array_weight = swap_endianness_double_word(in[672:735]);     // 8-Bytes
+    wed.inverse_edges_array_src    = swap_endianness_double_word(in[736:799]);     // 8-Bytes
+    wed.inverse_edges_array_dest   = swap_endianness_double_word(in[800:863]);     // 8-Bytes
+    wed.reserved1                  = 32'h0000_0000;                                                  // 4-Bytes
+    wed.reserved2                  = 64'h0000_0000_0000_0000;                   // 8-Bytes
+    wed.reserved3                  = 64'h0000_0000_0000_0000;                  // 8-Bytes
 
     return wed;
 

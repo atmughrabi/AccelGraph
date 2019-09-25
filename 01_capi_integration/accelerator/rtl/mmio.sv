@@ -1,3 +1,4 @@
+import GLOBALS_PKG::*;
 import CAPI_PKG::*;
 
 module mmio (

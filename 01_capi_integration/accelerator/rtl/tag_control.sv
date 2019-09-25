@@ -1,3 +1,4 @@
+import GLOBALS_PKG::*;
 import CAPI_PKG::*;
 import AFU_PKG::*;
 
@@ -16,13 +17,7 @@ module tag_control (
 	output logic tag_buffer_ready
 );
 
-	typedef enum int unsigned {
-		TAG_BUFFER_RESET,
-		TAG_BUFFER_INIT,
-		TAG_BUFFER_POP,
-		TAG_BUFFER_READY
-	} tag_buffer_state;
-
+	
 // reset state machine
 // reset signal
 // start state empty tag fifo
@@ -54,7 +49,7 @@ module tag_control (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn)
-			current_state <= TAG_BUFFER_RESET;
+			current_state     <= TAG_BUFFER_RESET;
 		else begin
 			if (enabled)
 				current_state <= next_state;
@@ -65,10 +60,10 @@ module tag_control (
 
 
 	always_comb begin
-		next_state = current_state;
+		next_state             = current_state;
 		case (current_state)
 			TAG_BUFFER_RESET: begin
-				next_state = TAG_BUFFER_INIT;
+				next_state     = TAG_BUFFER_INIT;
 			end
 			TAG_BUFFER_INIT: begin
 				if(tag_buffer.alfull)
@@ -79,7 +74,7 @@ module tag_control (
 					next_state = TAG_BUFFER_READY;
 			end
 			TAG_BUFFER_READY: begin
-				next_state = TAG_BUFFER_READY;
+				next_state     = TAG_BUFFER_READY;
 			end
 		endcase
 	end
@@ -87,15 +82,15 @@ module tag_control (
 	always_ff @(posedge clock) begin
 		case (current_state)
 			TAG_BUFFER_RESET: begin
-				tag_counter 	 <= 8'h01;
+				tag_counter     <= 8'h01;
 			end
 			TAG_BUFFER_INIT: begin
 				if(~tag_buffer.alfull) begin
-					tag_counter 	   	 <= tag_counter + 1'b1;
+					tag_counter <= tag_counter + 1'b1;
 				end
 			end
 			TAG_BUFFER_READY: begin
-				tag_counter 	  <= 8'b0;
+				tag_counter     <= 8'b0;
 			end
 		endcase
 	end
@@ -103,36 +98,36 @@ module tag_control (
 	always_comb begin
 		case (current_state)
 			TAG_BUFFER_RESET: begin
-				tag_init_flag	  = 1'b1;
-				tag_counter_valid = 1'b0;
-				tag_counter_pop   = 1'b0;
+				tag_init_flag         = 1'b1;
+				tag_counter_valid     = 1'b0;
+				tag_counter_pop       = 1'b0;
 			end
 			TAG_BUFFER_INIT: begin
-				tag_init_flag	  = 1'b1;
-				tag_counter_pop   = 1'b0;
+				tag_init_flag         = 1'b1;
+				tag_counter_pop       = 1'b0;
 
 				if(~tag_buffer.alfull) begin
-					tag_counter_valid     = 1'b1;
+					tag_counter_valid = 1'b1;
 				end
 				else begin
-					tag_counter_valid     = 1'b0;
+					tag_counter_valid = 1'b0;
 				end
 			end
 			TAG_BUFFER_POP: begin
 				tag_counter_valid     = 1'b0;
-				tag_init_flag	  	  = 1'b1;
+				tag_init_flag         = 1'b1;
 
 				if(~tag_buffer.empty && tag_buffer.valid) begin
-					tag_counter_pop     = 1'b1;
+					tag_counter_pop   = 1'b1;
 				end
 				else begin
-					tag_counter_pop     = 1'b0;
+					tag_counter_pop   = 1'b0;
 				end
 			end
 			TAG_BUFFER_READY: begin
-				tag_init_flag	   = 1'b0;
-				tag_counter_valid  = 1'b0;
-				tag_counter_pop    = 1'b0;
+				tag_init_flag         = 1'b0;
+				tag_counter_valid     = 1'b0;
+				tag_counter_pop       = 1'b0;
 			end
 		endcase
 	end
@@ -140,12 +135,12 @@ module tag_control (
 	always_comb begin
 		if(tag_init_flag) begin
 			tag_buffer_push = tag_counter_valid;
-			tag_fifo_input 	= tag_counter;
+			tag_fifo_input  = tag_counter;
 			tag_buffer_pop  = 1'b0;
 		end else begin
 			tag_buffer_push = tag_response_valid;
 			tag_fifo_input  = response_tag;
-			tag_buffer_pop 	= tag_command_valid;
+			tag_buffer_pop  = tag_command_valid;
 		end
 	end
 
@@ -177,7 +172,7 @@ module tag_control (
 
 	ram_2xrd #(
 		.WIDTH($bits(CommandTagLine)),
-		.DEPTH(256)
+		.DEPTH(TAG_COUNT)
 	)tag_ram_instant
 	(
 		.clock( clock ),
@@ -221,7 +216,7 @@ module tag_control (
 
 	fifo  #(
 		.WIDTH(8),
-		.DEPTH(256)
+		.DEPTH(TAG_COUNT)
 	)tag_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),

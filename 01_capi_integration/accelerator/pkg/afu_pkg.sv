@@ -1,9 +1,10 @@
 package AFU_PKG;
 
+  import GLOBALS_PKG::*;
   import CAPI_PKG::*;
   import CU_PKG::*;
 
-  typedef enum logic [0:2]{
+  typedef enum int unsigned {
     CMD_INVALID,
     CMD_READ,
     CMD_WRITE,
@@ -12,19 +13,25 @@ package AFU_PKG;
     CMD_RESTART
   } command_type;
 
-  typedef logic [0:8] cu_id_t;
-
+  
 ////////////////////////////////////////////////////////////////////////////
 // Tag Buffer data
 ////////////////////////////////////////////////////////////////////////////
 
-  typedef struct packed {
-    cu_id_t cu_id;      // Compute unit id generating the command for now we support four
-    vertex_struct_type vertex_struct;
-    command_type cmd_type;    // The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
-    logic [0:$clog2((VERTEX_SIZE_BITS < 512) ? (2 * 512)/VERTEX_SIZE_BITS : 2)] real_size;
-    logic [0:$clog2((VERTEX_SIZE_BITS < 512) ? (2 * 512)/VERTEX_SIZE_BITS : 2)] cacheline_offest;
-  } CommandTagLine;
+typedef enum int unsigned {
+  TAG_BUFFER_RESET,
+  TAG_BUFFER_INIT,
+  TAG_BUFFER_POP,
+  TAG_BUFFER_READY
+} tag_buffer_state;
+
+typedef struct packed {
+  cu_id_t            cu_id        ; // Compute unit id generating the command for now we support four
+  vertex_struct_type vertex_struct;
+  command_type       cmd_type     ; // The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
+  logic [0:CACHELINE_INT_COUNTER_BITS] real_size;
+  logic [0:CACHELINE_INT_COUNTER_BITS] cacheline_offest;
+} CommandTagLine;
 
 ////////////////////////////////////////////////////////////////////////////
 //Command Buffer fifo line
@@ -98,7 +105,7 @@ package AFU_PKG;
     logic [0:7] write_tag;      // ha_bwtag,       // Buffer Write tag
     logic write_tag_parity;     // ha_bwtagpar,    // Buffer Write tag parity
     logic [0:5] write_address;  // ha_bwad,        // Buffer Write address
-    logic [0:511] write_data;   // ha_bwdata,      // Buffer Write data
+    logic [0:(CACHELINE_SIZE_BITS_HF-1)] write_data;   // ha_bwdata,      // Buffer Write data
     logic [0:7] write_parity;   // ha_bwpar,       // Buffer Write parity
   } ReadDataControlInterface;
 
@@ -112,7 +119,7 @@ package AFU_PKG;
   typedef struct packed { // one cacheline is 128bytes each sent on separate 64bytes chunks
     logic valid;  
     CommandTagLine cmd;
-    logic [0:511] data;
+    logic [0:(CACHELINE_SIZE_BITS_HF-1)] data;
   } ReadWriteDataLine;
 
   typedef struct packed {

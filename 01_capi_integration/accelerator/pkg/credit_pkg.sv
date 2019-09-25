@@ -1,6 +1,8 @@
 package CREDIT_PKG;
 
+	import GLOBALS_PKG::*;
 	import CAPI_PKG::*;
+
 
 	typedef struct packed{
 		logic valid_request;

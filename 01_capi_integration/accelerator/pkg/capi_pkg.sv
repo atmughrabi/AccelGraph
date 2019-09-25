@@ -1,15 +1,6 @@
 package CAPI_PKG;
 
-  // MMIO Registers mapping
-  parameter ALGO_STATUS  = 26'h 3FFFFF8 >> 2; // algorithm status DONE/RUNNING HOST reads this address
-  parameter ALGO_REQUEST = 26'h 3FFFFF0 >> 2; // algorithm status START/STOP/RESET AFU reads this address
-  parameter ERROR_REG    = 26'h 3FFFFE8 >> 2; // AFU error reporting HOST reads this address
-
-  // this is for reset state each CU has an ID issues with the command.
-  parameter INVALID_ID      = 8'h00;
-  // request Tag ranges
-  parameter INVALID_TAG     = 8'h00;
-
+  import GLOBALS_PKG::*;
 
   typedef enum logic [0:7] {
     RESET=8'h80,
@@ -108,13 +99,13 @@ package CAPI_PKG;
     logic [0:7] write_tag;      // ha_bwtag,       // Buffer Write tag
     logic write_tag_parity;     // ha_bwtagpar,    // Buffer Write tag parity
     logic [0:5] write_address;  // ha_bwad,        // Buffer Write address
-    logic [0:511] write_data;   // ha_bwdata,      // Buffer Write data
+    logic [0:(CACHELINE_SIZE_BITS_HF-1)] write_data;   // ha_bwdata,      // Buffer Write data
     logic [0:7] write_parity;   // ha_bwpar,       // Buffer Write parity
   } BufferInterfaceInput;
 
   typedef struct packed {
     logic [0:3] read_latency;   //ah_brlat,       // Buffer Read latency
-    logic [0:511] read_data;    //ah_brdata,      // Buffer Read data
+    logic [0:(CACHELINE_SIZE_BITS_HF-1)] read_data;    //ah_brdata,      // Buffer Read data
     logic [0:7] read_parity;    //ah_brpar,       // Buffer Read parity
   } BufferInterfaceOutput;
 
@@ -246,8 +237,8 @@ package CAPI_PKG;
       in[ 0:7]};
   endfunction : swap_endianness_double_word
 
-  function logic [0:511] swap_endianness_half_cacheline128(logic [0:511] in);
-    return {swap_endianness_double_word(in[448:511]),
+  function logic [0:(CACHELINE_SIZE_BITS_HF-1)] swap_endianness_half_cacheline128(logic [0:(CACHELINE_SIZE_BITS_HF-1)] in);
+    return {swap_endianness_double_word(in[448:(CACHELINE_SIZE_BITS_HF-1)]),
       swap_endianness_double_word(in[384:447]),
       swap_endianness_double_word(in[320:383]),
       swap_endianness_double_word(in[256:319]),
@@ -257,9 +248,9 @@ package CAPI_PKG;
       swap_endianness_double_word(in[  0: 63])};
   endfunction : swap_endianness_half_cacheline128
 
-  function logic [0:1023] swap_endianness_full_cacheline128(logic [0:1023] in);
-    return {swap_endianness_half_cacheline128(in[512:1023]),
-      swap_endianness_half_cacheline128(in[0:511])};
+  function logic [0:(CACHELINE_SIZE_BITS-1)] swap_endianness_full_cacheline128(logic [0:(CACHELINE_SIZE_BITS-1)] in);
+    return {swap_endianness_half_cacheline128(in[(CACHELINE_SIZE_BITS_HF):(CACHELINE_SIZE_BITS-1)]),
+      swap_endianness_half_cacheline128(in[0:(CACHELINE_SIZE_BITS_HF-1)])};
   endfunction : swap_endianness_full_cacheline128
 
 endpackage

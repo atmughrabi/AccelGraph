@@ -1,3 +1,4 @@
+import GLOBALS_PKG::*;
 import CAPI_PKG::*;
 import AFU_PKG::*;
 
@@ -15,16 +16,15 @@ module read_data_control (
   logic odd_parity;
   logic tag_parity;
   logic tag_parity_link;
+  logic [0:7] data_write_parity;
   logic [0:7] data_write_parity_latched;
   logic write_valid_latched;
   logic [0:7] data_write_parity_link;
-  logic [0:7] data_write_parity_link_s2;
   ReadDataControlInterface buffer_in_latched;
 
   logic enable_errors;
   logic [0:1] detected_errors;
   logic data_parity_error;
-  logic data_parity_error_latched;
   logic tag_parity_error;
 
 
@@ -38,10 +38,18 @@ module read_data_control (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       buffer_in_latched <= 0;
+      data_write_parity_latched <= 0;
+      write_valid_latched <= 0;
     end else begin
-      if(enabled && buffer_in.write_valid) begin
+      if(enabled) begin
         buffer_in_latched  <= buffer_in;
-      end 
+        data_write_parity_latched <= buffer_in.write_parity;
+        write_valid_latched       <= buffer_in.write_valid;
+      end else begin
+        buffer_in_latched  <= 0;
+        data_write_parity_latched <= 0;
+        write_valid_latched <= 0;
+      end
     end
   end
 
@@ -118,15 +126,17 @@ module read_data_control (
   end
 
 ////////////////////////////////////////////////////////////////////////////
-//partity check Logic tag
+//partity check Logic
 ////////////////////////////////////////////////////////////////////////////
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       tag_parity  <= odd_parity;
     end else begin
-      if(buffer_in.write_valid) begin
+      if(enabled && buffer_in.write_valid) begin
         tag_parity  <= buffer_in.write_tag_parity;
-      end 
+      end else begin
+        tag_parity  <= odd_parity;
+      end
     end
   end
 
@@ -138,20 +148,15 @@ module read_data_control (
     .par(tag_parity_link)
   );
 
-  
-////////////////////////////////////////////////////////////////////////////
-//partity check Logic Data
-////////////////////////////////////////////////////////////////////////////
-
-  always @ (posedge clock)
-      write_valid_latched <= buffer_in.write_valid;
-
-  always @ (posedge clock or negedge rstn) begin
-    if (~rstn)
-      data_write_parity_latched <= 8'hff;
-    else  begin
-      if (write_valid_latched)
-        data_write_parity_latched <= buffer_in.write_parity;
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      data_write_parity  <= 8'hff;
+    end else begin
+      if(enabled && buffer_in.write_valid) begin
+        data_write_parity  <= buffer_in.write_parity;
+      end else begin
+        data_write_parity  <= 8'hff;
+      end
     end
   end
 
@@ -163,15 +168,6 @@ module read_data_control (
     .par(data_write_parity_link)
   );
 
-  always @ (posedge clock or negedge rstn) begin
-    if (~rstn)
-      data_write_parity_link_s2 <= 8'hff;
-    else begin
-      data_write_parity_link_s2 <= data_write_parity_link;
-    end
-  end
-
-  assign data_parity_error_latched = |(data_write_parity_link_s2 ^ data_write_parity_latched);
 
 ////////////////////////////////////////////////////////////////////////////
 // Error Logic
@@ -184,8 +180,11 @@ module read_data_control (
     end else begin
       tag_parity_error    <= tag_parity_link ^ tag_parity;
 
-      data_parity_error   <= data_parity_error_latched;
-    
+      if(write_valid_latched)
+        data_parity_error   <= |(data_write_parity_link ^ buffer_in.write_parity);
+      else
+        data_parity_error   <= 1'b0;
+
       detected_errors     <= {tag_parity_error, data_parity_error};
     end
   end
