@@ -1,6 +1,16 @@
 package GLOBALS_PKG;
 
 ////////////////////////////////////////////////////////////////////////////
+// CU-Control CU Globals
+////////////////////////////////////////////////////////////////////////////
+
+// How many compute unites you want : each graph_cu contains N vertex_cu's 
+////////////////////////////////////////////////////////////////////////////
+
+	parameter NUM_GRAPH_CU_GLOBAL        = 1;
+	parameter NUM_VERTEX_CU_GLOBAL       = 32;
+
+////////////////////////////////////////////////////////////////////////////
 //  AFU-Control CAPI Globals
 ////////////////////////////////////////////////////////////////////////////
 
@@ -13,8 +23,23 @@ package GLOBALS_PKG;
 // AFU-Control Command Tags generation (Buffer size)
 ////////////////////////////////////////////////////////////////////////////
 	
-	parameter TAG_COUNT   = 32;
-	parameter INVALID_TAG = 8'h00;
+	parameter TAG_COUNT               = 32;
+	parameter INVALID_TAG             = 8'h00;
+
+	parameter READ_CMD_BUFFER_SIZE    = 256;
+	parameter WRITE_CMD_BUFFER_SIZE   = 256;
+	parameter RESTART_CMD_BUFFER_SIZE = 2;
+	parameter WED_CMD_BUFFER_SIZE     = 2;
+
+	parameter READ_RSP_BUFFER_SIZE    = 256;
+	parameter WRITE_RSP_BUFFER_SIZE   = 256;
+	parameter RESTART_RSP_BUFFER_SIZE = 2;
+	parameter WED_RSP_BUFFER_SIZE     = 2;
+
+	parameter READ_DATA_BUFFER_SIZE    = 256;
+	parameter WRITE_DATA_BUFFER_SIZE   = 256;
+	parameter RESTART_DATA_BUFFER_SIZE = 2;
+	parameter WED_DATA_BUFFER_SIZE     = 2;
 	
 ////////////////////////////////////////////////////////////////////////////
 // AFU-Control MMIO Registers Mapping on AFU and HOSt
@@ -27,12 +52,6 @@ package GLOBALS_PKG;
 ////////////////////////////////////////////////////////////////////////////
 // CU-Control CU Globals
 ////////////////////////////////////////////////////////////////////////////
-
-// How many compute unites you want : each graph_cu contains N vertex_cu's 
-////////////////////////////////////////////////////////////////////////////
-
-	parameter NUM_GRAPH_CU_GLOBAL        = 1;
-	parameter NUM_VERTEX_CU_GLOBAL       = 16;
 
 // ACCEL-GRAPH Sturctue sizes
 ////////////////////////////////////////////////////////////////////////////
@@ -55,7 +74,7 @@ package GLOBALS_PKG;
 	parameter  CU_ID_RANGE      = 8;
 	
 	parameter INVALID_ID        = {CU_ID_RANGE{1'b0}};
-    parameter WED_ID            = {CU_ID_RANGE{1'b1}};
+	parameter WED_ID            = {CU_ID_RANGE{1'b1}};
 	parameter VERTEX_CONTROL_ID = (WED_ID - 1);         // This is the CU that requests and schedules graph vertices to other CUs
 	
 	typedef logic [0:(CU_ID_RANGE-1)] cu_id_t;

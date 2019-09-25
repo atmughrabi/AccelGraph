@@ -93,6 +93,8 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in;
 	logic valid_request;
 
+	logic request_pulse;
+
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
@@ -120,10 +122,18 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 //command request logic
 ////////////////////////////////////////////////////////////////////////////
 
-	assign requests[0]   = ~command_buffer_status.restart_buffer.empty 	 &&	|credits.credits && tag_buffer_ready;
-	assign requests[1]   = ~command_buffer_status.wed_buffer.empty 		 && |credits.credits && tag_buffer_ready;
-	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && |credits.credits && tag_buffer_ready;
-	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && |credits.credits && tag_buffer_ready;
+always_ff @(posedge clock or negedge rstn) begin 
+	if(~rstn) begin
+		request_pulse <= 0;
+	end else begin
+		request_pulse <= request_pulse + 1;
+	end
+end
+
+	assign requests[0]   = ~command_buffer_status.restart_buffer.empty 	 &&	|credits.credits && tag_buffer_ready && request_pulse;
+	assign requests[1]   = ~command_buffer_status.wed_buffer.empty 		 && |credits.credits && tag_buffer_ready && request_pulse;
+	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && |credits.credits && tag_buffer_ready && request_pulse;
+	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && |credits.credits && tag_buffer_ready && request_pulse;
 	assign valid_request = |requests;
 
 	assign command_buffer_in[0] = restart_command_buffer_out;
@@ -247,7 +257,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(256)
+		.DEPTH(READ_CMD_BUFFER_SIZE)
 	)read_command_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -268,7 +278,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 ////////////////////////////////////////////////////////////////////////////
 	fifo  #(
 		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(256)
+		.DEPTH(WRITE_CMD_BUFFER_SIZE)
 	)write_command_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -289,7 +299,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 ////////////////////////////////////////////////////////////////////////////
 	fifo  #(
 		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(2)
+		.DEPTH(WED_CMD_BUFFER_SIZE)
 	)wed_command_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -311,7 +321,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 ////////////////////////////////////////////////////////////////////////////
 	fifo  #(
 		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(2)
+		.DEPTH(RESTART_CMD_BUFFER_SIZE)
 	)restart_command_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -339,7 +349,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(256)
+		.DEPTH(WRITE_RSP_BUFFER_SIZE)
 	)write_response_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -363,7 +373,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(256)
+		.DEPTH(READ_RSP_BUFFER_SIZE)
 	)read_response_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -387,7 +397,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(2)
+		.DEPTH(RESTART_RSP_BUFFER_SIZE)
 	)restart_response_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -411,7 +421,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(2)
+		.DEPTH(WED_RSP_BUFFER_SIZE)
 	)wed_response_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -435,7 +445,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(2)
+		.DEPTH(WED_DATA_BUFFER_SIZE)
 	)wed_read_data_0_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -455,7 +465,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(2)
+		.DEPTH(WED_DATA_BUFFER_SIZE)
 	)wed_read_data_1_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -480,7 +490,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(256)
+		.DEPTH(READ_DATA_BUFFER_SIZE)
 	)cu_read_data_0_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -500,7 +510,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(256)
+		.DEPTH(READ_DATA_BUFFER_SIZE)
 	)cu_read_data_1_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -522,7 +532,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(256)
+		.DEPTH(WRITE_DATA_BUFFER_SIZE)
 	)cu_write_data_0_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -541,7 +551,7 @@ module afu_control  #(parameter NUM_REQUESTS = 4)(
 
 	fifo  #(
 		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(256)
+		.DEPTH(WRITE_DATA_BUFFER_SIZE)
 	)cu_write_data_1_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),

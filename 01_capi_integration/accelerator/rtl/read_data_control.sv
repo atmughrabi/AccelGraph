@@ -16,7 +16,6 @@ module read_data_control (
   logic odd_parity;
   logic tag_parity;
   logic tag_parity_link;
-  logic [0:7] data_write_parity;
   logic [0:7] data_write_parity_latched;
   logic write_valid_latched;
   logic [0:7] data_write_parity_link;
@@ -148,17 +147,6 @@ module read_data_control (
     .par(tag_parity_link)
   );
 
-  always_ff @(posedge clock or negedge rstn) begin
-    if(~rstn) begin
-      data_write_parity  <= 8'hff;
-    end else begin
-      if(enabled && buffer_in.write_valid) begin
-        data_write_parity  <= buffer_in.write_parity;
-      end else begin
-        data_write_parity  <= 8'hff;
-      end
-    end
-  end
 
   dw_parity #(
     .DOUBLE_WORDS(8)
