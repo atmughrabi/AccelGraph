@@ -438,7 +438,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	fifo  #(
 		.WIDTH($bits(EdgeInterface)),
-		.DEPTH(256)
+		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
 	)edge_job_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),

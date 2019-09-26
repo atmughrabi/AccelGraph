@@ -402,7 +402,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	fifo  #(
 		.WIDTH($bits(VertexInterface)),
-		.DEPTH(256)
+		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
 	)vertex_job_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -426,7 +426,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_read_command_cu
 			fifo  #(
 				.WIDTH($bits(CommandBufferLine)),
-				.DEPTH((256))
+				.DEPTH(READ_CMD_BUFFER_SIZE)
 			)read_command_cu_buffer_fifo_instant(
 				.clock(clock),
 				.rstn(rstn),
@@ -451,7 +451,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_write_command_cu
 			fifo  #(
 				.WIDTH($bits(CommandBufferLine)),
-				.DEPTH((256))
+				.DEPTH(WRITE_CMD_BUFFER_SIZE)
 			)write_command_cu_buffer_fifo_instant(
 				.clock(clock),
 				.rstn(rstn),
@@ -477,7 +477,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_write_data_0_cu
 			fifo  #(
 				.WIDTH($bits(ReadWriteDataLine)),
-				.DEPTH(256)
+				.DEPTH(WRITE_DATA_BUFFER_SIZE)
 			)write_data_cu_0_buffer_fifo_instant(
 				.clock(clock),
 				.rstn(rstn),
@@ -500,7 +500,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_write_data_1_cu
 			fifo  #(
 				.WIDTH($bits(ReadWriteDataLine)),
-				.DEPTH(256)
+				.DEPTH(WRITE_DATA_BUFFER_SIZE)
 			)write_data_cu_1_buffer_fifo_instant(
 				.clock(clock),
 				.rstn(rstn),

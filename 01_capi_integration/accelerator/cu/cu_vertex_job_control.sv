@@ -501,7 +501,7 @@ module cu_vertex_job_control (
 
 	fifo  #(
 		.WIDTH($bits(VertexInterface)),
-		.DEPTH(256)
+		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
 	)vertex_job_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),

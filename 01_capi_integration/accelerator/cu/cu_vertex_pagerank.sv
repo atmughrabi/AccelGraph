@@ -326,7 +326,7 @@ module cu_vertex_pagerank #(
 
 	fifo  #(
 		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(256)
+		.DEPTH(READ_DATA_BUFFER_SIZE)
 	)read_data_cu_0_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -344,7 +344,7 @@ module cu_vertex_pagerank #(
 
 	fifo  #(
 		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(256)
+		.DEPTH(READ_DATA_BUFFER_SIZE)
 	)read_data_cu_1_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -360,6 +360,12 @@ module cu_vertex_pagerank #(
 		.empty(read_data_1_buffer_status.empty));
 
 	////////////////////////////////////////////////////////////////////////////
+	// Write DATA Buffers
+	////////////////////////////////////////////////////////////////////////////
+
+	
+
+	////////////////////////////////////////////////////////////////////////////
 	// Read/Write Response Buffers
 	////////////////////////////////////////////////////////////////////////////
 
@@ -368,7 +374,7 @@ module cu_vertex_pagerank #(
 
 	fifo  #(
 		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(256)
+		.DEPTH(READ_RSP_BUFFER_SIZE)
 	)read_response_cu_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -385,7 +391,7 @@ module cu_vertex_pagerank #(
 
 	fifo  #(
 		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(256)
+		.DEPTH(WRITE_RSP_BUFFER_SIZE)
 	)write_response_cu_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),

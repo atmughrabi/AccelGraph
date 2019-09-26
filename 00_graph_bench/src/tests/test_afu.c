@@ -125,11 +125,10 @@ struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
 #endif
 #endif
 
-    wed->auxiliary1 = 0;
-    wed->auxiliary2 = 0;
+
 
     wed->done = 0;
- 
+
     return wed;
 }
 
@@ -246,20 +245,21 @@ void printWEDGraphCSRVertex(struct  WEDGraphCSR *wed)
     for (i = 0; i <  wed->num_vertices; ++i)
     {
         printf("v-> %u\n", i);
-        printf("  wed->vertex_out_degree: %u\n",    ((__u32 *)wed->vertex_out_degree)[i]);
-        printf("  wed->vertex_in_degree: %u\n",     ((__u32 *)wed->vertex_in_degree)[i]);
-        printf("  wed->vertex_edges_idx: %u\n",     ((__u32 *)wed->vertex_edges_idx)[i]);
+        // printf("  wed->vertex_out_degree: %u\n",    ((__u32 *)wed->vertex_out_degree)[i]);
+        // printf("  wed->vertex_in_degree: %u\n",     ((__u32 *)wed->vertex_in_degree)[i]);
+        // printf("  wed->vertex_edges_idx: %u\n",     ((__u32 *)wed->vertex_edges_idx)[i]);
 
 #if DIRECTED
         printf("  wed->inverse_vertex_out_degree:%u\n", ((__u32 *)wed->inverse_vertex_out_degree)[i]);
-        printf("  wed->inverse_vertex_in_degree: %u\n", ((__u32 *)wed->inverse_vertex_in_degree)[i]);
-        printf("  wed->inverse_vertex_edges_idx: %u\n", ((__u32 *)wed->inverse_vertex_edges_idx)[i]);
+        printf("  wed->prnext: %u\n", ((__u32 *)wed->auxiliary2)[i]);
+        // printf("  wed->inverse_vertex_edges_idx: %u\n", ((__u32 *)wed->inverse_vertex_edges_idx)[i]);
 #endif
     }
-    printf("\n");
-    for(i= 0; i < wed->num_edges ; i++){
-        printf("%u src:  %u dest %u\n",i, ((__u32 *)wed->inverse_edges_array_src)[i], ((__u32 *)wed->inverse_edges_array_dest)[i]);
-    }
+    // printf("\n");
+    // for(i = 0; i < wed->num_edges ; i++)
+    // {
+    //     printf("%u src:  %u dest %u\n", i, ((__u32 *)wed->inverse_edges_array_src)[i], ((__u32 *)wed->inverse_edges_array_dest)[i]);
+    // }
 
 }
 
@@ -270,7 +270,7 @@ main (int argc, char **argv)
     struct cxl_afu_h *afu;
     struct WEDGraphCSR *wedGraphCSR;
 
-    
+
 
 
     struct Arguments arguments;
@@ -294,8 +294,8 @@ main (int argc, char **argv)
     arguments.delta = 1;
     arguments.numThreads = 4;
     // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
-    arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
-    // arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
+    // arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
+    arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
     arguments.convert_format = 1;
@@ -305,6 +305,7 @@ main (int argc, char **argv)
     numThreads =  arguments.numThreads;
 
     struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
+
 
     mt19937var = (mt19937state *) my_malloc(sizeof(mt19937state));
     initializeMersenneState (mt19937var, 27491095);
@@ -321,14 +322,35 @@ main (int argc, char **argv)
 
 
 
+
     // ********************************************************************************************
     // ***************                  CSR DataStructure                            **************
     // ********************************************************************************************
 
 
     graph = generateGraphDataStructure(&arguments);
+
+
+    __u32 *divclause = (__u32 *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(__u32));
+    __u32 *prnext = (__u32 *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(__u32));
+
+    for (__u32 i = 0; i < ((struct GraphCSR *)graph)->num_vertices; ++i)
+    {
+        divclause[i] = 1;
+        prnext[i] = 0;
+    }
+
     // (struct GraphCSR *)graph
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+
+    wedGraphCSR->auxiliary1 = divclause;
+    wedGraphCSR->auxiliary2 = prnext;
+
+    // ********************************************************************************************
+    // ***************                  CSR DataStructure                            **************
+    // ********************************************************************************************
+
+
     printWEDGraphCSRVertex(wedGraphCSR);
 
     printWEDGraphCSRPointers(wedGraphCSR);
@@ -357,7 +379,7 @@ main (int argc, char **argv)
 
     uint64_t algo_status = 0;
     uint64_t num_cu      = 64;
-    uint64_t error = 0;
+    uint64_t error       = 0;
 
     cxl_mmio_write64(afu, ALGO_REQUEST, num_cu);
 
@@ -365,13 +387,7 @@ main (int argc, char **argv)
     do
     {
         cxl_mmio_read64(afu, ALGO_STATUS, &algo_status);
-      
-        
-
         cxl_mmio_read64(afu, ERROR_REG, &error);
-      
-        // if(algo_status)
-        //     break;
     }
     while((!algo_status) && (!error));
 

@@ -308,7 +308,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	fifo  #(
 		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(64)
+		.DEPTH(READ_CMD_BUFFER_SIZE)
 	)read_command_job_vertex_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),
@@ -329,7 +329,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	fifo  #(
 		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(256)
+		.DEPTH(READ_CMD_BUFFER_SIZE)
 	)read_command_graph_algorithm_buffer_fifo_instant(
 		.clock(clock),
 		.rstn(rstn),

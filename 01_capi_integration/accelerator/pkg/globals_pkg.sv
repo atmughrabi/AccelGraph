@@ -11,8 +11,11 @@ package GLOBALS_PKG;
 	parameter NUM_GRAPH_CU_GLOBAL        = 1;
 	parameter NUM_VERTEX_CU_GLOBAL       = 64;
 
+	parameter CU_VERTEX_JOB_BUFFER_SIZE = 256; 
+	parameter CU_EDGE_JOB_BUFFER_SIZE   = 256; 
+
 ////////////////////////////////////////////////////////////////////////////
-//  AFU-Control CAPI Globals
+//   CU-Control/AFU-Control CAPI Globals
 ////////////////////////////////////////////////////////////////////////////
 
 	parameter CACHELINE_SIZE         = 128; // cacheline is 128bytes
