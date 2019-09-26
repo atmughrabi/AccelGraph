@@ -4,31 +4,44 @@ import AFU_PKG::*;
 
 
 module command_control (
-  input logic clock,    // Clock
-  input logic rstn,
-  input logic enabled,
-  input CommandBufferLine command_arbiter_in,
-  input logic [3:0] ready,
-  input logic [0:7] command_tag_in,
+  input  logic                  clock             , // Clock
+  input  logic                  rstn              ,
+  input  logic                  enabled_in        ,
+  input  CommandBufferLine      command_arbiter_in,
+  input  logic [3:0]            ready             ,
+  input  logic [0:7]            command_tag_in    ,
   output CommandInterfaceOutput command_out
 );
 
 
   logic odd_parity;
 
-  logic wed_request;
-  logic write_request;
-  logic read_request;
-  logic restart_request;
+  logic                  wed_request      ;
+  logic                  write_request    ;
+  logic                  read_request     ;
+  logic                  restart_request  ;
   CommandInterfaceOutput command_out_latch;
 
-  assign odd_parity                       = 1'b1; // Odd parity
-  assign command_out_latch.abt            = STRICT;
+  assign odd_parity            = 1'b1; // Odd parity
+  assign command_out_latch.abt = STRICT;
   // assign command_out_latch.abt            = ABORT;
   // assign command_out_latch.abt            = PERF;
   // assign command_out_latch.abt            = PAGE;
   // assign command_out_latch.abt            = SPEC;
   assign command_out_latch.context_handle = 16'h00; // dedicated mode cch always zero
+  logic enabled;
+
+////////////////////////////////////////////////////////////////////////////
+//enable logic
+////////////////////////////////////////////////////////////////////////////
+
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      enabled <= 0;
+    end else begin
+      enabled <= enabled_in;
+    end
+  end
 
 ////////////////////////////////////////////////////////////////////////////
 //request type
@@ -56,11 +69,13 @@ module command_control (
       command_out_latch.size    <= 12'h000;
     end
     else begin
-      command_out_latch.valid   <= command_arbiter_in.valid;
-      command_out_latch.command <= command_arbiter_in.command;
-      command_out_latch.address <= command_arbiter_in.address;
-      command_out_latch.tag     <= command_tag_in;
-      command_out_latch.size    <= command_arbiter_in.size;
+      if(enabled) begin
+        command_out_latch.valid   <= command_arbiter_in.valid;
+        command_out_latch.command <= command_arbiter_in.command;
+        command_out_latch.address <= command_arbiter_in.address;
+        command_out_latch.tag     <= command_tag_in;
+        command_out_latch.size    <= command_arbiter_in.size;
+      end
     end
   end // always_ff @(posedge clock)
 
@@ -70,28 +85,22 @@ module command_control (
 ////////////////////////////////////////////////////////////////////////////
 
 //Generate parity for command tag, command code, and cea. Latch parity info.
-  parity #(
-    .BITS(8)
-  ) tag_parity_instant (
-    .data(command_out_latch.tag),
-    .odd(odd_parity),
-    .par(command_out_latch.tag_parity)
+  parity #(.BITS(8)) tag_parity_instant (
+    .data(command_out_latch.tag       ),
+    .odd (odd_parity                  ),
+    .par (command_out_latch.tag_parity)
   );
 
-  parity #(
-    .BITS(13)
-  ) command_parity_instant (
-    .data(command_out_latch.command),
-    .odd(odd_parity),
-    .par(command_out_latch.command_parity )
+  parity #(.BITS(13)) command_parity_instant (
+    .data(command_out_latch.command       ),
+    .odd (odd_parity                      ),
+    .par (command_out_latch.command_parity)
   );
 
-  parity #(
-    .BITS(64)
-  ) address_parity_instant (
-    .data(command_out_latch.address),
-    .odd(odd_parity),
-    .par(command_out_latch.address_parity )
+  parity #(.BITS(64)) address_parity_instant (
+    .data(command_out_latch.address       ),
+    .odd (odd_parity                      ),
+    .par (command_out_latch.address_parity)
   );
 
 

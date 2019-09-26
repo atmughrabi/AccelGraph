@@ -233,6 +233,8 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
 #endif
 #endif
 
+    printf("  wed->auxiliary1: %p\n", wed->auxiliary1);
+    printf("  wed->auxiliary2: %p\n", wed->auxiliary2);
     printf("  wed->done: %p\n", &(wed->done));
 
 }
@@ -293,9 +295,9 @@ main (int argc, char **argv)
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
-    // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
+    arguments.fnameb = "../03_test_graphs/test/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
-    arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
+    // arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
     arguments.convert_format = 1;
@@ -351,7 +353,7 @@ main (int argc, char **argv)
     // ********************************************************************************************
 
 
-    printWEDGraphCSRVertex(wedGraphCSR);
+    // printWEDGraphCSRVertex(wedGraphCSR);
 
     printWEDGraphCSRPointers(wedGraphCSR);
 

@@ -12,30 +12,30 @@ package WED_PKG;
   } wed_state;
 
   typedef struct packed{
-    logic [0:31] num_edges;                   // 4-Bytes
-    logic [0:31] num_vertices;                // 4-Bytes
-    logic [0:31] max_weight;                  // 4-Bytes
-    logic [0:63] vertex_out_degree;           // 8-Bytes
-    logic [0:63] vertex_in_degree;            // 8-Bytes
-    logic [0:63] vertex_edges_idx;            // 8-Bytes
-    logic [0:63] edges_array_weight;          // 8-Bytes
-    logic [0:63] edges_array_src;             // 8-Bytes
-    logic [0:63] edges_array_dest;            // 8-Bytes
-    logic [0:63] inverse_vertex_out_degree;   // 8-Bytes
-    logic [0:63] inverse_vertex_in_degree;    // 8-Bytes
-    logic [0:63] inverse_vertex_edges_idx;    // 8-Bytes
-    logic [0:63] inverse_edges_array_weight;  // 8-Bytes
-    logic [0:63] inverse_edges_array_src;     // 8-Bytes
-    logic [0:63] inverse_edges_array_dest;    // 8-Bytes
-    logic [0:63] auxiliary1;                  // 8-Bytes
-    logic [0:63] auxiliary2;                  // 8-Bytes
-    logic [0:31] done;                        // 4-Bytes
+    logic [0:31] num_edges                 ; // 4-Bytes
+    logic [0:31] num_vertices              ; // 4-Bytes
+    logic [0:31] max_weight                ; // 4-Bytes
+    logic [0:63] vertex_out_degree         ; // 8-Bytes
+    logic [0:63] vertex_in_degree          ; // 8-Bytes
+    logic [0:63] vertex_edges_idx          ; // 8-Bytes
+    logic [0:63] edges_array_weight        ; // 8-Bytes
+    logic [0:63] edges_array_src           ; // 8-Bytes
+    logic [0:63] edges_array_dest          ; // 8-Bytes
+    logic [0:63] inverse_vertex_out_degree ; // 8-Bytes
+    logic [0:63] inverse_vertex_in_degree  ; // 8-Bytes
+    logic [0:63] inverse_vertex_edges_idx  ; // 8-Bytes
+    logic [0:63] inverse_edges_array_weight; // 8-Bytes
+    logic [0:63] inverse_edges_array_src   ; // 8-Bytes
+    logic [0:63] inverse_edges_array_dest  ; // 8-Bytes
+    logic [0:63] auxiliary1                ; // 8-Bytes
+    logic [0:63] auxiliary2                ; // 8-Bytes
+    logic [0:31] done                      ; // 4-Bytes
   } WED_request;// 108-bytes used from 128-Bytes WED
 
   typedef struct packed{
-    logic valid;
+    logic        valid  ;
     logic [0:63] address;
-    WED_request wed;
+    WED_request  wed    ;
   } WEDInterface;
 
 

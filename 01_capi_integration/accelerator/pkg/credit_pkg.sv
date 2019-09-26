@@ -5,10 +5,10 @@ package CREDIT_PKG;
 
 
 	typedef struct packed{
-		logic valid_request;
-		logic valid_response;
-		logic [0:8] response_credits;
-		CommandInterfaceInput command_in;
+		logic                 valid_request   ;
+		logic                 valid_response  ;
+		logic [0:8]           response_credits;
+		CommandInterfaceInput command_in      ;
 	} CreditInterfaceInput;
 
 

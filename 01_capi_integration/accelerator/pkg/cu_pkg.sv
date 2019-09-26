@@ -1,7 +1,7 @@
 package CU_PKG;
 
 // Relating to Vertex int types and sizes
-	
+
 	import GLOBALS_PKG::*;
 
 	typedef enum int unsigned{
@@ -51,21 +51,21 @@ package CU_PKG;
 
 // Vertex data to travers neighbors
 	typedef struct packed {
-		logic valid;
-		logic [0:(VERTEX_SIZE_BITS-1)] id;
-		logic [0:(VERTEX_SIZE_BITS-1)] in_degree;
-		logic [0:(VERTEX_SIZE_BITS-1)] out_degree;
-		logic [0:(VERTEX_SIZE_BITS-1)] edges_idx;
-		logic [0:(VERTEX_SIZE_BITS-1)] inverse_in_degree;
+		logic                          valid             ;
+		logic [0:(VERTEX_SIZE_BITS-1)] id                ;
+		logic [0:(VERTEX_SIZE_BITS-1)] in_degree         ;
+		logic [0:(VERTEX_SIZE_BITS-1)] out_degree        ;
+		logic [0:(VERTEX_SIZE_BITS-1)] edges_idx         ;
+		logic [0:(VERTEX_SIZE_BITS-1)] inverse_in_degree ;
 		logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree;
-		logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx;
+		logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx ;
 	} VertexInterface;
 
 	typedef struct packed {
-		logic valid;
-		logic [0:(EDGE_SIZE_BITS-1)] id;
-		logic [0:(EDGE_SIZE_BITS-1)] src;
-		logic [0:(EDGE_SIZE_BITS-1)] dest;
+		logic                        valid ;
+		logic [0:(EDGE_SIZE_BITS-1)] id    ;
+		logic [0:(EDGE_SIZE_BITS-1)] src   ;
+		logic [0:(EDGE_SIZE_BITS-1)] dest  ;
 		logic [0:(EDGE_SIZE_BITS-1)] weight;
 	} EdgeInterface;
 
@@ -105,8 +105,8 @@ package CU_PKG;
 		logic [0:(CACHELINE_SIZE_BITS-1)] cacheline_out;
 
 		cacheline_out = cacheline_in;
-		
-		
+
+
 		if(0 == shift_seek) begin
 			cacheline_out = {{(0*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(0*VERTEX_SIZE_BITS))]};
 		end else if(1 == shift_seek) begin
@@ -171,8 +171,8 @@ package CU_PKG;
 			cacheline_out = {{(30*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(30*VERTEX_SIZE_BITS))]};
 		end else if(31 == shift_seek) begin
 			cacheline_out = {{(31*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(31*VERTEX_SIZE_BITS))]};
-		end 
-	
+		end
+
 		return cacheline_out;
 
 	endfunction : seek_cacheline
