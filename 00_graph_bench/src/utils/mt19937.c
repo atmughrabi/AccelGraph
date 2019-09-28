@@ -1,3 +1,17 @@
+// -----------------------------------------------------------------------------
+//
+//      "00_AccelGraph"
+//
+// -----------------------------------------------------------------------------
+// Copyright (c) 2014-2019 All rights reserved
+// -----------------------------------------------------------------------------
+// Author : Abdullah Mughrabi
+// Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
+// File   : mt19937.c
+// Create : 2019-06-21 17:15:17
+// Revise : 2019-09-28 15:37:12
+// Editor : Abdullah Mughrabi
+// -----------------------------------------------------------------------------
 /* A C-program for MT19937: Real number version (1999/10/28)    */
 /*   genrand() generates one pseudorandom real number (double)  */
 /* which is uniformly distributed on [0,1]-interval, for each   */

@@ -1,3 +1,17 @@
+// -----------------------------------------------------------------------------
+//
+//      "00_AccelGraph"
+//
+// -----------------------------------------------------------------------------
+// Copyright (c) 2014-2019 All rights reserved
+// -----------------------------------------------------------------------------
+// Author : Abdullah Mughrabi
+// Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
+// File   : test_fixedpoint.c
+// Create : 2019-06-21 17:15:17
+// Revise : 2019-09-28 15:36:29
+// Editor : Abdullah Mughrabi
+// -----------------------------------------------------------------------------
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

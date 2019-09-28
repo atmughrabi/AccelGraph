@@ -1,3 +1,17 @@
+// -----------------------------------------------------------------------------
+//
+//      "00_AccelGraph"
+//
+// -----------------------------------------------------------------------------
+// Copyright (c) 2014-2019 All rights reserved
+// -----------------------------------------------------------------------------
+// Author : Abdullah Mughrabi
+// Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
+// File   : dynamicQueue.c
+// Create : 2019-06-21 17:15:17
+// Revise : 2019-09-28 15:36:13
+// Editor : Abdullah Mughrabi
+// -----------------------------------------------------------------------------
 // A C program to demonstrate linked list based implementation of DynamicQueue
 #include <stdlib.h>
 #include <stdio.h>

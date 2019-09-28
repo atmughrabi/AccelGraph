@@ -1,3 +1,18 @@
+// -----------------------------------------------------------------------------
+//
+//      "00_AccelGraph"
+//
+// -----------------------------------------------------------------------------
+// Copyright (c) 2014-2019 All rights reserved
+// -----------------------------------------------------------------------------
+// Author : Abdullah Mughrabi
+// Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
+// File   : incrementalAggregation.c
+// Create : 2019-09-28 15:34:51
+// Revise : 2019-09-28 15:38:11
+// Editor : Abdullah Mughrabi
+// -----------------------------------------------------------------------------
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
