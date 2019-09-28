@@ -1,3 +1,17 @@
+// -----------------------------------------------------------------------------
+//
+//		"ACCEL-GRAPH Shared Memory Accelerator Project"
+//
+// -----------------------------------------------------------------------------
+// Copyright (c) 2014-2019 All rights reserved
+// -----------------------------------------------------------------------------
+// Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
+// File   : cu_graph_algorithm_control.sv
+// Create : 2019-09-26 15:19:08
+// Revise : 2019-09-28 12:44:08
+// Editor : sublime text3, tab size (4)
+// -----------------------------------------------------------------------------
+
 import GLOBALS_PKG::*;
 import CAPI_PKG::*;
 import WED_PKG::*;
@@ -8,6 +22,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	input  logic                          clock                  , // Clock
 	input  logic                          rstn                   ,
 	input  logic                          enabled_in             ,
+	input  logic [                  0:63] algorithm_requests     ,
 	input  WEDInterface                   wed_request_in         ,
 	input  ResponseBufferLine             read_response_in       ,
 	input  ResponseBufferLine             write_response_in      ,
@@ -68,6 +83,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	BufferStatus              write_command_buffer_states_cu[0:NUM_VERTEX_CU-1];
 	logic [NUM_VERTEX_CU-1:0] ready_write_command_cu                           ;
 	logic [NUM_VERTEX_CU-1:0] request_write_command_cu                         ;
+	logic [NUM_VERTEX_CU-1:0] enable_cu                                        ;
+	logic [NUM_VERTEX_CU-1:0] enable_cu_latched                                ;
 
 	BufferStatus      write_data_0_buffer_states_cu[0:NUM_VERTEX_CU-1];
 	BufferStatus      write_data_1_buffer_states_cu[0:NUM_VERTEX_CU-1];
@@ -95,7 +112,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	logic [              0:1] request_pulse                                   ;
 	logic [              0:2] request_pulse_vertex                            ;
 	logic                     enabled                                         ;
-
+	logic [             0:63] algorithm_requests_latched                      ;
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -121,25 +138,27 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 			write_data_0_out  <= 0;
 			write_data_1_out  <= 0;
 			read_command_out  <= 0;
-			// vertex_job_request <= 0;
+
+			// vertex_job_request              <= 0;
 		end else begin
 			write_command_out <= write_command_out_latched;
 			write_data_0_out  <= write_data_0_out_latched;
 			write_data_1_out  <= write_data_1_out_latched;
 			read_command_out  <= read_command_out_latched;
-			// vertex_job_request <= vertex_job_request_latched;
+
+			// vertex_job_request              <= vertex_job_request_latched;
 		end
 	end
 
 	// drive inputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched    <= 0;
-			read_response_in_latched  <= 0;
-			write_response_in_latched <= 0;
-			read_data_0_in_latched    <= 0;
-			read_data_1_in_latched    <= 0;
-			// vertex_job_latched         <= 0;
+			wed_request_in_latched     <= 0;
+			read_response_in_latched   <= 0;
+			write_response_in_latched  <= 0;
+			read_data_0_in_latched     <= 0;
+			read_data_1_in_latched     <= 0;
+			algorithm_requests_latched <= 0;
 		end else begin
 			if(enabled)begin
 				wed_request_in_latched    <= wed_request_in;
@@ -147,6 +166,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 				write_response_in_latched <= write_response_in;
 				read_data_0_in_latched    <= read_data_0_in;
 				read_data_1_in_latched    <= read_data_1_in;
+				if((|algorithm_requests))
+					algorithm_requests_latched <= algorithm_requests;
 				// vertex_job_latched     <= vertex_job;
 			end
 		end
@@ -161,6 +182,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	integer jj ;
 	integer kkk;
 	integer jjj;
+	integer iii;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Request Pulse generation
@@ -183,12 +205,29 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	end
 
 	////////////////////////////////////////////////////////////////////////////
+	// Enable logic
+	////////////////////////////////////////////////////////////////////////////
+
+	always_comb  begin
+		for (iii = 0; iii < NUM_VERTEX_CU; iii++) begin
+			if(enabled && (iii < algorithm_requests_latched))
+				enable_cu_latched[iii] = 1;
+			else
+				enable_cu_latched[iii] = 0;
+		end
+	end
+
+	always_ff @(posedge clock) begin
+		enable_cu <= enable_cu_latched;
+	end
+
+	////////////////////////////////////////////////////////////////////////////
 	// Vertex job request Arbitration
 	////////////////////////////////////////////////////////////////////////////
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_request_vertex_job_cu
-			assign request_vertex_job_cu_latched[i] = ~vertex_buffer_status_internal.empty && request_vertex_job_cu[i] && ~(|request_pulse_vertex);
+			assign request_vertex_job_cu_latched[i] = enable_cu[i] && ~vertex_buffer_status_internal.empty && request_vertex_job_cu[i] && ~(|request_pulse_vertex);
 		end
 	endgenerate
 
@@ -212,7 +251,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_request_read_command_cu
-			assign request_read_command_cu[i] = ~read_command_buffer_states_cu[i].empty && ~read_buffer_status.alfull && ~(|request_pulse);
+			assign request_read_command_cu[i] = enable_cu[i] && ~read_command_buffer_states_cu[i].empty && ~read_buffer_status.alfull && ~(|request_pulse);
 		end
 	endgenerate
 
@@ -227,7 +266,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		.buffer_in  (read_command_arbiter_cu),
 		.requests   (request_read_command_cu),
 		.arbiter_out(read_command_out_latched),
-		.ready      (ready_read_command_cu));
+		.ready      (ready_read_command_cu)
+	);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex CU Write Command/ Write Data Arbitration
@@ -235,7 +275,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_request_write_command_cu
-			assign request_write_command_cu[i] = ~write_command_buffer_states_cu[i].empty && ~write_buffer_status.alfull && ~(|request_pulse);
+			assign request_write_command_cu[i] = enable_cu[i] && ~write_command_buffer_states_cu[i].empty && ~write_buffer_status.alfull && ~(|request_pulse);
 		end
 	endgenerate
 
@@ -250,7 +290,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		.buffer_in  (write_command_arbiter_cu),
 		.requests   (request_write_command_cu),
 		.arbiter_out(write_command_out_latched),
-		.ready      (ready_write_command_cu));
+		.ready      (ready_write_command_cu)
+	);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex CU Write Command/ Write Data Arbitration
@@ -343,7 +384,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 				(
 					.clock               (clock),
 					.rstn                (rstn),
-					.enabled             (enabled),
+					.enabled_in          (enable_cu[i]),
 					.wed_request_in      (wed_request_in_latched),
 					.read_response_in    (read_response_cu[i]),
 					.write_response_in   (write_response_cu[i]),
@@ -358,7 +399,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 					.vertex_job          (vertex_job_cu[i]),
 					.vertex_job_request  (request_vertex_job_cu[i]),
 					.vertex_num_counter  (vertex_num_counter_cu[i]),
-					.edge_num_counter    (edge_num_counter_cu[i]));
+					.edge_num_counter    (edge_num_counter_cu[i])
+				);
 		end
 	endgenerate
 

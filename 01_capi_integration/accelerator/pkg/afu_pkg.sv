@@ -1,3 +1,17 @@
+// -----------------------------------------------------------------------------
+//
+//    "ACCEL-GRAPH Shared Memory Accelerator Project"
+//
+// -----------------------------------------------------------------------------
+// Copyright (c) 2014-2019 All rights reserved
+// -----------------------------------------------------------------------------
+// Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
+// File   : afu_pkg.sv
+// Create : 2019-09-26 15:19:52
+// Revise : 2019-09-26 15:19:52
+// Editor : sublime text3, tab size (2)
+// -----------------------------------------------------------------------------
+
 package AFU_PKG;
 
   import GLOBALS_PKG::*;

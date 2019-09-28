@@ -827,7 +827,7 @@ cache-perf-openmp: graph-openmp
 run-capi: graph-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
 
-PHONY: run-test-capi
+.PHONY: run-test-capi
 run-test-capi: test-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi
 

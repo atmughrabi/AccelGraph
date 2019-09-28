@@ -295,8 +295,8 @@ main (int argc, char **argv)
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
-    arguments.fnameb = "../03_test_graphs/test/graph.wbin";
-    // arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
+    // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
+    arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
@@ -380,7 +380,7 @@ main (int argc, char **argv)
     }
 
     uint64_t algo_status = 0;
-    uint64_t num_cu      = 64;
+    uint64_t num_cu      = 32;
     uint64_t error       = 0;
 
     cxl_mmio_write64(afu, ALGO_REQUEST, num_cu);

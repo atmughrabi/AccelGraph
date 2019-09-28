@@ -1,3 +1,17 @@
+// -----------------------------------------------------------------------------
+//
+//      "ACCEL-GRAPH Shared Memory Accelerator Project"
+//
+// -----------------------------------------------------------------------------
+// Copyright (c) 2014-2019 All rights reserved
+// -----------------------------------------------------------------------------
+// Author : Gregory Walter https://github.com/gsw73/sync_fifo_0.git
+// File   : fifo.sv
+// Create : 2019-09-26 15:21:09
+// Revise : 2019-09-26 15:21:09
+// Editor : sublime text3, tab size (4)
+// -----------------------------------------------------------------------------
+
 module fifo #(
     parameter WIDTH     = 24,
     parameter DEPTH     = 32,

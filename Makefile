@@ -1,4 +1,6 @@
 
+##################################################
+
 APP_DIR           	= .
 BENCHMARKS_DIR      = 00_graph_bench
 NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
@@ -167,7 +169,7 @@ run-aladdin-force :
 run-capi:
 	$(MAKE) run-capi $(ARGS)
 
-PHONY: run-test-capi
+.PHONY: run-test-capi
 run-test-capi:
 	$(MAKE) run-test-capi $(ARGS)
 

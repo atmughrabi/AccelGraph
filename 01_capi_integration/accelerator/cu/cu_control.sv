@@ -1,3 +1,16 @@
+// -----------------------------------------------------------------------------
+//
+//		"ACCEL-GRAPH Shared Memory Accelerator Project"
+//
+// -----------------------------------------------------------------------------
+// Copyright (c) 2014-2019 All rights reserved
+// -----------------------------------------------------------------------------
+// Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
+// File   : cu_control.sv
+// Create : 2019-09-26 15:18:39
+// Revise : 2019-09-26 16:24:22
+// Editor : sublime text3, tab size (4)
+// -----------------------------------------------------------------------------
 
 import GLOBALS_PKG::*;
 import CAPI_PKG::*;
@@ -150,12 +163,13 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			algorithm_requests_latched <= 0;
 		end else begin
 			if(enabled)begin
-				wed_request_in_latched     <= wed_request_in;
-				read_response_in_latched   <= read_response_in;
-				write_response_in_latched  <= write_response_in;
-				read_data_0_in_latched     <= read_data_0_in;
-				read_data_1_in_latched     <= read_data_1_in;
-				algorithm_requests_latched <= algorithm_requests;
+				wed_request_in_latched    <= wed_request_in;
+				read_response_in_latched  <= read_response_in;
+				write_response_in_latched <= write_response_in;
+				read_data_0_in_latched    <= read_data_0_in;
+				read_data_1_in_latched    <= read_data_1_in;
+				if((|algorithm_requests))
+					algorithm_requests_latched <= algorithm_requests;
 			end
 		end
 	end
@@ -297,6 +311,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.clock                  (clock                                     ),
 		.rstn                   (rstn                                      ),
 		.enabled_in             (enabled                                   ),
+		.algorithm_requests     (algorithm_requests_latched                ),
 		.wed_request_in         (wed_request_in_latched                    ),
 		.read_response_in       (read_response_graph_algorithm             ),
 		.write_response_in      (write_response_in_latched                 ),
