@@ -1544,6 +1544,7 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
     return stats;
 }
 
+//done by mohannad Ibranim
 //v_0: No need for next iteration's quantization parameters. (eqn 1)
 struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
 {
@@ -1684,6 +1685,7 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  __u32 iteration
     return stats;
 }
 
+//done by mohannad Ibranim
 struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
 {
   //QUANT_SCALE = 16;
@@ -1743,8 +1745,8 @@ struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  __u32 iteration
     getMinMax(&rDivD_params, riDividedOnDiClause, graph->num_vertices);
     rDivD_params.scale = GetScale(rDivD_params.min, rDivD_params.max);
     rDivD_params.zero = GetZeroPoint(rDivD_params.max,rDivD_params.scale);
-    printf("Itaration %d's quant parameters:\n\tMin = %f,\tMax = %f\nScale = %f,\tZero = %d\n......................",
-    stats->iterations,rDivD_params.min,rDivD_params.max,rDivD_params.scale,rDivD_params.zero);
+    // printf("Itaration %d's quant parameters:\n\tMin = %f,\tMax = %f\nScale = %f,\tZero = %d\n......................",
+    // stats->iterations,rDivD_params.min,rDivD_params.max,rDivD_params.scale,rDivD_params.zero);
 
     //2. Quantize riDividedOnDiClause[]
     #pragma omp parallel for private(v) shared(riDividedOnDiClause_quant,riDividedOnDiClause,stats,graph)

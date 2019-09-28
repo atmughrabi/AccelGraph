@@ -89,7 +89,7 @@ GRAPH_NAME = p2p-Gnutella31
 # FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
 
 #WEIGHTED
-FILE_BIN = $(BENCHMARKS_DIR)/out.txt.wbin
+FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 
 
 
@@ -100,13 +100,13 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 1
 
 ROOT 			= 43608
-PULL_PUSH 		= 0
+PULL_PUSH 		= 5
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
 NUM_THREADS  	= 1
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-NUM_ITERATIONS 	= 1
+NUM_ITERATIONS 	= 100
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1

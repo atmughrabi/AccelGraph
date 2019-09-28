@@ -4,7 +4,7 @@
 
 #include <linux/types.h>
 
-#define QUANT_SCALE 16
+#define QUANT_SCALE 32
 
 
 #if QUANT_SCALE == 8
