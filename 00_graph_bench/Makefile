@@ -6,8 +6,8 @@
   GAPP               = accel-graph
 
 # test name needs to match the file name test/test_accel-graph.c
-#   GAPP_TEST          = test_accel-graph
-  GAPP_TEST          = test_afu
+  GAPP_TEST          = test_accel-graph
+#   GAPP_TEST          = test_afu
 
 
 # dirs Root app 
