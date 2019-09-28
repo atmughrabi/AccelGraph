@@ -184,5 +184,9 @@ run-pslse:
 .PHONY: build-pslse
 build-pslse:
 	  $(MAKE) build-pslse $(ARGS)
+
+.PHONY: clean-sim
+clean-sim:
+	 $(MAKE) clean-sim $(ARGS)
 ##################################################
 ##################################################
