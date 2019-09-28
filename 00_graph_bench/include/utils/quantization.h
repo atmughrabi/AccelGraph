@@ -1,98 +1,107 @@
+// By mohannad Ibrahim
 #ifndef QUANTIZATION_H
 #define QUANTIZATION_H
 
 #include <linux/types.h>
 
-// typedef uint8_t  __u8;
+#define QUANT_SCALE 16
 
+
+#if QUANT_SCALE == 8
+
+    struct quant_params
+    {
+        float scale;
+        __u8 zero;  //zero point or  zero-offset
+        float min, max; //range
+    };
+
+    /* function to find min and max values simultanuously amongst the ranks (array)
+     it has an O(N) complexity*/
+    void getMinMax(struct quant_params * q_params, float * ranks, __u32 size);
+
+    //ranges for unisigned 8_bit quantization
+    #define RANGE_MAX (__u8)255
+    #define RANGE_MIN (__u8)0
+
+    #define ABS(num) ((num<0)?(-num):(num))
+    #define ROUND(num) (__u32)((num)>=0?((num)+0.5):((num)-0.5))
+
+    //to keep the number in the range 0 - 255
+    #define CLAMP(num,min,max) (num < min ? min : (num > max ? max : num))
+
+    //quantization parameters
+    #define GetScale(min,max) (float)(min == max ? 1.0 : ABS((max - min))/RANGE_MAX)
+    #define GetZeroPoint(max,scale) (__u8)CLAMP((RANGE_MAX - ROUND(max/scale)), RANGE_MIN, RANGE_MAX)
+
+    //quantize
+    #define quantize(num,scale,zero) (__u8)(CLAMP(ROUND(num/scale) + zero, RANGE_MIN, RANGE_MAX))
+    #define dequantize_f(num,scale,zero) (float)(scale*(CLAMP(num, RANGE_MIN, RANGE_MAX)))
+    #define dequantize_d(num,scale,zero) (double)(scale*(CLAMP(num, RANGE_MIN, RANGE_MAX)))
+
+
+#elif QUANT_SCALE == 16
 struct quant_params
 {
     float scale;
-    __u8 zero;    //zero point or  zero-offset
+    __u16 zero;  //zero point or  zero-offset
+    float min, max; //range
 };
-
-/* struct to be used to extract min and max values of ranks
-to be used in quantization scale calculations*/
-struct MinMax
-{
-    float min, max;
-};
-
-//ranges for unisigned 8bit quantization
-#define RANGE_MAX (__u8)255
-#define RANGE_MIN (__u8)0
-
-#define ABS(num) ((num<0)?(-num):(num))
-#define ROUND(num) ((num)>=0?(int)((num)+0.5):(int)((num)-0.5))
-
-//to keep the number in the range 0 - 255
-#define CLAMP(num,min,max) (num < min ? min : (num > max ? max : num))
-
-//quantization parameters
-#define GetZeroPoint(max,scale) (__u8)CLAMP((RANGE_MAX - ROUND(max/scale)), RANGE_MIN, RANGE_MAX)
-#define GetScale(min,max) (float)(min == max ? 1.0 : ABS((max - min))/RANGE_MAX;)
-
-//quantize
-#define quantize(num,scale,zero) (__u8)(CLAMP(ROUND(num/scale) + zero, RANGE_MIN, RANGE_MAX))
 
 /* function to find min and max values simultanuously amongst the ranks (array)
  it has an O(N) complexity*/
-// struct MinMax getMinMax(float ranks[], int size)
-// {
-//     struct MinMax x;
+void getMinMax(struct quant_params * q_params, float * ranks, __u32 size);
 
-//     if (size == 1)
-//     {
-//         x.max = ranks[0];
-//         x.min = ranks[0];
-//         return x;
-//     }
+    //ranges for unisigned 16-bit quantization
+    #define RANGE_MAX (__u16)65535
+    #define RANGE_MIN (__u16)0
 
-//     if (ranks[0] > ranks[1])
-//     {
-//         x.max = ranks[0];
-//         x.min = ranks[1];
-//     }
-//     else
-//     {
-//         x.max = ranks[1];
-//         x.min = ranks[0];
-//     }
+    #define ABS(num) ((num<0)?(-num):(num))
+    #define ROUND(num) (__u32)((num)>=0?((num)+0.5):((num)-0.5))
 
-//     for (int i = 2; i < size; i++)
-//     {
-//         if (ranks[i] > x.max)
-//             x.max = ranks[i];
-//         else if (ranks[i] < x.min)
-//             x.min = ranks[i];
-//     }
-//     return x;
-// }
+    //to keep the number in the range 0 - 255
+    #define CLAMP(num,min,max) (num < min ? min : (num > max ? max : num))
 
+    //quantization parameters
+    #define GetScale(min,max) (float)(min == max ? 1.0 : ABS((max - min))/65535)
+    #define GetZeroPoint(max,scale) (__u16)CLAMP(RANGE_MAX - ROUND(max/scale), RANGE_MIN, RANGE_MAX)
 
-/* In a form of a function: It receives an array of values (ranks) and extract
-the appropraite quantization parameters (scale and zero-offset)
-inputs:    ranks array, size of array */
-/*
- struct quant_params get_quant_params(float ranks[], int size)
-{
-    struct quant_params q;
-    struct MinMax x;
+    //quantize
+    #define quantize(num,scale,zero) (__u16)(CLAMP(ROUND(num/scale) + zero, RANGE_MIN, RANGE_MAX))
+    #define dequantize_f(num,scale,zero) (float)(scale*(CLAMP(num, RANGE_MIN, RANGE_MAX)))
+    #define dequantize_d(num,scale,zero) (double)(scale*(CLAMP(num, RANGE_MIN, RANGE_MAX)))
 
-    // 1. Find min and max values
-    x = getMinMax(ranks, size);
+#else /* QUANTIZATION == 32 */
+    struct quant_params
+    {
+        double scale;
+        __u32 zero;  //zero point or  zero-offset
+        float min, max; //range
+    };
 
-    // 2. Find the scale value
-    if (x.min != x.max)
-        q.scale = ABS((x.max - x.min))/RANGE_MAX;
-    else
-        q.scale = 1.0;
+    /* function to find min and max values simultanuously amongst the ranks (array)
+     it has an O(N) complexity*/
+    void getMinMax(struct quant_params * q_params, float * ranks, __u32 size);
 
-    // 3. Find the zero-offset value
-    q.zero = CLAMP(RANGE_MAX - ROUND(x.max/q.scale), RANGE_MIN, RANGE_MAX);
+    //ranges for unisigned 32-bit quantization
+    #define RANGE_MAX (__u32)4294967295
+    #define RANGE_MIN (__u32)0
 
-    return q;
-}
-*/
+    #define ABS(num) ((num<0)?(-num):(num))
+    #define ROUND(num) (__u32)((num)>=0?((num)+0.5):((num)-0.5))
+
+    //to keep the number in the range 0 - 255
+    #define CLAMP(num,min,max) (num < min ? min : (num > max ? max : num))
+
+    //quantization parameters
+    #define GetScale(min,max) (double)(min == max ? 1.0 : ABS((max - min))/RANGE_MAX)
+    #define GetZeroPoint(max,scale) (__u32)CLAMP((RANGE_MAX - ROUND(max/scale)), RANGE_MIN, RANGE_MAX)
+
+    //quantize
+    #define quantize(num,scale,zero) (__u32)(CLAMP(ROUND(num/scale) + zero, RANGE_MIN, RANGE_MAX))
+    #define dequantize_f(num,scale,zero) (float)(scale*(CLAMP(num, RANGE_MIN, RANGE_MAX)))
+    #define dequantize_d(num,scale,zero) (double)(scale*(CLAMP(num, RANGE_MIN, RANGE_MAX)))
+
+#endif /* QUANT_SCALE */
 
 #endif /* QUANTIZATION_H */

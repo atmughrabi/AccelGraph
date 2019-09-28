@@ -917,12 +917,11 @@ struct PageRankStats *pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 
         stats = pageRankPushFixedPointGraphCSR(epsilon, iterations, graph);
         break;
     case 4: // pull
-        stats = pageRankPullFixedPointGraphCSR(epsilon, iterations, graph);
+        stats = pageRankPullQuantGraphCSR(epsilon, iterations, graph);
         break;
     case 5: // push
-        stats = pageRankPushFixedPointGraphCSR(epsilon, iterations, graph);
+        stats = pageRankPushQuantGraphCSR(epsilon, iterations, graph);
         break;
-
     case 6: // pull
         stats = pageRankDataDrivenPullGraphCSR(epsilon, iterations, graph);
         break;
@@ -1544,6 +1543,284 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
     stats->error_total = error_total;
     return stats;
 }
+
+//v_0: No need for next iteration's quantization parameters. (eqn 1)
+struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+{
+    //QUANT_SCALE = 32;
+    __u32 j;
+    __u32 v;
+    __u32 u;
+    __u32 degree;
+    __u32 edge_idx;
+    __u32 activeVertices = 0;
+    double error_total = 0;
+
+    struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
+    struct Vertex* vertices = NULL;
+    __u32* sorted_edges_array = NULL;
+    struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+    struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
+    #if DIRECTED
+      vertices = graph->inverse_vertices;
+      sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
+    #else
+      vertices = graph->vertices;
+      sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
+    #endif
+
+    float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
+    float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
+    #if QUANT_SCALE == 16
+        __u16* riDividedOnDiClause_quant = (__u16*)my_malloc(graph->num_vertices*sizeof(__u16));
+    #else /* QUANT_SCALE == 32 */
+        __u32* riDividedOnDiClause_quant = (__u32*)my_malloc(graph->num_vertices*sizeof(__u32));
+    #endif
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-30s%d %-19s| \n", "Starting Page Rank Pull Quant_", QUANT_SCALE, "(tolerance/epsilon)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51.13lf | \n", epsilon);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iteration","Active", "Error", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+
+    Start(timer);
+    #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext)
+    for(v = 0; v < graph->num_vertices; v++){
+        pageRanksNext[v] = 0;
+    }
+
+    for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+    {
+        error_total = 0;
+        activeVertices = 0;
+        Start(timer_inner);
+        #pragma omp parallel for
+        for(v = 0; v < graph->num_vertices; v++)
+        {
+            if(graph->vertices->out_degree[v])
+                riDividedOnDiClause[v] = stats->pageRanks[v] / graph->vertices->out_degree[v];
+            else
+            riDividedOnDiClause[v] = 0.0f;
+      }
+
+      //1. Extract the quantization parameters from riDividedOnDiClause[]
+      struct quant_params rDivD_params;
+      getMinMax(&rDivD_params, riDividedOnDiClause, graph->num_vertices);
+      rDivD_params.scale = GetScale(rDivD_params.min, rDivD_params.max);
+      rDivD_params.zero = 0;
+      // printf("Iter %d quant parameters:\nMin = %.16f,\tMax = %.16f\nScale = %.24f,\tZero = %u\n",
+      // stats->iterations,rDivD_params.min,rDivD_params.max,rDivD_params.scale,rDivD_params.zero);
+      // printf(".........................................................\n");
+
+      //2. Quantize riDividedOnDiClause[]
+      #pragma omp parallel for private(v) shared(riDividedOnDiClause_quant,riDividedOnDiClause,graph)
+      for(v = 0; v < graph->num_vertices; v++){
+        riDividedOnDiClause_quant[v] = quantize(riDividedOnDiClause[v],rDivD_params.scale,rDivD_params.zero);
+      }
+
+      #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
+      for(v = 0; v < graph->num_vertices; v++)
+      {
+          __uint64_t nodeIncomingPR = 0;
+          degree = vertices->out_degree[v];
+          edge_idx = vertices->edges_idx[v];
+          for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+          {
+              u = sorted_edges_array[j];
+              nodeIncomingPR += riDividedOnDiClause_quant[u];
+          }
+          //nodeIncomingPR -= (degree * rDivD_params.zero);
+          pageRanksNext[v] = rDivD_params.scale*nodeIncomingPR;
+      }
+
+      //__u64 temp_degree = 0;
+      #pragma omp parallel for private(v) shared(epsilon,pageRanksNext,stats) reduction(+ : error_total, activeVertices)
+      for(v = 0; v < graph->num_vertices; v++)
+      {
+          float prevPageRank =  stats->pageRanks[v];
+          float nextPageRank =  stats->base_pr + stats->damp * pageRanksNext[v];
+          stats->pageRanks[v] = nextPageRank;
+          pageRanksNext[v] = 0.0f;
+          double error = fabs(nextPageRank - prevPageRank);
+          error_total += (error/graph->num_vertices);
+
+          if(error >= epsilon){
+              activeVertices++;
+              //temp_degree += vertices[v].in_degree;
+          }
+      }
+
+      Stop(timer_inner);
+      printf("| %-10u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
+      if(activeVertices == 0)
+        break;
+
+    }// end iteration loop
+
+    double sum = 0.0f;
+    #pragma omp parallel for reduction(+:sum)
+    for(v = 0; v < graph->num_vertices; v++){
+        stats->pageRanks[v] = stats->pageRanks[v]/graph->num_vertices;
+        sum += stats->pageRanks[v];
+    }
+
+    Stop(timer);
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",stats->iterations, sum, error_total, Seconds(timer));
+    printf(" -----------------------------------------------------\n");
+
+    free(timer);
+    free(timer_inner);
+    free(pageRanksNext);
+    free(riDividedOnDiClause);
+    free(riDividedOnDiClause_quant);
+
+    stats->error_total = error_total;
+    return stats;
+}
+
+struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+{
+  //QUANT_SCALE = 16;
+  __u32 i;
+  __u32 v;
+  __u32 activeVertices = 0;
+  double error_total = 0;
+
+  struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
+  struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
+  struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
+  omp_lock_t *vertex_lock  = (omp_lock_t*) my_malloc( graph->num_vertices *sizeof(omp_lock_t));
+
+  #pragma omp parallel for default(none) private(i) shared(graph,vertex_lock)
+  for (i=0; i<graph->num_vertices; i++){
+      omp_init_lock(&(vertex_lock[i]));
+  }
+
+  float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
+  #if QUANT_SCALE == 16
+    __u16* riDividedOnDiClause_quant = (__u16*)my_malloc(graph->num_vertices*sizeof(__u16));
+  #else /* QUANT_SCALE == 32 */
+    __u32* riDividedOnDiClause_quant = (__u32*)my_malloc(graph->num_vertices*sizeof(__u32));
+  #endif
+
+  printf(" -----------------------------------------------------\n");
+  printf("| %-30s%d %-19s| \n", "Starting Page Rank Push Quant_", QUANT_SCALE, "(tolerance/epsilon)");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-51.13lf | \n", epsilon);
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iteration","Active", "Error", "Time (S)");
+  printf(" -----------------------------------------------------\n");
+
+  Start(timer);
+
+  #pragma omp parallel for default(none) private(v) shared(pageRanksNext,graph)
+  for(v = 0; v < graph->num_vertices; v++){
+      pageRanksNext[v] = 0;
+  }
+
+  for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
+  {
+    Start(timer_inner);
+    error_total = 0;
+    activeVertices = 0;
+    #pragma omp parallel for private(v) shared(riDividedOnDiClause,stats,graph)
+    for(v = 0; v < graph->num_vertices; v++){
+        if(graph->vertices->out_degree[v])
+            riDividedOnDiClause[v] = stats->pageRanks[v] / graph->vertices->out_degree[v];
+        else
+            riDividedOnDiClause[v] = 0.0f;
+    }
+
+    //1. Extract the quantization parameters from riDividedOnDiClause[]
+    struct quant_params rDivD_params;
+    getMinMax(&rDivD_params, riDividedOnDiClause, graph->num_vertices);
+    rDivD_params.scale = GetScale(rDivD_params.min, rDivD_params.max);
+    rDivD_params.zero = GetZeroPoint(rDivD_params.max,rDivD_params.scale);
+    printf("Itaration %d's quant parameters:\n\tMin = %f,\tMax = %f\nScale = %f,\tZero = %d\n......................",
+    stats->iterations,rDivD_params.min,rDivD_params.max,rDivD_params.scale,rDivD_params.zero);
+
+    //2. Quantize riDividedOnDiClause[]
+    #pragma omp parallel for private(v) shared(riDividedOnDiClause_quant,riDividedOnDiClause,stats,graph)
+    for(v = 0; v < graph->num_vertices; v++){
+      riDividedOnDiClause_quant[v] = quantize(riDividedOnDiClause[v],rDivD_params.scale,rDivD_params.zero);
+    }
+
+    #pragma omp parallel for default(none) private(v) shared(rDivD_params,riDividedOnDiClause_quant,graph,pageRanksNext,riDividedOnDiClause) schedule(dynamic, 1024)
+    for(v = 0; v < graph->num_vertices; v++){
+
+      __u32 degree = graph->vertices->out_degree[v];
+      __u32 edge_idx = graph->vertices->edges_idx[v];
+      __u32 j;
+
+      for(j = edge_idx ; j < (edge_idx + degree) ; j++){
+        __u32 u = graph->sorted_edges_array->edges_array_dest[j];
+
+        #pragma omp atomic update
+        pageRanksNext[u] += rDivD_params.scale*(riDividedOnDiClause_quant[v] - rDivD_params.zero);
+      }
+    }
+
+    #pragma omp parallel for private(v) shared(epsilon, stats,pageRanksNext) reduction(+ : error_total, activeVertices)
+    for(v = 0; v < graph->num_vertices; v++){
+
+      float prevPageRank =  stats->pageRanks[v];
+      float nextPageRank =  stats->base_pr +  stats->damp * pageRanksNext[v];
+      stats->pageRanks[v] = nextPageRank;
+      pageRanksNext[v] = 0;
+      double error = fabs(nextPageRank - prevPageRank);
+      error_total += (error/graph->num_vertices);
+
+      if(error >= epsilon){
+          activeVertices++;
+      }
+    }
+
+    Stop(timer_inner);
+
+    printf("| %-10u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
+    if(activeVertices == 0)
+      break;
+  }// end iteration loop
+
+  double sum = 0.0f;
+  #pragma omp parallel for reduction(+:sum)
+  for(v = 0; v < graph->num_vertices; v++){
+      stats->pageRanks[v] = stats->pageRanks[v] / graph->num_vertices;
+      sum += stats->pageRanks[v];
+  }
+
+  Stop(timer);
+  stats->time_total = Seconds(timer);
+
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
+  printf(" -----------------------------------------------------\n");
+  printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",stats->iterations, sum, error_total, Seconds(timer));
+  printf(" -----------------------------------------------------\n");
+  // pageRankPrint(pageRanks, graph->num_vertices);
+
+  #pragma omp parallel for
+  for (i=0; i<graph->num_vertices; i++){
+      omp_destroy_lock(&(vertex_lock[i]));
+  }
+
+  free(timer);
+  free(timer_inner);
+  free(vertex_lock);
+  free(pageRanksNext);
+  free(riDividedOnDiClause);
+
+  stats->error_total = error_total;
+  return stats;
+}
+
 
 
 struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)

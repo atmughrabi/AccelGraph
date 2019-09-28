@@ -13,9 +13,6 @@ struct BloomFilter
     __u32 k; // number of hash function
 };
 
-hell
-
-
 struct BloomFilter *newBloomFilter(__u32 size, __u32 k);
 void freeBloomFilter( struct BloomFilter *bloomFilter);
 void clearBloomFilter( struct BloomFilter *bloomFilter);

@@ -3,41 +3,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <linux/types.h>
 #include "quantization.h"
 
 /* function to find min and max values simultanuously amongst the ranks (array)
  it has an O(N) complexity*/
-struct MinMax getMinMax(float ranks[], int size)
+void getMinMax(struct quant_params * x, float * ranks, __u32 size)
 {
-    struct MinMax x;
 
     if (size == 1)
     {
-        x.max = ranks[0];
-        x.min = ranks[0];
-        return x;
+        x->max = ranks[0];
+        x->min = ranks[0];
+        return;
     }
 
     if (ranks[0] > ranks[1])
     {
-        x.max = ranks[0];
-        x.min = ranks[1];
+        x->max = ranks[0];
+        x->min = ranks[1];
     }
     else
     {
-        x.max = ranks[1];
-        x.min = ranks[0];
+        x->max = ranks[1];
+        x->min = ranks[0];
     }
 
     for (int i = 2; i < size; i++)
     {
-        if (ranks[i] > x.max)
-            x.max = ranks[i];
-        else if (ranks[i] < x.min)
-            x.min = ranks[i];
+        if (ranks[i] > x->max)
+            x->max = ranks[i];
+        else if (ranks[i] < x->min)
+            x->min = ranks[i];
     }
-    return x;
+    return;
 }
 
 
