@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_job_control.sv
 // Create : 2019-09-26 15:18:56
-// Revise : 2019-09-28 12:59:32
+// Revise : 2019-09-29 02:37:52
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -36,9 +36,8 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 );
 
 	//output latched
-	EdgeInterface     edge_latched            ;
-	CommandBufferLine read_command_out_latched;
-	logic             finished_vertex_edge_job;
+	EdgeInterface edge_latched            ;
+	logic         finished_vertex_edge_job;
 
 	//input lateched
 	WEDInterface       wed_request_in_latched  ;
@@ -46,6 +45,15 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	ReadWriteDataLine  read_data_0_in_latched  ;
 	ReadWriteDataLine  read_data_1_in_latched  ;
 	logic              edge_request_latched    ;
+
+	CommandBufferLine read_command_out_latched       ;
+	BufferStatus      read_buffer_status_internal    ;
+	logic             read_command_job_edge_burst_pop;
+
+
+	BufferStatus    edge_buffer_burst_status;
+	logic           edge_buffer_burst_pop   ;
+	EdgeInterface   edge_burst_variable     ;
 
 	// internal registers to track logic
 	// Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
@@ -76,10 +84,6 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic dest_cacheline_ready  ;
 	logic weight_cacheline_ready;
 
-	logic src_cacheline_sent   ;
-	logic dest_cacheline_sent  ;
-	logic weight_cacheline_sent;
-
 	logic start_shift;
 	logic push_edge  ;
 
@@ -109,12 +113,10 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 ////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_job         <= 0;
-			read_command_out <= 0;
+			edge_job <= 0;
 		end else begin
 			if(enabled) begin
-				edge_job         <= edge_latched;
-				read_command_out <= read_command_out_latched;
+				edge_job <= edge_latched;
 			end
 		end
 	end
@@ -195,29 +197,18 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			SEND_EDGE_WAIT : begin
 				if(send_request_ready)
 					next_state = CALC_EDGE_REQ_SIZE;
-				else
-					next_state = SEND_EDGE_WAIT;
 			end
 			CALC_EDGE_REQ_SIZE : begin
 				next_state = SEND_EDGE_IDLE;
 			end
 			SEND_EDGE_IDLE : begin
-				if(~read_buffer_status.alfull)
-					next_state = SEND_EDGE_INV_SRC;
-				else
-					next_state = SEND_EDGE_IDLE;
+				next_state = SEND_EDGE_INV_SRC;
 			end
 			SEND_EDGE_INV_SRC : begin
-				if(~read_buffer_status.alfull)
-					next_state = SEND_EDGE_INV_DEST;
-				else
-					next_state = SEND_EDGE_INV_SRC;
+				next_state = SEND_EDGE_INV_DEST;
 			end
 			SEND_EDGE_INV_DEST : begin
-				if(~read_buffer_status.alfull)
-					next_state = SEND_EDGE_INV_WEIGHT;
-				else
-					next_state = SEND_EDGE_INV_DEST;
+				next_state = SEND_EDGE_INV_WEIGHT;
 			end
 			SEND_EDGE_INV_WEIGHT : begin
 				if(|edge_num_counter)
@@ -238,9 +229,6 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				shift_seek                  <= 0;
 				remainder                   <= 0;
 				aligned                     <= 0;
-				src_cacheline_sent          <= 0;
-				dest_cacheline_sent         <= 0;
-				weight_cacheline_sent       <= 0;
 				done_vertex_edge_processing <= 1;
 			end
 			SEND_EDGE_INIT : begin
@@ -253,9 +241,6 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			SEND_EDGE_WAIT : begin
 				done_vertex_edge_processing <= 0;
 				read_command_out_latched    <= 0;
-				src_cacheline_sent          <= 0;
-				dest_cacheline_sent         <= 0;
-				weight_cacheline_sent       <= 0;
 				request_size                <= 0;
 				remainder                   <= (edge_next_offest & ADDRESS_MOD_MASK);
 				aligned                     <= (edge_next_offest & ADDRESS_ALIGN_MASK);
@@ -292,57 +277,35 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			SEND_EDGE_IDLE    : begin
 			end
 			SEND_EDGE_INV_SRC : begin
-				if(~src_cacheline_sent) begin
-					src_cacheline_sent <= 1;
-
-					read_command_out_latched.valid   <= 1'b1;
-					read_command_out_latched.command <= READ_CL_NA; // just zero it out
-					read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_src + aligned;
-					read_command_out_latched.size    <= request_size;
-
-					read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_SRC;
-				end
-				else begin
-					read_command_out_latched.valid <= 1'b0;
-				end
+				read_command_out_latched.valid             <= 1'b1;
+				read_command_out_latched.command           <= READ_CL_NA; // just zero it out
+				read_command_out_latched.address           <= wed_request_in_latched.wed.inverse_edges_array_src + aligned;
+				read_command_out_latched.size              <= request_size;
+				read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_SRC;
 			end
 			SEND_EDGE_INV_DEST : begin
-				if(~dest_cacheline_sent) begin
-					dest_cacheline_sent <= 1;
+				read_command_out_latched.valid   <= 1'b1;
+				read_command_out_latched.command <= READ_CL_NA; // just zero it out
+				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_dest + aligned;
+				read_command_out_latched.size    <= request_size;
 
-					read_command_out_latched.valid   <= 1'b1;
-					read_command_out_latched.command <= READ_CL_NA; // just zero it out
-					read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_dest + aligned;
-					read_command_out_latched.size    <= request_size;
-
-					read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_DEST;
-				end
-				else begin
-					read_command_out_latched.valid <= 1'b0;
-				end
+				read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_DEST;
 			end
 			SEND_EDGE_INV_WEIGHT : begin
-				if(~weight_cacheline_sent) begin
-					weight_cacheline_sent <= 1;
+				read_command_out_latched.valid   <= 1'b1;
+				read_command_out_latched.command <= READ_CL_NA; // just zero it out
+				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_weight + aligned;
+				read_command_out_latched.size    <= request_size;
 
-					read_command_out_latched.valid   <= 1'b1;
-					read_command_out_latched.command <= READ_CL_NA; // just zero it out
-					read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_weight + aligned;
-					read_command_out_latched.size    <= request_size;
+				read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_WEIGHT;
 
-					read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_WEIGHT;
+				if(|remainder)
+					edge_next_offest <= edge_next_offest + (CACHELINE_SIZE-remainder);
+				else
+					edge_next_offest <= edge_next_offest + CACHELINE_SIZE;
 
-					if(|remainder)
-						edge_next_offest <= edge_next_offest + (CACHELINE_SIZE-remainder);
-					else
-						edge_next_offest <= edge_next_offest + CACHELINE_SIZE;
-
-					if(~(|edge_num_counter))
-						done_vertex_edge_processing <= 1;
-				end
-				else begin
-					read_command_out_latched.valid <= 1'b0;
-				end
+				if(~(|edge_num_counter))
+					done_vertex_edge_processing <= 1;
 			end
 		endcase
 	end // always_ff @(posedge clock)
@@ -409,18 +372,17 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 
 ////////////////////////////////////////////////////////////////////////////
-//Read Vertex registers into edge job queue
+//Read Edges registers into edge job queue
 ////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffers Vertices
 ////////////////////////////////////////////////////////////////////////////
 	assign fill_edge_buffer_pending = src_cacheline_pending || dest_cacheline_pending || weight_cacheline_pending;
-	assign send_request_ready       = ~read_buffer_status.alfull && ~fill_edge_buffer_pending && ~edge_buffer_status.alfull && (|edge_num_counter)
-		&& ~(|response_counter) && (edge_job_counter_pushed < vertex_job_latched.inverse_out_degree) && ~fill_edge_buffer
-		&& wed_request_in_latched.valid && vertex_job_latched.valid;
+	assign send_request_ready       = ~fill_edge_buffer_pending && edge_buffer_burst_status.empty && (|edge_num_counter)
+		&& ~(|response_counter) && wed_request_in_latched.valid && vertex_job_latched.valid;
 	assign fill_edge_buffer = src_cacheline_ready && dest_cacheline_ready && weight_cacheline_ready;
-	assign start_shift      = ~edge_buffer_status.alfull && fill_edge_buffer_pending && ~(|response_counter);
+	assign start_shift      = fill_edge_buffer_pending && ~(|response_counter);
 
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -461,6 +423,30 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		end
 	end
 
+////////////////////////////////////////////////////////////////////////////
+//Read Edge double buffer
+////////////////////////////////////////////////////////////////////////////
+
+	assign edge_buffer_burst_pop = ~edge_buffer_status.alfull && ~edge_buffer_burst_status.empty;
+
+	fifo #(
+		.WIDTH($bits(EdgeInterface)),
+		.DEPTH(CACHELINE_EDGE_NUM  )
+	) edge_job_buffer_burst_fifo_instant (
+		.clock   (clock                          ),
+		.rstn    (rstn                           ),
+		
+		.push    (push_edge                      ),
+		.data_in (edge_variable                  ),
+		.full    (edge_buffer_burst_status.full  ),
+		.alFull  (edge_buffer_burst_status.alfull),
+		
+		.pop     (edge_buffer_burst_pop          ),
+		.valid   (edge_buffer_burst_status.valid ),
+		.data_out(edge_burst_variable            ),
+		.empty   (edge_buffer_burst_status.empty )
+	);
+
 	fifo #(
 		.WIDTH($bits(EdgeInterface)   ),
 		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
@@ -468,8 +454,8 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		.clock   (clock                    ),
 		.rstn    (rstn                     ),
 		
-		.push    (push_edge                ),
-		.data_in (edge_variable            ),
+		.push    (edge_burst_variable.valid),
+		.data_in (edge_burst_variable      ),
 		.full    (edge_buffer_status.full  ),
 		.alFull  (edge_buffer_status.alfull),
 		
@@ -480,5 +466,28 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	);
 
 
+///////////////////////////////////////////////////////////////////////////
+//Read Command Edge double buffer
+////////////////////////////////////////////////////////////////////////////
+
+	assign read_command_job_edge_burst_pop = ~read_buffer_status.alfull;
+
+	fifo #(
+		.WIDTH($bits(CommandBufferLine)),
+		.DEPTH(4                       )
+	) read_command_job_edge_burst_fifo_instant (
+		.clock   (clock                             ),
+		.rstn    (rstn                              ),
+		
+		.push    (read_command_out_latched.valid    ),
+		.data_in (read_command_out_latched          ),
+		.full    (read_buffer_status_internal.full  ),
+		.alFull  (read_buffer_status_internal.alfull),
+		
+		.pop     (read_command_job_edge_burst_pop   ),
+		.valid   (read_buffer_status_internal.valid ),
+		.data_out(read_command_out                  ),
+		.empty   (read_buffer_status_internal.empty )
+	);
 
 endmodule

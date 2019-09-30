@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-09-26 15:20:36
+// Revise : 2019-09-29 20:41:32
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -233,6 +233,7 @@ module afu_control #(parameter NUM_REQUESTS = 4) (
 		.enabled_in             (enabled                ),
 		.buffer_in              (read_buffer_in         ),
 		.data_read_tag_id_in    (read_tag_id            ),
+		.response               (response_latched       ),
 		.data_read_error        (data_read_error        ),
 		.read_data_control_out_0(read_data_control_out_0),
 		.read_data_control_out_1(read_data_control_out_1)

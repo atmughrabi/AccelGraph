@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_control.sv
 // Create : 2019-09-26 15:18:39
-// Revise : 2019-09-26 16:24:22
+// Revise : 2019-09-28 16:18:15
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -112,7 +112,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	assign done_graph_algorithm = (wed_request_in_latched.wed.num_vertices == (vertex_job_counter_filtered_latched+vertex_job_counter_done_latched)) &&
 		(wed_request_in_latched.wed.num_edges == edge_job_counter_done_latched);
 
-	always_comb begin : proc_done
+	always_comb begin
 		algorithm_status_latched = 0;
 		if(wed_request_in_latched.valid)begin
 			if(done_graph_algorithm)begin

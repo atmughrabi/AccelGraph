@@ -27,10 +27,13 @@ module response_control (
 );
 
 
-  logic             odd_parity     ;
-  logic             tag_parity     ;
-  logic             tag_parity_link;
-  ResponseInterface response_in    ;
+  logic                       odd_parity                     ;
+  logic                       tag_parity                     ;
+  logic                       tag_parity_link                ;
+  ResponseInterface           response_in                    ;
+  ResponseControlInterfaceOut response_control_out_latched   ;
+  ResponseControlInterfaceOut response_control_out_latched_S2;
+  ResponseControlInterfaceOut response_control_out_latched_S3;
 
   logic       enable_errors     ;
   logic [0:6] detected_errors   ;
@@ -70,51 +73,73 @@ module response_control (
   end
 
 ////////////////////////////////////////////////////////////////////////////
+//output latching Logic
+////////////////////////////////////////////////////////////////////////////
+
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      response_control_out            <= 0;
+      response_control_out_latched_S2 <= 0;
+      response_control_out_latched_S3 <= 0;
+    end else begin
+      if(enabled) begin
+        response_control_out_latched_S2 <= response_control_out_latched;
+        response_control_out_latched_S3 <= response_control_out_latched_S2;
+        response_control_out            <= response_control_out_latched_S3;
+      end else begin
+        response_control_out            <= 0;
+        response_control_out_latched_S2 <= 0;
+        response_control_out_latched_S3 <= 0;
+      end
+    end
+  end
+
+////////////////////////////////////////////////////////////////////////////
 //Response Buffer switch Logic
 ////////////////////////////////////////////////////////////////////////////
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      response_control_out <= 0;
+      response_control_out_latched <= 0;
     end else begin
       if(enabled && response_in.valid) begin
         case (response_tag_id_in.cmd_type)
           CMD_READ : begin
-            response_control_out.read_response    <= 1'b1;
-            response_control_out.write_response   <= 1'b0;
-            response_control_out.wed_response     <= 1'b0;
-            response_control_out.restart_response <= 1'b0;
+            response_control_out_latched.read_response    <= 1'b1;
+            response_control_out_latched.write_response   <= 1'b0;
+            response_control_out_latched.wed_response     <= 1'b0;
+            response_control_out_latched.restart_response <= 1'b0;
           end
           CMD_WRITE : begin
-            response_control_out.read_response    <= 1'b0;
-            response_control_out.write_response   <= 1'b1;
-            response_control_out.wed_response     <= 1'b0;
-            response_control_out.restart_response <= 1'b0;
+            response_control_out_latched.read_response    <= 1'b0;
+            response_control_out_latched.write_response   <= 1'b1;
+            response_control_out_latched.wed_response     <= 1'b0;
+            response_control_out_latched.restart_response <= 1'b0;
           end
           CMD_WED : begin
-            response_control_out.read_response    <= 1'b0;
-            response_control_out.write_response   <= 1'b0;
-            response_control_out.wed_response     <= 1'b1;
-            response_control_out.restart_response <= 1'b0;
+            response_control_out_latched.read_response    <= 1'b0;
+            response_control_out_latched.write_response   <= 1'b0;
+            response_control_out_latched.wed_response     <= 1'b1;
+            response_control_out_latched.restart_response <= 1'b0;
           end
           CMD_RESTART : begin
-            response_control_out.read_response    <= 1'b0;
-            response_control_out.write_response   <= 1'b0;
-            response_control_out.wed_response     <= 1'b0;
-            response_control_out.restart_response <= 1'b1;
+            response_control_out_latched.read_response    <= 1'b0;
+            response_control_out_latched.write_response   <= 1'b0;
+            response_control_out_latched.wed_response     <= 1'b0;
+            response_control_out_latched.restart_response <= 1'b1;
           end
           default : begin
-            response_control_out.read_response    <= 1'b0;
-            response_control_out.write_response   <= 1'b0;
-            response_control_out.wed_response     <= 1'b0;
-            response_control_out.restart_response <= 1'b0;
+            response_control_out_latched.read_response    <= 1'b0;
+            response_control_out_latched.write_response   <= 1'b0;
+            response_control_out_latched.wed_response     <= 1'b0;
+            response_control_out_latched.restart_response <= 1'b0;
           end
         endcase
-        response_control_out.response.valid    <= response_in.valid;
-        response_control_out.response.cmd      <= response_tag_id_in;
-        response_control_out.response.response <= response_in.response;
+        response_control_out_latched.response.valid    <= response_in.valid;
+        response_control_out_latched.response.cmd      <= response_tag_id_in;
+        response_control_out_latched.response.response <= response_in.response;
       end else begin
-        response_control_out <= 0;
+        response_control_out_latched <= 0;
       end
     end
   end

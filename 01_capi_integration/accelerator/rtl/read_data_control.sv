@@ -22,6 +22,7 @@ module read_data_control (
   input  logic                    enabled_in             ,
   input  ReadDataControlInterface buffer_in              ,
   input  CommandTagLine           data_read_tag_id_in    ,
+  input  ResponseInterface        response               ,
   output logic [0:1]              data_read_error        ,
   output DataControlInterfaceOut  read_data_control_out_0,
   output DataControlInterfaceOut  read_data_control_out_1
@@ -34,11 +35,28 @@ module read_data_control (
   logic                    write_valid_latched      ;
   logic [0:7]              data_write_parity_link   ;
   ReadDataControlInterface buffer_in_latched        ;
+  ResponseInterface        response_latched         ;
 
   logic       enable_errors    ;
   logic [0:1] detected_errors  ;
   logic       data_parity_error;
   logic       tag_parity_error ;
+
+  logic                   read_data_0_we;
+  logic [0:7]             wr_addr_0     ;
+  logic [0:7]             rd_addr_0     ;
+  DataControlInterfaceOut data_out_0    ;
+
+  logic                   read_data_1_we;
+  logic [0:7]             wr_addr_1     ;
+  logic [0:7]             rd_addr_1     ;
+  DataControlInterfaceOut data_out_1    ;
+
+
+  DataControlInterfaceOut read_data_control_out_0_latched  ;
+  DataControlInterfaceOut read_data_control_out_1_latched  ;
+  DataControlInterfaceOut read_data_control_out_1_latched_2;
+
 
 
   assign odd_parity    = 1'b1; // Odd parity
@@ -56,7 +74,7 @@ module read_data_control (
       enabled <= enabled_in;
     end
   end
-  
+
 ////////////////////////////////////////////////////////////////////////////
 //input latching Logic
 ////////////////////////////////////////////////////////////////////////////
@@ -66,15 +84,18 @@ module read_data_control (
       buffer_in_latched         <= 0;
       data_write_parity_latched <= 0;
       write_valid_latched       <= 0;
+      response_latched          <= 0;
     end else begin
       if(enabled) begin
         buffer_in_latched         <= buffer_in;
         data_write_parity_latched <= buffer_in.write_parity;
         write_valid_latched       <= buffer_in.write_valid;
+        response_latched          <= response;
       end else begin
         buffer_in_latched         <= 0;
         data_write_parity_latched <= 0;
         write_valid_latched       <= 0;
+        response_latched          <= 0;
       end
     end
   end
@@ -86,31 +107,32 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_data_control_out_0 <= 0;
+      read_data_control_out_0_latched <= 0;
     end else begin
       if(enabled && buffer_in_latched.write_valid && ~(|buffer_in_latched.write_address)) begin
 
         case (data_read_tag_id_in.cmd_type)
           CMD_READ : begin
-            read_data_control_out_0.read_data <= 1'b1;
-            read_data_control_out_0.wed_data  <= 1'b0;
+            read_data_control_out_0_latched.read_data <= 1'b1;
+            read_data_control_out_0_latched.wed_data  <= 1'b0;
           end
           CMD_WED : begin
-            read_data_control_out_0.read_data <= 1'b0;
-            read_data_control_out_0.wed_data  <= 1'b1;
+            read_data_control_out_0_latched.read_data <= 1'b0;
+            read_data_control_out_0_latched.wed_data  <= 1'b1;
           end
           default : begin
-            read_data_control_out_0.read_data <= 1'b0;
-            read_data_control_out_0.wed_data  <= 1'b0;
+            read_data_control_out_0_latched.read_data <= 1'b0;
+            read_data_control_out_0_latched.wed_data  <= 1'b0;
           end
         endcase
 
-        read_data_control_out_0.line.valid <= buffer_in_latched.write_valid;
-        read_data_control_out_0.line.cmd   <= data_read_tag_id_in;
-        read_data_control_out_0.line.data  <= buffer_in_latched.write_data;
+        read_data_control_out_0_latched.line.valid <= buffer_in_latched.write_valid;
+        read_data_control_out_0_latched.line.cmd   <= data_read_tag_id_in;
+        read_data_control_out_0_latched.line.data  <= buffer_in_latched.write_data;
+        wr_addr_0                                  <= buffer_in_latched.write_tag;
 
       end else begin
-        read_data_control_out_0 <= 0;
+        read_data_control_out_0_latched <= 0;
       end
     end
   end
@@ -122,31 +144,32 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_data_control_out_1 <= 0;
+      read_data_control_out_1_latched <= 0;
     end else begin
       if(enabled && buffer_in_latched.write_valid && (|buffer_in_latched.write_address)) begin
 
         case (data_read_tag_id_in.cmd_type)
           CMD_READ : begin
-            read_data_control_out_1.read_data <= 1'b1;
-            read_data_control_out_1.wed_data  <= 1'b0;
+            read_data_control_out_1_latched.read_data <= 1'b1;
+            read_data_control_out_1_latched.wed_data  <= 1'b0;
           end
           CMD_WED : begin
-            read_data_control_out_1.read_data <= 1'b0;
-            read_data_control_out_1.wed_data  <= 1'b1;
+            read_data_control_out_1_latched.read_data <= 1'b0;
+            read_data_control_out_1_latched.wed_data  <= 1'b1;
           end
           default : begin
-            read_data_control_out_1.read_data <= 1'b0;
-            read_data_control_out_1.wed_data  <= 1'b0;
+            read_data_control_out_1_latched.read_data <= 1'b0;
+            read_data_control_out_1_latched.wed_data  <= 1'b0;
           end
         endcase
 
-        read_data_control_out_1.line.valid <= buffer_in_latched.write_valid;
-        read_data_control_out_1.line.cmd   <= data_read_tag_id_in;
-        read_data_control_out_1.line.data  <= buffer_in_latched.write_data;
+        read_data_control_out_1_latched.line.valid <= buffer_in_latched.write_valid;
+        read_data_control_out_1_latched.line.cmd   <= data_read_tag_id_in;
+        read_data_control_out_1_latched.line.data  <= buffer_in_latched.write_data;
+        wr_addr_1                                  <= buffer_in_latched.write_tag;
 
       end else begin
-        read_data_control_out_1 <= 0;
+        read_data_control_out_1_latched <= 0;
       end
     end
   end
@@ -208,6 +231,73 @@ module read_data_control (
     end
   end
 
+
+////////////////////////////////////////////////////////////////////////////
+// Data Aggregation Logic
+////////////////////////////////////////////////////////////////////////////
+
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      read_data_control_out_0           <= 0;
+      read_data_control_out_1_latched_2 <= 0;
+    end else begin
+      if(response_latched.valid && enabled) begin
+        read_data_control_out_0           <= data_out_0;
+        read_data_control_out_1_latched_2 <= data_out_1;
+      end else begin
+        read_data_control_out_0           <= 0;
+        read_data_control_out_1_latched_2 <= 0;
+      end
+    end
+  end
+
+
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      read_data_control_out_1 <= 0;
+    end else begin
+      if(enabled) begin
+        read_data_control_out_1 <= read_data_control_out_1_latched_2;
+      end else begin
+        read_data_control_out_1 <= 0;
+      end
+    end
+  end
+
+////////////////////////////////////////////////////////////////////////////
+// Store each cacheline half in RAM and read when response is recieved
+////////////////////////////////////////////////////////////////////////////
+
+  assign read_data_0_we = read_data_control_out_0_latched.read_data || read_data_control_out_0_latched.wed_data;
+  assign read_data_1_we = read_data_control_out_1_latched.read_data || read_data_control_out_1_latched.wed_data;
+  assign rd_addr_0      = response.tag;
+  assign rd_addr_1      = response.tag;
+
+  ram #(
+    .WIDTH($bits(DataControlInterfaceOut)),
+    .DEPTH(TAG_COUNT                     )
+  ) read_data_0_instant (
+    .clock   (clock                          ),
+    .we      (read_data_0_we                 ),
+    .wr_addr (wr_addr_0                      ),
+    .data_in (read_data_control_out_0_latched),
+    
+    .rd_addr (rd_addr_0                      ),
+    .data_out(data_out_0                     )
+  );
+
+  ram #(
+    .WIDTH($bits(DataControlInterfaceOut)),
+    .DEPTH(TAG_COUNT                     )
+  ) read_data_1_instant (
+    .clock   (clock                          ),
+    .we      (read_data_1_we                 ),
+    .wr_addr (wr_addr_1                      ),
+    .data_in (read_data_control_out_1_latched),
+    
+    .rd_addr (rd_addr_1                      ),
+    .data_out(data_out_1                     )
+  );
 
 
 endmodule

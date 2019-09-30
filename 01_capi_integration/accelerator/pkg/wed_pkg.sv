@@ -22,6 +22,7 @@ package WED_PKG;
     WED_IDLE,
     WED_REQ,
     WED_WAITING_FOR_REQUEST,
+    WED_READ_DATA,
     WED_DONE_REQ
   } wed_state;
 
