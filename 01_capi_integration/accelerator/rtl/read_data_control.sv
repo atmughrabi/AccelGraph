@@ -7,8 +7,8 @@
 // -----------------------------------------------------------------------------
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : read_data_control.sv
-// Create : 2019-09-26 15:24:45
-// Revise : 2019-09-26 15:24:45
+// Create : 2019-09-30 02:22:24
+// Revise : 2019-09-30 02:22:24
 // Editor : sublime text3, tab size (2)
 // -----------------------------------------------------------------------------
 
@@ -53,9 +53,9 @@ module read_data_control (
   DataControlInterfaceOut data_out_1    ;
 
 
-  DataControlInterfaceOut read_data_control_out_0_latched  ;
-  DataControlInterfaceOut read_data_control_out_1_latched  ;
-  DataControlInterfaceOut read_data_control_out_1_latched_2;
+  DataControlInterfaceOut read_data_control_out_0_latched   ;
+  DataControlInterfaceOut read_data_control_out_1_latched   ;
+  DataControlInterfaceOut read_data_control_out_1_latched_S2;
 
 
 
@@ -126,10 +126,11 @@ module read_data_control (
           end
         endcase
 
-        read_data_control_out_0_latched.line.valid <= buffer_in_latched.write_valid;
-        read_data_control_out_0_latched.line.cmd   <= data_read_tag_id_in;
-        read_data_control_out_0_latched.line.data  <= buffer_in_latched.write_data;
-        wr_addr_0                                  <= buffer_in_latched.write_tag;
+        read_data_control_out_0_latched.line.valid   <= buffer_in_latched.write_valid;
+        read_data_control_out_0_latched.line.cmd     <= data_read_tag_id_in;
+        read_data_control_out_0_latched.line.cmd.tag <= buffer_in_latched.write_tag;
+        read_data_control_out_0_latched.line.data    <= buffer_in_latched.write_data;
+        wr_addr_0                                    <= buffer_in_latched.write_tag;
 
       end else begin
         read_data_control_out_0_latched <= 0;
@@ -163,10 +164,11 @@ module read_data_control (
           end
         endcase
 
-        read_data_control_out_1_latched.line.valid <= buffer_in_latched.write_valid;
-        read_data_control_out_1_latched.line.cmd   <= data_read_tag_id_in;
-        read_data_control_out_1_latched.line.data  <= buffer_in_latched.write_data;
-        wr_addr_1                                  <= buffer_in_latched.write_tag;
+        read_data_control_out_1_latched.line.valid   <= buffer_in_latched.write_valid;
+        read_data_control_out_1_latched.line.cmd     <= data_read_tag_id_in;
+        read_data_control_out_1_latched.line.cmd.tag <= buffer_in_latched.write_tag;
+        read_data_control_out_1_latched.line.data    <= buffer_in_latched.write_data;
+        wr_addr_1                                    <= buffer_in_latched.write_tag;
 
       end else begin
         read_data_control_out_1_latched <= 0;
@@ -238,15 +240,15 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_data_control_out_0           <= 0;
-      read_data_control_out_1_latched_2 <= 0;
+      read_data_control_out_0            <= 0;
+      read_data_control_out_1_latched_S2 <= 0;
     end else begin
       if(response_latched.valid && enabled) begin
-        read_data_control_out_0           <= data_out_0;
-        read_data_control_out_1_latched_2 <= data_out_1;
+        read_data_control_out_0            <= data_out_0;
+        read_data_control_out_1_latched_S2 <= data_out_1;
       end else begin
-        read_data_control_out_0           <= 0;
-        read_data_control_out_1_latched_2 <= 0;
+        read_data_control_out_0            <= 0;
+        read_data_control_out_1_latched_S2 <= 0;
       end
     end
   end
@@ -257,7 +259,7 @@ module read_data_control (
       read_data_control_out_1 <= 0;
     end else begin
       if(enabled) begin
-        read_data_control_out_1 <= read_data_control_out_1_latched_2;
+        read_data_control_out_1 <= read_data_control_out_1_latched_S2;
       end else begin
         read_data_control_out_1 <= 0;
       end

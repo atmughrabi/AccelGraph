@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_job_control.sv
 // Create : 2019-09-26 15:19:30
-// Revise : 2019-09-29 02:34:48
+// Revise : 2019-09-30 17:16:35
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -389,7 +389,7 @@ module cu_vertex_job_control (
 ////////////////////////////////////////////////////////////////////////////
 	assign fill_vertex_buffer_pending = in_degree_cacheline_pending || out_degree_cacheline_pending|| edges_idx_degree_cacheline_pending ||
 		inverse_in_degree_cacheline_pending || inverse_out_degree_cacheline_pending || inverse_edges_idx_degree_cacheline_pending;
-	assign send_request_ready = vertex_buffer_burst_status.empty && ~fill_vertex_buffer_pending && (|vertex_num_counter) && ~(|response_counter) && wed_request_in_latched.valid;
+	assign send_request_ready =  read_buffer_status_internal.empty && vertex_buffer_burst_status.empty && ~fill_vertex_buffer_pending && (|vertex_num_counter) && ~(|response_counter) && wed_request_in_latched.valid;
 	assign fill_vertex_buffer = in_degree_cacheline_ready && out_degree_cacheline_ready && edges_idx_degree_cacheline_ready &&
 		inverse_in_degree_cacheline_ready && inverse_out_degree_cacheline_ready && inverse_edges_idx_degree_cacheline_ready;
 	assign start_shift = fill_vertex_buffer_pending && ~(|response_counter);

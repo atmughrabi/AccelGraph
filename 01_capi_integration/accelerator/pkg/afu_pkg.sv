@@ -58,6 +58,7 @@ package AFU_PKG;
     command_type                         cmd_type        ; // The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
     logic [0:CACHELINE_INT_COUNTER_BITS] real_size       ;
     logic [0:CACHELINE_INT_COUNTER_BITS] cacheline_offest;
+    logic [                         0:7] tag             ;
   } CommandTagLine;
 
 ////////////////////////////////////////////////////////////////////////////

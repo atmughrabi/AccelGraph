@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-09-30 02:02:31
+// Revise : 2019-09-30 20:32:21
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -26,7 +26,7 @@ package GLOBALS_PKG;
 	parameter NUM_VERTEX_CU_GLOBAL = 64;
 
 	parameter CU_VERTEX_JOB_BUFFER_SIZE = 4;
-	parameter CU_EDGE_JOB_BUFFER_SIZE   = 4;
+	parameter CU_EDGE_JOB_BUFFER_SIZE   = 256;
 
 ////////////////////////////////////////////////////////////////////////////
 //   CU-Control/AFU-Control CAPI Globals
@@ -51,18 +51,18 @@ package GLOBALS_PKG;
 
 	parameter READ_CMD_BUFFER_SIZE    = 4;
 	parameter WRITE_CMD_BUFFER_SIZE   = 4;
-	parameter RESTART_CMD_BUFFER_SIZE = 2;
-	parameter WED_CMD_BUFFER_SIZE     = 2;
+	parameter RESTART_CMD_BUFFER_SIZE = 2  ;
+	parameter WED_CMD_BUFFER_SIZE     = 2  ;
 
 	parameter READ_RSP_BUFFER_SIZE    = 4;
 	parameter WRITE_RSP_BUFFER_SIZE   = 4;
-	parameter RESTART_RSP_BUFFER_SIZE = 2;
-	parameter WED_RSP_BUFFER_SIZE     = 2;
+	parameter RESTART_RSP_BUFFER_SIZE = 2  ;
+	parameter WED_RSP_BUFFER_SIZE     = 2  ;
 
 	parameter READ_DATA_BUFFER_SIZE    = 4;
 	parameter WRITE_DATA_BUFFER_SIZE   = 4;
-	parameter RESTART_DATA_BUFFER_SIZE = 2;
-	parameter WED_DATA_BUFFER_SIZE     = 2;
+	parameter RESTART_DATA_BUFFER_SIZE = 2  ;
+	parameter WED_DATA_BUFFER_SIZE     = 2  ;
 
 ////////////////////////////////////////////////////////////////////////////
 // AFU-Control MMIO Registers Mapping on AFU and HOSt
@@ -81,8 +81,10 @@ package GLOBALS_PKG;
 
 	parameter        VERTEX_SIZE        = 4                     ; // vertex size is 4 bytes
 	parameter        VERTEX_SIZE_BITS   = VERTEX_SIZE * 8       ; // vertex size is 4 bytes
-	parameter        EDGE_SIZE          = 4                     ; // vertex size is 4 bytes
-	parameter        EDGE_SIZE_BITS     = EDGE_SIZE * 8         ; // vertex size is 4 bytes
+	parameter        EDGE_SIZE          = 4                     ; // edge size is 4 bytes
+	parameter        EDGE_SIZE_BITS     = EDGE_SIZE * 8         ; // edge size is 4 bytes
+	parameter        DATA_SIZE          = 4                     ; // edge data size is 4 bytes
+	parameter        DATA_SIZE_BITS     = DATA_SIZE * 8         ; // edge data size is 4 bytes
 	parameter [0:63] ADDRESS_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}}; // cacheline is 128bytes
 	parameter [0:63] ADDRESS_MOD_MASK   = {{57{1'b0}},{7{1'b1}}}; // cacheline is 128bytes
 

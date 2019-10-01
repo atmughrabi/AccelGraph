@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-09-30 02:04:23
+// Revise : 2019-09-30 20:25:26
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -282,8 +282,8 @@ void printWEDGraphCSRVertex(struct  WEDGraphCSR *wed)
 
 #if DIRECTED
         printf("  wed->inverse_vertex_out_degree:%u\n", ((__u32 *)wed->inverse_vertex_out_degree)[i]);
-        printf("  wed->prnext: %u\n", ((__u32 *)wed->auxiliary2)[i]);
-        // printf("  wed->inverse_vertex_edges_idx: %u\n", ((__u32 *)wed->inverse_vertex_edges_idx)[i]);
+        // printf("  wed->prnext: %u\n", ((__u32 *)wed->auxiliary2)[i]);
+        printf("  wed->inverse_vertex_edges_idx: %u\n", ((__u32 *)wed->inverse_vertex_edges_idx)[i]);
 #endif
     }
     // printf("\n");

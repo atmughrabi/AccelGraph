@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_job_control.sv
 // Create : 2019-09-26 15:18:56
-// Revise : 2019-09-29 02:37:52
+// Revise : 2019-09-30 16:07:43
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -51,9 +51,9 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic             read_command_job_edge_burst_pop;
 
 
-	BufferStatus    edge_buffer_burst_status;
-	logic           edge_buffer_burst_pop   ;
-	EdgeInterface   edge_burst_variable     ;
+	BufferStatus  edge_buffer_burst_status;
+	logic         edge_buffer_burst_pop   ;
+	EdgeInterface edge_burst_variable     ;
 
 	// internal registers to track logic
 	// Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
@@ -379,7 +379,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 //Buffers Vertices
 ////////////////////////////////////////////////////////////////////////////
 	assign fill_edge_buffer_pending = src_cacheline_pending || dest_cacheline_pending || weight_cacheline_pending;
-	assign send_request_ready       = ~fill_edge_buffer_pending && edge_buffer_burst_status.empty && (|edge_num_counter)
+	assign send_request_ready       = read_buffer_status_internal.empty && edge_buffer_burst_status.empty && ~fill_edge_buffer_pending &&  (|edge_num_counter)
 		&& ~(|response_counter) && wed_request_in_latched.valid && vertex_job_latched.valid;
 	assign fill_edge_buffer = src_cacheline_ready && dest_cacheline_ready && weight_cacheline_ready;
 	assign start_shift      = fill_edge_buffer_pending && ~(|response_counter);

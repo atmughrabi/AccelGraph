@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_control.sv
 // Create : 2019-09-26 15:18:39
-// Revise : 2019-09-28 16:18:15
+// Revise : 2019-09-30 13:54:30
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 

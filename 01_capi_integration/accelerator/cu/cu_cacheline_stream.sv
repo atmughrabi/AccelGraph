@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_cacheline_stream.sv
 // Create : 2019-09-26 15:18:19
-// Revise : 2019-09-28 19:25:32
+// Revise : 2019-09-30 19:04:38
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -64,10 +64,10 @@ module cu_cacheline_stream (
 			if(enabled) begin
 				vertex_struct_latched <= vertex_struct;
 
-				if(read_data_0_in.valid)begin
+				if(read_data_0_in.valid && (read_data_0_in.cmd.vertex_struct == vertex_struct_latched))begin
 					read_data_in_latched <= read_data_0_in;
 					read_data_part       <= 0;
-				end else if(read_data_1_in.valid) begin
+				end else if(read_data_1_in.valid && (read_data_1_in.cmd.vertex_struct == vertex_struct_latched)) begin
 					read_data_in_latched <= read_data_1_in;
 					read_data_part       <= 1;
 				end else begin

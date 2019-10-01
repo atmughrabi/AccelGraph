@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : tag_control.sv
 // Create : 2019-09-26 15:25:10
-// Revise : 2019-09-26 15:25:12
+// Revise : 2019-09-30 17:48:41
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ module tag_control (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn)
-			current_state     <= TAG_BUFFER_RESET;
+			current_state <= TAG_BUFFER_RESET;
 		else begin
 			if (enabled)
 				current_state <= next_state;
@@ -189,7 +189,6 @@ module tag_control (
 	assign response_tag_id_out  = response_tag_id;
 	assign data_read_tag_id_out = data_read_tag_id;
 	assign command_tag_out      = command_tag;
-
 ////////////////////////////////////////////////////////////////////////////
 // Tag -> CU bookeeping for response/read buffer interface
 ////////////////////////////////////////////////////////////////////////////
@@ -211,26 +210,6 @@ module tag_control (
 		.rd_addr2 (data_read_tag    ),
 		.data_out2(data_read_tag_id )
 	);
-
-////////////////////////////////////////////////////////////////////////////
-// Tag -> CU bookeeping for response/read buffer interface
-////////////////////////////////////////////////////////////////////////////
-
-// we keep each tag associated with the command type and CU ID so we send the response to the right compute unite
-
-// ram #(
-//     .WIDTH( WIDTH ),
-//     .DEPTH( 256 )
-// )ram1_instant
-// (
-//     .clock( clock ),
-//     .we( we ),
-//     .wr_addr( wr_addr ),
-//     .data_in( wr_data ),
-
-//     .rd_addr( rd_addr1 ),
-//     .data_out( rd_data1 )
-// );
 
 
 ////////////////////////////////////////////////////////////////////////////
