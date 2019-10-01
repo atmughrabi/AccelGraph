@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_cacheline_stream.sv
 // Create : 2019-09-26 15:18:19
-// Revise : 2019-09-30 19:04:38
+// Revise : 2019-09-30 20:59:42
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -41,9 +41,9 @@ module cu_cacheline_stream (
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_latched;
 	logic [      0:(VERTEX_SIZE_BITS-1)] vertex_latched     ;
 
-	logic [0:(CACHELINE_STREAM_WRITE_ADDR_BITS-1)]   address_wr;
-	logic [ 0:(CACHELINE_STREAM_READ_ADDR_BITS-1)]   address_rd;
-	logic                                            we        ;
+	logic [0:(CACHELINE_STREAM_WRITE_ADDR_BITS-1)] address_wr;
+	logic [ 0:(CACHELINE_STREAM_READ_ADDR_BITS-1)] address_rd;
+	logic                                          we        ;
 
 	logic                              valid_internal       ;
 	logic                              pending_latched      ;

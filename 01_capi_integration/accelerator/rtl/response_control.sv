@@ -17,7 +17,7 @@ import CAPI_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module response_control #(parameter RSP_DELAY = 1) (
+module response_control #(parameter RSP_DELAY = 2) (
   input  logic                       clock               , // Clock
   input  logic                       rstn                ,
   input  logic                       enabled_in          ,
