@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_pkg.sv
 // Create : 2019-09-26 15:20:09
-// Revise : 2019-09-26 15:20:10
+// Revise : 2019-10-02 14:18:44
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -63,6 +63,15 @@ package CU_PKG;
 		SEND_EDGE_INV_WEIGHT
 	} edge_struct_state;
 
+	typedef enum int unsigned {
+		SEND_DATA_RESET,
+		SEND_DATA_INIT,
+		SEND_DATA_IDLE,
+		SEND_DATA_WAIT,
+		CALC_DATA_REQ_SIZE,
+		SEND_DATA_DEST
+	} dara_struct_state;
+
 // Vertex data to travers neighbors
 	typedef struct packed {
 		logic                          valid             ;
@@ -82,6 +91,11 @@ package CU_PKG;
 		logic [0:(EDGE_SIZE_BITS-1)] dest  ;
 		logic [0:(EDGE_SIZE_BITS-1)] weight;
 	} EdgeInterface;
+
+	typedef struct packed {
+		logic                        valid;
+		logic [0:(DATA_SIZE_BITS-1)] data ;
+	} EdgeData;
 
 // Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
 	function logic [0:11] cmd_size_calculate(logic [0:(VERTEX_SIZE_BITS-1)]  vertex_num_counter);

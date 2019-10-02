@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_job_control.sv
 // Create : 2019-09-26 15:18:56
-// Revise : 2019-09-30 20:59:21
+// Revise : 2019-10-01 21:31:16
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -36,8 +36,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 );
 
 	//output latched
-	EdgeInterface edge_latched            ;
-	logic         finished_vertex_edge_job;
+	EdgeInterface edge_latched;
 
 	//input lateched
 	WEDInterface       wed_request_in_latched  ;
@@ -156,7 +155,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		end
 	end
 
-	always_comb begin : proc_read_vertex
+	always_comb begin
 		read_vertex = 0;
 		if(done_vertex_edge_processing && vertex_job.valid && ~vertex_job_latched.valid)begin
 			read_vertex = 1;
@@ -409,8 +408,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_job_counter_pushed  <= 0;
-			finished_vertex_edge_job <= 0;
+			edge_job_counter_pushed <= 0;
 		end else begin
 			if(vertex_job_latched.valid)begin
 				if(push_edge)begin

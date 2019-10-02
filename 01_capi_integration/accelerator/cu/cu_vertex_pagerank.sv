@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank.sv
 // Create : 2019-09-26 15:19:37
-// Revise : 2019-09-28 13:00:51
+// Revise : 2019-10-02 14:05:59
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -20,7 +20,8 @@ import CU_PKG::*;
 
 module cu_vertex_pagerank #(
 	parameter NUM_EDGE_CU    = 1,
-	parameter PAGERANK_CU_ID = 1
+	parameter PAGERANK_CU_ID = 1,
+	parameter NUM_REQUESTS = 2
 ) (
 	input  logic                          clock              , // Clock
 	input  logic                          rstn               ,
@@ -69,7 +70,6 @@ module cu_vertex_pagerank #(
 	ReadWriteDataLine  read_data_0_in_edge_data  ;
 	ReadWriteDataLine  read_data_1_in_edge_data  ;
 
-
 	BufferStatus read_data_0_buffer_status   ;
 	BufferStatus read_data_1_buffer_status   ;
 	BufferStatus read_response_buffer_status ;
@@ -90,9 +90,26 @@ module cu_vertex_pagerank #(
 	logic                        edge_request_internal  ;
 	EdgeInterface                edge_job               ;
 	BufferStatus                 edge_buffer_status     ;
+	BufferStatus                 data_buffer_status     ;
 	logic                        processing_vertex      ;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_job_counter_pushed;
+	logic [0:(EDGE_SIZE_BITS-1)] edge_job_counter_pulled;
+	EdgeData                     edge_data              ;
 	logic                        enabled                ;
+
+	logic             [             0:1] request_pulse      ;
+	CommandBufferLine                    command_arbiter_out;
+	logic             [NUM_REQUESTS-1:0] requests           ;
+	logic             [NUM_REQUESTS-1:0] ready              ;
+	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in  ;
+
+	CommandBufferLine read_command_out_edge_job          ;
+	CommandBufferLine read_command_edge_job_buffer       ;
+	BufferStatus      read_command_edge_job_buffer_status;
+
+	CommandBufferLine read_command_out_edge_data          ;
+	CommandBufferLine read_command_edge_data_buffer       ;
+	BufferStatus      read_command_edge_data_buffer_status;
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -104,6 +121,40 @@ module cu_vertex_pagerank #(
 			enabled <= enabled_in;
 		end
 	end
+
+////////////////////////////////////////////////////////////////////////////
+// Request Pulse generation
+////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			request_pulse <= 0;
+		end else begin
+			request_pulse <= request_pulse + 1;
+		end
+	end
+
+	assign requests[0] = ~read_command_edge_job_buffer_status.empty && ~read_buffer_status.alfull && ~(|request_pulse);
+	assign requests[1] = ~read_command_edge_data_buffer_status.empty && ~read_buffer_status.alfull && ~(|request_pulse);
+
+	assign command_buffer_in[0] = read_command_edge_job_buffer;
+	assign command_buffer_in[1] = read_command_edge_data_buffer;
+
+	assign read_command_out_latched = command_arbiter_out;
+
+////////////////////////////////////////////////////////////////////////////
+//Buffer arbitration logic
+////////////////////////////////////////////////////////////////////////////
+
+	command_buffer_arbiter #(.NUM_REQUESTS(NUM_REQUESTS)) read_command_buffer_arbiter_instant (
+		.clock              (clock              ),
+		.rstn               (rstn               ),
+		.enabled_in         (enabled            ),
+		.requests           (requests           ),
+		.command_buffer_in  (command_buffer_in  ),
+		.command_arbiter_out(command_arbiter_out),
+		.ready              (ready              )
+	);
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
@@ -232,8 +283,6 @@ module cu_vertex_pagerank #(
 	// Edge job control
 	////////////////////////////////////////////////////////////////////////////
 
-	assign edge_request = 1; // request edges for Data job control
-
 	assign edge_request_internal = edge_request && enabled;
 
 	cu_edge_job_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_job_control_instant (
@@ -247,12 +296,35 @@ module cu_vertex_pagerank #(
 		.read_buffer_status     (read_buffer_status       ),
 		.edge_request           (edge_request_internal    ),
 		.vertex_job             (vertex_job_latched       ),
-		.read_command_out       (read_command_out_latched ),
+		.read_command_out       (read_command_out_edge_job),
 		.edge_buffer_status     (edge_buffer_status       ),
 		.edge_job               (edge_job                 ),
 		.edge_job_counter_pushed(edge_job_counter_pushed  )
 	);
 
+	////////////////////////////////////////////////////////////////////////////
+	// Edge Data control
+	////////////////////////////////////////////////////////////////////////////
+
+	assign edge_data_request = 1; // request edges for Data job control
+
+	cu_edge_data_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_data_control_instant (
+		.clock                  (clock                     ),
+		.rstn                   (rstn                      ),
+		.enabled_in             (enabled               	   ),
+		.read_response_in       (read_response_in_edge_data),
+		.read_data_0_in         (read_data_0_in_edge_data  ),
+		.read_data_1_in         (read_data_1_in_edge_data  ),
+		.read_buffer_status     (read_buffer_status        ),
+		.vertex_job             (vertex_job_latched        ),
+		.edge_data_request      (edge_data_request         ),
+		.edge_job               (edge_job                  ),
+		.edge_request           (edge_request              ),
+		.read_command_out       (read_command_out_edge_data),
+		.data_buffer_status     (data_buffer_status        ),
+		.edge_data              (edge_data                 ),
+		.edge_job_counter_pulled(edge_job_counter_pulled   )
+	);
 
 ////////////////////////////////////////////////////////////////////////////
 //read response arbitration logic - input
@@ -342,6 +414,47 @@ module cu_vertex_pagerank #(
 			end
 		end
 	end
+
+	////////////////////////////////////////////////////////////////////////////
+	// Read Command Buffers
+	////////////////////////////////////////////////////////////////////////////
+
+	fifo #(
+		.WIDTH($bits(CommandBufferLine)),
+		.DEPTH(READ_CMD_BUFFER_SIZE    )
+	) read_command_edge_job_buffer_fifo_instant (
+		.clock   (clock                                     ),
+		.rstn    (rstn                                      ),
+		
+		.push    (read_command_out_edge_job.valid           ),
+		.data_in (read_command_out_edge_job                 ),
+		.full    (read_command_edge_job_buffer_status.full  ),
+		.alFull  (read_command_edge_job_buffer_status.alfull),
+		
+		.pop     (ready[0]                                  ),
+		.valid   (read_command_edge_job_buffer_status.valid ),
+		.data_out(read_command_edge_job_buffer              ),
+		.empty   (read_command_edge_job_buffer_status.empty )
+	);
+
+	fifo #(
+		.WIDTH($bits(CommandBufferLine)),
+		.DEPTH(READ_CMD_BUFFER_SIZE    )
+	) read_command_edge_data_buffer_fifo_instant (
+		.clock   (clock                                      ),
+		.rstn    (rstn                                       ),
+		
+		.push    (read_command_out_edge_data.valid           ),
+		.data_in (read_command_out_edge_data                 ),
+		.full    (read_command_edge_data_buffer_status.full  ),
+		.alFull  (read_command_edge_data_buffer_status.alfull),
+		
+		.pop     (ready[1]                                   ),
+		.valid   (read_command_edge_data_buffer_status.valid ),
+		.data_out(read_command_edge_data_buffer              ),
+		.empty   (read_command_edge_data_buffer_status.empty )
+	);
+
 
 	////////////////////////////////////////////////////////////////////////////
 	// Read DATA Buffers
