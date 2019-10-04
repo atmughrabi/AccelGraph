@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_control.sv
 // Create : 2019-09-26 15:19:08
-// Revise : 2019-09-28 12:44:08
+// Revise : 2019-10-02 19:28:20
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -38,22 +38,18 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	input  VertexInterface                vertex_job             ,
 	output logic                          vertex_job_request     ,
 	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done,
-	output logic [0:(VERTEX_SIZE_BITS-1)] edge_job_counter_done
+	output logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done
 );
 
 // vertex control variables
 
-	BufferStatus    vertex_buffer_status_internal;
-	logic           vertex_request_internal      ;
-	logic           vertex_job_request_latched   ;
-	VertexInterface vertex_job_latched           ;
-	VertexInterface vertex_job_arbiter_in        ;
-
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter     ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_temp;
-
-	logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter     ;
-	logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter_temp;
+	BufferStatus                   vertex_buffer_status_internal;
+	logic                          vertex_request_internal      ;
+	logic                          vertex_job_request_latched   ;
+	VertexInterface                vertex_job_latched           ;
+	VertexInterface                vertex_job_arbiter_in        ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_temp      ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter_temp        ;
 
 
 	//output latched
@@ -70,7 +66,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	ReadWriteDataLine  read_data_1_in_latched   ;
 
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_cu[0:NUM_VERTEX_CU-1];
-	logic [0:(VERTEX_SIZE_BITS-1)] edge_num_counter_cu  [0:NUM_VERTEX_CU-1];
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter_cu  [0:NUM_VERTEX_CU-1];
 
 	CommandBufferLine         read_command_cu              [0:NUM_VERTEX_CU-1];
 	CommandBufferLine         read_command_arbiter_cu      [0:NUM_VERTEX_CU-1];
@@ -417,7 +413,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_num_counter <= 0;
+			vertex_job_counter_done <= 0;
 		end else begin
 			if(enabled)begin
 				vertex_job_counter_done <= vertex_num_counter_temp;
@@ -438,7 +434,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_num_counter <= 0;
+			edge_job_counter_done <= 0;
 		end else begin
 			if(enabled)begin
 				edge_job_counter_done <= edge_num_counter_temp;

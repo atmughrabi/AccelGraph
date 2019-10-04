@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_pkg.sv
 // Create : 2019-09-26 15:20:09
-// Revise : 2019-10-02 14:18:44
+// Revise : 2019-10-03 19:01:41
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -32,7 +32,8 @@ package CU_PKG;
 		INV_EDGE_ARRAY_SRC,
 		INV_EDGE_ARRAY_DEST,
 		INV_EDGE_ARRAY_WEIGHT,
-		GRAPH_DATA
+		READ_GRAPH_DATA,
+		WRITE_GRAPH_DATA
 	} vertex_struct_type;
 
 	typedef enum int unsigned {
@@ -204,5 +205,50 @@ package CU_PKG;
 		return cacheline_out;
 
 	endfunction : seek_cacheline
+
+	function logic [0:(DATA_SIZE_BITS-1)] data_extract_cacheline_hf(logic [0:7]  shift_seek, logic [0:(CACHELINE_SIZE_BITS_HF-1)] cacheline_in);
+
+		logic [0:(DATA_SIZE_BITS-1)] data;
+
+		data = 0;
+
+		if(0 == shift_seek) begin
+			data = cacheline_in[(0*DATA_SIZE_BITS):((0*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(1 == shift_seek) begin
+			data = cacheline_in[(1*DATA_SIZE_BITS):((1*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(2 == shift_seek) begin
+			data = cacheline_in[(2*DATA_SIZE_BITS):((2*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(3 == shift_seek) begin
+			data = cacheline_in[(3*DATA_SIZE_BITS):((3*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(4 == shift_seek) begin
+			data = cacheline_in[(4*DATA_SIZE_BITS):((4*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(5 == shift_seek) begin
+			data = cacheline_in[(5*DATA_SIZE_BITS):((5*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(6 == shift_seek) begin
+			data = cacheline_in[(6*DATA_SIZE_BITS):((6*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(7 == shift_seek) begin
+			data = cacheline_in[(7*DATA_SIZE_BITS):((7*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(8 == shift_seek) begin
+			data = cacheline_in[(8*DATA_SIZE_BITS):((8*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(9 == shift_seek) begin
+			data = cacheline_in[(9*DATA_SIZE_BITS):((9*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(10 == shift_seek) begin
+			data = cacheline_in[(10*DATA_SIZE_BITS):((10*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(11 == shift_seek) begin
+			data = cacheline_in[(11*DATA_SIZE_BITS):((11*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(12 == shift_seek) begin
+			data = cacheline_in[(12*DATA_SIZE_BITS):((12*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(13 == shift_seek) begin
+			data = cacheline_in[(13*DATA_SIZE_BITS):((13*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(14 == shift_seek) begin
+			data = cacheline_in[(14*DATA_SIZE_BITS):((14*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end else if(15 == shift_seek) begin
+			data = cacheline_in[(15*DATA_SIZE_BITS):((15*DATA_SIZE_BITS)+(DATA_SIZE_BITS-1))];
+		end 
+
+		return data;
+
+	endfunction : data_extract_cacheline_hf
+
 
 endpackage
