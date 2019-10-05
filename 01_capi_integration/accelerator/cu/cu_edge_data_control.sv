@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_control.sv
 // Create : 2019-09-26 15:18:46
-// Revise : 2019-10-03 23:03:26
+// Revise : 2019-10-05 04:24:31
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -55,7 +55,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	CommandBufferLine  read_command_out_latched            ;
 	BufferStatus       read_buffer_status_internal         ;
 	logic              read_command_job_edge_data_burst_pop;
-
+	logic [0:7]     offset_data_0          ;
+	logic [0:7]     offset_data_1          ;
 	logic enabled                  ;
 	logic edge_data_request_latched;
 	logic push_edge_job            ;
@@ -161,15 +162,36 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 //data request read logic
 ////////////////////////////////////////////////////////////////////////////
 
-	always_comb begin
-		edge_data_variable_latched = 0;
-		if(read_data_0_in_latched.valid && read_data_0_in_latched.cmd.cacheline_offest < (CACHELINE_SIZE >> ($clog2(DATA_SIZE)+1)))begin
-			edge_data_variable_latched.valid = 1;
-			edge_data_variable_latched.data  = data_extract_cacheline_hf(read_data_0_in_latched.cmd.cacheline_offest,read_data_0_in_latched.data);
-		end
-		if(read_data_1_in_latched.valid && read_data_1_in_latched.cmd.cacheline_offest >= (CACHELINE_SIZE >> ($clog2(DATA_SIZE)+1)))begin
-			edge_data_variable_latched.valid = 1;
-			edge_data_variable_latched.data  = data_extract_cacheline_hf((((CACHELINE_SIZE >> $clog2(DATA_SIZE))-1) & read_data_1_in_latched.cmd.cacheline_offest), read_data_1_in_latched.data);
+	// always_comb begin
+	// 	edge_data_variable_latched = 0;
+	// 	if(read_data_0_in_latched.valid && read_data_0_in_latched.cmd.cacheline_offest < (CACHELINE_SIZE >> ($clog2(DATA_SIZE)+1)))begin
+	// 		edge_data_variable_latched.valid = 1;
+	// 		edge_data_variable_latched.data  = data_extract_cacheline_hf(read_data_0_in_latched.cmd.cacheline_offest,read_data_0_in_latched.data);
+	// 	end
+	// 	if(read_data_1_in_latched.valid && read_data_1_in_latched.cmd.cacheline_offest >= (CACHELINE_SIZE >> ($clog2(DATA_SIZE)+1)))begin
+	// 		edge_data_variable_latched.valid = 1;
+	// 		edge_data_variable_latched.data  = data_extract_cacheline_hf((((CACHELINE_SIZE >> $clog2(DATA_SIZE))-1) & read_data_1_in_latched.cmd.cacheline_offest), read_data_1_in_latched.data);
+	// 	end
+	// end
+
+	assign offset_data_0 = read_data_0_in_latched.cmd.cacheline_offest;
+	assign offset_data_1 = (((CACHELINE_SIZE >> ($clog2(DATA_SIZE)+1))-1) & read_data_1_in_latched.cmd.cacheline_offest);
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_variable_latched <= 0;
+		end else begin
+			if(enabled) begin
+				if(read_data_0_in_latched.valid && read_data_0_in_latched.cmd.cacheline_offest < (CACHELINE_SIZE >> ($clog2(DATA_SIZE)+1)))begin
+					edge_data_variable_latched.valid <= 1;
+					edge_data_variable_latched.data  <= data_extract_cacheline_hf(offset_data_0,read_data_0_in_latched.data);
+				end else if(read_data_1_in_latched.valid && read_data_1_in_latched.cmd.cacheline_offest >= (CACHELINE_SIZE >> ($clog2(DATA_SIZE)+1)))begin
+					edge_data_variable_latched.valid <= 1;
+					edge_data_variable_latched.data  <= data_extract_cacheline_hf(offset_data_1, read_data_1_in_latched.data);
+				end else begin
+					edge_data_variable_latched <= 0;
+				end
+			end
 		end
 	end
 
