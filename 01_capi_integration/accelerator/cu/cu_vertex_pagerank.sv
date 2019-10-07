@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank.sv
 // Create : 2019-09-26 15:19:37
-// Revise : 2019-10-03 17:34:09
+// Revise : 2019-10-06 23:30:24
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -62,9 +62,10 @@ module cu_vertex_pagerank #(
 	ReadWriteDataLine  read_data_1_in_latched   ;
 
 
-	ResponseBufferLine read_response_in_edge_job;
-	ReadWriteDataLine  read_data_0_in_edge_job  ;
-	ReadWriteDataLine  read_data_1_in_edge_job  ;
+	ResponseBufferLine write_response_in_edge_data;
+	ResponseBufferLine read_response_in_edge_job  ;
+	ReadWriteDataLine  read_data_0_in_edge_job    ;
+	ReadWriteDataLine  read_data_1_in_edge_job    ;
 
 	ResponseBufferLine read_response_in_edge_data;
 	ReadWriteDataLine  read_data_0_in_edge_data  ;
@@ -108,6 +109,17 @@ module cu_vertex_pagerank #(
 	CommandBufferLine read_command_out_edge_data          ;
 	CommandBufferLine read_command_edge_data_buffer       ;
 	BufferStatus      read_command_edge_data_buffer_status;
+
+	CommandBufferLine write_command_cu              ;
+	CommandBufferLine write_command_arbiter_cu      ;
+	BufferStatus      write_command_buffer_states_cu;
+
+	BufferStatus      write_data_0_buffer_states_cu;
+	BufferStatus      write_data_1_buffer_states_cu;
+	ReadWriteDataLine write_data_0_arbiter_cu      ;
+	ReadWriteDataLine write_data_1_arbiter_cu      ;
+	ReadWriteDataLine write_data_0_cu              ;
+	ReadWriteDataLine write_data_1_cu              ;
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -158,9 +170,9 @@ module cu_vertex_pagerank #(
 //Drive input out put
 ////////////////////////////////////////////////////////////////////////////
 
-	assign write_command_out_latched = 0;
-	assign write_data_0_out_latched  = 0;
-	assign write_data_1_out_latched  = 0;
+	assign write_command_out_latched = write_command_arbiter_cu;
+	assign write_data_0_out_latched  = write_data_0_arbiter_cu;
+	assign write_data_1_out_latched  = write_data_1_arbiter_cu;
 
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
@@ -282,46 +294,65 @@ module cu_vertex_pagerank #(
 	////////////////////////////////////////////////////////////////////////////
 
 	cu_edge_job_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_job_control_instant (
-		.clock                  (clock                    ),
-		.rstn                   (rstn                     ),
-		.enabled_in             (enabled                  ),
-		.wed_request_in         (wed_request_in_latched   ),
-		.read_response_in       (read_response_in_edge_job),
-		.read_data_0_in         (read_data_0_in_edge_job  ),
-		.read_data_1_in         (read_data_1_in_edge_job  ),
-		.read_buffer_status     (read_buffer_status       ),
-		.edge_request           (edge_request             ),
-		.vertex_job             (vertex_job_latched       ),
-		.read_command_out       (read_command_out_edge_job),
-		.edge_buffer_status     (edge_buffer_status       ),
-		.edge_job               (edge_job                 ),
-		.edge_job_counter_pushed(edge_job_counter_pushed  )
+		.clock                  (clock                              ),
+		.rstn                   (rstn                               ),
+		.enabled_in             (enabled                            ),
+		.wed_request_in         (wed_request_in_latched             ),
+		.read_response_in       (read_response_in_edge_job          ),
+		.read_data_0_in         (read_data_0_in_edge_job            ),
+		.read_data_1_in         (read_data_1_in_edge_job            ),
+		.read_buffer_status     (read_command_edge_job_buffer_status),
+		.edge_request           (edge_request                       ),
+		.vertex_job             (vertex_job_latched                 ),
+		.read_command_out       (read_command_out_edge_job          ),
+		.edge_buffer_status     (edge_buffer_status                 ),
+		.edge_job               (edge_job                           ),
+		.edge_job_counter_pushed(edge_job_counter_pushed            )
 	);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Edge Data control
 	////////////////////////////////////////////////////////////////////////////
 
-	assign edge_data_request = 1 && ~data_buffer_status.empty; // request edges for Data job control
-
 	cu_edge_data_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_data_control_instant (
-		.clock             (clock                     ),
-		.rstn              (rstn                      ),
-		.enabled_in        (enabled                   ),
-		.wed_request_in    (wed_request_in_latched    ),
-		.read_response_in  (read_response_in_edge_data),
-		.read_data_0_in    (read_data_0_in_edge_data  ),
-		.read_data_1_in    (read_data_1_in_edge_data  ),
-		.read_buffer_status(read_buffer_status        ),
-		.edge_buffer_status(edge_buffer_status        ),
-		.vertex_job        (vertex_job_latched        ),
-		.edge_data_request (edge_data_request         ),
-		.edge_job          (edge_job                  ),
-		.edge_request      (edge_request              ),
-		.read_command_out  (read_command_out_edge_data),
-		.data_buffer_status(data_buffer_status        ),
-		.edge_data         (edge_data                 )
+		.clock             (clock                               ),
+		.rstn              (rstn                                ),
+		.enabled_in        (enabled                             ),
+		.wed_request_in    (wed_request_in_latched              ),
+		.read_response_in  (read_response_in_edge_data          ),
+		.read_data_0_in    (read_data_0_in_edge_data            ),
+		.read_data_1_in    (read_data_1_in_edge_data            ),
+		.read_buffer_status(read_command_edge_data_buffer_status),
+		.edge_buffer_status(edge_buffer_status                  ),
+		.vertex_job        (vertex_job_latched                  ),
+		.edge_data_request (edge_data_request                   ),
+		.edge_job          (edge_job                            ),
+		.edge_request      (edge_request                        ),
+		.read_command_out  (read_command_out_edge_data          ),
+		.data_buffer_status(data_buffer_status                  ),
+		.edge_data         (edge_data                           )
 	);
+
+	////////////////////////////////////////////////////////////////////////////
+	// Data SUM control
+	////////////////////////////////////////////////////////////////////////////
+
+
+	cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
+		.clock              (clock                         ),
+		.rstn               (rstn                          ),
+		.enabled_in         (enabled_in                    ),
+		.wed_request_in     (wed_request_in                ),
+		.write_response_in  (write_response_in_edge_data   ),
+		.write_buffer_status(write_command_buffer_states_cu),
+		.edge_data          (edge_data                     ),
+		.edge_data_request  (edge_data_request             ),
+		.data_buffer_status (data_buffer_status            ),
+		.write_data_0_out   (write_data_0_cu               ),
+		.write_data_1_out   (write_data_1_cu               ),
+		.write_command_out  (write_command_cu              )
+	);
+
 
 ////////////////////////////////////////////////////////////////////////////
 //read response arbitration logic - input
@@ -329,27 +360,54 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_response_in_edge_job  <= 0;
-			read_response_in_edge_data <= 0;
+			read_response_in_edge_job   <= 0;
+			read_response_in_edge_data  <= 0;
 		end else begin
 			if(enabled && read_response_buffer.valid) begin
 				case (read_response_buffer.cmd.vertex_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT, EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_response_in_edge_job  <= read_response_buffer;
-						read_response_in_edge_data <= 0;
+						read_response_in_edge_job   <= read_response_buffer;
+						read_response_in_edge_data  <= 0;
 					end
 					READ_GRAPH_DATA : begin
-						read_response_in_edge_job  <= 0;
-						read_response_in_edge_data <= read_response_buffer;
+						read_response_in_edge_job   <= 0;
+						read_response_in_edge_data  <= read_response_buffer;
+					end
+					WRITE_GRAPH_DATA : begin
+						read_response_in_edge_job   <= 0;
+						read_response_in_edge_data  <= 0;
 					end
 					default : begin
-						read_response_in_edge_job  <= 0;
-						read_response_in_edge_data <= 0;
+						read_response_in_edge_job   <= 0;
+						read_response_in_edge_data  <= 0;
 					end
 				endcase
 			end else begin
-				read_response_in_edge_job  <= 0;
-				read_response_in_edge_data <= 0;
+				read_response_in_edge_job   <= 0;
+				read_response_in_edge_data  <= 0;
+			end
+		end
+	end
+
+////////////////////////////////////////////////////////////////////////////
+//write response arbitration logic - input
+////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			write_response_in_edge_data <= 0;
+		end else begin
+			if(enabled && write_response_buffer.valid) begin
+				case (write_response_buffer.cmd.vertex_struct)
+					WRITE_GRAPH_DATA : begin
+						write_response_in_edge_data <= write_response_buffer;
+					end
+					default : begin
+						write_response_in_edge_data <= 0;
+					end
+				endcase
+			end else begin
+				write_response_in_edge_data <= 0;
 			end
 		end
 	end
@@ -499,8 +557,67 @@ module cu_vertex_pagerank #(
 	);
 
 	////////////////////////////////////////////////////////////////////////////
-	// Write DATA Buffers
+	// write command CU Buffers
 	////////////////////////////////////////////////////////////////////////////
+
+	fifo #(
+		.WIDTH($bits(CommandBufferLine)),
+		.DEPTH(WRITE_CMD_BUFFER_SIZE   )
+	) write_command_cu_buffer_fifo_instant (
+		.clock   (clock                                ),
+		.rstn    (rstn                                 ),
+		
+		.push    (write_command_cu.valid               ),
+		.data_in (write_command_cu                     ),
+		.full    (write_command_buffer_states_cu.full  ),
+		.alFull  (write_command_buffer_states_cu.alfull),
+		
+		.pop     (ready_write_command_cu               ),
+		.valid   (write_command_buffer_states_cu.valid ),
+		.data_out(write_command_arbiter_cu             ),
+		.empty   (write_command_buffer_states_cu.empty )
+	);
+
+
+	////////////////////////////////////////////////////////////////////////////
+	// write command CU DATA Buffers
+	////////////////////////////////////////////////////////////////////////////
+
+	fifo #(
+		.WIDTH($bits(ReadWriteDataLine)),
+		.DEPTH(WRITE_CMD_BUFFER_SIZE  )
+	) write_data_cu_0_buffer_fifo_instant (
+		.clock   (clock                               ),
+		.rstn    (rstn                                ),
+		
+		.push    (write_command_cu.valid              ),
+		.data_in (write_data_0_cu                     ),
+		.full    (write_data_0_buffer_states_cu.full  ),
+		.alFull  (write_data_0_buffer_states_cu.alfull),
+		
+		.pop     (ready_write_command_cu              ),
+		.valid   (write_data_0_buffer_states_cu.valid ),
+		.data_out(write_data_0_arbiter_cu             ),
+		.empty   (write_data_0_buffer_states_cu.empty )
+	);
+
+	fifo #(
+		.WIDTH($bits(ReadWriteDataLine)),
+		.DEPTH(WRITE_CMD_BUFFER_SIZE  )
+	) write_data_cu_1_buffer_fifo_instant (
+		.clock   (clock                               ),
+		.rstn    (rstn                                ),
+		
+		.push    (write_command_cu.valid              ),
+		.data_in (write_data_1_cu                     ),
+		.full    (write_data_1_buffer_states_cu.full  ),
+		.alFull  (write_data_1_buffer_states_cu.alfull),
+		
+		.pop     (ready_write_command_cu              ),
+		.valid   (write_data_1_buffer_states_cu.valid ),
+		.data_out(write_data_1_arbiter_cu             ),
+		.empty   (write_data_1_buffer_states_cu.empty )
+	);
 
 
 
@@ -509,7 +626,7 @@ module cu_vertex_pagerank #(
 	////////////////////////////////////////////////////////////////////////////
 
 	assign read_response_buffer_pop  = ~read_response_buffer_status.empty && enabled;
-	assign write_response_buffer_pop = 0;
+	assign write_response_buffer_pop = ~write_response_buffer_status.empty && enabled;;
 
 	fifo #(
 		.WIDTH($bits(ResponseBufferLine)),

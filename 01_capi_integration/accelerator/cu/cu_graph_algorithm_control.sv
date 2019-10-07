@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_control.sv
 // Create : 2019-09-26 15:19:08
-// Revise : 2019-10-02 19:28:20
+// Revise : 2019-10-06 23:12:52
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -528,7 +528,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_write_data_0_cu
 			fifo  #(
 				.WIDTH($bits(ReadWriteDataLine)),
-				.DEPTH(WRITE_DATA_BUFFER_SIZE)
+				.DEPTH(WRITE_CMD_BUFFER_SIZE)
 			)write_data_cu_0_buffer_fifo_instant(
 				.clock(clock),
 				.rstn(rstn),
@@ -551,7 +551,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_write_data_1_cu
 			fifo  #(
 				.WIDTH($bits(ReadWriteDataLine)),
-				.DEPTH(WRITE_DATA_BUFFER_SIZE)
+				.DEPTH(WRITE_CMD_BUFFER_SIZE)
 			)write_data_cu_1_buffer_fifo_instant(
 				.clock(clock),
 				.rstn(rstn),

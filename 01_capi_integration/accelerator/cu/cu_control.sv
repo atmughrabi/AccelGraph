@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_control.sv
 // Create : 2019-09-26 15:18:39
-// Revise : 2019-10-02 16:58:50
+// Revise : 2019-10-06 21:06:48
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_latched    ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_latched      ;
 
-	logic [0:1] request_pulse;
+	logic [0:2] request_pulse;
 	logic       enabled      ;
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -373,5 +373,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.data_out(read_command_graph_algorithm_buffer              ),
 		.empty   (read_command_graph_algorithm_buffer_status.empty )
 	);
+
+
 
 endmodule

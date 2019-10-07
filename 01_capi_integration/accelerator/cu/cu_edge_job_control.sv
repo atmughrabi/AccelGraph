@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_job_control.sv
 // Create : 2019-09-26 15:18:56
-// Revise : 2019-10-01 21:31:16
+// Revise : 2019-10-06 17:43:16
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -468,7 +468,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 //Read Command Edge double buffer
 ////////////////////////////////////////////////////////////////////////////
 
-	assign read_command_job_edge_burst_pop = ~read_buffer_status.alfull;
+	assign read_command_job_edge_burst_pop = ~read_buffer_status_internal.empty && ~read_buffer_status.alfull;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),

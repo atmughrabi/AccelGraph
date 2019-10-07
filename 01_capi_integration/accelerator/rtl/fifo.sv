@@ -13,8 +13,8 @@
 // -----------------------------------------------------------------------------
 
 module fifo #(
-    parameter WIDTH     = 24,
-    parameter DEPTH     = 32,
+    parameter WIDTH     = 32,
+    parameter DEPTH     = 16,
     parameter ADDR_BITS = $clog2(DEPTH),
     parameter HEADROOM  = 3
 ) (
