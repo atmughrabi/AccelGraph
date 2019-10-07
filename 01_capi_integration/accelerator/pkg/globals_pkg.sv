@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-10-06 21:04:01
+// Revise : 2019-10-07 02:31:07
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ package GLOBALS_PKG;
 ////////////////////////////////////////////////////////////////////////////
 
 	parameter NUM_GRAPH_CU_GLOBAL  = 1;
-	parameter NUM_VERTEX_CU_GLOBAL = 8;
+	parameter NUM_VERTEX_CU_GLOBAL = 1;
 
 	parameter CU_VERTEX_JOB_BUFFER_SIZE = 256;
 	parameter CU_EDGE_JOB_BUFFER_SIZE   = 256;
