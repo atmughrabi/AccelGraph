@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_control.sv
 // Create : 2019-09-26 15:19:08
-// Revise : 2019-10-06 23:32:36
+// Revise : 2019-10-07 15:57:16
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 

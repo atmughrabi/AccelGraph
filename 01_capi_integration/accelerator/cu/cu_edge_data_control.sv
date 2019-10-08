@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_control.sv
 // Create : 2019-09-26 15:18:46
-// Revise : 2019-10-07 12:56:55
+// Revise : 2019-10-07 20:56:59
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -20,27 +20,28 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_edge_data_control #(parameter CU_ID = 1) (
-	input  logic              clock             , // Clock
-	input  logic              rstn              ,
-	input  logic              enabled_in        ,
-	input  WEDInterface       wed_request_in    ,
-	input  ResponseBufferLine read_response_in  ,
-	input  ReadWriteDataLine  read_data_0_in    ,
-	input  ReadWriteDataLine  read_data_1_in    ,
-	input  BufferStatus       read_buffer_status,
-	input  BufferStatus       edge_buffer_status,
-	input  VertexInterface    vertex_job        ,
-	input  logic              edge_data_request ,
-	input  EdgeInterface      edge_job          ,
-	output logic              edge_request      ,
-	output CommandBufferLine  read_command_out  ,
-	output BufferStatus       data_buffer_status,
-	output EdgeData           edge_data
+	input  logic                        clock                   , // Clock
+	input  logic                        rstn                    ,
+	input  logic                        enabled_in              ,
+	input  WEDInterface                 wed_request_in          ,
+	input  ResponseBufferLine           read_response_in        ,
+	input  ReadWriteDataLine            read_data_0_in          ,
+	input  ReadWriteDataLine            read_data_1_in          ,
+	input  BufferStatus                 read_buffer_status      ,
+	input  BufferStatus                 edge_buffer_status      ,
+	input  VertexInterface              vertex_job              ,
+	input  logic                        edge_data_request       ,
+	input  EdgeInterface                edge_job                ,
+	output logic                        edge_request            ,
+	output CommandBufferLine            read_command_out        ,
+	output BufferStatus                 data_buffer_status      ,
+	output EdgeData                     edge_data               ,
+	output logic [0:(EDGE_SIZE_BITS-1)] edge_data_counter_pushed
 );
 
-	parameter WORDS                          = 1                                                                                                          ;
-	parameter CACHELINE_DATA_READ_ADDR_BITS  = $clog2((DATA_SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? (WORDS * CACHELINE_SIZE_BITS_HF)/DATA_SIZE_BITS : WORDS);
-	parameter CACHELINE_DATA_WRITE_ADDR_BITS = $clog2((DATA_SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? WORDS : (WORDS * DATA_SIZE_BITS)/CACHELINE_SIZE_BITS_HF);
+	parameter WORDS                          = 1                                                                                                    ;
+	parameter CACHELINE_DATA_READ_ADDR_BITS  = $clog2((DATA_SIZE_BITS < CACHELINE_SIZE_BITS) ? (WORDS * CACHELINE_SIZE_BITS)/DATA_SIZE_BITS : WORDS);
+	parameter CACHELINE_DATA_WRITE_ADDR_BITS = $clog2((DATA_SIZE_BITS < CACHELINE_SIZE_BITS) ? WORDS : (WORDS * DATA_SIZE_BITS)/CACHELINE_SIZE_BITS);
 
 
 	//output latched
@@ -51,23 +52,24 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	VertexInterface vertex_job_latched        ;
 	logic [0:7]     response_counter          ;
 	//input lateched
-	ResponseBufferLine read_response_in_latched            ;
-	ReadWriteDataLine  read_data_0_in_latched              ;
-	ReadWriteDataLine  read_data_1_in_latched              ;
-	logic              edge_request_latched                ;
-	BufferStatus       edge_buffer_status_internal         ;
-	WEDInterface       wed_request_in_latched              ;
-	CommandBufferLine  read_command_out_latched            ;
-	BufferStatus       read_buffer_status_internal         ;
-	logic              read_command_job_edge_data_burst_pop;
-	logic [0:7]        offset_data_0                       ;
-	logic [0:7]        offset_data_1                       ;
-	logic              enabled                             ;
-	logic              edge_data_request_latched           ;
-	logic              edge_variable_pop                   ;
+	ResponseBufferLine           read_response_in_latched            ;
+	ReadWriteDataLine            read_data_0_in_latched              ;
+	ReadWriteDataLine            read_data_0_in_latched_S2           ;
+	ReadWriteDataLine            read_data_1_in_latched              ;
+	logic                        edge_request_latched                ;
+	BufferStatus                 edge_buffer_status_internal         ;
+	WEDInterface                 wed_request_in_latched              ;
+	CommandBufferLine            read_command_out_latched            ;
+	BufferStatus                 read_buffer_status_internal         ;
+	logic                        read_command_job_edge_data_burst_pop;
+	logic [                 0:7] offset_data_0                       ;
+	logic [                 0:7] offset_data_1                       ;
+	logic                        enabled                             ;
+	logic                        edge_data_request_latched           ;
+	logic                        edge_variable_pop                   ;
+	logic [0:(EDGE_SIZE_BITS-1)] edge_data_counter_valid             ;
 
-
-	logic [          0:CACHELINE_SIZE_BITS_HF-1] read_data_in      ;
+	logic [             0:CACHELINE_SIZE_BITS-1] read_data_in      ;
 	logic [0:(CACHELINE_DATA_WRITE_ADDR_BITS-1)] address_wr        ;
 	logic [ 0:(CACHELINE_DATA_READ_ADDR_BITS-1)] address_rd        ;
 	logic [ 0:(CACHELINE_DATA_READ_ADDR_BITS-1)] address_rd_latched;
@@ -108,6 +110,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		if(~rstn) begin
 			read_response_in_latched  <= 0;
 			read_data_0_in_latched    <= 0;
+			read_data_0_in_latched_S2 <= 0;
 			read_data_1_in_latched    <= 0;
 			edge_job_latched          <= 0;
 			vertex_job_latched        <= 0;
@@ -117,7 +120,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 			if(enabled) begin
 				wed_request_in_latched    <= wed_request_in;
 				read_response_in_latched  <= read_response_in;
-				read_data_0_in_latched    <= read_data_0_in;
+				read_data_0_in_latched_S2 <= read_data_0_in;
+				read_data_0_in_latched    <= read_data_0_in_latched_S2;
 				read_data_1_in_latched    <= read_data_1_in;
 				edge_job_latched          <= edge_job;
 				vertex_job_latched        <= vertex_job;
@@ -185,16 +189,12 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 			address_rd   <= 0;
 		end else begin
 			if(enabled) begin
-				if(read_data_0_in_latched.valid && read_data_0_in_latched.cmd.cacheline_offest < (CACHELINE_SIZE >> ($clog2(DATA_SIZE)+1)))begin
-					we           <= 1;
-					read_data_in <= read_data_0_in_latched.data;
-					address_wr   <= 0;
-					address_rd   <= offset_data_0;
-				end else if(read_data_1_in_latched.valid && read_data_1_in_latched.cmd.cacheline_offest >= (CACHELINE_SIZE >> ($clog2(DATA_SIZE)+1)))begin
-					we           <= 1;
-					read_data_in <= read_data_1_in_latched.data;
-					address_wr   <= 0;
-					address_rd   <= offset_data_1;
+				if(read_data_0_in_latched.valid && read_data_1_in_latched.valid)begin
+					we                                                         <= 1;
+					read_data_in[0:CACHELINE_SIZE_BITS_HF-1]                   <= read_data_0_in_latched.data;
+					read_data_in[CACHELINE_SIZE_BITS_HF:CACHELINE_SIZE_BITS-1] <= read_data_1_in_latched.data;
+					address_wr                                                 <= 0;
+					address_rd                                                 <= offset_data_0;
 				end else begin
 					we           <= 0;
 					read_data_in <= 0;
@@ -231,13 +231,43 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		end
 	end
 
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_counter_pushed <= 0;
+		end else begin
+			if (enabled) begin
+				if(edge_data_variable.valid)
+					edge_data_counter_pushed <= edge_data_counter_pushed + 1;
+
+				if(edge_data_counter_pushed == vertex_job_latched.inverse_out_degree && vertex_job_latched.valid)begin
+					edge_data_counter_pushed <= 0;
+				end
+			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_counter_valid <= 0;
+		end else begin
+			if (enabled) begin
+				if(read_data_0_in_latched.valid)
+					edge_data_counter_valid <= edge_data_counter_valid + 1;
+
+				if(edge_data_counter_valid == vertex_job_latched.inverse_out_degree && vertex_job_latched.valid)begin
+					edge_data_counter_valid <= 0;
+				end
+			end
+		end
+	end
+
 ///////////////////////////////////////////////////////////////////////////
 //Edge data buffer
 ////////////////////////////////////////////////////////////////////////////
 
 	fifo #(
-		.WIDTH($bits(EdgeData)        ),
-		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
+		.WIDTH($bits(EdgeData)          ),
+		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
 	) edge_data_buffer_fifo_instant (
 		.clock   (clock                    ),
 		.rstn    (rstn                     ),
@@ -260,8 +290,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	assign edge_variable_pop    = ~edge_buffer_status_internal.empty && ~read_buffer_status_internal.alfull;
 
 	fifo #(
-		.WIDTH($bits(EdgeInterface)   ),
-		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
+		.WIDTH($bits(EdgeInterface)     ),
+		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
 	) edge_job_buffer_fifo_instant (
 		.clock   (clock                             ),
 		.rstn    (rstn                              ),
@@ -284,8 +314,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	assign read_command_job_edge_data_burst_pop = ~read_buffer_status_internal.empty && ~read_buffer_status.alfull;
 
 	fifo #(
-		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE )
+		.WIDTH($bits(CommandBufferLine) ),
+		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
 	) read_command_edge_data_burst_fifo_instant (
 		.clock   (clock                               ),
 		.rstn    (rstn                                ),
@@ -306,9 +336,9 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 ////////////////////////////////////////////////////////////////////////////
 
 	mixed_width_ram #(
-		.WORDS(WORDS                 ),
-		.WW   (CACHELINE_SIZE_BITS_HF),
-		.RW   (DATA_SIZE_BITS        )
+		.WORDS(WORDS              ),
+		.WW   (CACHELINE_SIZE_BITS),
+		.RW   (DATA_SIZE_BITS     )
 	) cacheline_instant (
 		.clock   (clock                          ),
 		.we      (we                             ),
@@ -318,5 +348,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		.rd_addr (address_rd_latched             ),
 		.data_out(edge_data_variable_latched.data)
 	);
+
+
 
 endmodule
