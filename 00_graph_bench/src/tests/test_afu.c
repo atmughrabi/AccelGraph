@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-10-07 22:21:05
+// Revise : 2019-10-08 19:44:59
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -436,6 +436,11 @@ main (int argc, char **argv)
     printMMIO_error(error);
     printf("Vertices: %lu\n", ((algo_status << 32) >> 32));
     printf("Edges: %lu\n", ((algo_status) >> 32));
+
+     for (__u32 i = 0; i < ((struct GraphCSR *)graph)->num_vertices; ++i)
+    {
+        printf("prnext[%u] = %u \n", i,prnext[i]);
+    }
 
     printf("Releasing AFU\n");
     cxl_mmio_unmap (afu);

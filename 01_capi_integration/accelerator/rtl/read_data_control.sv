@@ -17,25 +17,25 @@ import CAPI_PKG::*;
 import AFU_PKG::*;
 
 module read_data_control (
-  input  logic                    clock                  , // Clock
-  input  logic                    rstn                   ,
-  input  logic                    enabled_in             ,
-  input  ReadDataControlInterface buffer_in              ,
-  input  CommandTagLine           data_read_tag_id_in    ,
-  input  ResponseInterface        response               ,
-  output logic [0:1]              data_read_error        ,
-  output DataControlInterfaceOut  read_data_control_out_0,
-  output DataControlInterfaceOut  read_data_control_out_1
+  input  logic                       clock                  , // Clock
+  input  logic                       rstn                   ,
+  input  logic                       enabled_in             ,
+  input  ReadDataControlInterface    buffer_in              ,
+  input  CommandTagLine              data_read_tag_id_in    ,
+  input  ResponseControlInterfaceOut response_control_in    ,
+  output logic [0:1]                 data_read_error        ,
+  output DataControlInterfaceOut     read_data_control_out_0,
+  output DataControlInterfaceOut     read_data_control_out_1
 );
 
-  logic                    odd_parity               ;
-  logic                    tag_parity               ;
-  logic                    tag_parity_link          ;
-  logic [0:7]              data_write_parity_latched;
-  logic                    write_valid_latched      ;
-  logic [0:7]              data_write_parity_link   ;
-  ReadDataControlInterface buffer_in_latched        ;
-  ResponseInterface        response_latched         ;
+  logic                       odd_parity               ;
+  logic                       tag_parity               ;
+  logic                       tag_parity_link          ;
+  logic [0:7]                 data_write_parity_latched;
+  logic                       write_valid_latched      ;
+  logic [0:7]                 data_write_parity_link   ;
+  ReadDataControlInterface    buffer_in_latched        ;
+  ResponseControlInterfaceOut response_latched         ;
 
   logic       enable_errors    ;
   logic [0:1] detected_errors  ;
@@ -90,7 +90,7 @@ module read_data_control (
         buffer_in_latched         <= buffer_in;
         data_write_parity_latched <= buffer_in.write_parity;
         write_valid_latched       <= buffer_in.write_valid;
-        response_latched          <= response;
+        response_latched          <= response_control_in;
       end else begin
         buffer_in_latched         <= 0;
         data_write_parity_latched <= 0;
@@ -243,7 +243,7 @@ module read_data_control (
       read_data_control_out_0            <= 0;
       read_data_control_out_1_latched_S2 <= 0;
     end else begin
-      if(response_latched.valid && enabled) begin
+      if(response_latched.response.valid && (response_latched.read_response || response_latched.wed_response ) && enabled) begin
         read_data_control_out_0            <= data_out_0;
         read_data_control_out_1_latched_S2 <= data_out_1;
       end else begin
@@ -272,8 +272,9 @@ module read_data_control (
 
   assign read_data_0_we = read_data_control_out_0_latched.read_data || read_data_control_out_0_latched.wed_data;
   assign read_data_1_we = read_data_control_out_1_latched.read_data || read_data_control_out_1_latched.wed_data;
-  assign rd_addr_0      = response.tag;
-  assign rd_addr_1      = response.tag;
+  assign rd_addr_0      = response_control_in.response.cmd.tag;
+  assign rd_addr_1      = response_control_in.response.cmd.tag;
+
 
   ram #(
     .WIDTH($bits(DataControlInterfaceOut)),

@@ -17,7 +17,7 @@ import CAPI_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module response_control #(parameter RSP_DELAY = 2) (
+module response_control (
   input  logic                       clock               , // Clock
   input  logic                       rstn                ,
   input  logic                       enabled_in          ,
@@ -28,12 +28,11 @@ module response_control #(parameter RSP_DELAY = 2) (
 );
 
 
-  logic                       odd_parity                                   ;
-  logic                       tag_parity                                   ;
-  logic                       tag_parity_link                              ;
-  ResponseInterface           response_in                                  ;
-  ResponseControlInterfaceOut response_control_out_latched                 ;
-  ResponseControlInterfaceOut response_control_out_latched_S[0:RSP_DELAY-1];
+  logic                       odd_parity                  ;
+  logic                       tag_parity                  ;
+  logic                       tag_parity_link             ;
+  ResponseInterface           response_in                 ;
+  ResponseControlInterfaceOut response_control_out_latched;
 
   logic       enable_errors     ;
   logic [0:6] detected_errors   ;
@@ -43,8 +42,6 @@ module response_control #(parameter RSP_DELAY = 2) (
   assign odd_parity    = 1'b1; // Odd parity
   assign enable_errors = 1'b1; // enable errors
   logic enabled;
-
-  genvar i;
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -78,40 +75,13 @@ module response_control #(parameter RSP_DELAY = 2) (
 ////////////////////////////////////////////////////////////////////////////
 //output latching Logic
 ////////////////////////////////////////////////////////////////////////////
-  always_ff @(posedge clock or negedge rstn) begin
-    if(~rstn) begin
-      response_control_out_latched_S[0] <= 0;
-    end else begin
-      if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
-        response_control_out_latched_S[0] <= response_control_out_latched;
-      end else begin
-        response_control_out_latched_S[0] <= 0;
-      end
-    end
-  end
-
-  generate
-    for ( i = 1; i < (RSP_DELAY); i++) begin : generate_response_delay
-      always_ff @(posedge clock or negedge rstn) begin
-        if(~rstn) begin
-          response_control_out_latched_S[i] <= 0;
-        end else begin
-          if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
-            response_control_out_latched_S[i] <= response_control_out_latched_S[i-1];
-          end else begin
-            response_control_out_latched_S[i] <= 0;
-          end
-        end
-      end
-    end
-  endgenerate
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       response_control_out <= 0;
     end else begin
       if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
-        response_control_out <= response_control_out_latched_S[RSP_DELAY-1];
+        response_control_out <= response_control_out_latched;
       end else begin
         response_control_out <= 0;
       end

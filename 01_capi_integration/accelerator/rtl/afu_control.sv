@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-10-08 17:42:00
+// Revise : 2019-10-08 19:39:32
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -19,7 +19,10 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 
-module afu_control #(parameter NUM_REQUESTS = 4) (
+module afu_control #(
+	parameter NUM_REQUESTS = 4,
+	parameter RSP_DELAY    = 4
+) (
 	input  logic                         clock                   , // Clock
 	input  logic                         rstn                    ,
 	input  logic                         enabled_in              ,
@@ -53,6 +56,7 @@ module afu_control #(parameter NUM_REQUESTS = 4) (
 );
 
 
+
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
@@ -76,11 +80,12 @@ module afu_control #(parameter NUM_REQUESTS = 4) (
 	CommandBufferLine restart_command_buffer_out;
 
 
-	ResponseControlInterfaceOut response_control_out       ;
-	logic                       wed_response_buffer_pop    ;
-	logic                       read_response_buffer_pop   ;
-	logic                       write_response_buffer_pop  ;
-	logic                       restart_response_buffer_pop;
+	ResponseControlInterfaceOut response_control_out         ;
+	ResponseControlInterfaceOut response_control_out_internal;
+	logic                       wed_response_buffer_pop      ;
+	logic                       read_response_buffer_pop     ;
+	logic                       write_response_buffer_pop    ;
+	logic                       restart_response_buffer_pop  ;
 
 	DataControlInterfaceOut read_data_control_out_0   ;
 	DataControlInterfaceOut read_data_control_out_1   ;
@@ -107,8 +112,11 @@ module afu_control #(parameter NUM_REQUESTS = 4) (
 	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in  ;
 	logic                                valid_request      ;
 
-	logic  [0:2]request_pulse;
-	logic enabled      ;
+	logic [0:2] request_pulse;
+	logic       enabled      ;
+
+	genvar                      i                                            ;
+	ResponseControlInterfaceOut response_control_out_latched_S[0:RSP_DELAY-1];
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -201,26 +209,67 @@ module afu_control #(parameter NUM_REQUESTS = 4) (
 ////////////////////////////////////////////////////////////////////////////
 
 	credit_control credit_control_instant (
-		.clock     (clock                                                                             ),
-		.rstn      (rstn                                                                              ),
-		.enabled_in(enabled                                                                           ),
-		.credit_in ({valid_request,response_latched.valid,response_latched.credits,command_in_latched}),
-		.credit_out(credits                                                                           )
+		.clock     (clock                                                                                                   ),
+		.rstn      (rstn                                                                                                    ),
+		.enabled_in(enabled                                                                                                 ),
+		.credit_in ({valid_request,response_control_out_internal.response.valid,response_latched.credits,command_in_latched}),
+		.credit_out(credits                                                                                                 )
 	);
 
 ////////////////////////////////////////////////////////////////////////////
 //response control
 ////////////////////////////////////////////////////////////////////////////
 
+
 	response_control response_control_instant (
-		.clock               (clock                 ),
-		.rstn                (rstn                  ),
-		.enabled_in          (enabled               ),
-		.response            (response_latched      ),
-		.response_tag_id_in  (response_tag_id       ),
-		.response_error      (command_response_error),
-		.response_control_out(response_control_out  )
+		.clock               (clock                        ),
+		.rstn                (rstn                         ),
+		.enabled_in          (enabled                      ),
+		.response            (response_latched             ),
+		.response_tag_id_in  (response_tag_id              ),
+		.response_error      (command_response_error       ),
+		.response_control_out(response_control_out_internal)
 	);
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			response_control_out_latched_S[0] <= 0;
+		end else begin
+			if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
+				response_control_out_latched_S[0] <= response_control_out_internal;
+			end else begin
+				response_control_out_latched_S[0] <= 0;
+			end
+		end
+	end
+
+	generate
+		for ( i = 1; i < (RSP_DELAY); i++) begin : generate_response_delay
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					response_control_out_latched_S[i] <= 0;
+				end else begin
+					if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
+						response_control_out_latched_S[i] <= response_control_out_latched_S[i-1];
+					end else begin
+						response_control_out_latched_S[i] <= 0;
+					end
+				end
+			end
+		end
+	endgenerate
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			response_control_out <= 0;
+		end else begin
+			if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
+				response_control_out <= response_control_out_latched_S[RSP_DELAY-1];
+			end else begin
+				response_control_out <= 0;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //read data control
@@ -228,15 +277,15 @@ module afu_control #(parameter NUM_REQUESTS = 4) (
 
 
 	read_data_control read_data_control_instant (
-		.clock                  (clock                  ),
-		.rstn                   (rstn                   ),
-		.enabled_in             (enabled                ),
-		.buffer_in              (read_buffer_in         ),
-		.data_read_tag_id_in    (read_tag_id            ),
-		.response               (response_latched       ),
-		.data_read_error        (data_read_error        ),
-		.read_data_control_out_0(read_data_control_out_0),
-		.read_data_control_out_1(read_data_control_out_1)
+		.clock                  (clock                        ),
+		.rstn                   (rstn                         ),
+		.enabled_in             (enabled                      ),
+		.buffer_in              (read_buffer_in               ),
+		.data_read_tag_id_in    (read_tag_id                  ),
+		.response_control_in    (response_control_out_internal),
+		.data_read_error        (data_read_error              ),
+		.read_data_control_out_0(read_data_control_out_0      ),
+		.read_data_control_out_1(read_data_control_out_1      )
 	);
 
 ////////////////////////////////////////////////////////////////////////////
