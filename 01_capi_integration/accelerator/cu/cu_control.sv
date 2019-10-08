@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_control.sv
 // Create : 2019-09-26 15:18:39
-// Revise : 2019-10-06 21:06:48
+// Revise : 2019-10-08 12:43:10
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -90,6 +90,15 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered_latched;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_latched    ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_latched      ;
+
+	CommandBufferLine write_command_cu              ;
+	BufferStatus      write_command_buffer_states_cu;
+
+	BufferStatus      write_data_0_buffer_states_cu;
+	BufferStatus      write_data_1_buffer_states_cu;
+	ReadWriteDataLine write_data_0_cu              ;
+	ReadWriteDataLine write_data_1_cu              ;
+	logic             ready_write_command_cu       ;
 
 	logic [0:2] request_pulse;
 	logic       enabled      ;
@@ -319,10 +328,10 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.read_data_1_in         (read_data_1_graph_algorithm               ),
 		.read_buffer_status     (read_command_graph_algorithm_buffer_status),
 		.read_command_out       (read_command_graph_algorithm              ),
-		.write_buffer_status    (write_buffer_status                       ),
-		.write_command_out      (write_command_out_latched                 ),
-		.write_data_0_out       (write_data_0_out_latched                  ),
-		.write_data_1_out       (write_data_1_out_latched                  ),
+		.write_buffer_status    (write_command_buffer_states_cu            ),
+		.write_command_out      (write_command_cu                          ),
+		.write_data_0_out       (write_data_0_cu                           ),
+		.write_data_1_out       (write_data_1_cu                           ),
 		.vertex_buffer_status   (vertex_buffer_status                      ),
 		.vertex_job             (vertex_job                                ),
 		.vertex_job_request     (vertex_job_request                        ),
@@ -374,6 +383,71 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.empty   (read_command_graph_algorithm_buffer_status.empty )
 	);
 
+	////////////////////////////////////////////////////////////////////////////
+	// write command CU Buffers
+	////////////////////////////////////////////////////////////////////////////
+
+	assign ready_write_command_cu = ~write_command_buffer_states_cu.empty && ~write_buffer_status.alfull && 
+									~write_data_0_buffer_states_cu.empty && ~write_data_1_buffer_states_cu.empty;
+
+	fifo #(
+		.WIDTH($bits(CommandBufferLine)),
+		.DEPTH(WRITE_CMD_BUFFER_SIZE   )
+	) write_command_graph_algorithm_buffer_fifo_instant (
+		.clock   (clock                                ),
+		.rstn    (rstn                                 ),
+		
+		.push    (write_command_cu.valid               ),
+		.data_in (write_command_cu                     ),
+		.full    (write_command_buffer_states_cu.full  ),
+		.alFull  (write_command_buffer_states_cu.alfull),
+		
+		.pop     (ready_write_command_cu               ),
+		.valid   (write_command_buffer_states_cu.valid ),
+		.data_out(write_command_out_latched            ),
+		.empty   (write_command_buffer_states_cu.empty )
+	);
+
+
+	////////////////////////////////////////////////////////////////////////////
+	// write command CU DATA Buffers
+	////////////////////////////////////////////////////////////////////////////
+
+	fifo #(
+		.WIDTH($bits(ReadWriteDataLine)),
+		.DEPTH(WRITE_CMD_BUFFER_SIZE   )
+	) write_data_graph_algorithm_0_buffer_fifo_instant (
+		.clock   (clock                               ),
+		.rstn    (rstn                                ),
+		
+		.push    (write_data_0_cu.valid               ),
+		.data_in (write_data_0_cu                     ),
+		.full    (write_data_0_buffer_states_cu.full  ),
+		.alFull  (write_data_0_buffer_states_cu.alfull),
+		
+		.pop     (ready_write_command_cu              ),
+		.valid   (write_data_0_buffer_states_cu.valid ),
+		.data_out(write_data_0_out_latched            ),
+		.empty   (write_data_0_buffer_states_cu.empty )
+	);
+
+	fifo #(
+		.WIDTH($bits(ReadWriteDataLine)),
+		.DEPTH(WRITE_CMD_BUFFER_SIZE   )
+	) write_data_graph_algorithm_1_buffer_fifo_instant (
+		.clock   (clock                               ),
+		.rstn    (rstn                                ),
+		
+		.push    (write_data_1_cu.valid               ),
+		.data_in (write_data_1_cu                     ),
+		.full    (write_data_1_buffer_states_cu.full  ),
+		.alFull  (write_data_1_buffer_states_cu.alfull),
+		
+		.pop     (ready_write_command_cu              ),
+		.valid   (write_data_1_buffer_states_cu.valid ),
+		.data_out(write_data_1_out_latched            ),
+		.empty   (write_data_1_buffer_states_cu.empty )
+	);
 
 
 endmodule

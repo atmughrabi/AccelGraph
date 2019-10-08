@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank.sv
 // Create : 2019-09-26 15:19:37
-// Revise : 2019-10-07 16:23:31
+// Revise : 2019-10-08 17:51:37
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -87,14 +87,14 @@ module cu_vertex_pagerank #(
 	ResponseBufferLine read_response_buffer     ;
 	ResponseBufferLine write_response_buffer    ;
 
-	logic                        edge_request            ;
-	EdgeInterface                edge_job                ;
-	BufferStatus                 edge_buffer_status      ;
-	BufferStatus                 data_buffer_status      ;
-	logic                        processing_vertex       ;
-	
-	EdgeData                     edge_data               ;
-	logic                        enabled                 ;
+	logic         edge_request      ;
+	EdgeInterface edge_job          ;
+	BufferStatus  edge_buffer_status;
+	BufferStatus  data_buffer_status;
+	logic         processing_vertex ;
+
+	EdgeData edge_data;
+	logic    enabled  ;
 
 	logic             [             0:1] request_pulse      ;
 	CommandBufferLine                    command_arbiter_out;
@@ -114,16 +114,18 @@ module cu_vertex_pagerank #(
 	CommandBufferLine write_command_arbiter_cu      ;
 	BufferStatus      write_command_buffer_states_cu;
 
-	BufferStatus      write_data_0_buffer_states_cu;
-	BufferStatus      write_data_1_buffer_states_cu;
-	ReadWriteDataLine write_data_0_arbiter_cu      ;
-	ReadWriteDataLine write_data_1_arbiter_cu      ;
-	ReadWriteDataLine write_data_0_cu              ;
-	ReadWriteDataLine write_data_1_cu              ;
-
-	logic [0:(EDGE_SIZE_BITS-1)] edge_job_counter_pushed ;
-	logic [0:(EDGE_SIZE_BITS-1)] edge_data_counter_pushed;
-	logic [0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum ;
+	BufferStatus                   write_data_0_buffer_states_cu   ;
+	BufferStatus                   write_data_1_buffer_states_cu   ;
+	ReadWriteDataLine              write_data_0_arbiter_cu         ;
+	ReadWriteDataLine              write_data_1_arbiter_cu         ;
+	ReadWriteDataLine              write_data_0_cu                 ;
+	ReadWriteDataLine              write_data_1_cu                 ;
+	logic                          ready_write_command_cu          ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_pushed         ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_pushed        ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ;
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -147,6 +149,10 @@ module cu_vertex_pagerank #(
 			request_pulse <= request_pulse + 1;
 		end
 	end
+
+	assign ready_write_command_cu = ~write_command_buffer_states_cu.empty && ~write_buffer_status.alfull &&
+		~write_data_0_buffer_states_cu.empty && ~write_data_1_buffer_states_cu.empty &&
+		~(|request_pulse);
 
 	assign requests[0] = ~read_command_edge_job_buffer_status.empty && ~read_buffer_status.alfull && ~(|request_pulse);
 	assign requests[1] = ~read_command_edge_data_buffer_status.empty && ~read_buffer_status.alfull && ~(|request_pulse);
@@ -231,7 +237,7 @@ module cu_vertex_pagerank #(
 				if(vertex_job.valid && ~processing_vertex) begin
 					vertex_job_latched <= vertex_job;
 				end
-				if ((edge_data_counter_accum == vertex_job_latched.inverse_out_degree) && vertex_job_latched.valid) begin
+				if ((edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree) && vertex_job_latched.valid) begin
 					vertex_job_latched <= 0;
 				end
 			end
@@ -247,9 +253,7 @@ module cu_vertex_pagerank #(
 			vertex_num_counter <= 0;
 		end else begin
 			if(enabled)begin
-				if(vertex_job_latched.valid && ~processing_vertex) begin
-					vertex_num_counter <= vertex_num_counter + 1;
-				end
+				vertex_num_counter <= vertex_num_counter_resp;
 			end
 		end
 	end
@@ -263,9 +267,7 @@ module cu_vertex_pagerank #(
 			edge_num_counter <= 0;
 		end else begin
 			if(enabled)begin
-				if(read_response_in_edge_data.valid) begin
-					edge_num_counter <= edge_num_counter + 1;
-				end
+				edge_num_counter <= edge_data_counter_accum;
 			end
 		end
 	end
@@ -283,7 +285,7 @@ module cu_vertex_pagerank #(
 					if(~processing_vertex) begin
 						processing_vertex <= 1;
 					end
-					if (edge_data_counter_accum == vertex_job_latched.inverse_out_degree) begin
+					if (edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree) begin
 						processing_vertex <= 0;
 					end
 				end
@@ -344,20 +346,22 @@ module cu_vertex_pagerank #(
 
 
 	cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
-		.clock                  (clock                         ),
-		.rstn                   (rstn                          ),
-		.enabled_in             (enabled_in                    ),
-		.wed_request_in         (wed_request_in                ),
-		.write_response_in      (write_response_in_edge_data   ),
-		.write_buffer_status    (write_command_buffer_states_cu),
-		.edge_data              (edge_data                     ),
-		.edge_data_request      (edge_data_request             ),
-		.data_buffer_status     (data_buffer_status            ),
-		.write_data_0_out       (write_data_0_cu               ),
-		.write_data_1_out       (write_data_1_cu               ),
-		.write_command_out      (write_command_cu              ),
-		.vertex_job             (vertex_job_latched            ),
-		.edge_data_counter_accum(edge_data_counter_accum       )
+		.clock                           (clock                           ),
+		.rstn                            (rstn                            ),
+		.enabled_in                      (enabled_in                      ),
+		.wed_request_in                  (wed_request_in                  ),
+		.write_response_in               (write_response_in_edge_data     ),
+		.write_buffer_status             (write_command_buffer_states_cu  ),
+		.edge_data                       (edge_data                       ),
+		.edge_data_request               (edge_data_request               ),
+		.data_buffer_status              (data_buffer_status              ),
+		.write_data_0_out                (write_data_0_cu                 ),
+		.write_data_1_out                (write_data_1_cu                 ),
+		.write_command_out               (write_command_cu                ),
+		.vertex_job                      (vertex_job_latched              ),
+		.vertex_num_counter_resp         (vertex_num_counter_resp         ),
+		.edge_data_counter_accum         (edge_data_counter_accum         ),
+		.edge_data_counter_accum_internal(edge_data_counter_accum_internal)
 	);
 
 
@@ -593,7 +597,7 @@ module cu_vertex_pagerank #(
 		.clock   (clock                               ),
 		.rstn    (rstn                                ),
 		
-		.push    (write_command_cu.valid              ),
+		.push    (write_data_0_cu.valid               ),
 		.data_in (write_data_0_cu                     ),
 		.full    (write_data_0_buffer_states_cu.full  ),
 		.alFull  (write_data_0_buffer_states_cu.alfull),
@@ -611,7 +615,7 @@ module cu_vertex_pagerank #(
 		.clock   (clock                               ),
 		.rstn    (rstn                                ),
 		
-		.push    (write_command_cu.valid              ),
+		.push    (write_data_1_cu.valid               ),
 		.data_in (write_data_1_cu                     ),
 		.full    (write_data_1_buffer_states_cu.full  ),
 		.alFull  (write_data_1_buffer_states_cu.alfull),

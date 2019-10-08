@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_job_control.sv
 // Create : 2019-09-26 15:19:30
-// Revise : 2019-10-02 16:59:03
+// Revise : 2019-10-08 12:55:31
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 

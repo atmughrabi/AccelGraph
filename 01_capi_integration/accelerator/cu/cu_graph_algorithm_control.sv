@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_control.sv
 // Create : 2019-09-26 15:19:08
-// Revise : 2019-10-07 15:57:16
+// Revise : 2019-10-08 02:19:46
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -56,6 +56,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	CommandBufferLine write_command_out_latched;
 	ReadWriteDataLine write_data_0_out_latched ;
 	ReadWriteDataLine write_data_1_out_latched ;
+	ReadWriteDataLine write_data_0_out_latched_S2 ;
+	ReadWriteDataLine write_data_1_out_latched_S2 ;
 	CommandBufferLine read_command_out_latched ;
 
 	//input lateched
@@ -294,13 +296,23 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	////////////////////////////////////////////////////////////////////////////
 
 	always_comb begin
-		write_data_0_out_latched = 0;
-		write_data_1_out_latched = 0;
+		write_data_0_out_latched_S2 = 0;
+		write_data_1_out_latched_S2 = 0;
 		for (k = 0; k < NUM_VERTEX_CU; k++) begin
 			if(ready_write_command_cu[k])begin
-				write_data_0_out_latched = write_data_0_arbiter_cu[k];
-				write_data_1_out_latched = write_data_1_arbiter_cu[k];
+				write_data_0_out_latched_S2 = write_data_0_arbiter_cu[k];
+				write_data_1_out_latched_S2 = write_data_1_arbiter_cu[k];
 			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			 write_data_0_out_latched <= 0;
+			 write_data_1_out_latched <= 0;
+		end else begin
+			 write_data_0_out_latched <= write_data_0_out_latched_S2;
+			 write_data_1_out_latched <= write_data_1_out_latched_S2;
 		end
 	end
 

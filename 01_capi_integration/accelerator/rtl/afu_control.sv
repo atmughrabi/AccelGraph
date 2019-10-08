@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-10-06 20:54:03
+// Revise : 2019-10-08 17:42:00
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -107,7 +107,7 @@ module afu_control #(parameter NUM_REQUESTS = 4) (
 	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in  ;
 	logic                                valid_request      ;
 
-	logic request_pulse;
+	logic  [0:2]request_pulse;
 	logic enabled      ;
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
