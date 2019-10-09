@@ -160,11 +160,11 @@ module mmio (
             algorithm_requests <= data_in_latched;
           end
           default : begin
-            algorithm_requests <= algorithm_requests;
+            algorithm_requests <= 64'h0000_0000_0000_0000;
           end
         endcase
       end else begin
-        algorithm_requests <= algorithm_requests;
+        algorithm_requests  <= 64'h0000_0000_0000_0000;
       end
     end
   end

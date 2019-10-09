@@ -8,11 +8,10 @@
 // Author : Abdullah Mughrabi
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : connectedComponents.c
-// Create : 2019-09-28 15:34:51
-// Revise : 2019-09-28 15:38:42
+// Create : 2019-06-21 17:15:17
+// Revise : 2019-09-28 15:34:11
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

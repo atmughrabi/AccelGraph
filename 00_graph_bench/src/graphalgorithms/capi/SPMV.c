@@ -8,11 +8,10 @@
 // Author : Abdullah Mughrabi
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : SPMV.c
-// Create : 2019-09-28 15:34:51
-// Revise : 2019-09-28 15:38:21
+// Create : 2019-06-29 12:31:24
+// Revise : 2019-09-28 15:34:11
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

@@ -33,6 +33,7 @@ STRUCT_DIR		  	= structures
 PREPRO_DIR		  	= preprocessing
 ALGO_DIR		  	= graphalgorithms
 UTIL_DIR		  	= utils
+CAPI_UTIL_DIR		= capi_utils
 
 
 # Folders needed when using gem5-aladdin
@@ -192,11 +193,16 @@ CAPI_SERVER		  = $(CAPI_COMMON)/server
 PSLSE_COMMON_DIR  = $(PSLSE_DIR)/common
 PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 
+
 SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
 OBJ_FILES_ALGO_CAPI 		=  $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
 
+SRC_FILES_CAPI_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/*.c)
+OBJ_FILES_CAPI_UTIL 	=   $(patsubst $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o,$(SRC_FILES_CAPI_UTIL)) 
+
+
 CAPI_LINKFLAGS = -lrt -lpthread 
-CAPI_INC = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) 
+CAPI_INC = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 
 ##################################################
 ##################################################
@@ -404,6 +410,7 @@ test-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi
 .PHONY: directories-capi
 directories-capi :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi
+	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)
 
 $(PSLSE_DIR)/afu_driver/src/libdpi.so:
 	@cd $(PSLSE_DIR)/afu_driver/src && make clean && BIT32=y make
@@ -423,11 +430,14 @@ build-libcxl: $(PSLSE_LIBCXL_DIR)/libcxl.a
 .PHONY: build-pslse
 build-pslse: $(PSLSE_DIR)/pslse/pslse
 	
-$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) $(PSLSE_LIBCXL_DIR)/libcxl.a
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) $(PSLSE_LIBCXL_DIR)/libcxl.a
 	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(CAPI_LINKFLAGS) 
 	
-$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST)-capi.o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) $(PSLSE_LIBCXL_DIR)/libcxl.a
+$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST)-capi.o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) $(PSLSE_LIBCXL_DIR)/libcxl.a
 	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(CAPI_LINKFLAGS)
+
+$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c
+	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< -DSIM
 
 $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c
 	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< -DSIM
