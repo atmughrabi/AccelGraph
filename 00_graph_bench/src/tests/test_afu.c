@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-10-08 19:44:59
+// Revise : 2019-10-08 20:20:18
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -324,8 +324,8 @@ main (int argc, char **argv)
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
-    arguments.fnameb = "../03_test_graphs/test/graph.wbin";
-    // arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
+    // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
+    arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
@@ -382,7 +382,7 @@ main (int argc, char **argv)
     // ********************************************************************************************
 
 
-    // printWEDGraphCSRVertex(wedGraphCSR);
+    printWEDGraphCSRVertex(wedGraphCSR);
 
     printWEDGraphCSRPointers(wedGraphCSR);
 
@@ -420,7 +420,7 @@ main (int argc, char **argv)
 
 
     uint64_t algo_status = 0;
-    uint64_t num_cu      = 8;
+    uint64_t num_cu      = 16;
     uint64_t error       = 0;
 
     cxl_mmio_write64(afu, ALGO_REQUEST, num_cu);

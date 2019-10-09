@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_sum_kernel_control.sv
 // Create : 2019-09-26 15:19:17
-// Revise : 2019-10-08 17:51:54
+// Revise : 2019-10-08 19:48:07
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -38,16 +38,16 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 );
 
 
-	EdgeData                     edge_data_latched               ;
-	EdgeData                     edge_data_accumulator           ;
-	CommandTagLine               cmd                             ;
-	logic                        enabled                         ;
-	VertexInterface              vertex_job_latched              ;
-	ReadWriteDataLine            write_data_0_out_latched        ;
-	ReadWriteDataLine            write_data_1_out_latched        ;
-	CommandBufferLine            write_command_out_latched       ;
-	WEDInterface                 wed_request_in_latched          ;
-	logic [                 0:7] offset_data                     ;
+	EdgeData                     edge_data_latched        ;
+	EdgeData                     edge_data_accumulator    ;
+	CommandTagLine               cmd                      ;
+	logic                        enabled                  ;
+	VertexInterface              vertex_job_latched       ;
+	ReadWriteDataLine            write_data_0_out_latched ;
+	ReadWriteDataLine            write_data_1_out_latched ;
+	CommandBufferLine            write_command_out_latched;
+	WEDInterface                 wed_request_in_latched   ;
+	logic [0:7]                  offset_data              ;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
@@ -167,11 +167,11 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 
 			write_data_0_out_latched.valid                                            = edge_data_accumulator.valid;
 			write_data_0_out_latched.cmd                                              = cmd;
-			write_data_0_out_latched.data[offset_data*DATA_SIZE_BITS+:DATA_SIZE_BITS] = edge_data_accumulator.data ;
+			write_data_0_out_latched.data[offset_data*DATA_SIZE_BITS+:DATA_SIZE_BITS] = swap_endianness_word(edge_data_accumulator.data) ;
 
 			write_data_1_out_latched.valid                                            = edge_data_accumulator.valid;
 			write_data_1_out_latched.cmd                                              = cmd;
-			write_data_1_out_latched.data[offset_data*DATA_SIZE_BITS+:DATA_SIZE_BITS] = edge_data_accumulator.data ;
+			write_data_1_out_latched.data[offset_data*DATA_SIZE_BITS+:DATA_SIZE_BITS] = swap_endianness_word(edge_data_accumulator.data) ;
 		end
 	end
 
