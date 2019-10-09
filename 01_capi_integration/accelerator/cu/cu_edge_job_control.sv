@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_job_control.sv
 // Create : 2019-09-26 15:18:56
-// Revise : 2019-10-09 18:06:43
+// Revise : 2019-10-09 18:26:23
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -330,7 +330,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 //Read Vertex data into registers
 ////////////////////////////////////////////////////////////////////////////
 
-	cu_cacheline_stream cu_cacheline_stream_inverse_src (
+	cu_cacheline_stream #(.SIZE_BITS(EDGE_SIZE_BITS)) cu_cacheline_stream_inverse_src (
 		.clock         (clock                 ),
 		.rstn          (rstn                  ),
 		.enabled       (enabled               ),
@@ -343,7 +343,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		.valid         (src_cacheline_ready   )
 	);
 
-	cu_cacheline_stream cu_cacheline_stream_inverse_dest (
+	cu_cacheline_stream #(.SIZE_BITS(EDGE_SIZE_BITS)) cu_cacheline_stream_inverse_dest (
 		.clock         (clock                 ),
 		.rstn          (rstn                  ),
 		.enabled       (enabled               ),
@@ -356,7 +356,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		.valid         (dest_cacheline_ready  )
 	);
 
-	cu_cacheline_stream cu_cacheline_stream_inverse_weight (
+	cu_cacheline_stream #(.SIZE_BITS(EDGE_SIZE_BITS)) cu_cacheline_stream_inverse_weight (
 		.clock         (clock                   ),
 		.rstn          (rstn                    ),
 		.enabled       (enabled                 ),

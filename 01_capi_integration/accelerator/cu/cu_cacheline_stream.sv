@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_cacheline_stream.sv
 // Create : 2019-09-26 15:18:19
-// Revise : 2019-10-09 18:03:11
+// Revise : 2019-10-09 18:25:13
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -18,28 +18,28 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_cacheline_stream (
-	input  logic                          clock         , // Clock
-	input  logic                          rstn          ,
-	input  logic                          enabled       ,
-	input  logic                          start_shift   ,
-	input  ReadWriteDataLine              read_data_0_in,
-	input  ReadWriteDataLine              read_data_1_in,
-	input  vertex_struct_type             vertex_struct ,
-	output logic [0:(VERTEX_SIZE_BITS-1)] vertex        ,
-	output logic                          pending       ,
-	output logic                          valid
+module cu_cacheline_stream #(parameter SIZE_BITS = VERTEX_SIZE_BITS) (
+	input  logic                   clock         , // Clock
+	input  logic                   rstn          ,
+	input  logic                   enabled       ,
+	input  logic                   start_shift   ,
+	input  ReadWriteDataLine       read_data_0_in,
+	input  ReadWriteDataLine       read_data_1_in,
+	input  vertex_struct_type      vertex_struct ,
+	output logic [0:(SIZE_BITS-1)] vertex        ,
+	output logic                   pending       ,
+	output logic                   valid
 );
 
-	parameter CACHELINE_STREAM_READ_ADDR_BITS  = $clog2((VERTEX_SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? (2 * CACHELINE_SIZE_BITS_HF)/VERTEX_SIZE_BITS : 2);
-	parameter CACHELINE_STREAM_WRITE_ADDR_BITS = $clog2((VERTEX_SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? 2 : (2 * VERTEX_SIZE_BITS)/CACHELINE_SIZE_BITS_HF);
+	parameter CACHELINE_STREAM_READ_ADDR_BITS  = $clog2((SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? (2 * CACHELINE_SIZE_BITS_HF)/SIZE_BITS : 2);
+	parameter CACHELINE_STREAM_WRITE_ADDR_BITS = $clog2((SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? 2 : (2 * SIZE_BITS)/CACHELINE_SIZE_BITS_HF);
 
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit;
 
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter      ;
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_seek_latched ;
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_latched;
-	logic [      0:(VERTEX_SIZE_BITS-1)] vertex_latched     ;
+	logic [             0:(SIZE_BITS-1)] vertex_latched     ;
 
 	logic [0:(CACHELINE_STREAM_WRITE_ADDR_BITS-1)] address_wr;
 	logic [ 0:(CACHELINE_STREAM_READ_ADDR_BITS-1)] address_rd;
@@ -150,7 +150,7 @@ module cu_cacheline_stream (
 	mixed_width_ram #(
 		.WORDS(2                     ),
 		.WW   (CACHELINE_SIZE_BITS_HF),
-		.RW   (VERTEX_SIZE_BITS      )
+		.RW   (SIZE_BITS             )
 	) cacheline_instant (
 		.clock   (clock         ),
 		.we      (we            ),

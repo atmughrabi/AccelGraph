@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_job_control.sv
 // Create : 2019-09-26 15:19:30
-// Revise : 2019-10-09 18:04:17
+// Revise : 2019-10-09 18:25:45
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -301,7 +301,7 @@ module cu_vertex_job_control (
 ////////////////////////////////////////////////////////////////////////////
 
 
-	cu_cacheline_stream cu_cacheline_stream_in_degree (
+	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_in_degree (
 		.clock         (clock                      ),
 		.rstn          (rstn                       ),
 		.enabled       (enabled                    ),
@@ -314,7 +314,7 @@ module cu_vertex_job_control (
 		.valid         (in_degree_cacheline_ready  )
 	);
 
-	cu_cacheline_stream cu_cacheline_stream_out_degree (
+	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_out_degree (
 		.clock         (clock                       ),
 		.rstn          (rstn                        ),
 		.enabled       (enabled                     ),
@@ -327,7 +327,7 @@ module cu_vertex_job_control (
 		.valid         (out_degree_cacheline_ready  )
 	);
 
-	cu_cacheline_stream cu_cacheline_stream_edges_idx (
+	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_edges_idx (
 		.clock         (clock                             ),
 		.rstn          (rstn                              ),
 		.enabled       (enabled                           ),
@@ -340,7 +340,7 @@ module cu_vertex_job_control (
 		.valid         (edges_idx_degree_cacheline_ready  )
 	);
 
-	cu_cacheline_stream cu_cacheline_stream_inverse_in_degree (
+	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_inverse_in_degree (
 		.clock         (clock                              ),
 		.rstn          (rstn                               ),
 		.enabled       (enabled                            ),
@@ -353,7 +353,7 @@ module cu_vertex_job_control (
 		.valid         (inverse_in_degree_cacheline_ready  )
 	);
 
-	cu_cacheline_stream cu_cacheline_stream_inverse_out_degree (
+	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_inverse_out_degree (
 		.clock         (clock                               ),
 		.rstn          (rstn                                ),
 		.enabled       (enabled                             ),
@@ -366,7 +366,7 @@ module cu_vertex_job_control (
 		.valid         (inverse_out_degree_cacheline_ready  )
 	);
 
-	cu_cacheline_stream cu_cacheline_stream_inverse_edges_idx (
+	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_inverse_edges_idx (
 		.clock         (clock                                     ),
 		.rstn          (rstn                                      ),
 		.enabled       (enabled                                   ),

@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-10-09 17:37:19
+// Revise : 2019-10-09 18:14:11
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -363,7 +363,7 @@ main (int argc, char **argv)
 
 
     __u32 *divclause = (__u32 *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(__u32));
-    __u32 *prnext = (__u32 *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(__u32));
+    __u64 *prnext = (__u64 *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(__u64));
 
     for (__u32 i = 0; i < ((struct GraphCSR *)graph)->num_vertices; ++i)
     {

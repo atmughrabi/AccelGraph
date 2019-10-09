@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-10-09 17:25:59
+// Revise : 2019-10-09 18:13:56
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -85,7 +85,7 @@ package GLOBALS_PKG;
 	parameter        EDGE_SIZE_BITS       = EDGE_SIZE * 8         ; // edge size is n*8 Bits
 	parameter        DATA_SIZE_READ       = 4                     ; // edge data size is n bytes
 	parameter        DATA_SIZE_READ_BITS  = DATA_SIZE_READ * 8    ; // edge data size is n*8 Bits
-	parameter        DATA_SIZE_WRITE      = 4                     ; // edge data size is n bytes
+	parameter        DATA_SIZE_WRITE      = 8                    ; // edge data size is n bytes
 	parameter        DATA_SIZE_WRITE_BITS = DATA_SIZE_WRITE * 8   ; // edge data size is n*8 Bits
 
 	parameter [0:63] ADDRESS_EDGE_ALIGN_MASK   = {{57{1'b1}},{7{1'b0}}}; 
