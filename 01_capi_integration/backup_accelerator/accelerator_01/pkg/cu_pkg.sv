@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_pkg.sv
 // Create : 2019-09-26 15:20:09
-// Revise : 2019-10-09 18:07:32
+// Revise : 2019-10-07 02:14:42
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -94,66 +94,9 @@ package CU_PKG;
 	} EdgeInterface;
 
 	typedef struct packed {
-		logic                             valid;
-		logic [0:(DATA_SIZE_READ_BITS-1)] data ;
-	} EdgeDataRead;
-
-	typedef struct packed {
-		logic                              valid;
-		logic [0:(DATA_SIZE_WRITE_BITS-1)] data ;
-	} EdgeDataWrite;
-
-
-	function logic [0:DATA_SIZE_WRITE_BITS-1] swap_endianness_data_write(logic [0:DATA_SIZE_WRITE_BITS-1] in);
-
-		logic [0:DATA_SIZE_WRITE_BITS-1] out;
-
-		integer i;
-		for ( i = 0; i < DATA_SIZE_WRITE; i++) begin
-			out[i*8 +: 8] = in[((DATA_SIZE_WRITE_BITS-1)-(i*8)) -:8];
-		end
-
-		return out;
-	endfunction : swap_endianness_data_write
-
-	function logic [0:DATA_SIZE_READ_BITS-1] swap_endianness_data_read(logic [0:DATA_SIZE_READ_BITS-1] in);
-
-		logic [0:DATA_SIZE_READ_BITS-1] out;
-
-		integer i;
-		for ( i = 0; i < DATA_SIZE_READ; i++) begin
-			out[i*8 +: 8] = in[((DATA_SIZE_READ_BITS-1)-(i*8)) -:8];
-		end
-
-		return out;
-	endfunction : swap_endianness_data_read
-
-
-	function logic [0:VERTEX_SIZE_BITS-1] swap_endianness_vertex_read(logic [0:VERTEX_SIZE_BITS-1] in);
-
-		logic [0:VERTEX_SIZE_BITS-1] out;
-
-		integer i;
-		for ( i = 0; i < VERTEX_SIZE; i++) begin
-			out[i*8 +: 8] = in[((VERTEX_SIZE_BITS-1)-(i*8)) -:8];
-		end
-
-		return out;
-	endfunction : swap_endianness_vertex_read
-
-
-	function logic [0:EDGE_SIZE_BITS-1] swap_endianness_edge_read(logic [0:EDGE_SIZE_BITS-1] in);
-
-		logic [0:EDGE_SIZE_BITS-1] out;
-
-		integer i;
-		for ( i = 0; i < EDGE_SIZE; i++) begin
-			out[i*8 +: 8] = in[((EDGE_SIZE_BITS-1)-(i*8)) -:8];
-		end
-
-		return out;
-	endfunction : swap_endianness_edge_read
-
+		logic                        valid;
+		logic [0:(DATA_SIZE_BITS-1)] data ;
+	} EdgeData;
 
 // Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
 	function logic [0:11] cmd_size_calculate(logic [0:(VERTEX_SIZE_BITS-1)]  vertex_num_counter);
@@ -263,5 +206,5 @@ package CU_PKG;
 
 	endfunction : seek_cacheline
 
-
+	
 endpackage

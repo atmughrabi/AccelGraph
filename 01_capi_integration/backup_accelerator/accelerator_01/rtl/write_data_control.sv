@@ -44,7 +44,7 @@ module write_data_control (
   ReadWriteDataLine write_data_0_out;
   ReadWriteDataLine write_data_1_out;
   logic             enabled         ;
-  ReadWriteDataLine write_data      ;
+// ReadWriteDataLine write_data;
 
   logic       read_valid  ; // ha_brvalid,     // Buffer Read valid
   logic [0:7] read_tag    ; // ha_brtag,       // Buffer Read tag
@@ -142,20 +142,20 @@ module write_data_control (
 //Ram Data each hold half cache line
 ////////////////////////////////////////////////////////////////////////////
 // uncoment for latency 4 cycles
-  // always_ff @(posedge clock or negedge rstn) begin
-  //   if(~rstn)
-  //     write_data <= ~0;
-  //   else if(~(|read_address) && read_valid)
-  //     write_data <= write_data_0_out.data;
-  //   else if((|read_address) && read_valid)
-  //     write_data <= write_data_1_out.data;
-  //   else
-  //     write_data <= ~0;
-  // end
+// always_ff @(posedge clock or negedge rstn) begin
+//  if(~rstn)
+//         write_data<=  ~0;
+//     else if(~(|read_address) && read_valid)
+//    write_data <= write_data_0_out.data;
+//  else if((|read_address) && read_valid)
+//    write_data <= write_data_1_out.data;
+//  else
+//    write_data <=  ~0;
+// end
 
-  // always_ff @(posedge clock) begin
-  //   buffer_out.read_data <= write_data;
-  // end
+// always_ff @(posedge clock) begin
+//    buffer_out.read_data <=  write_data;
+// end
 
 
   always_comb begin

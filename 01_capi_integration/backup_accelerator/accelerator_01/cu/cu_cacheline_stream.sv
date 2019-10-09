@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_cacheline_stream.sv
 // Create : 2019-09-26 15:18:19
-// Revise : 2019-10-09 18:03:11
+// Revise : 2019-09-30 20:59:42
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ module cu_cacheline_stream (
 	ReadWriteDataLine                  read_data_in_latched ;
 	vertex_struct_type                 vertex_struct_latched;
 
-	assign vertex         = vertex_latched;
+	assign vertex         = swap_endianness_word(vertex_latched);
 	assign valid_internal = (shift_counter < shift_limit) && start_shift && enabled;
 
 	always_ff @(posedge clock or negedge rstn) begin

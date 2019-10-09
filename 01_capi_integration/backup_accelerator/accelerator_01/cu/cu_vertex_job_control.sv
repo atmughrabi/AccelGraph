@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_job_control.sv
 // Create : 2019-09-26 15:19:30
-// Revise : 2019-10-09 18:04:17
+// Revise : 2019-10-08 12:55:31
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -404,12 +404,12 @@ module cu_vertex_job_control (
 				vertex_id_counter                  <= vertex_id_counter+1;
 				vertex_variable.valid              <= fill_vertex_buffer;
 				vertex_variable.id                 <= vertex_id_counter;
-				vertex_variable.in_degree          <= swap_endianness_vertex_read(in_degree_cacheline);
-				vertex_variable.out_degree         <= swap_endianness_vertex_read(out_degree_cacheline);
-				vertex_variable.edges_idx          <= swap_endianness_vertex_read(edges_idx_degree_cacheline);
-				vertex_variable.inverse_in_degree  <= swap_endianness_vertex_read(inverse_in_degree_cacheline);
-				vertex_variable.inverse_out_degree <= swap_endianness_vertex_read(inverse_out_degree_cacheline);
-				vertex_variable.inverse_edges_idx  <= swap_endianness_vertex_read(inverse_edges_idx_degree_cacheline);
+				vertex_variable.in_degree          <= in_degree_cacheline;
+				vertex_variable.out_degree         <= out_degree_cacheline;
+				vertex_variable.edges_idx          <= edges_idx_degree_cacheline;
+				vertex_variable.inverse_in_degree  <= inverse_in_degree_cacheline;
+				vertex_variable.inverse_out_degree <= inverse_out_degree_cacheline;
+				vertex_variable.inverse_edges_idx  <= inverse_edges_idx_degree_cacheline;
 			end else begin
 				vertex_variable <= 0;
 			end

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_job_control.sv
 // Create : 2019-09-26 15:18:56
-// Revise : 2019-10-09 18:06:43
+// Revise : 2019-10-06 17:43:16
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -241,8 +241,8 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				done_vertex_edge_processing <= 0;
 				read_command_out_latched    <= 0;
 				request_size                <= 0;
-				remainder                   <= (edge_next_offest & ADDRESS_EDGE_MOD_MASK);
-				aligned                     <= (edge_next_offest & ADDRESS_EDGE_ALIGN_MASK);
+				remainder                   <= (edge_next_offest & ADDRESS_MOD_MASK);
+				aligned                     <= (edge_next_offest & ADDRESS_ALIGN_MASK);
 			end
 			CALC_EDGE_REQ_SIZE : begin
 				if(|remainder) begin // misaligned access
@@ -394,9 +394,9 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				edge_id_counter      <= edge_id_counter + 1;
 				edge_variable.valid  <= fill_edge_buffer;
 				edge_variable.id     <= edge_id_counter;
-				edge_variable.src    <= swap_endianness_edge_read(src_cacheline);
-				edge_variable.dest   <= swap_endianness_edge_read(dest_cacheline);
-				edge_variable.weight <= swap_endianness_edge_read(weight_cacheline);
+				edge_variable.src    <= src_cacheline;
+				edge_variable.dest   <= dest_cacheline;
+				edge_variable.weight <= weight_cacheline;
 			end else begin
 				edge_variable <= 0;
 			end

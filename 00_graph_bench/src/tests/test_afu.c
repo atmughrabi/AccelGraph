@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-10-08 20:20:18
+// Revise : 2019-10-09 17:37:19
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -324,7 +324,7 @@ main (int argc, char **argv)
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
-    // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
+    arguments.fnameb = "../03_test_graphs/test/graph.wbin";
     arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";

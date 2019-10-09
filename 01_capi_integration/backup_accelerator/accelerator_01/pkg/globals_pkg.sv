@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-10-09 17:25:59
+// Revise : 2019-10-08 20:19:28
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -79,23 +79,14 @@ package GLOBALS_PKG;
 // ACCEL-GRAPH Sturctue sizes
 ////////////////////////////////////////////////////////////////////////////
 
-	parameter        VERTEX_SIZE          = 4                     ; // vertex size is n bytes
-	parameter        VERTEX_SIZE_BITS     = VERTEX_SIZE * 8       ; // vertex size is n*8 Bits
-	parameter        EDGE_SIZE            = 4                     ; // edge size is n bytes
-	parameter        EDGE_SIZE_BITS       = EDGE_SIZE * 8         ; // edge size is n*8 Bits
-	parameter        DATA_SIZE_READ       = 4                     ; // edge data size is n bytes
-	parameter        DATA_SIZE_READ_BITS  = DATA_SIZE_READ * 8    ; // edge data size is n*8 Bits
-	parameter        DATA_SIZE_WRITE      = 4                     ; // edge data size is n bytes
-	parameter        DATA_SIZE_WRITE_BITS = DATA_SIZE_WRITE * 8   ; // edge data size is n*8 Bits
-
-	parameter [0:63] ADDRESS_EDGE_ALIGN_MASK   = {{57{1'b1}},{7{1'b0}}}; 
-	parameter [0:63] ADDRESS_EDGE_MOD_MASK     = {{57{1'b0}},{7{1'b1}}}; 
-
-	parameter [0:63] ADDRESS_DATA_READ_ALIGN_MASK   = {{57{1'b1}},{7{1'b0}}}; 
-	parameter [0:63] ADDRESS_DATA_READ_MOD_MASK     = {{57{1'b0}},{7{1'b1}}}; 
-
-	parameter [0:63] ADDRESS_DATA_WRITE_ALIGN_MASK   = {{57{1'b1}},{7{1'b0}}}; 
-	parameter [0:63] ADDRESS_DATA_WRITE_MOD_MASK     = {{57{1'b0}},{7{1'b1}}}; 
+	parameter        VERTEX_SIZE        = 4                     ; // vertex size is 4 bytes
+	parameter        VERTEX_SIZE_BITS   = VERTEX_SIZE * 8       ; // vertex size is 4 bytes
+	parameter        EDGE_SIZE          = 4                     ; // edge size is 4 bytes
+	parameter        EDGE_SIZE_BITS     = EDGE_SIZE * 8         ; // edge size is 4 bytes
+	parameter        DATA_SIZE          = 4                     ; // edge data size is 4 bytes
+	parameter        DATA_SIZE_BITS     = DATA_SIZE * 8         ; // edge data size is 4 bytes
+	parameter [0:63] ADDRESS_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}}; // cacheline is 128bytes
+	parameter [0:63] ADDRESS_MOD_MASK   = {{57{1'b0}},{7{1'b1}}}; // cacheline is 128bytes
 
 	parameter CACHELINE_VERTEX_NUM       = (CACHELINE_SIZE >> $clog2(VERTEX_SIZE))                                                                ; // number of vertices in one cacheline
 	parameter CACHELINE_EDGE_NUM         = (CACHELINE_SIZE >> $clog2(EDGE_SIZE))                                                                  ; // number of edges in one cacheline
