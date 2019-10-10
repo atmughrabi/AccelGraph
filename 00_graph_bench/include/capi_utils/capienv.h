@@ -6,6 +6,7 @@
 #include "graphCSR.h"
 #include "libcxl.h"
 
+
 // ********************************************************************************************
 // ***************                  MMIO General 	                             **************
 // ********************************************************************************************
@@ -20,6 +21,12 @@
 #define DEVICE              "/dev/cxl/afu1.0d"
 #endif
 
+struct AFUStatus
+{
+    uint64_t algo_status;
+    uint64_t num_cu;
+    uint64_t error;
+};
 
 // ********************************************************************************************
 // ***************                  CSR DataStructure                            **************
@@ -57,6 +64,16 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed);
 // ********************************************************************************************
 
 void printMMIO_error( uint64_t error );
+
+
+// ********************************************************************************************
+// ***************                  AFU General                                  **************
+// ********************************************************************************************
+
+int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR);
+int startAFU(struct cxl_afu_h **afu, struct AFUStatus afu_status);
+void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
+void releaseAFU(struct cxl_afu_h **afu);
 
 
 #endif

@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : capienv.c
 // Create : 2019-10-09 19:20:39
-// Revise : 2019-10-09 19:32:45
+// Revise : 2019-10-09 20:22:52
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
@@ -26,7 +26,54 @@
 // ***************                  AFU General 	                             **************
 // ********************************************************************************************
 
+int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR){
 
+    (*afu) = cxl_afu_open_dev("/dev/cxl/afu0.0d");
+    if(!afu)
+    {
+        printf("Failed to open AFU: %m\n");
+        return 1;
+    }
+
+    cxl_afu_attach((*afu), (__u64)wedGraphCSR);
+    printf("Attached to AFU\n");
+
+    int base_address = cxl_mmio_map ((*afu), CXL_MMIO_BIG_ENDIAN);
+
+    if (base_address < 0)
+    {
+        printf("fail cxl_mmio_map %d", base_address);
+        return 1;
+    }
+    else
+    {
+        printf("succ cxl_mmio_map %d", base_address);
+    }
+
+    return 0;
+
+}
+
+int startAFU(struct cxl_afu_h **afu, struct AFUStatus afu_status){
+     return cxl_mmio_write64((*afu), ALGO_REQUEST, afu_status.num_cu);
+}
+
+void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
+{
+    do
+    {
+        cxl_mmio_read64((*afu), ALGO_STATUS, &(afu_status->algo_status));
+        cxl_mmio_read64((*afu), ERROR_REG, &(afu_status->error));
+    }
+    while((!(afu_status->algo_status)) && (!(afu_status->error)));
+}
+
+
+void releaseAFU(struct cxl_afu_h **afu)
+{
+    cxl_mmio_unmap ((*afu));
+    cxl_afu_free((*afu));
+}
 
 // ********************************************************************************************
 // ***************                  MMIO General 	                             **************

@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-10-09 19:31:58
+// Revise : 2019-10-09 20:26:29
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -165,7 +165,7 @@ main (int argc, char **argv)
 
 
     __u32 *divclause = (__u32 *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(__u32));
-    __u64 *prnext = (__u64 *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(__u64));
+    __u32 *prnext = (__u32 *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(__u32));
 
     for (__u32 i = 0; i < ((struct GraphCSR *)graph)->num_vertices; ++i)
     {
@@ -183,70 +183,50 @@ main (int argc, char **argv)
     // ***************                  CSR DataStructure                            **************
     // ********************************************************************************************
 
-
     printWEDGraphCSRVertex(wedGraphCSR);
-
     printWEDGraphCSRPointers(wedGraphCSR);
 
-
     // ********************************************************************************************
     // ***************                 Setup AFU                                     **************
     // ********************************************************************************************
 
+    setupAFUGraphCSR(&afu, wedGraphCSR);
 
-    afu = cxl_afu_open_dev("/dev/cxl/afu0.0d");
-    if(!afu)
-    {
-        printf("Failed to open AFU: %m\n");
-        return 1;
-    }
+    struct AFUStatus afu_status;
+    afu_status.algo_status = 0;
+    afu_status.num_cu = 16; // non zero CU triggers the AFU to work
+    afu_status.error = 0;
 
-    cxl_afu_attach(afu, (__u64)wedGraphCSR);
-    printf("Attached to AFU\n");
-
-    int base_address = cxl_mmio_map (afu, CXL_MMIO_BIG_ENDIAN);
-
-    if (base_address < 0)
-    {
-        printf("fail cxl_mmio_map %d", base_address);
-        return -1;
-    }
-    else
-    {
-        printf("succ cxl_mmio_map %d", base_address);
-    }
 
     // ********************************************************************************************
-    // ***************                 Setup AFU                                     **************
+    // ***************                 START AFU                                     **************
     // ********************************************************************************************
-
-
-    uint64_t algo_status = 0;
-    uint64_t num_cu      = 16;
-    uint64_t error       = 0;
-
-    cxl_mmio_write64(afu, ALGO_REQUEST, num_cu);
-
+    printf("Start AFU\n");
+    startAFU(&afu, afu_status);
+   
+    
+    // ********************************************************************************************
+    // ***************                 WAIT AFU                                     **************
+    // ********************************************************************************************
     printf("Waiting for completion by AFU\n");
-    do
-    {
-        cxl_mmio_read64(afu, ALGO_STATUS, &algo_status);
-        cxl_mmio_read64(afu, ERROR_REG, &error);
-    }
-    while((!algo_status) && (!error));
+    waitAFU(&afu, &afu_status);
 
-    printMMIO_error(error);
-    printf("Vertices: %lu\n", ((algo_status << 32) >> 32));
-    printf("Edges: %lu\n", ((algo_status) >> 32));
+    printMMIO_error(afu_status.error);
+
+    printf("Vertices: %lu\n", (((afu_status.algo_status) << 32) >> 32));
+    printf("Edges: %lu\n", ((afu_status.algo_status) >> 32));
 
      for (__u32 i = 0; i < ((struct GraphCSR *)graph)->num_vertices; ++i)
     {
         printf("prnext[%u] = %u \n", i,prnext[i]);
     }
 
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                     **************
+    // ********************************************************************************************
+
     printf("Releasing AFU\n");
-    cxl_mmio_unmap (afu);
-    cxl_afu_free(afu);
+    releaseAFU(&afu);
 
     free(timer);
     exit (0);
