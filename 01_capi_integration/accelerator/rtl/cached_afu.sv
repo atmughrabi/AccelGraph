@@ -17,7 +17,7 @@ import CAPI_PKG::*;
 import WED_PKG::*;
 import AFU_PKG::*;
 
-module cached_afu #(parameter NUM_EXTERNAL_RESETS = 2) (
+module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   input  logic                  clock           ,
   output logic                  timebase_request,
   output logic                  parity_enabled  ,
@@ -34,22 +34,24 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 2) (
 
   // logic jdone;
 
-  logic [0:NUM_EXTERNAL_RESETS-1] external_rstn         ;
-  logic [                    0:1] job_errors            ;
-  logic [                    0:1] mmio_errors           ;
-  logic [                    0:1] data_read_error       ;
-  logic                           data_write_error      ;
-  logic [                    0:6] command_response_error;
-  logic [                   0:63] external_errors       ;
-  logic [                   0:63] report_errors         ;
-  logic [                   0:63] algorithm_status      ;
-  logic [                   0:63] algorithm_requests    ;
-  logic                           report_errors_ack     ;
-  logic                           reset_afu             ;
-  logic                           reset_afu_soft        ;
+  logic [0:NUM_EXTERNAL_RESETS-1] external_rstn          ;
+  logic [                    0:1] job_errors             ;
+  logic [                    0:1] mmio_errors            ;
+  logic [                    0:1] data_read_error        ;
+  logic                           data_write_error       ;
+  logic [                    0:6] command_response_error ;
+  logic [                   0:63] external_errors        ;
+  logic [                   0:63] report_errors          ;
+  logic [                   0:63] algorithm_status       ;
+  logic [                   0:63] report_algorithm_status;
+  logic [                   0:63] algorithm_requests     ;
+  logic                           report_errors_ack      ;
+  logic                           reset_afu              ;
+  logic                           reset_afu_soft         ;
 
-  logic combined_reset_afu;
-  logic reset_mmio        ;
+  logic combined_reset_afu         ;
+  logic reset_done                 ;
+  logic report_algorithm_status_ack;
 
   CommandBufferLine read_command_out   ;
   CommandBufferLine write_command_out  ;
@@ -91,6 +93,21 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 2) (
   end
 
 ////////////////////////////////////////////////////////////////////////////
+//DONE
+////////////////////////////////////////////////////////////////////////////
+
+  done_control done_control_instant (
+    .clock                      (clock                      ),
+    .rstn                       (reset_afu                  ),
+    .soft_rstn                  (reset_afu_soft             ),
+    .enabled_in                 (enabled                    ),
+    .algorithm_status           (algorithm_status           ),
+    .report_algorithm_status_ack(report_algorithm_status_ack),
+    .reset_done                 (reset_done                 ),
+    .report_algorithm_status    (report_algorithm_status    )
+  );
+
+////////////////////////////////////////////////////////////////////////////
 //ERROR
 ////////////////////////////////////////////////////////////////////////////
 
@@ -102,7 +119,7 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 2) (
     .enabled_in       (enabled          ),
     .external_errors  (external_errors  ),
     .report_errors_ack(report_errors_ack),
-    .reset_error      (external_rstn[1] ),
+    .reset_error      (external_rstn[2] ),
     .report_errors    (report_errors    )
   );
 
@@ -193,16 +210,17 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 2) (
 ////////////////////////////////////////////////////////////////////////////
 
   mmio mmio_instant (
-    .clock             (clock             ),
-    .rstn              (reset_afu         ),
-    .report_errors     (report_errors     ),
-    .algorithm_status  (algorithm_status  ),
-    .algorithm_requests(algorithm_requests),
-    .mmio_in           (mmio_in           ),
-    .mmio_out          (mmio_out          ),
-    .mmio_errors       (mmio_errors       ),
-    .report_errors_ack (report_errors_ack ),
-    .reset_mmio        (reset_mmio        )
+    .clock                      (clock                      ),
+    .rstn                       (reset_afu                  ),
+    .report_errors              (report_errors              ),
+    .algorithm_status           (report_algorithm_status    ),
+    .algorithm_requests         (algorithm_requests         ),
+    .mmio_in                    (mmio_in                    ),
+    .mmio_out                   (mmio_out                   ),
+    .mmio_errors                (mmio_errors                ),
+    .report_errors_ack          (report_errors_ack          ),
+    .report_algorithm_status_ack(report_algorithm_status_ack),
+    .reset_mmio                 (external_rstn[1]           )
   );
 
 ////////////////////////////////////////////////////////////////////////////
@@ -222,7 +240,7 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 2) (
   );
 
 ////////////////////////////////////////////////////////////////////////////
-//RESET
+//RESET hard 
 ////////////////////////////////////////////////////////////////////////////
 
   reset_control #(.NUM_EXTERNAL_RESETS(NUM_EXTERNAL_RESETS)) reset_instant_hard (
@@ -231,9 +249,14 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 2) (
     .rstn         (reset_afu    )
   );
 
+
+////////////////////////////////////////////////////////////////////////////
+//RESET soft
+////////////////////////////////////////////////////////////////////////////
+
   reset_control #(.NUM_EXTERNAL_RESETS(1)) reset_instant_soft (
     .clock        (clock         ),
-    .external_rstn(reset_mmio    ),
+    .external_rstn(reset_done    ),
     .rstn         (reset_afu_soft)
   );
 

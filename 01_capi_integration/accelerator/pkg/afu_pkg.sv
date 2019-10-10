@@ -41,6 +41,15 @@ package AFU_PKG;
     ERROR_RESET_PENDING
   } error_state;
 
+  typedef enum int unsigned {
+    DONE_RESET,
+    DONE_IDLE,
+    DONE_MMIO_REQ,
+    DONE_WAIT_MMIO_REQ,
+    DONE_RESET_REQ,
+    DONE_RESET_PENDING
+  } done_state;
+
 ////////////////////////////////////////////////////////////////////////////
 // Tag Buffer data
 ////////////////////////////////////////////////////////////////////////////

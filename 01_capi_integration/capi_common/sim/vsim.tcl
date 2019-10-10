@@ -23,6 +23,7 @@ proc r  {} {
   vlog -quiet ../../accelerator/rtl/reset_filter.sv
   vlog -quiet ../../accelerator/rtl/reset_control.sv
   vlog -quiet ../../accelerator/rtl/error_control.sv
+  vlog -quiet ../../accelerator/rtl/done_control.sv
   vlog -quiet ../../accelerator/rtl/ram.sv
   vlog -quiet ../../accelerator/rtl/fifo.sv
   vlog -quiet ../../accelerator/rtl/priority_arbiters.sv

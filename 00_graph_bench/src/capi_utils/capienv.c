@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : capienv.c
 // Create : 2019-10-09 19:20:39
-// Revise : 2019-10-09 20:58:45
+// Revise : 2019-10-09 21:46:14
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
@@ -36,8 +36,6 @@ int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR){
     }
 
     cxl_afu_attach((*afu), (__u64)wedGraphCSR);
-    printf("Attached to AFU\n");
-
     int base_address = cxl_mmio_map ((*afu), CXL_MMIO_BIG_ENDIAN);
 
     if (base_address < 0)
@@ -45,11 +43,7 @@ int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR){
         printf("fail cxl_mmio_map %d", base_address);
         return 1;
     }
-    else
-    {
-        printf("succ cxl_mmio_map %d", base_address);
-    }
-
+    
     return 0;
 
 }

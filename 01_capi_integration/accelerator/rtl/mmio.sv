@@ -16,18 +16,19 @@ import GLOBALS_PKG::*;
 import CAPI_PKG::*;
 
 module mmio (
-  input  logic               clock             ,
-  input  logic               rstn              ,
-  input  logic [0:63]        report_errors     ,
-  input  logic [0:63]        algorithm_status  ,
-  output logic [0:63]        algorithm_requests,
-  input  MMIOInterfaceInput  mmio_in           ,
-  output MMIOInterfaceOutput mmio_out          ,
-  output logic [ 0:1]        mmio_errors       ,
-  output logic               report_errors_ack , // each register has an ack
+  input  logic               clock                      ,
+  input  logic               rstn                       ,
+  input  logic [0:63]        report_errors              ,
+  input  logic [0:63]        algorithm_status           ,
+  output logic [0:63]        algorithm_requests         ,
+  input  MMIOInterfaceInput  mmio_in                    ,
+  output MMIOInterfaceOutput mmio_out                   ,
+  output logic [ 0:1]        mmio_errors                ,
+  output logic               report_errors_ack          , // each register has an ack
+  output logic               report_algorithm_status_ack, // each register has an ack
   output logic               reset_mmio
 );
-  
+
   AFUDescriptor afu_desc  ;
   logic         odd_parity;
 
@@ -37,33 +38,35 @@ module mmio (
   logic       mmio_address_error;
 
 
-  logic     report_done_ack;
+
   logic mmio_read_latched ;
   logic mmio_read         ;
   logic mmio_write_latched;
   logic mmio_write        ;
 
-  logic cfg_read_latched         ;
-  logic cfg_read                 ;
-  logic cfg_write_latched        ;
-  logic cfg_write                ;
-  logic doubleword_latched       ;
-  logic doubleword               ;
-  logic report_errors_ack_latched;
+  logic cfg_read_latched                   ;
+  logic cfg_read                           ;
+  logic cfg_write_latched                  ;
+  logic cfg_write                          ;
+  logic doubleword_latched                 ;
+  logic doubleword                         ;
+  logic report_errors_ack_latched          ;
+  logic report_algorithm_status_ack_latched;
 
-  logic [0:23] address            ;
-  logic [0:23] address_latched    ;
-  logic [0:63] data_in            ;
-  logic [0:63] data_in_latched    ;
-  logic [0:63] data_out           ;
-  logic [0:63] data_cfg           ;
-  logic        data_out_parity    ;
-  logic        data_in_parity_link;
-  logic        data_in_parity     ;
-  logic        address_parity_link;
-  logic        address_parity     ;
-  logic        data_ack           ;
-
+  logic [0:23] address                 ;
+  logic [0:23] address_latched         ;
+  logic [0:63] data_in                 ;
+  logic [0:63] data_in_latched         ;
+  logic [0:63] data_out                ;
+  logic [0:63] data_cfg                ;
+  logic        data_out_parity         ;
+  logic        data_in_parity_link     ;
+  logic        data_in_parity          ;
+  logic        address_parity_link     ;
+  logic        address_parity          ;
+  logic        data_ack                ;
+  logic [0:63] report_errors_latched   ;
+  logic [0:63] algorithm_status_latched;
 
   MMIOInterfaceInput mmio_in_latched;
 
@@ -89,20 +92,18 @@ module mmio (
   assign enable_errors = 1'b1; // enable errors
 
 
-  always_ff @(posedge clock or negedge rstn) begin : proc_
-    if(~rstn) begin
-       reset_mmio <= 1;
-    end else begin
-       if(reset_mmio && (|algorithm_status) && report_done_ack)begin
-          reset_mmio <= 0;
-       end else
-          reset_mmio <= 1;
-    end
-  end
+  assign reset_mmio = 1;
 
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
+
+
+  always_ff @(posedge clock) begin
+    report_errors_latched    <= report_errors;
+    algorithm_status_latched <= algorithm_status;
+  end
+
 
   always_ff @(posedge clock) begin
     mmio_in_latched <= mmio_in;
@@ -173,7 +174,7 @@ module mmio (
           end
         endcase
       end else begin
-        algorithm_requests  <= 64'h0000_0000_0000_0000;
+        algorithm_requests <= 64'h0000_0000_0000_0000;
       end
     end
   end
@@ -181,9 +182,9 @@ module mmio (
   // Read DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      data_out                  <= 64'h0000_0000_0000_0000;
-      report_errors_ack_latched <= 1'b0;
-      report_done_ack <= 1'b0;
+      data_out                            <= 64'h0000_0000_0000_0000;
+      report_errors_ack_latched           <= 1'b0;
+      report_algorithm_status_ack_latched <= 1'b0;
     end else begin
       if(cfg_read_latched) begin
         if(doubleword_latched) begin
@@ -196,32 +197,33 @@ module mmio (
       end else if (mmio_read_latched) begin
         case (address_latched)
           ALGO_STATUS : begin
-            data_out <= algorithm_status;
-            report_done_ack <= 1'b1;
+            data_out                            <= algorithm_status_latched;
+            report_algorithm_status_ack_latched <= (|algorithm_status_latched);
           end
           ERROR_REG : begin
-            data_out                  <= report_errors;
-            report_errors_ack_latched <= 1'b1;
+            data_out                  <= report_errors_latched;
+            report_errors_ack_latched <= (|report_errors_latched);
           end
           default : begin
-            data_out                  <= data_out;
-            report_errors_ack_latched <= 1'b0;
-            report_done_ack <= 1'b0;
+            data_out                            <= data_out;
+            report_errors_ack_latched           <= 1'b0;
+            report_algorithm_status_ack_latched <= 1'b0;
           end
         endcase
       end else begin
-        data_out                  <= data_out;
-        report_errors_ack_latched <= 1'b0;
-        report_done_ack <= 1'b0;
+        data_out                            <= data_out;
+        report_errors_ack_latched           <= 1'b0;
+        report_algorithm_status_ack_latched <= 1'b0;
       end
     end
   end
 
   always_ff @(posedge clock) begin
-    mmio_out.ack         <= data_ack;
-    mmio_out.data        <= data_out;
-    mmio_out.data_parity <= data_out_parity;
-    report_errors_ack    <= report_errors_ack_latched;
+    mmio_out.ack                <= data_ack;
+    mmio_out.data               <= data_out;
+    mmio_out.data_parity        <= data_out_parity;
+    report_errors_ack           <= report_errors_ack_latched;
+    report_algorithm_status_ack <= report_algorithm_status_ack_latched;
   end
 
   parity #(.BITS(64)) mmio_data_out_parity_instant (
