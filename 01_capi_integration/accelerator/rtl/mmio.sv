@@ -27,7 +27,7 @@ module mmio (
   output logic               report_errors_ack , // each register has an ack
   output logic               reset_mmio
 );
-
+  
   AFUDescriptor afu_desc  ;
   logic         odd_parity;
 
@@ -37,7 +37,7 @@ module mmio (
   logic       mmio_address_error;
 
 
-
+  logic     report_done_ack;
   logic mmio_read_latched ;
   logic mmio_read         ;
   logic mmio_write_latched;
@@ -89,7 +89,16 @@ module mmio (
   assign enable_errors = 1'b1; // enable errors
 
 
-  assign reset_mmio = 1;
+  always_ff @(posedge clock or negedge rstn) begin : proc_
+    if(~rstn) begin
+       reset_mmio <= 1;
+    end else begin
+       if(reset_mmio && (|algorithm_status) && report_done_ack)begin
+          reset_mmio <= 0;
+       end else
+          reset_mmio <= 1;
+    end
+  end
 
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
@@ -174,6 +183,7 @@ module mmio (
     if(~rstn) begin
       data_out                  <= 64'h0000_0000_0000_0000;
       report_errors_ack_latched <= 1'b0;
+      report_done_ack <= 1'b0;
     end else begin
       if(cfg_read_latched) begin
         if(doubleword_latched) begin
@@ -187,6 +197,7 @@ module mmio (
         case (address_latched)
           ALGO_STATUS : begin
             data_out <= algorithm_status;
+            report_done_ack <= 1'b1;
           end
           ERROR_REG : begin
             data_out                  <= report_errors;
@@ -195,11 +206,13 @@ module mmio (
           default : begin
             data_out                  <= data_out;
             report_errors_ack_latched <= 1'b0;
+            report_done_ack <= 1'b0;
           end
         endcase
       end else begin
         data_out                  <= data_out;
         report_errors_ack_latched <= 1'b0;
+        report_done_ack <= 1'b0;
       end
     end
   end
