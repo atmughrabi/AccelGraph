@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-10-09 20:26:29
+// Revise : 2019-10-09 20:34:42
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -174,6 +174,11 @@ main (int argc, char **argv)
     }
 
     // (struct GraphCSR *)graph
+
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
+
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
 
     wedGraphCSR->auxiliary1 = divclause;

@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : capienv.c
 // Create : 2019-10-09 19:20:39
-// Revise : 2019-10-09 20:22:52
+// Revise : 2019-10-09 20:58:45
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@
 
 int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR){
 
-    (*afu) = cxl_afu_open_dev("/dev/cxl/afu0.0d");
+    (*afu) = cxl_afu_open_dev(DEVICE);
     if(!afu)
     {
         printf("Failed to open AFU: %m\n");

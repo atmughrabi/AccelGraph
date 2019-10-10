@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : pageRank.c
 // Create : 2019-09-28 14:41:30
-// Revise : 2019-09-28 15:34:11
+// Revise : 2019-10-09 21:00:06
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 #include <stdio.h>
@@ -34,6 +34,9 @@
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
+
+#include "libcxl.h"
+#include "capienv.h"
 
 #include "pageRank.h"
 
@@ -1254,12 +1257,18 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
 {
 
     double error_total = 0.0;
-    __u32 j;
     __u32 v;
-    __u32 u;
-    __u32 degree;
-    __u32 edge_idx;
     __u32 activeVertices = 0;
+
+    //CAPI variables
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
+    struct AFUStatus afu_status;
+
+    afu_status.algo_status = 0;
+    afu_status.num_cu = numThreads; // non zero CU triggers the AFU to work
+    afu_status.error = 0;
+
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
 
@@ -1268,19 +1277,8 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
     // __u64 epsilon_fp = DoubleToFixed64(epsilon);
     // __u64 num_vertices_fp = UInt32ToFixed64();
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
-    struct Vertex *vertices = NULL;
-    __u32 *sorted_edges_array = NULL;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-
-#if DIRECTED
-    vertices = graph->inverse_vertices;
-    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
-#else
-    vertices = graph->vertices;
-    sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
-#endif
-
 
 
     __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
@@ -1288,7 +1286,9 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
     // __u64* outDegreesFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
     // __u64* pageRanksFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
 
-
+  
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "               ---->>> CAPI <<<----");
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull FP (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
@@ -1298,7 +1298,20 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
     printf(" -----------------------------------------------------\n");
 
     Start(timer);
+    
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
 
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+
+    wedGraphCSR->auxiliary1 = riDividedOnDiClause;
+    wedGraphCSR->auxiliary2 = pageRanksNext;
+    // ********************************************************************************************
+
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+    // ********************************************************************************************
 
     #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext)
     for(v = 0; v < graph->num_vertices; v++)
@@ -1325,18 +1338,17 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
         // printf("|A %-9u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
 
         //  Start(timer_inner);
-        #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            degree = vertices->out_degree[v];
-            edge_idx = vertices->edges_idx[v];
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                u = sorted_edges_array[j];
-                pageRanksNext[v] += riDividedOnDiClause[u];
-            }
+        // ********************************************************************************************
+        // ***************                 START AFU                                     **************
+        startAFU(&afu, afu_status);
+        // ********************************************************************************************
 
-        }
+        // ********************************************************************************************
+        // ***************                 WAIT AFU                                     **************
+        waitAFU(&afu, &afu_status);
+        printMMIO_error(afu_status.error);
+        // ********************************************************************************************
+
         // Stop(timer_inner);
         // printf("|B %-9u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
 
@@ -1387,6 +1399,12 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
     printf(" -----------------------------------------------------\n");
 
     // pageRankPrint(pageRanks, graph->num_vertices);
+
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
     free(timer);
     free(timer_inner);
     free(riDividedOnDiClause);
