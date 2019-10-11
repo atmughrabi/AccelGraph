@@ -5,7 +5,7 @@ datastructure = int(sys.argv[1])
 algorithm = int(sys.argv[2])
 direction = int(sys.argv[3])
 
-workloads_csr = [[],["pageRankPullGraphCSRKernelAladdin", "pageRankPushGraphCSRKernelAladdin",
+workloads_csr = [["topDownStepGraphCSRKernelAladdin","bottomUpStepGraphCSRKernelAladdin"],["pageRankPullGraphCSRKernelAladdin", "pageRankPushGraphCSRKernelAladdin",
 				 "pageRankPullFixedPointGraphCSRKernelAladdin","pageRankPushFixedPointGraphCSRKernelAladdin",
 				 "pageRankPullQuantizationGraphCSRKernelAladdin","pageRankPushQuantizationGraphCSRKernelAladdin",
 				 "pageRankDataDrivenPullGraphCSRKernelAladdin","pageRankDataDrivenPushGraphCSRKernelAladdin",
