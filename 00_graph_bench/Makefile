@@ -64,7 +64,7 @@ MAIN_DIR		  	= main
 #small test graphs
 # GRAPH_NAME = test
 # GRAPH_NAME = Rabbit
-GRAPH_NAME = v51_e1021
+# GRAPH_NAME = v51_e1021
 # GRAPH_NAME = v300_e2730
 # GRAPH_NAME = p2p-Gnutella31
 
@@ -85,7 +85,7 @@ GRAPH_NAME = v51_e1021
 
 # real world small graphs binary format
 # GRAPH_NAME = com-youtube
-# GRAPH_NAME = p2p-Gnutella31
+GRAPH_NAME = p2p-Gnutella31
 # GRAPH_NAME = web-BerkStan
 # GRAPH_NAME = web-Google
 # GRAPH_NAME = wiki-Talk
@@ -106,13 +106,13 @@ DATA_STRUCTURES = 0
 ALGORITHMS 		= 1
 
 ROOT 			= 43608
-PULL_PUSH 		= 2
+PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
-NUM_THREADS  	= 8
+NUM_THREADS  	= 1
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-NUM_ITERATIONS 	= 5
+NUM_ITERATIONS 	= 1
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1
@@ -128,7 +128,7 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 ##################################################
 #these variables only affect the signature not used in the make file
 
-UNROLLING = 1
+UNROLLING = 16
 PIPELINE = 0
 
 #each diffrenert run would store the output to different folder based on these parameters

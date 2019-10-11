@@ -972,6 +972,9 @@ struct PageRankStats *pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 
 struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
 {
 
+    int *finish_flag;
+    finish_flag = (int *) my_malloc(sizeof(int));
+
     double error_total = 0.0;
     // __u32 j;
     __u32 v;
@@ -1001,7 +1004,9 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
 
 
     float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
+    float *pageRanksNext2 = (float *) my_malloc(graph->num_vertices * sizeof(float));
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
+    float *riDividedOnDiClause2 = (float *) my_malloc(graph->num_vertices * sizeof(float));
 
 
     printf(" -----------------------------------------------------\n");
@@ -1027,10 +1032,14 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
         #pragma omp parallel for
         for(v = 0; v < graph->num_vertices; v++)
         {
-            if(graph->vertices->out_degree[v])
+            if(graph->vertices->out_degree[v]){
                 riDividedOnDiClause[v] = stats->pageRanks[v] / graph->vertices->out_degree[v];
-            else
+                riDividedOnDiClause2[v] = stats->pageRanks[v] / graph->vertices->out_degree[v];
+            }
+            else{
                 riDividedOnDiClause[v] = 0.0f;
+                riDividedOnDiClause2[v] = 0.0f;
+            }
         }
 
 
@@ -1052,7 +1061,10 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
         mapArrayToAccelerator(
             ACCELGRAPH, "sorted_edges_array_pull_csr", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
 
-        invokeAcceleratorAndBlock(ACCELGRAPH);
+        // invokeAcceleratorAndBlock(ACCELGRAPH);
+        invokeAcceleratorAndReturn2(ACCELGRAPH, finish_flag);
+        pageRankPullGraphCSRKernelAladdin(riDividedOnDiClause2, pageRanksNext2, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
+        while (finish_flag == NOT_COMPLETED);
 #endif
 
 #ifdef CACHE_HARNESS
@@ -1068,13 +1080,14 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
         // m5_work_end(0, 0);
         // #endif
 
-        #pragma omp parallel for private(v) shared(epsilon, pageRanksNext,stats) reduction(+ : error_total, activeVertices)
+        #pragma omp parallel for private(v) shared(epsilon, pageRanksNext2, pageRanksNext,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
         {
             float prevPageRank =  stats->pageRanks[v];
             float nextPageRank =  stats->base_pr + (stats->damp * pageRanksNext[v]);
             stats->pageRanks[v] = nextPageRank;
             pageRanksNext[v] = 0.0f;
+            pageRanksNext2[v] = 0.0f;
             double error = fabs( nextPageRank - prevPageRank);
             error_total += (error / graph->num_vertices);
 
@@ -1115,10 +1128,13 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
     // printf(" -----------------------------------------------------\n");
 
     // pageRankPrint(pageRanks, graph->num_vertices);
+    free(finish_flag);
     free(timer);
     free(timer_inner);
     free(pageRanksNext);
     free(riDividedOnDiClause);
+    free(pageRanksNext2);
+    free(riDividedOnDiClause2);
 
 #ifdef CACHE_HARNESS
     printStats(cache->cache);
