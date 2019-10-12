@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : BFS_Kernels.c
 // Create : 2019-10-11 16:26:36
-// Revise : 2019-10-11 20:57:20
+// Revise : 2019-10-11 21:39:42
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@
 // you should add these to Aladdin as an extern "aladdin_sys_constants.h"
 // unsigned ACCELGRAPH = 0x300;
 
-__u32 bottomUpStepGraphCSRKernelAladdin( int *parents,  __u32 *distances, struct Bitmap *bitmapCurr, struct Bitmap *bitmapNext, __u32 *out_degree_pull_csr, __u32 *edges_idx_pull_csr, __u32 *sorted_edges_array_pull_csr, __u32 num_vertices)
+void bottomUpStepGraphCSRKernelAladdin( __u32 *nf, int *parents,  __u32 *distances, struct Bitmap *bitmapCurr, struct Bitmap *bitmapNext, __u32 *out_degree_pull_csr, __u32 *edges_idx_pull_csr, __u32 *sorted_edges_array_pull_csr, __u32 num_vertices)
 {
 
 	__u32 j;
@@ -40,7 +40,6 @@ __u32 bottomUpStepGraphCSRKernelAladdin( int *parents,  __u32 *distances, struct
  	__u32 u;
     __u32 edge_idx;
     __u32 out_degree;
-    __u32 nf = 0;
 
 iter :	  
     for(v = 0 ; v < num_vertices ; v++)
@@ -58,7 +57,7 @@ iter :
                     parents[v] = u;
                     distances[v] = distances[u] + 1;
                     setBit(bitmapNext, v);
-                    nf++;
+                    (*nf)++;
                     break;
                 }
             }
@@ -66,5 +65,5 @@ iter :
         }
 
     }
-    return nf;
+ 
 }

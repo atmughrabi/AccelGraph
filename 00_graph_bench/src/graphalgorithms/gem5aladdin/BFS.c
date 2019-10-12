@@ -614,11 +614,6 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
 {
 
 
-    __u32 v;
-    __u32 u;
-    __u32 j;
-    __u32 edge_idx;
-    __u32 out_degree;
     struct Vertex *vertices = NULL;
     __u32 *sorted_edges_array = NULL;
      int *finish_flag;
@@ -651,20 +646,22 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
             ACCELGRAPH, "edges_idx_pull_csr", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
         mapArrayToAccelerator(
             ACCELGRAPH, "sorted_edges_array_pull_csr", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
+         mapArrayToAccelerator(
+            ACCELGRAPH, "nf", &(nf), sizeof(__u32));
 
 
         // invokeAcceleratorAndBlock(ACCELGRAPH);
         invokeAcceleratorAndReturn2(ACCELGRAPH, finish_flag);
         // bottomUpStepGraphCSRKernelAladdin( stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
-        while (finish_flag == NOT_COMPLETED);
+        while ((*finish_flag) == NOT_COMPLETED);
 #endif
 
 #ifdef CACHE_HARNESS
-        nf = bottomUpStepGraphCSRKernelAladdin( stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
+       bottomUpStepGraphCSRKernelAladdin(&nf ,stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
  #endif
 
 #ifdef CPU_HARNESS
-        nf = bottomUpStepGraphCSRKernelAladdin( stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
+       bottomUpStepGraphCSRKernelAladdin(&nf ,stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
 #endif
 
     free(finish_flag);

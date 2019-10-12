@@ -14,8 +14,8 @@
 # dirs Root app 
 APP_DIR           	= .
 SCRIPT_DIR          = ../04_scripts
-# BENCHMARKS_DIR    	= ../../01_GraphDatasets
-BENCHMARKS_DIR    	= ../03_test_graphs
+BENCHMARKS_DIR    	= ../../01_GraphDatasets/Aladdin-graphs
+# BENCHMARKS_DIR    	= ../03_test_graphs
 
 #dir root/managed_folders
 SRC_DIR           	= src
@@ -105,7 +105,7 @@ REORDER 		= 0
 DATA_STRUCTURES = 0
 ALGORITHMS 		= 0
 
-ROOT 			= 164
+ROOT 			= 438238
 PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
@@ -127,8 +127,10 @@ ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(
 ##################################################
 ##################################################
 #these variables only affect the signature not used in the make file
-
+## 1,2,4,8,16,32,64
 UNROLLING = 16
+
+#always zero unless you add cfg files for it
 PIPELINE = 0
 
 #each diffrenert run would store the output to different folder based on these parameters
