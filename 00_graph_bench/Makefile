@@ -14,8 +14,8 @@
 # dirs Root app 
 APP_DIR           	= .
 SCRIPT_DIR          = ../04_scripts
-BENCHMARKS_DIR    	= ../../01_GraphDatasets/Aladdin-graphs
-# BENCHMARKS_DIR    	= ../03_test_graphs
+# BENCHMARKS_DIR    	= ../../01_GraphDatasets/Aladdin-graphs
+BENCHMARKS_DIR    	= ../03_test_graphs
 
 #dir root/managed_folders
 SRC_DIR           	= src
@@ -63,10 +63,20 @@ MAIN_DIR		  	= main
 
 #small test graphs
 # GRAPH_NAME = test
-# GRAPH_NAME = Rabbit
 # GRAPH_NAME = v51_e1021
 # GRAPH_NAME = v300_e2730
-# GRAPH_NAME = p2p-Gnutella31
+
+#gem5-Aladdin small dynamic traces
+GRAPH_NAME = Gnutella
+# GRAPH_NAME = dblp
+# GRAPH_NAME = amazon
+# GRAPH_NAME = euall
+
+# generates large dynamic traces for gem5-Aladdin
+# GRAPH_NAME = com-youtube
+# GRAPH_NAME = web-BerkStan
+# GRAPH_NAME = web-Google
+# GRAPH_NAME = wiki-Talk
 
 # synthetic graphs
 # GRAPH_NAME = RMAT20
@@ -83,14 +93,6 @@ MAIN_DIR		  	= main
 # GRAPH_NAME = arabic-2005
 
 
-# real world small graphs binary format
-# GRAPH_NAME = com-youtube
-GRAPH_NAME = p2p-Gnutella31
-# GRAPH_NAME = web-BerkStan
-# GRAPH_NAME = web-Google
-# GRAPH_NAME = wiki-Talk
-
-
 #UNWEIGHTED
 # FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
 
@@ -103,7 +105,7 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 0
+ALGORITHMS 		= 1
 
 ROOT 			= 438238
 PULL_PUSH 		= 0

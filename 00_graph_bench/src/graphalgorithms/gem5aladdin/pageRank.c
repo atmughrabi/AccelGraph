@@ -1063,6 +1063,7 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
 
         // invokeAcceleratorAndBlock(ACCELGRAPH);
         invokeAcceleratorAndReturn2(ACCELGRAPH, finish_flag);
+        // finish_flag = invokeAcceleratorAndReturn(ACCELGRAPH);
         pageRankPullGraphCSRKernelAladdin(riDividedOnDiClause2, pageRanksNext2, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
         while ((*finish_flag) == NOT_COMPLETED);
 #endif
