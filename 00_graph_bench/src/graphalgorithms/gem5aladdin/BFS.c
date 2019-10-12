@@ -16,6 +16,16 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
+#ifdef GEM5_HARNESS
+#include "gem5/gem5_harness.h"
+#endif
+
+// #include <gem5/m5ops.h>
+// #include "m5_mmap.h"
+
+#include "cache.h"
+#include "BFS_Kernels.h"
+
 #include "BFS.h"
 
 // ********************************************************************************************
@@ -611,6 +621,8 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
     __u32 out_degree;
     struct Vertex *vertices = NULL;
     __u32 *sorted_edges_array = NULL;
+     int *finish_flag;
+    finish_flag = (int *) my_malloc(sizeof(int));
 
     // __u32 processed_nodes = bitmapCurr->numSetBits;
     __u32 nf = 0; // number of vertices in sharedFrontierQueue
@@ -624,30 +636,38 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #endif
 
-    #pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(stats,bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
-    for(v = 0 ; v < graph->num_vertices ; v++)
-    {
-        out_degree = vertices->out_degree[v];
-        if(stats->parents[v] < 0)  // optmization
-        {
-            edge_idx = vertices->edges_idx[v];
+#ifdef GEM5_HARNESS
+        mapArrayToAccelerator(
+            ACCELGRAPH, "parents", &(stats->parents[0]), graph->num_vertices * sizeof(int));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "distances", &(stats->distances[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "bitmapCurr", bitmapCurr, sizeof(struct Bitmap));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "bitmapNext", bitmapNext, sizeof(struct Bitmap));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "out_degree_pull_csr", &(vertices->out_degree[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "edges_idx_pull_csr", &(vertices->edges_idx[0]), graph->num_vertices * sizeof(__u32));
+        mapArrayToAccelerator(
+            ACCELGRAPH, "sorted_edges_array_pull_csr", &(sorted_edges_array[0]), graph->num_edges * sizeof(__u32));
 
-            for(j = edge_idx ; j < (edge_idx + out_degree) ; j++)
-            {
-                u = sorted_edges_array[j];
-                if(getBit(bitmapCurr, u))
-                {
-                    stats->parents[v] = u;
-                    stats->distances[v] = stats->distances[u] + 1;
-                    setBitAtomic(bitmapNext, v);
-                    nf++;
-                    break;
-                }
-            }
 
-        }
+        // invokeAcceleratorAndBlock(ACCELGRAPH);
+        invokeAcceleratorAndReturn2(ACCELGRAPH, finish_flag);
+        // bottomUpStepGraphCSRKernelAladdin( stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
+        while (finish_flag == NOT_COMPLETED);
+#endif
 
-    }
+#ifdef CACHE_HARNESS
+        nf = bottomUpStepGraphCSRKernelAladdin( stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
+ #endif
+
+#ifdef CPU_HARNESS
+        nf = bottomUpStepGraphCSRKernelAladdin( stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
+#endif
+
+    free(finish_flag);
     return nf;
 }
 
