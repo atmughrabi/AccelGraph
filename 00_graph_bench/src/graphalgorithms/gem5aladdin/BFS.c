@@ -654,7 +654,7 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
 
         invokeAcceleratorAndBlock(ACCELGRAPH);
         // finish_flag = invokeAcceleratorAndReturn(ACCELGRAPH);
-        // bottomUpStepGraphCSRKernelAladdin( stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
+        // bottomUpStepGraphCSRKernelAladdin(&nf , stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
         // while ((*finish_flag) == 0x002DECAF){
 
         //     printf("%X\n", (*finish_flag));
