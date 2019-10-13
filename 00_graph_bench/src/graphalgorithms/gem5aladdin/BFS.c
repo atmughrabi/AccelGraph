@@ -616,8 +616,8 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
 
     struct Vertex *vertices = NULL;
     __u32 *sorted_edges_array = NULL;
-     int *finish_flag;
-    finish_flag = (int *) my_malloc(sizeof(int));
+    
+    // finish_flag = (int *) my_malloc(sizeof(int));
 
     // __u32 processed_nodes = bitmapCurr->numSetBits;
     __u32 nf = 0; // number of vertices in sharedFrontierQueue
@@ -632,6 +632,8 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
 #endif
 
 #ifdef GEM5_HARNESS
+         // int *finish_flag;
+
         mapArrayToAccelerator(
             ACCELGRAPH, "parents", &(stats->parents[0]), graph->num_vertices * sizeof(int));
         mapArrayToAccelerator(
@@ -650,10 +652,15 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
             ACCELGRAPH, "nf", &(nf), sizeof(__u32));
 
 
-        // invokeAcceleratorAndBlock(ACCELGRAPH);
-        invokeAcceleratorAndReturn2(ACCELGRAPH, finish_flag);
+        invokeAcceleratorAndBlock(ACCELGRAPH);
+        // finish_flag = invokeAcceleratorAndReturn(ACCELGRAPH);
         // bottomUpStepGraphCSRKernelAladdin( stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
-        while ((*finish_flag) == NOT_COMPLETED);
+        // while ((*finish_flag) == 0x002DECAF){
+
+        //     printf("%X\n", (*finish_flag));
+        // }
+
+        // free(finish_flag);
 #endif
 
 #ifdef CACHE_HARNESS
@@ -664,7 +671,7 @@ __u32 bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, st
        bottomUpStepGraphCSRKernelAladdin(&nf ,stats->parents,  stats->distances, bitmapCurr, bitmapNext, vertices->out_degree, vertices->edges_idx, sorted_edges_array, graph->num_vertices);
 #endif
 
-    free(finish_flag);
+    // free(finish_flag);
     return nf;
 }
 

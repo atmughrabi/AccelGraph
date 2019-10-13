@@ -64,10 +64,10 @@ MAIN_DIR		  	= main
 #small test graphs
 # GRAPH_NAME = test
 # GRAPH_NAME = v51_e1021
-# GRAPH_NAME = v300_e2730
+GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
-GRAPH_NAME = Gnutella
+# GRAPH_NAME = Gnutella
 # GRAPH_NAME = dblp
 # GRAPH_NAME = amazon
 # GRAPH_NAME = euall
@@ -105,9 +105,9 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 1
+ALGORITHMS 		= 0
 
-ROOT 			= 438238
+ROOT 			= 164
 PULL_PUSH 		= 0
 TOLERANCE 		= 1e-8
 DELTA 			= 800
@@ -756,8 +756,8 @@ run-gem5-accel: gem5-accel config-symlink-gem5-accel run-llvm-tracer
 	cd $(APP_DIR)/$(ALADDIN_COMMON_DIR)/$(GEM5_STATS_DIR)/accel/$(BENCHMARK_SIGNATURE)  && \
 	$(GEM5_DIR)/build/X86/gem5.opt \
 	$(GEM5_ARGS) \
-	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" \
-	| gzip -c > stdout.sim.gz
+	-c ../../../../$(BIN_DIR)/$(GAPP)-gem5aladdin-accel -o "-f ../../../../$(FILE_BIN) $(ARGS)" 
+# 	| gzip -c > stdout.sim.gz
 
 .PHONY: run-gem5-accel-debug
 run-gem5-accel-debug: gem5-accel config-symlink-gem5-accel run-llvm-tracer
