@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-10-22 08:52:49
+// Revise : 2019-10-22 11:35:10
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -22,8 +22,8 @@ package GLOBALS_PKG;
 // TOTAL CUS = NUM_GRAPH_CU_GLOBAL X NUM_VERTEX_CU_GLOBAL
 ////////////////////////////////////////////////////////////////////////////
 
-	parameter NUM_GRAPH_CU_GLOBAL  = 1;
-	parameter NUM_VERTEX_CU_GLOBAL = 1;
+	parameter NUM_GRAPH_CU_GLOBAL  = 1 ;
+	parameter NUM_VERTEX_CU_GLOBAL = 64;
 
 	parameter CU_VERTEX_JOB_BUFFER_SIZE = 256;
 	parameter CU_EDGE_JOB_BUFFER_SIZE   = 256;
@@ -46,23 +46,23 @@ package GLOBALS_PKG;
 // AFU-Control Command Tags generation (Buffer size)
 ////////////////////////////////////////////////////////////////////////////
 
-	parameter TAG_COUNT   = 4  ;
+	parameter TAG_COUNT   = 256   ;
 	parameter INVALID_TAG = 8'h00;
 
-	parameter READ_CMD_BUFFER_SIZE    = 256;
-	parameter WRITE_CMD_BUFFER_SIZE   = 256;
-	parameter RESTART_CMD_BUFFER_SIZE = 2  ;
-	parameter WED_CMD_BUFFER_SIZE     = 2  ;
+	parameter READ_CMD_BUFFER_SIZE    = 16;
+	parameter WRITE_CMD_BUFFER_SIZE   = 16;
+	parameter RESTART_CMD_BUFFER_SIZE = 4 ;
+	parameter WED_CMD_BUFFER_SIZE     = 4 ;
 
-	parameter READ_RSP_BUFFER_SIZE    = 256;
-	parameter WRITE_RSP_BUFFER_SIZE   = 256;
-	parameter RESTART_RSP_BUFFER_SIZE = 2  ;
-	parameter WED_RSP_BUFFER_SIZE     = 2  ;
+	parameter READ_RSP_BUFFER_SIZE    = 16;
+	parameter WRITE_RSP_BUFFER_SIZE   = 16;
+	parameter RESTART_RSP_BUFFER_SIZE = 4 ;
+	parameter WED_RSP_BUFFER_SIZE     = 4 ;
 
-	parameter READ_DATA_BUFFER_SIZE    = 256;
-	parameter WRITE_DATA_BUFFER_SIZE   = 256;
-	parameter RESTART_DATA_BUFFER_SIZE = 2  ;
-	parameter WED_DATA_BUFFER_SIZE     = 2  ;
+	parameter READ_DATA_BUFFER_SIZE    = 16;
+	parameter WRITE_DATA_BUFFER_SIZE   = 16;
+	parameter RESTART_DATA_BUFFER_SIZE = 4 ;
+	parameter WED_DATA_BUFFER_SIZE     = 4 ;
 
 ////////////////////////////////////////////////////////////////////////////
 // AFU-Control MMIO Registers Mapping on AFU and HOSt
@@ -79,23 +79,23 @@ package GLOBALS_PKG;
 // ACCEL-GRAPH Sturctue sizes
 ////////////////////////////////////////////////////////////////////////////
 
-	parameter        VERTEX_SIZE          = 4                     ; // vertex size is n bytes
-	parameter        VERTEX_SIZE_BITS     = VERTEX_SIZE * 8       ; // vertex size is n*8 Bits
-	parameter        EDGE_SIZE            = 4                     ; // edge size is n bytes
-	parameter        EDGE_SIZE_BITS       = EDGE_SIZE * 8         ; // edge size is n*8 Bits
-	parameter        DATA_SIZE_READ       = 8                     ; // edge data size is n bytes
-	parameter        DATA_SIZE_READ_BITS  = DATA_SIZE_READ * 8    ; // edge data size is n*8 Bits
-	parameter        DATA_SIZE_WRITE      = 8                     ; // edge data size is n bytes
-	parameter        DATA_SIZE_WRITE_BITS = DATA_SIZE_WRITE * 8   ; // edge data size is n*8 Bits
+	parameter VERTEX_SIZE          = 4                  ; // vertex size is n bytes
+	parameter VERTEX_SIZE_BITS     = VERTEX_SIZE * 8    ; // vertex size is n*8 Bits
+	parameter EDGE_SIZE            = 4                  ; // edge size is n bytes
+	parameter EDGE_SIZE_BITS       = EDGE_SIZE * 8      ; // edge size is n*8 Bits
+	parameter DATA_SIZE_READ       = 8                  ; // edge data size is n bytes
+	parameter DATA_SIZE_READ_BITS  = DATA_SIZE_READ * 8 ; // edge data size is n*8 Bits
+	parameter DATA_SIZE_WRITE      = 8                  ; // edge data size is n bytes
+	parameter DATA_SIZE_WRITE_BITS = DATA_SIZE_WRITE * 8; // edge data size is n*8 Bits
 
-	parameter [0:63] ADDRESS_EDGE_ALIGN_MASK   = {{57{1'b1}},{7{1'b0}}}; 
-	parameter [0:63] ADDRESS_EDGE_MOD_MASK     = {{57{1'b0}},{7{1'b1}}}; 
+	parameter [0:63] ADDRESS_EDGE_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
+	parameter [0:63] ADDRESS_EDGE_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
 
-	parameter [0:63] ADDRESS_DATA_READ_ALIGN_MASK   = {{57{1'b1}},{7{1'b0}}}; 
-	parameter [0:63] ADDRESS_DATA_READ_MOD_MASK     = {{57{1'b0}},{7{1'b1}}}; 
+	parameter [0:63] ADDRESS_DATA_READ_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
+	parameter [0:63] ADDRESS_DATA_READ_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
 
-	parameter [0:63] ADDRESS_DATA_WRITE_ALIGN_MASK   = {{57{1'b1}},{7{1'b0}}}; 
-	parameter [0:63] ADDRESS_DATA_WRITE_MOD_MASK     = {{57{1'b0}},{7{1'b1}}}; 
+	parameter [0:63] ADDRESS_DATA_WRITE_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
+	parameter [0:63] ADDRESS_DATA_WRITE_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
 
 	parameter CACHELINE_VERTEX_NUM       = (CACHELINE_SIZE >> $clog2(VERTEX_SIZE))                                                                ; // number of vertices in one cacheline
 	parameter CACHELINE_EDGE_NUM         = (CACHELINE_SIZE >> $clog2(EDGE_SIZE))                                                                  ; // number of edges in one cacheline

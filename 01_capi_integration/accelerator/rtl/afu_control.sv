@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-10-22 06:57:55
+// Revise : 2019-10-22 12:37:57
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -114,9 +114,9 @@ module afu_control #(
 
 	logic enabled;
 
-	BufferStatus      burst_command_buffer_states_cu;
-	logic             burst_command_buffer_pop      ;
-	CommandBufferLine burst_command_buffer_out      ;
+	BufferStatus      burst_command_buffer_states_afu;
+	logic             burst_command_buffer_pop       ;
+	CommandBufferLine burst_command_buffer_out       ;
 
 	logic command_write_valid;
 
@@ -161,10 +161,10 @@ module afu_control #(
 //command request logic
 ////////////////////////////////////////////////////////////////////////////
 
-	assign requests[0]   = ~command_buffer_status.restart_buffer.empty 	 &&	|credits.credits && tag_buffer_ready && ~burst_command_buffer_states_cu.alfull;
-	assign requests[1]   = ~command_buffer_status.wed_buffer.empty 		 && |credits.credits && tag_buffer_ready && ~burst_command_buffer_states_cu.alfull;
-	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && |credits.credits && tag_buffer_ready && ~burst_command_buffer_states_cu.alfull;
-	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && |credits.credits && tag_buffer_ready && ~burst_command_buffer_states_cu.alfull;
+	assign requests[0]   = ~command_buffer_status.restart_buffer.empty 	 && ~burst_command_buffer_states_afu.alfull;
+	assign requests[1]   = ~command_buffer_status.wed_buffer.empty 		 && ~burst_command_buffer_states_afu.alfull;
+	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && ~burst_command_buffer_states_afu.alfull;
+	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && ~burst_command_buffer_states_afu.alfull;
 	assign valid_request = |requests;
 
 	assign command_buffer_in[0] = restart_command_buffer_out;
@@ -208,7 +208,7 @@ module afu_control #(
 		.clock     (clock                                                                                                   ),
 		.rstn      (rstn                                                                                                    ),
 		.enabled_in(enabled                                                                                                 ),
-		.credit_in ({valid_request,response_control_out_internal.response.valid,response_latched.credits,command_in_latched}),
+		.credit_in ({burst_command_buffer_out.valid,response_control_out_internal.response.valid,response_latched.credits,command_in_latched}),
 		.credit_out(credits                                                                                                 )
 	);
 
@@ -336,28 +336,29 @@ module afu_control #(
 	);
 
 ////////////////////////////////////////////////////////////////////////////
-//Buffer Read Commands
+//Burst Buffer Read Commands
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign burst_command_buffer_pop = ~burst_command_buffer_states_cu.empty && tag_buffer_ready;
+	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready &&	(|credits.credits);
 
 	fifo #(
-		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(16                      )
-	) burst_command_buffer_fifo_instant (
-		.clock   (clock                                ),
-		.rstn    (rstn                                 ),
+		.WIDTH   ($bits(CommandBufferLine)),
+		.DEPTH   (16                      ),
+		.HEADROOM(8                       )
+	) burst_command_buffer_afu_fifo_instant (
+		.clock   (clock                                 ),
+		.rstn    (rstn                                  ),
 		
-		.push    (command_arbiter_out.valid            ),
-		.data_in (command_arbiter_out                  ),
-		.full    (burst_command_buffer_states_cu.full  ),
-		.alFull  (burst_command_buffer_states_cu.alfull),
+		.push    (command_arbiter_out.valid             ),
+		.data_in (command_arbiter_out                   ),
+		.full    (burst_command_buffer_states_afu.full  ),
+		.alFull  (burst_command_buffer_states_afu.alfull),
 		
-		.pop     (burst_command_buffer_pop             ),
-		.valid   (burst_command_buffer_states_cu.valid ),
-		.data_out(burst_command_buffer_out             ),
-		.empty   (burst_command_buffer_states_cu.empty )
+		.pop     (burst_command_buffer_pop              ),
+		.valid   (burst_command_buffer_states_afu.valid ),
+		.data_out(burst_command_buffer_out              ),
+		.empty   (burst_command_buffer_states_afu.empty )
 	);
 
 

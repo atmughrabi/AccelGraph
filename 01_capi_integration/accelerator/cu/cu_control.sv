@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_control.sv
 // Create : 2019-09-26 15:18:39
-// Revise : 2019-10-22 09:07:57
+// Revise : 2019-10-22 10:17:38
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -100,8 +100,11 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	ReadWriteDataLine write_data_1_cu              ;
 	logic             ready_write_command_cu       ;
 
-	logic [0:2] request_pulse;
 	logic       enabled      ;
+
+	BufferStatus      burst_command_buffer_states_cu;
+	logic             burst_command_buffer_pop      ;
+	CommandBufferLine burst_command_buffer_out      ;
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -134,7 +137,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 //Drive input output
 ////////////////////////////////////////////////////////////////////////////
 
-	assign read_command_out_latched = command_arbiter_out;
+	assign read_command_out_latched = burst_command_buffer_out;
 
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
@@ -187,16 +190,8 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 //read command request logic - output
 ////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			request_pulse <= 0;
-		end else begin
-			request_pulse <= request_pulse + 1;
-		end
-	end
-
-	assign requests[0] = ~read_command_vertex_buffer_status.empty && ~read_buffer_status.alfull && ~(|request_pulse);
-	assign requests[1] = ~read_command_graph_algorithm_buffer_status.empty && ~read_buffer_status.alfull && ~(|request_pulse);
+	assign requests[0] = ~read_command_vertex_buffer_status.empty && ~read_buffer_status.alfull && ~burst_command_buffer_states_cu.alfull;
+	assign requests[1] = ~read_command_graph_algorithm_buffer_status.empty && ~read_buffer_status.alfull && ~burst_command_buffer_states_cu.alfull;
 
 	assign command_buffer_in[0] = read_command_vertex_buffer;
 	assign command_buffer_in[1] = read_command_graph_algorithm_buffer;
@@ -382,6 +377,31 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.valid   (read_command_graph_algorithm_buffer_status.valid ),
 		.data_out(read_command_graph_algorithm_buffer              ),
 		.empty   (read_command_graph_algorithm_buffer_status.empty )
+	);
+
+////////////////////////////////////////////////////////////////////////////
+//Burst Buffer Read Commands
+////////////////////////////////////////////////////////////////////////////
+
+	assign burst_command_buffer_pop = ~burst_command_buffer_states_cu.empty && ~read_buffer_status.alfull;
+
+	fifo #(
+		.WIDTH   ($bits(CommandBufferLine)),
+		.DEPTH   (16                      ),
+		.HEADROOM(8                       )
+	) burst_command_buffer_fifo_instant (
+		.clock   (clock                                ),
+		.rstn    (rstn                                 ),
+		
+		.push    (command_arbiter_out.valid            ),
+		.data_in (command_arbiter_out                  ),
+		.full    (burst_command_buffer_states_cu.full  ),
+		.alFull  (burst_command_buffer_states_cu.alfull),
+		
+		.pop     (burst_command_buffer_pop             ),
+		.valid   (burst_command_buffer_states_cu.valid ),
+		.data_out(burst_command_buffer_out             ),
+		.empty   (burst_command_buffer_states_cu.empty )
 	);
 
 	////////////////////////////////////////////////////////////////////////////
