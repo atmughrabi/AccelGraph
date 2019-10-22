@@ -22,7 +22,6 @@ module command_control (
   input  logic                  rstn              ,
   input  logic                  enabled_in        ,
   input  CommandBufferLine      command_arbiter_in,
-  input  logic [3:0]            ready             ,
   input  logic [0:7]            command_tag_in    ,
   output CommandInterfaceOutput command_out
 );
@@ -30,10 +29,6 @@ module command_control (
 
   logic odd_parity;
 
-  logic                  wed_request      ;
-  logic                  write_request    ;
-  logic                  read_request     ;
-  logic                  restart_request  ;
   CommandInterfaceOutput command_out_latch;
 
   assign odd_parity            = 1'b1; // Odd parity
@@ -60,11 +55,6 @@ module command_control (
 ////////////////////////////////////////////////////////////////////////////
 //request type
 ////////////////////////////////////////////////////////////////////////////
-
-  assign wed_request     = ready[1];
-  assign write_request   = ready[2];
-  assign read_request    = ready[3];
-  assign restart_request = ready[0];
 
   always_ff @(posedge clock) begin
     command_out <= command_out_latch;

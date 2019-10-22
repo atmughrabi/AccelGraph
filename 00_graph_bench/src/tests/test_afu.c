@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-10-09 20:34:42
+// Revise : 2019-10-22 08:51:38
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -127,7 +127,7 @@ main (int argc, char **argv)
     arguments.delta = 1;
     arguments.numThreads = 4;
     arguments.fnameb = "../03_test_graphs/test/graph.wbin";
-    arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
+    // arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
@@ -199,7 +199,7 @@ main (int argc, char **argv)
 
     struct AFUStatus afu_status;
     afu_status.algo_status = 0;
-    afu_status.num_cu = 16; // non zero CU triggers the AFU to work
+    afu_status.num_cu = 1; // non zero CU triggers the AFU to work
     afu_status.error = 0;
 
 

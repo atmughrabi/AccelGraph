@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : tag_control.sv
 // Create : 2019-09-26 15:25:10
-// Revise : 2019-09-30 17:48:41
+// Revise : 2019-10-22 04:09:22
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ module tag_control (
 	always_ff @(posedge clock) begin
 		case (current_state)
 			TAG_BUFFER_RESET : begin
-				tag_counter <= 8'h01;
+				tag_counter <= 8'h00;
 			end
 			TAG_BUFFER_INIT : begin
 				if(~tag_buffer.alfull) begin

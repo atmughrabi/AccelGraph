@@ -62,9 +62,9 @@ MAIN_DIR		  	= main
 #########################################################
 
 #small test graphs
-# GRAPH_NAME = test
+GRAPH_NAME = test
 # GRAPH_NAME = v51_e1021
-GRAPH_NAME = v300_e2730
+# GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
 # GRAPH_NAME = Gnutella
@@ -105,16 +105,16 @@ FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 SORT_TYPE 		= 0
 REORDER 		= 0
 DATA_STRUCTURES = 0
-ALGORITHMS 		= 0
+ALGORITHMS 		= 1
 
 ROOT 			= 164
-PULL_PUSH 		= 0
+PULL_PUSH 		= 2
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
-NUM_THREADS  	= 1
+NUM_THREADS  	= 16
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-NUM_ITERATIONS 	= 1
+NUM_ITERATIONS 	= 5
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1

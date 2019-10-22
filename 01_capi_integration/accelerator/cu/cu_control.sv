@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_control.sv
 // Create : 2019-09-26 15:18:39
-// Revise : 2019-10-08 12:43:10
+// Revise : 2019-10-22 09:07:57
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -300,6 +300,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.clock                      (clock                            ),
 		.rstn                       (rstn                             ),
 		.enabled_in                 (enabled                          ),
+		.algorithm_requests         (algorithm_requests_latched       ),
 		.wed_request_in             (wed_request_in_latched           ),
 		.read_response_in           (read_response_vertex_job         ),
 		.read_data_0_in             (read_data_0_vertex_job           ),
@@ -387,8 +388,8 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	// write command CU Buffers
 	////////////////////////////////////////////////////////////////////////////
 
-	assign ready_write_command_cu = ~write_command_buffer_states_cu.empty && ~write_buffer_status.alfull && 
-									~write_data_0_buffer_states_cu.empty && ~write_data_1_buffer_states_cu.empty;
+	assign ready_write_command_cu = ~write_command_buffer_states_cu.empty && ~write_buffer_status.alfull &&
+		~write_data_0_buffer_states_cu.empty && ~write_data_1_buffer_states_cu.empty;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),

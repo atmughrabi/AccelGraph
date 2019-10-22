@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_job_control.sv
 // Create : 2019-09-26 15:19:30
-// Revise : 2019-10-09 18:25:45
+// Revise : 2019-10-22 09:10:41
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -22,6 +22,7 @@ module cu_vertex_job_control (
 	input  logic                          clock                      , // Clock
 	input  logic                          rstn                       ,
 	input  logic                          enabled_in                 ,
+	input  logic [                  0:63] algorithm_requests         ,
 	input  WEDInterface                   wed_request_in             ,
 	input  ResponseBufferLine             read_response_in           ,
 	input  ReadWriteDataLine              read_data_0_in             ,
@@ -109,7 +110,7 @@ module cu_vertex_job_control (
 		if(~rstn) begin
 			enabled <= 0;
 		end else begin
-			enabled <= enabled_in;
+			enabled <= enabled_in && (|algorithm_requests);
 		end
 	end
 

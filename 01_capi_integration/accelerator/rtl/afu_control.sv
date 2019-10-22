@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-10-08 19:39:32
+// Revise : 2019-10-22 06:57:55
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -112,8 +112,13 @@ module afu_control #(
 	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in  ;
 	logic                                valid_request      ;
 
-	logic [0:2] request_pulse;
-	logic       enabled      ;
+	logic enabled;
+
+	BufferStatus      burst_command_buffer_states_cu;
+	logic             burst_command_buffer_pop      ;
+	CommandBufferLine burst_command_buffer_out      ;
+
+	logic command_write_valid;
 
 	genvar                      i                                            ;
 	ResponseControlInterfaceOut response_control_out_latched_S[0:RSP_DELAY-1];
@@ -156,18 +161,10 @@ module afu_control #(
 //command request logic
 ////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			request_pulse <= 0;
-		end else begin
-			request_pulse <= request_pulse + 1;
-		end
-	end
-
-	assign requests[0]   = ~command_buffer_status.restart_buffer.empty 	 &&	|credits.credits && tag_buffer_ready && ~(|request_pulse);
-	assign requests[1]   = ~command_buffer_status.wed_buffer.empty 		 && |credits.credits && tag_buffer_ready && ~(|request_pulse);
-	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && |credits.credits && tag_buffer_ready && ~(|request_pulse);
-	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && |credits.credits && tag_buffer_ready && ~(|request_pulse);
+	assign requests[0]   = ~command_buffer_status.restart_buffer.empty 	 &&	|credits.credits && tag_buffer_ready && ~burst_command_buffer_states_cu.alfull;
+	assign requests[1]   = ~command_buffer_status.wed_buffer.empty 		 && |credits.credits && tag_buffer_ready && ~burst_command_buffer_states_cu.alfull;
+	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && |credits.credits && tag_buffer_ready && ~burst_command_buffer_states_cu.alfull;
+	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && |credits.credits && tag_buffer_ready && ~burst_command_buffer_states_cu.alfull;
 	assign valid_request = |requests;
 
 	assign command_buffer_in[0] = restart_command_buffer_out;
@@ -195,13 +192,12 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 	command_control command_control_instant (
-		.clock             (clock              ),
-		.rstn              (rstn               ),
-		.enabled_in        (enabled            ),
-		.command_arbiter_in(command_arbiter_out),
-		.ready             (ready              ),
-		.command_tag_in    (command_tag        ),
-		.command_out       (command_out        )
+		.clock             (clock                   ),
+		.rstn              (rstn                    ),
+		.enabled_in        (enabled                 ),
+		.command_arbiter_in(burst_command_buffer_out),
+		.command_tag_in    (command_tag             ),
+		.command_out       (command_out             )
 	);
 
 ////////////////////////////////////////////////////////////////////////////
@@ -244,7 +240,7 @@ module afu_control #(
 	end
 
 	generate
-		for ( i = 1; i < (RSP_DELAY); i++) begin : generate_response_delay
+		for ( i = 1; i < (RSP_DELAY); i++) begin
 			always_ff @(posedge clock or negedge rstn) begin
 				if(~rstn) begin
 					response_control_out_latched_S[i] <= 0;
@@ -292,18 +288,28 @@ module afu_control #(
 //write data control
 ////////////////////////////////////////////////////////////////////////////
 
+	always_comb begin
+		command_write_valid = 0;
+		if(burst_command_buffer_out.valid)begin
+			if(burst_command_buffer_out.cmd.cmd_type == CMD_WRITE)
+				command_write_valid = 1;
+			else
+				command_write_valid = 0;
+		end
+	end
+
 
 	write_data_control write_data_control_instant (
-		.clock              (clock           ),
-		.rstn               (rstn            ),
-		.enabled_in         (enabled         ),
-		.buffer_in          (write_buffer_in ),
-		.command_write_valid(ready[2]        ),
-		.command_tag_in     (command_tag     ),
-		.write_data_0_in    (write_data_0    ),
-		.write_data_1_in    (write_data_1    ),
-		.data_write_error   (data_write_error),
-		.buffer_out         (buffer_out      )
+		.clock              (clock              ),
+		.rstn               (rstn               ),
+		.enabled_in         (enabled            ),
+		.buffer_in          (write_buffer_in    ),
+		.command_write_valid(command_write_valid),
+		.command_tag_in     (command_tag        ),
+		.write_data_0_in    (write_data_0       ),
+		.write_data_1_in    (write_data_1       ),
+		.data_write_error   (data_write_error   ),
+		.buffer_out         (buffer_out         )
 	);
 
 
@@ -312,22 +318,48 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign command_tag_id = command_arbiter_out.cmd;
+	assign command_tag_id = burst_command_buffer_out.cmd;
 
 	tag_control tag_control_instant (
-		.clock               (clock                    ),
-		.rstn                (rstn                     ),
-		.enabled_in          (enabled                  ),
-		.tag_response_valid  (response_latched.valid   ),
-		.response_tag        (response_latched.tag     ),
-		.response_tag_id_out (response_tag_id          ),
-		.data_read_tag       (write_tag                ), // reminder PSL sees read as write and opposite
-		.data_read_tag_id_out(read_tag_id              ),
-		.tag_command_valid   (command_arbiter_out.valid),
-		.tag_command_id      (command_tag_id           ),
-		.command_tag_out     (command_tag              ),
-		.tag_buffer_ready    (tag_buffer_ready         )
+		.clock               (clock                         ),
+		.rstn                (rstn                          ),
+		.enabled_in          (enabled                       ),
+		.tag_response_valid  (response_latched.valid        ),
+		.response_tag        (response_latched.tag          ),
+		.response_tag_id_out (response_tag_id               ),
+		.data_read_tag       (write_tag                     ), // reminder PSL sees read as write and opposite
+		.data_read_tag_id_out(read_tag_id                   ),
+		.tag_command_valid   (burst_command_buffer_out.valid),
+		.tag_command_id      (command_tag_id                ),
+		.command_tag_out     (command_tag                   ),
+		.tag_buffer_ready    (tag_buffer_ready              )
 	);
+
+////////////////////////////////////////////////////////////////////////////
+//Buffer Read Commands
+////////////////////////////////////////////////////////////////////////////
+
+
+	assign burst_command_buffer_pop = ~burst_command_buffer_states_cu.empty && tag_buffer_ready;
+
+	fifo #(
+		.WIDTH($bits(CommandBufferLine)),
+		.DEPTH(16                      )
+	) burst_command_buffer_fifo_instant (
+		.clock   (clock                                ),
+		.rstn    (rstn                                 ),
+		
+		.push    (command_arbiter_out.valid            ),
+		.data_in (command_arbiter_out                  ),
+		.full    (burst_command_buffer_states_cu.full  ),
+		.alFull  (burst_command_buffer_states_cu.alfull),
+		
+		.pop     (burst_command_buffer_pop             ),
+		.valid   (burst_command_buffer_states_cu.valid ),
+		.data_out(burst_command_buffer_out             ),
+		.empty   (burst_command_buffer_states_cu.empty )
+	);
+
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffer Read Commands
@@ -620,7 +652,7 @@ module afu_control #(
 		.full    (write_data_buffer_status.buffer_0.full  ),
 		.alFull  (write_data_buffer_status.buffer_0.alfull),
 		
-		.pop     (ready[2]                                ),
+		.pop     (command_write_valid                     ),
 		.valid   (write_data_buffer_status.buffer_0.valid ),
 		.data_out(write_data_0                            ),
 		.empty   (write_data_buffer_status.buffer_0.empty )
@@ -639,7 +671,7 @@ module afu_control #(
 		.full    (write_data_buffer_status.buffer_1.full  ),
 		.alFull  (write_data_buffer_status.buffer_1.alfull),
 		
-		.pop     (ready[2]                                ),
+		.pop     (command_write_valid                     ),
 		.valid   (write_data_buffer_status.buffer_1.valid ),
 		.data_out(write_data_1                            ),
 		.empty   (write_data_buffer_status.buffer_1.empty )

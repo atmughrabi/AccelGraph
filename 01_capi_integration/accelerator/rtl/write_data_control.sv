@@ -40,6 +40,7 @@ module write_data_control (
   logic             command_write_valid_latched;
   ReadWriteDataLine write_data_0_in_latched    ;
   ReadWriteDataLine write_data_1_in_latched    ;
+  logic [0:7]       command_tag_in_latched     ;
 
   ReadWriteDataLine write_data_0_out;
   ReadWriteDataLine write_data_1_out;
@@ -63,11 +64,13 @@ module write_data_control (
       command_write_valid_latched <= 0;
       write_data_0_in_latched     <= 0;
       write_data_1_in_latched     <= 0;
+      command_tag_in_latched      <= 0;
     end else begin
       if(enabled) begin
         command_write_valid_latched <= command_write_valid;
         write_data_0_in_latched     <= write_data_0_in;
         write_data_1_in_latched     <= write_data_1_in;
+        command_tag_in_latched      <= command_tag_in;
       end
     end
   end
@@ -173,7 +176,7 @@ module write_data_control (
   ) write_data_0_ram_instant (
     .clock   (clock                      ),
     .we      (command_write_valid_latched),
-    .wr_addr (command_tag_in             ),
+    .wr_addr (command_tag_in_latched     ),
     .data_in (write_data_0_in_latched    ),
     
     .rd_addr (buffer_in.read_tag         ),
@@ -187,7 +190,7 @@ module write_data_control (
   ) write_data_1_ram_instant (
     .clock   (clock                      ),
     .we      (command_write_valid_latched),
-    .wr_addr (command_tag_in             ),
+    .wr_addr (command_tag_in_latched     ),
     .data_in (write_data_1_in_latched    ),
     
     .rd_addr (buffer_in.read_tag         ),
