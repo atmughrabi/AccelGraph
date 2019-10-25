@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-10-22 12:37:57
+// Revise : 2019-10-24 06:45:45
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -208,7 +208,7 @@ module afu_control #(
 		.clock     (clock                                                                                                   ),
 		.rstn      (rstn                                                                                                    ),
 		.enabled_in(enabled                                                                                                 ),
-		.credit_in ({burst_command_buffer_out.valid,response_control_out_internal.response.valid,response_latched.credits,command_in_latched}),
+		.credit_in ({burst_command_buffer_out.valid,response_control_out.response.valid,response_latched.credits,command_in_latched}),
 		.credit_out(credits                                                                                                 )
 	);
 

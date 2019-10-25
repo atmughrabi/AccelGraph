@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank.sv
 // Create : 2019-09-26 15:19:37
-// Revise : 2019-10-22 11:51:34
+// Revise : 2019-10-24 03:55:11
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -94,9 +94,8 @@ module cu_vertex_pagerank #(
 	logic         processing_vertex ;
 
 	EdgeDataRead edge_data;
-	logic    enabled  ;
+	logic        enabled  ;
 
-	logic             [             0:1] request_pulse      ;
 	CommandBufferLine                    command_arbiter_out;
 	logic             [NUM_REQUESTS-1:0] requests           ;
 	logic             [NUM_REQUESTS-1:0] ready              ;
@@ -126,6 +125,11 @@ module cu_vertex_pagerank #(
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ;
+
+	BufferStatus      burst_read_command_buffer_states_cu;
+	logic             burst_read_command_buffer_pop      ;
+	CommandBufferLine burst_read_command_buffer_out      ;
+	
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -142,25 +146,16 @@ module cu_vertex_pagerank #(
 // Request Pulse generation
 ////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			request_pulse <= 0;
-		end else begin
-			request_pulse <= request_pulse + 1;
-		end
-	end
-
 	assign ready_write_command_cu = ~write_command_buffer_states_cu.empty && ~write_buffer_status.alfull &&
-		~write_data_0_buffer_states_cu.empty && ~write_data_1_buffer_states_cu.empty &&
-		~(|request_pulse);
+		~write_data_0_buffer_states_cu.empty && ~write_data_1_buffer_states_cu.empty;
 
-	assign requests[0] = ~read_command_edge_job_buffer_status.empty && ~read_buffer_status.alfull && ~(|request_pulse);
-	assign requests[1] = ~read_command_edge_data_buffer_status.empty && ~read_buffer_status.alfull && ~(|request_pulse);
+	assign requests[0] = ~read_command_edge_job_buffer_status.empty && ~burst_read_command_buffer_states_cu.alfull;
+	assign requests[1] = ~read_command_edge_data_buffer_status.empty && ~burst_read_command_buffer_states_cu.alfull;
 
 	assign command_buffer_in[0] = read_command_edge_job_buffer;
 	assign command_buffer_in[1] = read_command_edge_data_buffer;
 
-	assign read_command_out_latched = command_arbiter_out;
+	assign read_command_out_latched = burst_read_command_buffer_out;
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffer arbitration logic
@@ -174,6 +169,31 @@ module cu_vertex_pagerank #(
 		.command_buffer_in  (command_buffer_in  ),
 		.command_arbiter_out(command_arbiter_out),
 		.ready              (ready              )
+	);
+
+////////////////////////////////////////////////////////////////////////////
+//Burst Buffer Read Commands
+////////////////////////////////////////////////////////////////////////////
+
+	assign burst_read_command_buffer_pop = ~burst_read_command_buffer_states_cu.empty && ~read_buffer_status.alfull;
+
+	fifo #(
+		.WIDTH   ($bits(CommandBufferLine)),
+		.DEPTH   (16                      ),
+		.HEADROOM(8                       )
+	) burst_read_command_buffer_fifo_instant (
+		.clock   (clock                                     ),
+		.rstn    (rstn                                      ),
+		
+		.push    (command_arbiter_out.valid                 ),
+		.data_in (command_arbiter_out                       ),
+		.full    (burst_read_command_buffer_states_cu.full  ),
+		.alFull  (burst_read_command_buffer_states_cu.alfull),
+		
+		.pop     (burst_read_command_buffer_pop             ),
+		.valid   (burst_read_command_buffer_states_cu.valid ),
+		.data_out(burst_read_command_buffer_out             ),
+		.empty   (burst_read_command_buffer_states_cu.empty )
 	);
 
 ////////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_control.sv
 // Create : 2019-09-26 15:19:08
-// Revise : 2019-10-22 11:54:01
+// Revise : 2019-10-24 04:28:01
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -53,12 +53,16 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 
 	//output latched
-	CommandBufferLine write_command_out_latched;
-	ReadWriteDataLine write_data_0_out_latched ;
-	ReadWriteDataLine write_data_1_out_latched ;
-	ReadWriteDataLine write_data_0_out_latched_S2 ;
-	ReadWriteDataLine write_data_1_out_latched_S2 ;
-	CommandBufferLine read_command_out_latched ;
+	CommandBufferLine write_command_out_latched  ;
+	ReadWriteDataLine write_data_0_out_latched   ;
+	ReadWriteDataLine write_data_1_out_latched   ;
+
+	ReadWriteDataLine burst_write_data_0_out_latched   ;
+	ReadWriteDataLine burst_write_data_1_out_latched   ;
+	
+	ReadWriteDataLine write_data_0_out_latched_S2;
+	ReadWriteDataLine write_data_1_out_latched_S2;
+	CommandBufferLine read_command_out_latched   ;
 
 	//input lateched
 	WEDInterface       wed_request_in_latched   ;
@@ -101,6 +105,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	ReadWriteDataLine read_data_0_cu_internal[0:NUM_VERTEX_CU-1];
 	ReadWriteDataLine read_data_1_cu_internal[0:NUM_VERTEX_CU-1];
 
+	BufferStatus burst_write_data_0_buffer_states_cu;
+	BufferStatus burst_write_data_1_buffer_states_cu;
 
 
 	VertexInterface           vertex_job_cu                [0:NUM_VERTEX_CU-1];
@@ -111,9 +117,18 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	logic [              0:2] request_pulse_vertex                            ;
 	logic                     enabled                                         ;
 	logic [             0:63] algorithm_requests_latched                      ;
-////////////////////////////////////////////////////////////////////////////
-//enable logic
-////////////////////////////////////////////////////////////////////////////
+
+	BufferStatus      burst_read_command_buffer_states_cu;
+	logic             burst_read_command_buffer_pop      ;
+	CommandBufferLine burst_read_command_buffer_out      ;
+
+	BufferStatus      burst_write_command_buffer_states_cu;
+	logic             burst_write_command_buffer_pop      ;
+	CommandBufferLine burst_write_command_buffer_out      ;
+
+	////////////////////////////////////////////////////////////////////////////
+	//enable logic
+	////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -123,9 +138,9 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		end
 	end
 
-////////////////////////////////////////////////////////////////////////////
-//Drive input out put
-////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	//Drive output
+	////////////////////////////////////////////////////////////////////////////
 
 	assign vertex_job_request = vertex_job_request_latched;
 	assign vertex_job_latched = vertex_job;
@@ -136,19 +151,18 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 			write_data_0_out  <= 0;
 			write_data_1_out  <= 0;
 			read_command_out  <= 0;
-
-			// vertex_job_request              <= 0;
 		end else begin
-			write_command_out <= write_command_out_latched;
-			write_data_0_out  <= write_data_0_out_latched;
-			write_data_1_out  <= write_data_1_out_latched;
-			read_command_out  <= read_command_out_latched;
-
-			// vertex_job_request              <= vertex_job_request_latched;
+			write_command_out <= burst_write_command_buffer_out;
+			write_data_0_out  <= burst_write_data_0_out_latched;
+			write_data_1_out  <= burst_write_data_1_out_latched;
+			read_command_out  <= burst_read_command_buffer_out;
 		end
 	end
 
-	// drive inputs
+	////////////////////////////////////////////////////////////////////////////
+	//Drive input
+	////////////////////////////////////////////////////////////////////////////
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			wed_request_in_latched     <= 0;
@@ -166,7 +180,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 				read_data_1_in_latched    <= read_data_1_in;
 				if((|algorithm_requests))
 					algorithm_requests_latched <= algorithm_requests;
-				// vertex_job_latched     <= vertex_job;
 			end
 		end
 	end
@@ -185,14 +198,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	////////////////////////////////////////////////////////////////////////////
 	// Request Pulse generation
 	////////////////////////////////////////////////////////////////////////////
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			request_pulse <= 0;
-		end else begin
-			request_pulse <= request_pulse + 1;
-		end
-	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -249,7 +254,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_request_read_command_cu
-			assign request_read_command_cu[i] = enable_cu[i] && ~read_command_buffer_states_cu[i].empty && ~read_buffer_status.alfull && ~(|request_pulse);
+			assign request_read_command_cu[i] = enable_cu[i] && ~read_command_buffer_states_cu[i].empty && ~burst_read_command_buffer_states_cu.alfull;
 		end
 	endgenerate
 
@@ -268,12 +273,37 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	);
 
 	////////////////////////////////////////////////////////////////////////////
+	// Burst Buffer Read Commands
+	////////////////////////////////////////////////////////////////////////////
+
+	assign burst_read_command_buffer_pop = ~burst_read_command_buffer_states_cu.empty && ~read_buffer_status.alfull;
+
+	fifo #(
+		.WIDTH   ($bits(CommandBufferLine)),
+		.DEPTH   (16                      ),
+		.HEADROOM(8                       )
+	) burst_read_command_buffer_fifo_instant (
+		.clock   (clock                                     ),
+		.rstn    (rstn                                      ),
+		
+		.push    (read_command_out_latched.valid            ),
+		.data_in (read_command_out_latched                  ),
+		.full    (burst_read_command_buffer_states_cu.full  ),
+		.alFull  (burst_read_command_buffer_states_cu.alfull),
+		
+		.pop     (burst_read_command_buffer_pop             ),
+		.valid   (burst_read_command_buffer_states_cu.valid ),
+		.data_out(burst_read_command_buffer_out             ),
+		.empty   (burst_read_command_buffer_states_cu.empty )
+	);
+
+	////////////////////////////////////////////////////////////////////////////
 	// Vertex CU Write Command/ Write Data Arbitration
 	////////////////////////////////////////////////////////////////////////////
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_request_write_command_cu
-			assign request_write_command_cu[i] = enable_cu[i] && ~write_command_buffer_states_cu[i].empty && ~write_buffer_status.alfull && ~(|request_pulse);
+			assign request_write_command_cu[i] = enable_cu[i] && ~write_command_buffer_states_cu[i].empty && ~burst_write_command_buffer_states_cu.alfull;
 		end
 	endgenerate
 
@@ -289,6 +319,73 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		.requests   (request_write_command_cu),
 		.arbiter_out(write_command_out_latched),
 		.ready      (ready_write_command_cu)
+	);
+
+	////////////////////////////////////////////////////////////////////////////
+	// Burst Buffer Write Commands
+	////////////////////////////////////////////////////////////////////////////
+
+	assign burst_write_command_buffer_pop = ~burst_write_command_buffer_states_cu.empty && ~write_buffer_status.alfull;
+
+	fifo #(
+		.WIDTH   ($bits(CommandBufferLine)),
+		.DEPTH   (16                      ),
+		.HEADROOM(8                       )
+	) burst_write_command_buffer_fifo_instant (
+		.clock   (clock                                      ),
+		.rstn    (rstn                                       ),
+		
+		.push    (write_command_out_latched.valid            ),
+		.data_in (write_command_out_latched                  ),
+		.full    (burst_write_command_buffer_states_cu.full  ),
+		.alFull  (burst_write_command_buffer_states_cu.alfull),
+		
+		.pop     (burst_write_command_buffer_pop             ),
+		.valid   (burst_write_command_buffer_states_cu.valid ),
+		.data_out(burst_write_command_buffer_out             ),
+		.empty   (burst_write_command_buffer_states_cu.empty )
+	);
+
+	////////////////////////////////////////////////////////////////////////////
+	// Write command CU DATA Buffers
+	////////////////////////////////////////////////////////////////////////////
+
+	fifo #(
+		.WIDTH   ($bits(ReadWriteDataLine)),
+		.DEPTH   (16                      ),
+		.HEADROOM(8                       )
+	) burst_write_data_0_buffer_fifo_instant (
+		.clock   (clock                                     ),
+		.rstn    (rstn                                      ),
+		
+		.push    (write_data_0_out_latched.valid            ),
+		.data_in (write_data_0_out_latched                  ),
+		.full    (burst_write_data_0_buffer_states_cu.full  ),
+		.alFull  (burst_write_data_0_buffer_states_cu.alfull),
+		
+		.pop     (burst_write_command_buffer_pop            ),
+		.valid   (burst_write_data_0_buffer_states_cu.valid ),
+		.data_out(burst_write_data_0_out_latched            ),
+		.empty   (burst_write_data_0_buffer_states_cu.empty )
+	);
+
+	fifo #(
+		.WIDTH   ($bits(ReadWriteDataLine)),
+		.DEPTH   (16                      ),
+		.HEADROOM(8                       )
+	) burst_write_data_1_buffer_fifo_instant (
+		.clock   (clock                                     ),
+		.rstn    (rstn                                      ),
+		
+		.push    (write_data_1_out_latched.valid            ),
+		.data_in (write_data_1_out_latched                  ),
+		.full    (burst_write_data_1_buffer_states_cu.full  ),
+		.alFull  (burst_write_data_1_buffer_states_cu.alfull),
+		
+		.pop     (burst_write_command_buffer_pop            ),
+		.valid   (burst_write_data_1_buffer_states_cu.valid ),
+		.data_out(burst_write_data_1_out_latched            ),
+		.empty   (burst_write_data_1_buffer_states_cu.empty )
 	);
 
 	////////////////////////////////////////////////////////////////////////////
@@ -308,11 +405,11 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			 write_data_0_out_latched <= 0;
-			 write_data_1_out_latched <= 0;
+			write_data_0_out_latched <= 0;
+			write_data_1_out_latched <= 0;
 		end else begin
-			 write_data_0_out_latched <= write_data_0_out_latched_S2;
-			 write_data_1_out_latched <= write_data_1_out_latched_S2;
+			write_data_0_out_latched <= write_data_0_out_latched_S2;
+			write_data_1_out_latched <= write_data_1_out_latched_S2;
 		end
 	end
 
@@ -380,10 +477,10 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		write_response_cu <= write_response_cu_internal;
 	end
 
-
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex-centric Algorithm Module Generate
 	////////////////////////////////////////////////////////////////////////////
+
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_pagerank_cu
 			cu_vertex_pagerank #(
@@ -454,14 +551,12 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		end
 	end
 
-
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex Job Buffer
 	////////////////////////////////////////////////////////////////////////////
 
 	assign vertex_job_request_latched = (~vertex_buffer_status.empty) && (~vertex_buffer_status_internal.alfull);
 	assign vertex_request_internal    = (|ready_vertex_job_cu);
-
 
 	fifo #(
 		.WIDTH($bits(VertexInterface)   ),
@@ -485,6 +580,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	////////////////////////////////////////////////////////////////////////////
 	// read command CU Buffers
 	////////////////////////////////////////////////////////////////////////////
+
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_read_command_cu
 			fifo  #(
@@ -510,6 +606,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	////////////////////////////////////////////////////////////////////////////
 	// write command CU Buffers
 	////////////////////////////////////////////////////////////////////////////
+
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_write_command_cu
 			fifo  #(
@@ -557,7 +654,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 			);
 		end
 	endgenerate
-
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_write_data_1_cu

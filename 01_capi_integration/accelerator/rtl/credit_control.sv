@@ -56,7 +56,7 @@ module credit_control (
     end else begin
       if(enabled) begin
         if(~init_credits) begin
-          credits      <= credit_in.command_in.room;
+          credits      <= (credit_in.command_in.room-4);
           init_credits <= 1'b1;
         end else if (credit_in.valid_request && ~credit_in.valid_response)
         credits <= credits-8'h01;

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_control.sv
 // Create : 2019-09-26 15:18:46
-// Revise : 2019-10-09 18:01:13
+// Revise : 2019-10-24 03:34:17
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -35,11 +35,11 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	output logic                        edge_request            ,
 	output CommandBufferLine            read_command_out        ,
 	output BufferStatus                 data_buffer_status      ,
-	output EdgeDataRead                     edge_data               ,
+	output EdgeDataRead                 edge_data               ,
 	output logic [0:(EDGE_SIZE_BITS-1)] edge_data_counter_pushed
 );
 
-	parameter WORDS                          = 1                                                                                                    ;
+	parameter WORDS                          = 1                                                                                                              ;
 	parameter CACHELINE_DATA_READ_ADDR_BITS  = $clog2((DATA_SIZE_READ_BITS < CACHELINE_SIZE_BITS) ? (WORDS * CACHELINE_SIZE_BITS)/DATA_SIZE_READ_BITS : WORDS);
 	parameter CACHELINE_DATA_WRITE_ADDR_BITS = $clog2((DATA_SIZE_READ_BITS < CACHELINE_SIZE_BITS) ? WORDS : (WORDS * DATA_SIZE_READ_BITS)/CACHELINE_SIZE_BITS);
 
@@ -47,8 +47,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	//output latched
 	EdgeInterface   edge_job_latched          ;
 	EdgeInterface   edge_job_variable         ;
-	EdgeDataRead        edge_data_variable        ;
-	EdgeDataRead        edge_data_variable_latched;
+	EdgeDataRead    edge_data_variable        ;
+	EdgeDataRead    edge_data_variable_latched;
 	VertexInterface vertex_job_latched        ;
 	logic [0:7]     response_counter          ;
 	//input lateched
@@ -93,6 +93,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
 ////////////////////////////////////////////////////////////////////////////
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			edge_request <= 0;
@@ -106,6 +107,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 ////////////////////////////////////////////////////////////////////////////
 //drive inputs
 ////////////////////////////////////////////////////////////////////////////
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			read_response_in_latched  <= 0;
@@ -263,10 +265,10 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 ///////////////////////////////////////////////////////////////////////////
 //Edge data buffer
-////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
 	fifo #(
-		.WIDTH($bits(EdgeDataRead)          ),
+		.WIDTH($bits(EdgeDataRead)      ),
 		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
 	) edge_data_buffer_fifo_instant (
 		.clock   (clock                    ),
@@ -285,7 +287,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 ///////////////////////////////////////////////////////////////////////////
 //Edge job buffer
-////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+
 	assign edge_request_latched = ~edge_buffer_status.empty && ~edge_buffer_status_internal.alfull; // request edges for Data job control
 	assign edge_variable_pop    = ~edge_buffer_status_internal.empty && ~read_buffer_status_internal.alfull;
 
@@ -309,7 +312,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 ///////////////////////////////////////////////////////////////////////////
 //Read Command Edge double buffer
-////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
 	assign read_command_job_edge_data_burst_pop = ~read_buffer_status_internal.empty && ~read_buffer_status.alfull;
 
@@ -338,7 +341,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	mixed_width_ram #(
 		.WORDS(WORDS              ),
 		.WW   (CACHELINE_SIZE_BITS),
-		.RW   (DATA_SIZE_READ_BITS     )
+		.RW   (DATA_SIZE_READ_BITS)
 	) cacheline_instant (
 		.clock   (clock                          ),
 		.we      (we                             ),
