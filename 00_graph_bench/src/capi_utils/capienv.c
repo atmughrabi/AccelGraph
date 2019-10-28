@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : capienv.c
 // Create : 2019-10-09 19:20:39
-// Revise : 2019-10-09 21:46:14
+// Revise : 2019-10-28 14:26:15
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
@@ -182,8 +182,7 @@ struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
 #endif
 
 
-
-    wed->done = 0;
+    wed->afu_config = 0;
 
     return wed;
 }
@@ -223,6 +222,6 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
 
     printf("  wed->auxiliary1: %p\n", wed->auxiliary1);
     printf("  wed->auxiliary2: %p\n", wed->auxiliary2);
-    printf("  wed->done: %p\n", &(wed->done));
+    printf("  wed->afu_config: %p\n", &(wed->afu_config));
 
 }

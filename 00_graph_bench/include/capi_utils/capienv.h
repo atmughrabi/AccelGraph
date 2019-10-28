@@ -51,9 +51,9 @@ struct __attribute__((__packed__)) WEDGraphCSR
     void *inverse_edges_array_weight;   // 8-Bytes
     void *inverse_edges_array_src;      // 8-Bytes
     void *inverse_edges_array_dest;     // 8-Bytes
-    void *auxiliary1;                  // 8-Bytes
-    void *auxiliary2;                  // 8-Bytes
-    __u32 done;                         // 4-Bytes
+    void *auxiliary1;                   // 8-Bytes
+    void *auxiliary2;                   // 8-Bytes
+    __u32 afu_config;                   // 4-Bytes you can specify the read/write command to use the cache or not. 32-bit [0]-read [1]-write
 }; // 108-bytes used from 128-Bytes WEDt;
 
 struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph);
@@ -64,7 +64,6 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed);
 // ********************************************************************************************
 
 void printMMIO_error( uint64_t error );
-
 
 // ********************************************************************************************
 // ***************                  AFU General                                  **************

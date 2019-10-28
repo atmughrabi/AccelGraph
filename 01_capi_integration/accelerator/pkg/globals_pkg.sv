@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-10-28 05:28:29
+// Revise : 2019-10-28 14:01:45
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -51,18 +51,18 @@ package GLOBALS_PKG;
 
 	parameter READ_CMD_BUFFER_SIZE    = 256;
 	parameter WRITE_CMD_BUFFER_SIZE   = 256;
-	parameter RESTART_CMD_BUFFER_SIZE = 4 ;
-	parameter WED_CMD_BUFFER_SIZE     = 4 ;
+	parameter RESTART_CMD_BUFFER_SIZE = 4  ;
+	parameter WED_CMD_BUFFER_SIZE     = 4  ;
 
 	parameter READ_RSP_BUFFER_SIZE    = 256;
 	parameter WRITE_RSP_BUFFER_SIZE   = 256;
-	parameter RESTART_RSP_BUFFER_SIZE = 4 ;
-	parameter WED_RSP_BUFFER_SIZE     = 4 ;
+	parameter RESTART_RSP_BUFFER_SIZE = 4  ;
+	parameter WED_RSP_BUFFER_SIZE     = 4  ;
 
 	parameter READ_DATA_BUFFER_SIZE    = 256;
 	parameter WRITE_DATA_BUFFER_SIZE   = 256;
-	parameter RESTART_DATA_BUFFER_SIZE = 4 ;
-	parameter WED_DATA_BUFFER_SIZE     = 4 ;
+	parameter RESTART_DATA_BUFFER_SIZE = 4  ;
+	parameter WED_DATA_BUFFER_SIZE     = 4  ;
 
 ////////////////////////////////////////////////////////////////////////////
 // AFU-Control MMIO Registers Mapping on AFU and HOSt

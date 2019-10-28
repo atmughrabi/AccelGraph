@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-10-27 17:41:29
+// Revise : 2019-10-28 14:29:42
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -183,6 +183,9 @@ main (int argc, char **argv)
 
     wedGraphCSR->auxiliary1 = divclause;
     wedGraphCSR->auxiliary2 = prnext;
+    wedGraphCSR->afu_config = 3; // config to use cache
+    wedGraphCSR->afu_config = 0; // config to don't use cache
+
 
     // ********************************************************************************************
     // ***************                  CSR DataStructure                            **************

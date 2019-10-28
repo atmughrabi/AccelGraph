@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_sum_kernel_control.sv
 // Create : 2019-09-26 15:19:17
-// Revise : 2019-10-28 05:42:54
+// Revise : 2019-10-28 14:42:50
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -158,9 +158,13 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 		write_data_0_out_latched  = 0;
 		write_data_1_out_latched  = 0;
 		if(edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree && vertex_job_latched.valid)begin
-			write_command_out_latched.valid   = edge_data_accumulator.valid;
-			// write_command_out_latched.command = WRITE_NA;
-			write_command_out_latched.command            <= WRITE_MS;
+			write_command_out_latched.valid = edge_data_accumulator.valid;
+
+			if(wed_request_in_latched.wed.afu_config[30])
+				write_command_out_latched.command <= WRITE_MS;
+			else
+				write_command_out_latched.command <= WRITE_NA;
+
 			write_command_out_latched.address = wed_request_in_latched.wed.auxiliary2 + (vertex_job_latched.id << $clog2(DATA_SIZE_WRITE));
 			write_command_out_latched.size    = DATA_SIZE_WRITE;
 			write_command_out_latched.cmd     = cmd;

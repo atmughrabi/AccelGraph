@@ -44,7 +44,7 @@ package WED_PKG;
     logic [0:63] inverse_edges_array_dest  ; // 8-Bytes
     logic [0:63] auxiliary1                ; // 8-Bytes
     logic [0:63] auxiliary2                ; // 8-Bytes
-    logic [0:31] done                      ; // 4-Bytes
+    logic [0:31] afu_config                ; // 4-Bytes
   } WED_request;// 108-bytes used from 128-Bytes WED
 
   typedef struct packed{
@@ -76,7 +76,7 @@ package WED_PKG;
     wed.inverse_edges_array_dest   = swap_endianness_double_word(in[800:863]);     // 8-Bytes
     wed.auxiliary1                 = swap_endianness_double_word(in[864:927]);     // 8-Bytes
     wed.auxiliary2                 = swap_endianness_double_word(in[928:991]);     // 8-Bytes
-    wed.done                       = swap_endianness_word(in[992:1023]);           // 4-Bytes
+    wed.afu_config                 = swap_endianness_word(in[992:1023]);           // 4-Bytes
 
     return wed;
 
