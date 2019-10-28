@@ -34,6 +34,7 @@ module credit_control (
 //normally nullfies to no change in credit.
 
   logic [0:7] credits     ;
+
   logic       init_credits;
   logic       enabled     ;
 
@@ -56,7 +57,7 @@ module credit_control (
     end else begin
       if(enabled) begin
         if(~init_credits) begin
-          credits      <= (credit_in.command_in.room - 32);
+          credits      <= (credit_in.room);
           init_credits <= 1'b1;
         end else if (credit_in.valid_request && ~credit_in.valid_response) begin
           credits <= credits-8'h01;
@@ -81,7 +82,7 @@ module credit_control (
   // always @(posedge clock or negedge rstn)
   // begin
   //   if (~rstn)
-  //     credits <= credit_in.command_in.room;
+  //     credits <= credit_in.room;
   //   else
   //     credits <= credits + (credit_in.valid_response ? credit_in.response_credits : 8'h0) - {7'h0, credit_in.valid_request};
   // end

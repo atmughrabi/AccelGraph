@@ -114,9 +114,10 @@ package AFU_PKG;
 ////////////////////////////////////////////////////////////////////////////
 
   typedef struct packed {
-    logic          valid   ; // ha_rvalid,     // Response valid
-    CommandTagLine cmd     ;
-    psl_response_t response; // ha_response,   // Response
+    logic          valid           ; // ha_rvalid,     // Response valid
+    CommandTagLine cmd             ;
+    logic [0:8]    response_credits;
+    psl_response_t response        ; // ha_response,   // Response
   } ResponseBufferLine;
 
   typedef struct packed {

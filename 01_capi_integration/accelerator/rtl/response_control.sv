@@ -129,10 +129,12 @@ module response_control (
             response_control_out_latched.restart_response <= 1'b0;
           end
         endcase
-        response_control_out_latched.response.valid    <= response_in.valid;
-        response_control_out_latched.response.cmd      <= response_tag_id_in;
-        response_control_out_latched.response.cmd.tag  <= response_in.tag;
-        response_control_out_latched.response.response <= response_in.response;
+        response_control_out_latched.response.valid            <= response_in.valid;
+        response_control_out_latched.response.cmd              <= response_tag_id_in;
+        response_control_out_latched.response.cmd.tag          <= response_in.tag;
+        response_control_out_latched.response.response         <= response_in.response;
+        response_control_out_latched.response.response_credits <= response_in.credits;
+
       end else begin
         response_control_out_latched <= 0;
       end

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-10-28 07:00:13
+// Revise : 2019-10-28 18:39:22
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -97,6 +97,8 @@ module afu_control #(
 	//As long as there are commands in the FIFO set it request for bus access / if there are credits
 
 	CreditInterfaceOutput credits;
+	CreditInterfaceOutput credits_read;
+	CreditInterfaceOutput credits_write;
 
 	logic [0:7] write_tag  ;
 	logic [0:7] command_tag;
@@ -163,8 +165,8 @@ module afu_control #(
 
 	assign requests[0]   = ~command_buffer_status.restart_buffer.empty 	 && ~burst_command_buffer_states_afu.alfull;
 	assign requests[1]   = ~command_buffer_status.wed_buffer.empty 		 && ~burst_command_buffer_states_afu.alfull;
-	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && ~burst_command_buffer_states_afu.alfull;
-	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && ~burst_command_buffer_states_afu.alfull;
+	assign requests[2]   = ~command_buffer_status.write_buffer.empty  	 && ~burst_command_buffer_states_afu.alfull && (|credits_write.credits);
+	assign requests[3]   = ~command_buffer_status.read_buffer.empty   	 && ~burst_command_buffer_states_afu.alfull && (|credits_read.credits);
 	assign valid_request = |requests;
 
 	assign command_buffer_in[0] = restart_command_buffer_out;
@@ -204,12 +206,28 @@ module afu_control #(
 //Credit Tracking Logic
 ////////////////////////////////////////////////////////////////////////////
 
-	credit_control credit_control_instant (
+	credit_control credits_total_control_instant (
 		.clock     (clock                                                                                                   ),
 		.rstn      (rstn                                                                                                    ),
 		.enabled_in(enabled                                                                                                 ),
-		.credit_in ({burst_command_buffer_out.valid,response_control_out.response.valid,response_latched.credits,command_in_latched}),
+		.credit_in ({burst_command_buffer_out.valid,response_control_out.response.valid,response_control_out.response.response_credits,command_in_latched.room}),
 		.credit_out(credits                                                                                                 )
+	);
+
+	credit_control credits_read_control_instant (
+		.clock     (clock                                                                                                   ),
+		.rstn      (rstn                                                                                                    ),
+		.enabled_in(enabled                                                                                                 ),
+		.credit_in ({read_command_buffer_out.valid,response_control_out.read_response,response_control_out.response.response_credits,CREDITS_READ}),
+		.credit_out(credits_read                                                                                                 )
+	);
+
+	credit_control credits_write_control_instant (
+		.clock     (clock                                                                                                   ),
+		.rstn      (rstn                                                                                                    ),
+		.enabled_in(enabled                                                                                                 ),
+		.credit_in ({write_command_buffer_out.valid,response_control_out.write_response,response_control_out.response.response_credits,CREDITS_WRITE}),
+		.credit_out(credits_write                                                                                                 )
 	);
 
 ////////////////////////////////////////////////////////////////////////////
@@ -340,7 +358,7 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready &&	(|credits.credits);
+	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (|credits.credits);
 
 	fifo #(
 		.WIDTH   ($bits(CommandBufferLine)),

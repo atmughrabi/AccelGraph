@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : credit_pkg.sv
 // Create : 2019-09-26 15:20:03
-// Revise : 2019-09-26 15:20:04
+// Revise : 2019-10-28 18:36:56
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -18,11 +18,15 @@ package CREDIT_PKG;
 	import CAPI_PKG::*;
 
 
+	parameter CREDITS_READ  = 8'h20                       ;
+	parameter CREDITS_WRITE = 8'h20                       ;
+	parameter CREDITS_TOTAL = CREDITS_READ + CREDITS_WRITE; // MUST be 64 credits max
+
 	typedef struct packed{
-		logic                 valid_request   ;
-		logic                 valid_response  ;
-		logic [0:8]           response_credits;
-		CommandInterfaceInput command_in      ;
+		logic       valid_request   ;
+		logic       valid_response  ;
+		logic [0:8] response_credits;
+		logic [0:7] room            ;
 	} CreditInterfaceInput;
 
 
