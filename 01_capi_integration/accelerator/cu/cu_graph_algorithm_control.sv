@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_control.sv
 // Create : 2019-09-26 15:19:08
-// Revise : 2019-10-24 04:28:01
+// Revise : 2019-10-27 14:17:17
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -53,13 +53,13 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 
 	//output latched
-	CommandBufferLine write_command_out_latched  ;
-	ReadWriteDataLine write_data_0_out_latched   ;
-	ReadWriteDataLine write_data_1_out_latched   ;
+	CommandBufferLine write_command_out_latched;
+	ReadWriteDataLine write_data_0_out_latched ;
+	ReadWriteDataLine write_data_1_out_latched ;
 
-	ReadWriteDataLine burst_write_data_0_out_latched   ;
-	ReadWriteDataLine burst_write_data_1_out_latched   ;
-	
+	ReadWriteDataLine burst_write_data_0_out_latched;
+	ReadWriteDataLine burst_write_data_1_out_latched;
+
 	ReadWriteDataLine write_data_0_out_latched_S2;
 	ReadWriteDataLine write_data_1_out_latched_S2;
 	CommandBufferLine read_command_out_latched   ;
@@ -113,7 +113,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	logic [NUM_VERTEX_CU-1:0] request_vertex_job_cu                           ;
 	logic [NUM_VERTEX_CU-1:0] request_vertex_job_cu_latched                   ;
 	logic [NUM_VERTEX_CU-1:0] ready_vertex_job_cu                             ;
-	logic [              0:1] request_pulse                                   ;
 	logic [              0:2] request_pulse_vertex                            ;
 	logic                     enabled                                         ;
 	logic [             0:63] algorithm_requests_latched                      ;
@@ -213,7 +212,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_comb  begin
 		for (iii = 0; iii < NUM_VERTEX_CU; iii++) begin
-			if(enabled && (iii < algorithm_requests_latched))
+			if((iii < algorithm_requests_latched))
 				enable_cu_latched[iii] = 1;
 			else
 				enable_cu_latched[iii] = 0;
@@ -221,7 +220,13 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	end
 
 	always_ff @(posedge clock) begin
-		enable_cu <= enable_cu_latched;
+		if(~rstn) begin
+			enable_cu <= 0;
+		end else begin
+			if(enabled)begin
+				enable_cu <= enable_cu_latched;
+			end
+		end
 	end
 
 	////////////////////////////////////////////////////////////////////////////
@@ -419,7 +424,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_comb  begin
 		for (jjj = 0; jjj < NUM_VERTEX_CU; jjj++) begin
-			if(read_data_0_in_latched.cmd.cu_id == jjj && enabled && read_data_0_in_latched.valid)begin
+			if(read_data_0_in_latched.cmd.cu_id == jjj && enable_cu[jjj] && read_data_0_in_latched.valid)begin
 				read_data_0_cu_internal[jjj] = read_data_0_in_latched;
 			end else begin
 				read_data_0_cu_internal[jjj] = 0;
@@ -433,7 +438,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_comb  begin
 		for (kkk = 0; kkk < NUM_VERTEX_CU; kkk++) begin
-			if(read_data_1_in_latched.cmd.cu_id == kkk && enabled && read_data_1_in_latched.valid)begin
+			if(read_data_1_in_latched.cmd.cu_id == kkk && enable_cu[kkk] && read_data_1_in_latched.valid)begin
 				read_data_1_cu_internal[kkk] = read_data_1_in_latched;
 			end else begin
 				read_data_1_cu_internal[kkk] = 0;
@@ -451,7 +456,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_comb  begin
 		for (jj = 0; jj < NUM_VERTEX_CU; jj++) begin
-			if(read_response_in_latched.cmd.cu_id == jj && enabled && read_response_in_latched.valid)begin
+			if(read_response_in_latched.cmd.cu_id == jj && enable_cu[jj] && read_response_in_latched.valid)begin
 				read_response_cu_internal[jj] = read_response_in_latched;
 			end else begin
 				read_response_cu_internal[jj] = 0;
@@ -465,7 +470,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_comb  begin
 		for (kk = 0; kk < NUM_VERTEX_CU; kk++) begin
-			if(write_response_in_latched.cmd.cu_id == kk && enabled && write_response_in_latched.valid)begin
+			if(write_response_in_latched.cmd.cu_id == kk && enable_cu[kk] && write_response_in_latched.valid)begin
 				write_response_cu_internal[kk] = write_response_in_latched;
 			end else begin
 				write_response_cu_internal[kk] = 0;

@@ -62,12 +62,12 @@ MAIN_DIR		  	= main
 #########################################################
 
 #small test graphs
-# GRAPH_NAME = test
+GRAPH_NAME = test
 GRAPH_NAME = v51_e1021
-# GRAPH_NAME = v300_e2730
+GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
-# GRAPH_NAME = Gnutella
+GRAPH_NAME = Gnutella
 # GRAPH_NAME = dblp
 # GRAPH_NAME = amazon
 # GRAPH_NAME = euall

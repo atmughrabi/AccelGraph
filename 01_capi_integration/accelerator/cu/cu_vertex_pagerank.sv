@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank.sv
 // Create : 2019-09-26 15:19:37
-// Revise : 2019-10-24 03:55:11
+// Revise : 2019-10-28 06:33:46
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -368,7 +368,7 @@ module cu_vertex_pagerank #(
 	cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
 		.clock                           (clock                           ),
 		.rstn                            (rstn                            ),
-		.enabled_in                      (enabled_in                      ),
+		.enabled_in                      (enabled                         ),
 		.wed_request_in                  (wed_request_in                  ),
 		.write_response_in               (write_response_in_edge_data     ),
 		.write_buffer_status             (write_command_buffer_states_cu  ),

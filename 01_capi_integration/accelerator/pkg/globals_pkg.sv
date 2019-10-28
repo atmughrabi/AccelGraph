@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-10-23 21:47:38
+// Revise : 2019-10-28 05:28:29
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -46,21 +46,21 @@ package GLOBALS_PKG;
 // AFU-Control Command Tags generation (Buffer size)
 ////////////////////////////////////////////////////////////////////////////
 
-	parameter TAG_COUNT   = 256   ;
+	parameter TAG_COUNT   = 256  ;
 	parameter INVALID_TAG = 8'h00;
 
-	parameter READ_CMD_BUFFER_SIZE    = 16;
-	parameter WRITE_CMD_BUFFER_SIZE   = 16;
+	parameter READ_CMD_BUFFER_SIZE    = 256;
+	parameter WRITE_CMD_BUFFER_SIZE   = 256;
 	parameter RESTART_CMD_BUFFER_SIZE = 4 ;
 	parameter WED_CMD_BUFFER_SIZE     = 4 ;
 
-	parameter READ_RSP_BUFFER_SIZE    = 16;
-	parameter WRITE_RSP_BUFFER_SIZE   = 16;
+	parameter READ_RSP_BUFFER_SIZE    = 256;
+	parameter WRITE_RSP_BUFFER_SIZE   = 256;
 	parameter RESTART_RSP_BUFFER_SIZE = 4 ;
 	parameter WED_RSP_BUFFER_SIZE     = 4 ;
 
-	parameter READ_DATA_BUFFER_SIZE    = 16;
-	parameter WRITE_DATA_BUFFER_SIZE   = 16;
+	parameter READ_DATA_BUFFER_SIZE    = 256;
+	parameter WRITE_DATA_BUFFER_SIZE   = 256;
 	parameter RESTART_DATA_BUFFER_SIZE = 4 ;
 	parameter WED_DATA_BUFFER_SIZE     = 4 ;
 

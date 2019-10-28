@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-10-22 08:51:38
+// Revise : 2019-10-27 17:41:29
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -88,11 +88,11 @@ void printWEDGraphCSRVertex(struct  WEDGraphCSR *wed)
         printf("  wed->inverse_vertex_edges_idx: %u\n", ((__u32 *)wed->inverse_vertex_edges_idx)[i]);
 #endif
     }
-    // printf("\n");
-    // for(i = 0; i < wed->num_edges ; i++)
-    // {
-    //     printf("%u src:  %u dest %u\n", i, ((__u32 *)wed->inverse_edges_array_src)[i], ((__u32 *)wed->inverse_edges_array_dest)[i]);
-    // }
+    printf("\n");
+    for(i = 0; i < wed->num_edges ; i++)
+    {
+        printf("%u src:  %u dest %u\n", i, ((__u32 *)wed->inverse_edges_array_src)[i], ((__u32 *)wed->inverse_edges_array_dest)[i]);
+    }
 
 }
 
@@ -126,9 +126,9 @@ main (int argc, char **argv)
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
-    arguments.fnameb = "../03_test_graphs/test/graph.wbin";
+    // arguments.fnameb = "../03_test_graphs/test/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/v300_e2730/graph.wbin";
-    // arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
+    arguments.fnameb = "../03_test_graphs/v51_e1021/graph.wbin";
     // arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
     arguments.fnameb_format = 1;
     arguments.convert_format = 1;

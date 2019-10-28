@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-10-24 06:45:45
+// Revise : 2019-10-28 07:00:13
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -240,7 +240,7 @@ module afu_control #(
 	end
 
 	generate
-		for ( i = 1; i < (RSP_DELAY); i++) begin
+		for ( i = 1; i < (RSP_DELAY); i++) begin : generate_response_delay
 			always_ff @(posedge clock or negedge rstn) begin
 				if(~rstn) begin
 					response_control_out_latched_S[i] <= 0;

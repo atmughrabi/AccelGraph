@@ -32,8 +32,8 @@ module command_control (
   CommandInterfaceOutput command_out_latch;
 
   assign odd_parity            = 1'b1; // Odd parity
-  assign command_out_latch.abt = STRICT;
-  // assign command_out_latch.abt            = ABORT;
+  // assign command_out_latch.abt = STRICT;
+  assign command_out_latch.abt            = ABORT;
   // assign command_out_latch.abt            = PERF;
   // assign command_out_latch.abt            = PAGE;
   // assign command_out_latch.abt            = SPEC;

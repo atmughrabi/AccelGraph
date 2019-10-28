@@ -98,6 +98,7 @@ module wed_control (
         command_out.cmd.cu_id         <= INVALID_ID;
         command_out.cmd.cmd_type      <= CMD_INVALID;
         command_out.cmd.vertex_struct <= STRUCT_INVALID;
+        command_out.cmd.tag           <= 0;
 
         wed_cacheline128        <= 1024'h0;
         wed_request_out.wed     <= 512'h0;
@@ -118,6 +119,7 @@ module wed_control (
         command_out.cmd.vertex_struct    <= STRUCT_INVALID;
         command_out.cmd.real_size        <= 32;
         command_out.cmd.cacheline_offest <= 0;
+        command_out.cmd.tag              <= 0;
 
         wed_request_out.address <= wed_address;
       end // WED_REQ
