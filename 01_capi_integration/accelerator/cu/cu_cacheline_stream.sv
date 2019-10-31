@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_cacheline_stream.sv
 // Create : 2019-09-26 15:18:19
-// Revise : 2019-10-09 18:25:13
+// Revise : 2019-10-31 14:45:31
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -31,8 +31,8 @@ module cu_cacheline_stream #(parameter SIZE_BITS = VERTEX_SIZE_BITS) (
 	output logic                   valid
 );
 
-	parameter CACHELINE_STREAM_READ_ADDR_BITS  = $clog2((SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? (2 * CACHELINE_SIZE_BITS_HF)/SIZE_BITS : 2);
-	parameter CACHELINE_STREAM_WRITE_ADDR_BITS = $clog2((SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? 2 : (2 * SIZE_BITS)/CACHELINE_SIZE_BITS_HF);
+	localparam CACHELINE_STREAM_READ_ADDR_BITS  = $clog2((SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? (2 * CACHELINE_SIZE_BITS_HF)/SIZE_BITS : 2);
+	localparam CACHELINE_STREAM_WRITE_ADDR_BITS = $clog2((SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? 2 : (2 * SIZE_BITS)/CACHELINE_SIZE_BITS_HF);
 
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit;
 

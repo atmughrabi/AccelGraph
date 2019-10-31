@@ -6,9 +6,9 @@
 // Copyright (c) 2014-2019 All rights reserved
 // -----------------------------------------------------------------------------
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
-// File   : cu_edge_data_extract_control.sv
+// File   : cu_edge_data_read_control.sv
 // Create : 2019-10-31 12:13:26
-// Revise : 2019-10-31 14:32:38
+// Revise : 2019-10-31 15:15:46
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -19,21 +19,41 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_edge_data_read_control(
-	input  logic                        clock                   , // Clock
-	input  logic                        rstn                    ,
-	input  logic                        enabled_in              ,
-	input  ReadWriteDataLine            read_data_0_in          ,
-	input  ReadWriteDataLine            read_data_1_in          ,
-	input  BufferStatus                 read_buffer_status      ,
-	input  logic                        edge_data_request       ,
-	output BufferStatus                 data_buffer_status      ,
-	output EdgeDataRead                 edge_data               
+module cu_edge_data_read_control  #(parameter CU_ID = 1)(
+	input  logic             clock             , // Clock
+	input  logic             rstn              ,
+	input  logic             enabled_in        ,
+	input  ReadWriteDataLine read_data_0_in    ,
+	input  ReadWriteDataLine read_data_1_in    ,
+	input  logic             edge_data_request ,
+	output EdgeDataRead      edge_data
 );
 
-parameter WORDS                          = 1                                                                                                              ;
-parameter CACHELINE_DATA_READ_ADDR_BITS  = $clog2((DATA_SIZE_READ_BITS < CACHELINE_SIZE_BITS) ? (WORDS * CACHELINE_SIZE_BITS)/DATA_SIZE_READ_BITS : WORDS);
-parameter CACHELINE_DATA_WRITE_ADDR_BITS = $clog2((DATA_SIZE_READ_BITS < CACHELINE_SIZE_BITS) ? WORDS : (WORDS * DATA_SIZE_READ_BITS)/CACHELINE_SIZE_BITS);
+	localparam WORDS                          = 1                                                                                                              ;
+	localparam CACHELINE_DATA_READ_ADDR_BITS  = $clog2((DATA_SIZE_READ_BITS < CACHELINE_SIZE_BITS) ? (WORDS * CACHELINE_SIZE_BITS)/DATA_SIZE_READ_BITS : WORDS);
+	localparam CACHELINE_DATA_WRITE_ADDR_BITS = $clog2((DATA_SIZE_READ_BITS < CACHELINE_SIZE_BITS) ? WORDS : (WORDS * DATA_SIZE_READ_BITS)/CACHELINE_SIZE_BITS);
+
+
+	//output latched
+	EdgeDataRead    edge_data_variable        ;
+	EdgeDataRead    edge_data_variable_latched;
+	BufferStatus       data_buffer_status;
+	//input lateched
+	ResponseBufferLine           read_response_in_latched            ;
+	ReadWriteDataLine            read_data_0_in_latched              ;
+	ReadWriteDataLine            read_data_0_in_latched_S2           ;
+	ReadWriteDataLine            read_data_1_in_latched              ;
+	logic [                 0:7] offset_data_0                       ;
+	logic [                 0:7] offset_data_1                       ;
+	logic                        enabled                             ;
+	logic                        edge_data_request_latched           ;
+
+	logic [             0:CACHELINE_SIZE_BITS-1] read_data_in      ;
+	logic [0:(CACHELINE_DATA_WRITE_ADDR_BITS-1)] address_wr        ;
+	logic [ 0:(CACHELINE_DATA_READ_ADDR_BITS-1)] address_rd        ;
+	logic [ 0:(CACHELINE_DATA_READ_ADDR_BITS-1)] address_rd_latched;
+	logic                                        we                ;
+	logic                                        we_latched        ;
 
 ///////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -47,35 +67,18 @@ parameter CACHELINE_DATA_WRITE_ADDR_BITS = $clog2((DATA_SIZE_READ_BITS < CACHELI
 		end
 	end
 
-
-////////////////////////////////////////////////////////////////////////////
-//drive outputs
-////////////////////////////////////////////////////////////////////////////
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			edge_request <= 0;
-		end else begin
-			if(enabled) begin
-				edge_request <= edge_request_latched;
-			end
-		end
-	end
-
 ////////////////////////////////////////////////////////////////////////////
 //drive inputs
 ////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_response_in_latched  <= 0;
 			read_data_0_in_latched    <= 0;
 			read_data_0_in_latched_S2 <= 0;
 			read_data_1_in_latched    <= 0;
 			edge_data_request_latched <= 0;
 		end else begin
 			if(enabled) begin
-				read_response_in_latched  <= read_response_in;
 				read_data_0_in_latched_S2 <= read_data_0_in;
 				read_data_0_in_latched    <= read_data_0_in_latched_S2;
 				read_data_1_in_latched    <= read_data_1_in;
@@ -133,6 +136,7 @@ parameter CACHELINE_DATA_WRITE_ADDR_BITS = $clog2((DATA_SIZE_READ_BITS < CACHELI
 			if(enabled) begin
 				if(edge_data_variable_latched.valid)begin
 					edge_data_variable.valid <= edge_data_variable_latched.valid;
+					edge_data_variable.cu_id <= CU_ID;
 					edge_data_variable.data  <= swap_endianness_data_read(edge_data_variable_latched.data);
 				end else begin
 					edge_data_variable <= 0;
@@ -144,8 +148,8 @@ parameter CACHELINE_DATA_WRITE_ADDR_BITS = $clog2((DATA_SIZE_READ_BITS < CACHELI
 ///////////////////////////////////////////////////////////////////////////
 //Edge data buffer
 ///////////////////////////////////////////////////////////////////////////
-	
-	
+
+
 	fifo #(
 		.WIDTH($bits(EdgeDataRead)      ),
 		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)

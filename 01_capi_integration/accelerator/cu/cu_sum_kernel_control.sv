@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_sum_kernel_control.sv
 // Create : 2019-09-26 15:19:17
-// Revise : 2019-10-31 14:24:36
+// Revise : 2019-10-31 15:39:40
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -129,7 +129,7 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 					edge_data_accumulator.valid      <= 1;
 					edge_data_accumulator.cu_id 	 <= CU_ID;
 					edge_data_accumulator.data       <= edge_data_accumulator.data + edge_data_latched.data;
-					edge_data_counter_accum_internal <= edge_data_counter_accum_internal +1;
+					edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
 				end
 
 				if(edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree && vertex_job_latched.valid)begin
@@ -142,7 +142,7 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 
 
 ////////////////////////////////////////////////////////////////////////////
-//edge_data_accumulate counter
+//edge_data_accumulate engine
 ////////////////////////////////////////////////////////////////////////////
 
 	always_comb begin

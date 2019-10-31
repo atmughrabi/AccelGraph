@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-10-31 11:53:48
+// Revise : 2019-10-31 14:41:15
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -25,8 +25,8 @@ package GLOBALS_PKG;
 	parameter NUM_GRAPH_CU_GLOBAL  = 1 ;
 	parameter NUM_VERTEX_CU_GLOBAL = 8 ;
 
-	parameter CU_VERTEX_JOB_BUFFER_SIZE = 64;
-	parameter CU_EDGE_JOB_BUFFER_SIZE   = 64;
+	parameter CU_VERTEX_JOB_BUFFER_SIZE = 256;
+	parameter CU_EDGE_JOB_BUFFER_SIZE   = 256;
 
 ////////////////////////////////////////////////////////////////////////////
 //   CU-Control/AFU-Control CAPI Globals
@@ -49,18 +49,18 @@ package GLOBALS_PKG;
 	parameter TAG_COUNT   = 256  ;
 	parameter INVALID_TAG = 8'h00;
 
-	parameter READ_CMD_BUFFER_SIZE    = 64;
-	parameter WRITE_CMD_BUFFER_SIZE   = 64;
+	parameter READ_CMD_BUFFER_SIZE    = 256;
+	parameter WRITE_CMD_BUFFER_SIZE   = 256;
 	parameter RESTART_CMD_BUFFER_SIZE = 4  ;
 	parameter WED_CMD_BUFFER_SIZE     = 4  ;
 
-	parameter READ_RSP_BUFFER_SIZE    = 64;
-	parameter WRITE_RSP_BUFFER_SIZE   = 64;
+	parameter READ_RSP_BUFFER_SIZE    = 256;
+	parameter WRITE_RSP_BUFFER_SIZE   = 256;
 	parameter RESTART_RSP_BUFFER_SIZE = 4  ;
 	parameter WED_RSP_BUFFER_SIZE     = 4  ;
 
-	parameter READ_DATA_BUFFER_SIZE    = 64;
-	parameter WRITE_DATA_BUFFER_SIZE   = 64;
+	parameter READ_DATA_BUFFER_SIZE    = 256;
+	parameter WRITE_DATA_BUFFER_SIZE   = 256;
 	parameter RESTART_DATA_BUFFER_SIZE = 4  ;
 	parameter WED_DATA_BUFFER_SIZE     = 4  ;
 
