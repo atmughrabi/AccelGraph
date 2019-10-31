@@ -22,7 +22,7 @@
 
 # Randomization seed.  Set this to force reproducible sequence of event
 # NOTE: Must be a single value, not a min,max range
-SEED:13
+SEED:11,31
 
 # Percentage chance of PSL driving any pending responses in a clock cycle.
 # Can not be 0 otherwise PSL will never generate responses to commands.
@@ -30,10 +30,10 @@ SEED:13
 # those responses will be in order.
 # Lower values introduces delays on responses and allows for greater
 # randomization of response ordering.
-RESPONSE_PERCENT:10,20
+RESPONSE_PERCENT:20,100
 
 # Percentage chance of PSL responding with PAGED for any command response.
-PAGED_PERCENT:0
+PAGED_PERCENT:0,20
 
 # Percentage chance of PSL reordering the execution of commands.
 REORDER_PERCENT:80,90

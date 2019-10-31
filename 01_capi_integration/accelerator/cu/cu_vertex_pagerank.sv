@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank.sv
 // Create : 2019-09-26 15:19:37
-// Revise : 2019-10-28 06:33:46
+// Revise : 2019-10-31 13:55:30
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -121,7 +121,6 @@ module cu_vertex_pagerank #(
 	ReadWriteDataLine              write_data_1_cu                 ;
 	logic                          ready_write_command_cu          ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_pushed         ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_pushed        ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ;
@@ -356,8 +355,7 @@ module cu_vertex_pagerank #(
 		.edge_request            (edge_request                        ),
 		.read_command_out        (read_command_out_edge_data          ),
 		.data_buffer_status      (data_buffer_status                  ),
-		.edge_data               (edge_data                           ),
-		.edge_data_counter_pushed(edge_data_counter_pushed            )
+		.edge_data               (edge_data                           )
 	);
 
 	////////////////////////////////////////////////////////////////////////////

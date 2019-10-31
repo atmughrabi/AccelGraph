@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_control.sv
 // Create : 2019-09-26 15:18:46
-// Revise : 2019-10-28 14:41:41
+// Revise : 2019-10-31 13:55:18
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -35,8 +35,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	output logic                        edge_request            ,
 	output CommandBufferLine            read_command_out        ,
 	output BufferStatus                 data_buffer_status      ,
-	output EdgeDataRead                 edge_data               ,
-	output logic [0:(EDGE_SIZE_BITS-1)] edge_data_counter_pushed
+	output EdgeDataRead                 edge_data           
 );
 
 	parameter WORDS                          = 1                                                                                                              ;
@@ -237,35 +236,6 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			edge_data_counter_pushed <= 0;
-		end else begin
-			if (enabled) begin
-				if(edge_data_variable.valid)
-					edge_data_counter_pushed <= edge_data_counter_pushed + 1;
-
-				if(edge_data_counter_pushed == vertex_job_latched.inverse_out_degree && vertex_job_latched.valid)begin
-					edge_data_counter_pushed <= 0;
-				end
-			end
-		end
-	end
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			edge_data_counter_valid <= 0;
-		end else begin
-			if (enabled) begin
-				if(read_data_0_in_latched.valid)
-					edge_data_counter_valid <= edge_data_counter_valid + 1;
-
-				if(edge_data_counter_valid == vertex_job_latched.inverse_out_degree && vertex_job_latched.valid)begin
-					edge_data_counter_valid <= 0;
-				end
-			end
-		end
-	end
 
 ///////////////////////////////////////////////////////////////////////////
 //Edge data buffer
