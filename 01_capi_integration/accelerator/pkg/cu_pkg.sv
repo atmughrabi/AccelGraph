@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_pkg.sv
 // Create : 2019-09-26 15:20:09
-// Revise : 2019-10-31 14:22:55
+// Revise : 2019-11-01 04:09:54
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -102,6 +102,7 @@ package CU_PKG;
 	typedef struct packed {
 		logic                              valid;
 		cu_id_t                            cu_id;
+		logic [0:(EDGE_SIZE_BITS-1)]       index;
 		logic [0:(DATA_SIZE_WRITE_BITS-1)] data ;
 	} EdgeDataWrite;
 
