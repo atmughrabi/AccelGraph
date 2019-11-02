@@ -194,6 +194,12 @@ package AFU_PKG;
       FAULT : begin
         cmd_response_error = 6'b001000;
       end
+      PAGED : begin
+        cmd_response_error = 6'b010000;
+      end
+      FLUSHED : begin
+        cmd_response_error = 6'b100000;
+      end
       default : begin
         cmd_response_error = 6'b000000;
       end
