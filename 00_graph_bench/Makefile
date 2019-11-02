@@ -63,7 +63,7 @@ MAIN_DIR		  	= main
 
 #small test graphs
 GRAPH_NAME = test
-GRAPH_NAME = v51_e1021
+# GRAPH_NAME = v51_e1021
 # GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
@@ -200,7 +200,7 @@ CAPI_SERVER		  = $(CAPI_COMMON)/server
 
 PSLSE_COMMON_DIR  = $(PSLSE_DIR)/common
 PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
-
+# PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR) // uncomment when runnning on HW
 
 SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
 OBJ_FILES_ALGO_CAPI 		=  $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
