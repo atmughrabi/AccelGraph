@@ -55,8 +55,8 @@ module write_data_control (
 //Drive input
 ////////////////////////////////////////////////////////////////////////////
 
-  assign odd_parity              = 1'b1; // Odd parity
-  assign enable_errors           = 1'b1; // enable errors
+  assign odd_parity    = 1'b1; // Odd parity
+  assign enable_errors = 1'b1; // enable errors
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
@@ -149,12 +149,14 @@ module write_data_control (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn)
       write_data <= ~0;
-    else if(~(|read_address) && read_valid)
-      write_data <= write_data_0_out.data;
-    else if((|read_address) && read_valid)
-      write_data <= write_data_1_out.data;
-    else
-      write_data <= ~0;
+    else begin
+      if(~(|read_address) && read_valid)
+        write_data <= write_data_0_out.data;
+      else if((|read_address) && read_valid)
+        write_data <= write_data_1_out.data;
+      else
+        write_data <= ~0;
+    end
   end
 
   always_ff @(posedge clock) begin
