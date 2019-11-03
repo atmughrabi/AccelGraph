@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_read_control.sv
 // Create : 2019-10-31 12:13:26
-// Revise : 2019-11-03 03:40:02
+// Revise : 2019-11-03 13:06:08
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -159,8 +159,8 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 
 
 	fifo #(
-		.WIDTH($bits(EdgeDataRead)      ),
-		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
+		.WIDTH($bits(EdgeDataRead)    ),
+		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
 	) edge_data_buffer_fifo_instant (
 		.clock   (clock                    ),
 		.rstn    (rstn                     ),

@@ -63,7 +63,7 @@ MAIN_DIR		  	= main
 
 #small test graphs
 GRAPH_NAME = test
-# GRAPH_NAME = v51_e1021
+GRAPH_NAME = v51_e1021
 # GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
@@ -112,9 +112,9 @@ PULL_PUSH 		= 2
 TOLERANCE 		= 1e-8
 DELTA 			= 800
 
-NUM_THREADS  	= 8
+NUM_THREADS  	= 64
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-NUM_ITERATIONS 	= 5
+NUM_ITERATIONS 	= 10
 NUM_TRIALS 		= 1
 
 FILE_FORMAT 	= 1

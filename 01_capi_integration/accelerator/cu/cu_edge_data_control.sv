@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_control.sv
 // Create : 2019-09-26 15:18:46
-// Revise : 2019-11-03 02:19:29
+// Revise : 2019-11-03 13:07:13
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -137,30 +137,13 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		end
 	end
 
-////////////////////////////////////////////////////////////////////////////
-//data request read logic
-////////////////////////////////////////////////////////////////////////////
-
-	// assign edge_data_request_latched_internal = ~data_buffer_status.alfull;
-
-	// cu_edge_data_read_control #(.CU_ID(CU_ID)) cu_edge_data_read_control_instant (
-	// 	.clock            (clock                             ),
-	// 	.rstn             (rstn                              ),
-	// 	.enabled_in       (enabled                           ),
-	// 	.read_data_0_in   (read_data_0_in_latched            ),
-	// 	.read_data_1_in   (read_data_1_in_latched            ),
-	// 	.edge_data_request(edge_data_request_latched_internal),
-	// 	.edge_data        (edge_data_variable                )
-	// );
-
-
 ///////////////////////////////////////////////////////////////////////////
 //Edge data buffer
 ///////////////////////////////////////////////////////////////////////////
 
 	fifo #(
-		.WIDTH($bits(EdgeDataRead)      ),
-		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
+		.WIDTH($bits(EdgeDataRead)    ),
+		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
 	) edge_data_buffer_fifo_instant (
 		.clock   (clock                    ),
 		.rstn    (rstn                     ),
@@ -184,8 +167,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	assign edge_variable_pop    = ~edge_buffer_status_internal.empty && ~read_buffer_status_internal.alfull;
 
 	fifo #(
-		.WIDTH($bits(EdgeInterface)     ),
-		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
+		.WIDTH($bits(EdgeInterface)   ),
+		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
 	) edge_job_buffer_fifo_instant (
 		.clock   (clock                             ),
 		.rstn    (rstn                              ),
@@ -208,8 +191,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	assign read_command_job_edge_data_burst_pop = ~read_buffer_status_internal.empty && ~read_buffer_status.alfull;
 
 	fifo #(
-		.WIDTH($bits(CommandBufferLine) ),
-		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
+		.WIDTH($bits(CommandBufferLine)),
+		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE )
 	) read_command_edge_data_burst_fifo_instant (
 		.clock   (clock                               ),
 		.rstn    (rstn                                ),

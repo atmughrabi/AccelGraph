@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_sum_kernel_control.sv
 // Create : 2019-09-26 15:19:17
-// Revise : 2019-11-03 10:51:32
+// Revise : 2019-11-03 12:38:39
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -137,26 +137,6 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 			end
 		end
 	end
-
-
-////////////////////////////////////////////////////////////////////////////
-//edge_data_accumulate send wrtie request
-////////////////////////////////////////////////////////////////////////////
-
-	// ReadWriteDataLine write_data_0_out_latched   ;
-	// ReadWriteDataLine write_data_1_out_latched   ;
-	// CommandBufferLine write_command_out_latched  ;
-
-	// cu_edge_data_write_control #(.CU_ID(CU_ID)) cu_edge_data_write_control_instant (
-	// 	.clock            (clock                      ),
-	// 	.rstn             (rstn                       ),
-	// 	.enabled_in       (enabled                    ),
-	// 	.wed_request_in   (wed_request_in_latched     ),
-	// 	.edge_data_write  (edge_data_accumulator_latch),
-	// 	.write_data_0_out (write_data_0_out_latched   ),
-	// 	.write_data_1_out (write_data_1_out_latched   ),
-	// 	.write_command_out(write_command_out_latched  )
-	// );
 
 ////////////////////////////////////////////////////////////////////////////
 //counter trackings
