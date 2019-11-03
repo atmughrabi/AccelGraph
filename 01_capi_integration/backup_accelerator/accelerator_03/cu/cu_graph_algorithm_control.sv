@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_control.sv
 // Create : 2019-09-26 15:19:08
-// Revise : 2019-11-03 03:18:25
+// Revise : 2019-10-27 14:17:17
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -125,19 +125,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	logic             burst_write_command_buffer_pop      ;
 	CommandBufferLine burst_write_command_buffer_out      ;
 
-	ReadWriteDataLine read_data_0_in_edge_job ;
-	ReadWriteDataLine read_data_1_in_edge_job ;
-	ReadWriteDataLine read_data_0_in_edge_data;
-	ReadWriteDataLine read_data_1_in_edge_data;
-
-	logic        edge_data_read_buffer_request                   ;
-	EdgeDataRead edge_data_read                                  ;
-	EdgeDataRead edge_data_read_cu            [0:NUM_VERTEX_CU-1];
-	EdgeDataRead edge_data_read_cu_internal   [0:NUM_VERTEX_CU-1];
-	EdgeDataRead edge_data_variable                              ;
-	BufferStatus data_buffer_status                              ;
-	logic        edge_data_request_latched                       ;
-
 	////////////////////////////////////////////////////////////////////////////
 	//enable logic
 	////////////////////////////////////////////////////////////////////////////
@@ -199,7 +186,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	////////////////////////////////////////////////////////////////////////////
 	genvar  i  ;
 	integer j  ;
-	integer z  ;
 	integer k  ;
 	integer ii ;
 	integer kk ;
@@ -438,8 +424,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_comb  begin
 		for (jjj = 0; jjj < NUM_VERTEX_CU; jjj++) begin
-			if(read_data_0_in_edge_job.cmd.cu_id == jjj && enable_cu[jjj] && read_data_0_in_edge_job.valid)begin
-				read_data_0_cu_internal[jjj] = read_data_0_in_edge_job;
+			if(read_data_0_in_latched.cmd.cu_id == jjj && enable_cu[jjj] && read_data_0_in_latched.valid)begin
+				read_data_0_cu_internal[jjj] = read_data_0_in_latched;
 			end else begin
 				read_data_0_cu_internal[jjj] = 0;
 			end
@@ -452,8 +438,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_comb  begin
 		for (kkk = 0; kkk < NUM_VERTEX_CU; kkk++) begin
-			if(read_data_1_in_edge_job.cmd.cu_id == kkk && enable_cu[kkk] && read_data_1_in_edge_job.valid)begin
-				read_data_1_cu_internal[kkk] = read_data_1_in_edge_job;
+			if(read_data_1_in_latched.cmd.cu_id == kkk && enable_cu[kkk] && read_data_1_in_latched.valid)begin
+				read_data_1_cu_internal[kkk] = read_data_1_in_latched;
 			end else begin
 				read_data_1_cu_internal[kkk] = 0;
 			end
@@ -463,123 +449,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	always_ff @(posedge clock) begin
 		read_data_1_cu <= read_data_1_cu_internal;
 	end
-
-////////////////////////////////////////////////////////////////////////////
-//read data request logic - input
-////////////////////////////////////////////////////////////////////////////
-
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_data_0_in_edge_job  <= 0;
-			read_data_0_in_edge_data <= 0;
-		end else begin
-			if(enabled && read_data_0_in_latched.valid) begin
-				case (read_data_0_in_latched.cmd.vertex_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_data_0_in_edge_job  <= read_data_0_in_latched;
-						read_data_0_in_edge_data <= 0;
-					end
-					READ_GRAPH_DATA : begin
-						read_data_0_in_edge_job  <= 0;
-						read_data_0_in_edge_data <= read_data_0_in_latched;
-					end
-					default : begin
-						read_data_0_in_edge_job  <= 0;
-						read_data_0_in_edge_data <= 0;
-					end
-				endcase
-			end else begin
-				read_data_0_in_edge_job  <= 0;
-				read_data_0_in_edge_data <= 0;
-			end
-		end
-	end
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_data_1_in_edge_job  <= 0;
-			read_data_1_in_edge_data <= 0;
-		end else begin
-			if(enabled && read_data_1_in_latched.valid) begin
-				case (read_data_1_in_latched.cmd.vertex_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_data_1_in_edge_job  <= read_data_1_in_latched;
-						read_data_1_in_edge_data <= 0;
-					end
-					READ_GRAPH_DATA : begin
-						read_data_1_in_edge_job  <= 0;
-						read_data_1_in_edge_data <= read_data_1_in_latched;
-					end
-					default : begin
-						read_data_1_in_edge_job  <= 0;
-						read_data_1_in_edge_data <= 0;
-					end
-				endcase
-			end else begin
-				read_data_1_in_edge_job  <= 0;
-				read_data_1_in_edge_data <= 0;
-			end
-		end
-	end
-
-	////////////////////////////////////////////////////////////////////////////
-	//data request read logic
-	////////////////////////////////////////////////////////////////////////////
-
-
-
-	always_comb  begin
-		for (z = 0; z < NUM_VERTEX_CU; z++) begin
-			if(edge_data_read.cu_id == z && enable_cu[z] && edge_data_read.valid)begin
-				edge_data_read_cu_internal[z] = edge_data_read;
-			end else begin
-				edge_data_read_cu_internal[z] = 0;
-			end
-		end
-	end
-
-	always_ff @(posedge clock) begin
-		edge_data_read_cu <= edge_data_read_cu_internal;
-	end
-
-	assign edge_data_read_buffer_request = ~data_buffer_status.alfull;
-
-	cu_edge_data_read_control cu_edge_data_read_control_instant (
-		.clock            (clock                        ),
-		.rstn             (rstn                         ),
-		.enabled_in       (enabled                      ),
-		.read_data_0_in   (read_data_0_in_edge_data     ),
-		.read_data_1_in   (read_data_1_in_edge_data     ),
-		.edge_data_request(edge_data_read_buffer_request),
-		.edge_data        (edge_data_variable           )
-	);
-
-	///////////////////////////////////////////////////////////////////////////
-	//Edge data buffer
-	///////////////////////////////////////////////////////////////////////////
-
-
-
-	assign edge_data_request_latched = ~data_buffer_status.empty;
-
-	fifo #(
-		.WIDTH($bits(EdgeDataRead)      ),
-		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
-	) edge_data_buffer_fifo_instant (
-		.clock   (clock                    ),
-		.rstn    (rstn                     ),
-		
-		.push    (edge_data_variable.valid ),
-		.data_in (edge_data_variable       ),
-		.full    (data_buffer_status.full  ),
-		.alFull  (data_buffer_status.alfull),
-		
-		.pop     (edge_data_request_latched),
-		.valid   (data_buffer_status.valid ),
-		.data_out(edge_data_read           ),
-		.empty   (data_buffer_status.empty )
-	);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex CU Response Arbitration
@@ -631,7 +500,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 					.write_response_in   (write_response_cu[i]),
 					.read_data_0_in      (read_data_0_cu[i]),
 					.read_data_1_in      (read_data_1_cu[i]),
-					.edge_data_read_in   (edge_data_read_cu[i]),
 					.read_buffer_status  (read_command_buffer_states_cu[i]),
 					.read_command_out    (read_command_cu[i]),
 					.write_buffer_status (write_command_buffer_states_cu[i]),
@@ -813,7 +681,5 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 			);
 		end
 	endgenerate
-
-
 
 endmodule

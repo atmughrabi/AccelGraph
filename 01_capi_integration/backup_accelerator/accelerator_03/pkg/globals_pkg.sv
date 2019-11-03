@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-11-03 02:24:04
+// Revise : 2019-10-31 14:41:15
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -22,8 +22,8 @@ package GLOBALS_PKG;
 // TOTAL CUS = NUM_GRAPH_CU_GLOBAL X NUM_VERTEX_CU_GLOBAL
 ////////////////////////////////////////////////////////////////////////////
 
-	parameter NUM_GRAPH_CU_GLOBAL  = 1;
-	parameter NUM_VERTEX_CU_GLOBAL = 8;
+	parameter NUM_GRAPH_CU_GLOBAL  = 1 ;
+	parameter NUM_VERTEX_CU_GLOBAL = 8 ;
 
 	parameter CU_VERTEX_JOB_BUFFER_SIZE = 256;
 	parameter CU_EDGE_JOB_BUFFER_SIZE   = 256;
@@ -107,11 +107,9 @@ package GLOBALS_PKG;
 
 	parameter CU_ID_RANGE = 8;
 
-	parameter INVALID_ID                 = {CU_ID_RANGE{1'b0}}            ;
-	parameter WED_ID                     = {CU_ID_RANGE{1'b1}}            ;
-	parameter VERTEX_CONTROL_ID          = (WED_ID - 1)                   ; // This is the CU that requests and schedules graph vertices to other CUs
-	parameter EDGE_DATA_READ_CONTROL_ID  = (VERTEX_CONTROL_ID - 1)        ; // This is the CU that requests and schedules graph vertices to other CUs
-	parameter EDGE_DATA_WRITE_CONTROL_ID = (EDGE_DATA_READ_CONTROL_ID - 1); // This is the CU that requests and schedules graph vertices to other CUs
+	parameter INVALID_ID        = {CU_ID_RANGE{1'b0}};
+	parameter WED_ID            = {CU_ID_RANGE{1'b1}};
+	parameter VERTEX_CONTROL_ID = (WED_ID - 1)       ; // This is the CU that requests and schedules graph vertices to other CUs
 
 	typedef logic [0:(CU_ID_RANGE-1)] cu_id_t;
 endpackage

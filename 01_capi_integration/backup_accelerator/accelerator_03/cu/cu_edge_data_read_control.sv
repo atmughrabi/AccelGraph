@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_read_control.sv
 // Create : 2019-10-31 12:13:26
-// Revise : 2019-11-03 03:40:02
+// Revise : 2019-10-31 15:15:46
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -19,13 +19,13 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_edge_data_read_control #(parameter CU_ID = 1) (
-	input  logic             clock            , // Clock
-	input  logic             rstn             ,
-	input  logic             enabled_in       ,
-	input  ReadWriteDataLine read_data_0_in   ,
-	input  ReadWriteDataLine read_data_1_in   ,
-	input  logic             edge_data_request,
+module cu_edge_data_read_control  #(parameter CU_ID = 1)(
+	input  logic             clock             , // Clock
+	input  logic             rstn              ,
+	input  logic             enabled_in        ,
+	input  ReadWriteDataLine read_data_0_in    ,
+	input  ReadWriteDataLine read_data_1_in    ,
+	input  logic             edge_data_request ,
 	output EdgeDataRead      edge_data
 );
 
@@ -35,17 +35,18 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 
 
 	//output latched
-	EdgeDataRead edge_data_variable        ;
-	EdgeDataRead edge_data_variable_latched;
-	BufferStatus data_buffer_status        ;
+	EdgeDataRead    edge_data_variable        ;
+	EdgeDataRead    edge_data_variable_latched;
+	BufferStatus       data_buffer_status;
 	//input lateched
-	ReadWriteDataLine read_data_0_in_latched   ;
-	ReadWriteDataLine read_data_0_in_latched_S2;
-	ReadWriteDataLine read_data_1_in_latched   ;
-	logic [0:7]       offset_data_0            ;
-	logic [0:7]       offset_data_1            ;
-	logic             enabled                  ;
-	logic             edge_data_request_latched;
+	ResponseBufferLine           read_response_in_latched            ;
+	ReadWriteDataLine            read_data_0_in_latched              ;
+	ReadWriteDataLine            read_data_0_in_latched_S2           ;
+	ReadWriteDataLine            read_data_1_in_latched              ;
+	logic [                 0:7] offset_data_0                       ;
+	logic [                 0:7] offset_data_1                       ;
+	logic                        enabled                             ;
+	logic                        edge_data_request_latched           ;
 
 	logic [             0:CACHELINE_SIZE_BITS-1] read_data_in      ;
 	logic [0:(CACHELINE_DATA_WRITE_ADDR_BITS-1)] address_wr        ;
@@ -53,9 +54,6 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 	logic [ 0:(CACHELINE_DATA_READ_ADDR_BITS-1)] address_rd_latched;
 	logic                                        we                ;
 	logic                                        we_latched        ;
-
-	cu_id_t cu_id        ;
-	cu_id_t cu_id_latched;
 
 ///////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -102,14 +100,12 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 			read_data_in <= 0;
 			address_wr   <= 0;
 			address_rd   <= 0;
-			cu_id        <= 0;
 		end else begin
 			if(enabled) begin
 				if(read_data_0_in_latched.valid && read_data_1_in_latched.valid)begin
 					we                                                         <= 1;
 					read_data_in[0:CACHELINE_SIZE_BITS_HF-1]                   <= read_data_0_in_latched.data;
 					read_data_in[CACHELINE_SIZE_BITS_HF:CACHELINE_SIZE_BITS-1] <= read_data_1_in_latched.data;
-					cu_id                                                      <= read_data_0_in_latched.cmd.cu_id;
 					address_wr                                                 <= 0;
 					address_rd                                                 <= offset_data_0;
 				end else begin
@@ -117,7 +113,6 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 					read_data_in <= 0;
 					address_wr   <= 0;
 					address_rd   <= 0;
-					cu_id        <= 0;
 				end
 			end
 		end
@@ -127,13 +122,10 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 		if(~rstn) begin
 			address_rd_latched <= 0;
 			we_latched         <= 0;
-			cu_id_latched      <= 0;
 		end else begin
 			address_rd_latched               <= address_rd;
 			we_latched                       <= we;
-			cu_id_latched                    <= cu_id;
 			edge_data_variable_latched.valid <= we_latched;
-			edge_data_variable_latched.cu_id <= cu_id_latched;
 		end
 	end
 
@@ -144,7 +136,7 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 			if(enabled) begin
 				if(edge_data_variable_latched.valid)begin
 					edge_data_variable.valid <= edge_data_variable_latched.valid;
-					edge_data_variable.cu_id <= edge_data_variable_latched.cu_id;
+					edge_data_variable.cu_id <= CU_ID;
 					edge_data_variable.data  <= swap_endianness_data_read(edge_data_variable_latched.data);
 				end else begin
 					edge_data_variable <= 0;

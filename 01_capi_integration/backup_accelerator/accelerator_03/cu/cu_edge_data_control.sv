@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_control.sv
 // Create : 2019-09-26 15:18:46
-// Revise : 2019-11-03 02:19:29
+// Revise : 2019-10-31 15:18:41
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -25,7 +25,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	input  logic              enabled_in        ,
 	input  WEDInterface       wed_request_in    ,
 	input  ResponseBufferLine read_response_in  ,
-	input  EdgeDataRead       edge_data_read_in ,
+	input  ReadWriteDataLine  read_data_0_in    ,
+	input  ReadWriteDataLine  read_data_1_in    ,
 	input  BufferStatus       read_buffer_status,
 	input  BufferStatus       edge_buffer_status,
 	input  logic              edge_data_request ,
@@ -36,26 +37,27 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	output EdgeDataRead       edge_data
 );
 
-
+	
 	//output latched
-	EdgeInterface edge_job_latched ;
-	EdgeInterface edge_job_variable;
-
-
+	EdgeInterface   edge_job_latched          ;
+	EdgeInterface   edge_job_variable         ;
+	EdgeDataRead    edge_data_variable        ;
 	//input lateched
-	ResponseBufferLine read_response_in_latched            ;
-	logic              edge_request_latched                ;
-	BufferStatus       edge_buffer_status_internal         ;
-	WEDInterface       wed_request_in_latched              ;
-	CommandBufferLine  read_command_out_latched            ;
-	BufferStatus       read_buffer_status_internal         ;
-	logic              read_command_job_edge_data_burst_pop;
-	logic              enabled                             ;
-	logic              edge_data_request_latched           ;
-	logic              edge_data_request_latched_internal  ;
-	logic              edge_variable_pop                   ;
-	EdgeDataRead       edge_data_variable                  ;
+	ResponseBufferLine           read_response_in_latched            ;
+	ReadWriteDataLine            read_data_0_in_latched              ;
+	ReadWriteDataLine            read_data_1_in_latched              ;
+	logic                        edge_request_latched                ;
+	BufferStatus                 edge_buffer_status_internal         ;
+	WEDInterface                 wed_request_in_latched              ;
+	CommandBufferLine            read_command_out_latched            ;
+	BufferStatus                 read_buffer_status_internal         ;
+	logic                        read_command_job_edge_data_burst_pop;
+	logic                        enabled                             ;
+	logic                        edge_data_request_latched           ;
+	logic                        edge_data_request_latched_internal  ;
+	logic                        edge_variable_pop                   ;
 
+	
 // assign edge_request = edge_request_latched;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -92,16 +94,18 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			read_response_in_latched  <= 0;
+			read_data_0_in_latched    <= 0;
+			read_data_1_in_latched    <= 0;
 			edge_job_latched          <= 0;
 			edge_data_request_latched <= 0;
 			wed_request_in_latched    <= 0;
-			edge_data_variable        <= 0;
 		end else begin
 			if(enabled) begin
 				wed_request_in_latched    <= wed_request_in;
 				read_response_in_latched  <= read_response_in;
+				read_data_0_in_latched    <= read_data_0_in;
+				read_data_1_in_latched    <= read_data_1_in;
 				edge_job_latched          <= edge_job;
-				edge_data_variable        <= edge_data_read_in;
 				edge_data_request_latched <= (edge_data_request && ~data_buffer_status.empty);
 			end
 		end
@@ -141,17 +145,17 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 //data request read logic
 ////////////////////////////////////////////////////////////////////////////
 
-	// assign edge_data_request_latched_internal = ~data_buffer_status.alfull;
+	assign edge_data_request_latched_internal = ~data_buffer_status.alfull;
 
-	// cu_edge_data_read_control #(.CU_ID(CU_ID)) cu_edge_data_read_control_instant (
-	// 	.clock            (clock                             ),
-	// 	.rstn             (rstn                              ),
-	// 	.enabled_in       (enabled                           ),
-	// 	.read_data_0_in   (read_data_0_in_latched            ),
-	// 	.read_data_1_in   (read_data_1_in_latched            ),
-	// 	.edge_data_request(edge_data_request_latched_internal),
-	// 	.edge_data        (edge_data_variable                )
-	// );
+	cu_edge_data_read_control #(.CU_ID(CU_ID)) cu_edge_data_read_control_instant (
+		.clock            (clock                             ),
+		.rstn             (rstn                              ),
+		.enabled_in       (enabled                           ),
+		.read_data_0_in   (read_data_0_in_latched            ),
+		.read_data_1_in   (read_data_1_in_latched            ),
+		.edge_data_request(edge_data_request_latched_internal),
+		.edge_data        (edge_data_variable                )
+	);
 
 
 ///////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-03 03:21:17
+// Revise : 2019-10-28 18:39:22
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 

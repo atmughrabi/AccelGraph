@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank.sv
 // Create : 2019-09-26 15:19:37
-// Revise : 2019-11-03 02:19:35
+// Revise : 2019-10-31 15:18:51
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -31,7 +31,6 @@ module cu_vertex_pagerank #(
 	input  ResponseBufferLine             write_response_in  ,
 	input  ReadWriteDataLine              read_data_0_in     ,
 	input  ReadWriteDataLine              read_data_1_in     ,
-	input  EdgeDataRead                   edge_data_read_in  ,
 	input  BufferStatus                   read_buffer_status ,
 	output CommandBufferLine              read_command_out   ,
 	input  BufferStatus                   write_buffer_status,
@@ -129,13 +128,7 @@ module cu_vertex_pagerank #(
 	BufferStatus      burst_read_command_buffer_states_cu;
 	logic             burst_read_command_buffer_pop      ;
 	CommandBufferLine burst_read_command_buffer_out      ;
-
-	EdgeDataRead edge_data_read_buffer        ;
-	BufferStatus edge_data_read_buffer_status ;
-	logic        edge_data_read_buffer_request;
-	EdgeDataRead edge_data_read               ;
-
-
+	
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -240,7 +233,6 @@ module cu_vertex_pagerank #(
 			write_response_in_latched <= 0;
 			read_data_0_in_latched    <= 0;
 			read_data_1_in_latched    <= 0;
-			edge_data_read            <= 0;
 		end else begin
 			if(enabled)begin
 				wed_request_in_latched    <= wed_request_in;
@@ -248,7 +240,6 @@ module cu_vertex_pagerank #(
 				write_response_in_latched <= write_response_in;
 				read_data_0_in_latched    <= read_data_0_in;
 				read_data_1_in_latched    <= read_data_1_in;
-				edge_data_read            <= edge_data_read_in;
 			end
 		end
 	end
@@ -349,20 +340,21 @@ module cu_vertex_pagerank #(
 	////////////////////////////////////////////////////////////////////////////
 
 	cu_edge_data_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_data_control_instant (
-		.clock             (clock                               ),
-		.rstn              (rstn                                ),
-		.enabled_in        (enabled                             ),
-		.wed_request_in    (wed_request_in_latched              ),
-		.read_response_in  (read_response_in_edge_data          ),
-		.edge_data_read_in (edge_data_read_buffer               ),
-		.read_buffer_status(read_command_edge_data_buffer_status),
-		.edge_buffer_status(edge_buffer_status                  ),
-		.edge_data_request (edge_data_request                   ),
-		.edge_job          (edge_job                            ),
-		.edge_request      (edge_request                        ),
-		.read_command_out  (read_command_out_edge_data          ),
-		.data_buffer_status(data_buffer_status                  ),
-		.edge_data         (edge_data                           )
+		.clock                   (clock                               ),
+		.rstn                    (rstn                                ),
+		.enabled_in              (enabled                             ),
+		.wed_request_in          (wed_request_in_latched              ),
+		.read_response_in        (read_response_in_edge_data          ),
+		.read_data_0_in          (read_data_0_in_edge_data            ),
+		.read_data_1_in          (read_data_1_in_edge_data            ),
+		.read_buffer_status      (read_command_edge_data_buffer_status),
+		.edge_buffer_status      (edge_buffer_status                  ),
+		.edge_data_request       (edge_data_request                   ),
+		.edge_job                (edge_job                            ),
+		.edge_request            (edge_request                        ),
+		.read_command_out        (read_command_out_edge_data          ),
+		.data_buffer_status      (data_buffer_status                  ),
+		.edge_data               (edge_data                           )
 	);
 
 	////////////////////////////////////////////////////////////////////////////
@@ -586,30 +578,6 @@ module cu_vertex_pagerank #(
 		.valid   (read_data_1_buffer_status.valid ),
 		.data_out(read_data_cu_1_buffer           ),
 		.empty   (read_data_1_buffer_status.empty )
-	);
-
-	///////////////////////////////////////////////////////////////////////////
-	//Edge data buffer read
-	///////////////////////////////////////////////////////////////////////////
-
-	assign edge_data_read_buffer_request = ~edge_data_read_buffer_status.empty && ~data_buffer_status.alfull;
-
-	fifo #(
-		.WIDTH($bits(EdgeDataRead)      ),
-		.DEPTH(CU_VERTEX_JOB_BUFFER_SIZE)
-	) edge_data_read_buffer_fifo_instant (
-		.clock   (clock                              ),
-		.rstn    (rstn                               ),
-		
-		.push    (edge_data_read.valid               ),
-		.data_in (edge_data_read                     ),
-		.full    (edge_data_read_buffer_status.full  ),
-		.alFull  (edge_data_read_buffer_status.alfull),
-		
-		.pop     (edge_data_read_buffer_request      ),
-		.valid   (edge_data_read_buffer_status.valid ),
-		.data_out(edge_data_read_buffer              ),
-		.empty   (edge_data_read_buffer_status.empty )
 	);
 
 	////////////////////////////////////////////////////////////////////////////
