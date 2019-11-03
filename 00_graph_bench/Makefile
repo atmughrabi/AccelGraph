@@ -63,7 +63,7 @@ MAIN_DIR		  	= main
 
 #small test graphs
 GRAPH_NAME = test
-# GRAPH_NAME = v51_e1021
+GRAPH_NAME = v51_e1021
 # GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces

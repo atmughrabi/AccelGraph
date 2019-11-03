@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_sum_kernel_control.sv
 // Create : 2019-09-26 15:19:17
-// Revise : 2019-10-31 16:19:29
+// Revise : 2019-11-02 22:49:09
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -38,16 +38,15 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 );
 
 
-	EdgeDataRead      edge_data_latched        ;
-	EdgeDataWrite     edge_data_accumulator    ;
-	CommandTagLine    cmd                      ;
-	logic             enabled                  ;
-	VertexInterface   vertex_job_latched       ;
-	ReadWriteDataLine write_data_0_out_latched ;
-	ReadWriteDataLine write_data_1_out_latched ;
-	CommandBufferLine write_command_out_latched;
-	WEDInterface      wed_request_in_latched   ;
-	logic [0:7]       offset_data              ;
+	EdgeDataRead      edge_data_latched          ;
+	EdgeDataWrite     edge_data_accumulator      ;
+	EdgeDataWrite     edge_data_accumulator_latch;
+	logic             enabled                    ;
+	VertexInterface   vertex_job_latched         ;
+	ReadWriteDataLine write_data_0_out_latched   ;
+	ReadWriteDataLine write_data_1_out_latched   ;
+	CommandBufferLine write_command_out_latched  ;
+	WEDInterface      wed_request_in_latched     ;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
@@ -123,11 +122,13 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 		if(~rstn) begin
 			edge_data_accumulator            <= 0;
 			edge_data_counter_accum_internal <= 0;
+			edge_data_accumulator_latch      <= 0;
 		end else begin
 			if (enabled) begin
 				if(edge_data_latched.valid)begin
 					edge_data_accumulator.valid      <= 1;
-					edge_data_accumulator.cu_id 	 <= CU_ID;
+					edge_data_accumulator.index      <= vertex_job_latched.id;
+					edge_data_accumulator.cu_id      <= CU_ID;
 					edge_data_accumulator.data       <= edge_data_accumulator.data + edge_data_latched.data;
 					edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
 				end
@@ -135,6 +136,9 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 				if(edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree && vertex_job_latched.valid)begin
 					edge_data_accumulator            <= 0;
 					edge_data_counter_accum_internal <= 0;
+					edge_data_accumulator_latch      <= edge_data_accumulator;
+				end else begin
+					edge_data_accumulator_latch <= 0;
 				end
 			end
 		end
@@ -142,43 +146,23 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 
 
 ////////////////////////////////////////////////////////////////////////////
-//edge_data_accumulate 
+//edge_data_accumulate send wrtie request
 ////////////////////////////////////////////////////////////////////////////
 
-	always_comb begin
-		cmd                  = 0;
-		offset_data          = (((CACHELINE_SIZE >> ($clog2(DATA_SIZE_WRITE)+1))-1) & vertex_job_latched.id);
-		cmd.vertex_struct    = WRITE_GRAPH_DATA;
-		cmd.cacheline_offest = (((vertex_job_latched.id << $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_MOD_MASK) >> $clog2(DATA_SIZE_WRITE));
-		cmd.cu_id            = CU_ID;
-		cmd.cmd_type         = CMD_WRITE;
-	end
+	cu_edge_data_write_control #(.CU_ID(CU_ID)) cu_edge_data_write_control_instant (
+		.clock            (clock                      ),
+		.rstn             (rstn                       ),
+		.enabled_in       (enabled                    ),
+		.wed_request_in   (wed_request_in_latched     ),
+		.edge_data_write  (edge_data_accumulator_latch),
+		.write_data_0_out (write_data_0_out_latched   ),
+		.write_data_1_out (write_data_1_out_latched   ),
+		.write_command_out(write_command_out_latched  )
+	);
 
-	always_comb begin
-		write_command_out_latched = 0;
-		write_data_0_out_latched  = 0;
-		write_data_1_out_latched  = 0;
-		if(edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree && vertex_job_latched.valid)begin
-			write_command_out_latched.valid = edge_data_accumulator.valid;
-
-			if(wed_request_in_latched.wed.afu_config[30])
-				write_command_out_latched.command = WRITE_MS;
-			else
-				write_command_out_latched.command = WRITE_NA;
-
-			write_command_out_latched.address = wed_request_in_latched.wed.auxiliary2 + (vertex_job_latched.id << $clog2(DATA_SIZE_WRITE));
-			write_command_out_latched.size    = DATA_SIZE_WRITE;
-			write_command_out_latched.cmd     = cmd;
-
-			write_data_0_out_latched.valid                                                        = edge_data_accumulator.valid;
-			write_data_0_out_latched.cmd                                                          = cmd;
-			write_data_0_out_latched.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] = swap_endianness_data_write(edge_data_accumulator.data) ;
-
-			write_data_1_out_latched.valid                                                        = edge_data_accumulator.valid;
-			write_data_1_out_latched.cmd                                                          = cmd;
-			write_data_1_out_latched.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] = swap_endianness_data_write(edge_data_accumulator.data) ;
-		end
-	end
+////////////////////////////////////////////////////////////////////////////
+//counter trackings
+////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin

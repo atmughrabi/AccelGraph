@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_write_control.sv
 // Create : 2019-10-31 14:36:36
-// Revise : 2019-11-01 04:33:18
+// Revise : 2019-11-02 22:43:30
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -96,29 +96,36 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 		cmd.cmd_type         = CMD_WRITE;
 	end
 
-	always_comb begin
-		write_command_out_latched = 0;
-		write_data_0_out_latched  = 0;
-		write_data_1_out_latched  = 0;
-		if (edge_data_write.valid) begin
-			write_command_out_latched.valid = edge_data_write.valid;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			write_command_out_latched <= 0;
+			write_data_0_out_latched  <= 0;
+			write_data_1_out_latched  <= 0;
+		end else begin
+			if (edge_data_write.valid && enabled) begin
+				write_command_out_latched.valid <= edge_data_write.valid;
 
-			if(wed_request_in_latched.wed.afu_config[30])
-				write_command_out_latched.command = WRITE_MS;
-			else
-				write_command_out_latched.command = WRITE_NA;
+				if(wed_request_in_latched.wed.afu_config[30])
+					write_command_out_latched.command <= WRITE_MS;
+				else
+					write_command_out_latched.command <= WRITE_NA;
 
-			write_command_out_latched.address = wed_request_in_latched.wed.auxiliary2 + (edge_data_write.index << $clog2(DATA_SIZE_WRITE));
-			write_command_out_latched.size    = DATA_SIZE_WRITE;
-			write_command_out_latched.cmd     = cmd;
+				write_command_out_latched.address <= wed_request_in_latched.wed.auxiliary2 + (edge_data_write.index << $clog2(DATA_SIZE_WRITE));
+				write_command_out_latched.size    <= DATA_SIZE_WRITE;
+				write_command_out_latched.cmd     <= cmd;
 
-			write_data_0_out_latched.valid                                                        = edge_data_write.valid;
-			write_data_0_out_latched.cmd                                                          = cmd;
-			write_data_0_out_latched.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] = swap_endianness_data_write(edge_data_write.data) ;
+				write_data_0_out_latched.valid                                                        <= edge_data_write.valid;
+				write_data_0_out_latched.cmd                                                          <= cmd;
+				write_data_0_out_latched.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] <= swap_endianness_data_write(edge_data_write.data) ;
 
-			write_data_1_out_latched.valid                                                        = edge_data_write.valid;
-			write_data_1_out_latched.cmd                                                          = cmd;
-			write_data_1_out_latched.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] = swap_endianness_data_write(edge_data_write.data) ;
+				write_data_1_out_latched.valid                                                        <= edge_data_write.valid;
+				write_data_1_out_latched.cmd                                                          <= cmd;
+				write_data_1_out_latched.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] <= swap_endianness_data_write(edge_data_write.data) ;
+			end else begin 
+				write_command_out_latched <= 0;
+				write_data_0_out_latched  <= 0;
+				write_data_1_out_latched  <= 0;
+			end
 		end
 	end
 
