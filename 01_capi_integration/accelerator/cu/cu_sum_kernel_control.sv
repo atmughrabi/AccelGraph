@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_sum_kernel_control.sv
 // Create : 2019-09-26 15:19:17
-// Revise : 2019-11-02 22:49:09
+// Revise : 2019-11-03 10:51:32
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -28,9 +28,7 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 	input  EdgeDataRead                   edge_data                       ,
 	input  BufferStatus                   data_buffer_status              ,
 	output logic                          edge_data_request               ,
-	output ReadWriteDataLine              write_data_0_out                ,
-	output ReadWriteDataLine              write_data_1_out                ,
-	output CommandBufferLine              write_command_out               ,
+	output EdgeDataWrite                  edge_data_write_out             ,
 	input  VertexInterface                vertex_job                      ,
 	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ,
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ,
@@ -38,15 +36,15 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 );
 
 
-	EdgeDataRead      edge_data_latched          ;
-	EdgeDataWrite     edge_data_accumulator      ;
-	EdgeDataWrite     edge_data_accumulator_latch;
-	logic             enabled                    ;
-	VertexInterface   vertex_job_latched         ;
-	ReadWriteDataLine write_data_0_out_latched   ;
-	ReadWriteDataLine write_data_1_out_latched   ;
-	CommandBufferLine write_command_out_latched  ;
-	WEDInterface      wed_request_in_latched     ;
+	EdgeDataRead    edge_data_latched            ;
+	EdgeDataWrite   edge_data_accumulator        ;
+	EdgeDataWrite   edge_data_accumulator_latch  ;
+	logic           enabled                      ;
+	VertexInterface vertex_job_latched           ;
+	WEDInterface    wed_request_in_latched       ;
+	logic           ready_edge_data_write_cu     ;
+	BufferStatus    edge_data_write_buffer_status;
+	EdgeDataWrite   edge_data_write_buffer       ;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
@@ -55,14 +53,10 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			write_data_0_out  <= 0;
-			write_data_1_out  <= 0;
-			write_command_out <= 0;
+			edge_data_write_out <= 0;
 		end else begin
 			if(enabled) begin
-				write_data_0_out  <= write_data_0_out_latched;
-				write_data_1_out  <= write_data_1_out_latched;
-				write_command_out <= write_command_out_latched;
+				edge_data_write_out <= edge_data_write_buffer;
 			end
 		end
 	end
@@ -149,16 +143,20 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 //edge_data_accumulate send wrtie request
 ////////////////////////////////////////////////////////////////////////////
 
-	cu_edge_data_write_control #(.CU_ID(CU_ID)) cu_edge_data_write_control_instant (
-		.clock            (clock                      ),
-		.rstn             (rstn                       ),
-		.enabled_in       (enabled                    ),
-		.wed_request_in   (wed_request_in_latched     ),
-		.edge_data_write  (edge_data_accumulator_latch),
-		.write_data_0_out (write_data_0_out_latched   ),
-		.write_data_1_out (write_data_1_out_latched   ),
-		.write_command_out(write_command_out_latched  )
-	);
+	// ReadWriteDataLine write_data_0_out_latched   ;
+	// ReadWriteDataLine write_data_1_out_latched   ;
+	// CommandBufferLine write_command_out_latched  ;
+
+	// cu_edge_data_write_control #(.CU_ID(CU_ID)) cu_edge_data_write_control_instant (
+	// 	.clock            (clock                      ),
+	// 	.rstn             (rstn                       ),
+	// 	.enabled_in       (enabled                    ),
+	// 	.wed_request_in   (wed_request_in_latched     ),
+	// 	.edge_data_write  (edge_data_accumulator_latch),
+	// 	.write_data_0_out (write_data_0_out_latched   ),
+	// 	.write_data_1_out (write_data_1_out_latched   ),
+	// 	.write_command_out(write_command_out_latched  )
+	// );
 
 ////////////////////////////////////////////////////////////////////////////
 //counter trackings
@@ -188,5 +186,29 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 			end
 		end
 	end
+
+	////////////////////////////////////////////////////////////////////////////
+	// write Edge DATA CU Buffers
+	////////////////////////////////////////////////////////////////////////////
+
+	assign ready_edge_data_write_cu = ~edge_data_write_buffer_status.empty && ~write_buffer_status.alfull;
+
+	fifo #(
+		.WIDTH($bits(EdgeDataWrite)),
+		.DEPTH(16                  )
+	) edge_data_write_buffer_fifo_instant (
+		.clock   (clock                               ),
+		.rstn    (rstn                                ),
+		
+		.push    (edge_data_accumulator_latch.valid   ),
+		.data_in (edge_data_accumulator_latch         ),
+		.full    (edge_data_write_buffer_status.full  ),
+		.alFull  (edge_data_write_buffer_status.alfull),
+		
+		.pop     (ready_edge_data_write_cu            ),
+		.valid   (edge_data_write_buffer_status.valid ),
+		.data_out(edge_data_write_buffer              ),
+		.empty   (edge_data_write_buffer_status.empty )
+	);
 
 endmodule

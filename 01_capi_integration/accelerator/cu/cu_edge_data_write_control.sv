@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_write_control.sv
 // Create : 2019-10-31 14:36:36
-// Revise : 2019-11-02 22:43:30
+// Revise : 2019-11-03 11:20:30
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -92,7 +92,7 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 		offset_data          = (((CACHELINE_SIZE >> ($clog2(DATA_SIZE_WRITE)+1))-1) & edge_data_write.index);
 		cmd.vertex_struct    = WRITE_GRAPH_DATA;
 		cmd.cacheline_offest = (((edge_data_write.index << $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_MOD_MASK) >> $clog2(DATA_SIZE_WRITE));
-		cmd.cu_id            = CU_ID;
+		cmd.cu_id            = edge_data_write.cu_id;
 		cmd.cmd_type         = CMD_WRITE;
 	end
 
@@ -121,7 +121,7 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 				write_data_1_out_latched.valid                                                        <= edge_data_write.valid;
 				write_data_1_out_latched.cmd                                                          <= cmd;
 				write_data_1_out_latched.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] <= swap_endianness_data_write(edge_data_write.data) ;
-			end else begin 
+			end else begin
 				write_command_out_latched <= 0;
 				write_data_0_out_latched  <= 0;
 				write_data_1_out_latched  <= 0;
