@@ -334,32 +334,32 @@ module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
 
 // rotate pointer update logic
   assign update_ptr = |grants[p_num_reqs-1:0];
-  always @ (posedge clock or negedge rstn)
-    begin
-      if (!rstn)
-        rotate_ptr[p_num_reqs-1:0] <= {p_num_reqs{1'b1}};
-      else if (update_ptr)
-        begin
-          // note: p_num_reqs must be at least 2
-          rotate_ptr[0] <= grants[p_num_reqs-1];
-          rotate_ptr[1] <= grants[p_num_reqs-1] | grants[0];
-        end
+  always @ (posedge clock or negedge rstn) begin
+    if (~rstn) begin
+      rotate_ptr[0] <= 1;
+      rotate_ptr[1] <= 1;
     end
+    else if (update_ptr)
+      begin
+        // note: p_num_reqs must be at least 2
+        rotate_ptr[0] <= grants[p_num_reqs-1];
+        rotate_ptr[1] <= grants[p_num_reqs-1] | grants[0];
+      end
+  end
 
   generate
     for (i=2;i<p_num_reqs;i=i+1) begin : generate_rotate_ptr
-      always @ (posedge clock or negedge rstn)
-        begin
-          if (!rstn)
-            rotate_ptr[i] <= 1'b1;
-          else if (update_ptr)
-            rotate_ptr[i] <= grants[p_num_reqs-1] | (|grants[i-1:0]);
-        end
+      always @ (posedge clock or negedge rstn) begin
+        if (~rstn)
+          rotate_ptr[i] <= 1'b1;
+        else if (update_ptr)
+          rotate_ptr[i] <= grants[p_num_reqs-1] | (|grants[i-1:0]);
       end
-    endgenerate
+    end
+  endgenerate
 
 // mask grants generation logic
-    assign mask_req[p_num_reqs-1:0] = reqs[p_num_reqs-1:0] & rotate_ptr[p_num_reqs-1:0];
+  assign mask_req[p_num_reqs-1:0] = reqs[p_num_reqs-1:0] & rotate_ptr[p_num_reqs-1:0];
 
   assign mask_grant[0] = mask_req[0];
   generate
@@ -380,9 +380,8 @@ module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
   assign no_mask_req                = ~|mask_req[p_num_reqs-1:0];
   assign grant_comb[p_num_reqs-1:0] = mask_grant[p_num_reqs-1:0] | (nomask_grant[p_num_reqs-1:0] & {p_num_reqs{no_mask_req}});
 
-  always @ (posedge clock or negedge rstn)
-    begin
-      if (!rstn)  grants[p_num_reqs-1:0] <= {p_num_reqs{1'b0}};
-      else    grants[p_num_reqs-1:0] <= grant_comb[p_num_reqs-1:0] & ~grants[p_num_reqs-1:0];
-    end
+  always @ (posedge clock or negedge rstn) begin
+    if (~rstn)  grants[p_num_reqs-1:0] <= {p_num_reqs{1'b0}};
+    else    grants[p_num_reqs-1:0] <= grant_comb[p_num_reqs-1:0] & ~grants[p_num_reqs-1:0];
+  end
 endmodule

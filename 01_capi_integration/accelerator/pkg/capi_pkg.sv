@@ -25,7 +25,7 @@ package CAPI_PKG;
     STRICT = 3'b000,
     ABORT  = 3'b001,
     PAGE   = 3'b010,
-    PERF   = 3'b011,
+    PREF   = 3'b011,
     SPEC   = 3'b111
   } trans_order_behavior_t;
 
