@@ -189,6 +189,8 @@ FAIL = \033[91mFAIL\033[0m
 #      CAPI  GRAPH COMPILATION VARIABLES     #
 ##############################################
 
+ARCHITECTURE = $(shell uname -p) # store the output of the command in a variable if on intel run simulation if power8 run fpga
+
 PSLSE_DIR         = ../01_capi_integration/pslse
 LIBCXL_DIR        = ../01_capi_integration/libcxl
 CAPI_UTILS_DIR    = ../01_capi_integration/capi-utils
@@ -198,9 +200,14 @@ CAPI_COMMON		  = ../01_capi_integration/capi_common
 CAPI_SIM		  = $(CAPI_COMMON)/sim
 CAPI_SERVER		  = $(CAPI_COMMON)/server
 
+
 PSLSE_COMMON_DIR  = $(PSLSE_DIR)/common
 PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
-# PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR) // uncomment when runnning on HW
+
+ifeq ($(ARCHITECTURE),ppc64le)
+PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
+endif
+
 
 SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
 OBJ_FILES_ALGO_CAPI 		=  $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
@@ -210,7 +217,12 @@ OBJ_FILES_CAPI_UTIL 	=   $(patsubst $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c,$
 
 
 CAPI_LINKFLAGS = -lrt -lpthread 
+
 CAPI_INC = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
+
+ifeq ($(ARCHITECTURE),ppc64le)
+CAPI_INC = -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
+endif
 
 ##################################################
 ##################################################
