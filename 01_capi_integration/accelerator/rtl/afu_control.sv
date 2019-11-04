@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-03 03:21:17
+// Revise : 2019-11-03 19:45:58
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -201,6 +201,19 @@ module afu_control #(
 		.command_tag_in    (command_tag             ),
 		.command_out       (command_out             )
 	);
+
+////////////////////////////////////////////////////////////////////////////
+//command restart control logic
+////////////////////////////////////////////////////////////////////////////
+
+	// command_restart_control command_restart_control_instant (
+	// 	.clock             (clock                   ),
+	// 	.rstn              (rstn                    ),
+	// 	.enabled_in        (enabled                 ),
+	// 	.command_arbiter_in(burst_command_buffer_out),
+	// 	.command_tag_in    (command_tag             ),
+	// 	.command_out       (command_out             )
+	// );
 
 ////////////////////////////////////////////////////////////////////////////
 //Credit Tracking Logic
