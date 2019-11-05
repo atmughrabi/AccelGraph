@@ -62,69 +62,69 @@ MAIN_DIR		  	= main
 #########################################################
 
 #small test graphs
-GRAPH_NAME = test
-GRAPH_NAME = v51_e1021
-GRAPH_NAME = v300_e2730
+GRAPH_NAME ?= test
+# GRAPH_NAME ?= v51_e1021
+# GRAPH_NAME  ?= v300_e2730
 
 #gem5-Aladdin small dynamic traces
-# GRAPH_NAME = Gnutella
-# GRAPH_NAME = dblp
-# GRAPH_NAME = amazon
-# GRAPH_NAME = euall
+# GRAPH_NAME ?= Gnutella
+# GRAPH_NAME ?= dblp
+# GRAPH_NAME ?= amazon
+# GRAPH_NAME ?= euall
 
 # generates large dynamic traces for gem5-Aladdin
-# GRAPH_NAME = com-youtube
-# GRAPH_NAME = web-BerkStan
-# GRAPH_NAME = web-Google
-# GRAPH_NAME = wiki-Talk
+# GRAPH_NAME ?= com-youtube
+# GRAPH_NAME ?= web-BerkStan
+# GRAPH_NAME ?= web-Google
+# GRAPH_NAME ?= wiki-Talk
 
 # synthetic graphs
-# GRAPH_NAME = RMAT20
-# GRAPH_NAME = RMAT22
+# GRAPH_NAME ?= RMAT20
+# GRAPH_NAME ?= RMAT22
 
 # real world large graphs binary format
-# GRAPH_NAME = orkut
-# GRAPH_NAME = gplus
-# GRAPH_NAME = sk-2005
-# GRAPH_NAME = twitter
-# GRAPH_NAME = livejournal
-# GRAPH_NAME = USA-Road
-# GRAPH_NAME = enwiki-2013
-# GRAPH_NAME = arabic-2005
+# GRAPH_NAME ?= orkut
+# GRAPH_NAME ?= gplus
+# GRAPH_NAME ?= sk-2005
+# GRAPH_NAME ?= twitter
+# GRAPH_NAME ?= livejournal
+# GRAPH_NAME ?= USA-Road
+# GRAPH_NAME ?= enwiki-2013
+# GRAPH_NAME ?= arabic-2005
 
 
 #UNWEIGHTED
-# FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
+# FILE_BIN ?= $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
 
 #WEIGHTED
-FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
+FILE_BIN ?= $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 
 
 
 #GRAPH RUN
-SORT_TYPE 		= 0
-REORDER 		= 0
-DATA_STRUCTURES = 0
-ALGORITHMS 		= 1
+SORT_TYPE 		?= 0
+REORDER 		?= 0
+DATA_STRUCTURES ?= 0
+ALGORITHMS 		?= 1
 
-ROOT 			= 164
-PULL_PUSH 		= 2
-TOLERANCE 		= 1e-8
-DELTA 			= 800
+ROOT 			?= 164
+PULL_PUSH 		?= 2
+TOLERANCE 		?= 1e-8
+DELTA 			?= 800
 
-NUM_THREADS  	= 64
+NUM_THREADS  	?= 64
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-NUM_ITERATIONS 	= 1
-NUM_TRIALS 		= 1
+NUM_ITERATIONS 	?= 1
+NUM_TRIALS 		?= 1
 
-FILE_FORMAT 	= 1
-CONVERT_FORMAT 	= 1
+FILE_FORMAT 	?= 1
+CONVERT_FORMAT 	?= 1
 
 #STATS COLLECTION VARIABLES
-BIN_SIZE = 512
-INOUT_STATS = 2
+BIN_SIZE ?= 512
+INOUT_STATS ?= 2
 
-ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+ARGS ?= -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################
@@ -204,10 +204,6 @@ CAPI_SERVER		  = $(CAPI_COMMON)/server
 PSLSE_COMMON_DIR  = $(PSLSE_DIR)/common
 PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 
-ifeq ($(ARCHITECTURE),ppc64le)
-PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
-endif
-
 
 SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
 OBJ_FILES_ALGO_CAPI 		=  $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
@@ -217,12 +213,8 @@ OBJ_FILES_CAPI_UTIL 	=   $(patsubst $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c,$
 
 
 CAPI_LINKFLAGS = -lrt -lpthread 
-
 CAPI_INC = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 
-ifeq ($(ARCHITECTURE),ppc64le)
-CAPI_INC = -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
-endif
 
 ##################################################
 ##################################################
@@ -854,8 +846,14 @@ cache-perf-openmp: graph-openmp
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #
 ##############################################
 
-.PHONY: run-capi
-run-capi: graph-capi
+.PHONY: run-capi-sim
+run-capi-sim: graph-capi
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
+
+.PHONY: run-capi-fpga
+run-capi-fpga: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
+run-capi-fpga: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
+run-capi-fpga: graph-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-test-capi

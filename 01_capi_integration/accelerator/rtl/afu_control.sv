@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-03 19:45:58
+// Revise : 2019-11-04 05:32:10
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -96,8 +96,8 @@ module afu_control #(
 
 	//As long as there are commands in the FIFO set it request for bus access / if there are credits
 
-	CreditInterfaceOutput credits;
-	CreditInterfaceOutput credits_read;
+	CreditInterfaceOutput credits      ;
+	CreditInterfaceOutput credits_read ;
 	CreditInterfaceOutput credits_write;
 
 	logic [0:7] write_tag  ;
@@ -122,7 +122,16 @@ module afu_control #(
 
 	logic command_write_valid;
 
-	genvar                      i                                            ;
+	genvar i;
+
+	CommandBufferLine burst_command_buffer_touch   ;
+	CommandBufferLine burst_command_buffer_touch_S2;
+	CommandBufferLine burst_command_buffer_exec    ;
+	CommandBufferLine burst_command_buffer_exec_S2 ;
+	CommandBufferLine burst_command_buffer_exec_S3 ;
+
+	CommandBufferLine command_issue_register;
+
 	ResponseControlInterfaceOut response_control_out_latched_S[0:RSP_DELAY-1];
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -194,12 +203,12 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 	command_control command_control_instant (
-		.clock             (clock                   ),
-		.rstn              (rstn                    ),
-		.enabled_in        (enabled                 ),
-		.command_arbiter_in(burst_command_buffer_out),
-		.command_tag_in    (command_tag             ),
-		.command_out       (command_out             )
+		.clock             (clock                 ),
+		.rstn              (rstn                  ),
+		.enabled_in        (enabled               ),
+		.command_arbiter_in(command_issue_register),
+		.command_tag_in    (command_tag           ),
+		.command_out       (command_out           )
 	);
 
 ////////////////////////////////////////////////////////////////////////////
@@ -220,27 +229,27 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 	credit_control credits_total_control_instant (
-		.clock     (clock                                                                                                   ),
-		.rstn      (rstn                                                                                                    ),
-		.enabled_in(enabled                                                                                                 ),
-		.credit_in ({burst_command_buffer_out.valid,response_control_out.response.valid,response_control_out.response.response_credits,command_in_latched.room}),
-		.credit_out(credits                                                                                                 )
+		.clock     (clock                                                                                                                                    ),
+		.rstn      (rstn                                                                                                                                     ),
+		.enabled_in(enabled                                                                                                                                  ),
+		.credit_in ({command_issue_register.valid,response_control_out.response.valid,response_control_out.response.response_credits,command_in_latched.room}),
+		.credit_out(credits                                                                                                                                  )
 	);
 
 	credit_control credits_read_control_instant (
-		.clock     (clock                                                                                                   ),
-		.rstn      (rstn                                                                                                    ),
-		.enabled_in(enabled                                                                                                 ),
+		.clock     (clock                                                                                                                         ),
+		.rstn      (rstn                                                                                                                          ),
+		.enabled_in(enabled                                                                                                                       ),
 		.credit_in ({read_command_buffer_out.valid,response_control_out.read_response,response_control_out.response.response_credits,CREDITS_READ}),
-		.credit_out(credits_read                                                                                                 )
+		.credit_out(credits_read                                                                                                                  )
 	);
 
 	credit_control credits_write_control_instant (
-		.clock     (clock                                                                                                   ),
-		.rstn      (rstn                                                                                                    ),
-		.enabled_in(enabled                                                                                                 ),
+		.clock     (clock                                                                                                                            ),
+		.rstn      (rstn                                                                                                                             ),
+		.enabled_in(enabled                                                                                                                          ),
 		.credit_in ({write_command_buffer_out.valid,response_control_out.write_response,response_control_out.response.response_credits,CREDITS_WRITE}),
-		.credit_out(credits_write                                                                                                 )
+		.credit_out(credits_write                                                                                                                    )
 	);
 
 ////////////////////////////////////////////////////////////////////////////
@@ -321,8 +330,8 @@ module afu_control #(
 
 	always_comb begin
 		command_write_valid = 0;
-		if(burst_command_buffer_out.valid)begin
-			if(burst_command_buffer_out.cmd.cmd_type == CMD_WRITE)
+		if(command_issue_register.valid)begin
+			if(command_issue_register.cmd.cmd_type == CMD_WRITE)
 				command_write_valid = 1;
 			else
 				command_write_valid = 0;
@@ -349,29 +358,29 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign command_tag_id = burst_command_buffer_out.cmd;
+	assign command_tag_id = command_issue_register.cmd;
 
 	tag_control tag_control_instant (
-		.clock               (clock                         ),
-		.rstn                (rstn                          ),
-		.enabled_in          (enabled                       ),
-		.tag_response_valid  (response_latched.valid        ),
-		.response_tag        (response_latched.tag          ),
-		.response_tag_id_out (response_tag_id               ),
-		.data_read_tag       (write_tag                     ), // reminder PSL sees read as write and opposite
-		.data_read_tag_id_out(read_tag_id                   ),
-		.tag_command_valid   (burst_command_buffer_out.valid),
-		.tag_command_id      (command_tag_id                ),
-		.command_tag_out     (command_tag                   ),
-		.tag_buffer_ready    (tag_buffer_ready              )
+		.clock               (clock                       ),
+		.rstn                (rstn                        ),
+		.enabled_in          (enabled                     ),
+		.tag_response_valid  (response_latched.valid      ),
+		.response_tag        (response_latched.tag        ),
+		.response_tag_id_out (response_tag_id             ),
+		.data_read_tag       (write_tag                   ), // reminder PSL sees read as write and opposite
+		.data_read_tag_id_out(read_tag_id                 ),
+		.tag_command_valid   (command_issue_register.valid),
+		.tag_command_id      (command_tag_id              ),
+		.command_tag_out     (command_tag                 ),
+		.tag_buffer_ready    (tag_buffer_ready            )
 	);
 
 ////////////////////////////////////////////////////////////////////////////
 //Burst Buffer Read Commands
 ////////////////////////////////////////////////////////////////////////////
 
-
-	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (|credits.credits);
+	logic request_pulse                            ;
+	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (|credits.credits) && ~(|request_pulse);
 
 	fifo #(
 		.WIDTH   ($bits(CommandBufferLine)),
@@ -392,6 +401,46 @@ module afu_control #(
 		.empty   (burst_command_buffer_states_afu.empty )
 	);
 
+	
+	always_ff @(posedge clock or negedge rstn) begin
+			if(~rstn) begin
+				request_pulse <= 0;
+			end else begin
+				request_pulse <= request_pulse + 1;
+			end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			burst_command_buffer_touch    <= 0;
+			burst_command_buffer_touch_S2 <= 0;
+			burst_command_buffer_exec     <= 0;
+			burst_command_buffer_exec_S2  <= 0;
+			burst_command_buffer_exec_S3  <= 0;
+			command_issue_register        <= 0;
+		end else begin
+			if(enabled) begin
+				burst_command_buffer_touch              <= burst_command_buffer_out;
+				burst_command_buffer_touch.command      <= TOUCH_I;
+				burst_command_buffer_touch.size         <= 12'h080;
+				burst_command_buffer_touch.address      <= (burst_command_buffer_out.address & ADDRESS_EDGE_ALIGN_MASK);
+				burst_command_buffer_touch.cmd.cu_id    <= PREFETCH_CONTROL_ID;
+				burst_command_buffer_touch.cmd.cmd_type <= CMD_PREFETCH;
+				burst_command_buffer_touch_S2 <= burst_command_buffer_touch;
+
+				burst_command_buffer_exec    <= burst_command_buffer_out;
+				burst_command_buffer_exec_S2 <= burst_command_buffer_exec;
+				burst_command_buffer_exec_S3 <= burst_command_buffer_exec_S2;
+
+				if(burst_command_buffer_touch_S2.valid)
+					command_issue_register <= burst_command_buffer_touch_S2;
+				else if(burst_command_buffer_exec_S3.valid)
+					command_issue_register <= burst_command_buffer_exec_S3;
+				else
+					command_issue_register <= 0;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffer Read Commands

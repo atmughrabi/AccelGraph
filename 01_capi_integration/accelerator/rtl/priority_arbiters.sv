@@ -262,59 +262,55 @@ endmodule
 //         for now we just duplicate the code from vc_RoundRobinArbChain
 //
 
-// module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
-//   input  logic                clock,
-//   input  logic                rstn,
-//   input  logic [p_num_reqs-1:0] reqs,    // 1 = making a req, 0 = no req
-//   output logic [p_num_reqs-1:0] grants   // (one-hot) 1 is req won grant
-// );
+module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
+  input  logic                clock,
+  input  logic                rstn,
+  input  logic [p_num_reqs-1:0] reqs,    // 1 = making a req, 0 = no req
+  output logic [p_num_reqs-1:0] grants   // (one-hot) 1 is req won grant
+);
 
-//   // We only update the priority if a requester actually received a grant
+  // We only update the priority if a requester actually received a grant
 
-//   logic priority_en;
-//   assign priority_en = |grants;
+  logic priority_en;
+  assign priority_en = |grants;
 
-//   // Next priority is just the one-hot grant vector left rotated by one
+  // Next priority is just the one-hot grant vector left rotated by one
 
-//   logic [p_num_reqs-1:0] priority_next;
-//   assign priority_next = { grants[p_num_reqs-2:0], grants[p_num_reqs-1] };
+  logic [p_num_reqs-1:0] priority_next;
+  assign priority_next = { grants[p_num_reqs-2:0], grants[p_num_reqs-1] };
 
-//   // State for the one-hot priority vector
+  // State for the one-hot priority vector
 
-//   logic [p_num_reqs-1:0] priority_;
+  logic [p_num_reqs-1:0] priority_;
 
-//   // always @( posedge clock )
-//   //   if ( rstn || priority_en )
-//   //     priority_ <= rstn ? 1 : priority_next;
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      priority_ <= 1;
+    end else begin
+      if(priority_en)
+        priority_ <= priority_next;
+    end
+  end
 
-//   always_ff @(posedge clock or negedge rstn) begin
-//     if(~rstn) begin
-//       priority_ <= 1;
-//     end else begin
-//       if(priority_en)
-//         priority_ <= priority_next;
-//     end
-//   end
+  // Variable arbiter chain
 
-//   // Variable arbiter chain
+  logic dummy_kout;
 
-//   logic dummy_kout;
+  vc_VariableArbChain#(p_num_reqs) variable_arb_chain
+    (
+      .kin       (1'b0),
+      .priority_ (priority_),
+      .reqs      (reqs),
+      .grants    (grants),
+      .kout      (dummy_kout)
+    );
 
-//   vc_VariableArbChain#(p_num_reqs) variable_arb_chain
-//     (
-//       .kin       (1'b0),
-//       .priority_ (priority_),
-//       .reqs      (reqs),
-//       .grants    (grants),
-//       .kout      (dummy_kout)
-//     );
-
-// endmodule
+endmodule
 
 
 //Using Two Simple Priority Arbiters with a Mask - scalable
 //author: dongjun_luo@hotmail.com
-module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
+module vc_RoundRobinArb_V2 #(parameter p_num_reqs = 2) (
   input  logic                  clock ,
   input  logic                  rstn  ,
   input  logic [p_num_reqs-1:0] reqs  , // 1 = making a req, 0 = no req
@@ -336,8 +332,8 @@ module vc_RoundRobinArb #(parameter p_num_reqs = 2) (
   assign update_ptr = |grants[p_num_reqs-1:0];
   always @ (posedge clock or negedge rstn) begin
     if (~rstn) begin
-      rotate_ptr[0] <= 1;
-      rotate_ptr[1] <= 1;
+      rotate_ptr[0] <= 1'b1;
+      rotate_ptr[1] <= 1'b1;
     end
     else if (update_ptr)
       begin

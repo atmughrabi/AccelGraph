@@ -1,10 +1,138 @@
 
+
+
+#########################################################
+#       		 GENERAL DIRECTOIRES   	    			#
+#########################################################
+# globals binaary /bin/accel-graph name doesn't need to match main/accel-graph.c
+  GAPP               = accel-graph
+
+# test name needs to match the file name test/test_accel-graph.c
+#   GAPP_TEST          = test_accel-graph
+  GAPP_TEST          = test_afu
+
+
+# dirs Root app 
+APP_DIR           	= .
+SCRIPT_DIR          = ../04_scripts
+# BENCHMARKS_DIR    	= ../../01_GraphDatasets/Aladdin-graphs
+BENCHMARKS_DIR    	= ../03_test_graphs
+
+#dir root/managed_folders
+SRC_DIR           	= src
+OBJ_DIR			  	= obj
+INC_DIR			  	= include
+BIN_DIR			  	= bin
+
+#if you want to compile from cmake you need this directory
+#cd build
+#cmake ..
+BUILD_DIR		  	= build
+
+# relative directories used for managing src/obj files
+STRUCT_DIR		  	= structures
+PREPRO_DIR		  	= preprocessing
+ALGO_DIR		  	= graphalgorithms
+UTIL_DIR		  	= utils
+CAPI_UTIL_DIR		= capi_utils
+
+
+# Folders needed when using gem5-aladdin
+ALADDIN_COMMON_DIR			= aladdin_common
+ALADDIN_CACTI_DIR			= cacti_configs
+ALADDIN_GEM5_DIR			= gem5_configs
+ALADDIN_ALGO_DIR			= algorithms_configs
+DYNAMIC_TRACES_DIR		  	= dynamic_traces
+ALADDIN_STATS_DIR		  	= stats_aladdin
+GEM5_STATS_DIR		  		= stats_gem5
+
+# Folders needed when using CAPI
+
+
+#contains the tests use make run-test to compile what in this directory
+TEST_DIR		  	= tests
+
+#contains the main for the graph processing framework
+MAIN_DIR		  	= main
+
+##################################################
+##################################################
+
+#########################################################
+#       		 ACCEL RUN GRAPH ARGUMENTS    			#
+#########################################################
+
+#small test graphs
+export GRAPH_NAME = test
+# export GRAPH_NAME = v51_e1021
+# export GRAPH_NAME = v300_e2730
+
+#gem5-Aladdin small dynamic traces
+# export GRAPH_NAME = Gnutella
+# export GRAPH_NAME = dblp
+export GRAPH_NAME = amazon
+# export GRAPH_NAME = euall
+
+# generates large dynamic traces for gem5-Aladdin
+# export GRAPH_NAME = com-youtube
+# export GRAPH_NAME = web-BerkStan
+# export GRAPH_NAME = web-Google
+# export GRAPH_NAME = wiki-Talk
+
+# synthetic graphs
+# export GRAPH_NAME = RMAT20
+# export GRAPH_NAME = RMAT22
+
+# real world large graphs binary format
+# export GRAPH_NAME = orkut
+# export GRAPH_NAME = gplus
+# export GRAPH_NAME = sk-2005
+# export GRAPH_NAME = twitter
+# export GRAPH_NAME = livejournal
+# export GRAPH_NAME = USA-Road
+# export GRAPH_NAME = enwiki-2013
+# export GRAPH_NAME = arabic-2005
+
+
+#UNWEIGHTED
+# export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
+
+#WEIGHTED
+export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
+
+
+
+#GRAPH RUN
+export SORT_TYPE 		= 0
+export REORDER 		= 0
+export DATA_STRUCTURES = 0
+export ALGORITHMS 		= 1
+
+export ROOT 			= 164
+export PULL_PUSH 		= 2
+export TOLERANCE 		= 1e-8
+export DELTA 			= 800
+
+export NUM_THREADS  	= 64
+# NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
+export NUM_ITERATIONS 	= 1
+export NUM_TRIALS 		= 1
+
+export FILE_FORMAT 	= 1
+export CONVERT_FORMAT 	= 1
+
+#STATS COLLECTION VARIABLES
+export BIN_SIZE = 512
+export INOUT_STATS = 2
+
+export ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+
 ##################################################
 
 APP_DIR           	= .
-BENCHMARKS_DIR      = 00_graph_bench
-NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-ARGS = -C $(APP_DIR)/$(BENCHMARKS_DIR) -j$(NUM_THREADS)
+MAKE_DIR      = 00_graph_bench
+MAKE_NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
+MAKE_ARGS = -w -C $(APP_DIR)/$(MAKE_DIR) -j$(MAKE_NUM_THREADS)
 
 ##################################################
 ##################################################
@@ -15,72 +143,72 @@ ARGS = -C $(APP_DIR)/$(BENCHMARKS_DIR) -j$(NUM_THREADS)
 
 .PHONY: help
 help:
-	$(MAKE) help $(ARGS)
+	$(MAKE) help $(MAKE_ARGS)
 
 .PHONY: run
 run:
-	$(MAKE) run $(ARGS)
+	$(MAKE) run $(MAKE_ARGS)
 
 .PHONY: run-openmp
 run-openmp:
-	$(MAKE) run-openmp $(ARGS)
+	$(MAKE) run-openmp $(MAKE_ARGS)
 
 .PHONY: convert
 convert:
-	$(MAKE) convert $(ARGS)
+	$(MAKE) convert $(MAKE_ARGS)
 
 .PHONY: stats-openmp
 stats-openmp: graph-openmp
-	$(MAKE) stats-openmp $(ARGS)
+	$(MAKE) stats-openmp $(MAKE_ARGS)
 
 .PHONY: debug-openmp
 debug-openmp: 
-	$(MAKE) debug-openmp $(ARGS)
+	$(MAKE) debug-openmp $(MAKE_ARGS)
 
 .PHONY: debug-memory-openmp
 debug-memory-openmp: 
-	$(MAKE) debug-memory-openmp $(ARGS)
+	$(MAKE) debug-memory-openmp $(MAKE_ARGS)
 
 .PHONY: test-verbose
 test-verbose:
-	$(MAKE) test-verbose $(ARGS)
+	$(MAKE) test-verbose $(MAKE_ARGS)
 	
 # test files
 .PHONY: test
 test:
-	$(MAKE) test $(ARGS)
+	$(MAKE) test $(MAKE_ARGS)
 	
 .PHONY: run-test
 run-test: 
-	$(MAKE) run-test $(ARGS)
+	$(MAKE) run-test $(MAKE_ARGS)
 
 .PHONY: run-test-openmp
 run-test-openmp:
-	$(MAKE) run-test-openmp $(ARGS)
+	$(MAKE) run-test-openmp $(MAKE_ARGS)
 
 .PHONY: debug-test-openmp
 debug-test-openmp: 
-	$(MAKE) debug-test-openmp $(ARGS)
+	$(MAKE) debug-test-openmp $(MAKE_ARGS)
 
 .PHONY: debug-memory-test-openmp
 debug-memory-test-openmp:	
-	$(MAKE) debug-memory-test-openmp $(ARGS)
+	$(MAKE) debug-memory-test-openmp $(MAKE_ARGS)
 # cache performance
 .PHONY: cachegrind-perf-openmp
 cachegrind-perf-openmp:
-	$(MAKE) cachegrind-perf-openmp $(ARGS)
+	$(MAKE) cachegrind-perf-openmp $(MAKE_ARGS)
 
 .PHONY: cache-perf
 cache-perf-openmp: 
-	$(MAKE) cache-perf-openmp $(ARGS)
+	$(MAKE) cache-perf-openmp $(MAKE_ARGS)
 
 .PHONY: clean
 clean: 
-	$(MAKE) clean $(ARGS)
+	$(MAKE) clean $(MAKE_ARGS)
 
 .PHONY: clean-obj
 clean-obj: 
-	$(MAKE) clean-obj $(ARGS)
+	$(MAKE) clean-obj $(MAKE_ARGS)
 
 ##################################################
 ##################################################
@@ -92,39 +220,39 @@ clean-obj:
 # Builds both standalone CPU version and the HW accelerated version.
 .PHONY: gem5 
 gem5: 
-	$(MAKE) gem5 $(ARGS)
+	$(MAKE) gem5 $(MAKE_ARGS)
 
 .PHONY: run-gem5
 run-gem5: 
-	$(MAKE) run-gem5 $(ARGS)
+	$(MAKE) run-gem5 $(MAKE_ARGS)
 
 .PHONY: run-gem5-openmp 
 run-gem5-openmp: 
-	$(MAKE) run-gem5-openmp $(ARGS)
+	$(MAKE) run-gem5-openmp $(MAKE_ARGS)
 
 .PHONY: run-gem5-cache-prefetch 
 run-gem5-cache-prefetch:
-	$(MAKE) run-gem5-cache-prefetch $(ARGS)
+	$(MAKE) run-gem5-cache-prefetch $(MAKE_ARGS)
 
 .PHONY: run-gem5-cache 
 run-gem5-cache: 
-	$(MAKE) run-gem5-cache $(ARGS)
+	$(MAKE) run-gem5-cache $(MAKE_ARGS)
 	
 .PHONY: run-gem5-cpu 
 run-gem5-cpu: 
-	$(MAKE) run-gem5-cpu $(ARGS)
+	$(MAKE) run-gem5-cpu $(MAKE_ARGS)
 
 .PHONY: run-gem5-cpu-only 
 run-gem5-cpu-only: 
-	$(MAKE) run-gem5-cpu-only $(ARGS)
+	$(MAKE) run-gem5-cpu-only $(MAKE_ARGS)
 
 .PHONY: run-gem5-accel 
 run-gem5-accel: 
-	$(MAKE) run-gem5-accel $(ARGS)
+	$(MAKE) run-gem5-accel $(MAKE_ARGS)
 
 .PHONY: run-gem5-accel-debug
 run-gem5-accel-debug: 
-	$(MAKE) run-gem5-accel-debug $(ARGS)
+	$(MAKE) run-gem5-accel-debug $(MAKE_ARGS)
 	  
 ##################################################
 ##################################################
@@ -135,27 +263,27 @@ run-gem5-accel-debug:
 
 .PHONY: trace-binary
 trace-binary:
-	$(MAKE) trace-binary $(ARGS)
+	$(MAKE) trace-binary $(MAKE_ARGS)
 
 .PHONY: dma-trace-binary
 dma-trace-binary :
-	$(MAKE) dma-trace-binary $(ARGS)
+	$(MAKE) dma-trace-binary $(MAKE_ARGS)
 
 .PHONY: run-llvm-tracer
 run-llvm-tracer :
-	$(MAKE) run-llvm-tracer $(ARGS)
+	$(MAKE) run-llvm-tracer $(MAKE_ARGS)
 
 .PHONY: run-llvm-tracer-force
 run-llvm-tracer-force :
-	$(MAKE) run-llvm-tracer-force $(ARGS)
+	$(MAKE) run-llvm-tracer-force $(MAKE_ARGS)
 
 .PHONY: run-aladdin
 run-aladdin :
-	$(MAKE) run-aladdin $(ARGS)
+	$(MAKE) run-aladdin $(MAKE_ARGS)
 
 .PHONY: run-aladdin-force
 run-aladdin-force :
-	$(MAKE) run-aladdin-force $(ARGS)
+	$(MAKE) run-aladdin-force $(MAKE_ARGS)
 
 ##################################################
 ##################################################
@@ -165,28 +293,32 @@ run-aladdin-force :
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #
 ##############################################
 
-.PHONY: run-capi
-run-capi:
-	$(MAKE) run-capi $(ARGS)
+.PHONY: run-capi-sim
+run-capi-sim:
+	$(MAKE) run-capi-sim $(MAKE_ARGS)
+
+.PHONY: run-capi-fpga
+run-capi-fpga:
+	$(MAKE) run-capi-fpga $(MAKE_ARGS)
 
 .PHONY: run-test-capi
 run-test-capi:
-	$(MAKE) run-test-capi $(ARGS)
+	$(MAKE) run-test-capi $(MAKE_ARGS)
 
 .PHONY: run-vsim
 run-vsim:
-	$(MAKE) run-vsim $(ARGS)
+	$(MAKE) run-vsim $(MAKE_ARGS)
 
 .PHONY: run-pslse
 run-pslse:
-	$(MAKE) run-pslse $(ARGS)
+	$(MAKE) run-pslse $(MAKE_ARGS)
 
 .PHONY: build-pslse
 build-pslse:
-	  $(MAKE) build-pslse $(ARGS)
+	  $(MAKE) build-pslse $(MAKE_ARGS)
 
 .PHONY: clean-sim
 clean-sim:
-	 $(MAKE) clean-sim $(ARGS)
+	 $(MAKE) clean-sim $(MAKE_ARGS)
 ##################################################
 ##################################################
