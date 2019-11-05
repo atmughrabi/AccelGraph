@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-05 10:27:05
+// Revise : 2019-11-05 15:38:57
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -260,6 +260,7 @@ module afu_control #(
 
 	CommandBufferLine restart_command_out;
 	logic             restart_pending    ;
+	logic             ready_restart_issue;
 
 	restart_control restart_command_control_instant (
 		.clock                 (clock                    ),
@@ -270,6 +271,7 @@ module afu_control #(
 		.restart_response_in   (restart_response_out     ),
 		.response              (response_filtered_restart),
 		.credits_in            (credits.credits          ),
+		.ready_issue           (ready_restart_issue      ),
 		.restart_command_out   (restart_command_out      ),
 		.restart_pending       (restart_pending          )
 	);

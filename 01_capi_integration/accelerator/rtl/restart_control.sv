@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
 // Create : 2019-11-05 08:05:09
-// Revise : 2019-11-05 10:59:34
+// Revise : 2019-11-05 15:38:52
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ module restart_control (
 	input  ResponseBufferLine restart_response_in   ,
 	input  ResponseInterface  response              ,
 	input  logic [0:7]        credits_in            ,
-	input  logic              ready_issue           ,
+	output logic              ready_restart_issue   ,
 	output CommandBufferLine  restart_command_out   ,
 	output logic              restart_pending
 );
@@ -51,6 +51,8 @@ module restart_control (
 	CommandBufferLine restart_command_buffer_in             ;
 	BufferStatus      restart_command_buffer_status_internal;
 
+	restart_state current_state, next_state;
+
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -60,22 +62,6 @@ module restart_control (
 			enabled <= 0;
 		end else begin
 			enabled <= enabled_in;
-		end
-	end
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			restart_pending <= 0;
-		end else begin
-			restart_pending <= restart_pending_internal && (credits_total == CREDITS_TOTAL);
-		end
-	end
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			restart_command_out <= 0;
-		end else begin
-			restart_command_out <= restart_command_buffer_out;
 		end
 	end
 
@@ -90,37 +76,9 @@ module restart_control (
 			command_outstanding_data_in <= 0;
 		end else begin
 			if(enabled) begin
-				command_outstanding_we          <= command_outstanding_in.valid;
-				command_outstanding_wr_addr     <= command_outstanding_in.cmd.tag;
-				command_outstanding_data_in     <= command_outstanding_in;
-				command_outstanding_data_in.abt <= STRICT;
-			end
-		end
-	end
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			command_outstanding_rd_addr <= 0;
-			command_outstanding_rd      <= 0;
-			command_outstanding_rd_S2   <= 0;
-			credits_partial             <= 0;
-		end else begin
-			if(enabled) begin
-				command_outstanding_rd_addr <= response.tag;
-				command_outstanding_rd      <= response.valid;
-				command_outstanding_rd_S2   <= command_outstanding_rd;
-
-				credits_partial <= credits_partial + command_outstanding_rd;
-			end
-		end
-	end
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			credits_total <= 0;
-		end else begin
-			if(enabled) begin
-				credits_total <= credits_partial + credits_total;
+				command_outstanding_we      <= command_outstanding_in.valid;
+				command_outstanding_wr_addr <= command_outstanding_in.cmd.tag;
+				command_outstanding_data_in <= command_outstanding_in;
 			end
 		end
 	end
@@ -131,38 +89,84 @@ module restart_control (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
+			command_outstanding_rd_addr <= 0;
+			command_outstanding_rd      <= 0;
+			command_outstanding_rd_S2   <= 0;
+		end else begin
+			if(enabled) begin
+				command_outstanding_rd_addr <= response.tag;
+				command_outstanding_rd      <= response.valid;
+				command_outstanding_rd_S2   <= command_outstanding_rd;
+			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
 			restart_command_buffer_push <= 0;
 			restart_command_buffer_in   <= 0;
 		end else begin
 			if(enabled) begin
-
 				restart_command_buffer_push <= command_outstanding_rd_S2;
 				restart_command_buffer_in   <= command_outstanding_data_out;
 			end
 		end
 	end
 
-////////////////////////////////////////////////////////////////////////////
-//restart pending
-////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	//Restart State Machine
+	////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			restart_pending_internal <= 0;
-		end else begin
-			if(enabled && response.valid && ~restart_pending_internal) begin
-				case (response.response)
-					PAGED : begin
-						restart_pending_internal <= 1;
-					end
-				endcase
-			end
-
-			if(restart_response_in.valid && restart_response_in.response == DONE) begin
-				restart_pending_internal <= 0;
-			end
+		if(~rstn)
+			current_state <= RESTART_RESET;
+		else begin
+			if(enabled)
+				current_state <= next_state;
 		end
+	end// always_ff @(posedge clock)
+
+	always_comb begin
+		next_state = current_state;
+		case (current_state)
+			RESTART_RESET : begin
+				next_state = RESTART_IDLE;
+			end
+			RESTART_IDLE : begin
+				next_state = RESTART_INIT;
+			end
+			RESTART_INIT : begin
+				next_state = RESTART_SEND_CMD;
+			end
+			RESTART_INIT : begin
+				next_state = RESTART_SEND_CMD;
+			end
+			RESTART_SEND_CMD : begin
+				next_state = RESTART_RESP_WAIT;
+			end
+			RESTART_RESP_WAIT : begin
+				next_state = RESTART_SEND_CMD_FLUSHED;
+			end
+			RESTART_SEND_CMD_FLUSHED : begin
+				next_state = RESTART_DONE;
+			end
+			RESTART_DONE : begin
+				next_state = RESTART_IDLE;
+			end
+		endcase
 	end
+
+	always_ff @(posedge clock) begin
+		case (current_state)
+			RESTART_RESET : begin
+				ready_restart_issue <= 0;
+				restart_command_out <= 0;
+				restart_pending     <= 0;
+			end
+		endcase
+	end
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 // Tag -> CU bookeeping for outstanding commands in PSL
