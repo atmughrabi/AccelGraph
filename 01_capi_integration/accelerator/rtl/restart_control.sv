@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
 // Create : 2019-11-05 08:05:09
-// Revise : 2019-11-05 10:21:23
+// Revise : 2019-11-05 10:59:34
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -27,13 +27,15 @@ module restart_control (
 	input  logic [0:7]        command_tag_in        ,
 	input  ResponseBufferLine restart_response_in   ,
 	input  ResponseInterface  response              ,
-	input logic [0:7] credits_in,
+	input  logic [0:7]        credits_in            ,
+	input  logic              ready_issue           ,
 	output CommandBufferLine  restart_command_out   ,
 	output logic              restart_pending
 );
-	
-	logic [0:7] 	  credits_partial;
-	logic [0:7] 	  credits_total;
+
+	logic             enabled                     ;
+	logic [0:7]       credits_partial             ;
+	logic [0:7]       credits_total               ;
 	logic             restart_pending_internal    ;
 	CommandBufferLine command_outstanding_data_in ;
 	CommandBufferLine command_outstanding_data_out;
@@ -43,11 +45,11 @@ module restart_control (
 	logic [0:7]       command_outstanding_wr_addr ;
 	logic [0:7]       command_outstanding_rd_addr ;
 
-	logic             restart_command_buffer_push  ;
-	logic             restart_command_buffer_pop   ;
-	CommandBufferLine restart_command_buffer_out   ;
-	CommandBufferLine restart_command_buffer_in    ;
-	BufferStatus      vertex_buffer_status_internal;
+	logic             restart_command_buffer_push           ;
+	logic             restart_command_buffer_pop            ;
+	CommandBufferLine restart_command_buffer_out            ;
+	CommandBufferLine restart_command_buffer_in             ;
+	BufferStatus      restart_command_buffer_status_internal;
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -65,7 +67,7 @@ module restart_control (
 		if(~rstn) begin
 			restart_pending <= 0;
 		end else begin
-			restart_pending <= ~restart_command_buffer_status_internal.empty && restart_pending_internal;
+			restart_pending <= restart_pending_internal && (credits_total == CREDITS_TOTAL);
 		end
 	end
 
@@ -74,7 +76,6 @@ module restart_control (
 			restart_command_out <= 0;
 		end else begin
 			restart_command_out <= restart_command_buffer_out;
-			restart_command_out.command <= RESTART;
 		end
 	end
 
@@ -102,7 +103,7 @@ module restart_control (
 			command_outstanding_rd_addr <= 0;
 			command_outstanding_rd      <= 0;
 			command_outstanding_rd_S2   <= 0;
-			credits_partial				<= 0;
+			credits_partial             <= 0;
 		end else begin
 			if(enabled) begin
 				command_outstanding_rd_addr <= response.tag;
@@ -116,7 +117,7 @@ module restart_control (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			credits_total				<= 0;
+			credits_total <= 0;
 		end else begin
 			if(enabled) begin
 				credits_total <= credits_partial + credits_total;
@@ -134,6 +135,7 @@ module restart_control (
 			restart_command_buffer_in   <= 0;
 		end else begin
 			if(enabled) begin
+
 				restart_command_buffer_push <= command_outstanding_rd_S2;
 				restart_command_buffer_in   <= command_outstanding_data_out;
 			end
@@ -182,7 +184,7 @@ module restart_control (
 //Buffer restart Commands
 ////////////////////////////////////////////////////////////////////////////
 
-	assign restart_command_buffer_pop = ~restart_command_buffer_status_internal.empty && restart_pending_internal && (credits_total == CREDITS_TOTAL);
+	assign restart_command_buffer_pop = ~restart_command_buffer_status_internal.empty && restart_pending;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
