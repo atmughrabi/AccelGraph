@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-04 05:32:10
+// Revise : 2019-11-05 05:14:57
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -123,12 +123,6 @@ module afu_control #(
 	logic command_write_valid;
 
 	genvar i;
-
-	CommandBufferLine burst_command_buffer_touch   ;
-	CommandBufferLine burst_command_buffer_touch_S2;
-	CommandBufferLine burst_command_buffer_exec    ;
-	CommandBufferLine burst_command_buffer_exec_S2 ;
-	CommandBufferLine burst_command_buffer_exec_S3 ;
 
 	CommandBufferLine command_issue_register;
 
@@ -379,9 +373,15 @@ module afu_control #(
 //Burst Buffer Read Commands
 ////////////////////////////////////////////////////////////////////////////
 
-	logic request_pulse                            ;
-	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (|credits.credits) && ~(|request_pulse);
+	// CommandBufferLine burst_command_buffer_touch   ;
+	// CommandBufferLine burst_command_buffer_touch_S2;
+	// CommandBufferLine burst_command_buffer_exec    ;
+	// CommandBufferLine burst_command_buffer_exec_S2 ;
+	// CommandBufferLine burst_command_buffer_exec_S3 ;
 
+	// logic request_pulse                            ;
+	// assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (|credits.credits) && ~(|request_pulse);
+	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (|credits.credits);
 	fifo #(
 		.WIDTH   ($bits(CommandBufferLine)),
 		.DEPTH   (16                      ),
@@ -397,50 +397,50 @@ module afu_control #(
 		
 		.pop     (burst_command_buffer_pop              ),
 		.valid   (burst_command_buffer_states_afu.valid ),
-		.data_out(burst_command_buffer_out              ),
+		.data_out(command_issue_register                ),
 		.empty   (burst_command_buffer_states_afu.empty )
 	);
 
 	
-	always_ff @(posedge clock or negedge rstn) begin
-			if(~rstn) begin
-				request_pulse <= 0;
-			end else begin
-				request_pulse <= request_pulse + 1;
-			end
-	end
+	// always_ff @(posedge clock or negedge rstn) begin
+	// 		if(~rstn) begin
+	// 			request_pulse <= 0;
+	// 		end else begin
+	// 			request_pulse <= request_pulse + 1;
+	// 		end
+	// end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			burst_command_buffer_touch    <= 0;
-			burst_command_buffer_touch_S2 <= 0;
-			burst_command_buffer_exec     <= 0;
-			burst_command_buffer_exec_S2  <= 0;
-			burst_command_buffer_exec_S3  <= 0;
-			command_issue_register        <= 0;
-		end else begin
-			if(enabled) begin
-				burst_command_buffer_touch              <= burst_command_buffer_out;
-				burst_command_buffer_touch.command      <= TOUCH_I;
-				burst_command_buffer_touch.size         <= 12'h080;
-				burst_command_buffer_touch.address      <= (burst_command_buffer_out.address & ADDRESS_EDGE_ALIGN_MASK);
-				burst_command_buffer_touch.cmd.cu_id    <= PREFETCH_CONTROL_ID;
-				burst_command_buffer_touch.cmd.cmd_type <= CMD_PREFETCH;
-				burst_command_buffer_touch_S2 <= burst_command_buffer_touch;
+	// always_ff @(posedge clock or negedge rstn) begin
+	// 	if(~rstn) begin
+	// 		burst_command_buffer_touch    <= 0;
+	// 		burst_command_buffer_touch_S2 <= 0;
+	// 		burst_command_buffer_exec     <= 0;
+	// 		burst_command_buffer_exec_S2  <= 0;
+	// 		burst_command_buffer_exec_S3  <= 0;
+	// 		command_issue_register        <= 0;
+	// 	end else begin
+	// 		if(enabled) begin
+	// 			burst_command_buffer_touch              <= burst_command_buffer_out;
+	// 			burst_command_buffer_touch.command      <= TOUCH_I;
+	// 			burst_command_buffer_touch.size         <= 12'h080;
+	// 			burst_command_buffer_touch.address      <= (burst_command_buffer_out.address & ADDRESS_EDGE_ALIGN_MASK);
+	// 			burst_command_buffer_touch.cmd.cu_id    <= PREFETCH_CONTROL_ID;
+	// 			burst_command_buffer_touch.cmd.cmd_type <= CMD_PREFETCH;
+	// 			burst_command_buffer_touch_S2 <= burst_command_buffer_touch;
 
-				burst_command_buffer_exec    <= burst_command_buffer_out;
-				burst_command_buffer_exec_S2 <= burst_command_buffer_exec;
-				burst_command_buffer_exec_S3 <= burst_command_buffer_exec_S2;
+	// 			burst_command_buffer_exec    <= burst_command_buffer_out;
+	// 			burst_command_buffer_exec_S2 <= burst_command_buffer_exec;
+	// 			burst_command_buffer_exec_S3 <= burst_command_buffer_exec_S2;
 
-				if(burst_command_buffer_touch_S2.valid)
-					command_issue_register <= burst_command_buffer_touch_S2;
-				else if(burst_command_buffer_exec_S3.valid)
-					command_issue_register <= burst_command_buffer_exec_S3;
-				else
-					command_issue_register <= 0;
-			end
-		end
-	end
+	// 			if(burst_command_buffer_touch_S2.valid)
+	// 				command_issue_register <= burst_command_buffer_touch_S2;
+	// 			else if(burst_command_buffer_exec_S3.valid)
+	// 				command_issue_register <= burst_command_buffer_exec_S3;
+	// 			else
+	// 				command_issue_register <= 0;
+	// 		end
+	// 	end
+	// end
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffer Read Commands

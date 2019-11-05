@@ -64,13 +64,13 @@ MAIN_DIR		  	= main
 
 #small test graphs
 export GRAPH_NAME = test
-# export GRAPH_NAME = v51_e1021
+export GRAPH_NAME = v51_e1021
 # export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
 # export GRAPH_NAME = Gnutella
 # export GRAPH_NAME = dblp
-export GRAPH_NAME = amazon
+# export GRAPH_NAME = amazon
 # export GRAPH_NAME = euall
 
 # generates large dynamic traces for gem5-Aladdin
@@ -104,8 +104,8 @@ export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
-export REORDER 		= 0
-export DATA_STRUCTURES = 0
+export REORDER 		    = 0
+export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164

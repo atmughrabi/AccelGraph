@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : pageRank.c
 // Create : 2019-09-28 14:41:30
-// Revise : 2019-10-28 14:44:06
+// Revise : 2019-11-05 05:04:56
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 #include <stdio.h>
@@ -1318,7 +1318,6 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
     #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext)
     for(v = 0; v < graph->num_vertices; v++)
     {
-
         pageRanksNext[v] = 0;
     }
 
