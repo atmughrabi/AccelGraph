@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-05 05:14:57
+// Revise : 2019-11-05 08:42:48
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -29,7 +29,6 @@ module afu_control #(
 	input  CommandBufferLine             read_command_in         ,
 	input  CommandBufferLine             write_command_in        ,
 	input  CommandBufferLine             wed_command_in          ,
-	input  CommandBufferLine             restart_command_in      ,
 	input  CommandInterfaceInput         command_in              ,
 	input  ResponseInterface             response                ,
 	input  BufferInterfaceInput          buffer_in               ,
@@ -42,7 +41,6 @@ module afu_control #(
 	output ResponseBufferLine            read_response_out       ,
 	output ResponseBufferLine            write_response_out      ,
 	output ResponseBufferLine            wed_response_out        ,
-	output ResponseBufferLine            restart_response_out    ,
 	output logic [0:6]                   command_response_error  ,
 	output logic [0:1]                   data_read_error         ,
 	output logic                         data_write_error        ,
@@ -61,8 +59,11 @@ module afu_control #(
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
 
-	CommandInterfaceInput command_in_latched;
-	ResponseInterface     response_latched  ;
+	CommandInterfaceInput command_in_latched       ;
+	ResponseInterface     response_latched         ;
+	ResponseInterface     response_filtered        ;
+	ResponseInterface     response_filtered_restart;
+
 
 	ReadDataControlInterface  read_buffer_in ;
 	WriteDataControlInterface write_buffer_in;
@@ -78,7 +79,9 @@ module afu_control #(
 	CommandBufferLine write_command_buffer_out  ;
 	CommandBufferLine wed_command_buffer_out    ;
 	CommandBufferLine restart_command_buffer_out;
+	CommandBufferLine restart_command_in        ;
 
+	assign restart_command_in = 0;
 
 	ResponseControlInterfaceOut response_control_out         ;
 	ResponseControlInterfaceOut response_control_out_internal;
@@ -108,11 +111,11 @@ module afu_control #(
 	CommandTagLine read_tag_id     ;
 	CommandTagLine command_tag_id  ;
 
-	CommandBufferLine                    command_arbiter_out;
-	logic             [NUM_REQUESTS-1:0] requests           ;
-	logic             [NUM_REQUESTS-1:0] ready              ;
-	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in  ;
-	logic                                valid_request      ;
+	CommandBufferLine        command_arbiter_out                  ;
+	logic [NUM_REQUESTS-1:0] requests                             ;
+	logic [NUM_REQUESTS-1:0] ready                                ;
+	CommandBufferLine        command_buffer_in  [0:NUM_REQUESTS-1];
+	logic                    valid_request                        ;
 
 	logic enabled;
 
@@ -121,6 +124,8 @@ module afu_control #(
 	CommandBufferLine burst_command_buffer_out       ;
 
 	logic command_write_valid;
+
+	ResponseBufferLine restart_response_out;
 
 	genvar i;
 
@@ -140,12 +145,43 @@ module afu_control #(
 	end
 
 ////////////////////////////////////////////////////////////////////////////
+//filter responses
+////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			response_filtered         <= 0;
+			response_filtered_restart <= 0;
+		end else begin
+			if(enabled && response.valid) begin
+				case (response.response)
+					DONE,AERROR,DERROR,NLOCK,NRES,FAILED: begin
+						response_filtered         <= response;
+						response_filtered_restart <= 0;
+					end
+					PAGED,FAULT,FLUSHED: begin
+						response_filtered         <= 0;
+						response_filtered_restart <= response;
+					end
+					default : begin
+						response_filtered         <= response;
+						response_filtered_restart <= 0;
+					end
+				endcase
+			end else begin
+				response_filtered         <= 0;
+				response_filtered_restart <= 0;
+			end
+		end
+	end
+
+////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock) begin
 		command_in_latched <= command_in;
-		response_latched   <= response;
+		response_latched   <= response_filtered;
 
 		write_tag <= buffer_in.write_tag;
 
@@ -182,14 +218,27 @@ module afu_control #(
 //Buffer arbitration logic
 ////////////////////////////////////////////////////////////////////////////
 
-	command_buffer_arbiter #(.NUM_REQUESTS(NUM_REQUESTS)) command_buffer_arbiter_instant (
-		.clock              (clock              ),
-		.rstn               (rstn               ),
-		.enabled_in         (enabled            ),
-		.requests           (requests           ),
-		.command_buffer_in  (command_buffer_in  ),
-		.command_arbiter_out(command_arbiter_out),
-		.ready              (ready              )
+	// command_buffer_arbiter #(.NUM_REQUESTS(NUM_REQUESTS)) command_buffer_arbiter_instant (
+	// 	.clock              (clock              ),
+	// 	.rstn               (rstn               ),
+	// 	.enabled_in         (enabled            ),
+	// 	.requests           (requests           ),
+	// 	.command_buffer_in  (command_buffer_in  ),
+	// 	.command_arbiter_out(command_arbiter_out),
+	// 	.ready              (ready              )
+	// );
+
+	round_robin_priority_arbiter_N_input_1_ouput #(
+		.NUM_REQUESTS(NUM_REQUESTS            ),
+		.WIDTH       ($bits(CommandBufferLine))
+	) round_robin_priority_arbiter_N_input_1_ouput_command_buffer_arbiter_instant (
+		.clock      (clock              ),
+		.rstn       (rstn               ),
+		.enabled    (enabled            ),
+		.buffer_in  (command_buffer_in  ),
+		.requests   (requests           ),
+		.arbiter_out(command_arbiter_out),
+		.ready      (ready              )
 	);
 
 ////////////////////////////////////////////////////////////////////////////
@@ -401,7 +450,7 @@ module afu_control #(
 		.empty   (burst_command_buffer_states_afu.empty )
 	);
 
-	
+
 	// always_ff @(posedge clock or negedge rstn) begin
 	// 		if(~rstn) begin
 	// 			request_pulse <= 0;

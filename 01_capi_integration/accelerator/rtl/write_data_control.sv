@@ -144,35 +144,35 @@ module write_data_control (
 //Ram Data each hold half cache line
 ////////////////////////////////////////////////////////////////////////////
 // uncomment for latency 4 cycles
-  assign buffer_out.read_latency = 4'h3;
+  // assign buffer_out.read_latency = 4'h3;
 
-  always_ff @(posedge clock or negedge rstn) begin
-    if(~rstn)
-      write_data <= ~0;
-    else begin
-      if(~(|read_address) && read_valid)
-        write_data <= write_data_0_out.data;
-      else if((|read_address) && read_valid)
-        write_data <= write_data_1_out.data;
-      else
-        write_data <= ~0;
-    end
-  end
+  // always_ff @(posedge clock or negedge rstn) begin
+  //   if(~rstn)
+  //     write_data <= ~0;
+  //   else begin
+  //     if(~(|read_address) && read_valid)
+  //       write_data <= write_data_0_out.data;
+  //     else if((|read_address) && read_valid)
+  //       write_data <= write_data_1_out.data;
+  //     else
+  //       write_data <= ~0;
+  //   end
+  // end
 
-  always_ff @(posedge clock) begin
-    buffer_out.read_data <= write_data;
-  end
+  // always_ff @(posedge clock) begin
+  //   buffer_out.read_data <= write_data;
+  // end
 
 // uncomment for latency 1 cycles
-  // assign buffer_out.read_latency = 4'h1;
-  // always_comb begin
-  //   if(~(|read_address) && read_valid)
-  //     buffer_out.read_data = write_data_0_out.data;
-  //   else if((|read_address) && read_valid)
-  //     buffer_out.read_data = write_data_1_out.data;
-  //   else
-  //     buffer_out.read_data = ~0;
-  // end
+  assign buffer_out.read_latency = 4'h1;
+  always_comb begin
+    if(~(|read_address) && read_valid)
+      buffer_out.read_data = write_data_0_out.data;
+    else if((|read_address) && read_valid)
+      buffer_out.read_data = write_data_1_out.data;
+    else
+      buffer_out.read_data = ~0;
+  end
 
   ram #(
     .WIDTH($bits(ReadWriteDataLine)),

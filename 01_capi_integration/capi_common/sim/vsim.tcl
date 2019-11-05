@@ -33,6 +33,7 @@ proc r  {} {
   echo "Compiling RTL AFU Control"
   vlog -quiet ../../accelerator/rtl/credit_control.sv
   vlog -quiet ../../accelerator/rtl/response_control.sv
+  vlog -quiet ../../accelerator/rtl/restart_control.sv
   vlog -quiet ../../accelerator/rtl/command_control.sv
   vlog -quiet ../../accelerator/rtl/command_buffer_arbiter.sv
   vlog -quiet ../../accelerator/rtl/tag_control.sv
@@ -49,7 +50,7 @@ proc r  {} {
   echo "Compiling RTL WED_control"
   vlog -quiet ../../accelerator/rtl/wed_control.sv
 
-  echo "Compiling RTL CU control"
+  echo "Compiling RTL CU control PAGERANK"
   vlog -quiet ../../accelerator/cu/cu_cacheline_stream.sv
   vlog -quiet ../../accelerator/cu/cu_sum_kernel_control.sv
   vlog -quiet ../../accelerator/cu/cu_edge_data_write_control.sv
@@ -58,7 +59,6 @@ proc r  {} {
   vlog -quiet ../../accelerator/cu/cu_edge_job_control.sv
   vlog -quiet ../../accelerator/cu/cu_vertex_job_control.sv
   vlog -quiet ../../accelerator/cu/cu_vertex_pagerank.sv
-  vlog -quiet ../../accelerator/cu/cu_vertex_bfs.sv
   vlog -quiet ../../accelerator/cu/cu_graph_algorithm_control.sv
   vlog -quiet ../../accelerator/cu/cu_control.sv
 

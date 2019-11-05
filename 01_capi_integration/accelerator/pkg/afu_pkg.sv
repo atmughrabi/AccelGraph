@@ -75,11 +75,12 @@ package AFU_PKG;
 ////////////////////////////////////////////////////////////////////////////
 
   typedef struct packed {
-    logic          valid  ;
-    CommandTagLine cmd    ;
-    afu_command_t  command; // ah_com,         // Command code
-    logic [0:63]   address; // ah_cea,         // Command address
-    logic [0:11]   size   ; // ah_csize,       // Command size
+    logic                  valid  ;
+    CommandTagLine         cmd    ;
+    afu_command_t          command; // ah_com,         // Command code
+    logic [0:63]           address; // ah_cea,         // Command address
+    logic [0:11]           size   ; // ah_csize,       // Command size
+    trans_order_behavior_t abt    ; // ah_cabt,        // Command ABT
   } CommandBufferLine;
 
 

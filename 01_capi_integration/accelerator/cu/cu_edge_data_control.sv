@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_control.sv
 // Create : 2019-09-26 15:18:46
-// Revise : 2019-11-03 13:07:13
+// Revise : 2019-11-05 07:25:00
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -124,8 +124,11 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 					else
 						read_command_out_latched.command <= READ_CL_NA;
 
+
+
 					read_command_out_latched.address              <= wed_request_in_latched.wed.auxiliary1 + (edge_job_variable.dest << $clog2(DATA_SIZE_READ));
 					read_command_out_latched.size                 <= DATA_SIZE_READ;
+					read_command_out_latched.abt 	  			  <= STRICT;
 					read_command_out_latched.cmd.vertex_struct    <= READ_GRAPH_DATA;
 					read_command_out_latched.cmd.cacheline_offest <= (((edge_job_variable.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_MOD_MASK) >> $clog2(DATA_SIZE_READ));
 					read_command_out_latched.cmd.cu_id            <= CU_ID;

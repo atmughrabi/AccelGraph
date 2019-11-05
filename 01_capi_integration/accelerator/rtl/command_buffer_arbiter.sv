@@ -72,6 +72,7 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
     command_arbiter_out_latch.command = INVALID; // for debugging purposes
     command_arbiter_out_latch.address = 64'h0000_0000_0000_0000;
     command_arbiter_out_latch.size    = 12'h000;
+    command_arbiter_out_latch.abt     = STRICT;
     for (i = 0; i < NUM_REQUESTS; i++) begin
       if (grant[i]) begin
         command_arbiter_out_latch.valid   = command_buffer_in[i].valid;
@@ -79,6 +80,7 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
         command_arbiter_out_latch.command = command_buffer_in[i].command ;
         command_arbiter_out_latch.address = command_buffer_in[i].address ;
         command_arbiter_out_latch.size    = command_buffer_in[i].size;
+        command_arbiter_out_latch.abt     = command_buffer_in[i].abt;
       end
     end
   end
@@ -90,6 +92,7 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
       command_arbiter_out.command <= INVALID; // for debugging purposes
       command_arbiter_out.address <= 64'h0000_0000_0000_0000;
       command_arbiter_out.size    <= 12'h000;
+      command_arbiter_out.abt     <= STRICT;
     end
     else begin
       if (enabled) begin
@@ -101,6 +104,7 @@ module command_buffer_arbiter #(parameter NUM_REQUESTS = 4) (
         command_arbiter_out.command <= INVALID; // for debugging purposes
         command_arbiter_out.address <= 64'h0000_0000_0000_0000;
         command_arbiter_out.size    <= 12'h000;
+        command_arbiter_out.abt     <= STRICT;
       end
     end
   end

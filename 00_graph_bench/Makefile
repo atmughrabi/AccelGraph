@@ -4,55 +4,55 @@
 #       		 GENERAL DIRECTOIRES   	    			#
 #########################################################
 # globals binaary /bin/accel-graph name doesn't need to match main/accel-graph.c
-  GAPP               = accel-graph
+  GAPP               ?= accel-graph
 
 # test name needs to match the file name test/test_accel-graph.c
 #   GAPP_TEST          = test_accel-graph
-  GAPP_TEST          = test_afu
+  GAPP_TEST          ?= test_afu
 
 
 # dirs Root app 
-APP_DIR           	= .
-SCRIPT_DIR          = ../04_scripts
+APP_DIR           	?= .
+SCRIPT_DIR          ?= ../04_scripts
 # BENCHMARKS_DIR    	= ../../01_GraphDatasets/Aladdin-graphs
-BENCHMARKS_DIR    	= ../03_test_graphs
+BENCHMARKS_DIR    	?= ../03_test_graphs
 
 #dir root/managed_folders
-SRC_DIR           	= src
-OBJ_DIR			  	= obj
-INC_DIR			  	= include
-BIN_DIR			  	= bin
+SRC_DIR           	?= src
+OBJ_DIR			  	?= obj
+INC_DIR			  	?= include
+BIN_DIR			  	?= bin
 
 #if you want to compile from cmake you need this directory
 #cd build
 #cmake ..
-BUILD_DIR		  	= build
+BUILD_DIR		  	?= build
 
 # relative directories used for managing src/obj files
-STRUCT_DIR		  	= structures
-PREPRO_DIR		  	= preprocessing
-ALGO_DIR		  	= graphalgorithms
-UTIL_DIR		  	= utils
-CAPI_UTIL_DIR		= capi_utils
+STRUCT_DIR		  	?= structures
+PREPRO_DIR		  	?= preprocessing
+ALGO_DIR		  	?= graphalgorithms
+UTIL_DIR		  	?= utils
+CAPI_UTIL_DIR		?= capi_utils
 
 
 # Folders needed when using gem5-aladdin
-ALADDIN_COMMON_DIR			= aladdin_common
-ALADDIN_CACTI_DIR			= cacti_configs
-ALADDIN_GEM5_DIR			= gem5_configs
-ALADDIN_ALGO_DIR			= algorithms_configs
-DYNAMIC_TRACES_DIR		  	= dynamic_traces
-ALADDIN_STATS_DIR		  	= stats_aladdin
-GEM5_STATS_DIR		  		= stats_gem5
+ALADDIN_COMMON_DIR			?= aladdin_common
+ALADDIN_CACTI_DIR			?= cacti_configs
+ALADDIN_GEM5_DIR			?= gem5_configs
+ALADDIN_ALGO_DIR			?= algorithms_configs
+DYNAMIC_TRACES_DIR		  	?= dynamic_traces
+ALADDIN_STATS_DIR		  	?= stats_aladdin
+GEM5_STATS_DIR		  		?= stats_gem5
 
 # Folders needed when using CAPI
 
 
 #contains the tests use make run-test to compile what in this directory
-TEST_DIR		  	= tests
+TEST_DIR		  	?= tests
 
 #contains the main for the graph processing framework
-MAIN_DIR		  	= main
+MAIN_DIR		  	?= main
 
 ##################################################
 ##################################################

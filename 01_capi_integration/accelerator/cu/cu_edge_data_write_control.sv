@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_write_control.sv
 // Create : 2019-10-31 14:36:36
-// Revise : 2019-11-03 11:20:30
+// Revise : 2019-11-05 07:23:27
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -113,6 +113,7 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 				write_command_out_latched.address <= wed_request_in_latched.wed.auxiliary2 + (edge_data_write.index << $clog2(DATA_SIZE_WRITE));
 				write_command_out_latched.size    <= DATA_SIZE_WRITE;
 				write_command_out_latched.cmd     <= cmd;
+				write_command_out_latched.abt 	  <= STRICT;
 
 				write_data_0_out_latched.valid                                                        <= edge_data_write.valid;
 				write_data_0_out_latched.cmd                                                          <= cmd;

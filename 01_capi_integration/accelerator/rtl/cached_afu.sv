@@ -53,9 +53,8 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   logic reset_done                 ;
   logic report_algorithm_status_ack;
 
-  CommandBufferLine read_command_out   ;
-  CommandBufferLine write_command_out  ;
-  CommandBufferLine restart_command_out;
+  CommandBufferLine read_command_out ;
+  CommandBufferLine write_command_out;
 
   ReadWriteDataLine wed_data_0_out  ;
   ReadWriteDataLine wed_data_1_out  ;
@@ -70,14 +69,15 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   DataBufferStatusInterface     wed_data_buffer_status  ;
   DataBufferStatusInterface     write_data_buffer_status;
 
-  ResponseBufferLine read_response_out   ;
-  ResponseBufferLine write_response_out  ;
-  ResponseBufferLine wed_response_out    ;
-  ResponseBufferLine restart_response_out;
+  ResponseBufferLine read_response_out ;
+  ResponseBufferLine write_response_out;
+  ResponseBufferLine wed_response_out  ;
 
-  WEDInterface      wed            ; // work element descriptor -> addresses and other into
-  CommandBufferLine wed_command_out; // command for populatin WED
-  logic             enabled        ;
+
+  WEDInterface      wed             ; // work element descriptor -> addresses and other into
+  CommandBufferLine wed_command_out ; // command for populatin WED
+  logic             enabled         ;
+  ResponseInterface response_latched;
 
 
   always_ff @(posedge clock) begin
@@ -89,7 +89,8 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
 ////////////////////////////////////////////////////////////////////////////
 
   always_ff @(posedge clock) begin
-    enabled <= job_out.running;
+    enabled          <= job_out.running;
+    response_latched <= response;
   end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -144,7 +145,6 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
 //Command
 ////////////////////////////////////////////////////////////////////////////
 
-  assign restart_command_out = 0;
 
   afu_control afu_control_instant (
     .clock                   (clock                   ),
@@ -153,9 +153,8 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     .read_command_in         (read_command_out        ),
     .write_command_in        (write_command_out       ),
     .wed_command_in          (wed_command_out         ),
-    .restart_command_in      (restart_command_out     ),
     .command_in              (command_in              ),
-    .response                (response                ),
+    .response                (response_latched        ),
     .buffer_in               (buffer_in               ),
     .write_data_0_in         (write_data_0_out        ),
     .write_data_1_in         (write_data_1_out        ),
@@ -166,7 +165,6 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     .read_response_out       (read_response_out       ),
     .write_response_out      (write_response_out      ),
     .wed_response_out        (wed_response_out        ),
-    .restart_response_out    (restart_response_out    ),
     .command_response_error  (command_response_error  ),
     .data_read_error         (data_read_error         ),
     .data_write_error        (data_write_error        ),
@@ -240,7 +238,7 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   );
 
 ////////////////////////////////////////////////////////////////////////////
-//RESET hard 
+//RESET hard
 ////////////////////////////////////////////////////////////////////////////
 
   reset_control #(.NUM_EXTERNAL_RESETS(NUM_EXTERNAL_RESETS)) reset_instant_hard (

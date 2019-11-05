@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_control.sv
 // Create : 2019-09-26 15:18:39
-// Revise : 2019-10-22 10:17:38
+// Revise : 2019-11-05 06:01:03
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	ReadWriteDataLine write_data_1_cu              ;
 	logic             ready_write_command_cu       ;
 
-	logic       enabled      ;
+	logic enabled;
 
 	BufferStatus      burst_command_buffer_states_cu;
 	logic             burst_command_buffer_pop      ;
@@ -312,7 +312,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 //graph algorithm control - graph algorithm CU - edge processing
 ////////////////////////////////////////////////////////////////////////////
 
-	cu_graph_algorithm_control cu_graph_algorithm_control_instant (
+	cu_graph_algorithm_control #(.NUM_VERTEX_CU(NUM_VERTEX_CU_GLOBAL)) cu_graph_algorithm_control_instant (
 		.clock                  (clock                                     ),
 		.rstn                   (rstn                                      ),
 		.enabled_in             (enabled                                   ),
