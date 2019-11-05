@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-05 08:42:48
+// Revise : 2019-11-05 10:25:52
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -257,15 +257,23 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 //command restart control logic
 ////////////////////////////////////////////////////////////////////////////
+	
+	 CommandBufferLine  restart_command_out;
+	 logic              restart_pending;
 
-	// command_restart_control command_restart_control_instant (
-	// 	.clock             (clock                   ),
-	// 	.rstn              (rstn                    ),
-	// 	.enabled_in        (enabled                 ),
-	// 	.command_arbiter_in(burst_command_buffer_out),
-	// 	.command_tag_in    (command_tag             ),
-	// 	.command_out       (command_out             )
-	// );
+	restart_control restart_command_control_instant (
+		.clock                 (clock                 ),
+		.enabled_in            (enabled               ),
+		.rstn                  (rstn                  ),
+		.command_outstanding_in(command_issue_register),
+		.command_tag_in        (command_tag        	  ),
+		.restart_response_in   (restart_response_out   ),
+		.response              (response_filtered_restart  ),
+		.credits_in            (credits.credits            ),
+		.restart_command_out   (restart_command_out   ),
+		.restart_pending       (restart_pending       )
+	);
+
 
 ////////////////////////////////////////////////////////////////////////////
 //Credit Tracking Logic

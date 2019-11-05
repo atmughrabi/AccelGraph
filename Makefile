@@ -14,7 +14,7 @@ export GAPP_TEST          = test_afu
 
 # dirs Root app 
 export APP_DIR           	= .
-export SCRIPT_DIR          = ../04_scripts
+export SCRIPT_DIR          	= ../04_scripts
 # BENCHMARKS_DIR    	= ../../01_GraphDatasets/Aladdin-graphs
 export BENCHMARKS_DIR    	= ../03_test_graphs
 
@@ -32,16 +32,16 @@ export BUILD_DIR		  	= build
 # relative directories used for managing src/obj files
 export STRUCT_DIR		  	= structures
 export PREPRO_DIR		  	= preprocessing
-export ALGO_DIR		  	= graphalgorithms
-export UTIL_DIR		  	= utils
+export ALGO_DIR		  		= graphalgorithms
+export UTIL_DIR		  		= utils
 export CAPI_UTIL_DIR		= capi_utils
 
 
 # Folders needed when using gem5-aladdin
 export ALADDIN_COMMON_DIR			= aladdin_common
 export ALADDIN_CACTI_DIR			= cacti_configs
-export ALADDIN_GEM5_DIR			= gem5_configs
-export ALADDIN_ALGO_DIR			= algorithms_configs
+export ALADDIN_GEM5_DIR				= gem5_configs
+export ALADDIN_ALGO_DIR				= algorithms_configs
 export DYNAMIC_TRACES_DIR		  	= dynamic_traces
 export ALADDIN_STATS_DIR		  	= stats_aladdin
 export GEM5_STATS_DIR		  		= stats_gem5
@@ -64,7 +64,7 @@ export MAIN_DIR		  	= main
 
 #small test graphs
 export GRAPH_NAME = test
-export GRAPH_NAME = v51_e1021
+# export GRAPH_NAME = v51_e1021
 # export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
