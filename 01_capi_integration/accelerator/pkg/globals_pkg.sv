@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-11-05 02:53:33
+// Revise : 2019-11-05 17:58:07
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -25,8 +25,8 @@ package GLOBALS_PKG;
 	parameter NUM_GRAPH_CU_GLOBAL  = 1;
 	parameter NUM_VERTEX_CU_GLOBAL = 8;
 
-	parameter CU_VERTEX_JOB_BUFFER_SIZE = 128;
-	parameter CU_EDGE_JOB_BUFFER_SIZE   = 128;
+	parameter CU_VERTEX_JOB_BUFFER_SIZE = 256;
+	parameter CU_EDGE_JOB_BUFFER_SIZE   = 256;
 
 ////////////////////////////////////////////////////////////////////////////
 //   CU-Control/AFU-Control CAPI Globals
@@ -49,18 +49,18 @@ package GLOBALS_PKG;
 	parameter TAG_COUNT   = 256  ;
 	parameter INVALID_TAG = 8'h00;
 
-	parameter READ_CMD_BUFFER_SIZE    = 128;
-	parameter WRITE_CMD_BUFFER_SIZE   = 128;
+	parameter READ_CMD_BUFFER_SIZE    = 256;
+	parameter WRITE_CMD_BUFFER_SIZE   = 256;
 	parameter RESTART_CMD_BUFFER_SIZE = 4  ;
 	parameter WED_CMD_BUFFER_SIZE     = 4  ;
 
-	parameter READ_RSP_BUFFER_SIZE    = 128;
-	parameter WRITE_RSP_BUFFER_SIZE   = 128;
+	parameter READ_RSP_BUFFER_SIZE    = 256;
+	parameter WRITE_RSP_BUFFER_SIZE   = 256;
 	parameter RESTART_RSP_BUFFER_SIZE = 4  ;
 	parameter WED_RSP_BUFFER_SIZE     = 4  ;
 
-	parameter READ_DATA_BUFFER_SIZE    = 128;
-	parameter WRITE_DATA_BUFFER_SIZE   = 128;
+	parameter READ_DATA_BUFFER_SIZE    = 256;
+	parameter WRITE_DATA_BUFFER_SIZE   = 256;
 	parameter RESTART_DATA_BUFFER_SIZE = 4  ;
 	parameter WED_DATA_BUFFER_SIZE     = 4  ;
 
@@ -107,12 +107,13 @@ package GLOBALS_PKG;
 
 	parameter CU_ID_RANGE = 8;
 
-	parameter INVALID_ID                 = {CU_ID_RANGE{1'b0}}            ;
-	parameter WED_ID                     = {CU_ID_RANGE{1'b1}}            ;
-	parameter VERTEX_CONTROL_ID          = (WED_ID - 1)                   ; 
-	parameter EDGE_DATA_READ_CONTROL_ID  = (VERTEX_CONTROL_ID - 1)        ; 
-	parameter EDGE_DATA_WRITE_CONTROL_ID = (EDGE_DATA_READ_CONTROL_ID - 1); 
-	parameter PREFETCH_CONTROL_ID 		 = (EDGE_DATA_WRITE_CONTROL_ID - 1); 
+	parameter INVALID_ID                 = {CU_ID_RANGE{1'b0}}             ;
+	parameter WED_ID                     = {CU_ID_RANGE{1'b1}}             ;
+	parameter RESTART_ID                 = (WED_ID - 1)                    ;
+	parameter VERTEX_CONTROL_ID          = (RESTART_ID - 1)                ;
+	parameter EDGE_DATA_READ_CONTROL_ID  = (VERTEX_CONTROL_ID - 1)         ;
+	parameter EDGE_DATA_WRITE_CONTROL_ID = (EDGE_DATA_READ_CONTROL_ID - 1) ;
+	parameter PREFETCH_CONTROL_ID        = (EDGE_DATA_WRITE_CONTROL_ID - 1);
 
 	typedef logic [0:(CU_ID_RANGE-1)] cu_id_t;
 endpackage

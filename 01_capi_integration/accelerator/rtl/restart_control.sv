@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
 // Create : 2019-11-05 08:05:09
-// Revise : 2019-11-05 15:38:52
+// Revise : 2019-11-05 17:58:14
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -45,11 +45,13 @@ module restart_control (
 	logic [0:7]       command_outstanding_wr_addr ;
 	logic [0:7]       command_outstanding_rd_addr ;
 
+	logic             restart_command_send                  ;
 	logic             restart_command_buffer_push           ;
 	logic             restart_command_buffer_pop            ;
 	CommandBufferLine restart_command_buffer_out            ;
 	CommandBufferLine restart_command_buffer_in             ;
 	BufferStatus      restart_command_buffer_status_internal;
+	psl_response_t    response_type_latched                 ;
 
 	restart_state current_state, next_state;
 
@@ -77,8 +79,9 @@ module restart_control (
 		end else begin
 			if(enabled) begin
 				command_outstanding_we      <= command_outstanding_in.valid;
-				command_outstanding_wr_addr <= command_outstanding_in.cmd.tag;
+				command_outstanding_wr_addr <= command_tag_in;
 				command_outstanding_data_in <= command_outstanding_in;
+				command_outstanding_data_in.cmd.tag <= command_tag_in;
 			end
 		end
 	end
@@ -92,10 +95,12 @@ module restart_control (
 			command_outstanding_rd_addr <= 0;
 			command_outstanding_rd      <= 0;
 			command_outstanding_rd_S2   <= 0;
+			response_type_latched       <= DONE;
 		end else begin
 			if(enabled) begin
 				command_outstanding_rd_addr <= response.tag;
 				command_outstanding_rd      <= response.valid;
+				response_type_latched       <= response.response;
 				command_outstanding_rd_S2   <= command_outstanding_rd;
 			end
 		end
@@ -109,6 +114,36 @@ module restart_control (
 			if(enabled) begin
 				restart_command_buffer_push <= command_outstanding_rd_S2;
 				restart_command_buffer_in   <= command_outstanding_data_out;
+			end
+		end
+	end
+
+	////////////////////////////////////////////////////////////////////////////
+	//credit counter
+	////////////////////////////////////////////////////////////////////////////
+
+	always @(posedge clock or negedge rstn) begin
+		if (~rstn) begin
+			credits_partial <= 0;
+		end else begin
+			if(enabled)begin
+				if(restart_pending)
+					credits_partial <= command_outstanding_rd_S2 + credits_partial;
+			end else begin
+				credits_partial <= 0;
+			end
+		end
+	end
+
+	always @(posedge clock or negedge rstn) begin
+		if (~rstn) begin
+			credits_total <= 0;
+		end else begin
+			if(enabled)begin
+				if(restart_pending)
+					credits_total <= credits_in + credits_partial;
+			end else begin
+				credits_total <= 0;
 			end
 		end
 	end
@@ -133,10 +168,16 @@ module restart_control (
 				next_state = RESTART_IDLE;
 			end
 			RESTART_IDLE : begin
-				next_state = RESTART_INIT;
+				if(response.valid)
+					next_state = RESTART_INIT;
+				else
+					next_state = RESTART_IDLE;
 			end
 			RESTART_INIT : begin
-				next_state = RESTART_SEND_CMD;
+				if(response_type_latched == PAGED)
+					next_state = RESTART_SEND_CMD;
+				else
+					next_state = RESTART_SEND_CMD_FLUSHED;
 			end
 			RESTART_INIT : begin
 				next_state = RESTART_SEND_CMD;
@@ -145,13 +186,31 @@ module restart_control (
 				next_state = RESTART_RESP_WAIT;
 			end
 			RESTART_RESP_WAIT : begin
-				next_state = RESTART_SEND_CMD_FLUSHED;
+				if(restart_response_in.valid)
+					next_state = RESTART_SEND_CMD_FLUSHED;
+				else
+					next_state = RESTART_RESP_WAIT;
 			end
 			RESTART_SEND_CMD_FLUSHED : begin
-				next_state = RESTART_DONE;
+				if(restart_command_buffer_status_internal.empty && (credits_total == CREDITS_TOTAL))begin
+					if(response.valid)
+						next_state = RESTART_INIT;
+					else
+						next_state = RESTART_DONE;
+				end
+				else begin
+					if(response.valid)
+						next_state = RESTART_INIT;
+					else
+						next_state = RESTART_SEND_CMD_FLUSHED;
+				end
 			end
 			RESTART_DONE : begin
-				next_state = RESTART_IDLE;
+				if(response.valid)
+					next_state = RESTART_INIT;
+				else
+					next_state = RESTART_IDLE;
+
 			end
 		endcase
 	end
@@ -159,6 +218,43 @@ module restart_control (
 	always_ff @(posedge clock) begin
 		case (current_state)
 			RESTART_RESET : begin
+				ready_restart_issue  <= 0;
+				restart_command_out  <= 0;
+				restart_pending      <= 0;
+				restart_command_send <= 0;
+			end
+			RESTART_IDLE : begin
+				ready_restart_issue  <= 0;
+				restart_command_out  <= 0;
+				restart_pending      <= 0;
+				restart_command_send <= 0;
+			end
+			RESTART_INIT : begin
+				ready_restart_issue <= 1;
+				restart_pending     <= 1;
+			end
+			RESTART_SEND_CMD : begin
+				restart_command_out              <= command_outstanding_data_out;
+				restart_command_out.command      <= RESTART;
+				restart_command_out.abt          <= STRICT;
+				restart_command_out.cmd.cmd_type <= CMD_RESTART;
+				restart_command_out.cmd.cu_id    <= RESTART_ID;
+			end
+			RESTART_RESP_WAIT : begin
+				restart_command_out <= 0;
+			end
+			RESTART_SEND_CMD_FLUSHED : begin
+				if(~restart_command_buffer_status_internal.empty)
+					restart_command_send <= 1;
+				else
+					restart_command_send <= 0;
+
+				if(restart_command_buffer_out.valid) begin
+					restart_command_out     <= restart_command_buffer_out;
+					restart_command_out.abt <= STRICT;
+				end
+			end
+			RESTART_DONE : begin
 				ready_restart_issue <= 0;
 				restart_command_out <= 0;
 				restart_pending     <= 0;
@@ -188,7 +284,7 @@ module restart_control (
 //Buffer restart Commands
 ////////////////////////////////////////////////////////////////////////////
 
-	assign restart_command_buffer_pop = ~restart_command_buffer_status_internal.empty && restart_pending;
+	assign restart_command_buffer_pop = ~restart_command_buffer_status_internal.empty && restart_pending && restart_command_send;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
