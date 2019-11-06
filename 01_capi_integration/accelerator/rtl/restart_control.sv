@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
 // Create : 2019-11-05 08:05:09
-// Revise : 2019-11-05 17:58:14
+// Revise : 2019-11-06 11:42:02
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -36,7 +36,6 @@ module restart_control (
 	logic             enabled                     ;
 	logic [0:7]       credits_partial             ;
 	logic [0:7]       credits_total               ;
-	logic             restart_pending_internal    ;
 	CommandBufferLine command_outstanding_data_in ;
 	CommandBufferLine command_outstanding_data_out;
 	logic             command_outstanding_we      ;
@@ -141,7 +140,7 @@ module restart_control (
 		end else begin
 			if(enabled)begin
 				if(restart_pending)
-					credits_total <= credits_in + credits_partial;
+					credits_total <= credits_in;
 			end else begin
 				credits_total <= 0;
 			end
@@ -193,20 +192,20 @@ module restart_control (
 			end
 			RESTART_SEND_CMD_FLUSHED : begin
 				if(restart_command_buffer_status_internal.empty && (credits_total == CREDITS_TOTAL))begin
-					if(response.valid)
+					if(response.valid  && response.response == PAGE)
 						next_state = RESTART_INIT;
 					else
 						next_state = RESTART_DONE;
 				end
 				else begin
-					if(response.valid)
+					if(response.valid && response.response == PAGED)
 						next_state = RESTART_INIT;
 					else
 						next_state = RESTART_SEND_CMD_FLUSHED;
 				end
 			end
 			RESTART_DONE : begin
-				if(response.valid)
+				if(response.valid  && response.response == PAGE)
 					next_state = RESTART_INIT;
 				else
 					next_state = RESTART_IDLE;
@@ -252,12 +251,15 @@ module restart_control (
 				if(restart_command_buffer_out.valid) begin
 					restart_command_out     <= restart_command_buffer_out;
 					restart_command_out.abt <= STRICT;
+				end else begin
+					restart_command_out     <= 0;
 				end
 			end
 			RESTART_DONE : begin
 				ready_restart_issue <= 0;
 				restart_command_out <= 0;
 				restart_pending     <= 0;
+				restart_command_send <= 0;
 			end
 		endcase
 	end
