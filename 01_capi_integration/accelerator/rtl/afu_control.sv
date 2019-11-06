@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-05 17:38:53
+// Revise : 2019-11-05 19:13:55
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -123,10 +123,15 @@ module afu_control #(
 	BufferStatus      burst_command_buffer_states_afu;
 	logic             burst_command_buffer_pop       ;
 	CommandBufferLine burst_command_buffer_out       ;
+	CommandBufferLine command_buffer_out             ;
+
 
 	logic command_write_valid;
 
 	ResponseBufferLine restart_response_out;
+	CommandBufferLine  restart_command_out ;
+	logic              restart_pending     ;
+	logic              ready_restart_issue ;
 
 	genvar i;
 
@@ -259,9 +264,6 @@ module afu_control #(
 //command restart control logic
 ////////////////////////////////////////////////////////////////////////////
 
-	CommandBufferLine restart_command_out;
-	logic             restart_pending    ;
-	logic             ready_restart_issue;
 
 	restart_control restart_command_control_instant (
 		.clock                 (clock                    ),
@@ -288,12 +290,29 @@ module afu_control #(
 			command_issue_register <= 0;
 			command_tag_latched    <= 0;
 		end else begin
-			if(ready_restart_issue) begin
-				command_issue_register <= restart_command_out;
-				command_tag_latched    <= restart_command_out.cmd.tag;
-			end else begin
-				command_issue_register <= burst_command_buffer_out;
-				command_tag_latched    <= command_tag;
+			if(enabled) begin
+				if(ready_restart_issue && (restart_command_out.command != RESTART)) begin
+					command_issue_register <= restart_command_out;
+					command_tag_latched    <= restart_command_out.cmd.tag;
+				end else begin
+					command_issue_register <= command_buffer_out;
+					command_tag_latched    <= command_tag;
+				end
+			end
+		end
+	end
+
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			command_buffer_out <= 0;
+		end else begin
+			if(enabled) begin
+				if(ready_restart_issue && (restart_command_out.command == RESTART)) begin
+					command_buffer_out <= restart_command_out;
+				end else begin
+					command_buffer_out <= burst_command_buffer_out;
+				end
 			end
 		end
 	end
@@ -304,11 +323,11 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 	credit_control credits_total_control_instant (
-		.clock     (clock                                                                                                                                      ),
-		.rstn      (rstn                                                                                                                                       ),
-		.enabled_in(enabled                                                                                                                                    ),
-		.credit_in ({burst_command_buffer_out.valid,response_control_out.response.valid,response_control_out.response.response_credits,command_in_latched.room}),
-		.credit_out(credits                                                                                                                                    )
+		.clock     (clock                                                                                                                                ),
+		.rstn      (rstn                                                                                                                                 ),
+		.enabled_in(enabled                                                                                                                              ),
+		.credit_in ({command_buffer_out.valid,response_control_out.response.valid,response_control_out.response.response_credits,command_in_latched.room}),
+		.credit_out(credits                                                                                                                              )
 	);
 
 	credit_control credits_read_control_instant (
@@ -405,8 +424,8 @@ module afu_control #(
 
 	always_comb begin
 		command_write_valid = 0;
-		if(burst_command_buffer_out.valid)begin
-			if(burst_command_buffer_out.cmd.cmd_type == CMD_WRITE)
+		if(command_buffer_out.valid)begin
+			if(command_buffer_out.cmd.cmd_type == CMD_WRITE)
 				command_write_valid = 1;
 			else
 				command_write_valid = 0;
@@ -433,21 +452,21 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign command_tag_id = burst_command_buffer_out.cmd;
+	assign command_tag_id = command_buffer_out.cmd;
 
 	tag_control tag_control_instant (
-		.clock               (clock                         ),
-		.rstn                (rstn                          ),
-		.enabled_in          (enabled                       ),
-		.tag_response_valid  (response_latched.valid        ),
-		.response_tag        (response_latched.tag          ),
-		.response_tag_id_out (response_tag_id               ),
-		.data_read_tag       (write_tag                     ), // reminder PSL sees read as write and opposite
-		.data_read_tag_id_out(read_tag_id                   ),
-		.tag_command_valid   (burst_command_buffer_out.valid),
-		.tag_command_id      (command_tag_id                ),
-		.command_tag_out     (command_tag                   ),
-		.tag_buffer_ready    (tag_buffer_ready              )
+		.clock               (clock                   ),
+		.rstn                (rstn                    ),
+		.enabled_in          (enabled                 ),
+		.tag_response_valid  (response_latched.valid  ),
+		.response_tag        (response_latched.tag    ),
+		.response_tag_id_out (response_tag_id         ),
+		.data_read_tag       (write_tag               ), // reminder PSL sees read as write and opposite
+		.data_read_tag_id_out(read_tag_id             ),
+		.tag_command_valid   (command_buffer_out.valid),
+		.tag_command_id      (command_tag_id          ),
+		.command_tag_out     (command_tag             ),
+		.tag_buffer_ready    (tag_buffer_ready        )
 	);
 
 ////////////////////////////////////////////////////////////////////////////
