@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
 // Create : 2019-11-05 08:05:09
-// Revise : 2019-11-06 11:42:02
+// Revise : 2019-11-06 12:19:14
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -34,7 +34,6 @@ module restart_control (
 );
 
 	logic             enabled                     ;
-	logic [0:7]       credits_partial             ;
 	logic [0:7]       credits_total               ;
 	CommandBufferLine command_outstanding_data_in ;
 	CommandBufferLine command_outstanding_data_out;
@@ -66,9 +65,9 @@ module restart_control (
 		end
 	end
 
-////////////////////////////////////////////////////////////////////////////
-//record outstanding commands write
-////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	//record outstanding commands write
+	////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -77,17 +76,17 @@ module restart_control (
 			command_outstanding_data_in <= 0;
 		end else begin
 			if(enabled) begin
-				command_outstanding_we      <= command_outstanding_in.valid;
-				command_outstanding_wr_addr <= command_tag_in;
-				command_outstanding_data_in <= command_outstanding_in;
+				command_outstanding_we              <= command_outstanding_in.valid;
+				command_outstanding_wr_addr         <= command_tag_in;
+				command_outstanding_data_in         <= command_outstanding_in;
 				command_outstanding_data_in.cmd.tag <= command_tag_in;
 			end
 		end
 	end
 
-////////////////////////////////////////////////////////////////////////////
-//push restarted commands to queue
-////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	//push restarted commands to queue
+	////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -120,19 +119,6 @@ module restart_control (
 	////////////////////////////////////////////////////////////////////////////
 	//credit counter
 	////////////////////////////////////////////////////////////////////////////
-
-	always @(posedge clock or negedge rstn) begin
-		if (~rstn) begin
-			credits_partial <= 0;
-		end else begin
-			if(enabled)begin
-				if(restart_pending)
-					credits_partial <= command_outstanding_rd_S2 + credits_partial;
-			end else begin
-				credits_partial <= 0;
-			end
-		end
-	end
 
 	always @(posedge clock or negedge rstn) begin
 		if (~rstn) begin
@@ -252,13 +238,13 @@ module restart_control (
 					restart_command_out     <= restart_command_buffer_out;
 					restart_command_out.abt <= STRICT;
 				end else begin
-					restart_command_out     <= 0;
+					restart_command_out <= 0;
 				end
 			end
 			RESTART_DONE : begin
-				ready_restart_issue <= 0;
-				restart_command_out <= 0;
-				restart_pending     <= 0;
+				ready_restart_issue  <= 0;
+				restart_command_out  <= 0;
+				restart_pending      <= 0;
 				restart_command_send <= 0;
 			end
 		endcase
