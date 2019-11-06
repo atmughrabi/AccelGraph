@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : capienv.c
 // Create : 2019-10-09 19:20:39
-// Revise : 2019-11-05 03:25:28
+// Revise : 2019-11-05 19:17:55
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
@@ -135,10 +135,10 @@ void releaseAFU(struct cxl_afu_h **afu)
             printf("(BIT-3) Response FAULT\n");
             break;
         case 16:
-            printf("(BIT-4) Response PAGED\n");
+            printf("(BIT-4) Response NRES\n");
             break;
         case 32:
-            printf("(BIT-5) Response FLUSHED\n");
+            printf("(BIT-5) Response NLOCK\n");
             break;
         case 64:
             printf("(BIT-6) Response tag Parity-Error\n");
