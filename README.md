@@ -107,6 +107,65 @@ accel@graph:~AccelGraph/00_graph_bench$ make run
 accel@graph:~AccelGraph/00_graph_bench$ make run-openmp
 ```
 
+[<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
+
+## Initial compilation for the Graph framework with Coherent Accelerator Processor Interface (CAPI)  
+
+* NOTE: You need CAPI environment setup on your machine.
+* [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
+* We are not supporting CAPI-SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a good candidate.
+* For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
+* CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
+* [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
+
+### Simulation
+
+1. (Optional) From the root directory go to the graph benchmark directory:
+```console
+accel@graph:~AccelGraph$ cd 00_graph_bench/
+```
+2. Run [Modelsim vsim] for `simulation` this step is not needed when running on real hardware, this just simulates the AFU that resides on your (CAPI supported) FPGA  :
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-vsim
+```
+3. The previous step will execute vsim.tcl script to compile the design, to start the running the simulation just execute the following command at the transcript terminal of ModelSim : `r #recompile design`,`c #run simulation`
+```console
+ModelSim> r 
+ModelSim> c 
+```
+4. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-pslse
+```
+5. Runs a graph algorithm that communicates with the PSLSE (simulation):
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-capi-sim
+```
+
+### FPGA
+
+#### Running
+
+1. (Optional) From the root directory go to the graph benchmark directory:
+```console
+accel@graph:~AccelGraph$ cd 00_graph_bench/
+```
+2. Runs a graph algorithm that communicates with the or PSL (real HW):
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-capi-fpga
+```
+
+#### Flashing image
+
+1. From the root directory go to CAPI integration directory -> ACCELGRAPH binary images:
+```console
+accel@graph:~AccelGraph$ cd 01_capi_integration/accelerator_bin/
+```
+2. Flash the image to the corresponding `#define DEVICE` you can modify it according to your Power8 system from `00_graph_bench/include/capienv.h`
+```console
+accel@graph:~AccelGraph/01_capi_integration/accelerator_bin$ sudo capi-flash-script ACCELGRAPH_ALGORITHM.rbf
+```
+
 [<img src="./02_slides/fig/gem5-aladdin_logo.png" height="45" align="right" >](https://github.com/harvard-acc/gem5-aladdin)
 
 ## Initial compilation for the Graph framework with gem5-Aladdin 
@@ -167,66 +226,6 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-accel
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
 ```
-
-[<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
-
-## Initial compilation for the Graph framework with Coherent Accelerator Processor Interface (CAPI)  
-
-* NOTE: You need CAPI environment setup on your machine.
-* [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
-* We are not supporting CAPI-SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a good candidate.
-* For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
-* CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
-* [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
-
-### Simulation
-
-1. (Optional) From the root directory go to the graph benchmark directory:
-```console
-accel@graph:~AccelGraph$ cd 00_graph_bench/
-```
-2. Run [Modelsim vsim] for `simulation` this step is not needed when running on real hardware, this just simulates the AFU that resides on your (CAPI supported) FPGA  :
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-vsim
-```
-3. The previous step will execute vsim.tcl script to compile the design, to start the running the simulation just execute the following command at the transcript terminal of ModelSim : `r #recompile design`,`c #run simulation`
-```console
-ModelSim> r 
-ModelSim> c 
-```
-4. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-pslse
-```
-5. Runs a graph algorithm that communicates with the PSLSE (simulation):
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-capi-sim
-```
-
-### FPGA
-
-#### Running
-
-1. (Optional) From the root directory go to the graph benchmark directory:
-```console
-accel@graph:~AccelGraph$ cd 00_graph_bench/
-```
-2. Runs a graph algorithm that communicates with the or PSL (real HW):
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-capi-fpga
-```
-
-#### Flashing image
-
-1. From the root directory go to CAPI integration directory -> ACCELGRAPH binary images:
-```console
-accel@graph:~AccelGraph$ cd 01_capi_integration/accelerator_bin/
-```
-2. Flash the image to the corresponding `#define DEVICE` you can modify it according to your Power8 system from `00_graph_bench/include/capienv.h`
-```console
-accel@graph:~AccelGraph/01_capi_integration/accelerator_bin$ sudo capi-flash-script ACCELGRAPH_ALGORITHM.rbf
-```
-
 
 
 ## Graph structure Input (Edge list) 
