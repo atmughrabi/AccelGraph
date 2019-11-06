@@ -191,16 +191,43 @@ accel@graph:~AccelGraph/00_graph_bench$ make run-vsim
 ```
 3. The previous step will execute vsim.tcl script to compile the design, to start the running the simulation just execute the following command at the Transcript terminal of ModelSim :
 ```console
-ModelSim> simulate
+ModelSim> r #recompile design
+ModelSim> c #run simulation
 ```
 4. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-pslse
 ```
-5. Runs a graph algorithm that communicates with the PSLSE (simulation), or PSL (real HW):
+5. Runs a graph algorithm that communicates with the PSLSE (simulation):
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-capi
+accel@graph:~AccelGraph/00_graph_bench$ make run-capi-sim
 ```
+
+### FPGA
+
+#### Running
+
+1. (Optional) From the root directory go to the graph benchmark directory:
+```console
+accel@graph:~AccelGraph$ cd 00_graph_bench/
+```
+2. Runs a graph algorithm that communicates with the or PSL (real HW):
+```console
+accel@graph:~AccelGraph/00_graph_bench$ make run-capi-fpga
+```
+
+#### Flashing image
+
+1. From the root directory go to CAPI integration directory -> ACCELGRAPH binary images:
+```console
+accel@graph:~AccelGraph$ cd 01_capi_integration/accelerator_bin/
+```
+2. Flash the image to the corresponding `#define DEVICE` you can modify it according to your Power8 system from `00_graph_bench/include/capienv.h`
+```console
+accel@graph:~AccelGraph/00_graph_bench$ sudo capi-flash-script ACCELGRAPH_ALGORITHM.rbf
+```
+
+
 
 ## Graph structure Input (Edge list) 
 
@@ -466,7 +493,7 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] BC    (Betweenness Centrality)
 - [x] Finish integration with gem5-Aladdin
 - [ ] Finish graph algorithms suite gem5-Aladdin
-  - [ ] BFS   (Breadth First Search)
+  - [x] BFS   (Breadth First Search)
   - [x] PR    (Page-Rank)
   - [ ] DFS   (Depth First Search)
   - [ ] IA    (Incremental Aggregation)
@@ -478,10 +505,10 @@ portable benchmarking suite for various graph processing algorithms.
   - [ ] SPMV  (Sparse Matrix-vector Multiplication)
 - [x] Finish integration with CAPI Simulation
 - [x] Finish integration with CAPI Cache
-- [ ] Finish Synthesis with CAPI (Meets time requirements)
+- [x] Finish Synthesis with CAPI (Meets time requirements)
 - [ ] Finish graph algorithms suite CAPI
   - [ ] BFS   (Breadth First Search)
-  - [ ] PR    (Page-Rank)
+  - [x] PR    (Page-Rank)
   - [ ] DFS   (Depth First Search)
   - [ ] IA    (Incremental Aggregation)
   - [ ] SSSP  (BellmanFord)
