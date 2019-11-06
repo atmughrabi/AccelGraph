@@ -189,10 +189,10 @@ accel@graph:~AccelGraph$ cd 00_graph_bench/
 ```console
 accel@graph:~AccelGraph/00_graph_bench$ make run-vsim
 ```
-3. The previous step will execute vsim.tcl script to compile the design, to start the running the simulation just execute the following command at the Transcript terminal of ModelSim :
+3. The previous step will execute vsim.tcl script to compile the design, to start the running the simulation just execute the following command at the transcript terminal of ModelSim : `r #recompile design`,`c #run simulation`
 ```console
-ModelSim> r #recompile design
-ModelSim> c #run simulation
+ModelSim> r 
+ModelSim> c 
 ```
 4. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
 ```console
