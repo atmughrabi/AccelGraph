@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-05 19:13:55
+// Revise : 2019-11-05 19:51:22
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -124,6 +124,7 @@ module afu_control #(
 	logic             burst_command_buffer_pop       ;
 	CommandBufferLine burst_command_buffer_out       ;
 	CommandBufferLine command_buffer_out             ;
+	CommandBufferLine command_buffer_out_bypass      ;
 
 
 	logic command_write_valid;
@@ -291,9 +292,12 @@ module afu_control #(
 			command_tag_latched    <= 0;
 		end else begin
 			if(enabled) begin
-				if(ready_restart_issue && (restart_command_out.command != RESTART)) begin
-					command_issue_register <= restart_command_out;
-					command_tag_latched    <= restart_command_out.cmd.tag;
+				if(ready_restart_issue && command_buffer_out_bypass.valid && (command_buffer_out_bypass.command != RESTART)) begin
+					command_issue_register <= command_buffer_out_bypass;
+					command_tag_latched    <= command_buffer_out_bypass.cmd.tag;
+				end else if(ready_restart_issue && command_buffer_out && (command_buffer_out.command == RESTART)) begin
+					command_issue_register <= command_buffer_out;
+					command_tag_latched    <= command_tag;
 				end else begin
 					command_issue_register <= command_buffer_out;
 					command_tag_latched    <= command_tag;
@@ -306,13 +310,19 @@ module afu_control #(
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			command_buffer_out <= 0;
+			command_buffer_out_bypass <= 0;
 		end else begin
 			if(enabled) begin
-				if(ready_restart_issue && (restart_command_out.command == RESTART)) begin
+				if(ready_restart_issue && (restart_command_out.valid && restart_command_out.command != RESTART)) begin
+					command_buffer_out_bypass <= restart_command_out;
+				end else if(ready_restart_issue && (restart_command_out.valid && restart_command_out.command == RESTART)) begin
 					command_buffer_out <= restart_command_out;
-				end else begin
+				end else if (burst_command_buffer_out.valid) begin
 					command_buffer_out <= burst_command_buffer_out;
-				end
+				end else begin
+					command_buffer_out <= 0;
+					command_buffer_out_bypass <= 0;
+				end 
 			end
 		end
 	end
