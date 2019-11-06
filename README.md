@@ -224,7 +224,7 @@ accel@graph:~AccelGraph$ cd 01_capi_integration/accelerator_bin/
 ```
 2. Flash the image to the corresponding `#define DEVICE` you can modify it according to your Power8 system from `00_graph_bench/include/capienv.h`
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ sudo capi-flash-script ACCELGRAPH_ALGORITHM.rbf
+accel@graph:~AccelGraph/01_capi_integration/accelerator_bin$ sudo capi-flash-script ACCELGRAPH_ALGORITHM.rbf
 ```
 
 
