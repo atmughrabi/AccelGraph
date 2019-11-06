@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-05 19:51:22
+// Revise : 2019-11-06 16:24:25
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -162,11 +162,11 @@ module afu_control #(
 		end else begin
 			if(enabled && response.valid) begin
 				case (response.response)
-					DONE,AERROR,DERROR,NLOCK,NRES,FAILED: begin
+					DONE,NLOCK,NRES,FAILED: begin
 						response_filtered         <= response;
 						response_filtered_restart <= 0;
 					end
-					PAGED,FAULT,FLUSHED: begin
+					AERROR,DERROR,PAGED,FAULT,FLUSHED: begin
 						response_filtered         <= 0;
 						response_filtered_restart <= response;
 					end
@@ -267,17 +267,18 @@ module afu_control #(
 
 
 	restart_control restart_command_control_instant (
-		.clock                 (clock                    ),
-		.enabled_in            (enabled                  ),
-		.rstn                  (rstn                     ),
-		.command_outstanding_in(command_issue_register   ),
-		.command_tag_in        (command_tag_latched      ),
-		.restart_response_in   (restart_response_out     ),
-		.response              (response_filtered_restart),
-		.credits_in            (credits.credits          ),
-		.ready_restart_issue   (ready_restart_issue      ),
-		.restart_command_out   (restart_command_out      ),
-		.restart_pending       (restart_pending          )
+		.clock                  (clock                    ),
+		.enabled_in             (enabled                  ),
+		.rstn                   (rstn                     ),
+		.command_outstanding_in (command_issue_register   ),
+		.command_tag_in         (command_tag_latched      ),
+		.restart_response_in    (restart_response_out     ),
+		.response               (response_filtered_restart),
+		.credits_in             (credits.credits          ),
+		.ready_restart_issue    (ready_restart_issue      ),
+		.restart_command_out    (restart_command_out      ),
+		.restart_command_flushed(restart_command_flushed  ),
+		.restart_pending        (restart_pending          )
 	);
 
 
@@ -309,20 +310,20 @@ module afu_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			command_buffer_out <= 0;
+			command_buffer_out        <= 0;
 			command_buffer_out_bypass <= 0;
 		end else begin
 			if(enabled) begin
-				if(ready_restart_issue && (restart_command_out.valid && restart_command_out.command != RESTART)) begin
+				if(ready_restart_issue && (restart_command_out.valid && restart_command_flushed)) begin
 					command_buffer_out_bypass <= restart_command_out;
-				end else if(ready_restart_issue && (restart_command_out.valid && restart_command_out.command == RESTART)) begin
+				end else if(ready_restart_issue && (restart_command_out.valid && ~restart_command_flushed)) begin
 					command_buffer_out <= restart_command_out;
 				end else if (burst_command_buffer_out.valid) begin
 					command_buffer_out <= burst_command_buffer_out;
 				end else begin
-					command_buffer_out <= 0;
+					command_buffer_out        <= 0;
 					command_buffer_out_bypass <= 0;
-				end 
+				end
 			end
 		end
 	end

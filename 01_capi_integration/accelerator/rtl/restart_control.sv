@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
 // Create : 2019-11-05 08:05:09
-// Revise : 2019-11-06 12:19:14
+// Revise : 2019-11-06 16:16:44
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -20,18 +20,20 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module restart_control (
-	input                     clock                 , // Clock
-	input                     enabled_in            ,
-	input                     rstn                  , // Asynchronous reset active low
-	input  CommandBufferLine  command_outstanding_in,
-	input  logic [0:7]        command_tag_in        ,
-	input  ResponseBufferLine restart_response_in   ,
-	input  ResponseInterface  response              ,
-	input  logic [0:7]        credits_in            ,
-	output logic              ready_restart_issue   ,
-	output CommandBufferLine  restart_command_out   ,
+	input                     clock                  , // Clock
+	input                     enabled_in             ,
+	input                     rstn                   , // Asynchronous reset active low
+	input  CommandBufferLine  command_outstanding_in ,
+	input  logic [0:7]        command_tag_in         ,
+	input  ResponseBufferLine restart_response_in    ,
+	input  ResponseInterface  response               ,
+	input  logic [0:7]        credits_in             ,
+	output logic              ready_restart_issue    ,
+	output CommandBufferLine  restart_command_out    ,
+	output logic              restart_command_flushed,
 	output logic              restart_pending
 );
+
 
 	logic             enabled                     ;
 	logic [0:7]       credits_total               ;
@@ -44,6 +46,7 @@ module restart_control (
 	logic [0:7]       command_outstanding_rd_addr ;
 
 	logic             restart_command_send                  ;
+	logic             restart_command_sent                  ;
 	logic             restart_command_buffer_push           ;
 	logic             restart_command_buffer_pop            ;
 	CommandBufferLine restart_command_buffer_out            ;
@@ -53,9 +56,9 @@ module restart_control (
 
 	restart_state current_state, next_state;
 
-////////////////////////////////////////////////////////////////////////////
-//enable logic
-////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	//enable logic
+	////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -171,14 +174,14 @@ module restart_control (
 				next_state = RESTART_RESP_WAIT;
 			end
 			RESTART_RESP_WAIT : begin
-				if(restart_response_in.valid)
+				if(restart_response_in.valid || (command_outstanding_rd_S2 && command_outstanding_data_out.cmd.cmd_type == CMD_RESTART && command_outstanding_data_out.cmd.cu_id == RESTART_ID))
 					next_state = RESTART_SEND_CMD_FLUSHED;
 				else
 					next_state = RESTART_RESP_WAIT;
 			end
 			RESTART_SEND_CMD_FLUSHED : begin
 				if(restart_command_buffer_status_internal.empty && (credits_total == CREDITS_TOTAL))begin
-					if(response.valid  && response.response == PAGE)
+					if(response.valid  && response.response == PAGED)
 						next_state = RESTART_INIT;
 					else
 						next_state = RESTART_DONE;
@@ -191,7 +194,7 @@ module restart_control (
 				end
 			end
 			RESTART_DONE : begin
-				if(response.valid  && response.response == PAGE)
+				if(response.valid  && response.response == PAGED)
 					next_state = RESTART_INIT;
 				else
 					next_state = RESTART_IDLE;
@@ -203,20 +206,23 @@ module restart_control (
 	always_ff @(posedge clock) begin
 		case (current_state)
 			RESTART_RESET : begin
-				ready_restart_issue  <= 0;
-				restart_command_out  <= 0;
-				restart_pending      <= 0;
-				restart_command_send <= 0;
+				ready_restart_issue     <= 0;
+				restart_command_out     <= 0;
+				restart_pending         <= 0;
+				restart_command_send    <= 0;
+				restart_command_flushed <= 0;
 			end
 			RESTART_IDLE : begin
 				ready_restart_issue  <= 0;
 				restart_command_out  <= 0;
 				restart_pending      <= 0;
 				restart_command_send <= 0;
+				restart_command_flushed <= 0;
 			end
 			RESTART_INIT : begin
 				ready_restart_issue <= 1;
 				restart_pending     <= 1;
+				restart_command_flushed <= 0;
 			end
 			RESTART_SEND_CMD : begin
 				restart_command_out              <= command_outstanding_data_out;
@@ -237,14 +243,14 @@ module restart_control (
 				if(restart_command_buffer_out.valid) begin
 					restart_command_out     <= restart_command_buffer_out;
 					restart_command_out.abt <= STRICT;
+					restart_command_flushed <= 1;
 				end else begin
-					restart_command_out <= 0;
+					restart_command_out     <= 0;
+					restart_command_flushed <= 0;
 				end
 			end
 			RESTART_DONE : begin
-				ready_restart_issue  <= 0;
 				restart_command_out  <= 0;
-				restart_pending      <= 0;
 				restart_command_send <= 0;
 			end
 		endcase
@@ -252,9 +258,9 @@ module restart_control (
 
 
 
-////////////////////////////////////////////////////////////////////////////
-// Tag -> CU bookeeping for outstanding commands in PSL
-////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	// Tag -> CU bookeeping for outstanding commands in PSL
+	////////////////////////////////////////////////////////////////////////////
 
 	ram #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -268,9 +274,9 @@ module restart_control (
 		.data_out(command_outstanding_data_out)
 	);
 
-////////////////////////////////////////////////////////////////////////////
-//Buffer restart Commands
-////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////
+	//Buffer restart Commands
+	////////////////////////////////////////////////////////////////////////////
 
 	assign restart_command_buffer_pop = ~restart_command_buffer_status_internal.empty && restart_pending && restart_command_send;
 

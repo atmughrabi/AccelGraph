@@ -84,6 +84,16 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     combined_reset_afu <= reset_afu & reset_afu_soft;
   end
 
+  logic [0:7]                    restart_counter;
+
+  always_ff @(posedge clock or negedge combined_reset_afu) begin
+    if(~combined_reset_afu) begin
+      restart_counter  <= 0;
+    end else begin
+      restart_counter  <= restart_counter + 1;
+    end
+  end
+
 ////////////////////////////////////////////////////////////////////////////
 //enabled logic
 ////////////////////////////////////////////////////////////////////////////
@@ -91,6 +101,19 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   always_ff @(posedge clock) begin
     enabled          <= job_out.running;
     response_latched <= response;
+
+    if(restart_counter > 235 && response.response != PAGED )
+      response_latched.response <= FLUSHED;
+
+    if(restart_counter > 190 && restart_counter < 200 && response.response != PAGED )
+      response_latched.response <= FAULT;
+
+    if(restart_counter > 100 && restart_counter < 120 && response.response != PAGED )
+      response_latched.response <= AERROR;
+
+    if(restart_counter > 30 && restart_counter < 45 && response.response != PAGED )
+      response_latched.response <= DERROR;
+
   end
 
 ////////////////////////////////////////////////////////////////////////////
