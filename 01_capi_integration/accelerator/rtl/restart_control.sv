@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
 // Create : 2019-11-05 08:05:09
-// Revise : 2019-11-06 19:35:39
+// Revise : 2019-11-07 05:24:42
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -46,7 +46,6 @@ module restart_control (
 	logic [0:7]       command_outstanding_rd_addr ;
 
 	logic             restart_command_send                  ;
-	logic             restart_command_sent                  ;
 	logic             restart_command_buffer_push           ;
 	logic             restart_command_buffer_pop            ;
 	CommandBufferLine restart_command_buffer_out            ;
@@ -221,8 +220,17 @@ module restart_control (
 			RESTART_INIT : begin
 				ready_restart_issue     <= 1;
 				restart_pending         <= 1;
-				restart_command_flushed <= 0;
-				restart_command_send    <= 0;
+
+				if(restart_command_buffer_out.valid) begin
+					restart_command_out     <= restart_command_buffer_out;
+					restart_command_out.abt <= STRICT;
+					restart_command_flushed <= restart_command_buffer_out.valid;
+				end else begin
+					restart_command_out     <= 0;
+					restart_command_flushed <= 0;
+					restart_command_send    <= 0;
+				end
+				
 			end
 			RESTART_SEND_CMD : begin
 				restart_command_out              <= command_outstanding_data_out;
@@ -230,15 +238,18 @@ module restart_control (
 				restart_command_out.abt          <= STRICT;
 				restart_command_out.cmd.cmd_type <= CMD_RESTART;
 				restart_command_out.cmd.cu_id    <= RESTART_ID;
+				restart_command_flushed <= 0;
+				restart_command_send    <= 0;
 			end
 			RESTART_RESP_WAIT : begin
 				restart_command_out <= 0;
+				restart_command_flushed <= 0;
 			end
 			RESTART_SEND_CMD_FLUSHED : begin
 				if(~restart_command_buffer_status_internal.empty) begin
 					restart_command_out     <= restart_command_buffer_out;
 					restart_command_out.abt <= STRICT;
-					restart_command_flushed <= 1;
+					restart_command_flushed <= restart_command_buffer_out.valid;
 					restart_command_send    <= 1;
 				end else begin
 					restart_command_out     <= 0;
