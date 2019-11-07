@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-06 18:02:28
+// Revise : 2019-11-07 13:10:04
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -59,10 +59,13 @@ module afu_control #(
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
 
-	CommandInterfaceInput command_in_latched       ;
-	ResponseInterface     response_latched         ;
-	ResponseInterface     response_filtered        ;
-	ResponseInterface     response_filtered_restart;
+	CommandInterfaceInput command_in_latched               ;
+	ResponseInterface     response_latched                 ;
+	ResponseInterface     response_tagged                  ;
+	ResponseInterface     response_tagged_latched          ;
+	ResponseInterface     response_filtered                ;
+	ResponseInterface     response_filtered_restart        ;
+	ResponseInterface     response_filtered_restart_latched;
 
 
 	ReadDataControlInterface  read_buffer_in ;
@@ -159,36 +162,46 @@ module afu_control #(
 		if(~rstn) begin
 			response_filtered         <= 0;
 			response_filtered_restart <= 0;
+			response_tagged           <= 0;
 		end else begin
 			if(enabled && response.valid) begin
 				case (response.response)
 					DONE,NLOCK,NRES,FAILED: begin
 						response_filtered         <= response;
 						response_filtered_restart <= 0;
+						response_tagged           <= response;
 					end
 					AERROR,DERROR,PAGED,FAULT,FLUSHED: begin
 						response_filtered         <= 0;
 						response_filtered_restart <= response;
+						response_tagged           <= response;
+						response_tagged.valid     <= 0;
 					end
 					default : begin
 						response_filtered         <= response;
 						response_filtered_restart <= 0;
+						response_tagged           <= response;
 					end
 				endcase
 			end else begin
 				response_filtered         <= 0;
 				response_filtered_restart <= 0;
+				response_tagged           <= 0;
 			end
 		end
 	end
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock) begin
-		command_in_latched <= command_in;
-		response_latched   <= response_filtered;
+		command_in_latched                <= command_in;
+		response_latched                  <= response_filtered;
+		response_filtered_restart_latched <= response_filtered_restart;
+		response_tagged_latched           <= response_tagged;
 
 		write_tag <= buffer_in.write_tag;
 
@@ -267,18 +280,19 @@ module afu_control #(
 
 
 	restart_control restart_command_control_instant (
-		.clock                  (clock                    ),
-		.enabled_in             (enabled                  ),
-		.rstn                   (rstn                     ),
-		.command_outstanding_in (command_issue_register   ),
-		.command_tag_in         (command_tag_latched      ),
-		.restart_response_in    (restart_response_out     ),
-		.response               (response_filtered_restart),
-		.credits_in             (credits.credits          ),
-		.ready_restart_issue    (ready_restart_issue      ),
-		.restart_command_out    (restart_command_out      ),
-		.restart_command_flushed(restart_command_flushed  ),
-		.restart_pending        (restart_pending          )
+		.clock                  (clock                            ),
+		.enabled_in             (enabled                          ),
+		.rstn                   (rstn                             ),
+		.command_outstanding_in (command_issue_register           ),
+		.command_tag_in         (command_tag_latched              ),
+		.restart_response_in    (restart_response_out             ),
+		.response_in            (response_filtered_restart_latched),
+		.response_tag_id_in     (response_tag_id                  ),
+		.credits_in             (credits.credits                  ),
+		.ready_restart_issue    (ready_restart_issue              ),
+		.restart_command_out    (restart_command_out              ),
+		.restart_command_flushed(restart_command_flushed          ),
+		.restart_pending        (restart_pending                  )
 	);
 
 
@@ -315,10 +329,10 @@ module afu_control #(
 					command_buffer_out_bypass <= restart_command_out;
 					command_buffer_out        <= 0;
 				end else if(ready_restart_issue && (restart_command_out.valid && ~restart_command_flushed)) begin
-					command_buffer_out <= restart_command_out;
+					command_buffer_out        <= restart_command_out;
 					command_buffer_out_bypass <= 0;
 				end else if (burst_command_buffer_out.valid) begin
-					command_buffer_out <= burst_command_buffer_out;
+					command_buffer_out        <= burst_command_buffer_out;
 					command_buffer_out_bypass <= 0;
 				end else begin
 					command_buffer_out        <= 0;
@@ -466,18 +480,18 @@ module afu_control #(
 	assign command_tag_id = command_buffer_out.cmd;
 
 	tag_control tag_control_instant (
-		.clock               (clock                   ),
-		.rstn                (rstn                    ),
-		.enabled_in          (enabled                 ),
-		.tag_response_valid  (response_latched.valid  ),
-		.response_tag        (response_latched.tag    ),
-		.response_tag_id_out (response_tag_id         ),
-		.data_read_tag       (write_tag               ), // reminder PSL sees read as write and opposite
-		.data_read_tag_id_out(read_tag_id             ),
-		.tag_command_valid   (command_buffer_out.valid),
-		.tag_command_id      (command_tag_id          ),
-		.command_tag_out     (command_tag             ),
-		.tag_buffer_ready    (tag_buffer_ready        )
+		.clock               (clock                        ),
+		.rstn                (rstn                         ),
+		.enabled_in          (enabled                      ),
+		.tag_response_valid  (response_tagged_latched.valid),
+		.response_tag        (response_tagged_latched.tag  ),
+		.response_tag_id_out (response_tag_id              ),
+		.data_read_tag       (write_tag                    ), // reminder PSL sees read as write and opposite
+		.data_read_tag_id_out(read_tag_id                  ),
+		.tag_command_valid   (command_buffer_out.valid     ),
+		.tag_command_id      (command_tag_id               ),
+		.command_tag_out     (command_tag                  ),
+		.tag_buffer_ready    (tag_buffer_ready             )
 	);
 
 ////////////////////////////////////////////////////////////////////////////

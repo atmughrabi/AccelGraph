@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_job_control.sv
 // Create : 2019-09-26 15:19:30
-// Revise : 2019-11-05 07:22:10
+// Revise : 2019-11-07 12:40:39
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -224,8 +224,10 @@ module cu_vertex_job_control (
 				read_command_out_latched.cmd.cu_id            <= VERTEX_CONTROL_ID;
 				read_command_out_latched.cmd.cmd_type         <= CMD_READ;
 				read_command_out_latched.cmd.cacheline_offest <= 0;
-				read_command_out_latched.abt 				  <= STRICT;
-			end 
+				
+				read_command_out_latched.cmd.abt              <= STRICT;
+				read_command_out_latched.abt                  <= STRICT;
+			end
 			SEND_VERTEX_IDLE      : begin
 			end
 			SEND_VERTEX_IN_DEGREE : begin
@@ -233,7 +235,7 @@ module cu_vertex_job_control (
 				read_command_out_latched.command <= READ_CL_NA; // just zero it out
 				read_command_out_latched.address <= wed_request_in_latched.wed.vertex_in_degree + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
-				
+
 				read_command_out_latched.cmd.vertex_struct <= IN_DEGREE;
 			end
 			SEND_VERTEX_OUT_DEGREE : begin

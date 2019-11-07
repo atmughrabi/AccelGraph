@@ -54,7 +54,7 @@ package AFU_PKG;
 // Restart Command Issue
 ////////////////////////////////////////////////////////////////////////////
 
-typedef enum int unsigned {
+  typedef enum int unsigned {
     RESTART_RESET,
     RESTART_IDLE,
     RESTART_INIT,
@@ -82,6 +82,7 @@ typedef enum int unsigned {
     logic [0:CACHELINE_INT_COUNTER_BITS] real_size       ;
     logic [0:CACHELINE_INT_COUNTER_BITS] cacheline_offest;
     logic [                         0:7] tag             ;
+    trans_order_behavior_t               abt             ; // ah_cabt,        // Command ABT
   } CommandTagLine;
 
 ////////////////////////////////////////////////////////////////////////////

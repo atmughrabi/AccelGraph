@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_job_control.sv
 // Create : 2019-09-26 15:18:56
-// Revise : 2019-11-05 07:22:41
+// Revise : 2019-11-07 12:35:07
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -272,7 +272,9 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				read_command_out_latched.cmd.cacheline_offest <= (remainder >> $clog2(EDGE_SIZE));
 				read_command_out_latched.cmd.cu_id            <= CU_ID;
 				read_command_out_latched.cmd.cmd_type         <= CMD_READ;
-				read_command_out_latched.abt 				  <= STRICT;
+
+				read_command_out_latched.cmd.abt <= STRICT;
+				read_command_out_latched.abt     <= STRICT;
 			end
 			SEND_EDGE_IDLE    : begin
 			end

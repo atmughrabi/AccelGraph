@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
 // Create : 2019-11-05 08:05:09
-// Revise : 2019-11-07 11:13:46
+// Revise : 2019-11-07 13:11:39
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -26,7 +26,8 @@ module restart_control (
 	input  CommandBufferLine  command_outstanding_in ,
 	input  logic [0:7]        command_tag_in         ,
 	input  ResponseBufferLine restart_response_in    ,
-	input  ResponseInterface  response               ,
+	input  ResponseInterface  response_in            ,
+	input  CommandTagLine     response_tag_id_in     ,
 	input  logic [0:7]        credits_in             ,
 	output logic              ready_restart_issue    ,
 	output CommandBufferLine  restart_command_out    ,
@@ -34,7 +35,7 @@ module restart_control (
 	output logic              restart_pending
 );
 
-
+	ResponseInterface response                    ;
 	logic             enabled                     ;
 	logic [0:7]       credits_total               ;
 	logic [0:7]       outstanding_restart_commands;
@@ -48,6 +49,7 @@ module restart_control (
 
 	logic             restart_command_send                  ;
 	logic             restart_command_flag                  ;
+	logic             restart_command_flag_latched          ;
 	logic             restart_command_buffer_push           ;
 	logic             restart_command_buffer_pop            ;
 	CommandBufferLine restart_command_buffer_out            ;
@@ -72,6 +74,21 @@ module restart_control (
 			enabled <= 0;
 		end else begin
 			enabled <= enabled_in;
+		end
+	end
+
+	////////////////////////////////////////////////////////////////////////////
+	//drive input
+	////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			response <= 0;
+		end else begin
+			if(enabled)
+				response <= response_in;
+			else
+				response <= 0;
 		end
 	end
 
@@ -162,10 +179,25 @@ module restart_control (
 	end
 
 	////////////////////////////////////////////////////////////////////////////
+	//credit counter
+	////////////////////////////////////////////////////////////////////////////
+
+	always @(posedge clock or negedge rstn) begin
+		if (~rstn) begin
+			restart_command_flag_latched <= 0;
+		end else begin
+			if(enabled)begin
+				restart_command_flag_latched <= restart_command_flag;
+			end else
+				restart_command_flag_latched <= 0;
+		end
+	end
+
+	////////////////////////////////////////////////////////////////////////////
 	//Restart State Machine
 	////////////////////////////////////////////////////////////////////////////
 
-	assign restart_command_flag = (response.response == PAGED || response.response == AERROR || response.response == DERROR);
+	assign restart_command_flag = response.valid && (response.response == PAGED || response.response == AERROR || response.response == DERROR) && (response_tag_id_in.abt == STRICT || response_tag_id_in.abt == PAGE);
 	// assign restart_command_flag = (response.response == PAGED);
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -190,19 +222,19 @@ module restart_control (
 					next_state = RESTART_IDLE;
 			end
 			RESTART_INIT : begin
-				if(response_type_latched == PAGED || response_type_latched == AERROR || response_type_latched == DERROR)
+				if(restart_command_flag_latched)
 					next_state = RESTART_SEND_CMD;
 				else
 					next_state = RESTART_SEND_CMD_FLUSHED;
 			end
 			RESTART_SEND_CMD : begin
-				if(response.valid && restart_command_flag)
+				if(restart_command_flag)
 					next_state = RESTART_INIT;
 				else
 					next_state = RESTART_RESP_WAIT;
 			end
 			RESTART_RESP_WAIT : begin
-				if(response.valid && restart_command_flag)
+				if(restart_command_flag)
 					next_state = RESTART_INIT;
 				else if(~restart_command_out.valid && ~(|outstanding_restart_commands))
 					next_state = RESTART_SEND_CMD_FLUSHED;
@@ -211,20 +243,20 @@ module restart_control (
 			end
 			RESTART_SEND_CMD_FLUSHED : begin
 				if(restart_command_buffer_status_internal.empty && (credits_total == CREDITS_TOTAL))begin
-					if(response.valid && restart_command_flag)
+					if(restart_command_flag)
 						next_state = RESTART_INIT;
 					else
 						next_state = RESTART_DONE;
 				end
 				else begin
-					if(response.valid && restart_command_flag)
+					if(restart_command_flag)
 						next_state = RESTART_INIT;
 					else
 						next_state = RESTART_SEND_CMD_FLUSHED;
 				end
 			end
 			RESTART_DONE : begin
-				if(response.valid && restart_command_flag)
+				if(response.valid)
 					next_state = RESTART_INIT;
 				else
 					next_state = RESTART_IDLE;
