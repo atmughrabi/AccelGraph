@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-11-05 17:58:07
+// Revise : 2019-11-07 16:06:25
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -71,6 +71,8 @@ package GLOBALS_PKG;
 	parameter ALGO_STATUS  = 26'h 3FFFFF8 >> 2; // algorithm status DONE/RUNNING HOST reads this address
 	parameter ALGO_REQUEST = 26'h 3FFFFF0 >> 2; // algorithm status START/STOP/RESET AFU reads this address
 	parameter ERROR_REG    = 26'h 3FFFFE8 >> 2; // AFU error reporting HOST reads this address
+	parameter AFU_STATUS   = 26'h 3FFFFE0 >> 2; // AFU status job running
+	parameter ALGO_RUNNING = 26'h 3FFFFD8 >> 2; // KERNEL RETURN
 
 ////////////////////////////////////////////////////////////////////////////
 // CU-Control CU Globals

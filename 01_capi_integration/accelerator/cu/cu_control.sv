@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_control.sv
 // Create : 2019-09-26 15:18:39
-// Revise : 2019-11-05 06:01:03
+// Revise : 2019-11-07 16:17:08
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -30,6 +30,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	input  ReadWriteDataLine  read_data_1_in     ,
 	input  BufferStatus       read_buffer_status ,
 	output logic [0:63]       algorithm_status   ,
+	output logic [0:63]       algorithm_running  ,
 	input  logic [0:63]       algorithm_requests ,
 	output CommandBufferLine  read_command_out   ,
 	input  BufferStatus       write_buffer_status,
@@ -105,6 +106,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	BufferStatus      burst_command_buffer_states_cu;
 	logic             burst_command_buffer_pop      ;
 	CommandBufferLine burst_command_buffer_out      ;
+	logic             cu_ready                      ;
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -124,8 +126,11 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	assign done_graph_algorithm = (wed_request_in_latched.wed.num_vertices == (vertex_job_counter_filtered_latched+vertex_job_counter_done_latched)) &&
 		(wed_request_in_latched.wed.num_edges == edge_job_counter_done_latched);
 
+	assign cu_ready = (|algorithm_requests_latched);
+
 	always_comb begin
 		algorithm_status_latched = 0;
+
 		if(wed_request_in_latched.valid)begin
 			if(done_graph_algorithm)begin
 				algorithm_status_latched = {edge_job_counter_done,(vertex_job_counter_filtered+vertex_job_counter_done)};
@@ -150,6 +155,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			vertex_job_counter_filtered_latched <= 0;
 			vertex_job_counter_done_latched     <= 0;
 			edge_job_counter_done_latched       <= 0;
+			algorithm_running                   <= 0;
 		end else begin
 			if(enabled)begin
 				write_command_out                   <= write_command_out_latched;
@@ -160,6 +166,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 				vertex_job_counter_filtered_latched <= vertex_job_counter_filtered;
 				vertex_job_counter_done_latched     <= vertex_job_counter_done;
 				edge_job_counter_done_latched       <= edge_job_counter_done;
+				algorithm_running                   <= cu_ready;
 			end
 		end
 	end
@@ -173,6 +180,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			read_data_0_in_latched     <= 0;
 			read_data_1_in_latched     <= 0;
 			algorithm_requests_latched <= 0;
+
 		end else begin
 			if(enabled)begin
 				wed_request_in_latched    <= wed_request_in;
@@ -180,6 +188,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 				write_response_in_latched <= write_response_in;
 				read_data_0_in_latched    <= read_data_0_in;
 				read_data_1_in_latched    <= read_data_1_in;
+
 				if((|algorithm_requests))
 					algorithm_requests_latched <= algorithm_requests;
 			end

@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : pageRank.c
 // Create : 2019-09-28 14:41:30
-// Revise : 2019-11-05 05:04:56
+// Revise : 2019-11-07 16:20:48
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 #include <stdio.h>
@@ -1268,6 +1268,8 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
     afu_status.algo_status = 0;
     afu_status.num_cu = numThreads; // non zero CU triggers the AFU to work
     afu_status.error = 0;
+    afu_status.afu_status = 0;
+    afu_status.algo_running = 0;
 
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
@@ -1313,6 +1315,7 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
     // ********************************************************************************************
     // ***************                 Setup AFU                                     **************
     setupAFUGraphCSR(&afu, wedGraphCSR);
+    waitJOBRunning(&afu, &afu_status);
     // ********************************************************************************************
 
     #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext)
@@ -1341,7 +1344,7 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
         //  Start(timer_inner);
         // ********************************************************************************************
         // ***************                 START AFU                                     **************
-        startAFU(&afu, afu_status);
+        startAFU(&afu, &afu_status);
         // ********************************************************************************************
 
         // ********************************************************************************************

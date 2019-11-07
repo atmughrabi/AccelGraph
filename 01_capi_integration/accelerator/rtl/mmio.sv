@@ -20,6 +20,8 @@ module mmio (
   input  logic               rstn                       ,
   input  logic [0:63]        report_errors              ,
   input  logic [0:63]        algorithm_status           ,
+  input  logic [0:63]        algorithm_running          ,
+  input  logic [0:63]        afu_status                 ,
   output logic [0:63]        algorithm_requests         ,
   input  MMIOInterfaceInput  mmio_in                    ,
   output MMIOInterfaceOutput mmio_out                   ,
@@ -53,20 +55,22 @@ module mmio (
   logic report_errors_ack_latched          ;
   logic report_algorithm_status_ack_latched;
 
-  logic [0:23] address                 ;
-  logic [0:23] address_latched         ;
-  logic [0:63] data_in                 ;
-  logic [0:63] data_in_latched         ;
-  logic [0:63] data_out                ;
-  logic [0:63] data_cfg                ;
-  logic        data_out_parity         ;
-  logic        data_in_parity_link     ;
-  logic        data_in_parity          ;
-  logic        address_parity_link     ;
-  logic        address_parity          ;
-  logic        data_ack                ;
-  logic [0:63] report_errors_latched   ;
-  logic [0:63] algorithm_status_latched;
+  logic [0:23] address                  ;
+  logic [0:23] address_latched          ;
+  logic [0:63] data_in                  ;
+  logic [0:63] data_in_latched          ;
+  logic [0:63] data_out                 ;
+  logic [0:63] data_cfg                 ;
+  logic        data_out_parity          ;
+  logic        data_in_parity_link      ;
+  logic        data_in_parity           ;
+  logic        address_parity_link      ;
+  logic        address_parity           ;
+  logic        data_ack                 ;
+  logic [0:63] report_errors_latched    ;
+  logic [0:63] algorithm_status_latched ;
+  logic [0:63] afu_status_latched       ;
+  logic [0:63] algorithm_running_latched;
 
   MMIOInterfaceInput mmio_in_latched;
 
@@ -100,8 +104,10 @@ module mmio (
 
 
   always_ff @(posedge clock) begin
-    report_errors_latched    <= report_errors;
-    algorithm_status_latched <= algorithm_status;
+    report_errors_latched     <= report_errors;
+    algorithm_status_latched  <= algorithm_status;
+    afu_status_latched        <= afu_status;
+    algorithm_running_latched <= algorithm_running;
   end
 
 
@@ -203,6 +209,12 @@ module mmio (
           ERROR_REG : begin
             data_out                  <= report_errors_latched;
             report_errors_ack_latched <= (|report_errors_latched);
+          end
+          AFU_STATUS : begin
+            data_out <= afu_status_latched;
+          end
+          ALGO_RUNNING : begin
+            data_out <= algorithm_running_latched;
           end
           default : begin
             data_out                            <= data_out;

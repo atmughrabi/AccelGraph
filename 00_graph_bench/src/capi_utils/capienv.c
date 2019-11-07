@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : capienv.c
 // Create : 2019-10-09 19:20:39
-// Revise : 2019-11-05 19:17:55
+// Revise : 2019-11-07 16:22:40
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
@@ -48,8 +48,26 @@ int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR){
 
 }
 
-int startAFU(struct cxl_afu_h **afu, struct AFUStatus afu_status){
-     return cxl_mmio_write64((*afu), ALGO_REQUEST, afu_status.num_cu);
+void waitJOBRunning(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
+{
+    do
+    {
+        cxl_mmio_read64((*afu), AFU_STATUS, &(afu_status->afu_status));
+
+        // printf("waitJOBRunning %lu \n",(afu_status->afu_status) );
+    }
+    while(!(afu_status->afu_status));
+}
+
+void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status){ 
+    do
+    {
+        cxl_mmio_write64((*afu), ALGO_REQUEST, afu_status->num_cu);
+        cxl_mmio_read64((*afu), ALGO_RUNNING, &(afu_status->algo_running));
+
+        // printf("startAFU %lu \n",(afu_status->algo_running) );
+    }
+    while(!((afu_status->algo_running)));
 }
 
 void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
@@ -58,6 +76,8 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     {
         cxl_mmio_read64((*afu), ALGO_STATUS, &(afu_status->algo_status));
         cxl_mmio_read64((*afu), ERROR_REG, &(afu_status->error));
+
+        // printf("waitAFU %lu \n",(afu_status->algo_status) );
     }
     while((!(afu_status->algo_status)) && (!(afu_status->error)));
 }

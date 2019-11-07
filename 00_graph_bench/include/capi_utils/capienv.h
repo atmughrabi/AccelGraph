@@ -11,9 +11,11 @@
 // ***************                  MMIO General 	                             **************
 // ********************************************************************************************
 
-#define ALGO_STATUS            0x3fffff8             // 0x3fffff8 >> 2 = 0xfffffe
-#define ALGO_REQUEST           0x3fffff0             // 0x3fffff8 >> 2 = 0xfffffc
+#define ALGO_STATUS            0x3FFFFF8             // 0x3fffff8 >> 2 = 0xfffffe
+#define ALGO_REQUEST           0x3FFFFF0             // 0x3fffff8 >> 2 = 0xfffffc
 #define ERROR_REG              0x3FFFFE8
+#define AFU_STATUS             0x3FFFFE0
+#define ALGO_RUNNING           0x3FFFFD8
 
 #ifdef  SIM
 #define DEVICE              "/dev/cxl/afu0.0d"
@@ -26,6 +28,8 @@ struct AFUStatus
     uint64_t algo_status;
     uint64_t num_cu;
     uint64_t error;
+    uint64_t afu_status;
+    uint64_t algo_running;
 };
 
 // ********************************************************************************************
@@ -70,7 +74,8 @@ void printMMIO_error( uint64_t error );
 // ********************************************************************************************
 
 int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR);
-int startAFU(struct cxl_afu_h **afu, struct AFUStatus afu_status);
+void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
+void waitJOBRunning(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
 void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
 void releaseAFU(struct cxl_afu_h **afu);
 

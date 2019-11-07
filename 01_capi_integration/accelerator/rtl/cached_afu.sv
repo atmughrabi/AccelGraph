@@ -74,24 +74,27 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   ResponseBufferLine wed_response_out  ;
 
 
-  WEDInterface      wed             ; // work element descriptor -> addresses and other into
-  CommandBufferLine wed_command_out ; // command for populatin WED
-  logic             enabled         ;
-  ResponseInterface response_latched;
+  WEDInterface      wed              ; // work element descriptor -> addresses and other into
+  CommandBufferLine wed_command_out  ; // command for populatin WED
+  logic             enabled          ;
+  ResponseInterface response_latched ;
+  logic [0:63]      afu_status       ;
+  logic [0:63]      algorithm_running;
 
 
   always_ff @(posedge clock) begin
     combined_reset_afu <= reset_afu & reset_afu_soft;
+    afu_status         <= {63'b0,wed.valid};
   end
 
-  logic [0:7]                    restart_counter;
+  logic [0:7] restart_counter;
 
   always_ff @(posedge clock or negedge combined_reset_afu) begin
     if(~combined_reset_afu) begin
-      restart_counter  <= 0;
+      restart_counter <= 0;
     end else begin
       if(response.valid)
-        restart_counter  <= restart_counter + 1;
+        restart_counter <= restart_counter + 1;
     end
   end
 
@@ -223,6 +226,7 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     .read_data_1_in     (read_data_1_out                   ),
     .read_buffer_status (command_buffer_status.read_buffer ),
     .algorithm_status   (algorithm_status                  ),
+    .algorithm_running  (algorithm_running                 ),
     .algorithm_requests (algorithm_requests                ),
     .read_command_out   (read_command_out                  ),
     .write_buffer_status(command_buffer_status.write_buffer),
@@ -242,6 +246,8 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     .rstn                       (reset_afu                  ),
     .report_errors              (report_errors              ),
     .algorithm_status           (report_algorithm_status    ),
+    .algorithm_running          (algorithm_running          ),
+    .afu_status                 (afu_status                 ),
     .algorithm_requests         (algorithm_requests         ),
     .mmio_in                    (mmio_in                    ),
     .mmio_out                   (mmio_out                   ),
