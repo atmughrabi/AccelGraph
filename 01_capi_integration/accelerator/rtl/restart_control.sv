@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
 // Create : 2019-11-05 08:05:09
-// Revise : 2019-11-07 05:24:42
+// Revise : 2019-11-07 11:13:46
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -37,6 +37,7 @@ module restart_control (
 
 	logic             enabled                     ;
 	logic [0:7]       credits_total               ;
+	logic [0:7]       outstanding_restart_commands;
 	CommandBufferLine command_outstanding_data_in ;
 	CommandBufferLine command_outstanding_data_out;
 	logic             command_outstanding_we      ;
@@ -46,6 +47,7 @@ module restart_control (
 	logic [0:7]       command_outstanding_rd_addr ;
 
 	logic             restart_command_send                  ;
+	logic             restart_command_flag                  ;
 	logic             restart_command_buffer_push           ;
 	logic             restart_command_buffer_pop            ;
 	CommandBufferLine restart_command_buffer_out            ;
@@ -54,6 +56,12 @@ module restart_control (
 	psl_response_t    response_type_latched                 ;
 
 	restart_state current_state, next_state;
+
+	logic is_restart_cmd;
+	logic is_restart_rsp;
+
+	assign is_restart_cmd = (restart_command_out.valid && restart_command_out.cmd.cmd_type == CMD_RESTART);
+	assign is_restart_rsp = (restart_response_in.valid || (command_outstanding_rd_S2 && command_outstanding_data_out.cmd.cmd_type == CMD_RESTART && command_outstanding_data_out.cmd.cu_id == RESTART_ID));
 
 	////////////////////////////////////////////////////////////////////////////
 	//enable logic
@@ -64,6 +72,25 @@ module restart_control (
 			enabled <= 0;
 		end else begin
 			enabled <= enabled_in;
+		end
+	end
+
+	////////////////////////////////////////////////////////////////////////////
+	//keep in check outstanding restart commands send;
+	////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			outstanding_restart_commands <= 0;
+		end else begin
+			if(is_restart_cmd && ~is_restart_rsp)
+				outstanding_restart_commands <= outstanding_restart_commands + 1;
+			else if(~is_restart_cmd && is_restart_rsp)
+				outstanding_restart_commands <= outstanding_restart_commands - 1;
+			else if(is_restart_cmd && is_restart_rsp)
+				outstanding_restart_commands <= outstanding_restart_commands;
+			else
+				outstanding_restart_commands <= outstanding_restart_commands ;
 		end
 	end
 
@@ -138,6 +165,9 @@ module restart_control (
 	//Restart State Machine
 	////////////////////////////////////////////////////////////////////////////
 
+	assign restart_command_flag = (response.response == PAGED || response.response == AERROR || response.response == DERROR);
+	// assign restart_command_flag = (response.response == PAGED);
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn)
 			current_state <= RESTART_RESET;
@@ -160,39 +190,41 @@ module restart_control (
 					next_state = RESTART_IDLE;
 			end
 			RESTART_INIT : begin
-				if(response_type_latched == PAGED)
+				if(response_type_latched == PAGED || response_type_latched == AERROR || response_type_latched == DERROR)
 					next_state = RESTART_SEND_CMD;
 				else
 					next_state = RESTART_SEND_CMD_FLUSHED;
 			end
-			RESTART_INIT : begin
-				next_state = RESTART_SEND_CMD;
-			end
 			RESTART_SEND_CMD : begin
-				next_state = RESTART_RESP_WAIT;
+				if(response.valid && restart_command_flag)
+					next_state = RESTART_INIT;
+				else
+					next_state = RESTART_RESP_WAIT;
 			end
 			RESTART_RESP_WAIT : begin
-				if(restart_response_in.valid || (command_outstanding_rd_S2 && command_outstanding_data_out.cmd.cmd_type == CMD_RESTART && command_outstanding_data_out.cmd.cu_id == RESTART_ID))
+				if(response.valid && restart_command_flag)
+					next_state = RESTART_INIT;
+				else if(~restart_command_out.valid && ~(|outstanding_restart_commands))
 					next_state = RESTART_SEND_CMD_FLUSHED;
 				else
 					next_state = RESTART_RESP_WAIT;
 			end
 			RESTART_SEND_CMD_FLUSHED : begin
 				if(restart_command_buffer_status_internal.empty && (credits_total == CREDITS_TOTAL))begin
-					if(response.valid  && response.response == PAGED)
+					if(response.valid && restart_command_flag)
 						next_state = RESTART_INIT;
 					else
 						next_state = RESTART_DONE;
 				end
 				else begin
-					if(response.valid && response.response == PAGED)
+					if(response.valid && restart_command_flag)
 						next_state = RESTART_INIT;
 					else
 						next_state = RESTART_SEND_CMD_FLUSHED;
 				end
 			end
 			RESTART_DONE : begin
-				if(response.valid  && response.response == PAGED)
+				if(response.valid && restart_command_flag)
 					next_state = RESTART_INIT;
 				else
 					next_state = RESTART_IDLE;
@@ -218,8 +250,9 @@ module restart_control (
 				restart_command_flushed <= 0;
 			end
 			RESTART_INIT : begin
-				ready_restart_issue     <= 1;
-				restart_pending         <= 1;
+				ready_restart_issue  <= 1;
+				restart_pending      <= 1;
+				restart_command_send <= 0;
 
 				if(restart_command_buffer_out.valid) begin
 					restart_command_out     <= restart_command_buffer_out;
@@ -228,9 +261,8 @@ module restart_control (
 				end else begin
 					restart_command_out     <= 0;
 					restart_command_flushed <= 0;
-					restart_command_send    <= 0;
 				end
-				
+
 			end
 			RESTART_SEND_CMD : begin
 				restart_command_out              <= command_outstanding_data_out;
@@ -238,11 +270,11 @@ module restart_control (
 				restart_command_out.abt          <= STRICT;
 				restart_command_out.cmd.cmd_type <= CMD_RESTART;
 				restart_command_out.cmd.cu_id    <= RESTART_ID;
-				restart_command_flushed <= 0;
-				restart_command_send    <= 0;
+				restart_command_flushed          <= 0;
+				restart_command_send             <= 0;
 			end
 			RESTART_RESP_WAIT : begin
-				restart_command_out <= 0;
+				restart_command_out     <= 0;
 				restart_command_flushed <= 0;
 			end
 			RESTART_SEND_CMD_FLUSHED : begin

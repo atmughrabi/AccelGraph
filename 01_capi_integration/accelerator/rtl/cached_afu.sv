@@ -90,7 +90,8 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     if(~combined_reset_afu) begin
       restart_counter  <= 0;
     end else begin
-      restart_counter  <= restart_counter + 1;
+      if(response.valid)
+        restart_counter  <= restart_counter + 1;
     end
   end
 
@@ -102,17 +103,23 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     enabled          <= job_out.running;
     response_latched <= response;
 
-    // if(restart_counter > 235 && response.response != PAGED )
-    //   response_latched.response <= FLUSHED;
+    if(restart_counter == 234)
+      response_latched.response <= PAGED;
 
-    // if(restart_counter > 190 && restart_counter < 200 && response.response != PAGED )
-    //   response_latched.response <= FAULT;
+    if(restart_counter > 235 && response.response != PAGED )
+      response_latched.response <= FLUSHED;
 
-    // if(restart_counter > 100 && restart_counter < 120 && response.response != PAGED )
-    //   response_latched.response <= AERROR;
+    if(restart_counter == 189)
+      response_latched.response <= PAGED;
 
-    // if(restart_counter > 30 && restart_counter < 45 && response.response != PAGED )
-    //   response_latched.response <= DERROR;
+    if(restart_counter > 190 && restart_counter < 200 && response.response != PAGED )
+      response_latched.response <= FAULT;
+
+    if(restart_counter > 100 && restart_counter < 12 && response.response != PAGED )
+      response_latched.response <= AERROR;
+
+    if(restart_counter > 30 && restart_counter < 45 && response.response != PAGED )
+      response_latched.response <= DERROR;
 
   end
 
