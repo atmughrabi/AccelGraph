@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : afu_control.sv
 // Create : 2019-09-26 15:20:35
-// Revise : 2019-11-06 16:24:25
+// Revise : 2019-11-06 18:02:28
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -293,12 +293,9 @@ module afu_control #(
 			command_tag_latched    <= 0;
 		end else begin
 			if(enabled) begin
-				if(ready_restart_issue && command_buffer_out_bypass.valid && (command_buffer_out_bypass.command != RESTART)) begin
+				if(ready_restart_issue && command_buffer_out_bypass.valid) begin
 					command_issue_register <= command_buffer_out_bypass;
 					command_tag_latched    <= command_buffer_out_bypass.cmd.tag;
-				end else if(ready_restart_issue && command_buffer_out && (command_buffer_out.command == RESTART)) begin
-					command_issue_register <= command_buffer_out;
-					command_tag_latched    <= command_tag;
 				end else begin
 					command_issue_register <= command_buffer_out;
 					command_tag_latched    <= command_tag;
@@ -316,10 +313,13 @@ module afu_control #(
 			if(enabled) begin
 				if(ready_restart_issue && (restart_command_out.valid && restart_command_flushed)) begin
 					command_buffer_out_bypass <= restart_command_out;
+					command_buffer_out        <= 0;
 				end else if(ready_restart_issue && (restart_command_out.valid && ~restart_command_flushed)) begin
 					command_buffer_out <= restart_command_out;
+					command_buffer_out_bypass <= 0;
 				end else if (burst_command_buffer_out.valid) begin
 					command_buffer_out <= burst_command_buffer_out;
+					command_buffer_out_bypass <= 0;
 				end else begin
 					command_buffer_out        <= 0;
 					command_buffer_out_bypass <= 0;

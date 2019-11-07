@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
 // Create : 2019-11-05 08:05:09
-// Revise : 2019-11-06 16:16:44
+// Revise : 2019-11-06 19:35:39
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -128,8 +128,7 @@ module restart_control (
 			credits_total <= 0;
 		end else begin
 			if(enabled)begin
-				if(restart_pending)
-					credits_total <= credits_in;
+				credits_total <= credits_in;
 			end else begin
 				credits_total <= 0;
 			end
@@ -213,16 +212,17 @@ module restart_control (
 				restart_command_flushed <= 0;
 			end
 			RESTART_IDLE : begin
-				ready_restart_issue  <= 0;
-				restart_command_out  <= 0;
-				restart_pending      <= 0;
-				restart_command_send <= 0;
+				ready_restart_issue     <= 0;
+				restart_command_out     <= 0;
+				restart_pending         <= 0;
+				restart_command_send    <= 0;
 				restart_command_flushed <= 0;
 			end
 			RESTART_INIT : begin
-				ready_restart_issue <= 1;
-				restart_pending     <= 1;
+				ready_restart_issue     <= 1;
+				restart_pending         <= 1;
 				restart_command_flushed <= 0;
+				restart_command_send    <= 0;
 			end
 			RESTART_SEND_CMD : begin
 				restart_command_out              <= command_outstanding_data_out;
@@ -235,18 +235,15 @@ module restart_control (
 				restart_command_out <= 0;
 			end
 			RESTART_SEND_CMD_FLUSHED : begin
-				if(~restart_command_buffer_status_internal.empty)
-					restart_command_send <= 1;
-				else
-					restart_command_send <= 0;
-
-				if(restart_command_buffer_out.valid) begin
+				if(~restart_command_buffer_status_internal.empty) begin
 					restart_command_out     <= restart_command_buffer_out;
 					restart_command_out.abt <= STRICT;
 					restart_command_flushed <= 1;
+					restart_command_send    <= 1;
 				end else begin
 					restart_command_out     <= 0;
 					restart_command_flushed <= 0;
+					restart_command_send    <= 0;
 				end
 			end
 			RESTART_DONE : begin
