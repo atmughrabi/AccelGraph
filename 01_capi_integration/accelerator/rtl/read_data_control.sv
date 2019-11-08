@@ -214,12 +214,15 @@ module read_data_control (
       data_parity_error <= 1'b0;
       detected_errors   <= 2'b00;
     end else begin
-      tag_parity_error <= tag_parity_link ^ tag_parity;
 
-      if(write_valid_latched)
+
+      if(write_valid_latched) begin
+        tag_parity_error  <= tag_parity_link ^ tag_parity;
         data_parity_error <= |(data_write_parity_link ^ buffer_in.write_parity);
-      else
+      end else begin
         data_parity_error <= 1'b0;
+        tag_parity_error  <= 1'b0;
+      end
 
       detected_errors <= {tag_parity_error, data_parity_error};
     end

@@ -209,8 +209,13 @@ module write_data_control (
       tag_parity_error <= 1'b0;
       detected_errors  <= 1'b0;
     end else begin
-      tag_parity_error <= tag_parity_link ^ tag_parity;
-      detected_errors  <= {tag_parity_error};
+
+      if(read_valid)
+        tag_parity_error <= tag_parity_link ^ tag_parity;
+      else
+        tag_parity_error <= 1'b0;
+
+      detected_errors <= {tag_parity_error};
     end
   end
 

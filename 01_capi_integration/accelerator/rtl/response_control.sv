@@ -171,9 +171,16 @@ module response_control (
       cmd_response_error <= 6'h00;
       detected_errors    <= 7'h00;
     end else begin
-      tag_parity_error   <= tag_parity_link ^ tag_parity;
-      cmd_response_error <= cmd_response_error_type(response_in.response);
-      detected_errors    <= {tag_parity_error, cmd_response_error};
+
+      if(response_in.valid) begin
+        tag_parity_error   <= tag_parity_link ^ tag_parity;
+        cmd_response_error <= cmd_response_error_type(response_in.response);
+      end else begin
+        tag_parity_error   <= 1'b0;
+        cmd_response_error <= 6'h00;
+      end
+
+      detected_errors <= {tag_parity_error, cmd_response_error};
     end
   end
 

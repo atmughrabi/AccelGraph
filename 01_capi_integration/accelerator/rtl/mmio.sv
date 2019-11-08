@@ -56,27 +56,27 @@ module mmio (
   logic report_errors_ack_latched          ;
   logic report_algorithm_status_ack_latched;
 
-  logic [0:23] address                      ;
-  logic [0:23] address_latched              ;
-  logic [0:63] data_in                      ;
-  logic [0:63] data_in_latched              ;
-  logic [0:63] data_out                     ;
-  logic [0:63] data_cfg                     ;
-  logic        data_out_parity              ;
-  logic        data_in_parity_link          ;
-  logic        data_in_parity               ;
-  logic        address_parity_link          ;
-  logic        address_parity               ;
-  logic        data_ack                     ;
-  logic [0:63] report_errors_latched        ;
-  logic [0:63] algorithm_status_latched     ;
-  logic [0:63] algorithm_status_done_latched;
-  logic [0:63] afu_status_latched           ;
-  logic [0:63] algorithm_running_latched    ;
-  logic [0:63] algorithm_status_mmio_ack    ;
-  logic [0:63] report_errors_mmio_ack       ;
-
-  MMIOInterfaceInput mmio_in_latched;
+  logic [0:23]       address                      ;
+  logic [0:23]       address_latched              ;
+  logic [0:63]       data_in                      ;
+  logic [0:63]       data_in_latched              ;
+  logic [0:63]       data_out                     ;
+  logic [0:63]       data_cfg                     ;
+  logic              data_out_parity              ;
+  logic              data_in_parity_link          ;
+  logic              data_in_parity               ;
+  logic              address_parity_link          ;
+  logic              address_parity               ;
+  logic              data_ack                     ;
+  logic [0:63]       report_errors_latched        ;
+  logic [0:63]       algorithm_status_latched     ;
+  logic [0:63]       algorithm_status_done_latched;
+  logic [0:63]       afu_status_latched           ;
+  logic [0:63]       algorithm_running_latched    ;
+  logic [0:63]       algorithm_status_mmio_ack    ;
+  logic [0:63]       report_errors_mmio_ack       ;
+  logic              mmio_in_latched_valid        ;
+  MMIOInterfaceInput mmio_in_latched              ;
 
   // Set our AFU Descriptor values refer to page
   assign afu_desc.num_ints_per_process     = 16'h0000;
@@ -340,13 +340,26 @@ module mmio (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
+      mmio_in_latched_valid <= 0;
+    end else begin
+      mmio_in_latched_valid <= mmio_in_latched.valid;
+    end
+  end
+
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
       mmio_data_error    <= 1'b0;
       mmio_address_error <= 1'b0;
       detected_errors    <= 2'b00;
     end else begin
-      mmio_data_error    <= data_in_parity_link ^ data_in_parity;
-      mmio_address_error <= address_parity_link ^ address_parity;
-      detected_errors    <= {mmio_data_error, mmio_address_error};
+      if(mmio_in_latched_valid) begin
+        mmio_data_error    <= data_in_parity_link ^ data_in_parity;
+        mmio_address_error <= address_parity_link ^ address_parity;
+      end else begin
+        mmio_data_error    <= 1'b0;
+        mmio_address_error <= 1'b0;
+      end
+      detected_errors <= {mmio_data_error, mmio_address_error};
     end
   end
 

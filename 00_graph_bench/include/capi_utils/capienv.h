@@ -120,7 +120,9 @@ struct __attribute__((__packed__)) WEDGraphCSR
  #define AFU_CONFIG_PREF_2  0xC6359000 // 0b 11000 11000 11010 11001 00000 00000 00
  
 
- #define AFU_CONFIG AFU_CONFIG_PREF_2
+#ifndef AFU_CONFIG
+ #define AFU_CONFIG AFU_CONFIG_ABORT_1
+#endif
 
 struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph);
 void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed);
