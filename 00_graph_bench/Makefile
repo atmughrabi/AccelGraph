@@ -126,6 +126,45 @@ INOUT_STATS ?= 2
 
 ARGS ?= -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
+##############################################
+# CAPI FPGA  GRAPH AFU PERFORMANCE CONFIG    #
+##############################################
+# // cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
+# // cu_edge_job_control          5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [9] [8] [5:7]
+# // cu_edge_data_control         5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [14] [13] [10:12]
+# // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [19] [18] [15:17]
+# // 0b 00000 00000 00000 00000 00000 00000 00
+ AFU_CONFIG_STRICT_1?=0x00000000  
+# // cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
+# // cu_edge_job_control          5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [9] [8] [5:7]
+# // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
+# // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
+# // 0b 00000 00000 00010 00001 00000 00000 00
+ AFU_CONFIG_STRICT_2?=0x00041000  
+
+# // cu_vertex_job_control        5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [27:31] [4] [3] [0:2]
+# // cu_edge_job_control          5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [22:26] [9] [8] [5:7]
+# // cu_edge_data_control         5-bits ABORT | READ_CL_S  | WRITE_NA 10010 [22:26] [14] [13] [10:12]
+# // cu_edge_data_write_control   5-bits ABORT | READ_CL_NA | WRITE_MS 10001 [22:26] [19] [18] [15:17]
+#  // 0b 10000 10000 10010 10001 00000 00000 00
+ AFU_CONFIG_ABORT_1?=0x84251000 
+
+# // cu_vertex_job_control        5-bits PREF | READ_CL_NA | WRITE_NA 11000 [27:31] [4] [3] [0:2]
+# // cu_edge_job_control          5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [9] [8] [5:7]
+# // cu_edge_data_control         5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [14] [13] [10:12]
+# // cu_edge_data_write_control   5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [19] [18] [15:17]
+# // 0b 11000 11000 11000 11000 00000 00000 00
+ AFU_CONFIG_PREF_1?=0xC6318000  
+
+# // cu_vertex_job_control        5-bits PREF | READ_CL_NA | WRITE_NA 11000 [27:31] [4] [3] [0:2]
+# // cu_edge_job_control          5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [9] [8] [5:7]
+# // cu_edge_data_control         5-bits PREF | READ_CL_S  | WRITE_NA 11010 [22:26] [14] [13] [10:12]
+# // cu_edge_data_write_control   5-bits PREF | READ_CL_NA | WRITE_MS 11001 [22:26] [19] [18] [15:17]
+# // 0b 11000 11000 11010 11001 00000 00000 00
+ AFU_CONFIG_PREF_2?=0xC6359000 
+ 
+ AFU_CONFIG_GENERIC?=$(AFU_CONFIG_STRICT_1)
+
 ##################################################
 ##################################################
 #these variables only affect the signature not used in the make file
@@ -141,6 +180,7 @@ BENCHMARK_SIGNATURE = $(GRAPH_NAME)_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH
 
 ##################################################
 ##################################################
+
 
 ##############################################
 #      ACCEL GRAPH COMPILATION VARIABLES     #
@@ -212,7 +252,11 @@ SRC_FILES_CAPI_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/*.c)
 OBJ_FILES_CAPI_UTIL 	=   $(patsubst $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o,$(SRC_FILES_CAPI_UTIL)) 
 
 
-CAPI_LINKFLAGS = -lrt -lpthread 
+CAPI_LINKFLAGS = -lrt -lpthread
+
+
+
+CAPI_AFU_CONFIG = -DAFU_CONFIG=$(AFU_CONFIG_GENERIC)
 # CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 # CAPI_FLAGS = -DSIM -DVERBOSE 
 
@@ -852,28 +896,28 @@ cache-perf-openmp: graph-openmp
 
 
 .PHONY: run-capi-sim
-run-capi-sim: CAPI_FLAGS = -DSIM 
+run-capi-sim: CAPI_FLAGS = -DSIM $(CAPI_AFU_CONFIG)
 run-capi-sim: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim: graph-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-sim-verbose
-run-capi-sim-verbose: CAPI_FLAGS = -DSIM -DVERBOSE
+run-capi-sim-verbose: CAPI_FLAGS = -DSIM -DVERBOSE $(CAPI_AFU_CONFIG)
 run-capi-sim-verbose: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose: graph-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga
-run-capi-fpga: CAPI_FLAGS = 
+run-capi-fpga: CAPI_FLAGS = $(CAPI_AFU_CONFIG)
 run-capi-fpga: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga: graph-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga-verbose
-run-capi-fpga-verbose: CAPI_FLAGS = -DVERBOSE 
+run-capi-fpga-verbose: CAPI_FLAGS = -DVERBOSE $(CAPI_AFU_CONFIG)
 run-capi-fpga-verbose: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose: graph-capi
@@ -881,7 +925,7 @@ run-capi-fpga-verbose: graph-capi
 
 
 .PHONY: run-test-capi
-run-test-capi: CAPI_FLAGS = -DSIM 
+run-test-capi: CAPI_FLAGS = -DSIM $(CAPI_AFU_CONFIG)
 run-test-capi: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-test-capi: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-test-capi: test-capi
