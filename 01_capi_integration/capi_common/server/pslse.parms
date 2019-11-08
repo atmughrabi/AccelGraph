@@ -13,7 +13,7 @@
 
 # Timeout delay in seconds: If 0 then timeouts are disabled.
 # NOTE: Must be a single value, not a min,max range
-#TIMEOUT:10
+TIMEOUT:9
 
 # Credits:  Normally the 64 will always provide 64 credits.  Tweaking this
 # value is primarily for PSLSE testing purposes only.
@@ -29,7 +29,9 @@
 
 # Randomization seed.  Set this to force reproducible sequence of event
 # NOTE: Must be a single value, not a min,max range
-SEED:13
+#SEED:13
+#SEED:27491095
+SEED:47491095
 #SEED:1461247482
 # Percentage chance of PSL driving any pending responses in a clock cycle.
 # Can not be 0 otherwise PSL will never generate responses to commands.
@@ -37,18 +39,18 @@ SEED:13
 # those responses will be in order.
 # Lower values introduces delays on responses and allows for greater
 # randomization of response ordering.
-RESPONSE_PERCENT:100,100
+RESPONSE_PERCENT:1,100
 
 # Percentage chance of PSL responding with PAGED for any command response.
 #PAGED_PERCENT:40,70
-PAGED_PERCENT:0
+PAGED_PERCENT:1,100
 
 # Percentage chance of PSL reordering the execution of commands.
-REORDER_PERCENT:80,90
+REORDER_PERCENT:1,100
 
 # Percentage chance of PSL generating extra buffer read/write activity.
 # BUFFER_PERCENT:80,90
-BUFFER_PERCENT:0
+BUFFER_PERCENT:1,100
 
 # VSEC data lines 
 #CAIA_VERSION:0100
