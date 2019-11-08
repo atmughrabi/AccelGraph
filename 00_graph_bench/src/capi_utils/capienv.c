@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : capienv.c
 // Create : 2019-10-09 19:20:39
-// Revise : 2019-11-08 06:18:26
+// Revise : 2019-11-08 07:39:06
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
@@ -80,18 +80,23 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 {
     do
     {
-        cxl_mmio_read64((*afu), ALGO_STATUS, &(afu_status->algo_status));
-        cxl_mmio_write64((*afu), ALGO_STATUS_ACK, afu_status->algo_status);
-
+       
         cxl_mmio_read64((*afu), ERROR_REG, &(afu_status->error));
         cxl_mmio_write64((*afu), ERROR_REG_ACK, afu_status->error);
 
 #ifdef  VERBOSE
+
+        cxl_mmio_read64((*afu), ALGO_STATUS, &(afu_status->algo_status));
+        cxl_mmio_write64((*afu), ALGO_STATUS_ACK, afu_status->algo_status);
+
         printf("Vertices: %lu \n",(((afu_status->algo_status) << 32) >> 32) );
         printf("Edges: %lu\n", ((afu_status->algo_status) >> 32));
 #endif
 
-        if((((afu_status->algo_status) << 32) >> 32) >= (afu_status->algo_stop))
+        cxl_mmio_read64((*afu), ALGO_STATUS_DONE, &(afu_status->algo_status_done));
+        cxl_mmio_write64((*afu), ALGO_STATUS_DONE_ACK, afu_status->algo_status_done);
+
+        if((((afu_status->algo_status_done) << 32) >> 32) >= (afu_status->algo_stop))
             break;
     }
     while((!(afu_status->error)));

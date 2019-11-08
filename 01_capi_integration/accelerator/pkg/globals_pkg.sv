@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : globals_pkg.sv
 // Create : 2019-09-26 15:20:15
-// Revise : 2019-11-08 05:54:45
+// Revise : 2019-11-08 07:28:25
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -74,8 +74,11 @@ package GLOBALS_PKG;
 	parameter AFU_STATUS   = 26'h 3FFFFE0 >> 2; // AFU status job running
 	parameter ALGO_RUNNING = 26'h 3FFFFD8 >> 2; // KERNEL RETURN
 
-	parameter ALGO_STATUS_ACK  = 26'h 3FFFFD0 >> 2;
-	parameter ERROR_REG_ACK    = 26'h 3FFFFC8 >> 2;
+	parameter ALGO_STATUS_ACK = 26'h 3FFFFD0 >> 2;
+	parameter ERROR_REG_ACK   = 26'h 3FFFFC8 >> 2;
+
+	parameter ALGO_STATUS_DONE     = 26'h 3FFFFC0 >> 2;
+	parameter ALGO_STATUS_DONE_ACK = 26'h 3FFFFB8 >> 2;
 ////////////////////////////////////////////////////////////////////////////
 // CU-Control CU Globals
 ////////////////////////////////////////////////////////////////////////////

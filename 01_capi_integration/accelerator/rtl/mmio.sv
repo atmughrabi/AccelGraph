@@ -20,6 +20,7 @@ module mmio (
   input  logic               rstn                       ,
   input  logic [0:63]        report_errors              ,
   input  logic [0:63]        algorithm_status           ,
+  input  logic [0:63]        algorithm_status_done      ,
   input  logic [0:63]        algorithm_running          ,
   input  logic [0:63]        afu_status                 ,
   output logic [0:63]        algorithm_requests         ,
@@ -55,24 +56,25 @@ module mmio (
   logic report_errors_ack_latched          ;
   logic report_algorithm_status_ack_latched;
 
-  logic [0:23] address                  ;
-  logic [0:23] address_latched          ;
-  logic [0:63] data_in                  ;
-  logic [0:63] data_in_latched          ;
-  logic [0:63] data_out                 ;
-  logic [0:63] data_cfg                 ;
-  logic        data_out_parity          ;
-  logic        data_in_parity_link      ;
-  logic        data_in_parity           ;
-  logic        address_parity_link      ;
-  logic        address_parity           ;
-  logic        data_ack                 ;
-  logic [0:63] report_errors_latched    ;
-  logic [0:63] algorithm_status_latched ;
-  logic [0:63] afu_status_latched       ;
-  logic [0:63] algorithm_running_latched;
-  logic [0:63] algorithm_status_mmio_ack;
-  logic [0:63] report_errors_mmio_ack   ;
+  logic [0:23] address                      ;
+  logic [0:23] address_latched              ;
+  logic [0:63] data_in                      ;
+  logic [0:63] data_in_latched              ;
+  logic [0:63] data_out                     ;
+  logic [0:63] data_cfg                     ;
+  logic        data_out_parity              ;
+  logic        data_in_parity_link          ;
+  logic        data_in_parity               ;
+  logic        address_parity_link          ;
+  logic        address_parity               ;
+  logic        data_ack                     ;
+  logic [0:63] report_errors_latched        ;
+  logic [0:63] algorithm_status_latched     ;
+  logic [0:63] algorithm_status_done_latched;
+  logic [0:63] afu_status_latched           ;
+  logic [0:63] algorithm_running_latched    ;
+  logic [0:63] algorithm_status_mmio_ack    ;
+  logic [0:63] report_errors_mmio_ack       ;
 
   MMIOInterfaceInput mmio_in_latched;
 
@@ -106,10 +108,23 @@ module mmio (
 
 
   always_ff @(posedge clock) begin
-    report_errors_latched     <= report_errors;
-    algorithm_status_latched  <= algorithm_status;
-    afu_status_latched        <= afu_status;
-    algorithm_running_latched <= algorithm_running;
+
+    if(~rstn) begin
+      report_errors_latched         <= 0;
+      algorithm_status_latched      <= 0;
+      algorithm_status_done_latched <= 0;
+      afu_status_latched            <= 0;
+      algorithm_running_latched     <= 0;
+
+    end else  begin
+
+      report_errors_latched         <= report_errors;
+      algorithm_status_done_latched <= algorithm_status_done;
+      algorithm_status_latched      <= algorithm_status;
+      afu_status_latched            <= afu_status;
+      algorithm_running_latched     <= algorithm_running;
+
+    end
   end
 
 
@@ -167,8 +182,8 @@ module mmio (
     data_ack <= cfg_read_latched || cfg_write_latched || mmio_read_latched || mmio_write_latched;
   end
 
-assign report_algorithm_status_ack_latched = (|algorithm_status_mmio_ack);
-assign report_errors_ack_latched = (|report_errors_mmio_ack);
+  assign report_algorithm_status_ack_latched = (|algorithm_status_mmio_ack);
+  assign report_errors_ack_latched           = (|report_errors_mmio_ack);
 
 // Write DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
@@ -182,11 +197,11 @@ assign report_errors_ack_latched = (|report_errors_mmio_ack);
           ALGO_REQUEST : begin
             algorithm_requests <= data_in_latched;
           end
-          ALGO_STATUS_ACK : begin
+          ALGO_STATUS_DONE_ACK : begin
             algorithm_status_mmio_ack <= data_in_latched;
           end
           ERROR_REG_ACK : begin
-            report_errors_mmio_ack   <= data_in_latched;
+            report_errors_mmio_ack <= data_in_latched;
           end
           default : begin
             algorithm_requests        <= 64'h0000_0000_0000_0000;
@@ -205,7 +220,7 @@ assign report_errors_ack_latched = (|report_errors_mmio_ack);
   // Read DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      data_out                            <= 64'h0000_0000_0000_0000;
+      data_out <= 64'h0000_0000_0000_0000;
       // report_errors_ack_latched           <= 1'b0;
       // report_algorithm_status_ack_latched <= 1'b0;
     end else begin
@@ -220,11 +235,15 @@ assign report_errors_ack_latched = (|report_errors_mmio_ack);
       end else if (mmio_read_latched) begin
         case (address_latched)
           ALGO_STATUS : begin
-            data_out                            <= algorithm_status_latched;
+            data_out <= algorithm_status_latched;
             // report_algorithm_status_ack_latched <= (|algorithm_status_latched);
           end
+          ALGO_STATUS_DONE : begin
+            data_out <= algorithm_status_done_latched;
+            // report_algorithm_status_ack_latched <= (|algorithm_status_done_latched);
+          end
           ERROR_REG : begin
-            data_out                  <= report_errors_latched;
+            data_out <= report_errors_latched;
             // report_errors_ack_latched <= (|report_errors_latched);
           end
           AFU_STATUS : begin
@@ -234,13 +253,13 @@ assign report_errors_ack_latched = (|report_errors_mmio_ack);
             data_out <= algorithm_running_latched;
           end
           default : begin
-            data_out                            <= data_out;
+            data_out <= data_out;
             // report_errors_ack_latched           <= 1'b0;
             // report_algorithm_status_ack_latched <= 1'b0;
           end
         endcase
       end else begin
-        data_out                            <= data_out;
+        data_out <= data_out;
         // report_errors_ack_latched           <= 1'b0;
         // report_algorithm_status_ack_latched <= 1'b0;
       end

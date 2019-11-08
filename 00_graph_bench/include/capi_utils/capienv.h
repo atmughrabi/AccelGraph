@@ -17,9 +17,11 @@
 #define AFU_STATUS             0x3FFFFE0
 #define ALGO_RUNNING           0x3FFFFD8
 
-
 #define ALGO_STATUS_ACK  0x3FFFFD0
 #define ERROR_REG_ACK    0x3FFFFC8
+
+#define  ALGO_STATUS_DONE     0x3FFFFC0
+#define  ALGO_STATUS_DONE_ACK 0x3FFFFB8
 
 #ifdef  SIM
 #define DEVICE_1              "/dev/cxl/afu0.0d"
@@ -30,14 +32,13 @@
 
 struct AFUStatus
 {
-    uint64_t algo_stop;
+    uint64_t algo_stop; // afu stopping condition
     uint64_t algo_status;
     uint64_t num_cu;
     uint64_t error;
     uint64_t afu_status;
     uint64_t algo_running;
-    uint64_t algo_status_ack;
-    uint64_t afu_status_ack;
+    uint64_t algo_status_done;
 };
 
 // ********************************************************************************************

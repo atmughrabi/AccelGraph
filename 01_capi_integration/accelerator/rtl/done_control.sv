@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : done_control.sv
 // Create : 2019-09-26 15:21:03
-// Revise : 2019-11-07 19:54:33
+// Revise : 2019-11-08 07:27:33
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -122,7 +122,6 @@ module done_control (
 			DONE_IDLE : begin
 				report_algorithm_status         <= 64'b0;
 				report_algorithm_status_latched <= algorithm_status;
-				report_algorithm_status         <= report_algorithm_status_latched;
 				reset_done                      <= 1'b1;
 			end
 			DONE_RESET_REQ : begin
