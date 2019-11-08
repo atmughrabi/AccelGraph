@@ -405,7 +405,7 @@ clean-obj:
 clean-pslse:
 	@cd $(PSLSE_DIR)/afu_driver/src && make clean
 	@cd $(PSLSE_DIR)/pslse && make clean
-	@cd $(PSLSE_LIBCXL_DIR) && make clean
+	@cd $(PSLSE_DIR)/libcxl && make clean
 
 .PHONY: graph-capi
 graph-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi
@@ -428,10 +428,10 @@ $(PSLSE_DIR)/afu_driver/src/libdpi.so:
 	@cd $(PSLSE_DIR)/afu_driver/src && make clean && BIT32=y make
 
 $(PSLSE_LIBCXL_DIR)/libcxl.a:
-	@cd $(PSLSE_LIBCXL_DIR) && make clean && make
+	@cd $(PSLSE_LIBCXL_DIR) && make
 
 $(PSLSE_DIR)/pslse/pslse:
-	@cd $(PSLSE_DIR)/pslse && make clean && make DEBUG=1
+	@cd $(PSLSE_DIR)/pslse && make DEBUG=1
 
 .PHONY: build-libdpi
 build-libdpi: $(PSLSE_DIR)/afu_driver/src/libdpi.so
@@ -467,6 +467,9 @@ clean-sim:
 	@rm -rf $(CAPI_SIM)/work
 	@rm -f $(CAPI_SIM)/debug.log
 	@rm -f $(CAPI_SIM)/gmon.out	 
+	@cd $(PSLSE_DIR)/afu_driver/src && make clean
+	@cd $(PSLSE_DIR)/libcxl && make clean
+	@cd $(PSLSE_DIR)/pslse && make  clean
 
 ##################################################
 ##################################################

@@ -71,6 +71,8 @@ module mmio (
   logic [0:63] algorithm_status_latched ;
   logic [0:63] afu_status_latched       ;
   logic [0:63] algorithm_running_latched;
+  logic [0:63] algorithm_status_mmio_ack;
+  logic [0:63] report_errors_mmio_ack   ;
 
   MMIOInterfaceInput mmio_in_latched;
 
@@ -165,22 +167,37 @@ module mmio (
     data_ack <= cfg_read_latched || cfg_write_latched || mmio_read_latched || mmio_write_latched;
   end
 
+assign report_algorithm_status_ack_latched = (|algorithm_status_mmio_ack);
+assign report_errors_ack_latched = (|report_errors_mmio_ack);
+
 // Write DATA LOGIC
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      algorithm_requests <= 64'h0000_0000_0000_0000;
+      algorithm_requests        <= 64'h0000_0000_0000_0000;
+      algorithm_status_mmio_ack <= 64'h0000_0000_0000_0000;
+      report_errors_mmio_ack    <= 64'h0000_0000_0000_0000;
     end else begin
       if (mmio_write_latched) begin
         case (address_latched)
           ALGO_REQUEST : begin
             algorithm_requests <= data_in_latched;
           end
+          ALGO_STATUS_ACK : begin
+            algorithm_status_mmio_ack <= data_in_latched;
+          end
+          ERROR_REG_ACK : begin
+            report_errors_mmio_ack   <= data_in_latched;
+          end
           default : begin
-            algorithm_requests <= 64'h0000_0000_0000_0000;
+            algorithm_requests        <= 64'h0000_0000_0000_0000;
+            algorithm_status_mmio_ack <= 64'h0000_0000_0000_0000;
+            report_errors_mmio_ack    <= 64'h0000_0000_0000_0000;
           end
         endcase
       end else begin
-        algorithm_requests <= 64'h0000_0000_0000_0000;
+        algorithm_requests        <= 64'h0000_0000_0000_0000;
+        algorithm_status_mmio_ack <= 64'h0000_0000_0000_0000;
+        report_errors_mmio_ack    <= 64'h0000_0000_0000_0000;
       end
     end
   end
@@ -189,8 +206,8 @@ module mmio (
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       data_out                            <= 64'h0000_0000_0000_0000;
-      report_errors_ack_latched           <= 1'b0;
-      report_algorithm_status_ack_latched <= 1'b0;
+      // report_errors_ack_latched           <= 1'b0;
+      // report_algorithm_status_ack_latched <= 1'b0;
     end else begin
       if(cfg_read_latched) begin
         if(doubleword_latched) begin
@@ -204,11 +221,11 @@ module mmio (
         case (address_latched)
           ALGO_STATUS : begin
             data_out                            <= algorithm_status_latched;
-            report_algorithm_status_ack_latched <= (|algorithm_status_latched);
+            // report_algorithm_status_ack_latched <= (|algorithm_status_latched);
           end
           ERROR_REG : begin
             data_out                  <= report_errors_latched;
-            report_errors_ack_latched <= (|report_errors_latched);
+            // report_errors_ack_latched <= (|report_errors_latched);
           end
           AFU_STATUS : begin
             data_out <= afu_status_latched;
@@ -218,14 +235,14 @@ module mmio (
           end
           default : begin
             data_out                            <= data_out;
-            report_errors_ack_latched           <= 1'b0;
-            report_algorithm_status_ack_latched <= 1'b0;
+            // report_errors_ack_latched           <= 1'b0;
+            // report_algorithm_status_ack_latched <= 1'b0;
           end
         endcase
       end else begin
         data_out                            <= data_out;
-        report_errors_ack_latched           <= 1'b0;
-        report_algorithm_status_ack_latched <= 1'b0;
+        // report_errors_ack_latched           <= 1'b0;
+        // report_algorithm_status_ack_latched <= 1'b0;
       end
     end
   end
