@@ -79,12 +79,13 @@ struct __attribute__((__packed__)) WEDGraphCSR
  #define PREF   0b011
  #define SPEC   0b111
 
- #define READ_CL_S    0b1
- #define READ_CL_NA   0b1
+ #define READ_CL_S    0b1 // bit 31
+ #define READ_CL_NA   0b0
  #define WRITE_MS     0b1
- #define WRITE_NA     0b1
+ #define WRITE_NA     0b0 // bit 30
 
-
+ #define AFU_CONFIG 3 // 1100000 00000 00000 00000 00000 00000
+ 
 /*
 
 //command translation order

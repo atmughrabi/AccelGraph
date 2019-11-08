@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : pageRank.c
 // Create : 2019-09-28 14:41:30
-// Revise : 2019-11-07 19:53:15
+// Revise : 2019-11-08 07:51:49
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 #include <stdio.h>
@@ -1309,8 +1309,7 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
 
     wedGraphCSR->auxiliary1 = riDividedOnDiClause;
     wedGraphCSR->auxiliary2 = pageRanksNext;
-    // wedGraphCSR->afu_config = 3; // config to use cache
-    wedGraphCSR->afu_config = 0; // config to don't use cache
+    wedGraphCSR->afu_config = AFU_CONFIG;
     // ********************************************************************************************
 
     // ********************************************************************************************
