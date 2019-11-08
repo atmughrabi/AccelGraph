@@ -48,6 +48,7 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   logic                           report_errors_ack      ;
   logic                           reset_afu              ;
   logic                           reset_afu_soft         ;
+  logic                           algorithm_done         ;
 
   logic combined_reset_afu         ;
   logic reset_done                 ;
@@ -136,6 +137,7 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     .soft_rstn                  (reset_afu_soft             ),
     .enabled_in                 (enabled                    ),
     .algorithm_status           (algorithm_status           ),
+    .algorithm_done             (algorithm_done             ),
     .report_algorithm_status_ack(report_algorithm_status_ack),
     .reset_done                 (reset_done                 ),
     .report_algorithm_status    (report_algorithm_status    )
@@ -226,6 +228,7 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     .read_data_1_in     (read_data_1_out                   ),
     .read_buffer_status (command_buffer_status.read_buffer ),
     .algorithm_status   (algorithm_status                  ),
+    .algorithm_done     (algorithm_done                    ),
     .algorithm_running  (algorithm_running                 ),
     .algorithm_requests (algorithm_requests                ),
     .read_command_out   (read_command_out                  ),

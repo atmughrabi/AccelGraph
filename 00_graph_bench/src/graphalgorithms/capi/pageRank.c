@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : pageRank.c
 // Create : 2019-09-28 14:41:30
-// Revise : 2019-11-07 16:20:48
+// Revise : 2019-11-07 19:53:15
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 #include <stdio.h>
@@ -1270,6 +1270,7 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
     afu_status.error = 0;
     afu_status.afu_status = 0;
     afu_status.algo_running = 0;
+    afu_status.algo_stop = graph->num_vertices; // stoping condition
 
 
     // float init_pr = 1.0f / (float)graph->num_vertices;

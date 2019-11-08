@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : done_control.sv
 // Create : 2019-09-26 15:21:03
-// Revise : 2019-10-10 03:10:26
+// Revise : 2019-11-07 19:54:33
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -21,6 +21,7 @@ module done_control (
 	input  logic        soft_rstn                  ,
 	input  logic        enabled_in                 ,
 	input  logic [0:63] algorithm_status           ,
+	input  logic        algorithm_done             ,
 	input  logic        report_algorithm_status_ack,
 	output logic        reset_done                 ,
 	output logic [0:63] report_algorithm_status
@@ -35,7 +36,7 @@ module done_control (
 	logic        next_soft_rstn                 ;
 	logic        done_soft_rstn                 ;
 
-	assign done_flag = |algorithm_status;
+	assign done_flag = algorithm_done;
 
 
 	////////////////////////////////////////////////////////////////////////////
@@ -107,7 +108,7 @@ module done_control (
 				else
 					next_state = DONE_MMIO_REQ;
 			end
-			
+
 		endcase
 	end
 
@@ -121,6 +122,7 @@ module done_control (
 			DONE_IDLE : begin
 				report_algorithm_status         <= 64'b0;
 				report_algorithm_status_latched <= algorithm_status;
+				report_algorithm_status         <= report_algorithm_status_latched;
 				reset_done                      <= 1'b1;
 			end
 			DONE_RESET_REQ : begin
@@ -132,7 +134,7 @@ module done_control (
 			DONE_MMIO_REQ : begin
 				report_algorithm_status <= report_algorithm_status_latched;
 			end
-			
+
 		endcase
 	end
 

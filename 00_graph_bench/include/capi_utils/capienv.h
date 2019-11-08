@@ -18,13 +18,15 @@
 #define ALGO_RUNNING           0x3FFFFD8
 
 #ifdef  SIM
-#define DEVICE              "/dev/cxl/afu0.0d"
+#define DEVICE_1              "/dev/cxl/afu0.0d"
 #else
-#define DEVICE              "/dev/cxl/afu1.0d"
+#define DEVICE_1              "/dev/cxl/afu0.0d"
+#define DEVICE_2              "/dev/cxl/afu1.0d"
 #endif
 
 struct AFUStatus
 {
+    uint64_t algo_stop;
     uint64_t algo_status;
     uint64_t num_cu;
     uint64_t error;

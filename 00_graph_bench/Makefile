@@ -202,7 +202,7 @@ CAPI_SERVER		  = $(CAPI_COMMON)/server
 
 
 PSLSE_COMMON_DIR  = $(PSLSE_DIR)/common
-PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
+# PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 
 
 SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
@@ -213,8 +213,8 @@ OBJ_FILES_CAPI_UTIL 	=   $(patsubst $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c,$
 
 
 CAPI_LINKFLAGS = -lrt -lpthread 
-CAPI_INC = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
-
+# CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
+# CAPI_FLAGS = -DSIM -DVERBOSE 
 
 ##################################################
 ##################################################
@@ -442,20 +442,21 @@ build-libcxl: $(PSLSE_LIBCXL_DIR)/libcxl.a
 .PHONY: build-pslse
 build-pslse: $(PSLSE_DIR)/pslse/pslse
 	
-$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) $(PSLSE_LIBCXL_DIR)/libcxl.a
-	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(CAPI_LINKFLAGS) 
-	
-$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST)-capi.o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) $(PSLSE_LIBCXL_DIR)/libcxl.a
-	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(CAPI_LINKFLAGS)
+$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(GAPP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
+	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CAPI_LINKFLAGS) 
 
-$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c
-	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< -DSIM
+.SECONDEXPANSION:
+$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST)-capi.o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) 
+	@$(CC) $(CFLAGS) -o $@ $^ $(PSLSE_LIBCXL_DIR)/libcxl.a $(LFLAGS) $(CAPI_LINKFLAGS)
+
+$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c build-libcxl
+	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< $(CAPI_FLAGS)
 
 $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c
-	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< -DSIM
+	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< $(CAPI_FLAGS)
 
 $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(GAPP_TEST)-capi.o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(GAPP_TEST).c 
-	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< -DSIM
+	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< $(CAPI_FLAGS)
 
 .PHONY: clean-sim
 clean-sim:
@@ -846,17 +847,40 @@ cache-perf-openmp: graph-openmp
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #
 ##############################################
 
+
 .PHONY: run-capi-sim
+run-capi-sim: CAPI_FLAGS = -DSIM 
+run-capi-sim: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
+run-capi-sim: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim: graph-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
 
+.PHONY: run-capi-sim-verbose
+run-capi-sim-verbose: CAPI_FLAGS = -DSIM -DVERBOSE
+run-capi-sim-verbose: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
+run-capi-sim-verbose: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
+run-capi-sim-verbose: graph-capi
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
+
 .PHONY: run-capi-fpga
+run-capi-fpga: CAPI_FLAGS = 
 run-capi-fpga: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga: graph-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
 
+.PHONY: run-capi-fpga-verbose
+run-capi-fpga-verbose: CAPI_FLAGS = -DVERBOSE 
+run-capi-fpga-verbose: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
+run-capi-fpga-verbose: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
+run-capi-fpga-verbose: graph-capi
+	./$(APP_DIR)/$(BIN_DIR)/$(GAPP)-capi  -f $(FILE_BIN) $(ARGS)
+
+
 .PHONY: run-test-capi
+run-test-capi: CAPI_FLAGS = -DSIM 
+run-test-capi: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
+run-test-capi: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-test-capi: test-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(GAPP_TEST)-capi
 

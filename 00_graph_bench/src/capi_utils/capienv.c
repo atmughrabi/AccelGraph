@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : capienv.c
 // Create : 2019-10-09 19:20:39
-// Revise : 2019-11-07 16:22:40
+// Revise : 2019-11-07 20:22:20
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@
 
 int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR){
 
-    (*afu) = cxl_afu_open_dev(DEVICE);
+    (*afu) = cxl_afu_open_dev(DEVICE_1);
     if(!afu)
     {
         printf("Failed to open AFU: %m\n");
@@ -54,7 +54,10 @@ void waitJOBRunning(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     {
         cxl_mmio_read64((*afu), AFU_STATUS, &(afu_status->afu_status));
 
-        // printf("waitJOBRunning %lu \n",(afu_status->afu_status) );
+#ifdef  VERBOSE
+        printf("waitJOBRunning %lu \n",(afu_status->afu_status) );
+#endif
+
     }
     while(!(afu_status->afu_status));
 }
@@ -65,7 +68,10 @@ void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status){
         cxl_mmio_write64((*afu), ALGO_REQUEST, afu_status->num_cu);
         cxl_mmio_read64((*afu), ALGO_RUNNING, &(afu_status->algo_running));
 
-        // printf("startAFU %lu \n",(afu_status->algo_running) );
+#ifdef  VERBOSE
+        printf("startAFU %lu \n",(afu_status->algo_running) );
+#endif
+
     }
     while(!((afu_status->algo_running)));
 }
@@ -77,9 +83,15 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
         cxl_mmio_read64((*afu), ALGO_STATUS, &(afu_status->algo_status));
         cxl_mmio_read64((*afu), ERROR_REG, &(afu_status->error));
 
-        // printf("waitAFU %lu \n",(afu_status->algo_status) );
+#ifdef  VERBOSE
+        printf("Vertices: %lu \n",(((afu_status->algo_status) << 32) >> 32) );
+        printf("Edges: %lu\n", ((afu_status->algo_status) >> 32));
+#endif
+
+        if((((afu_status->algo_status) << 32) >> 32) == (afu_status->algo_stop))
+            break;
     }
-    while((!(afu_status->algo_status)) && (!(afu_status->error)));
+    while((!(afu_status->error)));
 }
 
 

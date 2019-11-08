@@ -9,7 +9,7 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : test_afu.c
 // Create : 2019-09-28 15:19:20
-// Revise : 2019-11-07 16:21:02
+// Revise : 2019-11-07 19:10:14
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -207,6 +207,7 @@ main (int argc, char **argv)
     afu_status.error = 0;
     afu_status.afu_status = 0;
     afu_status.algo_running = 0;
+    afu_status.algo_stop = wedGraphCSR->num_vertices;
 
     waitJOBRunning(&afu, &afu_status);
 
