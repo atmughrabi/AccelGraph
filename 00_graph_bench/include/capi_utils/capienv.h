@@ -84,19 +84,43 @@ struct __attribute__((__packed__)) WEDGraphCSR
  #define WRITE_MS     0b1
  #define WRITE_NA     0b0 // bit 30
 
- #define AFU_CONFIG 3 // 1100000 00000 00000 00000 00000 00000
+// cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
+// cu_edge_job_control          5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [9] [8] [5:7]
+// cu_edge_data_control         5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [14] [13] [10:12]
+// cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [19] [18] [15:17]
+
+ #define AFU_CONFIG_STRICT_1  0x00000000  // 0b 00000 00000 00000 00000 00000 00000 00
+
+// cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
+// cu_edge_job_control          5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [9] [8] [5:7]
+// cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
+// cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
+
+ #define AFU_CONFIG_STRICT_2  0x00041000  // 0b 00000 00000 00010 00001 00000 00000 00
+
+// cu_vertex_job_control        5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [27:31] [4] [3] [0:2]
+// cu_edge_job_control          5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [22:26] [9] [8] [5:7]
+// cu_edge_data_control         5-bits ABORT | READ_CL_S  | WRITE_NA 10010 [22:26] [14] [13] [10:12]
+// cu_edge_data_write_control   5-bits ABORT | READ_CL_NA | WRITE_MS 10001 [22:26] [19] [18] [15:17]
+
+ #define AFU_CONFIG_ABORT_1  0x84251000  // 0b 10000 10000 10010 10001 00000 00000 00
+
+// cu_vertex_job_control        5-bits PREF | READ_CL_NA | WRITE_NA 11000 [27:31] [4] [3] [0:2]
+// cu_edge_job_control          5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [9] [8] [5:7]
+// cu_edge_data_control         5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [14] [13] [10:12]
+// cu_edge_data_write_control   5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [19] [18] [15:17]
+
+ #define AFU_CONFIG_PREF_1  0xC6318000  // 0b 11000 11000 11000 11000 00000 00000 00
+
+// cu_vertex_job_control        5-bits PREF | READ_CL_NA | WRITE_NA 11000 [27:31] [4] [3] [0:2]
+// cu_edge_job_control          5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [9] [8] [5:7]
+// cu_edge_data_control         5-bits PREF | READ_CL_S  | WRITE_NA 11010 [22:26] [14] [13] [10:12]
+// cu_edge_data_write_control   5-bits PREF | READ_CL_NA | WRITE_MS 11001 [22:26] [19] [18] [15:17]
+
+ #define AFU_CONFIG_PREF_2  0xC6359000 // 0b 11000 11000 11010 11001 00000 00000 00
  
-/*
 
-//command translation order
- // STRICT = 3'b000,
- // ABORT  = 3'b001,
- // PAGE   = 3'b010,
- // PREF   = 3'b011,
- // SPEC   = 3'b111
-
-
-*/
+ #define AFU_CONFIG AFU_CONFIG_PREF_2
 
 struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph);
 void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed);

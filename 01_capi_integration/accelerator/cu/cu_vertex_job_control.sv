@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_job_control.sv
 // Create : 2019-09-26 15:19:30
-// Revise : 2019-11-07 12:40:39
+// Revise : 2019-11-08 10:50:37
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -225,14 +225,22 @@ module cu_vertex_job_control (
 				read_command_out_latched.cmd.cmd_type         <= CMD_READ;
 				read_command_out_latched.cmd.cacheline_offest <= 0;
 				
-				read_command_out_latched.cmd.abt              <= STRICT;
-				read_command_out_latched.abt                  <= STRICT;
+				
+				read_command_out_latched.cmd.abt              <= map_CABT(wed_request_in_latched.wed.afu_config[0:2]);
+				read_command_out_latched.abt                  <= map_CABT(wed_request_in_latched.wed.afu_config[0:2]);
+				
+				if (wed_request_in_latched.wed.afu_config[3]) begin
+					read_command_out_latched.command 			  <= READ_CL_S; 
+				end else begin
+					read_command_out_latched.command 			  <= READ_CL_NA; 
+				end
+				
 			end
 			SEND_VERTEX_IDLE      : begin
 			end
 			SEND_VERTEX_IN_DEGREE : begin
 				read_command_out_latched.valid   <= 1'b1;
-				read_command_out_latched.command <= READ_CL_NA; // just zero it out
+				
 				read_command_out_latched.address <= wed_request_in_latched.wed.vertex_in_degree + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
@@ -240,7 +248,7 @@ module cu_vertex_job_control (
 			end
 			SEND_VERTEX_OUT_DEGREE : begin
 				read_command_out_latched.valid   <= 1'b1;
-				read_command_out_latched.command <= READ_CL_NA; // just zero it out
+		
 				read_command_out_latched.address <= wed_request_in_latched.wed.vertex_out_degree + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
@@ -248,7 +256,7 @@ module cu_vertex_job_control (
 			end
 			SEND_VERTEX_EDGES_IDX : begin
 				read_command_out_latched.valid   <= 1'b1;
-				read_command_out_latched.command <= READ_CL_NA; // just zero it out
+	
 				read_command_out_latched.address <= wed_request_in_latched.wed.vertex_edges_idx + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
@@ -256,7 +264,7 @@ module cu_vertex_job_control (
 			end
 			SEND_VERTEX_INV_IN_DEGREE : begin
 				read_command_out_latched.valid   <= 1'b1;
-				read_command_out_latched.command <= READ_CL_NA; // just zero it out
+	
 				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_vertex_in_degree + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
@@ -264,7 +272,7 @@ module cu_vertex_job_control (
 			end
 			SEND_VERTEX_INV_OUT_DEGREE : begin
 				read_command_out_latched.valid   <= 1'b1;
-				read_command_out_latched.command <= READ_CL_NA; // just zero it out
+
 				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_vertex_out_degree + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
@@ -272,7 +280,7 @@ module cu_vertex_job_control (
 			end
 			SEND_VERTEX_INV_EDGES_IDX : begin
 				read_command_out_latched.valid   <= 1'b1;
-				read_command_out_latched.command <= READ_CL_NA; // just zero it out
+			
 				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_vertex_edges_idx + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 

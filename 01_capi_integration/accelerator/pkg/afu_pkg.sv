@@ -187,7 +187,7 @@ package AFU_PKG;
     BufferStatus buffer_1;
   } DataBufferStatusInterface;
 
-// Deal with not "done" responses. Not ever expecting most response codes,
+  // Deal with not "done" responses. Not ever expecting most response codes,
   // so afu should signal error if these occur. Never asked for reservation or
   // lock, so nres/nlock shouldn't happen. Failed is normally response to bad
   // parity or unsupported command type. Most others mean something went wrong

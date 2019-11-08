@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_job_control.sv
 // Create : 2019-09-26 15:18:56
-// Revise : 2019-11-07 12:35:07
+// Revise : 2019-11-08 10:50:18
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -273,29 +273,36 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				read_command_out_latched.cmd.cu_id            <= CU_ID;
 				read_command_out_latched.cmd.cmd_type         <= CMD_READ;
 
-				read_command_out_latched.cmd.abt <= STRICT;
-				read_command_out_latched.abt     <= STRICT;
+				read_command_out_latched.cmd.abt <= map_CABT(wed_request_in_latched.wed.afu_config[5:7]);
+				read_command_out_latched.abt     <= map_CABT(wed_request_in_latched.wed.afu_config[5:7]);
+
+				if (wed_request_in_latched.wed.afu_config[8]) begin
+					read_command_out_latched.command <= READ_CL_S;
+				end else begin
+					read_command_out_latched.command <= READ_CL_NA;
+				end
+
 			end
 			SEND_EDGE_IDLE    : begin
 			end
 			SEND_EDGE_INV_SRC : begin
-				read_command_out_latched.valid             <= 1'b1;
-				read_command_out_latched.command           <= READ_CL_NA; // just zero it out
+				read_command_out_latched.valid <= 1'b1;
+
 				read_command_out_latched.address           <= wed_request_in_latched.wed.inverse_edges_array_src + aligned;
 				read_command_out_latched.size              <= request_size;
 				read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_SRC;
 			end
 			SEND_EDGE_INV_DEST : begin
-				read_command_out_latched.valid   <= 1'b1;
-				read_command_out_latched.command <= READ_CL_NA; // just zero it out
+				read_command_out_latched.valid <= 1'b1;
+
 				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_dest + aligned;
 				read_command_out_latched.size    <= request_size;
 
 				read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_DEST;
 			end
 			SEND_EDGE_INV_WEIGHT : begin
-				read_command_out_latched.valid   <= 1'b1;
-				read_command_out_latched.command <= READ_CL_NA; // just zero it out
+				read_command_out_latched.valid <= 1'b1;
+
 				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_weight + aligned;
 				read_command_out_latched.size    <= request_size;
 

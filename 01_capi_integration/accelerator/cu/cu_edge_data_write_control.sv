@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_write_control.sv
 // Create : 2019-10-31 14:36:36
-// Revise : 2019-11-07 12:43:36
+// Revise : 2019-11-08 10:49:02
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -116,8 +116,6 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 				write_command_out_latched.cmd     <= cmd;
 
 
-
-
 				write_data_0_out_latched.valid                                                        <= edge_data_write.valid;
 				write_data_0_out_latched.cmd                                                          <= cmd;
 				write_data_0_out_latched.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] <= swap_endianness_data_write(edge_data_write.data) ;
@@ -126,10 +124,18 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 				write_data_1_out_latched.cmd                                                          <= cmd;
 				write_data_1_out_latched.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] <= swap_endianness_data_write(edge_data_write.data) ;
 
-				write_data_1_out_latched.cmd.abt  <= STRICT;
-				write_data_0_out_latched.cmd.abt  <= STRICT;
-				write_command_out_latched.cmd.abt <= STRICT;
-				write_command_out_latched.abt     <= STRICT;
+				write_data_1_out_latched.cmd.abt  <= map_CABT(wed_request_in_latched.wed.afu_config[15:17]);
+				write_data_0_out_latched.cmd.abt  <= map_CABT(wed_request_in_latched.wed.afu_config[15:17]);
+				write_command_out_latched.cmd.abt <= map_CABT(wed_request_in_latched.wed.afu_config[15:17]);
+				write_command_out_latched.abt     <= map_CABT(wed_request_in_latched.wed.afu_config[15:17]);
+
+				if (wed_request_in_latched.wed.afu_config[19]) begin
+					write_command_out_latched.command 			  <= WRITE_MS; 
+				end else begin
+					write_command_out_latched.command 			  <= WRITE_NA; 
+				end
+
+
 
 			end else begin
 				write_command_out_latched <= 0;

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_edge_data_control.sv
 // Create : 2019-09-26 15:18:46
-// Revise : 2019-11-07 12:39:42
+// Revise : 2019-11-08 10:49:54
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -119,11 +119,6 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 				if(edge_job_variable.valid && wed_request_in_latched.valid)begin
 					read_command_out_latched.valid <= 1'b1;
 
-					if(wed_request_in_latched.wed.afu_config[31])
-						read_command_out_latched.command <= READ_CL_S;
-					else
-						read_command_out_latched.command <= READ_CL_NA;
-
 					read_command_out_latched.address <= wed_request_in_latched.wed.auxiliary1 + (edge_job_variable.dest << $clog2(DATA_SIZE_READ));
 					read_command_out_latched.size    <= DATA_SIZE_READ;
 
@@ -132,8 +127,14 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 					read_command_out_latched.cmd.cu_id            <= CU_ID;
 					read_command_out_latched.cmd.cmd_type         <= CMD_READ;
 
-					read_command_out_latched.abt     <= STRICT;
-					read_command_out_latched.cmd.abt <= STRICT;
+					read_command_out_latched.cmd.abt <= map_CABT(wed_request_in_latched.wed.afu_config[10:12]);
+					read_command_out_latched.abt     <= map_CABT(wed_request_in_latched.wed.afu_config[10:12]);
+
+					if (wed_request_in_latched.wed.afu_config[13]) begin
+						read_command_out_latched.command <= READ_CL_S;
+					end else begin
+						read_command_out_latched.command <= READ_CL_NA;
+					end
 
 				end else begin
 					read_command_out_latched <= 0;
