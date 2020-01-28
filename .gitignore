@@ -4,6 +4,10 @@
 
 03_Reading/
 
+
+accelgraph.sublime-project
+accelgraph.sublime-workspace
+
 nohup.out
 .qsys_edit
 00_graph_bench/nohup.out
