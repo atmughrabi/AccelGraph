@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system name="$${FILENAME}">
+ <component
+   name="$${FILENAME}"
+   displayName="$${FILENAME}"
+   version="1.0"
+   description=""
+   tags=""
+   categories="" />
+ <parameter name="bonusData"><![CDATA[bonusData 
+{
+   element alt_pr_0
+   {
+      datum _sortIndex
+      {
+         value = "0";
+         type = "int";
+      }
+   }
+}
+]]></parameter>
+ <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
+ <parameter name="device" value="5SGXMA7H2F35C2" />
+ <parameter name="deviceFamily" value="Stratix V" />
+ <parameter name="deviceSpeedGrade" value="2_H2" />
+ <parameter name="fabricMode" value="QSYS" />
+ <parameter name="generateLegacySim" value="false" />
+ <parameter name="generationId" value="0" />
+ <parameter name="globalResetBus" value="false" />
+ <parameter name="hdlLanguage" value="VERILOG" />
+ <parameter name="maxAdditionalLatency" value="1" />
+ <parameter name="projectName" value="" />
+ <parameter name="sopcBorderPoints" value="false" />
+ <parameter name="systemHash" value="0" />
+ <parameter name="timeStamp" value="0" />
+ <parameter name="useTestBenchNamingPattern" value="false" />
+ <instanceScript></instanceScript>
+ <interface
+   name="alt_pr_0_pr_start"
+   internal="alt_pr_0.pr_start"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="alt_pr_0_double_pr"
+   internal="alt_pr_0.double_pr"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="alt_pr_0_data_valid"
+   internal="alt_pr_0.data_valid"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="alt_pr_0_freeze"
+   internal="alt_pr_0.freeze"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="alt_pr_0_data"
+   internal="alt_pr_0.data"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="alt_pr_0_data_read"
+   internal="alt_pr_0.data_read"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="alt_pr_0_status"
+   internal="alt_pr_0.status"
+   type="conduit"
+   dir="end" />
+ <interface name="alt_pr_0_clk" internal="alt_pr_0.clk" type="clock" dir="end" />
+ <interface
+   name="alt_pr_0_nreset"
+   internal="alt_pr_0.nreset"
+   type="reset"
+   dir="end" />
+ <module kind="alt_pr" version="13.1" enabled="1" name="alt_pr_0">
+  <parameter name="PR_INTERNAL_HOST" value="true" />
+  <parameter name="ENABLE_JTAG" value="true" />
+  <parameter name="DATA_WIDTH_INDEX" value="32" />
+  <parameter name="CDRATIO" value="1" />
+  <parameter name="EDCRC_OSC_DIVIDER" value="1" />
+  <parameter name="DEVICE_FAMILY" value="Stratix V" />
+  <parameter name="AUTO_CLK_CLOCK_RATE" value="0" />
+ </module>
+ <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
+ <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
+ <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="false" />
+</system>

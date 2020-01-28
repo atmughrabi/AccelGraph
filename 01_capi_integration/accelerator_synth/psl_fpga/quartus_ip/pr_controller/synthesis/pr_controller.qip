@@ -1,0 +1,24 @@
+set_global_assignment -entity "pr_controller" -library "pr_controller" -name IP_TOOL_NAME "Qsys"
+set_global_assignment -entity "pr_controller" -library "pr_controller" -name IP_TOOL_VERSION "13.1"
+set_global_assignment -entity "pr_controller" -library "pr_controller" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -library "pr_controller" -name SOPCINFO_FILE [file join $::quartus(qip_path) "../pr_controller.sopcinfo"]
+set_global_assignment -entity "pr_controller" -library "pr_controller" -name SLD_INFO "QSYS_NAME pr_controller HAS_SOPCINFO 1 GENERATION_ID 1409150677"
+set_global_assignment -library "pr_controller" -name MISC_FILE [file join $::quartus(qip_path) "../pr_controller.cmp"]
+set_global_assignment -library "pr_controller" -name SLD_FILE [file join $::quartus(qip_path) "pr_controller.debuginfo"]
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+set_global_assignment -library "pr_controller" -name MISC_FILE [file join $::quartus(qip_path) "../pr_controller.qsys"]
+
+set_global_assignment -library "pr_controller" -name VHDL_FILE [file join $::quartus(qip_path) "pr_controller.vhd"]
+set_global_assignment -library "pr_controller" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_pr.v"]
+set_global_assignment -library "pr_controller" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/rtl/alt_pr_bitstream_controller.v"]
+set_global_assignment -library "pr_controller" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/rtl/alt_pr_bitstream_host.v"]
+set_global_assignment -library "pr_controller" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/rtl/alt_pr_cb_controller.v"]
+set_global_assignment -library "pr_controller" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/rtl/alt_pr_cb_interface.v"]
+set_global_assignment -library "pr_controller" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/rtl/alt_pr_data_source_controller.v"]
+set_global_assignment -library "pr_controller" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/rtl/alt_pr_jtag_interface.v"]
+set_global_assignment -library "pr_controller" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/rtl/alt_pr_standard_data_interface.v"]
+set_global_assignment -library "pr_controller" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/rtl/alt_pr_bitstream_compatibility_checker.v"]
+
+set_global_assignment -entity "alt_pr" -library "pr_controller" -name IP_TOOL_NAME "alt_pr"
+set_global_assignment -entity "alt_pr" -library "pr_controller" -name IP_TOOL_VERSION "13.1"
+set_global_assignment -entity "alt_pr" -library "pr_controller" -name IP_TOOL_ENV "Qsys"

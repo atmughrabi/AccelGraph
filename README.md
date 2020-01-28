@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)
+[![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph_CAPI)
 [<p align="center"><img src="./02_slides/fig/logo3.png" width="650" ></p>](#accel-graph-benchmark-suite)
 
 # Accel-Graph Benchmark Suite
 
-## Graph Processing Framework that supports | OpenMP || CAPI/SystemVerilog || gem5-Aladdin | 
+## Graph Processing Framework that supports | OpenMP || CAPI
 
 ## Overview 
 
@@ -42,10 +42,6 @@ accel@graph:~$ sudo apt-get install libjudy-dev
 ```console
 accel@graph:~$ sudo apt-get install libomp-dev
 ```
-
-### gem5-Aladdin
-1. Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
-
 ### CAPI
 1. Simulation with ModelSim
   * Environment Variable setup, `HOME` and `ALTERAPATH` depend on where you clone the repository and install ModelSim.
@@ -165,68 +161,6 @@ accel@graph:~AccelGraph$ cd 01_capi_integration/accelerator_bin/
 ```console
 accel@graph:~AccelGraph/01_capi_integration/accelerator_bin$ sudo capi-flash-script ACCELGRAPH_ALGORITHM.rbf
 ```
-
-[<img src="./02_slides/fig/gem5-aladdin_logo.png" height="45" align="right" >](https://github.com/harvard-acc/gem5-aladdin)
-
-## Initial compilation for the Graph framework with gem5-Aladdin 
-
-* NOTE: You need gem5-aladdin environment setup on your machine.
-* Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
-* It is best to go through some of the integration-test examples that [(Aladdin)](https://github.com/ysshao/aladdin/) provides. So you can understand the process flow of how and why things are proceeding the way they are.
-
-### Running Aladdin 
-
-1. (Optional) From the root directory go to the graph benchmark directory:
-```console
-accel@graph:~AccelGraph$ cd 00_graph_bench/
-```
-2. This will compile Aladdin, then generate a dynamic trace if it doesn't exist and then run Aladdin:
-* The generated dynamic_trace resides in `./00_graph_bench/aladdin_common/dynamic_traces` 
-* The dynamic trace is labeled with the following `(GRAPH_NAME)_(DATA_STRUCTURES)_(ALGORITHMS)_(PUSH_PULL)_dynamic_trace.gz`, this helps to distinguish between dynamic traces across different runs.
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-aladdin
-```
-* OR (regenerates dynamic_trace even if it exists)
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-aladdin-force 
-```
-* To generate a dynamic trace without running Aladdin: (if it never been generated)
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer 
-```
-* OR (regenerates dynamic_trace.gz even if it exist)
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-llvm-tracer-force 
-```
-
-### Running gem5-Aladdin 
-
-* NOTE: You need gem5-aladdin environment setup on your machine.
-* AGAIN: Please refer to [(gem5-Aladdin)](https://github.com/harvard-acc/gem5-aladdin), read the papers to understand the big picture `HINT: check their docker folder for an easy setup`.
-* gem5-Aladdin provides the possibility to evaluate the performance of shared memory accelerators.
-
-1. (Optional) From the root directory go to the graph benchmark directory:
-```console
-accel@graph:~AccelGraph$ cd 00_graph_bench/
-```
-2. Their are four `mode` runs for gem5-aladding.
-* Running with `openmp` mode on gem5 with the fully parallelized version of the graph algorithm.
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-openmp
-```
-* Running with `cpu` mode on gem5 with a single threaded kernel extracted from the graph algorithm (the compute intensive one), this is according to gem5-Aladdin integration-test examples.
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cpu
-```
-* Running with `accel` mode on gem5 with the accelerator active. The performance model is derived from the DDDG (Dynamic Data Dependence Graph).
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-accel
-```
-* Running with `cache` mode using `00_graph_bench/util/cache.c`.This simulates trace driven cache. check `pageRankPullGraphCSRKernelCache` in `00_graph_bench/src/gem5aladdin/pageRank_kernels.c`, for a good example.
-```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-gem5-cache
-```
-
 
 ## Graph structure Input (Edge list) 
 
@@ -490,18 +424,6 @@ portable benchmarking suite for various graph processing algorithms.
   - [x] CC    (Connected Components)
   - [x] TC    (Triangle Counting)
   - [ ] BC    (Betweenness Centrality)
-- [x] Finish integration with gem5-Aladdin
-- [ ] Finish graph algorithms suite gem5-Aladdin
-  - [x] BFS   (Breadth First Search)
-  - [x] PR    (Page-Rank)
-  - [ ] DFS   (Depth First Search)
-  - [ ] IA    (Incremental Aggregation)
-  - [ ] SSSP  (BellmanFord)
-  - [ ] SSSP  (Dijkstra)
-  - [ ] CC    (Connected Components)
-  - [ ] BC    (Betweenness Centrality)
-  - [ ] TC    (Triangle Counting)
-  - [ ] SPMV  (Sparse Matrix-vector Multiplication)
 - [x] Finish integration with CAPI Simulation
 - [x] Finish integration with CAPI Cache
 - [x] Finish Synthesis with CAPI (Meets time requirements)

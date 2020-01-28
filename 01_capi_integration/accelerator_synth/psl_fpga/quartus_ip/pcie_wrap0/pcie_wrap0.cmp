@@ -1,0 +1,132 @@
+	component pcie_wrap0 is
+		port (
+			hip_config_tl_hpg_ctrler         : in  std_logic_vector(4 downto 0)   := (others => 'X'); -- hpg_ctrler
+			hip_config_tl_tl_cfg_add         : out std_logic_vector(3 downto 0);                      -- tl_cfg_add
+			hip_config_tl_tl_cfg_ctl         : out std_logic_vector(31 downto 0);                     -- tl_cfg_ctl
+			hip_config_tl_tl_cfg_sts         : out std_logic_vector(52 downto 0);                     -- tl_cfg_sts
+			hip_config_tl_cpl_err            : in  std_logic_vector(6 downto 0)   := (others => 'X'); -- cpl_err
+			hip_config_tl_cpl_pending        : in  std_logic                      := 'X';             -- cpl_pending
+			hip_coreclkout_hip_clk           : out std_logic;                                         -- clk
+			hip_cseb_cseb_rddata             : in  std_logic_vector(31 downto 0)  := (others => 'X'); -- cseb_rddata
+			hip_cseb_cseb_rdresponse         : in  std_logic_vector(4 downto 0)   := (others => 'X'); -- cseb_rdresponse
+			hip_cseb_cseb_waitrequest        : in  std_logic                      := 'X';             -- cseb_waitrequest
+			hip_cseb_cseb_wrresponse         : in  std_logic_vector(4 downto 0)   := (others => 'X'); -- cseb_wrresponse
+			hip_cseb_cseb_wrresp_valid       : in  std_logic                      := 'X';             -- cseb_wrresp_valid
+			hip_cseb_cseb_addr               : out std_logic_vector(32 downto 0);                     -- cseb_addr
+			hip_cseb_cseb_be                 : out std_logic_vector(3 downto 0);                      -- cseb_be
+			hip_cseb_cseb_rden               : out std_logic;                                         -- cseb_rden
+			hip_cseb_cseb_wrdata             : out std_logic_vector(31 downto 0);                     -- cseb_wrdata
+			hip_cseb_cseb_wren               : out std_logic;                                         -- cseb_wren
+			hip_cseb_cseb_wrresp_req         : out std_logic;                                         -- cseb_wrresp_req
+			hip_cseb_cseb_rddata_parity      : in  std_logic_vector(3 downto 0)   := (others => 'X'); -- cseb_rddata_parity
+			hip_cseb_cseb_addr_parity        : out std_logic_vector(4 downto 0);                      -- cseb_addr_parity
+			hip_cseb_cseb_wrdata_parity      : out std_logic_vector(3 downto 0);                      -- cseb_wrdata_parity
+			hip_ctrl_test_in                 : in  std_logic_vector(31 downto 0)  := (others => 'X'); -- test_in
+			hip_ctrl_simu_mode_pipe          : in  std_logic                      := 'X';             -- simu_mode_pipe
+			hip_hip_status_derr_cor_ext_rcv  : out std_logic;                                         -- derr_cor_ext_rcv
+			hip_hip_status_derr_cor_ext_rpl  : out std_logic;                                         -- derr_cor_ext_rpl
+			hip_hip_status_derr_rpl          : out std_logic;                                         -- derr_rpl
+			hip_hip_status_dlup              : out std_logic;                                         -- dlup
+			hip_hip_status_dlup_exit         : out std_logic;                                         -- dlup_exit
+			hip_hip_status_ev128ns           : out std_logic;                                         -- ev128ns
+			hip_hip_status_ev1us             : out std_logic;                                         -- ev1us
+			hip_hip_status_hotrst_exit       : out std_logic;                                         -- hotrst_exit
+			hip_hip_status_int_status        : out std_logic_vector(3 downto 0);                      -- int_status
+			hip_hip_status_l2_exit           : out std_logic;                                         -- l2_exit
+			hip_hip_status_lane_act          : out std_logic_vector(3 downto 0);                      -- lane_act
+			hip_hip_status_ltssmstate        : out std_logic_vector(4 downto 0);                      -- ltssmstate
+			hip_hip_status_rx_par_err        : out std_logic;                                         -- rx_par_err
+			hip_hip_status_tx_par_err        : out std_logic_vector(1 downto 0);                      -- tx_par_err
+			hip_hip_status_cfg_par_err       : out std_logic;                                         -- cfg_par_err
+			hip_hip_status_ko_cpl_spc_header : out std_logic_vector(7 downto 0);                      -- ko_cpl_spc_header
+			hip_hip_status_ko_cpl_spc_data   : out std_logic_vector(11 downto 0);                     -- ko_cpl_spc_data
+			hip_int_msi_app_int_sts          : in  std_logic                      := 'X';             -- app_int_sts
+			hip_int_msi_app_msi_num          : in  std_logic_vector(4 downto 0)   := (others => 'X'); -- app_msi_num
+			hip_int_msi_app_msi_req          : in  std_logic                      := 'X';             -- app_msi_req
+			hip_int_msi_app_msi_tc           : in  std_logic_vector(2 downto 0)   := (others => 'X'); -- app_msi_tc
+			hip_int_msi_app_int_ack          : out std_logic;                                         -- app_int_ack
+			hip_int_msi_app_msi_ack          : out std_logic;                                         -- app_msi_ack
+			hip_lmi_lmi_addr                 : in  std_logic_vector(11 downto 0)  := (others => 'X'); -- lmi_addr
+			hip_lmi_lmi_din                  : in  std_logic_vector(31 downto 0)  := (others => 'X'); -- lmi_din
+			hip_lmi_lmi_rden                 : in  std_logic                      := 'X';             -- lmi_rden
+			hip_lmi_lmi_wren                 : in  std_logic                      := 'X';             -- lmi_wren
+			hip_lmi_lmi_ack                  : out std_logic;                                         -- lmi_ack
+			hip_lmi_lmi_dout                 : out std_logic_vector(31 downto 0);                     -- lmi_dout
+			hip_power_mngt_pm_auxpwr         : in  std_logic                      := 'X';             -- pm_auxpwr
+			hip_power_mngt_pm_data           : in  std_logic_vector(9 downto 0)   := (others => 'X'); -- pm_data
+			hip_power_mngt_pme_to_cr         : in  std_logic                      := 'X';             -- pme_to_cr
+			hip_power_mngt_pm_event          : in  std_logic                      := 'X';             -- pm_event
+			hip_power_mngt_pme_to_sr         : out std_logic;                                         -- pme_to_sr
+			hip_rst_reset_status             : out std_logic;                                         -- reset_status
+			hip_rst_serdes_pll_locked        : out std_logic;                                         -- serdes_pll_locked
+			hip_rst_pld_clk_inuse            : out std_logic;                                         -- pld_clk_inuse
+			hip_rst_pld_core_ready           : in  std_logic                      := 'X';             -- pld_core_ready
+			hip_rst_testin_zero              : out std_logic;                                         -- testin_zero
+			hip_rx_bar_be_rx_st_bar          : out std_logic_vector(7 downto 0);                      -- rx_st_bar
+			hip_rx_bar_be_rx_st_mask         : in  std_logic                      := 'X';             -- rx_st_mask
+			hip_rx_st_startofpacket          : out std_logic_vector(0 downto 0);                      -- startofpacket
+			hip_rx_st_endofpacket            : out std_logic_vector(0 downto 0);                      -- endofpacket
+			hip_rx_st_error                  : out std_logic_vector(0 downto 0);                      -- error
+			hip_rx_st_valid                  : out std_logic_vector(0 downto 0);                      -- valid
+			hip_rx_st_empty                  : out std_logic_vector(1 downto 0);                      -- empty
+			hip_rx_st_ready                  : in  std_logic                      := 'X';             -- ready
+			hip_rx_st_data                   : out std_logic_vector(255 downto 0);                    -- data
+			hip_rx_st_parity                 : out std_logic_vector(31 downto 0);                     -- parity
+			hip_serial_rx_in0                : in  std_logic                      := 'X';             -- rx_in0
+			hip_serial_rx_in1                : in  std_logic                      := 'X';             -- rx_in1
+			hip_serial_rx_in2                : in  std_logic                      := 'X';             -- rx_in2
+			hip_serial_rx_in3                : in  std_logic                      := 'X';             -- rx_in3
+			hip_serial_rx_in4                : in  std_logic                      := 'X';             -- rx_in4
+			hip_serial_rx_in5                : in  std_logic                      := 'X';             -- rx_in5
+			hip_serial_rx_in6                : in  std_logic                      := 'X';             -- rx_in6
+			hip_serial_rx_in7                : in  std_logic                      := 'X';             -- rx_in7
+			hip_serial_tx_out0               : out std_logic;                                         -- tx_out0
+			hip_serial_tx_out1               : out std_logic;                                         -- tx_out1
+			hip_serial_tx_out2               : out std_logic;                                         -- tx_out2
+			hip_serial_tx_out3               : out std_logic;                                         -- tx_out3
+			hip_serial_tx_out4               : out std_logic;                                         -- tx_out4
+			hip_serial_tx_out5               : out std_logic;                                         -- tx_out5
+			hip_serial_tx_out6               : out std_logic;                                         -- tx_out6
+			hip_serial_tx_out7               : out std_logic;                                         -- tx_out7
+			hip_tx_cred_tx_cred_datafccp     : out std_logic_vector(11 downto 0);                     -- tx_cred_datafccp
+			hip_tx_cred_tx_cred_datafcnp     : out std_logic_vector(11 downto 0);                     -- tx_cred_datafcnp
+			hip_tx_cred_tx_cred_datafcp      : out std_logic_vector(11 downto 0);                     -- tx_cred_datafcp
+			hip_tx_cred_tx_cred_fchipcons    : out std_logic_vector(5 downto 0);                      -- tx_cred_fchipcons
+			hip_tx_cred_tx_cred_fcinfinite   : out std_logic_vector(5 downto 0);                      -- tx_cred_fcinfinite
+			hip_tx_cred_tx_cred_hdrfccp      : out std_logic_vector(7 downto 0);                      -- tx_cred_hdrfccp
+			hip_tx_cred_tx_cred_hdrfcnp      : out std_logic_vector(7 downto 0);                      -- tx_cred_hdrfcnp
+			hip_tx_cred_tx_cred_hdrfcp       : out std_logic_vector(7 downto 0);                      -- tx_cred_hdrfcp
+			hip_tx_st_startofpacket          : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- startofpacket
+			hip_tx_st_endofpacket            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- endofpacket
+			hip_tx_st_error                  : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- error
+			hip_tx_st_valid                  : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- valid
+			hip_tx_st_empty                  : in  std_logic_vector(1 downto 0)   := (others => 'X'); -- empty
+			hip_tx_st_ready                  : out std_logic;                                         -- ready
+			hip_tx_st_data                   : in  std_logic_vector(255 downto 0) := (others => 'X'); -- data
+			hip_tx_st_parity                 : in  std_logic_vector(31 downto 0)  := (others => 'X'); -- parity
+			local_pcie_perstn_reset_n        : in  std_logic                      := 'X';             -- reset_n
+			nc_reset_reset_n                 : in  std_logic                      := 'X';             -- reset_n
+			pcie_ref_clk_clk                 : in  std_logic                      := 'X';             -- clk
+			pcie_rstn_npor                   : in  std_logic                      := 'X';             -- npor
+			pcie_rstn_pin_perst              : in  std_logic                      := 'X';             -- pin_perst
+			pld_clk_clk                      : in  std_logic                      := 'X';             -- clk
+			rcd_hip_status_derr_cor_ext_rcv  : in  std_logic                      := 'X';             -- derr_cor_ext_rcv
+			rcd_hip_status_derr_cor_ext_rpl  : in  std_logic                      := 'X';             -- derr_cor_ext_rpl
+			rcd_hip_status_derr_rpl          : in  std_logic                      := 'X';             -- derr_rpl
+			rcd_hip_status_dlup_exit         : in  std_logic                      := 'X';             -- dlup_exit
+			rcd_hip_status_ev128ns           : in  std_logic                      := 'X';             -- ev128ns
+			rcd_hip_status_ev1us             : in  std_logic                      := 'X';             -- ev1us
+			rcd_hip_status_hotrst_exit       : in  std_logic                      := 'X';             -- hotrst_exit
+			rcd_hip_status_int_status        : in  std_logic_vector(3 downto 0)   := (others => 'X'); -- int_status
+			rcd_hip_status_l2_exit           : in  std_logic                      := 'X';             -- l2_exit
+			rcd_hip_status_lane_act          : in  std_logic_vector(3 downto 0)   := (others => 'X'); -- lane_act
+			rcd_hip_status_ltssmstate        : in  std_logic_vector(4 downto 0)   := (others => 'X'); -- ltssmstate
+			rcd_hip_status_dlup              : in  std_logic                      := 'X';             -- dlup
+			rcd_hip_status_rx_par_err        : in  std_logic                      := 'X';             -- rx_par_err
+			rcd_hip_status_tx_par_err        : in  std_logic_vector(1 downto 0)   := (others => 'X'); -- tx_par_err
+			rcd_hip_status_cfg_par_err       : in  std_logic                      := 'X';             -- cfg_par_err
+			rcd_hip_status_ko_cpl_spc_header : in  std_logic_vector(7 downto 0)   := (others => 'X'); -- ko_cpl_spc_header
+			rcd_hip_status_ko_cpl_spc_data   : in  std_logic_vector(11 downto 0)  := (others => 'X')  -- ko_cpl_spc_data
+		);
+	end component pcie_wrap0;
+

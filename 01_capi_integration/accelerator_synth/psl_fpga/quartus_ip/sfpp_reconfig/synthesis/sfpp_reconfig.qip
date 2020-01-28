@@ -1,0 +1,511 @@
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_TOOL_NAME "Qsys"
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -library "sfpp_reconfig" -name SOPCINFO_FILE [file join $::quartus(qip_path) "../../sfpp_reconfig.sopcinfo"]
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name SLD_INFO "QSYS_NAME sfpp_reconfig HAS_SOPCINFO 1 GENERATION_ID 1446835337"
+set_global_assignment -library "sfpp_reconfig" -name MISC_FILE [file join $::quartus(qip_path) "../sfpp_reconfig.cmp"]
+set_global_assignment -library "sfpp_reconfig" -name SLD_FILE [file join $::quartus(qip_path) "sfpp_reconfig.debuginfo"]
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_TARGETED_DEVICE_FAMILY "Stratix V"
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_GENERATED_DEVICE_FAMILY "{Stratix V}"
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_QSYS_MODE "SYSTEM"
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+set_global_assignment -library "sfpp_reconfig" -name MISC_FILE [file join $::quartus(qip_path) "../../sfpp_reconfig.qsys"]
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "c2ZwcF9yZWNvbmZpZw=="
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "c2ZwcF9yZWNvbmZpZw=="
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "On"
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MS4w"
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19HRU5FUkFUSU9OX0lE::MTQ0NjgzNTMzNw==::QXV0byBHRU5FUkFUSU9OX0lE"
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::U3RyYXRpeCBW::QXV0byBERVZJQ0VfRkFNSUxZ"
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0U=::NVNHWE1BN0gyRjM1QzI=::QXV0byBERVZJQ0U="
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfU1BFRURHUkFERQ==::Ml9IMg==::QXV0byBERVZJQ0VfU1BFRURHUkFERQ=="
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19DTEtfQ0xPQ0tfUkFURQ==::LTE=::QXV0byBDTE9DS19SQVRF"
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19DTEtfQ0xPQ0tfRE9NQUlO::LTE=::QXV0byBDTE9DS19ET01BSU4="
+set_global_assignment -entity "sfpp_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19DTEtfUkVTRVRfRE9NQUlO::LTE=::QXV0byBSRVNFVF9ET01BSU4="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "YWx0ZXJhX3Jlc2V0X2NvbnRyb2xsZXI="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "TWVybGluIFJlc2V0IENvbnRyb2xsZXI="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_DESCRIPTION "Rm9yIHN5c3RlbXMgd2l0aCBtdWx0aXBsZSByZXNldCBpbnB1dHMsIHRoZSBNZXJsaW4gUmVzZXQgQ29udHJvbGxlciBPUnMgYWxsIHJlc2V0IGlucHV0cyBhbmQgZ2VuZXJhdGVzIGEgc2luZ2xlIHJlc2V0IG91dHB1dC4="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "TlVNX1JFU0VUX0lOUFVUUw==::Mg==::TnVtYmVyIG9mIGlucHV0cw=="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "T1VUUFVUX1JFU0VUX1NZTkNfRURHRVM=::ZGVhc3NlcnQ=::T3V0cHV0IFJlc2V0IFN5bmNocm9ub3VzIEVkZ2Vz"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "U1lOQ19ERVBUSA==::Mg==::U3luY2hyb25pemVyIGRlcHRo"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "UkVTRVRfUkVRVUVTVF9QUkVTRU5U::MA==::UmVzZXQgcmVxdWVzdCBsb2dpYyBlbmFibGU="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "UkVTRVRfUkVRX1dBSVRfVElNRQ==::MQ==::UmVzZXQgcmVxdWVzdCB3YWl0IHRpbWU="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "TUlOX1JTVF9BU1NFUlRJT05fVElNRQ==::Mw==::TWluaW11bSByZXNldCBhc3NlcnRpb24gdGltZQ=="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "UkVTRVRfUkVRX0VBUkxZX0RTUlRfVElNRQ==::MQ==::UmVzZXQgcmVxdWVzdCBkZWFzc2VydCB0aW1pbmc="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU4w::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjA="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU4x::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjE="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU4y::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjI="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU4z::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjM="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU40::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjQ="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU41::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjU="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU42::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjY="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU43::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjc="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU44::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjg="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU45::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjk="
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU4xMA==::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjEw"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU4xMQ==::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjEx"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU4xMg==::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjEy"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU4xMw==::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjEz"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU4xNA==::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjE0"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU4xNQ==::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcG9ydCByZXNldF9pbjE1"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFU0VUX1JFUVVFU1RfSU5QVVQ=::MA==::RW5hYmxlIHJlc2V0X3JlcSBmb3IgcmVzZXRfaW5wdXRz"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QURBUFRfUkVTRVRfUkVRVUVTVA==::MA==::T25seSBhZGFwdCBvbmx5IHJlc2V0IHJlcXVlc3Q="
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "c2ZwcF9yZWNvbmZpZ19tbV9pbnRlcmNvbm5lY3RfMA=="
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "TU0gSW50ZXJjb25uZWN0"
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "On"
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_COMPONENT_DESCRIPTION "TU0gSW50ZXJjb25uZWN0"
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::U3RyYXRpeCBW::QXV0byBERVZJQ0VfRkFNSUxZ"
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0U=::NVNHWE1BN0gyRjM1QzI=::QXV0byBERVZJQ0U="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "YWx0ZXJhX21lcmxpbl9zbGF2ZV90cmFuc2xhdG9y"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uIE1NIFNsYXZlIFRyYW5zbGF0b3I="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_DESCRIPTION "Q29udmVydHMgdGhlIEF2YWxvbi1NTSBzbGF2ZSBpbnRlcmZhY2UgdG8gYSBzaW1wbGlmaWVkIHJlcHJlc2VudGF0aW9uIHRoYXQgdGhlIFFzeXMgbmV0d29yayB1c2VzLiBSZWZlciB0byB0aGUgQXZhbG9uIEludGVyZmFjZSBTcGVjaWZpY2F0aW9ucyAoaHR0cDovL3d3dy5hbHRlcmEuY29tL2xpdGVyYXR1cmUvbWFudWFsL21ubF9hdmFsb25fc3BlYy5wZGYpIGZvciBkZWZpbml0aW9ucyBvZiB0aGUgQXZhbG9uLU1NIHNpZ25hbHMgYW5kIGV4cGxhbmF0aW9ucyBvZiB0aGUgYnVyc3RpbmcgcHJvcGVydGllcyBhbmQgYWRkcmVzcyBhbGlnbm1lbnQu"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQUREUkVTU19X::Nw==::Q29tcG9uZW50IGFkZHJlc3Mgd2lkdGg="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfREFUQV9X::MzI=::Q29tcG9uZW50IERhdGEgd2lkdGg="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VUFWX0RBVEFfVw==::MzI=::TmV0d29yayBEYXRhIHdpZHRo"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQlVSU1RDT1VOVF9X::MQ==::Q29tcG9uZW50IGJ1cnN0Y291bnQgd2lkdGg="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQllURUVOQUJMRV9X::NA==::Q29tcG9uZW50IGJ5dGVlbmFibGUgd2lkdGg="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VUFWX0JZVEVFTkFCTEVfVw==::NA==::TmV0d29yayBieXRlZW5hYmxlIHdpZHRo"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VUFWX0FERFJFU1NfVw==::MzI=::TmV0d29yayBhZGRyZXNzIHdpZHRo"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VUFWX0JVUlNUQ09VTlRfVw==::Mw==::TmV0d29yayBidXJzdGNvdW50IHdpZHRo"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfUkVBRExBVEVOQ1k=::MA==::cmVhZExhdGVuY3k="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfU0VUVVBfV0FJVA==::MA==::c2V0dXBUaW1l"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfV1JJVEVfV0FJVA==::MA==::d3JpdGVXYWl0VGltZQ=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfUkVBRF9XQUlU::MQ==::cmVhZFdhaXRUaW1l"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfREFUQV9IT0xE::MA==::SG9sZCB0aW1l"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfVElNSU5HX1VOSVRT::MQ==::VGltaW5nIHVuaXRz"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFQUREQVRB::MQ==::VXNlIHJlYWRkYXRh"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1dSSVRFREFUQQ==::MQ==::VXNlIHdyaXRlZGF0YQ=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFQUQ=::MQ==::VXNlIHJlYWQ="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1dSSVRF::MQ==::VXNlIHdyaXRl"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0JFR0lOQlVSU1RUUkFOU0ZFUg==::MA==::VXNlIGJlZ2luYnVyc3R0cmFuc2Zlcg=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0JFR0lOVFJBTlNGRVI=::MA==::VXNlIGJlZ2ludHJhbnNmZXI="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0JZVEVFTkFCTEU=::MA==::VXNlIGJ5dGVlbmFibGU="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0NISVBTRUxFQ1Q=::MA==::VXNlIGNoaXBzZWxlY3Q="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0FERFJFU1M=::MQ==::VXNlIGFkZHJlc3M="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0JVUlNUQ09VTlQ=::MA==::VXNlIGJ1cnN0Y291bnQ="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFQUREQVRBVkFMSUQ=::MA==::VXNlIHJlYWRkYXRhdmFsaWQ="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1dBSVRSRVFVRVNU::MQ==::VXNlIHdhaXRyZXF1ZXN0"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1dSSVRFQllURUVOQUJMRQ==::MA==::VXNlIHdyaXRlYnl0ZWVuYWJsZQ=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0xPQ0s=::MA==::VXNlIGxvY2s="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0FWX0NMS0VO::MA==::VXNlIGNvbXBvbmVudCBjbGtlbg=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1VBVl9DTEtFTg==::MA==::VXNlIG5ldHdvcmsgY2xrZW4="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX09VVFBVVEVOQUJMRQ==::MA==::VXNlIG91dHB1dGVuYWJsZQ=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0RFQlVHQUNDRVNT::MA==::VXNlIGRlYnVnYWNjZXNz"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFQURSRVNQT05TRQ==::MA==::VXNlIHJlYWRyZXNwb25zZQ=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1dSSVRFUkVTUE9OU0U=::MA==::VXNlIHdyaXRlcmVzcG9uc2U="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfU1lNQk9MU19QRVJfV09SRA==::NA==::U3ltYm9scyBwZXIgd29yZA=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQUREUkVTU19TWU1CT0xT::MA==::QWRkcmVzcyBzeW1ib2xz"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQlVSU1RDT1VOVF9TWU1CT0xT::MA==::QnVyc3Rjb3VudCBzeW1ib2xz"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQ09OU1RBTlRfQlVSU1RfQkVIQVZJT1I=::MA==::Q29tcG9uZW50IGNvbnN0YW50QnVyc3RCZWhhdmlvcg=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VUFWX0NPTlNUQU5UX0JVUlNUX0JFSEFWSU9S::MA==::TmV0d29yayBjb25zdGFudEJ1cnN0QmVoYXZpb3I="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfUkVRVUlSRV9VTkFMSUdORURfQUREUkVTU0VT::MA==::VW5hbGlnbmVkIGFkZHJlc3Nlcw=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfTElORVdSQVBCVVJTVFM=::MA==::bGluZXdyYXBCdXJzdHM="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfTUFYX1BFTkRJTkdfUkVBRF9UUkFOU0FDVElPTlM=::MQ==::bWF4UGVuZGluZ1JlYWRUcmFuc2FjdGlvbnM="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfTUFYX1BFTkRJTkdfV1JJVEVfVFJBTlNBQ1RJT05T::MA==::bWF4UGVuZGluZ1dyaXRlVHJhbnNhY3Rpb25z"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQlVSU1RCT1VOREFSSUVT::MA==::YnVyc3RPbkJ1cnN0Qm91bmRhcmllc09ubHk="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfSU5URVJMRUFWRUJVUlNUUw==::MA==::aW50ZXJsZWF2ZUJ1cnN0cw=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQklUU19QRVJfU1lNQk9M::OA==::Qml0cy9zeW1ib2w="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfSVNCSUdFTkRJQU4=::MA==::aXNCaWdFbmRpYW4="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQUREUkVTU0dST1VQ::MA==::Q29tcG9uZW50IGFkZHJlc3MgZ3JvdXA="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VUFWX0FERFJFU1NHUk9VUA==::MA==::TmV0d29yayBhZGRyZXNzIGdyb3Vw"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfUkVHSVNURVJPVVRHT0lOR1NJR05BTFM=::MA==::cmVnaXN0ZXJPdXRnb2luZ1NpZ25hbHM="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfUkVHSVNURVJJTkNPTUlOR1NJR05BTFM=::MA==::cmVnaXN0ZXJJbmNvbWluZ1NpZ25hbHM="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQUxXQVlTQlVSU1RNQVhCVVJTVA==::MA==::QWx3YXlzIGJ1cnN0IG1heC1idXJzdA=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "Q0hJUFNFTEVDVF9USFJPVUdIX1JFQURMQVRFTkNZ::MA==::Q2hpcHNlbGVjdCB0aHJvdWdoIHJlYWQgbGF0ZW5jeQ=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "Q0xPQ0tfUkFURQ==::NTAwMDAwMDA=::Q0xPQ0tfUkFURQ=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfUkVBRF9XQUlUX0NZQ0xFUw==::MQ==::QVZfUkVBRF9XQUlUX0NZQ0xFUw=="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfV1JJVEVfV0FJVF9DWUNMRVM=::MA==::QVZfV1JJVEVfV0FJVF9DWUNMRVM="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfU0VUVVBfV0FJVF9DWUNMRVM=::MA==::QVZfU0VUVVBfV0FJVF9DWUNMRVM="
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfREFUQV9IT0xEX0NZQ0xFUw==::MA==::QVZfREFUQV9IT0xEX0NZQ0xFUw=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "YWx0ZXJhX21lcmxpbl9tYXN0ZXJfdHJhbnNsYXRvcg=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uIE1NIE1hc3RlciBUcmFuc2xhdG9y"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_DESCRIPTION "Q29udmVydHMgdGhlIEF2YWxvbi1NTSBtYXN0ZXIgaW50ZXJmYWNlIHRvIGEgc2ltcGxlciByZXByZXNlbnRhdGlvbiB0aGF0IHRoZSBRc3lzIG5ldHdvcmsgdXNlcy4gUmVmZXIgdG8gdGhlIEF2YWxvbiBJbnRlcmZhY2UgU3BlY2lmaWNhdGlvbnMgKGh0dHA6Ly93d3cuYWx0ZXJhLmNvbS9saXRlcmF0dXJlL21hbnVhbC9tbmxfYXZhbG9uX3NwZWMucGRmKSBmb3IgZGVmaW5pdGlvbnMgb2YgdGhlIEF2YWxvbi1NTSBzaWduYWxzIGFuZCBleHBsYW5hdGlvbnMgb2YgdGhlIGJ1cnN0aW5nIHByb3BlcnRpZXMu"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQUREUkVTU19X::MzI=::Q29tcG9uZW50IGFkZHJlc3Mgd2lkdGg="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfREFUQV9X::MzI=::Q29tcG9uZW50IERhdGEgd2lkdGg="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQlVSU1RDT1VOVF9X::MQ==::Q29tcG9uZW50IGJ1cnN0Y291bnQgd2lkdGg="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQllURUVOQUJMRV9X::NA==::Q29tcG9uZW50IGJ5dGVlbmFibGUgd2lkdGg="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VUFWX0FERFJFU1NfVw==::MzI=::TmV0d29yayBhZGRyZXNzIHdpZHRo"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VUFWX0JVUlNUQ09VTlRfVw==::Mw==::TmV0d29yayBidXJzdGNvdW50IHdpZHRo"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfUkVBRExBVEVOQ1k=::MA==::cmVhZExhdGVuY3k="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfV1JJVEVfV0FJVA==::MA==::d3JpdGVXYWl0VGltZQ=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfUkVBRF9XQUlU::MQ==::cmVhZFdhaXRUaW1l"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfREFUQV9IT0xE::MA==::SG9sZCB0aW1l"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfU0VUVVBfV0FJVA==::MA==::c2V0dXBUaW1l"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFQUREQVRB::MQ==::VXNlIHJlYWRkYXRh"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1dSSVRFREFUQQ==::MQ==::VXNlIHdyaXRlZGF0YQ=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFQUQ=::MQ==::VXNlIHJlYWQ="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1dSSVRF::MQ==::VXNlIHdyaXRl"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0JFR0lOQlVSU1RUUkFOU0ZFUg==::MA==::VXNlIGJlZ2luYnVyc3R0cmFuc2Zlcg=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0JFR0lOVFJBTlNGRVI=::MA==::VXNlIGJlZ2ludHJhbnNmZXI="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0JZVEVFTkFCTEU=::MQ==::VXNlIGJ5dGVlbmFibGU="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0NISVBTRUxFQ1Q=::MA==::VXNlIGNoaXBzZWxlY3Q="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0FERFJFU1M=::MQ==::VXNlIGFkZHJlc3M="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0JVUlNUQ09VTlQ=::MA==::VXNlIGJ1cnN0Y291bnQ="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0RFQlVHQUNDRVNT::MA==::VXNlIGRlYnVnYWNjZXNz"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0NMS0VO::MA==::VXNlIG5ldHdvcmsgY2xrZW4="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFQUREQVRBVkFMSUQ=::MQ==::VXNlIHJlYWRkYXRhdmFsaWQ="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1dBSVRSRVFVRVNU::MQ==::VXNlIHdhaXRyZXF1ZXN0"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0xPQ0s=::MA==::VXNlIGxvY2s="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1JFQURSRVNQT05TRQ==::MA==::VXNlIHJlYWRyZXNwb25zZQ=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1dSSVRFUkVTUE9OU0U=::MA==::VXNlIHdyaXRlcmVzcG9uc2U="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfU1lNQk9MU19QRVJfV09SRA==::NA==::U3ltYm9scyBwZXIgd29yZA=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQUREUkVTU19TWU1CT0xT::MQ==::QWRkcmVzcyBzeW1ib2xz"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQlVSU1RDT1VOVF9TWU1CT0xT::MA==::QnVyc3Rjb3VudCBzeW1ib2xz"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQ09OU1RBTlRfQlVSU1RfQkVIQVZJT1I=::MA==::Q29tcG9uZW50IGNvbnN0YW50QnVyc3RCZWhhdmlvcg=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VUFWX0NPTlNUQU5UX0JVUlNUX0JFSEFWSU9S::MA==::TmV0d29yayBjb25zdGFudEJ1cnN0QmVoYXZpb3I="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfTElORVdSQVBCVVJTVFM=::MA==::bGluZXdyYXBCdXJzdHM="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfTUFYX1BFTkRJTkdfUkVBRF9UUkFOU0FDVElPTlM=::NjQ=::bWF4UGVuZGluZ1JlYWRUcmFuc2FjdGlvbnM="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQlVSU1RCT1VOREFSSUVT::MA==::YnVyc3RPbkJ1cnN0Qm91bmRhcmllc09ubHk="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfSU5URVJMRUFWRUJVUlNUUw==::MA==::aW50ZXJsZWF2ZUJ1cnN0cw=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQklUU19QRVJfU1lNQk9M::OA==::Qml0cy9zeW1ib2w="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfSVNCSUdFTkRJQU4=::MA==::aXNCaWdFbmRpYW4="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQUREUkVTU0dST1VQ::MA==::Q29tcG9uZW50IGFkZHJlc3MgZ3JvdXA="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VUFWX0FERFJFU1NHUk9VUA==::MA==::TmV0d29yayBhZGRyZXNzIGdyb3Vw"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfUkVHSVNURVJPVVRHT0lOR1NJR05BTFM=::MA==::cmVnaXN0ZXJPdXRnb2luZ1NpZ25hbHM="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfUkVHSVNURVJJTkNPTUlOR1NJR05BTFM=::MA==::cmVnaXN0ZXJJbmNvbWluZ1NpZ25hbHM="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVZfQUxXQVlTQlVSU1RNQVhCVVJTVA==::MA==::QWx3YXlzIGJ1cnN0IG1heC1idXJzdA=="
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "U1lOQ19SRVNFVA==::MA==::VXNlIHN5bmNocm9ub3VzIHJlc2V0cw=="
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "c2ZwcF9yZWNvbmZpZ19tYXN0ZXJfMA=="
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "SlRBRyB0byBBdmFsb24gTWFzdGVyIEJyaWRnZQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_DESCRIPTION "VGhlIEpUQUcgdG8gQXZhbG9uIE1hc3RlciBCcmlkZ2UgaXMgYSBjb2xsZWN0aW9uIG9mIHByZS13aXJlZCBjb21wb25lbnRzIHRoYXQgcHJvdmlkZSBhbiBBdmFsb24gTWFzdGVyIHVzaW5nIHRoZSBuZXcgSlRBRyBjaGFubmVsLg=="
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1BMSQ==::MA==::VXNlIFNpbXVsYXRpb24gTGluayBNb2Rl"
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "Q09NUE9ORU5UX0NMT0NL::MA==::Q09NUE9ORU5UX0NMT0NL"
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RkFTVF9WRVI=::MA==::RW5oYW5jZWQgdHJhbnNhY3Rpb24gbWFzdGVy"
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::U3RyYXRpeCBW::QXV0byBERVZJQ0VfRkFNSUxZ"
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0U=::NVNHWE1BN0gyRjM1QzI=::QXV0byBERVZJQ0U="
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfU1BFRURHUkFERQ==::Ml9IMg==::QXV0byBERVZJQ0VfU1BFRURHUkFERQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "c2ZwcF9yZWNvbmZpZ19tYXN0ZXJfMF9wMmJfYWRhcHRlcg=="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uLVNUIENoYW5uZWwgQWRhcHRlcg=="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5DaGFubmVsV2lkdGg=::MA==::Q2hhbm5lbCBTaWduYWwgV2lkdGggKGJpdHMp"
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5NYXhDaGFubmVs::MA==::TWF4IENoYW5uZWw="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "b3V0Q2hhbm5lbFdpZHRo::OA==::Q2hhbm5lbCBTaWduYWwgV2lkdGggKGJpdHMp"
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "b3V0TWF4Q2hhbm5lbA==::MjU1::TWF4IENoYW5uZWw="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5CaXRzUGVyU3ltYm9s::OA==::RGF0YSBCaXRzIFBlciBTeW1ib2w="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VQYWNrZXRz::dHJ1ZQ==::SW5jbHVkZSBQYWNrZXQgU3VwcG9ydA=="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VFbXB0eVBvcnQ=::QVVUTw==::SW5jbHVkZSBFbXB0eSBTaWduYWw="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VFbXB0eQ==::ZmFsc2U=::aW5Vc2VFbXB0eQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5TeW1ib2xzUGVyQmVhdA==::MQ==::RGF0YSBTeW1ib2xzIFBlciBCZWF0"
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VSZWFkeQ==::dHJ1ZQ==::U3VwcG9ydCBCYWNrcHJlc3N1cmUgd2l0aCB0aGUgcmVhZHkgc2lnbmFs"
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5SZWFkeUxhdGVuY3k=::MA==::UmVhZHkgTGF0ZW5jeQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5FcnJvcldpZHRo::MA==::RXJyb3IgU2lnbmFsIFdpZHRoIChiaXRzKQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "c2ZwcF9yZWNvbmZpZ19tYXN0ZXJfMF9iMnBfYWRhcHRlcg=="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uLVNUIENoYW5uZWwgQWRhcHRlcg=="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5DaGFubmVsV2lkdGg=::OA==::Q2hhbm5lbCBTaWduYWwgV2lkdGggKGJpdHMp"
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5NYXhDaGFubmVs::MjU1::TWF4IENoYW5uZWw="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "b3V0Q2hhbm5lbFdpZHRo::MA==::Q2hhbm5lbCBTaWduYWwgV2lkdGggKGJpdHMp"
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "b3V0TWF4Q2hhbm5lbA==::MA==::TWF4IENoYW5uZWw="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5CaXRzUGVyU3ltYm9s::OA==::RGF0YSBCaXRzIFBlciBTeW1ib2w="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VQYWNrZXRz::dHJ1ZQ==::SW5jbHVkZSBQYWNrZXQgU3VwcG9ydA=="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VFbXB0eVBvcnQ=::QVVUTw==::SW5jbHVkZSBFbXB0eSBTaWduYWw="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VFbXB0eQ==::ZmFsc2U=::aW5Vc2VFbXB0eQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5TeW1ib2xzUGVyQmVhdA==::MQ==::RGF0YSBTeW1ib2xzIFBlciBCZWF0"
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VSZWFkeQ==::dHJ1ZQ==::U3VwcG9ydCBCYWNrcHJlc3N1cmUgd2l0aCB0aGUgcmVhZHkgc2lnbmFs"
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5SZWFkeUxhdGVuY3k=::MA==::UmVhZHkgTGF0ZW5jeQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5FcnJvcldpZHRo::MA==::RXJyb3IgU2lnbmFsIFdpZHRoIChiaXRzKQ=="
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "YWx0ZXJhX2F2YWxvbl9wYWNrZXRzX3RvX21hc3Rlcg=="
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uIFBhY2tldHMgdG8gVHJhbnNhY3Rpb24gQ29udmVydGVy"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTAwLjk5Ljk4Ljk3"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_COMPONENT_DESCRIPTION "QXZhbG9uIFBhY2tldHMgdG8gVHJhbnNhY3Rpb24gQ29udmVydGVy"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RVhQT1JUX01BU1RFUl9TSUdOQUxT::MA==::RVhQT1JUX01BU1RFUl9TSUdOQUxT"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RkFTVF9WRVI=::MA==::RW5oYW5jZWQgdHJhbnNhY3Rpb24gbWFzdGVy"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::U3RyYXRpeCBW::QXV0byBERVZJQ0VfRkFNSUxZ"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "YWx0ZXJhX2F2YWxvbl9zdF9wYWNrZXRzX3RvX2J5dGVz"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uLVNUIFBhY2tldHMgdG8gQnl0ZXMgQ29udmVydGVy"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTAwLjk5Ljk4Ljk3"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_DESCRIPTION "QXZhbG9uLVNUIFBhY2tldHMgdG8gQnl0ZXMgQ29udmVydGVy"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "Q0hBTk5FTF9XSURUSF9ERVJJVkVE::OA==::Q0hBTk5FTF9XSURUSF9ERVJJVkVE"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RU5DT0RJTkc=::MA==::RW5jb2Rpbmc="
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::U3RyYXRpeCBW::QXV0byBERVZJQ0VfRkFNSUxZ"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19DTEtfQ0xPQ0tfUkFURQ==::MA==::QXV0byBDTE9DS19SQVRF"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "YWx0ZXJhX2F2YWxvbl9zdF9ieXRlc190b19wYWNrZXRz"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uLVNUIEJ5dGVzIHRvIFBhY2tldHMgQ29udmVydGVy"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTAwLjk5Ljk4Ljk3"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_DESCRIPTION "QXZhbG9uLVNUIEJ5dGVzIHRvIFBhY2tldHMgQ29udmVydGVy"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "Q0hBTk5FTF9XSURUSF9ERVJJVkVE::OA==::Q0hBTk5FTF9XSURUSF9ERVJJVkVE"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RU5DT0RJTkc=::MA==::RW5jb2Rpbmc="
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::U3RyYXRpeCBW::QXV0byBERVZJQ0VfRkFNSUxZ"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19DTEtfQ0xPQ0tfUkFURQ==::MA==::QXV0byBDTE9DS19SQVRF"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "YWx0ZXJhX2F2YWxvbl9zY19maWZv"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uLVNUIFNpbmdsZSBDbG9jayBGSUZP"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "U1lNQk9MU19QRVJfQkVBVA==::MQ==::U3ltYm9scyBwZXIgYmVhdA=="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QklUU19QRVJfU1lNQk9M::OA==::Qml0cyBwZXIgc3ltYm9s"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RklGT19ERVBUSA==::NjQ=::RklGTyBkZXB0aA=="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "Q0hBTk5FTF9XSURUSA==::MA==::Q2hhbm5lbCB3aWR0aA=="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RVJST1JfV0lEVEg=::MA==::RXJyb3Igd2lkdGg="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1BBQ0tFVFM=::MA==::VXNlIHBhY2tldHM="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0ZJTExfTEVWRUw=::MA==::VXNlIGZpbGwgbGV2ZWw="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RU1QVFlfTEFURU5DWQ==::Mw==::TGF0ZW5jeQ=="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX01FTU9SWV9CTE9DS1M=::MQ==::VXNlIG1lbW9yeSBibG9ja3M="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1NUT1JFX0ZPUldBUkQ=::MA==::VXNlIHN0b3JlIGFuZCBmb3J3YXJk"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0FMTU9TVF9GVUxMX0lG::MA==::VXNlIGFsbW9zdCBmdWxsIHN0YXR1cw=="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0FMTU9TVF9FTVBUWV9JRg==::MA==::VXNlIGFsbW9zdCBlbXB0eSBzdGF0dXM="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RU5BQkxFX0VYUExJQ0lUX01BWENIQU5ORUw=::ZmFsc2U=::RW5hYmxlIGV4cGxpY2l0IG1heENoYW5uZWw="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RVhQTElDSVRfTUFYQ0hBTk5FTA==::MA==::RXhwbGljaXQgbWF4Q2hhbm5lbA=="
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::U3RyYXRpeCBW::QXV0byBERVZJQ0VfRkFNSUxZ"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "c2ZwcF9yZWNvbmZpZ19tYXN0ZXJfMF90aW1pbmdfYWR0"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uLVNUIFRpbWluZyBBZGFwdGVy"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5DaGFubmVsV2lkdGg=::MA==::Q2hhbm5lbCBTaWduYWwgV2lkdGggKGJpdHMp"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5NYXhDaGFubmVs::MA==::TWF4IENoYW5uZWw="
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5CaXRzUGVyU3ltYm9s::OA==::RGF0YSBCaXRzIFBlciBTeW1ib2w="
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VQYWNrZXRz::ZmFsc2U=::SW5jbHVkZSBQYWNrZXQgU3VwcG9ydA=="
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VFbXB0eQ==::ZmFsc2U=::aW5Vc2VFbXB0eQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5TeW1ib2xzUGVyQmVhdA==::MQ==::RGF0YSBTeW1ib2xzIFBlciBCZWF0"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VSZWFkeQ==::ZmFsc2U=::U3VwcG9ydCBCYWNrcHJlc3N1cmUgd2l0aCB0aGUgcmVhZHkgc2lnbmFs"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "b3V0VXNlUmVhZHk=::dHJ1ZQ==::U3VwcG9ydCBCYWNrcHJlc3N1cmUgd2l0aCB0aGUgcmVhZHkgc2lnbmFs"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "b3V0UmVhZHlMYXRlbmN5::MA==::UmVhZHkgTGF0ZW5jeQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5FcnJvcldpZHRo::MA==::RXJyb3IgU2lnbmFsIFdpZHRoIChiaXRzKQ=="
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "aW5Vc2VWYWxpZA==::dHJ1ZQ==::SW5jbHVkZSBWYWxpZCBTaWduYWw="
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "b3V0VXNlVmFsaWQ=::dHJ1ZQ==::SW5jbHVkIFZhbGlkIFNpZ25hbA=="
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "YWx0ZXJhX2F2YWxvbl9zdF9qdGFnX2ludGVyZmFjZQ=="
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "QXZhbG9uLVNUIEpUQUcgSW50ZXJmYWNl"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "On"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTAwLjk5Ljk4Ljk3"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "UFVSUE9TRQ==::MQ==::UFVSUE9TRQ=="
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVBTVFJFQU1fRklGT19TSVpF::MA==::VVBTVFJFQU1fRklGT19TSVpF"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RE9XTlNUUkVBTV9GSUZPX1NJWkU=::NjQ=::RE9XTlNUUkVBTV9GSUZPX1NJWkU="
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "TUdNVF9DSEFOTkVMX1dJRFRI::LTE=::TWFuYWdlbWVudCBjaGFubmVsIHdpZHRo"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RVhQT1JUX0pUQUc=::MA==::RVhQT1JUX0pUQUc="
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX1BMSQ==::MA==::VXNlIFNpbXVsYXRpb24gTGluayBNb2Rl"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "VVNFX0RPV05TVFJFQU1fUkVBRFk=::MA==::VVNFX0RPV05TVFJFQU1fUkVBRFk="
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "Q09NUE9ORU5UX0NMT0NL::MA==::Q09NUE9ORU5UX0NMT0NL"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "RkFCUklD::Mi4w::RkFCUklD"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_NAME "YWx0X3hjdnJfcmVjb25maWc="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_DISPLAY_NAME "VHJhbnNjZWl2ZXIgUmVjb25maWd1cmF0aW9uIENvbnRyb2xsZXI="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_DESCRIPTION "VHJhbnNjZWl2ZXIgUmVjb25maWd1cmF0aW9uIENvbnRyb2xsZXIgaXMgdXNlZCB0byBkeW5hbWljYWxseSBjYWxpYnJhdGUgYW5kIHJlY29uZmlndXJlIGZlYXR1cmVzIG9mIFBIWSBJUCBjb3Jlcw=="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "bnVtYmVyX29mX3JlY29uZmlnX2ludGVyZmFjZXM=::NA==::TnVtYmVyIG9mIHJlY29uZmlndXJhdGlvbiBpbnRlcmZhY2Vz"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "Z3VpX3NwbGl0X3NpemVz::Miwy::T3B0aW9uYWwgaW50ZXJmYWNlIGdyb3VwaW5n"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "ZW5hYmxlX2RjZA==::MA==::RW5hYmxlIGR1dHkgY3ljbGUgY2FsaWJyYXRpb24="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "ZW5hYmxlX2RjZF9wb3dlcl91cA==::MQ==::Q2FsaWJyYXRlIGR1dHkgY3ljbGUgZHVyaW5nIHBvd2VyIHVw"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "ZW5hYmxlX2FuYWxvZw==::MQ==::RW5hYmxlIEFuYWxvZyBjb250cm9scw=="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "ZW5hYmxlX2V5ZW1vbg==::MQ==::RW5hYmxlIEV5ZVEgYmxvY2s="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "YmVyX2Vu::MQ==::RW5hYmxlIEJpdCBFcnJvciBSYXRlIEJsb2Nr"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "ZW5hYmxlX2Jlcg==::MQ==::RW5hYmxlIEJpdCBFcnJvciBSYXRlIEJsb2Nr"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "ZW5hYmxlX2RmZQ==::MA==::RW5hYmxlIGRlY2lzaW9uIGZlZWRiYWNrIGVxdWFsaXplciAoREZFKSBibG9jaw=="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "ZW5hYmxlX2FkY2U=::MA==::RW5hYmxlIGFkYXB0aXZlIGVxdWFsaXphdGlvbiAoQUVRKSBibG9jaw=="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "ZW5hYmxlX21pZg==::MA==::RW5hYmxlIGNoYW5uZWwvUExMIHJlY29uZmlndXJhdGlvbg=="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "Z3VpX2VuYWJsZV9wbGw=::MA==::RW5hYmxlIFBMTCByZWNvbmZpZ3VyYXRpb24gc3VwcG9ydCBibG9jaw=="
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_COMPONENT_PARAMETER "Z3VpX2NhbF9zdGF0dXNfcG9ydA==::ZmFsc2U=::Q3JlYXRlIG9wdGlvbmFsIGNhbGlicmF0aW9uIHN0YXR1cyBwb3J0cw=="
+
+set_global_assignment -library "sfpp_reconfig" -name VHDL_FILE [file join $::quartus(qip_path) "sfpp_reconfig.vhd"]
+set_global_assignment -library "sfpp_reconfig" -name VHDL_FILE [file join $::quartus(qip_path) "sfpp_reconfig_rst_controller.vhd"]
+set_global_assignment -library "sfpp_reconfig" -name VHDL_FILE [file join $::quartus(qip_path) "sfpp_reconfig_rst_controller_001.vhd"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_reset_controller.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_reset_synchronizer.v"]
+set_global_assignment -library "sfpp_reconfig" -name SDC_FILE [file join $::quartus(qip_path) "submodules/altera_reset_controller.sdc"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/sfpp_reconfig_mm_interconnect_0.v"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_merlin_slave_translator.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_merlin_master_translator.sv"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/sfpp_reconfig_master_0.v"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sfpp_reconfig_master_0_p2b_adapter.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sfpp_reconfig_master_0_b2p_adapter.sv"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_packets_to_master.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_st_packets_to_bytes.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_st_bytes_to_packets.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_sc_fifo.v"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sfpp_reconfig_master_0_timing_adt.sv"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_st_jtag_interface.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_jtag_dc_streaming.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_jtag_sld_node.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_jtag_streaming.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_st_clock_crosser.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_std_synchronizer_nocut.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_st_pipeline_base.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_st_idle_remover.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_st_idle_inserter.v"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_st_pipeline_stage.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SDC_FILE [file join $::quartus(qip_path) "submodules/altera_avalon_st_jtag_interface.sdc"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_xcvr_functions.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xcvr_h.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_resync.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_h.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xcvr_dfe_cal_sweep_h.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cal_seq.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xreconf_cif.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xreconf_uif.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xreconf_basic_acq.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_analog.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_analog_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xreconf_analog_datactrl.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xreconf_analog_rmw.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xreconf_analog_ctrlsm.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_offset_cancellation.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_offset_cancellation_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_eyemon.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_eyemon_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_eyemon_ctrl_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_eyemon_ber_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/ber_reader_dcfifo.v"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/step_to_mon_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/mon_to_step_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_reg_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_cal_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_cal_sweep_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_cal_sweep_datapath_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_oc_cal_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_pi_phase_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_step_to_mon_en_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_adapt_tap_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_ctrl_mux_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_local_reset_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_cal_sim_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dfe_adapt_tap_sim_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_adce.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_adce_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_adce_datactrl_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dcd.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dcd_sv.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dcd_cal.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dcd_control.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dcd_datapath.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dcd_pll_reset.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dcd_eye_width.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dcd_align_clk.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dcd_get_sum.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_dcd_cal_sim_model.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_mif.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xcvr_reconfig_mif.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xcvr_reconfig_mif_ctrl.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xcvr_reconfig_mif_avmm.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_pll.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xcvr_reconfig_pll.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xcvr_reconfig_pll_ctrl.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_soc.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_ram.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SOURCE_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_ram.hex"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_direct.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xrbasic_l2p_addr.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xrbasic_l2p_ch.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xrbasic_l2p_rom.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xrbasic_lif_csr.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xrbasic_lif.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_xcvr_reconfig_basic.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_arbiter_acq.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_basic.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SDC_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig.sdc"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_arbiter.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_m2s.sv"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_wait_generate.v"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_csr_selector.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/sv_reconfig_bundle_to_basic.sv"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu.v"]
+set_global_assignment -library "sfpp_reconfig" -name SOURCE_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_reconfig_cpu_rf_ram_a.mif"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_reconfig_cpu.v"]
+set_global_assignment -library "sfpp_reconfig" -name SOURCE_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_reconfig_cpu_rf_ram_b.mif"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_reconfig_cpu_test_bench.v"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0.v"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_irq_mapper.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_merlin_master_agent.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_merlin_slave_agent.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_merlin_burst_uncompressor.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_router.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_router_001.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_router_002.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_router_003.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_cmd_demux.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_cmd_demux_001.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_merlin_arbitrator.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_cmd_mux.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_cmd_mux_001.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_rsp_mux.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_rsp_mux_001.sv"]
+set_global_assignment -library "sfpp_reconfig" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_avalon_st_adapter.v"]
+set_global_assignment -library "sfpp_reconfig" -name SYSTEMVERILOG_FILE [file join $::quartus(qip_path) "submodules/alt_xcvr_reconfig_cpu_mm_interconnect_0_avalon_st_adapter_error_adapter_0.sv"]
+set_global_assignment -library "sfpp_reconfig" -name SOURCE_FILE [file join $::quartus(qip_path) "submodules/plain_files.txt"]
+set_global_assignment -library "sfpp_reconfig" -name SOURCE_FILE [file join $::quartus(qip_path) "submodules/qencrypt_files.txt"]
+
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_TOOL_NAME "altera_reset_controller"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "altera_reset_controller" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_TOOL_NAME "altera_mm_interconnect"
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "sfpp_reconfig_mm_interconnect_0" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_TOOL_NAME "altera_merlin_slave_translator"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "altera_merlin_slave_translator" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_TOOL_NAME "altera_merlin_master_translator"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "altera_merlin_master_translator" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_TOOL_NAME "altera_jtag_avalon_master"
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "sfpp_reconfig_master_0" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_TOOL_NAME "channel_adapter"
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "sfpp_reconfig_master_0_p2b_adapter" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_TOOL_NAME "channel_adapter"
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "sfpp_reconfig_master_0_b2p_adapter" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_TOOL_NAME "altera_avalon_packets_to_master"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_TOOL_VERSION "100.99.98.97"
+set_global_assignment -entity "altera_avalon_packets_to_master" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_TOOL_NAME "altera_avalon_st_packets_to_bytes"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_TOOL_VERSION "100.99.98.97"
+set_global_assignment -entity "altera_avalon_st_packets_to_bytes" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_TOOL_NAME "altera_avalon_st_bytes_to_packets"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_TOOL_VERSION "100.99.98.97"
+set_global_assignment -entity "altera_avalon_st_bytes_to_packets" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_TOOL_NAME "altera_avalon_sc_fifo"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "altera_avalon_sc_fifo" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_TOOL_NAME "timing_adapter"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "sfpp_reconfig_master_0_timing_adt" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_TOOL_NAME "altera_jtag_dc_streaming"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_TOOL_VERSION "100.99.98.97"
+set_global_assignment -entity "altera_avalon_st_jtag_interface" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_TOOL_NAME "alt_xcvr_reconfig"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "alt_xcvr_reconfig" -library "sfpp_reconfig" -name IP_TOOL_ENV "Qsys"

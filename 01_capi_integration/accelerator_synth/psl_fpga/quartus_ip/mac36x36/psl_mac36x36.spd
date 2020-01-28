@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="psl_mac36x36_sim/psl_mac36x36.vhd" type="VHDL" />
+ <topLevel name="psl_mac36x36" />
+ <deviceFamily name="stratixv" />
+</simPackage>

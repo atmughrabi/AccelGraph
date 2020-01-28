@@ -1,0 +1,115 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 1991-2015 Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera MegaCore Function License Agreement, or other 
+applicable license agreement, including, without limitation, 
+that your use is for the sole purpose of programming logic 
+devices manufactured by Altera and sold by Altera or its 
+authorized distributors.  Please refer to the applicable 
+agreement for further details.
+*/
+(header "symbol" (version "1.1"))
+(symbol
+	(rect 0 0 896 224)
+	(text "sfpp_reconfig" (rect 408 -1 463 11)(font "Arial" (font_size 10)))
+	(text "inst" (rect 8 208 20 220)(font "Arial" ))
+	(port
+		(pt 0 72)
+		(input)
+		(text "alt_xcvr_reconfig_0_ch0_1_from_xcvr_reconfig_from_xcvr[91..0]" (rect 0 0 273 12)(font "Arial" (font_size 8)))
+		(text "alt_xcvr_reconfig_0_ch0_1_from_xcvr_reconfig_from_xcvr[91..0]" (rect 4 61 370 72)(font "Arial" (font_size 8)))
+		(line (pt 0 72)(pt 352 72)(line_width 3))
+	)
+	(port
+		(pt 0 112)
+		(input)
+		(text "alt_xcvr_reconfig_0_ch2_3_from_xcvr_reconfig_from_xcvr[91..0]" (rect 0 0 274 12)(font "Arial" (font_size 8)))
+		(text "alt_xcvr_reconfig_0_ch2_3_from_xcvr_reconfig_from_xcvr[91..0]" (rect 4 101 370 112)(font "Arial" (font_size 8)))
+		(line (pt 0 112)(pt 352 112)(line_width 3))
+	)
+	(port
+		(pt 0 152)
+		(input)
+		(text "clk_clk" (rect 0 0 27 12)(font "Arial" (font_size 8)))
+		(text "clk_clk" (rect 4 141 46 152)(font "Arial" (font_size 8)))
+		(line (pt 0 152)(pt 352 152)(line_width 1))
+	)
+	(port
+		(pt 0 192)
+		(input)
+		(text "reset_reset_n" (rect 0 0 56 12)(font "Arial" (font_size 8)))
+		(text "reset_reset_n" (rect 4 181 82 192)(font "Arial" (font_size 8)))
+		(line (pt 0 192)(pt 352 192)(line_width 1))
+	)
+	(port
+		(pt 896 72)
+		(output)
+		(text "alt_xcvr_reconfig_0_ch0_1_to_xcvr_reconfig_to_xcvr[139..0]" (rect 0 0 252 12)(font "Arial" (font_size 8)))
+		(text "alt_xcvr_reconfig_0_ch0_1_to_xcvr_reconfig_to_xcvr[139..0]" (rect 585 61 933 72)(font "Arial" (font_size 8)))
+		(line (pt 896 72)(pt 544 72)(line_width 3))
+	)
+	(port
+		(pt 896 112)
+		(output)
+		(text "alt_xcvr_reconfig_0_ch2_3_to_xcvr_reconfig_to_xcvr[139..0]" (rect 0 0 253 12)(font "Arial" (font_size 8)))
+		(text "alt_xcvr_reconfig_0_ch2_3_to_xcvr_reconfig_to_xcvr[139..0]" (rect 583 101 931 112)(font "Arial" (font_size 8)))
+		(line (pt 896 112)(pt 544 112)(line_width 3))
+	)
+	(port
+		(pt 896 152)
+		(output)
+		(text "alt_xcvr_reconfig_0_reconfig_busy_reconfig_busy" (rect 0 0 208 12)(font "Arial" (font_size 8)))
+		(text "alt_xcvr_reconfig_0_reconfig_busy_reconfig_busy" (rect 635 141 917 152)(font "Arial" (font_size 8)))
+		(line (pt 896 152)(pt 544 152)(line_width 1))
+	)
+	(drawing
+		(text "alt_xcvr_reconfig_0_ch0_1_from_xcvr" (rect 130 43 470 99)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "reconfig_from_xcvr" (rect 357 67 822 144)(font "Arial" (color 0 0 0)))
+		(text "alt_xcvr_reconfig_0_ch0_1_to_xcvr" (rect 545 43 1288 99)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "reconfig_to_xcvr" (rect 466 67 1028 144)(font "Arial" (color 0 0 0)))
+		(text "alt_xcvr_reconfig_0_ch2_3_from_xcvr" (rect 128 83 466 179)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "reconfig_from_xcvr" (rect 357 107 822 224)(font "Arial" (color 0 0 0)))
+		(text "alt_xcvr_reconfig_0_ch2_3_to_xcvr" (rect 545 83 1288 179)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "reconfig_to_xcvr" (rect 466 107 1028 224)(font "Arial" (color 0 0 0)))
+		(text "alt_xcvr_reconfig_0_reconfig_busy" (rect 545 123 1288 259)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "reconfig_busy" (rect 479 147 1036 304)(font "Arial" (color 0 0 0)))
+		(text "clk" (rect 337 123 692 259)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "clk" (rect 357 147 732 304)(font "Arial" (color 0 0 0)))
+		(text "reset" (rect 323 163 676 339)(font "Arial" (color 128 0 0)(font_size 9)))
+		(text "reset_n" (rect 357 187 756 384)(font "Arial" (color 0 0 0)))
+		(text " sfpp_reconfig " (rect 833 208 1756 426)(font "Arial" ))
+		(line (pt 352 32)(pt 544 32)(line_width 1))
+		(line (pt 544 32)(pt 544 208)(line_width 1))
+		(line (pt 352 208)(pt 544 208)(line_width 1))
+		(line (pt 352 32)(pt 352 208)(line_width 1))
+		(line (pt 353 52)(pt 353 76)(line_width 1))
+		(line (pt 354 52)(pt 354 76)(line_width 1))
+		(line (pt 543 52)(pt 543 76)(line_width 1))
+		(line (pt 542 52)(pt 542 76)(line_width 1))
+		(line (pt 353 92)(pt 353 116)(line_width 1))
+		(line (pt 354 92)(pt 354 116)(line_width 1))
+		(line (pt 543 92)(pt 543 116)(line_width 1))
+		(line (pt 542 92)(pt 542 116)(line_width 1))
+		(line (pt 543 132)(pt 543 156)(line_width 1))
+		(line (pt 542 132)(pt 542 156)(line_width 1))
+		(line (pt 353 132)(pt 353 156)(line_width 1))
+		(line (pt 354 132)(pt 354 156)(line_width 1))
+		(line (pt 353 172)(pt 353 196)(line_width 1))
+		(line (pt 354 172)(pt 354 196)(line_width 1))
+		(line (pt 0 0)(pt 896 0)(line_width 1))
+		(line (pt 896 0)(pt 896 224)(line_width 1))
+		(line (pt 0 224)(pt 896 224)(line_width 1))
+		(line (pt 0 0)(pt 0 224)(line_width 1))
+	)
+)

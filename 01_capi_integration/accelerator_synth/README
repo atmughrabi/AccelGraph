@@ -1,0 +1,5 @@
+
+The scripts are used to synthesize a binary of the CAPIPrecis RTL. It requires
+IBM's encrypted post-routed PSL to be placed in the ../psl_fpga directory.
+
+Special thanks to original Author: Logan Gunthorpe for these scripts

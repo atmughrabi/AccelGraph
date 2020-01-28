@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<system name="$${FILENAME}">
+ <component
+   name="$${FILENAME}"
+   displayName="$${FILENAME}"
+   version="1.0"
+   description=""
+   tags=""
+   categories="System" />
+ <parameter name="bonusData"><![CDATA[bonusData 
+{
+   element $${FILENAME}
+   {
+   }
+   element alt_xcvr_reconfig_0
+   {
+      datum _sortIndex
+      {
+         value = "1";
+         type = "int";
+      }
+   }
+   element clk_0
+   {
+      datum _sortIndex
+      {
+         value = "0";
+         type = "int";
+      }
+   }
+   element master_0
+   {
+      datum _sortIndex
+      {
+         value = "2";
+         type = "int";
+      }
+   }
+}
+]]></parameter>
+ <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
+ <parameter name="device" value="5SGXMA7H2F35C2" />
+ <parameter name="deviceFamily" value="Stratix V" />
+ <parameter name="deviceSpeedGrade" value="2_H2" />
+ <parameter name="fabricMode" value="QSYS" />
+ <parameter name="generateLegacySim" value="false" />
+ <parameter name="generationId" value="0" />
+ <parameter name="globalResetBus" value="false" />
+ <parameter name="hdlLanguage" value="VERILOG" />
+ <parameter name="maxAdditionalLatency" value="1" />
+ <parameter name="projectName" value="" />
+ <parameter name="sopcBorderPoints" value="false" />
+ <parameter name="systemHash" value="0" />
+ <parameter name="timeStamp" value="0" />
+ <parameter name="useTestBenchNamingPattern" value="false" />
+ <instanceScript></instanceScript>
+ <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
+ <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
+ <interface
+   name="alt_xcvr_reconfig_0_ch0_1_to_xcvr"
+   internal="alt_xcvr_reconfig_0.ch0_1_to_xcvr"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="alt_xcvr_reconfig_0_ch0_1_from_xcvr"
+   internal="alt_xcvr_reconfig_0.ch0_1_from_xcvr"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="alt_xcvr_reconfig_0_ch2_3_to_xcvr"
+   internal="alt_xcvr_reconfig_0.ch2_3_to_xcvr"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="alt_xcvr_reconfig_0_ch2_3_from_xcvr"
+   internal="alt_xcvr_reconfig_0.ch2_3_from_xcvr"
+   type="conduit"
+   dir="end" />
+ <interface
+   name="alt_xcvr_reconfig_0_reconfig_busy"
+   internal="alt_xcvr_reconfig_0.reconfig_busy"
+   type="conduit"
+   dir="end" />
+ <module kind="clock_source" version="13.1" enabled="1" name="clk_0">
+  <parameter name="clockFrequency" value="50000000" />
+  <parameter name="clockFrequencyKnown" value="true" />
+  <parameter name="inputClockFrequency" value="0" />
+  <parameter name="resetSynchronousEdges" value="NONE" />
+ </module>
+ <module
+   kind="alt_xcvr_reconfig"
+   version="13.1"
+   enabled="1"
+   name="alt_xcvr_reconfig_0">
+  <parameter name="device_family" value="Stratix V" />
+  <parameter name="number_of_reconfig_interfaces" value="4" />
+  <parameter name="gui_split_sizes" value="2,2" />
+  <parameter name="enable_offset" value="1" />
+  <parameter name="enable_dcd" value="0" />
+  <parameter name="enable_dcd_power_up" value="1" />
+  <parameter name="enable_analog" value="1" />
+  <parameter name="enable_eyemon" value="1" />
+  <parameter name="ber_en" value="1" />
+  <parameter name="enable_dfe" value="0" />
+  <parameter name="enable_adce" value="0" />
+  <parameter name="enable_mif" value="0" />
+  <parameter name="gui_enable_pll" value="0" />
+  <parameter name="gui_cal_status_port" value="false" />
+  <parameter name="AUTO_MGMT_CLK_CLK_CLOCK_RATE" value="50000000" />
+ </module>
+ <module
+   kind="altera_jtag_avalon_master"
+   version="13.1"
+   enabled="1"
+   name="master_0">
+  <parameter name="USE_PLI" value="0" />
+  <parameter name="PLI_PORT" value="50000" />
+  <parameter name="COMPONENT_CLOCK" value="0" />
+  <parameter name="FAST_VER" value="0" />
+  <parameter name="FIFO_DEPTHS" value="2" />
+  <parameter name="AUTO_DEVICE_FAMILY" value="Stratix V" />
+  <parameter name="AUTO_DEVICE" value="5SGXMA7H2F35C2" />
+ </module>
+ <connection
+   kind="clock"
+   version="13.1"
+   start="clk_0.clk"
+   end="alt_xcvr_reconfig_0.mgmt_clk_clk" />
+ <connection kind="clock" version="13.1" start="clk_0.clk" end="master_0.clk" />
+ <connection
+   kind="reset"
+   version="13.1"
+   start="clk_0.clk_reset"
+   end="alt_xcvr_reconfig_0.mgmt_rst_reset" />
+ <connection
+   kind="reset"
+   version="13.1"
+   start="clk_0.clk_reset"
+   end="master_0.clk_reset" />
+ <connection
+   kind="reset"
+   version="13.1"
+   start="master_0.master_reset"
+   end="alt_xcvr_reconfig_0.mgmt_rst_reset" />
+ <connection
+   kind="avalon"
+   version="13.1"
+   start="master_0.master"
+   end="alt_xcvr_reconfig_0.reconfig_mgmt">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
+ <interconnectRequirement for="$system" name="qsys_mm.maxAdditionalLatency" value="1" />
+ <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="false" />
+</system>

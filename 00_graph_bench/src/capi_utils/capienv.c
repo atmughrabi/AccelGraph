@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 //
-//		"00_AccelGraph"
+//      "CAPIPrecis"
 //
 // -----------------------------------------------------------------------------
 // Copyright (c) 2014-2019 All rights reserved
@@ -9,24 +9,26 @@
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : capienv.c
 // Create : 2019-10-09 19:20:39
-// Revise : 2019-11-08 08:41:53
+// Revise : 2019-12-01 00:12:59
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
-#include <linux/types.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "myMalloc.h"
-#include "graphCSR.h"
 #include "libcxl.h"
 #include "capienv.h"
 
+#include "algorithm.h"
+
 // ********************************************************************************************
-// ***************                  AFU General 	                             **************
+// ***************                  AFU General                                  **************
 // ********************************************************************************************
 
-int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR){
+int setupAFU(struct cxl_afu_h **afu, struct WEDStruct *wed)
+{
 
     (*afu) = cxl_afu_open_dev(DEVICE_1);
     if(!afu)
@@ -35,7 +37,7 @@ int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR){
         return 1;
     }
 
-    cxl_afu_attach((*afu), (__u64)wedGraphCSR);
+    cxl_afu_attach((*afu), (uint64_t)wed);
     int base_address = cxl_mmio_map ((*afu), CXL_MMIO_BIG_ENDIAN);
 
     if (base_address < 0)
@@ -43,64 +45,174 @@ int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR){
         printf("fail cxl_mmio_map %d", base_address);
         return 1;
     }
-    
+
     return 0;
 
 }
 
-void waitJOBRunning(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
+void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 {
+#ifdef  VERBOSE
+    // printf("AFU configuration start status(0x%08lx) \n", (afu_status->afu_status) );
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-13s %-23s %-13s | \n", " ", "AFU configuration START", " ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lx| \n", "status", (afu_status->afu_status));
+#endif
     do
     {
-        cxl_mmio_read64((*afu), AFU_STATUS, &(afu_status->afu_status));
-
-#ifdef  VERBOSE
-        printf("waitJOBRunning %lu \n",(afu_status->afu_status) );
-#endif
-
+        cxl_mmio_write64((*afu), AFU_CONFIGURE, afu_status->afu_config);
+        cxl_mmio_write64((*afu), AFU_CONFIGURE_2, afu_status->afu_config_2);
+        cxl_mmio_read64((*afu), AFU_STATUS, (uint64_t *) & (afu_status->afu_status));
     }
     while(!(afu_status->afu_status));
+#ifdef  VERBOSE
+    // printf("AFU configuration done status(0x%08lx) \n", (afu_status->afu_status) );
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-13s %-23s %-13s | \n", " ", "AFU configuration DONE", " ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lx| \n", "status", (afu_status->afu_status));
+    printf("*-----------------------------------------------------*\n");
+#endif
 }
 
-void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status){ 
+void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
+{
+#ifdef  VERBOSE
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-13s %-23s %-13s | \n", " ", "CU configuration START", " ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lx| \n", "status", (afu_status->cu_status));
+#endif
     do
     {
-        cxl_mmio_write64((*afu), ALGO_REQUEST, afu_status->num_cu);
-        cxl_mmio_read64((*afu), ALGO_RUNNING, &(afu_status->algo_running));
-
-#ifdef  VERBOSE
-        printf("startAFU %lu \n",(afu_status->algo_running) );
-#endif
-
+        cxl_mmio_write64((*afu), CU_CONFIGURE, (uint64_t)afu_status->cu_config);
+        cxl_mmio_write64((*afu), CU_CONFIGURE_2, (uint64_t)afu_status->cu_config_2);
+        cxl_mmio_read64((*afu), CU_STATUS, (uint64_t *) & (afu_status->cu_status));
     }
-    while(!((afu_status->algo_running)));
+    while(!((afu_status->cu_status)));
+#ifdef  VERBOSE
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-13s %-23s %-13s | \n", " ", "CU configuration DONE", " ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lx| \n", "status", (afu_status->cu_status));
+    printf("*-----------------------------------------------------*\n");
+#endif
 }
 
 void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 {
+
+    struct CmdResponseStats cmdResponseStats = {0};
+
     do
     {
-       
-        cxl_mmio_read64((*afu), ERROR_REG, &(afu_status->error));
-        cxl_mmio_write64((*afu), ERROR_REG_ACK, afu_status->error);
+        // Poll for errors always
+        cxl_mmio_read64((*afu), ERROR_REG, (uint64_t *) & (afu_status->error));
+        cxl_mmio_write64((*afu), ERROR_REG_ACK, (uint64_t)afu_status->error);
 
-#ifdef  VERBOSE
-        cxl_mmio_read64((*afu), ALGO_STATUS, &(afu_status->algo_status));
-        cxl_mmio_write64((*afu), ALGO_STATUS_ACK, afu_status->algo_status);
+        // read final return result
+        cxl_mmio_read64((*afu), CU_RETURN_DONE, (uint64_t *) & (afu_status->cu_return_done));
 
-        printf("Vertices: %lu \n",(((afu_status->algo_status) << 32) >> 32) );
-        printf("Edges: %lu\n", ((afu_status->algo_status) >> 32));
-#endif
+        // if((((afu_status->cu_return_done) << 32) >> 32) >= (afu_status->cu_stop))
+        //     break;
 
-        cxl_mmio_read64((*afu), ALGO_STATUS_DONE, &(afu_status->algo_status_done));
-        cxl_mmio_write64((*afu), ALGO_STATUS_DONE_ACK, afu_status->algo_status_done);
-
-        if((((afu_status->algo_status_done) << 32) >> 32) >= (afu_status->algo_stop))
+        if((afu_status->cu_return_done) >= (afu_status->cu_stop))
+        {
+            readCmdResponseStats(afu, &cmdResponseStats);
+            cxl_mmio_write64((*afu), CU_RETURN_DONE_ACK, (uint64_t)afu_status->cu_return_done);
             break;
+        }
     }
     while((!(afu_status->error)));
+
+#ifdef  VERBOSE
+    printCmdResponseStats(&cmdResponseStats);
+
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-18s %-15s  | \n", " ", "CU return", " ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lu| \n", "Return", (afu_status->cu_return_done));
+    printf("*-----------------------------------------------------*\n");
+
+#endif
+
 }
 
+void readCmdResponseStats(struct cxl_afu_h **afu, struct CmdResponseStats *cmdResponseStats)
+{
+
+
+    cxl_mmio_read64((*afu), DONE_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_count));
+    cxl_mmio_read64((*afu), DONE_RESTART_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_RESTART_count));
+
+    cxl_mmio_read64((*afu), DONE_PREFETCH_READ_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_PREFETCH_READ_count));
+    cxl_mmio_read64((*afu), DONE_PREFETCH_WRITE_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_PREFETCH_WRITE_count));
+
+    cxl_mmio_read64((*afu), PAGED_COUNT_REG, (uint64_t *) & (cmdResponseStats->PAGED_count));
+    cxl_mmio_read64((*afu), FLUSHED_COUNT_REG, (uint64_t *) & (cmdResponseStats->FLUSHED_count));
+    cxl_mmio_read64((*afu), AERROR_COUNT_REG, (uint64_t *) & (cmdResponseStats->AERROR_count));
+    cxl_mmio_read64((*afu), DERROR_COUNT_REG, (uint64_t *) & (cmdResponseStats->DERROR_count));
+    cxl_mmio_read64((*afu), FAILED_COUNT_REG, (uint64_t *) & (cmdResponseStats->FAILED_count));
+    cxl_mmio_read64((*afu), FAULT_COUNT_REG, (uint64_t *) & (cmdResponseStats->FAULT_count));
+    cxl_mmio_read64((*afu), NRES_COUNT_REG, (uint64_t *) & (cmdResponseStats->NRES_count));
+    cxl_mmio_read64((*afu), NLOCK_COUNT_REG, (uint64_t *) & (cmdResponseStats->NLOCK_count));
+    cxl_mmio_read64((*afu), CYCLE_COUNT_REG, (uint64_t *) & (cmdResponseStats->CYCLE_count));
+    cxl_mmio_read64((*afu), DONE_READ_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_READ_count));
+    cxl_mmio_read64((*afu), DONE_WRITE_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_WRITE_count));
+
+}
+
+void printCmdResponseStats(struct CmdResponseStats *cmdResponseStats)
+{
+
+    uint64_t size_read  = (cmdResponseStats->DONE_READ_count);
+    uint64_t size_write = (cmdResponseStats->DONE_WRITE_count);
+    uint64_t size       = size_read;
+    if(size_write > size_read)
+        size = size_write;
+    double time_elapsed = (double)(cmdResponseStats->CYCLE_count * 4) / 1e9;
+    double size_GB = (double)(size) / (double)(1024 * 1024 * 8);
+    double size_MB = (double)(size) / (double)(1024 * 8);
+    double bandwidth_GB = size_GB / time_elapsed; //GB/s
+    double bandwidth_MB = size_MB / time_elapsed; //MB/s
+
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-19s %-15s | \n", " ", "AFU Stats", " ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lu| \n", "CYCLE_count ", cmdResponseStats->CYCLE_count);
+
+    printf("| %-22s | %-27.20lf| \n", "Time (Seconds)", time_elapsed);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27.20lf| \n", "Data MB", size_MB);
+    printf("| %-22s | %-27.20lf| \n", "Data GB", size_GB);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27.20lf| \n", "BandWidth MB/s", bandwidth_MB);
+    printf("| %-22s | %-27.20lf| \n", "BandWidth GB/s", bandwidth_GB);
+
+
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-19s %-15s | \n", " ", "Responses Stats", " ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lu| \n", "DONE_count", cmdResponseStats->DONE_count);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lu| \n", "DONE_READ_count", cmdResponseStats->DONE_READ_count);
+    printf("| %-22s | %-27lu| \n", "DONE_WRITE_count", cmdResponseStats->DONE_WRITE_count);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lu| \n", "DONE_RESTART_count", cmdResponseStats->DONE_RESTART_count);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-26s | %-23lu| \n", "DONE_PREFETCH_READ_count", cmdResponseStats->DONE_PREFETCH_READ_count);
+    printf("| %-26s | %-23lu| \n", "DONE_PREFETCH_WRITE_count", cmdResponseStats->DONE_PREFETCH_WRITE_count);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lu| \n", "PAGED_count", cmdResponseStats->PAGED_count);
+    printf("| %-22s | %-27lu| \n", "FLUSHED_count", cmdResponseStats->FLUSHED_count);
+    printf("| %-22s | %-27lu| \n", "AERROR_count", cmdResponseStats->AERROR_count);
+    printf("| %-22s | %-27lu| \n", "DERROR_count", cmdResponseStats->DERROR_count);
+    printf("| %-22s | %-27lu| \n", "FAILED_count", cmdResponseStats->FAILED_count);
+    printf("| %-22s | %-27lu| \n", "NRES_count", cmdResponseStats->NRES_count);
+    printf("| %-22s | %-27lu| \n", "NLOCK_count", cmdResponseStats->NLOCK_count);
+    printf("*-----------------------------------------------------*\n");
+}
 
 void releaseAFU(struct cxl_afu_h **afu)
 {
@@ -109,13 +221,16 @@ void releaseAFU(struct cxl_afu_h **afu)
 }
 
 // ********************************************************************************************
-// ***************                  MMIO General 	                             **************
+// ***************                  MMIO General                                 **************
 // ********************************************************************************************
-	
-	void printMMIO_error( uint64_t error )
-{
 
-    if(error >> 12)
+void printMMIO_error( uint64_t error )
+{
+    if(error >> 14)
+    {
+        printf("(BIT-14) Credit Overflow AFU Error\n");
+    }
+    else if(error >> 12)
     {
         switch(error >> 12)
         {
@@ -191,82 +306,36 @@ void releaseAFU(struct cxl_afu_h **afu)
 // ***************                  CSR DataStructure                            **************
 // ********************************************************************************************
 
-struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
+struct  WEDStruct *mapDataArraysToWED(struct DataArrays *dataArrays)
 {
 
-    struct WEDGraphCSR *wed = my_malloc(sizeof(struct WEDGraphCSR));
+    struct WEDStruct *wed = my_malloc(sizeof(struct WEDStruct));
 
-    wed->num_edges    = graph->num_edges;
-    wed->num_vertices = graph->num_vertices;
-#if WEIGHTED
-    wed->max_weight   = graph->max_weight;
-#else
-    wed->max_weight   = 0;
+    wed->size_send    = dataArrays->size;
+    wed->size_recive  = dataArrays->size;
+    wed->array_send     = dataArrays->array_send;
+    wed->array_receive  = dataArrays->array_receive;
+
+
+#ifdef  VERBOSE
+    printWEDPointers(wed);
 #endif
-
-    wed->vertex_out_degree  = graph->vertices->out_degree;
-    wed->vertex_in_degree   = graph->vertices->in_degree;
-    wed->vertex_edges_idx   = graph->vertices->edges_idx;
-
-    wed->edges_array_src    = graph->sorted_edges_array->edges_array_src;
-    wed->edges_array_dest   = graph->sorted_edges_array->edges_array_dest;
-#if WEIGHTED
-    wed->edges_array_weight = graph->sorted_edges_array->edges_array_weight;
-#endif
-
-#if DIRECTED
-    wed->inverse_vertex_out_degree  = graph->inverse_vertices->out_degree;
-    wed->inverse_vertex_in_degree   = graph->inverse_vertices->in_degree;
-    wed->inverse_vertex_edges_idx   = graph->inverse_vertices->edges_idx;
-
-    wed->inverse_edges_array_src    = graph->inverse_sorted_edges_array->edges_array_src;
-    wed->inverse_edges_array_dest   = graph->inverse_sorted_edges_array->edges_array_dest;
-#if WEIGHTED
-    wed->inverse_edges_array_weight = graph->inverse_sorted_edges_array->edges_array_weight;
-#endif
-#endif
-
-
-    wed->afu_config = AFU_CONFIG;
 
     return wed;
 }
 
 
-void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
+void printWEDPointers(struct  WEDStruct *wed)
 {
 
-    printf("[WEDGraphCSR structure\n");
-    printf("  wed: %p\n", wed);
-    printf("  wed->num_edges: %u\n", wed->num_edges);
-    printf("  wed->num_vertices: %u\n", wed->num_vertices);
-#if WEIGHTED
-    printf("  wed->max_weight: %u\n", wed->max_weight);
-#endif
-    printf("  wed->vertex_in_degree: %p\n", wed->vertex_in_degree);
-    printf("  wed->vertex_out_degree: %p\n", wed->vertex_out_degree);
-    printf("  wed->vertex_edges_idx: %p\n", wed->vertex_edges_idx);
-
-    printf("  wed->edges_array_src: %p\n", wed->edges_array_src);
-    printf("  wed->edges_array_dest: %p\n", wed->edges_array_dest);
-#if WEIGHTED
-    printf("  wed->edges_array_weight: %p\n", wed->edges_array_weight);
-#endif
-
-#if DIRECTED
-    printf("  wed->inverse_vertex_in_degree: %p\n", wed->inverse_vertex_in_degree);
-    printf("  wed->inverse_vertex_out_degree: %p\n", wed->inverse_vertex_out_degree);
-    printf("  wed->inverse_vertex_edges_idx: %p\n", wed->inverse_vertex_edges_idx);
-
-    printf("  wed->inverse_edges_array_src: %p\n", wed->inverse_edges_array_src);
-    printf("  wed->inverse_edges_array_dest: %p\n", wed->inverse_edges_array_dest);
-#if WEIGHTED
-    printf("  wed->inverse_edges_array_weight: %p\n", wed->inverse_edges_array_weight);
-#endif
-#endif
-
-    printf("  wed->auxiliary1: %p\n", wed->auxiliary1);
-    printf("  wed->auxiliary2: %p\n", wed->auxiliary2);
-    printf("  wed->afu_config: %p\n", &(wed->afu_config));
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-18s %-15s | \n", " ", "WEDStruct structure", " ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27p| \n", "wed",   wed);
+    printf("| %-22s | %-27lu| \n", "wed->size_send", wed->size_send);
+    printf("| %-22s | %-27lu| \n", "wed->size_recive", wed->size_recive);
+    printf("| %-22s | %-27p| \n", "wed->array_send", wed->array_send);
+    printf("| %-22s | %-27p| \n", "wed->array_receive", wed->array_receive);
+    printf(" -----------------------------------------------------\n");
 
 }
