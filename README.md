@@ -264,7 +264,7 @@ AccelGraph@CAPI:~AccelGraph_CAPI/00_bench$ make run-capi-fpga
 
 ##### Verbose run with stats output
 
-This run outputs different AFU-Control stats based on the response received from the PSL
+This run outputs different AFU-Control stats based on the responses received from the PSL
 
 2. Runs algorithm that communicates with the or PSL (real HW):
 ```console
