@@ -1,16 +1,16 @@
-[![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph_CAPI)
+[![Build Status](https://travis-ci.com/atmughrabi/AccelGraph_CAPI.svg?token=L3reAtGHdEVVPvzcVqQ6&branch=master)](https://travis-ci.com/atmughrabi/AccelGraph_CAPI)
 [<p align="center"><img src="./02_slides/fig/logo3.png" width="650" ></p>](#accel-graph-benchmark-suite)
 
-# Accel-Graph Benchmark Suite
+# AccelGraph-CAPI Benchmark Suite
 
 ## Graph Processing Framework that supports | OpenMP || CAPI
 
 ## Overview 
 
-![End-to-End Acceleration](./02_slides/fig/theme.png "Accel-Graph")
+![End-to-End Acceleration](./02_slides/fig/theme.png "AccelGraph-CAPI")
 
-Accel-Graph is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of Accel-Graph has been developed on Ubuntu 16.04.6, with PowerPC/Intel architecture taken into account. 
-Accel-Graph is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore, this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between Shared Memory Accelerators and Parallel Processors. Also, we support gem5-Aladdin for pre-RTL performance exploration using accelerators. Included also, a simple cache model hard-coded into our base code for quick and dirty cache performance evaluation.
+AccelGraph-CAPI is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of AccelGraph-CAPI has been developed on Ubuntu 16.04.6, with PowerPC/Intel architecture taken into account. 
+AccelGraph-CAPI is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore, this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between Shared Memory Accelerators and Parallel Processors. Also, we support gem5-Aladdin for pre-RTL performance exploration using accelerators. Included also, a simple cache model hard-coded into our base code for quick and dirty cache performance evaluation.
 
 * Presentations that explains end-to-end graph processing
   * Preprocessing two steps (third one is optional) :
@@ -27,7 +27,7 @@ Accel-Graph is coded using C giving the researcher full flexibility with modifyi
        * [Ref](https://github.com/araij/rabbit_order): J. Arai, H. Shiokawa, T. Yamamuro, M. Onizuka, and S. Iwamura. Rabbit Order: Just-in-time Parallel Reordering for Fast Graph Analysis. IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2016.
 
 <!-- ## Details -->
-<!-- ### Accel-Graph Supported Algorithms -->
+<!-- ### AccelGraph-CAPI Supported Algorithms -->
 
 # Installation 
 
@@ -36,51 +36,71 @@ Accel-Graph is coded using C giving the researcher full flexibility with modifyi
 ### OpenMP
 1. Judy Arrays
 ```console
-accel@graph:~$ sudo apt-get install libjudy-dev
+AccelGraph@CAPI:~$ sudo apt-get install libjudy-dev
 ```
 2. OpenMP is already a feature of the compiler, so this step is not necessary.
 ```console
-accel@graph:~$ sudo apt-get install libomp-dev
+AccelGraph@CAPI:~$ sudo apt-get install libomp-dev
 ```
+
 ### CAPI
-1. Simulation with ModelSim
+1. Simulation and Synthesis
+  * This framework was developed on Ubuntu 18.04 LTS.
+  * ModelSim is used for simulation and installed along side Quartus II 18.1.
+  * Synthesis requires ALTERA Quartus, starting from release 15.0 of Quartus II should be fine.
+  * Nallatech P385-A7 card with the Altera Stratix-V-GX-A7 FPGA is supported.
   * Environment Variable setup, `HOME` and `ALTERAPATH` depend on where you clone the repository and install ModelSim.
+
 ```bash
+#quartus 18.1 env-variables
+export ALTERAPATH="${HOME}/intelFPGA/18.1"
+export QUARTUS_INSTALL_DIR="${ALTERAPATH}/quartus"
+export LM_LICENSE_FILE="${ALTERAPATH}/licenses/psl_A000_license.dat:${ALTERAPATH}/licenses/common_license.dat"
+export QSYS_ROOTDIR="${ALTERAPATH}/quartus/sopc_builder/bin"
+export PATH=$PATH:${ALTERAPATH}/quartus/bin
+export PATH=$PATH:${ALTERAPATH}/nios2eds/bin
+
+#modelsim env-variables
+export PATH=$PATH:${ALTERAPATH}/modelsim_ase/bin
+
+#AccelGraph_CAPI project folder
+export CAPI_PROJECT=00_AccelGraph_CAPI
+
 #CAPI framework env variables
-export PSLSE_INSTALL_DIR="${HOME}/00_AccelGraph/01_capi_integration/pslse"
+export PSLSE_INSTALL_DIR="${HOME}/Documents/github_repos/${CAPI_PROJECT}/01_capi_integration/pslse"
 export VPI_USER_H_DIR="${ALTERAPATH}/modelsim_ase/include"
 export PSLVER=8
 export BIT32=n
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PSLSE_INSTALL_DIR/libcxl:$PSLSE_INSTALL_DIR/afu_driver/src"
 
 #PSLSE env variables
-export PSLSE_SERVER_DIR="${HOME}/00_AccelGraph/01_capi_integration/capi_common/server"
+export PSLSE_SERVER_DIR="${HOME}/Documents/github_repos/${CAPI_PROJECT}/01_capi_integration/accelerator_sim/server"
 export PSLSE_SERVER_DAT="${PSLSE_SERVER_DIR}/pslse_server.dat"
 export SHIM_HOST_DAT="${PSLSE_SERVER_DIR}/shim_host.dat"
 export PSLSE_PARMS="${PSLSE_SERVER_DIR}/pslse.parms"
 export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
 
 ```
+
 2. AFU Communication with PSL
   * please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf).
 
 ## Setting up the source code 
 
-1. Clone Accel-Graph.
+1. Clone AccelGraph-CAPI.
 ```console
-accel@graph:~$ git clone https://github.com/atmughrabi/AccelGraph.git
+AccelGraph@CAPI:~$ git clone https://github.com/atmughrabi/AccelGraph_CAPI.git
 ```
-2. From the home directory go to the AccelGraph directory:
+2. From the home directory go to the AccelGraph_CAPI directory:
 ```console
-accel@graph:~$ cd AccelGraph/
+AccelGraph@CAPI:~$ cd AccelGraph_CAPI/
 ```
 3. Setup the CAPI submodules.
-
 ```console
-accel@graph:~AccelGraph$ git submodule update --init --recursive
+AccelGraph@CAPI:~AccelGraph_CAPI$ git submodule update --init --recursive
 ```
 
-# Running Accel-Graph 
+# Running AccelGraph-CAPI 
 
 [<img src="./02_slides/fig/openmp_logo.png" height="45" align="right" >](https://www.openmp.org/)
 
@@ -88,78 +108,197 @@ accel@graph:~AccelGraph$ git submodule update --init --recursive
 
 1. (Optional) From the root directory go to the graph benchmark directory:
 ```console
-accel@graph:~AccelGraph$ cd 00_graph_bench/
+AccelGraph@CAPI:~AccelGraph_CAPI$ cd 00_graph_bench/
 ```
 2. The default compilation is `openmp` mode:
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ make 
+AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make 
 ```
 3. From the root directory you can modify the Makefile with the [(parameters)](#accel-graph-options) you need for OpenMP:
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ make run
+AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make run
 ```
 * OR
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-openmp
+AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make run-openmp
 ```
 
 [<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
 
 ## Initial compilation for the Graph framework with Coherent Accelerator Processor Interface (CAPI)  
 
-* NOTE: You need CAPI environment setup on your machine.
+* NOTE: You need CAPI environment setup on your machine (tested on Power8 8247-22L).
 * [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
-* We are not supporting CAPI-SNAP since our graph processing suite heavily depends on accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is a good candidate.
-* For Deeper understanding of the SNAP framework: https://github.com/open-power/snap
-* CAPI and SNAP on IBM developerworks: https://developer.ibm.com/linuxonpower/capi/  
-* [IBM Developerworks Forum, tag CAPI_SNAP (to get support)](https://developer.ibm.com/answers/smartspace/capi-snap/index.html)
+* We are not supporting CAPI-SNAP since our processing suite supports accelerator-cache. SNAP does not support this feature yet. So if you are interested in streaming applications or do not benefit from caches SNAP is also good candidate.
+* To check the SNAP framework: https://github.com/open-power/snap.
 
 ### Simulation
 
-1. (Optional) From the root directory go to the graph benchmark directory:
+* NOTE: You need three open terminals, for running vsim, pslse, and the application.
+
+1. (Optional) From the root directory go to benchmark directory:
 ```console
-accel@graph:~AccelGraph$ cd 00_graph_bench/
+AccelGraph@CAPI:~AccelGraph_CAPI$ cd 00_graph_bench/
 ```
-2. Run [Modelsim vsim] for `simulation` this step is not needed when running on real hardware, this just simulates the AFU that resides on your (CAPI supported) FPGA  :
+2. On terminal 1. Run [ModelSim vsim] for `simulation` this step is not needed when running on real hardware, this just simulates the AFU that resides on your (CAPI supported) FPGA  :
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-vsim
+AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make run-vsim
 ```
 3. The previous step will execute vsim.tcl script to compile the design, to start the running the simulation just execute the following command at the transcript terminal of ModelSim : `r #recompile design`,`c #run simulation`
 ```console
 ModelSim> r 
 ModelSim> c 
 ```
-4. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
+4. On Terminal 2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-pslse
+AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make run-pslse
 ```
-5. Runs a graph algorithm that communicates with the PSLSE (simulation):
+
+##### Option 1: Silent run with no stats output
+
+5. On Terminal 3. Run the algorithm that communicates with the PSLSE (simulation):
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-capi-sim
+AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make run-capi-sim
+```
+
+##### Option 2: Verbose run with stats output
+
+5.  On Terminal 3. Run the algorithm that communicates with the PSLSE (simulation) printing out stats based on the responses received to the AFU-Control layer:
+```console
+AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make run-capi-sim-verbose
+```
+6. Example output: please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf), for each response explanation. The stats are labeled `RESPONSE_COMMANADTYPE_count`.
+```
+*-----------------------------------------------------*
+|                 AFU Stats                          | 
+ -----------------------------------------------------
+| CYCLE_count        : #Cycles                       |
+*-----------------------------------------------------*
+|                 Responses Stats                    | 
+ -----------------------------------------------------
+| DONE_count               : (#) Commands successful |
+ -----------------------------------------------------
+| DONE_READ_count          : (#) Reads successful    |
+| DONE_WRITE_count         : (#) Writes successful   |
+ -----------------------------------------------------
+| DONE_RESTART_count       : (#) Bus Restart         |
+ -----------------------------------------------------
+| DONE_PREFETCH_READ_count : (#) Read Prefetches     |
+| DONE_PREFETCH_WRITE_count: (#) Write Prefetches    |
+ -----------------------------------------------------
+| PAGED_count        : 0                             |
+| FLUSHED_count      : 0                             |
+| AERROR_count       : 0                             |
+| DERROR_count       : 0                             |
+| FAILED_count       : 0                             |
+| NRES_count         : 0                             |
+| NLOCK_count        : 0                             |
+*-----------------------------------------------------*
+
 ```
 
 ### FPGA
 
-#### Running
+#### Synthesize
 
-1. (Optional) From the root directory go to the graph benchmark directory:
+These steps require ALTERA Quartus synthesis tool, starting from release 15.0 of Quartus II should be fine.
+
+##### Using terminal
+1. From the root directory (using terminal)
 ```console
-accel@graph:~AccelGraph$ cd 00_graph_bench/
+AccelGraph@CAPI:~AccelGraph_CAPI$ make run-capi-synth
 ```
-2. Runs a graph algorithm that communicates with the or PSL (real HW):
+2. Check AccelGraph_CAPI.sta.rpt for timing requirements violations
+
+##### Using Quartus GUI
+1. From the root directory (using terminal)
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ make run-capi-fpga
+AccelGraph@CAPI:~AccelGraph_CAPI$ make run-capi-gui
+```
+2. Synthesize using Quartus GUI
+
+##### Another way (using terminal)
+1. From the root directory go to CAPI integration directory -> AccelGraph_CAPI synthesis folder
+```console
+AccelGraph@CAPI:~AccelGraph_CAPI$ cd 01_capi_integration/accelerator_synth/
+```
+2. invoke synthesis from terminal
+```console
+AccelGraph@CAPI:~AccelGraph_CAPI/01_capi_integration/accelerator_synth$ make
+```
+
+##### Another way (using Quartus GUI)
+1. From the root directory go to CAPI integration directory -> AccelGraph_CAPI synthesis folder
+```console
+AccelGraph@CAPI:~AccelGraph_CAPI$ cd 01_capi_integration/accelerator_synth/
+```
+2. invoke synthesis from terminal
+```console
+AccelGraph@CAPI:~AccelGraph_CAPI/01_capi_integration/accelerator_synth$ make gui
 ```
 
 #### Flashing image
 
-1. From the root directory go to CAPI integration directory -> ACCELGRAPH binary images:
+1. From the root directory go to CAPI integration directory -> AccelGraph_CAPI binary images:
 ```console
-accel@graph:~AccelGraph$ cd 01_capi_integration/accelerator_bin/
+AccelGraph@CAPI:~AccelGraph_CAPI$ cd 01_capi_integration/accelerator_bin/
 ```
-2. Flash the image to the corresponding `#define DEVICE` you can modify it according to your Power8 system from `00_graph_bench/include/capienv.h`
+2. Flash the image to the corresponding `#define DEVICE` you can modify it according to your Power8 system from `00_bench/include/capi_utils/capienv.h`
 ```console
-accel@graph:~AccelGraph/01_capi_integration/accelerator_bin$ sudo capi-flash-script ACCELGRAPH_ALGORITHM.rbf
+AccelGraph@CAPI:~AccelGraph_CAPI/01_capi_integration/accelerator_bin$ sudo capi-flash-script accel-graph_GITCOMMIT#_DATETIME.rbf
+```
+
+#### Running
+
+1. (Optional) From the root directory go to benchmark directory:
+```console
+AccelGraph@CAPI:~AccelGraph_CAPI$ cd 00_bench/
+```
+
+##### Silent run with no stats output
+
+2. Runs algorithm that communicates with the or PSL (real HW):
+```console
+AccelGraph@CAPI:~AccelGraph_CAPI/00_bench$ make run-capi-fpga
+```
+
+##### Verbose run with stats output
+
+This run outputs different AFU-Control stats based on the response received from the PSL
+
+2. Runs algorithm that communicates with the or PSL (real HW):
+```console
+AccelGraph@CAPI:~AccelGraph_CAPI/00_bench$ make run-capi-fpga-verbose
+```
+
+3. Example output: please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf), for each response explanation. The stats are labeled `RESPONSE_COMMANADTYPE_count`.
+```
+*-----------------------------------------------------*
+|                 AFU Stats                          | 
+ -----------------------------------------------------
+| CYCLE_count        : 106804                        |
+*-----------------------------------------------------*
+|                 Responses Stats                    | 
+ -----------------------------------------------------
+| DONE_count               : 16764                   |
+ -----------------------------------------------------
+| DONE_READ_count          : 8192                    |
+| DONE_WRITE_count         : 8192                    |
+ -----------------------------------------------------
+| DONE_RESTART_count       : 355                     |
+ -----------------------------------------------------
+| DONE_PREFETCH_READ_count : 12                      |
+| DONE_PREFETCH_WRITE_count: 12                      |
+ -----------------------------------------------------
+| PAGED_count        : 355                           |
+| FLUSHED_count      : 0                             |
+| AERROR_count       : 0                             |
+| DERROR_count       : 0                             |
+| FAILED_count       : 0                             |
+| NRES_count         : 0                             |
+| NLOCK_count        : 0                             |
+*-----------------------------------------------------*
+
 ```
 
 ## Graph structure Input (Edge list) 
@@ -195,11 +334,11 @@ accel@graph:~AccelGraph/01_capi_integration/accelerator_bin$ sudo capi-flash-scr
 * NOTE: you can read the file from text format without the convert step. By adding `--graph-file-format 0` to the argument list. The default is `1` assuming it is binary. please check `--help` for better explanation.
 * `--stats` is a flag that enables conversion. It used also for collecting stats about the graph (but this feature is on hold for now).
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ make convert
+AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make convert
 ```
 * OR
 ```console
-accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
+AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ ./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
 ```
 
 * OUTPUT: (weighted binary edge-list)
@@ -217,7 +356,7 @@ accel@graph:~AccelGraph/00_graph_bench$ ./bin/accel-graph-openmp  --generate-wei
 ```
 
 # Graph Structure Preprocessing:
-Accel-Graph can handle multiple representations of the graph structure in memory, each has their own theoretical benefits and shortcomings.
+AccelGraph-CAPI can handle multiple representations of the graph structure in memory, each has their own theoretical benefits and shortcomings.
 
 ## Regular unsorted Edge-list as input.
 
@@ -236,13 +375,13 @@ Accel-Graph can handle multiple representations of the graph structure in memory
 <p align="center"><img src="./02_slides/fig/datastructures/linkedlist.png" width="600" ></p>
 
 
-# Accel-Graph Options 
+# AccelGraph-CAPI Options 
 
 ```
 Usage: accel-graph [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
-AccelGraph is an open source graph processing framework, it is designed to be a
+AccelGraph_CAPI is an open source graph processing framework, it is designed to be a
 portable benchmarking suite for various graph processing algorithms.
 
   -a, --algorithm=[DEFAULT:0]   
