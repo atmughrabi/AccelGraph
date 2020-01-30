@@ -1,8 +1,9 @@
-set project_name capi-precis
+set project_name accel-graph
 set PSL_FPGA ./psl_fpga
 set LIBCAPI  ./capi
 set VERSION   [binary format A24 [exec $LIBCAPI/scripts/version.py]]
-set project_revision capi-precis
+set project_revision accel-graph
+set project_algorithm cu_PageRank
 
 project_new $project_name -overwrite -revision $project_revision
 
@@ -47,6 +48,10 @@ foreach filename [glob ../accelerator_rtl/pkg/*.sv] {
 #     set_global_assignment -name SYSTEMVERILOG_FILE $filename
 # }
 
-foreach filename [glob ../accelerator_rtl/cu/*.sv] {
+foreach filename [glob ../accelerator_rtl/cu/$project_algorithm/cu/*.sv] {
+    set_global_assignment -name SYSTEMVERILOG_FILE $filename
+}
+
+foreach filename [glob ../accelerator_rtl/cu/$project_algorithm/pkg/*.sv] {
     set_global_assignment -name SYSTEMVERILOG_FILE $filename
 }

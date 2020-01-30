@@ -25,16 +25,17 @@
 
 
 PART=5SGXMA7H2F35C2
-PROJECT ?= capi-precis
+PROJECT ?= accel-graph
 VERION_GIT = $(shell python ./capi/scripts/version.py)
 TIME_STAMP = $(shell date +%Y_%m_%d_%H_%M_%S)
 ACCEL_RTL_DIR = accelerator_rtl
 ACCEL_BIN_DIR = accelerator_bin
+ACCEL_ALGO_DIR = accelerator_bin
 SOURCE_FILES =  $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.sv)   \
 				$(wildcard ../$(ACCEL_RTL_DIR)/pkg/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/pkg/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/pkg/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/pkg/*.sv)   \
-				$(wildcard ../$(ACCEL_RTL_DIR)/cu/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/cu/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/cu/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/cu/*.sv)
+				$(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/cu/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/cu/$(ACCEL_ALGO_DIR)/cu/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/cu/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/cu/*.sv)   \
+				$(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/pkg/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/pkg/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/pkg/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/pkg/*.sv)   
 				
-	
 
 export LM_LICENSE_FILE := $(LM_LICENSE_FILE):$(shell pwd)/psl_fpga/psl/psl_A000_license.dat
 

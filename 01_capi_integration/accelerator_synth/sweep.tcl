@@ -3,14 +3,14 @@
 load_package flow
 load_package report
 # Specify project name and revision name
-set PROJECT capi-precis
+set PROJECT accel-graph
 
 
 set PART 5SGXMA7H2F35C2
 set FAMILY StratixV
 set LIBCAPI  ./capi
 set VERSION   [binary format A24 [exec ${LIBCAPI}/scripts/version.py]]
-set project_revision capi-precis
+set project_revision accel-graph
 set INPUT_SOF ${PROJECT}.sof
 
 # Set seeds
