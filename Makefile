@@ -176,7 +176,7 @@ export AFU_CONFIG_GENERIC=$(AFU_CONFIG_MODE)
 ##################################################
 
 APP_DIR                 = .
-MAKE_DIR                = 00_graph_bench
+MAKE_DIR                = 00_bench
 MAKE_DIR_SYNTH          = 01_capi_integration/accelerator_synth
 
 MAKE_NUM_THREADS        = $(shell grep -c ^processor /proc/cpuinfo)
