@@ -49,8 +49,8 @@ export MAIN_DIR		  	= main
 #########################################################
 
 #small test graphs
-export GRAPH_NAME = test
-# export GRAPH_NAME = v51_e1021
+# export GRAPH_NAME = test
+export GRAPH_NAME = v51_e1021
 # export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
@@ -173,7 +173,7 @@ export CU_CONFIG_MODE=0x0000000$(ENABLE_RD_WR_PREFETCH)
 # FIXED_ARB               [62]
 # ROUND_ROBIN_ARB         [63]
 
-export ROUND_ROBIN_ARB=0x1111000000000001
+export ROUND_ROBIN_ARB=0x1511000000000001
 export FIXED_ARB=0x1111000000000002
 
 ##############################################

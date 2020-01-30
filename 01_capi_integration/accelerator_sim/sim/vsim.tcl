@@ -17,8 +17,8 @@ proc r  { {cu "cu_PageRank"} } {
 
   if {$cu eq "cu_PageRank"} {
    echo "Compiling Packages CU"
-   vlog -quiet ../../accelerator_rtl/$cu/pkg/globals_cu_pkg.sv
-   vlog -quiet ../../accelerator_rtl/$cu/pkg/cu_pkg.sv
+   vlog -quiet ../../accelerator_rtl/cu/$cu/pkg/globals_cu_pkg.sv
+   vlog -quiet ../../accelerator_rtl/cu/$cu/pkg/cu_pkg.sv
    } else {
     echo "UNKNOWN Packages CU"
   }
@@ -64,16 +64,16 @@ proc r  { {cu "cu_PageRank"} } {
 
   if {$cu eq "cu_PageRank"} {
     echo "Compiling RTL CU control PAGERANK"
-    vlog -quiet ../../accelerator_rtl/$cu/cu/cu_cacheline_stream.sv
-    vlog -quiet ../../accelerator_rtl/$cu/cu/cu_sum_kernel_control.sv
-    vlog -quiet ../../accelerator_rtl/$cu/cu/cu_edge_data_write_control.sv
-    vlog -quiet ../../accelerator_rtl/$cu/cu/cu_edge_data_read_control.sv
-    vlog -quiet ../../accelerator_rtl/$cu/cu/cu_edge_data_control.sv
-    vlog -quiet ../../accelerator_rtl/$cu/cu/cu_edge_job_control.sv
-    vlog -quiet ../../accelerator_rtl/$cu/cu/cu_vertex_job_control.sv
-    vlog -quiet ../../accelerator_rtl/$cu/cu/cu_vertex_pagerank.sv
-    vlog -quiet ../../accelerator_rtl/$cu/cu/cu_graph_algorithm_control.sv
-    vlog -quiet ../../accelerator_rtl/$cu/cu/cu_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_cacheline_stream.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_sum_kernel_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_write_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_read_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_job_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_vertex_job_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_vertex_pagerank.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_graph_algorithm_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_control.sv
     } else {
       echo "UNKNOWN RTL CU"
     }
