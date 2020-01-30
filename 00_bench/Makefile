@@ -474,28 +474,28 @@ run-capi-sim: CAPI_FLAGS = -DSIM
 run-capi-sim: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-sim-verbose
 run-capi-sim-verbose: CAPI_FLAGS = -DSIM -DVERBOSE 
 run-capi-sim-verbose: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga
 run-capi-fpga: CAPI_FLAGS = 
 run-capi-fpga: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga-verbose
 run-capi-fpga-verbose: CAPI_FLAGS = -DVERBOSE 
 run-capi-fpga-verbose: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 
 .PHONY: run-test-capi
