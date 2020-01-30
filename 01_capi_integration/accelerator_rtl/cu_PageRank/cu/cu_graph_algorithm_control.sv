@@ -12,7 +12,8 @@
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
-import GLOBALS_PKG::*;
+import GLOBALS_AFU_PKG::*;
+import GLOBALS_CU_PKG::*;
 import CAPI_PKG::*;
 import WED_PKG::*;
 import AFU_PKG::*;
@@ -22,7 +23,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	input  logic                          clock                  , // Clock
 	input  logic                          rstn                   ,
 	input  logic                          enabled_in             ,
-	input  logic [                  0:63] algorithm_requests     ,
+	input  logic [                  0:63] cu_configure           ,
 	input  WEDInterface                   wed_request_in         ,
 	input  ResponseBufferLine             read_response_in       ,
 	input  ResponseBufferLine             write_response_in      ,
@@ -99,7 +100,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	logic [NUM_VERTEX_CU-1:0] ready_vertex_job_cu                             ;
 	logic [              0:2] request_pulse_vertex                            ;
 	logic                     enabled                                         ;
-	logic [             0:63] algorithm_requests_latched                      ;
+	logic [             0:63] cu_configure_latched                            ;
 
 	BufferStatus      burst_read_command_buffer_states_cu;
 	logic             burst_read_command_buffer_pop      ;
@@ -162,12 +163,12 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched     <= 0;
-			read_response_in_latched   <= 0;
-			write_response_in_latched  <= 0;
-			read_data_0_in_latched     <= 0;
-			read_data_1_in_latched     <= 0;
-			algorithm_requests_latched <= 0;
+			wed_request_in_latched    <= 0;
+			read_response_in_latched  <= 0;
+			write_response_in_latched <= 0;
+			read_data_0_in_latched    <= 0;
+			read_data_1_in_latched    <= 0;
+			cu_configure_latched      <= 0;
 		end else begin
 			if(enabled)begin
 				wed_request_in_latched    <= wed_request_in;
@@ -175,8 +176,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 				write_response_in_latched <= write_response_in;
 				read_data_0_in_latched    <= read_data_0_in;
 				read_data_1_in_latched    <= read_data_1_in;
-				if((|algorithm_requests))
-					algorithm_requests_latched <= algorithm_requests;
+				if((|cu_configure))
+					cu_configure_latched <= cu_configure;
 			end
 		end
 	end
@@ -210,7 +211,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_comb  begin
 		for (iii = 0; iii < NUM_VERTEX_CU; iii++) begin
-			if((iii < algorithm_requests_latched))
+			if((iii < cu_configure_latched[32:63]))
 				enable_cu_latched[iii] = 1;
 			else
 				enable_cu_latched[iii] = 0;
@@ -556,6 +557,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 					.rstn                (rstn),
 					.enabled_in          (enable_cu[i]),
 					.wed_request_in      (wed_request_in_latched),
+					.cu_configure        (cu_configure_latched),
 					.read_response_in    (read_response_cu[i]),
 					.write_response_in   (write_response_cu[i]),
 					.read_data_0_in      (read_data_0_cu[i]),

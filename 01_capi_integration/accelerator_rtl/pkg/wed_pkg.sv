@@ -51,27 +51,28 @@ package WED_PKG;
         WED_request  wed    ;
     } WEDInterface;
 
-
     function WED_request map_DataArrays_to_WED(logic [0:(CACHELINE_SIZE_BITS-1)] in);
 
         WED_request wed;
 
-        wed.size_send               = swap_endianness_double_word(in[0:63]);        // 8-Bytes
-        wed.size_recive             = swap_endianness_double_word(in[64:127]);      // 8-Bytes
-        wed.array_send              = swap_endianness_double_word(in[128:191]);     // 8-Bytes
-        wed.array_receive           = swap_endianness_double_word(in[192:255]);     // 8-Bytes
-        wed.pointer1                = swap_endianness_double_word(in[256:319]);     // 8-Bytes
-        wed.pointer2                = swap_endianness_double_word(in[320:383]);     // 8-Bytes
-        wed.pointer3                = swap_endianness_double_word(in[384:447]);     // 8-Bytes
-        wed.pointer4                = swap_endianness_double_word(in[448:511]);     // 8-Bytes
-        wed.pointer5                = swap_endianness_double_word(in[512:575]);     // 8-Bytes
-        wed.pointer6                = swap_endianness_double_word(in[576:639]);     // 8-Bytes
-        wed.pointer7                = swap_endianness_double_word(in[640:703]);     // 8-Bytes
-        wed.pointer8                = swap_endianness_double_word(in[704:767]);     // 8-Bytes
-        wed.pointer9                = swap_endianness_double_word(in[768:831]);     // 8-Bytes
-        wed.pointer10               = swap_endianness_double_word(in[832:895]);     // 8-Bytes
-        wed.pointer11               = swap_endianness_double_word(in[896:959]);     // 8-Bytes
-        wed.pointer12               = swap_endianness_double_word(in[960:1023]);    // 8-Bytes
+        wed.num_edges                  = swap_endianness_word(in[0:31]);               // 4-Bytes
+        wed.num_vertices               = swap_endianness_word(in[32:63]);              // 4-Bytes
+        wed.max_weight                 = swap_endianness_word(in[64:95]);              // 4-Bytes
+        wed.auxiliary0                 = swap_endianness_word(in[96:127]);              // 4-Bytes
+        wed.vertex_out_degree          = swap_endianness_double_word(in[128:191]);     // 8-Bytes
+        wed.vertex_in_degree           = swap_endianness_double_word(in[192:255]);     // 8-Bytes
+        wed.vertex_edges_idx           = swap_endianness_double_word(in[256:319]);     // 8-Bytes
+        wed.edges_array_weight         = swap_endianness_double_word(in[320:383]);     // 8-Bytes
+        wed.edges_array_src            = swap_endianness_double_word(in[384:447]);     // 8-Bytes
+        wed.edges_array_dest           = swap_endianness_double_word(in[448:511]);     // 8-Bytes
+        wed.inverse_vertex_out_degree  = swap_endianness_double_word(in[512:575]);     // 8-Bytes
+        wed.inverse_vertex_in_degree   = swap_endianness_double_word(in[576:639]);     // 8-Bytes
+        wed.inverse_vertex_edges_idx   = swap_endianness_double_word(in[640:703]);     // 8-Bytes
+        wed.inverse_edges_array_weight = swap_endianness_double_word(in[704:767]);     // 8-Bytes
+        wed.inverse_edges_array_src    = swap_endianness_double_word(in[768:831]);     // 8-Bytes
+        wed.inverse_edges_array_dest   = swap_endianness_double_word(in[832:895]);     // 8-Bytes
+        wed.auxiliary1                 = swap_endianness_double_word(in[896:959]);     // 8-Bytes
+        wed.auxiliary2                 = swap_endianness_double_word(in[960:1023]);    // 8-Bytes
 
         return wed;
 

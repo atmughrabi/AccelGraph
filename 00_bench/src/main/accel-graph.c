@@ -39,6 +39,9 @@
 
 uint64_t afu_config;
 uint64_t cu_config;
+uint64_t afu_config_2;
+uint64_t cu_config_2;
+
 int numThreads;
 mt19937state *mt19937var;
 
@@ -270,6 +273,8 @@ main (int argc, char **argv)
     arguments.convert_format = 1;
     arguments.afu_config = 0x01;
     arguments.cu_config  = 0x01;
+    arguments.afu_config_2 = 0x01;
+    arguments.cu_config_2  = 0x01;
 
     void *graph = NULL;
 
@@ -278,6 +283,8 @@ main (int argc, char **argv)
     numThreads =  arguments.numThreads;
     afu_config =  arguments.afu_config;
     cu_config  =  arguments.cu_config;
+    afu_config_2  =  arguments.afu_config_2;
+    cu_config_2   =  arguments.cu_config_2;
 
     struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
 

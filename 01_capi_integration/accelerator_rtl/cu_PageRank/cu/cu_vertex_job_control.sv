@@ -12,7 +12,8 @@
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
-import GLOBALS_PKG::*;
+import GLOBALS_AFU_PKG::*;
+import GLOBALS_CU_PKG::*;
 import CAPI_PKG::*;
 import WED_PKG::*;
 import AFU_PKG::*;
@@ -22,7 +23,7 @@ module cu_vertex_job_control (
 	input  logic                          clock                      , // Clock
 	input  logic                          rstn                       ,
 	input  logic                          enabled_in                 ,
-	input  logic [                  0:63] algorithm_requests         ,
+	input  logic [                  0:63] cu_configure         ,
 	input  WEDInterface                   wed_request_in             ,
 	input  ResponseBufferLine             read_response_in           ,
 	input  ReadWriteDataLine              read_data_0_in             ,
@@ -110,7 +111,7 @@ module cu_vertex_job_control (
 		if(~rstn) begin
 			enabled <= 0;
 		end else begin
-			enabled <= enabled_in && (|algorithm_requests);
+			enabled <= enabled_in && (|cu_configure);
 		end
 	end
 

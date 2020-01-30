@@ -15,8 +15,7 @@
 package CU_PKG;
 
 // Relating to Vertex int types and sizes
-
-	import GLOBALS_PKG::*;
+	import GLOBALS_CU_PKG::*;
 
 	typedef enum int unsigned{
 		STRUCT_INVALID,
@@ -34,7 +33,7 @@ package CU_PKG;
 		INV_EDGE_ARRAY_WEIGHT,
 		READ_GRAPH_DATA,
 		WRITE_GRAPH_DATA
-	} vertex_struct_type;
+	} array_struct_type;
 
 	typedef enum int unsigned {
 		SEND_VERTEX_RESET,
@@ -189,82 +188,5 @@ package CU_PKG;
 
 	endfunction : cmd_size_calculate
 
-	function logic [0:(CACHELINE_SIZE_BITS-1)] seek_cacheline(logic [0:7]  shift_seek, logic [0:(CACHELINE_SIZE_BITS-1)] cacheline_in);
-
-		logic [0:(CACHELINE_SIZE_BITS-1)] cacheline_out;
-
-		cacheline_out = cacheline_in;
-
-
-		if(0 == shift_seek) begin
-			cacheline_out = {{(0*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(0*VERTEX_SIZE_BITS))]};
-		end else if(1 == shift_seek) begin
-			cacheline_out = {{(1*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(1*VERTEX_SIZE_BITS))]};
-		end else if(2 == shift_seek) begin
-			cacheline_out = {{(2*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(2*VERTEX_SIZE_BITS))]};
-		end else if(3 == shift_seek) begin
-			cacheline_out = {{(3*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(3*VERTEX_SIZE_BITS))]};
-		end else if(4 == shift_seek) begin
-			cacheline_out = {{(4*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(4*VERTEX_SIZE_BITS))]};
-		end else if(5 == shift_seek) begin
-			cacheline_out = {{(5*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(5*VERTEX_SIZE_BITS))]};
-		end else if(6 == shift_seek) begin
-			cacheline_out = {{(6*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(6*VERTEX_SIZE_BITS))]};
-		end else if(7 == shift_seek) begin
-			cacheline_out = {{(7*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(7*VERTEX_SIZE_BITS))]};
-		end else if(8 == shift_seek) begin
-			cacheline_out = {{(8*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(8*VERTEX_SIZE_BITS))]};
-		end else if(9 == shift_seek) begin
-			cacheline_out = {{(9*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(9*VERTEX_SIZE_BITS))]};
-		end else if(10 == shift_seek) begin
-			cacheline_out = {{(10*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(10*VERTEX_SIZE_BITS))]};
-		end else if(11 == shift_seek) begin
-			cacheline_out = {{(11*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(11*VERTEX_SIZE_BITS))]};
-		end else if(12 == shift_seek) begin
-			cacheline_out = {{(12*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(12*VERTEX_SIZE_BITS))]};
-		end else if(13 == shift_seek) begin
-			cacheline_out = {{(13*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(13*VERTEX_SIZE_BITS))]};
-		end else if(14 == shift_seek) begin
-			cacheline_out = {{(14*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(14*VERTEX_SIZE_BITS))]};
-		end else if(15 == shift_seek) begin
-			cacheline_out = {{(15*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(15*VERTEX_SIZE_BITS))]};
-		end else if(16 == shift_seek) begin
-			cacheline_out = {{(16*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(16*VERTEX_SIZE_BITS))]};
-		end else if(17 == shift_seek) begin
-			cacheline_out = {{(17*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(17*VERTEX_SIZE_BITS))]};
-		end else if(18 == shift_seek) begin
-			cacheline_out = {{(18*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(18*VERTEX_SIZE_BITS))]};
-		end else if(19 == shift_seek) begin
-			cacheline_out = {{(19*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(19*VERTEX_SIZE_BITS))]};
-		end else if(20 == shift_seek) begin
-			cacheline_out = {{(20*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(20*VERTEX_SIZE_BITS))]};
-		end else if(21 == shift_seek) begin
-			cacheline_out = {{(21*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(21*VERTEX_SIZE_BITS))]};
-		end else if(22 == shift_seek) begin
-			cacheline_out = {{(22*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(22*VERTEX_SIZE_BITS))]};
-		end else if(23 == shift_seek) begin
-			cacheline_out = {{(23*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(23*VERTEX_SIZE_BITS))]};
-		end else if(24 == shift_seek) begin
-			cacheline_out = {{(24*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(24*VERTEX_SIZE_BITS))]};
-		end else if(25 == shift_seek) begin
-			cacheline_out = {{(25*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(25*VERTEX_SIZE_BITS))]};
-		end else if(26 == shift_seek) begin
-			cacheline_out = {{(26*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(26*VERTEX_SIZE_BITS))]};
-		end else if(27 == shift_seek) begin
-			cacheline_out = {{(27*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(27*VERTEX_SIZE_BITS))]};
-		end else if(28 == shift_seek) begin
-			cacheline_out = {{(28*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(28*VERTEX_SIZE_BITS))]};
-		end else if(29 == shift_seek) begin
-			cacheline_out = {{(29*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(29*VERTEX_SIZE_BITS))]};
-		end else if(30 == shift_seek) begin
-			cacheline_out = {{(30*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(30*VERTEX_SIZE_BITS))]};
-		end else if(31 == shift_seek) begin
-			cacheline_out = {{(31*VERTEX_SIZE_BITS){1'b0}},cacheline_in[0:(CACHELINE_SIZE_BITS-1-(31*VERTEX_SIZE_BITS))]};
-		end
-
-		return cacheline_out;
-
-	endfunction : seek_cacheline
-
-
+	
 endpackage

@@ -112,6 +112,19 @@ export BIN_SIZE = 512
 export INOUT_STATS = 2
 
 ##############################################
+# CAPI FPGA AFU PREFETCH CONFIG              #
+##############################################
+
+#disable both PREFETCH
+# ENABLE_RD_WR_PREFETCH=0
+#enable write PREFETCH
+# ENABLE_RD_WR_PREFETCH=1
+#enable read PREFETCH
+# ENABLE_RD_WR_PREFETCH=2
+#enable both PREFETCH
+export ENABLE_RD_WR_PREFETCH=3
+
+##############################################
 # CAPI FPGA  GRAPH AFU PERFORMANCE CONFIG    #
 ##############################################
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
@@ -119,7 +132,7 @@ export INOUT_STATS = 2
 # // cu_edge_data_control         5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00000 00000 00000 00000 00
-export CU_CONFIG_MODE=0x00000000  
+export CU_CONFIG_MODE=0x0000000$(ENABLE_RD_WR_PREFETCH)  
 
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [9] [8] [5:7]

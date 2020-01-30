@@ -1312,7 +1312,10 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  uint32_t i
     struct AFUStatus afu_status = {0};
     afu_status.afu_config = afu_config;
     afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
+    afu_status.afu_config_2 = afu_config_2;
+    afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
     afu_status.cu_config = ((afu_status.cu_config << 32) | (numThreads));
+    afu_status.cu_config_2 = cu_config_2; // non zero CU triggers the AFU to work
     afu_status.cu_stop = wedGraphCSR->num_vertices; // stop condition once all vertices processed
 
     startAFU(&afu, &afu_status);

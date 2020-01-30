@@ -62,6 +62,7 @@ void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     do
     {
         cxl_mmio_write64((*afu), AFU_CONFIGURE, afu_status->afu_config);
+        cxl_mmio_write64((*afu), AFU_CONFIGURE_2, afu_status->afu_config_2);
         cxl_mmio_read64((*afu), AFU_STATUS, (uint64_t *) & (afu_status->afu_status));
     }
     while(!(afu_status->afu_status));
@@ -86,6 +87,7 @@ void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     do
     {
         cxl_mmio_write64((*afu), CU_CONFIGURE, (uint64_t)afu_status->cu_config);
+        cxl_mmio_write64((*afu), CU_CONFIGURE_2, (uint64_t)afu_status->cu_config_2);
         cxl_mmio_read64((*afu), CU_STATUS, (uint64_t *) & (afu_status->cu_status));
     }
     while(!((afu_status->cu_status)));

@@ -7,20 +7,24 @@ proc r  { {cu "cu_PageRank"} } {
   echo "Compiling libs"
   
   # compile packages
-  echo "Compiling Packages AFU"
+  echo "Compiling Packages AFU-1"
   vlog -quiet ../../accelerator_rtl/pkg/globals_pkg.sv
   vlog -quiet ../../accelerator_rtl/pkg/capi_pkg.sv
+  vlog -quiet ../../accelerator_rtl/pkg/wed_pkg.sv
   vlog -quiet ../../accelerator_rtl/pkg/credit_pkg.sv
-  vlog -quiet ../../accelerator_rtl/pkg/afu_pkg.sv
+ 
 
-  
+
   if {$cu eq "cu_PageRank"} {
    echo "Compiling Packages CU"
    vlog -quiet ../../accelerator_rtl/$cu/pkg/cu_pkg.sv
-   vlog -quiet ../../accelerator_rtl/$cu/pkg/wed_pkg.sv
+   vlog -quiet ../../accelerator_rtl/$cu/pkg/globals_pkg.sv
    } else {
     echo "UNKNOWN Packages CU"
   }
+
+  echo "Compiling Packages AFU-2"
+  vlog -quiet ../../accelerator_rtl/pkg/afu_pkg.sv
 
   # compile afu
   echo "Compiling RTL General"

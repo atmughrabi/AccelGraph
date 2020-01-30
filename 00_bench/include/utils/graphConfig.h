@@ -10,6 +10,9 @@
 
 extern  uint64_t afu_config;
 extern  uint64_t cu_config;
+extern  uint64_t afu_config_2;
+extern  uint64_t cu_config_2;
+
 extern int numThreads;
 extern mt19937state *mt19937var;
 
@@ -40,6 +43,8 @@ struct Arguments
     uint32_t convert_format;
     uint64_t afu_config;
     uint64_t cu_config;
+    uint64_t afu_config_2;
+    uint64_t cu_config_2;
 };
 
 #endif

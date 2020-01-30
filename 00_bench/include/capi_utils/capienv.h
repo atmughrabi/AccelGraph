@@ -62,9 +62,11 @@ struct AFUStatus
 {
     uint64_t cu_stop;  // afu stopping condition
     uint64_t cu_config;
+    uint64_t cu_config_2;
     uint64_t cu_status;
     uint64_t cu_mode;
     uint64_t afu_config;
+    uint64_t afu_config_2;
     uint64_t afu_status;
     uint64_t error;
     uint64_t cu_return; // running return

@@ -12,7 +12,8 @@
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
-import GLOBALS_PKG::*;
+import GLOBALS_AFU_PKG::*;
+import GLOBALS_CU_PKG::*;
 import CAPI_PKG::*;
 import WED_PKG::*;
 import AFU_PKG::*;
@@ -22,6 +23,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	input  logic                        clock                  , // Clock
 	input  logic                        rstn                   ,
 	input  logic                        enabled_in             ,
+	input  logic [                0:63] cu_configure           ,
 	input  WEDInterface                 wed_request_in         ,
 	input  ResponseBufferLine           read_response_in       ,
 	input  ReadWriteDataLine            read_data_0_in         ,
@@ -54,6 +56,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic         edge_buffer_burst_pop   ;
 	EdgeInterface edge_burst_variable     ;
 
+	logic [0:63] cu_configure_latched;
 	// internal registers to track logic
 	// Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
 	logic [0:11] request_size            ;
@@ -133,6 +136,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			vertex_job_latched       <= 0;
 			read_vertex_new          <= 0;
 			read_vertex_new_latched  <= 0;
+			cu_configure_latched     <= 0;
 		end else begin
 			if(enabled) begin
 				wed_request_in_latched   <= wed_request_in;
@@ -140,6 +144,9 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				read_data_0_in_latched   <= read_data_0_in;
 				read_data_1_in_latched   <= read_data_1_in;
 				edge_request_latched     <= edge_request;
+
+				if((|cu_configure))
+					cu_configure_latched <= cu_configure;
 
 				if(read_vertex)begin
 					vertex_job_latched <= vertex_job;
@@ -273,10 +280,10 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				read_command_out_latched.cmd.cu_id            <= CU_ID;
 				read_command_out_latched.cmd.cmd_type         <= CMD_READ;
 
-				read_command_out_latched.cmd.abt <= map_CABT(wed_request_in_latched.wed.afu_config[5:7]);
-				read_command_out_latched.abt     <= map_CABT(wed_request_in_latched.wed.afu_config[5:7]);
+				read_command_out_latched.cmd.abt <= map_CABT(cu_configure_latched[5:7]);
+				read_command_out_latched.abt     <= map_CABT(cu_configure_latched[5:7]);
 
-				if (wed_request_in_latched.wed.afu_config[8]) begin
+				if (cu_configure_latched[8]) begin
 					read_command_out_latched.command <= READ_CL_S;
 				end else begin
 					read_command_out_latched.command <= READ_CL_NA;

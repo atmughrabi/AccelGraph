@@ -13,7 +13,8 @@
 // -----------------------------------------------------------------------------
 
 
-import GLOBALS_PKG::*;
+import GLOBALS_AFU_PKG::*;
+import GLOBALS_CU_PKG::*;
 import CAPI_PKG::*;
 import WED_PKG::*;
 import AFU_PKG::*;
@@ -23,6 +24,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	input  logic              clock             , // Clock
 	input  logic              rstn              ,
 	input  logic              enabled_in        ,
+	input  logic [0:63]       cu_configure      ,
 	input  WEDInterface       wed_request_in    ,
 	input  ResponseBufferLine read_response_in  ,
 	input  EdgeDataRead       edge_data_read_in ,
@@ -55,6 +57,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	logic              edge_data_request_latched_internal  ;
 	logic              edge_variable_pop                   ;
 	EdgeDataRead       edge_data_variable                  ;
+	logic [0:63]       cu_configure_latched                ;
 
 // assign edge_request = edge_request_latched;
 
@@ -96,6 +99,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 			edge_data_request_latched <= 0;
 			wed_request_in_latched    <= 0;
 			edge_data_variable        <= 0;
+			cu_configure_latched      <= 0;
 		end else begin
 			if(enabled) begin
 				wed_request_in_latched    <= wed_request_in;
@@ -103,6 +107,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 				edge_job_latched          <= edge_job;
 				edge_data_variable        <= edge_data_read_in;
 				edge_data_request_latched <= (edge_data_request && ~data_buffer_status.empty);
+				if((|cu_configure))
+					cu_configure_latched <= cu_configure;
 			end
 		end
 	end
@@ -127,10 +133,10 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 					read_command_out_latched.cmd.cu_id            <= CU_ID;
 					read_command_out_latched.cmd.cmd_type         <= CMD_READ;
 
-					read_command_out_latched.cmd.abt <= map_CABT(wed_request_in_latched.wed.afu_config[10:12]);
-					read_command_out_latched.abt     <= map_CABT(wed_request_in_latched.wed.afu_config[10:12]);
+					read_command_out_latched.cmd.abt <= map_CABT(cu_configure_latched[10:12]);
+					read_command_out_latched.abt     <= map_CABT(cu_configure_latched[10:12]);
 
-					if (wed_request_in_latched.wed.afu_config[13]) begin
+					if (cu_configure_latched[13]) begin
 						read_command_out_latched.command <= READ_CL_S;
 					end else begin
 						read_command_out_latched.command <= READ_CL_NA;

@@ -12,7 +12,8 @@
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
-import GLOBALS_PKG::*;
+import GLOBALS_AFU_PKG::*;
+import GLOBALS_CU_PKG::*;
 import CAPI_PKG::*;
 import WED_PKG::*;
 import AFU_PKG::*;
@@ -27,6 +28,7 @@ module cu_vertex_pagerank #(
 	input  logic                          rstn               ,
 	input  logic                          enabled_in         ,
 	input  WEDInterface                   wed_request_in     ,
+	input  logic [                  0:63] cu_configure       ,
 	input  ResponseBufferLine             read_response_in   ,
 	input  ResponseBufferLine             write_response_in  ,
 	input  ReadWriteDataLine              read_data_0_in     ,
@@ -45,7 +47,7 @@ module cu_vertex_pagerank #(
 // vertex control variables
 	logic           vertex_job_request_send;
 	VertexInterface vertex_job_latched     ;
-
+	logic [0:63]    cu_configure_latched   ;
 
 	//output latched
 	CommandBufferLine read_command_out_latched;
@@ -219,6 +221,7 @@ module cu_vertex_pagerank #(
 			read_data_0_in_latched    <= 0;
 			read_data_1_in_latched    <= 0;
 			edge_data_read            <= 0;
+			cu_configure_latched      <= 0;
 		end else begin
 			if(enabled)begin
 				wed_request_in_latched    <= wed_request_in;
@@ -227,6 +230,8 @@ module cu_vertex_pagerank #(
 				read_data_0_in_latched    <= read_data_0_in;
 				read_data_1_in_latched    <= read_data_1_in;
 				edge_data_read            <= edge_data_read_in;
+				if((|cu_configure))
+					cu_configure_latched <= cu_configure;
 			end
 		end
 	end
@@ -309,6 +314,7 @@ module cu_vertex_pagerank #(
 		.clock                  (clock                              ),
 		.rstn                   (rstn                               ),
 		.enabled_in             (enabled                            ),
+		.cu_configure           (cu_configure_latched               ),
 		.wed_request_in         (wed_request_in_latched             ),
 		.read_response_in       (read_response_in_edge_job          ),
 		.read_data_0_in         (read_data_0_in_edge_job            ),
@@ -330,6 +336,7 @@ module cu_vertex_pagerank #(
 		.clock             (clock                               ),
 		.rstn              (rstn                                ),
 		.enabled_in        (enabled                             ),
+		.cu_configure      (cu_configure_latched                ),
 		.wed_request_in    (wed_request_in_latched              ),
 		.read_response_in  (read_response_in_edge_data          ),
 		.edge_data_read_in (edge_data_read_buffer               ),
