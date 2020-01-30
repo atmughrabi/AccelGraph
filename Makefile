@@ -111,10 +111,6 @@ export CONVERT_FORMAT 	= 1
 export BIN_SIZE = 512
 export INOUT_STATS = 2
 
-#########################################################
-#                RUN  ARGUMENTS                         #
-#########################################################
-export ARGS = -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 ##############################################
 # CAPI FPGA  GRAPH AFU PERFORMANCE CONFIG    #
 ##############################################
@@ -176,6 +172,7 @@ export AFU_CONFIG_MODE=$(ROUND_ROBIN_ARB)
 
 export CU_CONFIG_GENERIC=$(CU_CONFIG_MODE)
 export AFU_CONFIG_GENERIC=$(AFU_CONFIG_MODE)
+
 ##################################################
 
 APP_DIR                 = .
@@ -185,6 +182,12 @@ MAKE_DIR_SYNTH          = 01_capi_integration/accelerator_synth
 MAKE_NUM_THREADS        = $(shell grep -c ^processor /proc/cpuinfo)
 MAKE_ARGS               = -w -C $(APP_DIR)/$(MAKE_DIR) -j$(MAKE_NUM_THREADS)
 MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH) -j$(MAKE_NUM_THREADS)
+
+#########################################################
+#                RUN  ARGUMENTS                         #
+#########################################################
+
+export ARGS = -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 
 ##################################################

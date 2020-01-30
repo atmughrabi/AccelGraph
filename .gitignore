@@ -11,18 +11,14 @@ accelgraph.sublime-workspace
 nohup.out
 .qsys_edit
 00_graph_bench/nohup.out
-00_graph_bench/labelmap
-00_graph_bench/aladdin_common/dynamic_traces
-00_graph_bench/aladdin_common/stats_aladdin
-00_graph_bench/aladdin_common/stats_gem5
 
-01_capi_integration/capi_common/sim/modelsim.ini
-01_capi_integration/capi_common/sim/transcript
-01_capi_integration/capi_common/sim/vish_stacktrace.vstf
-01_capi_integration/capi_common/sim/vsim.wlf
-01_capi_integration/capi_common/sim/work
-01_capi_integration/capi_common/sim/debug.log
-01_capi_integration/capi_common/sim/gmon.out
-01_capi_integration/capi_common/server/debug.log
-01_capi_integration/capi_common/server/gmon.out
+01_capi_integration/accelerator_sim/sim/modelsim.ini
+01_capi_integration/accelerator_sim/sim/transcript
+01_capi_integration/accelerator_sim/sim/vish_stacktrace.vstf
+01_capi_integration/accelerator_sim/sim/vsim.wlf
+01_capi_integration/accelerator_sim/sim/work
+01_capi_integration/accelerator_sim/sim/debug.log
+01_capi_integration/accelerator_sim/sim/gmon.out
+01_capi_integration/accelerator_sim/server/debug.log
+01_capi_integration/accelerator_sim/server/gmon.out
 

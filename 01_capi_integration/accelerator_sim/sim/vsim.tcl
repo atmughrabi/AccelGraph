@@ -13,9 +13,14 @@ proc r  { {cu "cu_PageRank"} } {
   vlog -quiet ../../accelerator_rtl/pkg/credit_pkg.sv
   vlog -quiet ../../accelerator_rtl/pkg/afu_pkg.sv
 
-  echo "Compiling Packages CU"
-  vlog -quiet ../../accelerator_rtl/$cu/pkg/cu_pkg.sv
-  vlog -quiet ../../accelerator_rtl/$cu/pkg/wed_pkg.sv
+  
+  if {$cu eq "cu_PageRank"} {
+   echo "Compiling Packages CU"
+   vlog -quiet ../../accelerator_rtl/$cu/pkg/cu_pkg.sv
+   vlog -quiet ../../accelerator_rtl/$cu/pkg/wed_pkg.sv
+   } else {
+    echo "UNKNOWN Packages CU"
+  }
 
   # compile afu
   echo "Compiling RTL General"
@@ -68,13 +73,13 @@ proc r  { {cu "cu_PageRank"} } {
     } else {
       echo "UNKNOWN RTL CU"
     }
-    
-    
+
+
     echo "Compiling RTL AFU"
     vlog -quiet ../../accelerator_rtl/afu/afu.sv
     vlog -quiet ../../accelerator_rtl/afu/cached_afu.sv
-    
-    
+
+
   # compile top level
   echo "Compiling top level"
   # vlog -quiet       pslse/afu_driver/verilog/top.v
