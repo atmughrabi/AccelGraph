@@ -383,7 +383,7 @@ module cu_vertex_pagerank #(
 			read_response_in_edge_data <= 0;
 		end else begin
 			if(enabled && read_response_buffer.valid) begin
-				case (read_response_buffer.cmd.vertex_struct)
+				case (read_response_buffer.cmd.array_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT, EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
 						read_response_in_edge_job  <= read_response_buffer;
 						read_response_in_edge_data <= 0;
@@ -413,7 +413,7 @@ module cu_vertex_pagerank #(
 			write_response_in_edge_data <= 0;
 		end else begin
 			if(enabled && write_response_buffer.valid) begin
-				case (write_response_buffer.cmd.vertex_struct)
+				case (write_response_buffer.cmd.array_struct)
 					WRITE_GRAPH_DATA : begin
 						write_response_in_edge_data <= write_response_buffer;
 					end
@@ -437,7 +437,7 @@ module cu_vertex_pagerank #(
 			read_data_0_in_edge_data <= 0;
 		end else begin
 			if(enabled && read_data_cu_0_buffer.valid) begin
-				case (read_data_cu_0_buffer.cmd.vertex_struct)
+				case (read_data_cu_0_buffer.cmd.array_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
 						read_data_0_in_edge_job  <= read_data_cu_0_buffer;
 						read_data_0_in_edge_data <= 0;
@@ -464,7 +464,7 @@ module cu_vertex_pagerank #(
 			read_data_1_in_edge_data <= 0;
 		end else begin
 			if(enabled && read_data_cu_1_buffer.valid) begin
-				case (read_data_cu_1_buffer.cmd.vertex_struct)
+				case (read_data_cu_1_buffer.cmd.array_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
 						read_data_1_in_edge_job  <= read_data_cu_1_buffer;
 						read_data_1_in_edge_data <= 0;

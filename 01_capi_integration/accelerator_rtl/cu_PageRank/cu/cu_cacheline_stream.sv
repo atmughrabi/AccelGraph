@@ -26,7 +26,7 @@ module cu_cacheline_stream #(parameter SIZE_BITS = VERTEX_SIZE_BITS) (
 	input  logic                   start_shift   ,
 	input  ReadWriteDataLine       read_data_0_in,
 	input  ReadWriteDataLine       read_data_1_in,
-	input  vertex_struct_type      vertex_struct ,
+	input  array_struct_type       vertex_struct ,
 	output logic [0:(SIZE_BITS-1)] vertex        ,
 	output logic                   pending       ,
 	output logic                   valid
@@ -51,7 +51,7 @@ module cu_cacheline_stream #(parameter SIZE_BITS = VERTEX_SIZE_BITS) (
 	logic [0:CACHELINE_SIZE_BITS_HF-1] read_data_in         ;
 	logic                              read_data_part       ;
 	ReadWriteDataLine                  read_data_in_latched ;
-	vertex_struct_type                 vertex_struct_latched;
+	array_struct_type                  vertex_struct_latched;
 
 	assign vertex         = vertex_latched;
 	assign valid_internal = (shift_counter < shift_limit) && start_shift && enabled;
@@ -65,10 +65,10 @@ module cu_cacheline_stream #(parameter SIZE_BITS = VERTEX_SIZE_BITS) (
 			if(enabled) begin
 				vertex_struct_latched <= vertex_struct;
 
-				if(read_data_0_in.valid && (read_data_0_in.cmd.vertex_struct == vertex_struct_latched))begin
+				if(read_data_0_in.valid && (read_data_0_in.cmd.array_struct == vertex_struct_latched))begin
 					read_data_in_latched <= read_data_0_in;
 					read_data_part       <= 0;
-				end else if(read_data_1_in.valid && (read_data_1_in.cmd.vertex_struct == vertex_struct_latched)) begin
+				end else if(read_data_1_in.valid && (read_data_1_in.cmd.array_struct == vertex_struct_latched)) begin
 					read_data_in_latched <= read_data_1_in;
 					read_data_part       <= 1;
 				end else begin
@@ -131,14 +131,14 @@ module cu_cacheline_stream #(parameter SIZE_BITS = VERTEX_SIZE_BITS) (
 		shift_seek_latched  = 0;
 		shift_limit_latched = 0;
 		pending_latched     = 0;
-		if((read_data_in_latched.cmd.vertex_struct == vertex_struct_latched) && ~read_data_part && (read_data_in_latched.valid))begin
+		if((read_data_in_latched.cmd.array_struct == vertex_struct_latched) && ~read_data_part && (read_data_in_latched.valid))begin
 			we                  = 1;
 			address_wr          = 0;
 			read_data_in        = read_data_in_latched.data;
 			shift_seek_latched  = read_data_in_latched.cmd.cacheline_offest;
 			shift_limit_latched = read_data_in_latched.cmd.real_size;
 			pending_latched     = 1;
-		end else if((read_data_in_latched.cmd.vertex_struct == vertex_struct_latched) && read_data_part && (read_data_in_latched.valid))begin
+		end else if((read_data_in_latched.cmd.array_struct == vertex_struct_latched) && read_data_part && (read_data_in_latched.valid))begin
 			we                  = 1;
 			address_wr          = 1;
 			read_data_in        = read_data_in_latched.data;

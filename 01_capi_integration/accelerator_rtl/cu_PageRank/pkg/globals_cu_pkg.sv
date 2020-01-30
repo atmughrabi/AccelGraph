@@ -50,6 +50,9 @@ package GLOBALS_CU_PKG;
 	parameter DATA_SIZE_WRITE      = 8                  ; // edge data size is n bytes
 	parameter DATA_SIZE_WRITE_BITS = DATA_SIZE_WRITE * 8; // edge data size is n*8 Bits
 
+	parameter [0:63] ADDRESS_EDGE_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
+	parameter [0:63] ADDRESS_EDGE_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
+
 	parameter CACHELINE_VERTEX_NUM       = (CACHELINE_SIZE >> $clog2(VERTEX_SIZE))                                                                ; // number of vertices in one cacheline
 	parameter CACHELINE_EDGE_NUM         = (CACHELINE_SIZE >> $clog2(EDGE_SIZE))                                                                  ; // number of edges in one cacheline
 	parameter CACHELINE_INT_COUNTER_BITS = $clog2((VERTEX_SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? (2 * CACHELINE_SIZE_BITS_HF)/VERTEX_SIZE_BITS : 2);

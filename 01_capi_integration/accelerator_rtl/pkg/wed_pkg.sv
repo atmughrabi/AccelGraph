@@ -27,22 +27,24 @@ package WED_PKG;
     } wed_state;
 
     typedef struct packed{
-        logic [0:63] size_send    ; // 4-Bytes
-        logic [0:63] size_recive  ; // 4-Bytes
-        logic [0:63] array_send   ; // 8-Bytes
-        logic [0:63] array_receive; // 8-Bytes
-        logic [0:63] pointer1     ; // 8-Bytes
-        logic [0:63] pointer2     ; // 8-Bytes
-        logic [0:63] pointer3     ; // 8-Bytes
-        logic [0:63] pointer4     ; // 8-Bytes
-        logic [0:63] pointer5     ; // 8-Bytes
-        logic [0:63] pointer6     ; // 8-Bytes
-        logic [0:63] pointer7     ; // 8-Bytes
-        logic [0:63] pointer8     ; // 8-Bytes
-        logic [0:63] pointer9     ; // 8-Bytes
-        logic [0:63] pointer10    ; // 8-Bytes
-        logic [0:63] pointer11    ; // 8-Bytes
-        logic [0:63] pointer12    ; // 8-Bytes
+        logic [0:31] num_edges                 ; // 4-Bytes
+        logic [0:31] num_vertices              ; // 4-Bytes
+        logic [0:31] max_weight                ; // 4-Bytes
+        logic [0:31] auxiliary0                ; // 4-Bytes
+        logic [0:63] vertex_out_degree         ; // 8-Bytes
+        logic [0:63] vertex_in_degree          ; // 8-Bytes
+        logic [0:63] vertex_edges_idx          ; // 8-Bytes
+        logic [0:63] edges_array_weight        ; // 8-Bytes
+        logic [0:63] edges_array_src           ; // 8-Bytes
+        logic [0:63] edges_array_dest          ; // 8-Bytes
+        logic [0:63] inverse_vertex_out_degree ; // 8-Bytes
+        logic [0:63] inverse_vertex_in_degree  ; // 8-Bytes
+        logic [0:63] inverse_vertex_edges_idx  ; // 8-Bytes
+        logic [0:63] inverse_edges_array_weight; // 8-Bytes
+        logic [0:63] inverse_edges_array_src   ; // 8-Bytes
+        logic [0:63] inverse_edges_array_dest  ; // 8-Bytes
+        logic [0:63] auxiliary1                ; // 8-Bytes
+        logic [0:63] auxiliary2                ; // 8-Bytes
     } WED_request;// 108-bytes used from 128-Bytes WED
 
     typedef struct packed{

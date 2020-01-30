@@ -86,9 +86,11 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	logic             [NUM_REQUESTS-1:0] ready              ;
 	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in  ;
 
-	logic [0:63] cu_return_latched         ;
-	logic [0:63] cu_configure_latched;
-	logic        done_algorithm            ;
+	logic [0:63] cu_return_latched     ;
+	logic [0:63] cu_configure_latched  ;
+	logic [0:63] cu_configure_2_latched;
+
+	logic done_algorithm;
 
 
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered;

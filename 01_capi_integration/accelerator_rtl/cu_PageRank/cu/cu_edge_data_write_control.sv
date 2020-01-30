@@ -23,6 +23,7 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 	input  logic             clock            , // Clock
 	input  logic             rstn             ,
 	input  logic             enabled_in       ,
+	input  logic [                0:63] cu_configure           ,
 	input  WEDInterface      wed_request_in   ,
 	input  EdgeDataWrite     edge_data_write  ,
 	output ReadWriteDataLine write_data_0_out ,
@@ -36,6 +37,7 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 	CommandBufferLine write_command_out_latched;
 	WEDInterface      wed_request_in_latched   ;
 	logic [0:7]       offset_data              ;
+	logic [0:63] cu_configure_latched;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -64,9 +66,12 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			wed_request_in_latched <= 0;
+			cu_configure_latched     <= 0;
 		end else begin
 			if(enabled) begin
 				wed_request_in_latched <= wed_request_in;
+				if((|cu_configure))
+					cu_configure_latched <= cu_configure;
 			end
 		end
 	end
@@ -91,7 +96,7 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 	always_comb begin
 		cmd                  = 0;
 		offset_data          = (((CACHELINE_SIZE >> ($clog2(DATA_SIZE_WRITE)+1))-1) & edge_data_write.index);
-		cmd.vertex_struct    = WRITE_GRAPH_DATA;
+		cmd.array_struct    = WRITE_GRAPH_DATA;
 		cmd.cacheline_offest = (((edge_data_write.index << $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_MOD_MASK) >> $clog2(DATA_SIZE_WRITE));
 		cmd.cu_id            = edge_data_write.cu_id;
 		cmd.cmd_type         = CMD_WRITE;
@@ -107,7 +112,7 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 			if (edge_data_write.valid && enabled) begin
 				write_command_out_latched.valid <= edge_data_write.valid;
 
-				if(wed_request_in_latched.wed.afu_config[30])
+				if(cu_configure_latched[30])
 					write_command_out_latched.command <= WRITE_MS;
 				else
 					write_command_out_latched.command <= WRITE_NA;
@@ -125,12 +130,12 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 				write_data_1_out_latched.cmd                                                          <= cmd;
 				write_data_1_out_latched.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] <= swap_endianness_data_write(edge_data_write.data) ;
 
-				write_data_1_out_latched.cmd.abt  <= map_CABT(wed_request_in_latched.wed.afu_config[15:17]);
-				write_data_0_out_latched.cmd.abt  <= map_CABT(wed_request_in_latched.wed.afu_config[15:17]);
-				write_command_out_latched.cmd.abt <= map_CABT(wed_request_in_latched.wed.afu_config[15:17]);
-				write_command_out_latched.abt     <= map_CABT(wed_request_in_latched.wed.afu_config[15:17]);
+				write_data_1_out_latched.cmd.abt  <= map_CABT(cu_configure_latched[15:17]);
+				write_data_0_out_latched.cmd.abt  <= map_CABT(cu_configure_latched[15:17]);
+				write_command_out_latched.cmd.abt <= map_CABT(cu_configure_latched[15:17]);
+				write_command_out_latched.abt     <= map_CABT(cu_configure_latched[15:17]);
 
-				if (wed_request_in_latched.wed.afu_config[19]) begin
+				if (cu_configure_latched[19]) begin
 					write_command_out_latched.command 			  <= WRITE_MS; 
 				end else begin
 					write_command_out_latched.command 			  <= WRITE_NA; 

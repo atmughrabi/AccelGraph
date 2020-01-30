@@ -358,6 +358,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		.clock            (clock                     ),
 		.rstn             (rstn                      ),
 		.enabled_in       (enabled                   ),
+		.cu_configure     (cu_configure_latched      ),
 		.wed_request_in   (wed_request_in_latched    ),
 		.edge_data_write  (burst_edge_data_buffer_out),
 		.write_data_0_out (write_data_0_out_latched  ),
@@ -409,7 +410,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 			read_data_0_in_edge_data <= 0;
 		end else begin
 			if(enabled && read_data_0_in_latched.valid) begin
-				case (read_data_0_in_latched.cmd.vertex_struct)
+				case (read_data_0_in_latched.cmd.array_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
 						read_data_0_in_edge_job  <= read_data_0_in_latched;
 						read_data_0_in_edge_data <= 0;
@@ -436,7 +437,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 			read_data_1_in_edge_data <= 0;
 		end else begin
 			if(enabled && read_data_1_in_latched.valid) begin
-				case (read_data_1_in_latched.cmd.vertex_struct)
+				case (read_data_1_in_latched.cmd.array_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
 						read_data_1_in_edge_job  <= read_data_1_in_latched;
 						read_data_1_in_edge_data <= 0;

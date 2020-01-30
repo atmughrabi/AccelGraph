@@ -295,9 +295,9 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			SEND_EDGE_INV_SRC : begin
 				read_command_out_latched.valid <= 1'b1;
 
-				read_command_out_latched.address           <= wed_request_in_latched.wed.inverse_edges_array_src + aligned;
-				read_command_out_latched.size              <= request_size;
-				read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_SRC;
+				read_command_out_latched.address          <= wed_request_in_latched.wed.inverse_edges_array_src + aligned;
+				read_command_out_latched.size             <= request_size;
+				read_command_out_latched.cmd.array_struct <= INV_EDGE_ARRAY_SRC;
 			end
 			SEND_EDGE_INV_DEST : begin
 				read_command_out_latched.valid <= 1'b1;
@@ -305,7 +305,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_dest + aligned;
 				read_command_out_latched.size    <= request_size;
 
-				read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_DEST;
+				read_command_out_latched.cmd.array_struct <= INV_EDGE_ARRAY_DEST;
 			end
 			SEND_EDGE_INV_WEIGHT : begin
 				read_command_out_latched.valid <= 1'b1;
@@ -313,7 +313,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_weight + aligned;
 				read_command_out_latched.size    <= request_size;
 
-				read_command_out_latched.cmd.vertex_struct <= INV_EDGE_ARRAY_WEIGHT;
+				read_command_out_latched.cmd.array_struct <= INV_EDGE_ARRAY_WEIGHT;
 
 				if(|remainder)
 					edge_next_offest <= edge_next_offest + (CACHELINE_SIZE-remainder);

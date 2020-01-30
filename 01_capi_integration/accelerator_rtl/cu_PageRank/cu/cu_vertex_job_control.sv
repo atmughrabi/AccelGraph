@@ -23,7 +23,7 @@ module cu_vertex_job_control (
 	input  logic                          clock                      , // Clock
 	input  logic                          rstn                       ,
 	input  logic                          enabled_in                 ,
-	input  logic [                  0:63] cu_configure         ,
+	input  logic [                  0:63] cu_configure               ,
 	input  WEDInterface                   wed_request_in             ,
 	input  ResponseBufferLine             read_response_in           ,
 	input  ReadWriteDataLine              read_data_0_in             ,
@@ -96,7 +96,8 @@ module cu_vertex_job_control (
 	logic start_shift  ;
 
 	vertex_struct_state current_state, next_state;
-	logic               enabled      ;
+	logic               enabled             ;
+	logic [0:63]        cu_configure_latched;
 
 	assign vertex                 = vertex_latched;
 	assign vertex_request_latched = vertex_request;
@@ -124,7 +125,7 @@ module cu_vertex_job_control (
 			read_response_in_latched <= 0;
 			read_data_0_in_latched   <= 0;
 			read_data_1_in_latched   <= 0;
-			// vertex_request_latched     <= 0;
+			cu_configure_latched     <= 0;
 		end else begin
 			if(enabled) begin
 				wed_request_in_latched   <= wed_request_in;
@@ -132,6 +133,8 @@ module cu_vertex_job_control (
 				read_data_0_in_latched   <= read_data_0_in;
 				read_data_1_in_latched   <= read_data_1_in;
 				// vertex_request_latched <= vertex_request;
+				if((|cu_configure))
+					cu_configure_latched <= cu_configure;
 			end
 		end
 	end
@@ -225,67 +228,67 @@ module cu_vertex_job_control (
 				read_command_out_latched.cmd.cu_id            <= VERTEX_CONTROL_ID;
 				read_command_out_latched.cmd.cmd_type         <= CMD_READ;
 				read_command_out_latched.cmd.cacheline_offest <= 0;
-				
-				
-				read_command_out_latched.cmd.abt              <= map_CABT(wed_request_in_latched.wed.afu_config[0:2]);
-				read_command_out_latched.abt                  <= map_CABT(wed_request_in_latched.wed.afu_config[0:2]);
-				
-				if (wed_request_in_latched.wed.afu_config[3]) begin
-					read_command_out_latched.command 			  <= READ_CL_S; 
+
+
+				read_command_out_latched.cmd.abt <= map_CABT(cu_configure_latched[0:2]);
+				read_command_out_latched.abt     <= map_CABT(cu_configure_latched[0:2]);
+
+				if (cu_configure_latched[3]) begin
+					read_command_out_latched.command <= READ_CL_S;
 				end else begin
-					read_command_out_latched.command 			  <= READ_CL_NA; 
+					read_command_out_latched.command <= READ_CL_NA;
 				end
-				
+
 			end
 			SEND_VERTEX_IDLE      : begin
 			end
 			SEND_VERTEX_IN_DEGREE : begin
-				read_command_out_latched.valid   <= 1'b1;
-				
+				read_command_out_latched.valid <= 1'b1;
+
 				read_command_out_latched.address <= wed_request_in_latched.wed.vertex_in_degree + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
-				read_command_out_latched.cmd.vertex_struct <= IN_DEGREE;
+				read_command_out_latched.cmd.array_struct <= IN_DEGREE;
 			end
 			SEND_VERTEX_OUT_DEGREE : begin
-				read_command_out_latched.valid   <= 1'b1;
-		
+				read_command_out_latched.valid <= 1'b1;
+
 				read_command_out_latched.address <= wed_request_in_latched.wed.vertex_out_degree + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
-				read_command_out_latched.cmd.vertex_struct <= OUT_DEGREE;
+				read_command_out_latched.cmd.array_struct <= OUT_DEGREE;
 			end
 			SEND_VERTEX_EDGES_IDX : begin
-				read_command_out_latched.valid   <= 1'b1;
-	
+				read_command_out_latched.valid <= 1'b1;
+
 				read_command_out_latched.address <= wed_request_in_latched.wed.vertex_edges_idx + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
-				read_command_out_latched.cmd.vertex_struct <= EDGES_IDX;
+				read_command_out_latched.cmd.array_struct <= EDGES_IDX;
 			end
 			SEND_VERTEX_INV_IN_DEGREE : begin
-				read_command_out_latched.valid   <= 1'b1;
-	
+				read_command_out_latched.valid <= 1'b1;
+
 				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_vertex_in_degree + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
-				read_command_out_latched.cmd.vertex_struct <= INV_IN_DEGREE;
+				read_command_out_latched.cmd.array_struct <= INV_IN_DEGREE;
 			end
 			SEND_VERTEX_INV_OUT_DEGREE : begin
-				read_command_out_latched.valid   <= 1'b1;
+				read_command_out_latched.valid <= 1'b1;
 
 				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_vertex_out_degree + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
-				read_command_out_latched.cmd.vertex_struct <= INV_OUT_DEGREE;
+				read_command_out_latched.cmd.array_struct <= INV_OUT_DEGREE;
 			end
 			SEND_VERTEX_INV_EDGES_IDX : begin
-				read_command_out_latched.valid   <= 1'b1;
-			
+				read_command_out_latched.valid <= 1'b1;
+
 				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_vertex_edges_idx + vertex_next_offest;
 				read_command_out_latched.size    <= request_size;
 
-				read_command_out_latched.cmd.vertex_struct <= INV_EDGES_IDX;
+				read_command_out_latched.cmd.array_struct <= INV_EDGES_IDX;
 
 				vertex_next_offest <= vertex_next_offest + CACHELINE_SIZE;
 			end

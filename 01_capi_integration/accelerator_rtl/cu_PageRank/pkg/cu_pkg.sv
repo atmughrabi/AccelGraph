@@ -15,6 +15,7 @@
 package CU_PKG;
 
 // Relating to Vertex int types and sizes
+    import GLOBALS_AFU_PKG::*;
 	import GLOBALS_CU_PKG::*;
 
 	typedef enum int unsigned{
