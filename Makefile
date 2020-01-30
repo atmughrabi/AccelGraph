@@ -13,8 +13,7 @@ export GAPP_TEST          = test_afu
 
 
 # dirs Root app 
-export APP_DIR           	= .
-# BENCHMARKS_DIR    	= ../../01_GraphDatasets/Aladdin-graphs
+export APP_DIR              = .
 export BENCHMARKS_DIR    	= ../04_test_graphs
 
 #dir root/managed_folders
@@ -51,7 +50,7 @@ export MAIN_DIR		  	= main
 
 #small test graphs
 export GRAPH_NAME = test
-export GRAPH_NAME = v51_e1021
+# export GRAPH_NAME = v51_e1021
 # export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
@@ -115,7 +114,7 @@ export INOUT_STATS = 2
 #########################################################
 #                RUN  ARGUMENTS                         #
 #########################################################
-export ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+export ARGS = -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 ##############################################
 # CAPI FPGA  GRAPH AFU PERFORMANCE CONFIG    #
 ##############################################
@@ -165,8 +164,8 @@ export CU_CONFIG_MODE=0x00000000
 # FIXED_ARB               [62]
 # ROUND_ROBIN_ARB         [63]
 
-ROUND_ROBIN_ARB=0x1111000000000001
-FIXED_ARB=0x1111000000000002
+export ROUND_ROBIN_ARB=0x1111000000000001
+export FIXED_ARB=0x1111000000000002
 
 ##############################################
 # CAPI FPGA AFU/CU      CONFIG               #

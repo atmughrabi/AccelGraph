@@ -94,7 +94,7 @@ main (int argc, char **argv)
     arguments.weighted = 0;
     arguments.delta = 1;
     arguments.numThreads = 4;
-    arguments.fnameb = "../03_test_graphs/p2p-Gnutella31/graph.wbin";
+    arguments.fnameb = "../04_test_graphs/Gnutella/graph.wbin";
     arguments.fnameb_format = 1;
     arguments.convert_format = 1;
 
