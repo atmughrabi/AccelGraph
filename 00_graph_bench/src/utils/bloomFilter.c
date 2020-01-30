@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <linux/types.h>
+#include <stdint.h>
 #include "bloomFilter.h"
 #include "bitmap.h"
 #include "hash.h"
@@ -23,7 +23,7 @@
 
 #include "graphConfig.h"
 
-struct BloomFilter *newBloomFilter(__u32 size, __u32 k)
+struct BloomFilter *newBloomFilter(uint32_t size, uint32_t k)
 {
 
 
@@ -59,40 +59,40 @@ void clearBloomFilter( struct BloomFilter *bloomFilter)
 }
 
 
-void addToBloomFilter(struct BloomFilter *bloomFilter, __u32 item)
+void addToBloomFilter(struct BloomFilter *bloomFilter, uint32_t item)
 {
 
 
-    __u64 z = magicHash64((__u64)item);
-    __u64 h1 = z & 0xffffffff;
-    __u64 h2 = z >> 32;
-    __u64 i;
+    uint64_t z = magicHash64((uint64_t)item);
+    uint64_t h1 = z & 0xffffffff;
+    uint64_t h2 = z >> 32;
+    uint64_t i;
 
     for (i = 0; i < bloomFilter->k; ++i)
     {
-        __u64 k = (h1 + i * h2) % bloomFilter->partition; // bit to set
-        __u64 j = k + (i * bloomFilter->partition);       // in parition 'i'
-        setBit(bloomFilter->bloom, (__u32)j);
+        uint64_t k = (h1 + i * h2) % bloomFilter->partition; // bit to set
+        uint64_t j = k + (i * bloomFilter->partition);       // in parition 'i'
+        setBit(bloomFilter->bloom, (uint32_t)j);
     }
 
     // bloomFilter->size++;
 
 }
-__u32 findInBloomFilter(struct BloomFilter *bloomFilter, __u32 item)
+uint32_t findInBloomFilter(struct BloomFilter *bloomFilter, uint32_t item)
 {
 
 
     // MitzenmacherKirsch optimization
-    __u64 z = magicHash64((__u64)item);
-    __u64 h1 = z & 0xffffffff;
-    __u64 h2 = z >> 32;
-    __u64 i;
+    uint64_t z = magicHash64((uint64_t)item);
+    uint64_t h1 = z & 0xffffffff;
+    uint64_t h2 = z >> 32;
+    uint64_t i;
 
     for (i = 0; i < bloomFilter->k; ++i)
     {
-        __u64 k = (h1 + i * h2) % bloomFilter->partition; // bit to set
-        __u64 j = k + (i * bloomFilter->partition);       // in parition 'i'
-        if(!getBit(bloomFilter->bloom, (__u32)j))
+        uint64_t k = (h1 + i * h2) % bloomFilter->partition; // bit to set
+        uint64_t j = k + (i * bloomFilter->partition);       // in parition 'i'
+        if(!getBit(bloomFilter->bloom, (uint32_t)j))
             return 0;
 
     }

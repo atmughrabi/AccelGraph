@@ -73,25 +73,25 @@ mt19937state *mt19937var;
 void printWEDGraphCSRVertex(struct  WEDGraphCSR *wed)
 {
 
-    __u32 i;
+    uint32_t i;
 
     for (i = 0; i <  wed->num_vertices; ++i)
     {
         printf("v-> %u\n", i);
-        // printf("  wed->vertex_out_degree: %u\n",    ((__u32 *)wed->vertex_out_degree)[i]);
-        // printf("  wed->vertex_in_degree: %u\n",     ((__u32 *)wed->vertex_in_degree)[i]);
-        // printf("  wed->vertex_edges_idx: %u\n",     ((__u32 *)wed->vertex_edges_idx)[i]);
+        // printf("  wed->vertex_out_degree: %u\n",    ((uint32_t *)wed->vertex_out_degree)[i]);
+        // printf("  wed->vertex_in_degree: %u\n",     ((uint32_t *)wed->vertex_in_degree)[i]);
+        // printf("  wed->vertex_edges_idx: %u\n",     ((uint32_t *)wed->vertex_edges_idx)[i]);
 
 #if DIRECTED
-        printf("  wed->inverse_vertex_out_degree:%u\n", ((__u32 *)wed->inverse_vertex_out_degree)[i]);
-        // printf("  wed->prnext: %u\n", ((__u32 *)wed->auxiliary2)[i]);
-        printf("  wed->inverse_vertex_edges_idx: %u\n", ((__u32 *)wed->inverse_vertex_edges_idx)[i]);
+        printf("  wed->inverse_vertex_out_degree:%u\n", ((uint32_t *)wed->inverse_vertex_out_degree)[i]);
+        // printf("  wed->prnext: %u\n", ((uint32_t *)wed->auxiliary2)[i]);
+        printf("  wed->inverse_vertex_edges_idx: %u\n", ((uint32_t *)wed->inverse_vertex_edges_idx)[i]);
 #endif
     }
     printf("\n");
     for(i = 0; i < wed->num_edges ; i++)
     {
-        printf("%u src:  %u dest %u\n", i, ((__u32 *)wed->inverse_edges_array_src)[i], ((__u32 *)wed->inverse_edges_array_dest)[i]);
+        printf("%u src:  %u dest %u\n", i, ((uint32_t *)wed->inverse_edges_array_src)[i], ((uint32_t *)wed->inverse_edges_array_dest)[i]);
     }
 
 }
@@ -164,10 +164,10 @@ main (int argc, char **argv)
     graph = generateGraphDataStructure(&arguments);
 
 
-    __u64 *divclause = (__u64 *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(__u64));
-    __u64 *prnext = (__u64 *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(__u64));
+    uint64_t *divclause = (uint64_t *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(uint64_t));
+    uint64_t *prnext = (uint64_t *) my_malloc(((struct GraphCSR *)graph)->num_vertices * sizeof(uint64_t));
 
-    for (__u32 i = 0; i < ((struct GraphCSR *)graph)->num_vertices; ++i)
+    for (uint32_t i = 0; i < ((struct GraphCSR *)graph)->num_vertices; ++i)
     {
         divclause[i] = 1;
         prnext[i] = 0;
@@ -229,7 +229,7 @@ main (int argc, char **argv)
     printf("Vertices: %lu\n", (((afu_status.algo_status) << 32) >> 32));
     printf("Edges: %lu\n", ((afu_status.algo_status) >> 32));
 
-     for (__u32 i = 0; i < ((struct GraphCSR *)graph)->num_vertices; ++i)
+     for (uint32_t i = 0; i < ((struct GraphCSR *)graph)->num_vertices; ++i)
     {
         printf("prnext[%u] = %u \n", i,prnext[i]);
     }

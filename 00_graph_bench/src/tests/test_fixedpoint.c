@@ -30,18 +30,18 @@ int main(int argc, char *argv[])
 
     float damp = 0.85f;
     double dampd = 0.85f;
-    __u32 out_degree = 70000000;
-    __u32 N = 70000000;
+    uint32_t out_degree = 70000000;
+    uint32_t N = 70000000;
     float sum_pr = 0.15f;
 
     float divincoming = sum_pr / out_degree;
     double divincomingd = (double)sum_pr / out_degree;
 
-    __u64 out_degree_fp = UInt64ToFixed64(out_degree);
-    __u64 sum_pr_fp = FloatToFixed64(sum_pr);
-    __u64 divincomingfp = FloatToFixed64(divincoming);
-    __u64 op1fp = FloatToFixed64(1 - damp);
-    __u64 dampfp = FloatToFixed64(damp);
+    uint64_t out_degree_fp = UInt64ToFixed64(out_degree);
+    uint64_t sum_pr_fp = FloatToFixed64(sum_pr);
+    uint64_t divincomingfp = FloatToFixed64(divincoming);
+    uint64_t op1fp = FloatToFixed64(1 - damp);
+    uint64_t dampfp = FloatToFixed64(damp);
 
     printf("damp %.24f \n", damp);
 
@@ -69,8 +69,8 @@ int main(int argc, char *argv[])
     printf("f_divincoming_fp_d_c %.24f \n\n", fixed64ToDouble(fp, doubleToFixed64(fp, divincomingd)) );
 
 
-    __u32 i;
-    __u64 sumfp = 0;
+    uint32_t i;
+    uint64_t sumfp = 0;
     double sumd = 0.0f;
     float sumf = 0.0f;
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 
 
     double pr = (1 - dampd) + dampd * sumd;
-    __u64  pr_f = op1fp + MULFixed64V1(dampfp, sumfp);
+    uint64_t  pr_f = op1fp + MULFixed64V1(dampfp, sumfp);
 
 
     printf("pr %.24f \n", pr);

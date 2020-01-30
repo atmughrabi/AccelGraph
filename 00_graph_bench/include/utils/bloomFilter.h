@@ -2,22 +2,22 @@
 #define BLOOMFILTER_H
 
 
-#include <linux/types.h>
+#include <stdint.h>
 #include "bitmap.h"
 
 struct BloomFilter
 {
     struct Bitmap *bloom;
-    __u32 size; // size of bloom filter
-    __u32 partition; // partition m/k as a prime number
-    __u32 k; // number of hash function
+    uint32_t size; // size of bloom filter
+    uint32_t partition; // partition m/k as a prime number
+    uint32_t k; // number of hash function
 };
 
-struct BloomFilter *newBloomFilter(__u32 size, __u32 k);
+struct BloomFilter *newBloomFilter(uint32_t size, uint32_t k);
 void freeBloomFilter( struct BloomFilter *bloomFilter);
 void clearBloomFilter( struct BloomFilter *bloomFilter);
-void addToBloomFilter(struct BloomFilter *bloomFilter, __u32 item);
-__u32 findInBloomFilter(struct BloomFilter *bloomFilter, __u32 item);
+void addToBloomFilter(struct BloomFilter *bloomFilter, uint32_t item);
+uint32_t findInBloomFilter(struct BloomFilter *bloomFilter, uint32_t item);
 
 
 #endif

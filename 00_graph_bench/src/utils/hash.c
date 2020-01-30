@@ -12,10 +12,10 @@
 // Revise : 2019-09-28 15:37:12
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
-#include <linux/types.h>
+#include <stdint.h>
 #include "hash.h"
 
-__u32 magicHash32(__u32 x)
+uint32_t magicHash32(uint32_t x)
 {
     x = ((x >> 16) ^ x) * 0x45d9f3b;
     x = ((x >> 16) ^ x) * 0x45d9f3b;
@@ -23,7 +23,7 @@ __u32 magicHash32(__u32 x)
     return x;
 }
 
-__u32 magicHash32Reverse(__u32 x)
+uint32_t magicHash32Reverse(uint32_t x)
 {
     x = ((x >> 16) ^ x) * 0x119de1f3;
     x = ((x >> 16) ^ x) * 0x119de1f3;
@@ -32,18 +32,18 @@ __u32 magicHash32Reverse(__u32 x)
 }
 
 
-__u64 magicHash64(__u64 x)
+uint64_t magicHash64(uint64_t x)
 {
-    x = (x ^ (x >> 30)) * (__u64)0xbf58476d1ce4e5b9;
-    x = (x ^ (x >> 27)) * (__u64)0x94d049bb133111eb;
+    x = (x ^ (x >> 30)) * (uint64_t)0xbf58476d1ce4e5b9;
+    x = (x ^ (x >> 27)) * (uint64_t)0x94d049bb133111eb;
     x = x ^ (x >> 31);
     return x;
 }
 
-__u64 magicHash64Reverse(__u64 x)
+uint64_t magicHash64Reverse(uint64_t x)
 {
-    x = (x ^ (x >> 31) ^ (x >> 62)) * (__u64)0x319642b2d24d8ec3;
-    x = (x ^ (x >> 27) ^ (x >> 54)) * (__u64)0x96de1b173f119089;
+    x = (x ^ (x >> 31) ^ (x >> 62)) * (uint64_t)0x319642b2d24d8ec3;
+    x = (x ^ (x >> 27) ^ (x >> 54)) * (uint64_t)0x96de1b173f119089;
     x = x ^ (x >> 30) ^ (x >> 60);
     return x;
 }

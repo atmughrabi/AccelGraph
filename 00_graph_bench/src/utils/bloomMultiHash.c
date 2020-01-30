@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <linux/types.h>
+#include <stdint.h>
 #include "bloomMultiHash.h"
 #include "bitmap.h"
 #include "hash.h"
@@ -25,23 +25,23 @@
 
 #include "graphConfig.h"
 
-struct BloomMultiHash *newBloomMultiHash(__u32 size, double error)
+struct BloomMultiHash *newBloomMultiHash(uint32_t size, double error)
 {
 
-    // __u32 n = ceil(m / (-k / log(1 - exp(log(error) / k))))
-    // __u32 error = pow(1 - exp(-k / (m / n)), k)
-    __u32 m = ceil((size * log(error)) / log(1 / pow(2, log(2))));
-    // __u32 k = round((m / n) * log(2));
+    // uint32_t n = ceil(m / (-k / log(1 - exp(log(error) / k))))
+    // uint32_t error = pow(1 - exp(-k / (m / n)), k)
+    uint32_t m = ceil((size * log(error)) / log(1 / pow(2, log(2))));
+    // uint32_t k = round((m / n) * log(2));
 
-    __u32 i;
-    __u32 alignedSize = ((m + kBitsPerWord - 1) / kBitsPerWord) * kBitsPerWord;
+    uint32_t i;
+    uint32_t alignedSize = ((m + kBitsPerWord - 1) / kBitsPerWord) * kBitsPerWord;
 
 
 
 
 
     struct BloomMultiHash *bloomMultiHash = (struct BloomMultiHash *) my_malloc( sizeof(struct BloomMultiHash));
-    bloomMultiHash->counter = (__u32 *) my_malloc(alignedSize * sizeof(__u32));
+    bloomMultiHash->counter = (uint32_t *) my_malloc(alignedSize * sizeof(uint32_t));
     bloomMultiHash->recency = newBitmap(alignedSize);
 
 
@@ -62,7 +62,7 @@ struct BloomMultiHash *newBloomMultiHash(__u32 size, double error)
     double denom = 0.480453013918201; // ln(2)^2
     bloomMultiHash->bpe = -(num / denom);
 
-    bloomMultiHash->k = (__u32)ceil(0.693147180559945 * bloomMultiHash->bpe);  // ln(2)
+    bloomMultiHash->k = (uint32_t)ceil(0.693147180559945 * bloomMultiHash->bpe);  // ln(2)
     bloomMultiHash->partition = bloomMultiHash->size / bloomMultiHash->k;
 
     printf("n: %u \n", size);
@@ -84,30 +84,30 @@ void freeBloomMultiHash( struct BloomMultiHash *bloomMultiHash)
     }
 }
 
-void addToBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u64 item)
+void addToBloomMultiHash(struct BloomMultiHash *bloomMultiHash, uint64_t item)
 {
 
-    __u64 z = magicHash64(item);
-    __u64 h1 = z & 0xffffffff;
-    __u64 h2 = z >> 32;
-    __u64 i;
+    uint64_t z = magicHash64(item);
+    uint64_t h1 = z & 0xffffffff;
+    uint64_t h2 = z >> 32;
+    uint64_t i;
 
     bloomMultiHash->numIO++;
 
     for (i = 0; i < bloomMultiHash->k; ++i)
     {
-        __u64 k = (h1 + i * h2) % bloomMultiHash->partition; // bit to set
-        __u64 j = k + (i * bloomMultiHash->partition);       // in parition 'i'
+        uint64_t k = (h1 + i * h2) % bloomMultiHash->partition; // bit to set
+        uint64_t j = k + (i * bloomMultiHash->partition);       // in parition 'i'
 
         // if(getBit(bloomMultiHash->recency, j))
         // {
-            // bloomMultiHash->counter[(__u32)j] += 2;
-            // printf("%u %u %u\n",j,bloomMultiHash->counter[(__u32)j], item );
+            // bloomMultiHash->counter[(uint32_t)j] += 2;
+            // printf("%u %u %u\n",j,bloomMultiHash->counter[(uint32_t)j], item );
         // }
         // else
         // {
-            bloomMultiHash->counter[(__u32)j]++;
-            // printf("%u %u %u\n",j,bloomMultiHash->counter[(__u32)j], item );
+            bloomMultiHash->counter[(uint32_t)j]++;
+            // printf("%u %u %u\n",j,bloomMultiHash->counter[(uint32_t)j], item );
             // setBit(bloomMultiHash->recency, j);
         // }
 
@@ -120,19 +120,19 @@ void addToBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u64 item)
 
 }
 
-__u32 findInBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u64 item)
+uint32_t findInBloomMultiHash(struct BloomMultiHash *bloomMultiHash, uint64_t item)
 {
 
 
     // MitzenmacherKirsch optimization
-    __u64 z = magicHash64(item);
-    __u64 h1 = z & 0xffffffff;
-    __u64 h2 = z >> 32;
-    __u64 i;
+    uint64_t z = magicHash64(item);
+    uint64_t h1 = z & 0xffffffff;
+    uint64_t h2 = z >> 32;
+    uint64_t i;
 
-    __u64 k = 0; // bit to set
-    __u64 j = 0;       // in parition 'i'
-    __u32 freqCount = 0;
+    uint64_t k = 0; // bit to set
+    uint64_t j = 0;       // in parition 'i'
+    uint32_t freqCount = 0;
 
 
     for (i = 0; i < bloomMultiHash->k; ++i)
@@ -141,7 +141,7 @@ __u32 findInBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u64 item)
         j = k + (i * bloomMultiHash->partition);       // in parition 'i'
 
 
-        freqCount = bloomMultiHash->counter[(__u32)j];
+        freqCount = bloomMultiHash->counter[(uint32_t)j];
 
         if(freqCount < bloomMultiHash->threashold)
             return 0;
@@ -156,7 +156,7 @@ void decayBloomMultiHash(struct BloomMultiHash *bloomMultiHash)
 {
 
 
-    __u64 i;
+    uint64_t i;
     for(i = 0 ; i < bloomMultiHash->size; i++)
     {
         bloomMultiHash->counter[i] /= 2;

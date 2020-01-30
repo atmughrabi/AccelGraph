@@ -2,34 +2,34 @@
 #define BLOOMMULTIHASH_H
 
 
-#include <linux/types.h>
+#include <stdint.h>
 #include "bitmap.h"
 
 struct BloomMultiHash
 {
 
-    __u32 *counter;
+    uint32_t *counter;
     struct Bitmap *recency;
 
-    __u32 size; // size of bloom filter
-    __u32 partition; // partition m/k as a prime number
-    __u32 k; // number of hash function
+    uint32_t size; // size of bloom filter
+    uint32_t partition; // partition m/k as a prime number
+    uint32_t k; // number of hash function
 
 
     //pass these variables after find in bloomfilter
-    __u32 threashold;
-    __u32 decayPeriod;
-    __u32 numIO;
+    uint32_t threashold;
+    uint32_t decayPeriod;
+    uint32_t numIO;
 
     double bpe;
     double error;
 };
 
 
-struct BloomMultiHash *newBloomMultiHash(__u32 size, double error);
+struct BloomMultiHash *newBloomMultiHash(uint32_t size, double error);
 void freeBloomMultiHash( struct BloomMultiHash *bloomMultiHash);
-void addToBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u64 item);
-__u32 findInBloomMultiHash(struct BloomMultiHash *bloomMultiHash, __u64 item);
+void addToBloomMultiHash(struct BloomMultiHash *bloomMultiHash, uint64_t item);
+uint32_t findInBloomMultiHash(struct BloomMultiHash *bloomMultiHash, uint64_t item);
 void decayBloomMultiHash(struct BloomMultiHash *bloomMultiHash);
 
 

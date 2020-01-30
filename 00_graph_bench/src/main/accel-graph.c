@@ -19,7 +19,7 @@
 #include <argp.h>
 #include <stdbool.h>
 #include <omp.h>
-#include <linux/types.h>
+#include <stdint.h>
 
 #include "myMalloc.h"
 #include "timer.h"
@@ -42,7 +42,7 @@ int numThreads;
 mt19937state *mt19937var;
 
 const char *argp_program_version =
-    "AccelGraph 1.0";
+    "AccelGraph_CAPI 2.0";
 const char *argp_program_bug_address =
     "<atmughra@ncsu.edu>";
 /* Program documentation. */
@@ -138,6 +138,14 @@ static struct argp_option options[] =
         "remove-duplicate", 'k', 0,      0,
         "\nRemovers duplicate edges and self loops from the graph"
     },
+    {
+        "afu-config",            'm', "[DEFAULT:0x1]",      0,
+        "\nAFU-Control buffers(read/write/prefetcher) arbitration 0x01 round robin 0x10 fixed priority"
+    },
+    {
+        "cu-config",             'q', "[DEFAULT:0x01]",      0,
+        "\nCU configurations for requests cached/non cached/prefetcher active or not check README for more explanation"
+    },
     { 0 }
 };
 
@@ -150,6 +158,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
     /* Get the input argument from argp_parse, which we
        know is a pointer to our arguments structure. */
     struct Arguments *arguments = state->input;
+    char *eptr;
 
     switch (key)
     {
@@ -213,6 +222,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'k':
         arguments->dflag = 1;
         break;
+    case 'm':
+        arguments->afu_config = strtoll(arg, &eptr, 0);
+        break;
+    case 'q':
+        arguments->cu_config = strtoll(arg, &eptr, 0);
+        break;
 
     default:
         return ARGP_ERR_UNKNOWN;
@@ -252,6 +267,8 @@ main (int argc, char **argv)
     arguments.fnameb = NULL;
     arguments.fnameb_format = 1;
     arguments.convert_format = 1;
+    arguments.afu_config = 0x01;
+    arguments.cu_config  = 0x01;
 
     void *graph = NULL;
 
@@ -276,9 +293,9 @@ main (int argc, char **argv)
 
     if(arguments.xflag) // if stats flag is on collect stats or serialize your graph
     {
-        // __u32 binSize = arguments.iterations;
-        // __u32 inout_degree = arguments.pushpull;
-        // __u32 inout_lmode = arguments.lmode;
+        // uint32_t binSize = arguments.iterations;
+        // uint32_t inout_degree = arguments.pushpull;
+        // uint32_t inout_lmode = arguments.lmode;
         // collectStats(binSize, arguments.fnameb, arguments.sort, inout_lmode, arguments.symmetric, arguments.weighted, inout_degree);
         writeSerializedGraphDataStructure(&arguments);
     }

@@ -1,15 +1,15 @@
 #ifndef CACHE_H
 #define CACHE_H
 
-#include <linux/types.h>
+#include <stdint.h>
 
 #define BLOCKSIZE 128
 #define L1_SIZE 262144
 #define L1_ASSOC 8
 
-// typedef __u64 ulong;
+// typedef uint64_t ulong;
 typedef unsigned char uchar;
-typedef __u32 uint;
+typedef uint32_t uint;
 
 
 enum
@@ -60,7 +60,7 @@ void setSeq(struct CacheLine *cacheLine, ulong Seq);
 void setFlags(struct CacheLine *cacheLine, ulong flags);
 void setTag(struct CacheLine *cacheLine, ulong a);
 void invalidate(struct CacheLine *cacheLine);
-__u32 isValid(struct CacheLine *cacheLine);
+uint32_t isValid(struct CacheLine *cacheLine);
 
 
 ulong calcTag(struct Cache *cache, ulong addr);
@@ -81,7 +81,7 @@ void writeBack(struct Cache *cache, ulong addr);
 void initCache(struct Cache *cache, int s, int a, int b );
 void Access(struct Cache *cache, ulong addr, uchar op, uint node);
 void Prefetch(struct Cache *cache, ulong addr, uchar op, uint node);
-__u32 checkPrefetch(struct Cache *cache, ulong addr);
+uint32_t checkPrefetch(struct Cache *cache, ulong addr);
 struct CacheLine *findLine(struct Cache *cache, ulong addr);
 void updateLRU(struct Cache *cache, struct CacheLine *line);
 struct CacheLine *getLRU(struct Cache *cache, ulong addr);
@@ -89,11 +89,11 @@ struct CacheLine *findLineToReplace(struct Cache *cache, ulong addr);
 struct CacheLine *fillLine(struct Cache *cache, ulong addr);
 void printStats(struct Cache *cache);
 
-struct Cache *newCache( __u32 l1_size, __u32 l1_assoc, __u32 blocksize, __u32 num_vertices);
+struct Cache *newCache( uint32_t l1_size, uint32_t l1_assoc, uint32_t blocksize, uint32_t num_vertices);
 void freeCache(struct Cache *cache);
 
 
-struct DoubleTaggedCache *newDoubleTaggedCache(__u32 l1_size, __u32 l1_assoc, __u32 blocksize, __u32 num_vertices);
+struct DoubleTaggedCache *newDoubleTaggedCache(uint32_t l1_size, uint32_t l1_assoc, uint32_t blocksize, uint32_t num_vertices);
 void freeDoubleTaggedCache(struct DoubleTaggedCache *cache);
 
 #endif

@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include <linux/types.h>
+#include <stdint.h>
 #include "bloomStream.h"
 #include "bitmap.h"
 #include "hash.h"
@@ -24,12 +24,12 @@
 #include "myMalloc.h"
 #include "graphConfig.h"
 
-struct BloomStream *newBloomStream(__u32 size, __u32 k)
+struct BloomStream *newBloomStream(uint32_t size, uint32_t k)
 {
 
-    __u32 i;
-    __u32 alignedSize = ((size + kBitsPerWord - 1) / kBitsPerWord) * kBitsPerWord;
-    // __u32 nextPrimePartition = findNextPrime((alignedSize/k));
+    uint32_t i;
+    uint32_t alignedSize = ((size + kBitsPerWord - 1) / kBitsPerWord) * kBitsPerWord;
+    // uint32_t nextPrimePartition = findNextPrime((alignedSize/k));
 
 
     // alignedSize = (((nextPrimePartition*k)+kBitsPerWord - 1)/kBitsPerWord)*kBitsPerWord;
@@ -37,8 +37,8 @@ struct BloomStream *newBloomStream(__u32 size, __u32 k)
 
 
     struct BloomStream *bloomStream = (struct BloomStream *) my_malloc( sizeof(struct BloomStream));
-    bloomStream->counter = (__u32 *) my_malloc(alignedSize * sizeof(__u32));
-    bloomStream->counterHistory = (__u32 *) my_malloc(alignedSize * sizeof(__u32));
+    bloomStream->counter = (uint32_t *) my_malloc(alignedSize * sizeof(uint32_t));
+    bloomStream->counterHistory = (uint32_t *) my_malloc(alignedSize * sizeof(uint32_t));
 
 
     for(i = 0 ; i < alignedSize; i++)
@@ -94,29 +94,29 @@ void clearBloomStream( struct BloomStream *bloomStream)
 }
 
 
-void addToBloomStream(struct BloomStream *bloomStream, __u64 item)
+void addToBloomStream(struct BloomStream *bloomStream, uint64_t item)
 {
 
 
     // printf("add- %lx %lu \n", item,item);
-    __u64 z = magicHash64(item);
-    __u64 h1 = z & 0xffffffff;
-    __u64 h2 = z >> 32;
-    __u64 i;
-    __u32 minCount = UINT_MAX;
-    __u32 freqCount = 0;
-    __u32 index = 0;
+    uint64_t z = magicHash64(item);
+    uint64_t h1 = z & 0xffffffff;
+    uint64_t h2 = z >> 32;
+    uint64_t i;
+    uint32_t minCount = UINT_MAX;
+    uint32_t freqCount = 0;
+    uint32_t index = 0;
 
-    __u32 found = findInBloomStream(bloomStream, item);
+    uint32_t found = findInBloomStream(bloomStream, item);
 
 
     if(!found)
     {
         for (i = 0; i < bloomStream->k; ++i)
         {
-            __u64 k = (h1 + i * h2) % bloomStream->partition; // bit to set
-            __u64 j = k + (i * bloomStream->partition);       // in parition 'i'
-            setBitXOR(bloomStream->bloom, (__u32)j);
+            uint64_t k = (h1 + i * h2) % bloomStream->partition; // bit to set
+            uint64_t j = k + (i * bloomStream->partition);       // in parition 'i'
+            setBitXOR(bloomStream->bloom, (uint32_t)j);
         }
 
     }
@@ -124,16 +124,16 @@ void addToBloomStream(struct BloomStream *bloomStream, __u64 item)
     {
         for (i = 0; i < bloomStream->k; ++i)
         {
-            __u64 k = (h1 + i * h2) % bloomStream->partition; // bit to set
-            __u64 j = k + (i * bloomStream->partition);       // in parition 'i'
-            setBitXOR(bloomStream->bloomPrime, (__u32)j);
-            bloomStream->counter[(__u32)j]++;
+            uint64_t k = (h1 + i * h2) % bloomStream->partition; // bit to set
+            uint64_t j = k + (i * bloomStream->partition);       // in parition 'i'
+            setBitXOR(bloomStream->bloomPrime, (uint32_t)j);
+            bloomStream->counter[(uint32_t)j]++;
 
 
-            freqCount = bloomStream->counterHistory[(__u32)j];
+            freqCount = bloomStream->counterHistory[(uint32_t)j];
             if(minCount > freqCount)
             {
-                index = (__u32)j;
+                index = (uint32_t)j;
                 minCount = freqCount;
             }
 
@@ -149,25 +149,25 @@ void addToBloomStream(struct BloomStream *bloomStream, __u64 item)
 
 }
 
-__u32 findInBloomStream(struct BloomStream *bloomStream, __u64 item)
+uint32_t findInBloomStream(struct BloomStream *bloomStream, uint64_t item)
 {
 
 
     // MitzenmacherKirsch optimization
-    __u64 z = magicHash64(item);
-    __u64 h1 = z & 0xffffffff;
-    __u64 h2 = z >> 32;
-    __u64 i;
-    __u32 index = 0;
-    __u32 found = 0;
+    uint64_t z = magicHash64(item);
+    uint64_t h1 = z & 0xffffffff;
+    uint64_t h2 = z >> 32;
+    uint64_t i;
+    uint32_t index = 0;
+    uint32_t found = 0;
 
     bloomStream->membership = 0;
     bloomStream->temperature  = 0;
 
-    __u64 k = 0; // bit to set
-    __u64 j = 0;       // in parition 'i'
-    __u32 minCount = UINT_MAX;
-    __u32 freqCount = 0;
+    uint64_t k = 0; // bit to set
+    uint64_t j = 0;       // in parition 'i'
+    uint32_t minCount = UINT_MAX;
+    uint32_t freqCount = 0;
 
 
     for (i = 0; i < bloomStream->k; ++i)
@@ -177,7 +177,7 @@ __u32 findInBloomStream(struct BloomStream *bloomStream, __u64 item)
 
         if(getBit(bloomStream->bloom, j))
         {
-            freqCount = bloomStream->counter[(__u32)j];
+            freqCount = bloomStream->counter[(uint32_t)j];
         }
         else
         {
@@ -186,7 +186,7 @@ __u32 findInBloomStream(struct BloomStream *bloomStream, __u64 item)
 
         if(minCount > freqCount)
         {
-            index = (__u32)j;
+            index = (uint32_t)j;
             minCount = freqCount;
         }
 
@@ -218,7 +218,7 @@ __u32 findInBloomStream(struct BloomStream *bloomStream, __u64 item)
 void aggregateBloomFilterToHistory(struct BloomStream *bloomStream)
 {
 
-    __u32 i;
+    uint32_t i;
 
     for(i = 0 ; i < bloomStream->size ; i++)
     {

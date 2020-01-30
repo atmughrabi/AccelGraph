@@ -17,7 +17,7 @@
 #include <assert.h>
 #include <string.h>
 #include <math.h>
-#include <linux/types.h>
+#include <stdint.h>
 
 #include "myMalloc.h"
 #include "cache.h"
@@ -58,7 +58,7 @@ void invalidate(struct CacheLine *cacheLine)
     cacheLine->tag = 0;    //useful function
     cacheLine->Flags = INVALID;
 }
-__u32 isValid(struct CacheLine *cacheLine)
+uint32_t isValid(struct CacheLine *cacheLine)
 {
     return ((cacheLine->Flags) != INVALID);
 }
@@ -118,7 +118,7 @@ void writeBack(struct Cache *cache, ulong addr)
 }
 
 
-struct DoubleTaggedCache *newDoubleTaggedCache(__u32 l1_size, __u32 l1_assoc, __u32 blocksize, __u32 num_vertices)
+struct DoubleTaggedCache *newDoubleTaggedCache(uint32_t l1_size, uint32_t l1_assoc, uint32_t blocksize, uint32_t num_vertices)
 {
 
     struct DoubleTaggedCache *cache = (struct DoubleTaggedCache *) my_malloc(sizeof(struct DoubleTaggedCache));
@@ -145,7 +145,7 @@ void freeDoubleTaggedCache(struct DoubleTaggedCache *cache)
 }
 
 
-struct Cache *newCache(__u32 l1_size, __u32 l1_assoc, __u32 blocksize, __u32 num_vertices)
+struct Cache *newCache(uint32_t l1_size, uint32_t l1_assoc, uint32_t blocksize, uint32_t num_vertices)
 {
 
     ulong i;
@@ -287,7 +287,7 @@ void Access(struct Cache *cache, ulong addr, uchar op, uint node)
     }
 }
 
-__u32 checkPrefetch(struct Cache *cache, ulong addr)
+uint32_t checkPrefetch(struct Cache *cache, ulong addr)
 {
     struct CacheLine *line = findLine(cache, addr);
 

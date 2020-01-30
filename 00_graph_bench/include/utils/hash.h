@@ -2,12 +2,12 @@
 #define HASH_H
 
 
-#include <linux/types.h>
+#include <stdint.h>
 
-__u32 magicHash32(__u32 x);
-__u32 magicHash32Reverse(__u32 x);
-__u64 magicHash64(__u64 x);
-__u64 magicHash64Reverse(__u64 x);
+uint32_t magicHash32(uint32_t x);
+uint32_t magicHash32Reverse(uint32_t x);
+uint64_t magicHash64(uint64_t x);
+uint64_t magicHash64Reverse(uint64_t x);
 
 
 #endif

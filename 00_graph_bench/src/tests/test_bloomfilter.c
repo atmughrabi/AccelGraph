@@ -36,10 +36,10 @@ int main(int argc, char *argv[])
 {
 
 
-    __u32 i;
-    __u32 size = 194510;
-    __u32 found = 0;
-    __u32 falsepos = 0;
+    uint32_t i;
+    uint32_t size = 194510;
+    uint32_t found = 0;
+    uint32_t falsepos = 0;
     double error = 0.01;
 
     printf("%s\n", "Create bloomfilter" );

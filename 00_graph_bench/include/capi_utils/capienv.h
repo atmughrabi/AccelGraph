@@ -62,11 +62,9 @@ struct AFUStatus
 {
     uint64_t cu_stop;  // afu stopping condition
     uint64_t cu_config;
-    uint64_t cu_config_2;
     uint64_t cu_status;
     uint64_t cu_mode;
     uint64_t afu_config;
-    uint64_t afu_config_2;
     uint64_t afu_status;
     uint64_t error;
     uint64_t cu_return; // running return
@@ -118,12 +116,37 @@ struct __attribute__((__packed__)) WEDStruct
     void *pointer12;                // 8-Bytes
 }; // 32-bytes used from 128-Bytes WED;
 
+struct __attribute__((__packed__)) WEDGraphCSR
+{
+    uint32_t num_edges;                    // 4-Bytes
+    uint32_t num_vertices;                 // 4-Bytes
+    uint32_t max_weight;                   // 4-Bytes
+    uint32_t auxiliary0;                   // 4-Bytes
+    void *vertex_out_degree;            // 8-Bytes
+    void *vertex_in_degree;             // 8-Bytes
+    void *vertex_edges_idx;             // 8-Bytes
+    void *edges_array_weight;           // 8-Bytes
+    void *edges_array_src;              // 8-Bytes
+    void *edges_array_dest;             // 8-Bytes
+    //---------------------------------------------------//--// 64bytes
+    void *inverse_vertex_out_degree;    // 8-Bytes  
+    void *inverse_vertex_in_degree;     // 8-Bytes
+    void *inverse_vertex_edges_idx;     // 8-Bytes
+    void *inverse_edges_array_weight;   // 8-Bytes
+    void *inverse_edges_array_src;      // 8-Bytes
+    void *inverse_edges_array_dest;     // 8-Bytes
+    void *auxiliary1;                   // 8-Bytes
+    void *auxiliary2;                   // 8-Bytes
+}; // 108-bytes used from 128-Bytes WED;
+
 // ********************************************************************************************
 // ***************                        afu_config BIT-MAPPING                 **************
 // ********************************************************************************************
 
+struct WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph);
 struct WEDStruct *mapDataArraysToWED(struct DataArrays *dataArrays);
 void printWEDPointers(struct  WEDStruct *wed);
+void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed);
 
 // ********************************************************************************************
 // ***************                  MMIO General                                 **************
@@ -135,6 +158,7 @@ void printMMIO_error( uint64_t error );
 // ***************                  AFU General                                  **************
 // ********************************************************************************************
 
+int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR);
 int setupAFU(struct cxl_afu_h **afu, struct WEDStruct *wed);
 void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
 void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);

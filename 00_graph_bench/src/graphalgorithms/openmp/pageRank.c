@@ -45,7 +45,7 @@
 struct PageRankStats *newPageRankStatsGraphCSR(struct GraphCSR *graph)
 {
 
-    __u32 v;
+    uint32_t v;
 
     struct PageRankStats *stats = (struct PageRankStats *) my_malloc(sizeof(struct PageRankStats));
 
@@ -56,7 +56,7 @@ struct PageRankStats *newPageRankStatsGraphCSR(struct GraphCSR *graph)
     stats->time_total = 0.0;
     stats->error_total = 0.0;
 
-    stats->realRanks = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));;
+    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));;
     stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));;
 
 
@@ -74,7 +74,7 @@ struct PageRankStats *newPageRankStatsGraphCSR(struct GraphCSR *graph)
 struct PageRankStats *newPageRankStatsGraphGrid(struct GraphGrid *graph)
 {
 
-    __u32 v;
+    uint32_t v;
 
     struct PageRankStats *stats = (struct PageRankStats *) my_malloc(sizeof(struct PageRankStats));
 
@@ -85,7 +85,7 @@ struct PageRankStats *newPageRankStatsGraphGrid(struct GraphGrid *graph)
     stats->time_total = 0.0;
     stats->error_total = 0.0;
 
-    stats->realRanks = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));;
+    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));;
     stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));;
 
 
@@ -104,7 +104,7 @@ struct PageRankStats *newPageRankStatsGraphGrid(struct GraphGrid *graph)
 struct PageRankStats *newPageRankStatsGraphAdjArrayList(struct GraphAdjArrayList *graph)
 {
 
-    __u32 v;
+    uint32_t v;
 
     struct PageRankStats *stats = (struct PageRankStats *) my_malloc(sizeof(struct PageRankStats));
 
@@ -115,7 +115,7 @@ struct PageRankStats *newPageRankStatsGraphAdjArrayList(struct GraphAdjArrayList
     stats->time_total = 0.0;
     stats->error_total = 0.0;
 
-    stats->realRanks = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));;
+    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));;
     stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));;
 
 
@@ -134,7 +134,7 @@ struct PageRankStats *newPageRankStatsGraphAdjArrayList(struct GraphAdjArrayList
 struct PageRankStats *newPageRankStatsGraphAdjLinkedList(struct GraphAdjLinkedList *graph)
 {
 
-    __u32 v;
+    uint32_t v;
 
     struct PageRankStats *stats = (struct PageRankStats *) my_malloc(sizeof(struct PageRankStats));
 
@@ -145,7 +145,7 @@ struct PageRankStats *newPageRankStatsGraphAdjLinkedList(struct GraphAdjLinkedLi
     stats->time_total = 0.0;
     stats->error_total = 0.0;
 
-    stats->realRanks = (__u32 *) my_malloc(graph->num_vertices * sizeof(__u32));;
+    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));;
     stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));;
 
 
@@ -186,17 +186,17 @@ void addAtomicFloat(float *num, float value)
 {
 
     float newV, oldV;
-    __u32 *lnewV;
-    __u32 *loldV;
+    uint32_t *lnewV;
+    uint32_t *loldV;
 
     do
     {
         oldV = *num;
         newV = oldV + value;
-        loldV = (__u32 *)&oldV;
-        lnewV = (__u32 *)&newV;
+        loldV = (uint32_t *)&oldV;
+        lnewV = (uint32_t *)&newV;
     }
-    while(!__sync_bool_compare_and_swap((__u32 *)num, *(loldV), *(lnewV)));
+    while(!__sync_bool_compare_and_swap((uint32_t *)num, *(loldV), *(lnewV)));
 
 }
 
@@ -205,35 +205,35 @@ void addAtomicDouble(double *num, double value)
 {
 
     double newV, oldV;
-    __u64 *lnewV;
-    __u64 *loldV;
+    uint64_t *lnewV;
+    uint64_t *loldV;
 
     do
     {
         oldV = *num;
         newV = oldV + value;
-        loldV = (__u64 *)&oldV;
-        lnewV = (__u64 *)&newV;
+        loldV = (uint64_t *)&oldV;
+        lnewV = (uint64_t *)&newV;
     }
-    while(!__sync_bool_compare_and_swap((__u64 *)num, *(loldV), *(lnewV)));
+    while(!__sync_bool_compare_and_swap((uint64_t *)num, *(loldV), *(lnewV)));
 
 }
 
 
-void swapWorkLists (__u8 **workList1, __u8 **workList2)
+void swapWorkLists (uint8_t **workList1, uint8_t **workList2)
 {
 
 
-    __u8 *workList_temp = *workList1;
+    uint8_t *workList_temp = *workList1;
     *workList1 = *workList2;
     *workList2 = workList_temp;
 
 }
 
-void resetWorkList(__u8 *workList, __u32 size)
+void resetWorkList(uint8_t *workList, uint32_t size)
 {
 
-    __u32 i;
+    uint32_t i;
 
     #pragma omp parallel for
     for(i = 0; i < size ; i++)
@@ -245,10 +245,10 @@ void resetWorkList(__u8 *workList, __u32 size)
 
 }
 
-void setWorkList(__u8 *workList,  __u32 size)
+void setWorkList(uint8_t *workList,  uint32_t size)
 {
 
-    __u32 i;
+    uint32_t i;
 
     #pragma omp parallel for
     for(i = 0; i < size ; i++)
@@ -260,11 +260,11 @@ void setWorkList(__u8 *workList,  __u32 size)
 
 }
 
-void setAtomic(__u64 *num, __u64 value)
+void setAtomic(uint64_t *num, uint64_t value)
 {
 
 
-    __u64 newV, oldV;
+    uint64_t newV, oldV;
 
     do
     {
@@ -275,10 +275,10 @@ void setAtomic(__u64 *num, __u64 value)
 
 }
 
-void addAtomicFixedPoint(__u64 *num, __u64 value)
+void addAtomicFixedPoint(uint64_t *num, uint64_t value)
 {
 
-    __u64 newV, oldV;
+    uint64_t newV, oldV;
 
     do
     {
@@ -289,9 +289,9 @@ void addAtomicFixedPoint(__u64 *num, __u64 value)
 
 }
 
-void pageRankPrint(float *pageRankArray, __u32 num_vertices)
+void pageRankPrint(float *pageRankArray, uint32_t num_vertices)
 {
-    __u32 v;
+    uint32_t v;
     for(v = 0; v < num_vertices; v++)
     {
         printf("Rank[%d]=%f \n", v, pageRankArray[v]);
@@ -326,7 +326,7 @@ void pageRankPrint(float *pageRankArray, __u32 num_vertices)
 // end function
 //we assume that the edges are not sorted in each partition
 
-struct PageRankStats  *pageRankGraphGrid(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphGrid *graph)
+struct PageRankStats  *pageRankGraphGrid(double epsilon,  uint32_t iterations, uint32_t pushpull, struct GraphGrid *graph)
 {
 
     struct PageRankStats *stats = NULL;
@@ -355,16 +355,16 @@ struct PageRankStats  *pageRankGraphGrid(double epsilon,  __u32 iterations, __u3
 }
 
 
-struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid *graph)
+struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  uint32_t iterations, struct GraphGrid *graph)
 {
 
     double error_total = 0.0;
-    __u32 v;
-    __u32 activeVertices = 0;
+    uint32_t v;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
 
-    __u32 totalPartitions  = graph->grid->num_partitions;
+    uint32_t totalPartitions  = graph->grid->num_partitions;
 
     struct PageRankStats *stats = newPageRankStatsGraphGrid(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
@@ -405,17 +405,17 @@ struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations
 
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
 
-        __u32 i;
+        uint32_t i;
         // #pragma omp parallel for private(i)
         for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
         {
-            __u32 j;
+            uint32_t j;
             #pragma omp parallel for private(j)
             for (j = 0; j < totalPartitions; ++j)
             {
-                __u32 k;
-                __u32 src;
-                __u32 dest;
+                uint32_t k;
+                uint32_t src;
+                uint32_t dest;
                 struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
                 for (k = 0; k < partition->num_edges; ++k)
                 {
@@ -492,22 +492,22 @@ struct PageRankStats *pageRankPullRowGraphGrid(double epsilon,  __u32 iterations
 
 
 
-struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid *graph)
+struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  uint32_t iterations, struct GraphGrid *graph)
 {
 
     double error_total = 0.0;
-    __u32 v;
-    __u32 activeVertices = 0;
+    uint32_t v;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphGrid(graph);
-    __u32 totalPartitions  = graph->grid->num_partitions;
+    uint32_t totalPartitions  = graph->grid->num_partitions;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
 
-    __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
-    __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    uint64_t *pageRanksNext = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint64_t *riDividedOnDiClause = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
 
 
     printf(" -----------------------------------------------------\n");
@@ -544,17 +544,17 @@ struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 
 
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
 
-        __u32 i;
+        uint32_t i;
         // #pragma omp parallel for private(i)
         for (i = 0; i < totalPartitions; ++i)  // iterate over partitions rowwise
         {
-            __u32 j;
+            uint32_t j;
             #pragma omp parallel for private(j)
             for (j = 0; j < totalPartitions; ++j)
             {
-                __u32 k;
-                __u32 src;
-                __u32 dest;
+                uint32_t k;
+                uint32_t src;
+                uint32_t dest;
                 struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
                 for (k = 0; k < partition->num_edges; ++k)
                 {
@@ -631,16 +631,16 @@ struct PageRankStats *pageRankPullRowFixedPointGraphGrid(double epsilon,  __u32 
 
 
 
-struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid *graph)
+struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  uint32_t iterations, struct GraphGrid *graph)
 {
 
     double error_total = 0.0;
-    __u32 v;
-    __u32 activeVertices = 0;
+    uint32_t v;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphGrid(graph);
-    __u32 totalPartitions  = graph->grid->num_partitions;
+    uint32_t totalPartitions  = graph->grid->num_partitions;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
@@ -682,18 +682,18 @@ struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  __u32 iterati
 
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
 
-        __u32 j;
+        uint32_t j;
         #pragma omp parallel for private(j)
         for (j = 0; j < totalPartitions; ++j)
         {
-            __u32 i;
+            uint32_t i;
 
             // #pragma omp parallel for private(i) // iterate over partitions columnwise
             for (i = 0; i < totalPartitions; ++i)
             {
-                __u32 k;
-                __u32 src;
-                __u32 dest;
+                uint32_t k;
+                uint32_t src;
+                uint32_t dest;
                 struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
                 for (k = 0; k < partition->num_edges; ++k)
                 {
@@ -767,23 +767,23 @@ struct PageRankStats *pageRankPushColumnGraphGrid(double epsilon,  __u32 iterati
 
 
 
-struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u32 iterations, struct GraphGrid *graph)
+struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  uint32_t iterations, struct GraphGrid *graph)
 {
 
     double error_total = 0.0;
-    __u32 v;
-    __u32 activeVertices = 0;
+    uint32_t v;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphGrid(graph);
-    __u32 totalPartitions  = graph->grid->num_partitions;
+    uint32_t totalPartitions  = graph->grid->num_partitions;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
 
 
-    __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
-    __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    uint64_t *pageRanksNext = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint64_t *riDividedOnDiClause = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Col FP (tolerance/epsilon)");
@@ -818,17 +818,17 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
 
         // pageRankStreamEdgesGraphGridRowWise(graph, riDividedOnDiClause, pageRanksNext);
 
-        __u32 j;
+        uint32_t j;
 
         #pragma omp parallel for private(j)
         for (j = 0; j < totalPartitions; ++j)  // iterate over partitions columnwise
         {
-            __u32 i;
+            uint32_t i;
             for (i = 0; i < totalPartitions; ++i)
             {
-                __u32 k;
-                __u32 src;
-                __u32 dest;
+                uint32_t k;
+                uint32_t src;
+                uint32_t dest;
                 struct Partition *partition = &graph->grid->partitions[(i * totalPartitions) + j];
                 for (k = 0; k < partition->num_edges; ++k)
                 {
@@ -909,7 +909,7 @@ struct PageRankStats *pageRankPushColumnFixedPointGraphGrid(double epsilon,  __u
 // ********************************************************************************************
 
 
-struct PageRankStats *pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphCSR *graph)
+struct PageRankStats *pageRankGraphCSR(double epsilon,  uint32_t iterations, uint32_t pushpull, struct GraphCSR *graph)
 {
 
     struct PageRankStats *stats = NULL;
@@ -963,21 +963,21 @@ struct PageRankStats *pageRankGraphCSR(double epsilon,  __u32 iterations, __u32 
 }
 
 // topoligy driven approach
-struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+struct PageRankStats *pageRankPullGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph)
 {
 
     double error_total = 0.0;
-    __u32 j;
-    __u32 v;
-    __u32 u;
-    __u32 degree;
-    __u32 edge_idx;
-    __u32 activeVertices = 0;
+    uint32_t j;
+    uint32_t v;
+    uint32_t u;
+    uint32_t degree;
+    uint32_t edge_idx;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
     struct Vertex *vertices = NULL;
-    __u32 *sorted_edges_array = NULL;
+    uint32_t *sorted_edges_array = NULL;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
@@ -1094,16 +1094,16 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  __u32 iterations, st
     return stats;
 }
 
-struct PageRankStats *pageRankPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+struct PageRankStats *pageRankPushGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph)
 {
 
 
     double error_total = 0.0;
-    __u32 i;
-    __u32 v;
+    uint32_t i;
+    uint32_t v;
 
     // double error = 0;
-    __u32 activeVertices = 0;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
@@ -1165,14 +1165,14 @@ struct PageRankStats *pageRankPushGraphCSR(double epsilon,  __u32 iterations, st
         for(v = 0; v < graph->num_vertices; v++)
         {
 
-            __u32 degree = graph->vertices->out_degree[v];
-            __u32 edge_idx = graph->vertices->edges_idx[v];
-            // __u32 tid = omp_get_thread_num();
-            __u32 j;
+            uint32_t degree = graph->vertices->out_degree[v];
+            uint32_t edge_idx = graph->vertices->edges_idx[v];
+            // uint32_t tid = omp_get_thread_num();
+            uint32_t j;
 
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
-                __u32 u = graph->sorted_edges_array->edges_array_dest[j];
+                uint32_t u = graph->sorted_edges_array->edges_array_dest[j];
 
                 // omp_set_lock(&(vertex_lock[u]));
                 //   pageRanksNext[u] += riDividedOnDiClause[v];
@@ -1250,26 +1250,26 @@ struct PageRankStats *pageRankPushGraphCSR(double epsilon,  __u32 iterations, st
 
 
 // topoligy driven approach
-struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph)
 {
 
     double error_total = 0.0;
-    __u32 j;
-    __u32 v;
-    __u32 u;
-    __u32 degree;
-    __u32 edge_idx;
-    __u32 activeVertices = 0;
+    uint32_t j;
+    uint32_t v;
+    uint32_t u;
+    uint32_t degree;
+    uint32_t edge_idx;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
 
 
-    // __u64 stats->base_pr_fp = FloatToFixed64(stats->base_pr);
-    // __u64 epsilon_fp = DoubleToFixed64(epsilon);
-    // __u64 num_vertices_fp = UInt32ToFixed64();
+    // uint64_t stats->base_pr_fp = FloatToFixed64(stats->base_pr);
+    // uint64_t epsilon_fp = DoubleToFixed64(epsilon);
+    // uint64_t num_vertices_fp = UInt32ToFixed64();
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
     struct Vertex *vertices = NULL;
-    __u32 *sorted_edges_array = NULL;
+    uint32_t *sorted_edges_array = NULL;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
@@ -1283,10 +1283,10 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
 
 
 
-    __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
-    __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
-    // __u64* outDegreesFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
-    // __u64* pageRanksFP = (__u64*) my_malloc(graph->num_vertices*sizeof(__u64));
+    uint64_t *pageRanksNext = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint64_t *riDividedOnDiClause = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    // uint64_t* outDegreesFP = (uint64_t*) my_malloc(graph->num_vertices*sizeof(uint64_t));
+    // uint64_t* pageRanksFP = (uint64_t*) my_malloc(graph->num_vertices*sizeof(uint64_t));
 
 
     printf(" -----------------------------------------------------\n");
@@ -1396,20 +1396,20 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  __u32 iter
 
 }
 
-struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph)
 {
 
     double error_total = 0.0;
-    __u32 i;
-    __u32 v;
+    uint32_t i;
+    uint32_t v;
 
     // double error = 0;
-    __u32 activeVertices = 0;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
-    // __u64 stats->base_prFP = DoubleToFixed(stats->base_pr);
-    // __u64 stats->dampFP = DoubleToFixed(stats->damp);
+    // uint64_t stats->base_prFP = DoubleToFixed(stats->base_pr);
+    // uint64_t stats->dampFP = DoubleToFixed(stats->damp);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
@@ -1426,9 +1426,9 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
 
 
 
-    // __u32* pageRanksFP = (__u32*) my_malloc(graph->num_vertices*sizeof(__u32));
-    __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
-    __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    // uint32_t* pageRanksFP = (uint32_t*) my_malloc(graph->num_vertices*sizeof(uint32_t));
+    uint64_t *pageRanksNext = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint64_t *riDividedOnDiClause = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
 
 
     printf(" -----------------------------------------------------\n");
@@ -1476,14 +1476,14 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
 
 
 
-            __u32 degree = graph->vertices->out_degree[v];
-            __u32 edge_idx = graph->vertices->edges_idx[v];
-            // __u32 tid = omp_get_thread_num();
-            __u32 j;
+            uint32_t degree = graph->vertices->out_degree[v];
+            uint32_t edge_idx = graph->vertices->edges_idx[v];
+            // uint32_t tid = omp_get_thread_num();
+            uint32_t j;
 
             for(j = edge_idx ; j < (edge_idx + degree) ; j++)
             {
-                __u32 u = graph->sorted_edges_array->edges_array_dest[j];
+                uint32_t u = graph->sorted_edges_array->edges_array_dest[j];
 
                 // omp_set_lock(&(vertex_lock[u]));
                 //   pageRanksNext[u] += riDividedOnDiClause[v];
@@ -1560,20 +1560,20 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  __u32 iter
 
 //done by mohannad Ibranim
 //v_0: No need for next iteration's quantization parameters. (eqn 1)
-struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph)
 {
     //QUANT_SCALE = 32;
-    __u32 j;
-    __u32 v;
-    __u32 u;
-    __u32 degree;
-    __u32 edge_idx;
-    __u32 activeVertices = 0;
+    uint32_t j;
+    uint32_t v;
+    uint32_t u;
+    uint32_t degree;
+    uint32_t edge_idx;
+    uint32_t activeVertices = 0;
     double error_total = 0;
 
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
     struct Vertex* vertices = NULL;
-    __u32* sorted_edges_array = NULL;
+    uint32_t* sorted_edges_array = NULL;
     struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));
     struct Timer* timer_inner = (struct Timer*) malloc(sizeof(struct Timer));
     #if DIRECTED
@@ -1587,9 +1587,9 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  __u32 iteration
     float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
     #if QUANT_SCALE == 16
-        __u16* riDividedOnDiClause_quant = (__u16*)my_malloc(graph->num_vertices*sizeof(__u16));
+        uint16_t* riDividedOnDiClause_quant = (uint16_t*)my_malloc(graph->num_vertices*sizeof(uint16_t));
     #else /* QUANT_SCALE == 32 */
-        __u32* riDividedOnDiClause_quant = (__u32*)my_malloc(graph->num_vertices*sizeof(__u32));
+        uint32_t* riDividedOnDiClause_quant = (uint32_t*)my_malloc(graph->num_vertices*sizeof(uint32_t));
     #endif
 
     printf(" -----------------------------------------------------\n");
@@ -1650,7 +1650,7 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  __u32 iteration
           pageRanksNext[v] = rDivD_params.scale*nodeIncomingPR;
       }
 
-      //__u64 temp_degree = 0;
+      //uint64_t temp_degree = 0;
       #pragma omp parallel for private(v) shared(epsilon,pageRanksNext,stats) reduction(+ : error_total, activeVertices)
       for(v = 0; v < graph->num_vertices; v++)
       {
@@ -1700,12 +1700,12 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  __u32 iteration
 }
 
 //done by mohannad Ibranim
-struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph)
 {
   //QUANT_SCALE = 16;
-  __u32 i;
-  __u32 v;
-  __u32 activeVertices = 0;
+  uint32_t i;
+  uint32_t v;
+  uint32_t activeVertices = 0;
   double error_total = 0;
 
   struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
@@ -1721,9 +1721,9 @@ struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  __u32 iteration
   float* pageRanksNext = (float*) my_malloc(graph->num_vertices*sizeof(float));
   float* riDividedOnDiClause = (float*) my_malloc(graph->num_vertices*sizeof(float));
   #if QUANT_SCALE == 16
-    __u16* riDividedOnDiClause_quant = (__u16*)my_malloc(graph->num_vertices*sizeof(__u16));
+    uint16_t* riDividedOnDiClause_quant = (uint16_t*)my_malloc(graph->num_vertices*sizeof(uint16_t));
   #else /* QUANT_SCALE == 32 */
-    __u32* riDividedOnDiClause_quant = (__u32*)my_malloc(graph->num_vertices*sizeof(__u32));
+    uint32_t* riDividedOnDiClause_quant = (uint32_t*)my_malloc(graph->num_vertices*sizeof(uint32_t));
   #endif
 
   printf(" -----------------------------------------------------\n");
@@ -1771,12 +1771,12 @@ struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  __u32 iteration
     #pragma omp parallel for default(none) private(v) shared(rDivD_params,riDividedOnDiClause_quant,graph,pageRanksNext,riDividedOnDiClause) schedule(dynamic, 1024)
     for(v = 0; v < graph->num_vertices; v++){
 
-      __u32 degree = graph->vertices->out_degree[v];
-      __u32 edge_idx = graph->vertices->edges_idx[v];
-      __u32 j;
+      uint32_t degree = graph->vertices->out_degree[v];
+      uint32_t edge_idx = graph->vertices->edges_idx[v];
+      uint32_t j;
 
       for(j = edge_idx ; j < (edge_idx + degree) ; j++){
-        __u32 u = graph->sorted_edges_array->edges_array_dest[j];
+        uint32_t u = graph->sorted_edges_array->edges_array_dest[j];
 
         #pragma omp atomic update
         pageRanksNext[u] += rDivD_params.scale*(riDividedOnDiClause_quant[v] - rDivD_params.zero);
@@ -1839,14 +1839,14 @@ struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  __u32 iteration
 
 
 
-struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph)
 {
 
 
 
     double error_total = 0.0;
-    __u32 i;
-    __u32 v;
+    uint32_t i;
+    uint32_t v;
 
 
 
@@ -1854,16 +1854,16 @@ struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iter
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
     struct Vertex *vertices = NULL;
-    __u32 *sorted_edges_array = NULL;
+    uint32_t *sorted_edges_array = NULL;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    __u8 *workListCurr = NULL;
-    __u8 *workListNext = NULL;
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
     int activeVertices = 0;
 
 
-    workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
-    workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
 
 
     resetWorkList(workListNext, graph->num_vertices);
@@ -1925,10 +1925,10 @@ struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iter
         {
             if(workListCurr[v])
             {
-                __u32 edge_idx;
-                __u32 degree;
-                __u32 j;
-                __u32 u;
+                uint32_t edge_idx;
+                uint32_t degree;
+                uint32_t j;
+                uint32_t u;
                 double error = 0;
                 float nodeIncomingPR = 0;
                 degree = vertices->out_degree[v]; // when directed we use inverse graph out degree means in degree
@@ -1953,7 +1953,7 @@ struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iter
 
                         #pragma omp atomic write
                         workListNext[u] = 1;
-                        // __u8 old_val = workListNext[u];
+                        // uint8_t old_val = workListNext[u];
                         // if(!old_val){
                         //    __sync_bool_compare_and_swap(&workListNext[u], 0, 1);
                         // }
@@ -2003,31 +2003,31 @@ struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  __u32 iter
     return stats;
 }
 
-struct PageRankStats *pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+struct PageRankStats *pageRankDataDrivenPushGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph)
 {
 
     double error_total = 0.0;
-    __u32 v;
-    __u32 edge_idx;
-    __u32 degree;
-    __u32 j;
-    __u32 u;
+    uint32_t v;
+    uint32_t edge_idx;
+    uint32_t degree;
+    uint32_t j;
+    uint32_t u;
 
 
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
     struct Vertex *vertices = NULL;
-    __u32 *sorted_edges_array = NULL;
+    uint32_t *sorted_edges_array = NULL;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    __u8 *workListCurr = NULL;
-    __u8 *workListNext = NULL;
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
     int activeVertices = 0;
 
 
-    workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
-    workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
 
 
     resetWorkList(workListNext, graph->num_vertices);
@@ -2174,31 +2174,31 @@ struct PageRankStats *pageRankDataDrivenPushGraphCSR(double epsilon,  __u32 iter
 }
 
 
-struct PageRankStats *pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR *graph)
+struct PageRankStats *pageRankDataDrivenPullPushGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph)
 {
 
     double error_total = 0.0;
-    __u32 v;
-    __u32 edge_idx;
-    __u32 degree;
-    __u32 j;
-    __u32 u;
+    uint32_t v;
+    uint32_t edge_idx;
+    uint32_t degree;
+    uint32_t j;
+    uint32_t u;
 
 
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
     struct Vertex *vertices = NULL;
-    __u32 *sorted_edges_array = NULL;
+    uint32_t *sorted_edges_array = NULL;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    __u8 *workListCurr = NULL;
-    __u8 *workListNext = NULL;
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
     int activeVertices = 0;
 
 
-    workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
-    workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
 
 
     resetWorkList(workListNext, graph->num_vertices);
@@ -2352,17 +2352,17 @@ struct PageRankStats *pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 
 }
 
 
-// float* pageRankDataDrivenPullFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+// float* pageRankDataDrivenPullFixedPointGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR* graph){
 
 
 // }
 
-// float* pageRankDataDrivenPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+// float* pageRankDataDrivenPushFixedPointGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR* graph){
 
 
 // }
 
-// float* pageRankDataDrivenPullPushFixedPointGraphCSR(double epsilon,  __u32 iterations, struct GraphCSR* graph){
+// float* pageRankDataDrivenPullPushFixedPointGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR* graph){
 
 
 // }
@@ -2374,7 +2374,7 @@ struct PageRankStats *pageRankDataDrivenPullPushGraphCSR(double epsilon,  __u32 
 // ********************************************************************************************
 
 
-struct PageRankStats *pageRankGraphAdjArrayList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjArrayList *graph)
+struct PageRankStats *pageRankGraphAdjArrayList(double epsilon,  uint32_t iterations, uint32_t pushpull, struct GraphAdjArrayList *graph)
 {
 
     struct PageRankStats *stats = NULL;
@@ -2413,15 +2413,15 @@ struct PageRankStats *pageRankGraphAdjArrayList(double epsilon,  __u32 iteration
 
 }
 
-struct PageRankStats *pageRankPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList *graph)
+struct PageRankStats *pageRankPullGraphAdjArrayList(double epsilon,  uint32_t iterations, struct GraphAdjArrayList *graph)
 {
 
     double error_total = 0.0;
-    __u32 j;
-    __u32 v;
-    __u32 u;
-    __u32 degree;
-    __u32 activeVertices = 0;
+    uint32_t j;
+    uint32_t v;
+    uint32_t u;
+    uint32_t degree;
+    uint32_t activeVertices = 0;
 
     struct EdgeList *Nodes;
 
@@ -2545,15 +2545,15 @@ struct PageRankStats *pageRankPullGraphAdjArrayList(double epsilon,  __u32 itera
     return stats;
 }
 
-struct PageRankStats *pageRankPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList *graph)
+struct PageRankStats *pageRankPushGraphAdjArrayList(double epsilon,  uint32_t iterations, struct GraphAdjArrayList *graph)
 {
 
     double error_total = 0.0;
-    __u32 i;
-    __u32 v;
+    uint32_t i;
+    uint32_t v;
 
     // double error = 0;
-    __u32 activeVertices = 0;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphAdjArrayList(graph);
@@ -2619,13 +2619,13 @@ struct PageRankStats *pageRankPushGraphAdjArrayList(double epsilon,  __u32 itera
         {
 
             Nodes = graph->vertices[v].outNodes;
-            __u32 degree = graph->vertices[v].out_degree;
-            // __u32 tid = omp_get_thread_num();
-            __u32 j;
+            uint32_t degree = graph->vertices[v].out_degree;
+            // uint32_t tid = omp_get_thread_num();
+            uint32_t j;
 
             for(j = 0 ; j < (degree) ; j++)
             {
-                __u32 u = Nodes->edges_array_dest[j];
+                uint32_t u = Nodes->edges_array_dest[j];
 
                 // omp_set_lock(&(vertex_lock[u]));
                 //   pageRanksNext[u] += riDividedOnDiClause[v];
@@ -2704,15 +2704,15 @@ struct PageRankStats *pageRankPushGraphAdjArrayList(double epsilon,  __u32 itera
 
 }
 
-struct PageRankStats *pageRankPullFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList *graph)
+struct PageRankStats *pageRankPullFixedPointGraphAdjArrayList(double epsilon,  uint32_t iterations, struct GraphAdjArrayList *graph)
 {
 
     double error_total = 0.0;
-    __u32 j;
-    __u32 v;
-    __u32 u;
-    __u32 degree;
-    __u32 activeVertices = 0;
+    uint32_t j;
+    uint32_t v;
+    uint32_t u;
+    uint32_t degree;
+    uint32_t activeVertices = 0;
 
     struct EdgeList *Nodes;
 
@@ -2724,8 +2724,8 @@ struct PageRankStats *pageRankPullFixedPointGraphAdjArrayList(double epsilon,  _
 
 
 
-    __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
-    __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    uint64_t *pageRanksNext = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint64_t *riDividedOnDiClause = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
 
 
     printf(" -----------------------------------------------------\n");
@@ -2836,15 +2836,15 @@ struct PageRankStats *pageRankPullFixedPointGraphAdjArrayList(double epsilon,  _
     return stats;
 }
 
-struct PageRankStats *pageRankPushFixedPointGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList *graph)
+struct PageRankStats *pageRankPushFixedPointGraphAdjArrayList(double epsilon,  uint32_t iterations, struct GraphAdjArrayList *graph)
 {
 
     double error_total = 0.0;
-    __u32 i;
-    __u32 v;
+    uint32_t i;
+    uint32_t v;
 
     // double error = 0;
-    __u32 activeVertices = 0;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphAdjArrayList(graph);
@@ -2865,8 +2865,8 @@ struct PageRankStats *pageRankPushFixedPointGraphAdjArrayList(double epsilon,  _
 
 
 
-    __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
-    __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    uint64_t *pageRanksNext = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint64_t *riDividedOnDiClause = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
 
 
     printf(" -----------------------------------------------------\n");
@@ -2909,13 +2909,13 @@ struct PageRankStats *pageRankPushFixedPointGraphAdjArrayList(double epsilon,  _
         {
 
             Nodes = graph->vertices[v].outNodes;
-            __u32 degree = graph->vertices[v].out_degree;
-            // __u32 tid = omp_get_thread_num();
-            __u32 j;
+            uint32_t degree = graph->vertices[v].out_degree;
+            // uint32_t tid = omp_get_thread_num();
+            uint32_t j;
 
             for(j = 0 ; j < (degree) ; j++)
             {
-                __u32 u = Nodes->edges_array_dest[j];
+                uint32_t u = Nodes->edges_array_dest[j];
 
                 // omp_set_lock(&(vertex_lock[u]));
                 //   pageRanksNext[u] += riDividedOnDiClause[v];
@@ -2993,12 +2993,12 @@ struct PageRankStats *pageRankPushFixedPointGraphAdjArrayList(double epsilon,  _
     return stats;
 }
 
-struct PageRankStats *pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList *graph)
+struct PageRankStats *pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  uint32_t iterations, struct GraphAdjArrayList *graph)
 {
 
     double error_total = 0.0;
-    __u32 i;
-    __u32 v;
+    uint32_t i;
+    uint32_t v;
 
 
 
@@ -3007,14 +3007,14 @@ struct PageRankStats *pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  _
     struct PageRankStats *stats = newPageRankStatsGraphAdjArrayList(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    __u8 *workListCurr = NULL;
-    __u8 *workListNext = NULL;
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
     int activeVertices = 0;
     struct EdgeList *Nodes;
 
 
-    workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
-    workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
 
 
     resetWorkList(workListNext, graph->num_vertices);
@@ -3066,9 +3066,9 @@ struct PageRankStats *pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  _
             if(workListCurr[v])
             {
 
-                __u32 degree;
-                __u32 j;
-                __u32 u;
+                uint32_t degree;
+                uint32_t j;
+                uint32_t u;
                 double error = 0;
                 float nodeIncomingPR = 0;
 
@@ -3100,7 +3100,7 @@ struct PageRankStats *pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  _
 
                         #pragma omp atomic write
                         workListNext[u] = 1;
-                        // __u8 old_val = workListNext[u];
+                        // uint8_t old_val = workListNext[u];
                         // if(!old_val){
                         //    __sync_bool_compare_and_swap(&workListNext[u], 0, 1);
                         // }
@@ -3150,26 +3150,26 @@ struct PageRankStats *pageRankDataDrivenPullGraphAdjArrayList(double epsilon,  _
     return stats;
 }
 
-struct PageRankStats *pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList *graph)
+struct PageRankStats *pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  uint32_t iterations, struct GraphAdjArrayList *graph)
 {
 
     double error_total = 0.0;
-    __u32 v;
-    __u32 degree;
-    __u32 j;
-    __u32 u;
+    uint32_t v;
+    uint32_t degree;
+    uint32_t j;
+    uint32_t u;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphAdjArrayList(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    __u8 *workListCurr = NULL;
-    __u8 *workListNext = NULL;
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
     int activeVertices = 0;
     struct EdgeList *Nodes;
 
-    workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
-    workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
 
 
     resetWorkList(workListNext, graph->num_vertices);
@@ -3310,26 +3310,26 @@ struct PageRankStats *pageRankDataDrivenPushGraphAdjArrayList(double epsilon,  _
     return stats;
 }
 
-struct PageRankStats *pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon,  __u32 iterations, struct GraphAdjArrayList *graph)
+struct PageRankStats *pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon,  uint32_t iterations, struct GraphAdjArrayList *graph)
 {
 
     double error_total = 0.0;
-    __u32 v;
-    __u32 degree;
-    __u32 j;
-    __u32 u;
+    uint32_t v;
+    uint32_t degree;
+    uint32_t j;
+    uint32_t u;
     struct EdgeList *Nodes;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphAdjArrayList(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    __u8 *workListCurr = NULL;
-    __u8 *workListNext = NULL;
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
     int activeVertices = 0;
 
-    workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
-    workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
 
 
     resetWorkList(workListNext, graph->num_vertices);
@@ -3429,7 +3429,7 @@ struct PageRankStats *pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon
 
                 for(j = 0 ; j < (degree) ; j++)
                 {
-                    __u32 u = Nodes->edges_array_dest[j];
+                    uint32_t u = Nodes->edges_array_dest[j];
                     float prevResidual = 0.0f;
 
                     prevResidual = aResiduals[u];
@@ -3498,7 +3498,7 @@ struct PageRankStats *pageRankDataDrivenPullPushGraphAdjArrayList(double epsilon
 // ********************************************************************************************
 
 
-struct PageRankStats *pageRankGraphAdjLinkedList(double epsilon,  __u32 iterations, __u32 pushpull, struct GraphAdjLinkedList *graph)
+struct PageRankStats *pageRankGraphAdjLinkedList(double epsilon,  uint32_t iterations, uint32_t pushpull, struct GraphAdjLinkedList *graph)
 {
 
     struct PageRankStats *stats = NULL;
@@ -3536,15 +3536,15 @@ struct PageRankStats *pageRankGraphAdjLinkedList(double epsilon,  __u32 iteratio
 
 }
 
-struct PageRankStats *pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList *graph)
+struct PageRankStats *pageRankPullGraphAdjLinkedList(double epsilon,  uint32_t iterations, struct GraphAdjLinkedList *graph)
 {
 
     double error_total = 0.0;
-    __u32 j;
-    __u32 v;
-    __u32 u;
-    __u32 degree;
-    __u32 activeVertices = 0;
+    uint32_t j;
+    uint32_t v;
+    uint32_t u;
+    uint32_t degree;
+    uint32_t activeVertices = 0;
 
     struct AdjLinkedListNode *Nodes;
 
@@ -3670,15 +3670,15 @@ struct PageRankStats *pageRankPullGraphAdjLinkedList(double epsilon,  __u32 iter
 
 }
 
-struct PageRankStats *pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList *graph)
+struct PageRankStats *pageRankPushGraphAdjLinkedList(double epsilon,  uint32_t iterations, struct GraphAdjLinkedList *graph)
 {
 
     double error_total = 0.0;
-    __u32 i;
-    __u32 v;
+    uint32_t i;
+    uint32_t v;
 
     // double error = 0;
-    __u32 activeVertices = 0;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphAdjLinkedList(graph);
@@ -3744,13 +3744,13 @@ struct PageRankStats *pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iter
         {
 
             Nodes = graph->vertices[v].outNodes;
-            __u32 degree = graph->vertices[v].out_degree;
-            // __u32 tid = omp_get_thread_num();
-            __u32 j;
+            uint32_t degree = graph->vertices[v].out_degree;
+            // uint32_t tid = omp_get_thread_num();
+            uint32_t j;
 
             for(j = 0 ; j < (degree) ; j++)
             {
-                __u32 u = Nodes->dest;
+                uint32_t u = Nodes->dest;
                 Nodes = Nodes->next;
 
                 // omp_set_lock(&(vertex_lock[u]));
@@ -3830,15 +3830,15 @@ struct PageRankStats *pageRankPushGraphAdjLinkedList(double epsilon,  __u32 iter
 
 }
 
-struct PageRankStats *pageRankPullFixedPointGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList *graph)
+struct PageRankStats *pageRankPullFixedPointGraphAdjLinkedList(double epsilon,  uint32_t iterations, struct GraphAdjLinkedList *graph)
 {
 
     double error_total = 0.0;
-    __u32 j;
-    __u32 v;
-    __u32 u;
-    __u32 degree;
-    __u32 activeVertices = 0;
+    uint32_t j;
+    uint32_t v;
+    uint32_t u;
+    uint32_t degree;
+    uint32_t activeVertices = 0;
 
     struct AdjLinkedListNode *Nodes;
 
@@ -3850,8 +3850,8 @@ struct PageRankStats *pageRankPullFixedPointGraphAdjLinkedList(double epsilon,  
 
 
 
-    __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
-    __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    uint64_t *pageRanksNext = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint64_t *riDividedOnDiClause = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
 
 
     printf(" -----------------------------------------------------\n");
@@ -3964,15 +3964,15 @@ struct PageRankStats *pageRankPullFixedPointGraphAdjLinkedList(double epsilon,  
 
 }
 
-struct PageRankStats *pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList *graph)
+struct PageRankStats *pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  uint32_t iterations, struct GraphAdjLinkedList *graph)
 {
 
     double error_total = 0.0;
-    __u32 i;
-    __u32 v;
+    uint32_t i;
+    uint32_t v;
 
     // double error = 0;
-    __u32 activeVertices = 0;
+    uint32_t activeVertices = 0;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphAdjLinkedList(graph);
@@ -3994,8 +3994,8 @@ struct PageRankStats *pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  
 
 
 
-    __u64 *pageRanksNext = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
-    __u64 *riDividedOnDiClause = (__u64 *) my_malloc(graph->num_vertices * sizeof(__u64));
+    uint64_t *pageRanksNext = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint64_t *riDividedOnDiClause = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
 
 
     printf(" -----------------------------------------------------\n");
@@ -4038,13 +4038,13 @@ struct PageRankStats *pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  
         {
 
             Nodes = graph->vertices[v].outNodes;
-            __u32 degree = graph->vertices[v].out_degree;
-            // __u32 tid = omp_get_thread_num();
-            __u32 j;
+            uint32_t degree = graph->vertices[v].out_degree;
+            // uint32_t tid = omp_get_thread_num();
+            uint32_t j;
 
             for(j = 0 ; j < (degree) ; j++)
             {
-                __u32  u = Nodes->dest;
+                uint32_t  u = Nodes->dest;
                 Nodes = Nodes->next;
                 // omp_set_lock(&(vertex_lock[u]));
                 //   pageRanksNext[u] += riDividedOnDiClause[v];
@@ -4123,12 +4123,12 @@ struct PageRankStats *pageRankPushFixedPointGraphAdjLinkedList(double epsilon,  
 
 }
 
-struct PageRankStats *pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList *graph)
+struct PageRankStats *pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  uint32_t iterations, struct GraphAdjLinkedList *graph)
 {
 
     double error_total = 0.0;
-    __u32 i;
-    __u32 v;
+    uint32_t i;
+    uint32_t v;
 
 
 
@@ -4137,14 +4137,14 @@ struct PageRankStats *pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  
     struct PageRankStats *stats = newPageRankStatsGraphAdjLinkedList(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    __u8 *workListCurr = NULL;
-    __u8 *workListNext = NULL;
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
     int activeVertices = 0;
     struct AdjLinkedListNode *Nodes;
 
 
-    workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
-    workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
 
 
     resetWorkList(workListNext, graph->num_vertices);
@@ -4201,9 +4201,9 @@ struct PageRankStats *pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  
             if(workListCurr[v])
             {
 
-                __u32 degree;
-                __u32 j;
-                __u32 u;
+                uint32_t degree;
+                uint32_t j;
+                uint32_t u;
                 double error = 0;
                 float nodeIncomingPR = 0;
 
@@ -4236,7 +4236,7 @@ struct PageRankStats *pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  
                         Nodes = Nodes->next;
                         #pragma omp atomic write
                         workListNext[u] = 1;
-                        // __u8 old_val = workListNext[u];
+                        // uint8_t old_val = workListNext[u];
                         // if(!old_val){
                         //    __sync_bool_compare_and_swap(&workListNext[u], 0, 1);
                         // }
@@ -4287,14 +4287,14 @@ struct PageRankStats *pageRankDataDrivenPullGraphAdjLinkedList(double epsilon,  
 
 }
 
-struct PageRankStats *pageRankDataDrivenPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList *graph)
+struct PageRankStats *pageRankDataDrivenPushGraphAdjLinkedList(double epsilon,  uint32_t iterations, struct GraphAdjLinkedList *graph)
 {
 
     double error_total = 0.0;
-    __u32 v;
-    __u32 degree;
-    __u32 j;
-    __u32 u;
+    uint32_t v;
+    uint32_t degree;
+    uint32_t j;
+    uint32_t u;
 
 
 
@@ -4302,15 +4302,15 @@ struct PageRankStats *pageRankDataDrivenPushGraphAdjLinkedList(double epsilon,  
     struct PageRankStats *stats = newPageRankStatsGraphAdjLinkedList(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    __u8 *workListCurr = NULL;
-    __u8 *workListNext = NULL;
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
     int activeVertices = 0;
     struct AdjLinkedListNode *Nodes;
 
 
 
-    workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
-    workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
 
 
     resetWorkList(workListNext, graph->num_vertices);
@@ -4462,27 +4462,27 @@ struct PageRankStats *pageRankDataDrivenPushGraphAdjLinkedList(double epsilon,  
 
 }
 
-struct PageRankStats *pageRankDataDrivenPullPushGraphAdjLinkedList(double epsilon,  __u32 iterations, struct GraphAdjLinkedList *graph)
+struct PageRankStats *pageRankDataDrivenPullPushGraphAdjLinkedList(double epsilon,  uint32_t iterations, struct GraphAdjLinkedList *graph)
 {
 
     double error_total = 0.0;
-    __u32 v;
-    __u32 degree;
-    __u32 j;
-    __u32 u;
+    uint32_t v;
+    uint32_t degree;
+    uint32_t j;
+    uint32_t u;
     struct AdjLinkedListNode *Nodes;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphAdjLinkedList(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    __u8 *workListCurr = NULL;
-    __u8 *workListNext = NULL;
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
     int activeVertices = 0;
 
 
-    workListCurr  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
-    workListNext  = (__u8 *) my_malloc(graph->num_vertices * sizeof(__u8));
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
 
 
     resetWorkList(workListNext, graph->num_vertices);

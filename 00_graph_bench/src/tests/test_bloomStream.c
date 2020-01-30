@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <linux/types.h>
+#include <stdint.h>
 
 #include "bloomStream.h"
 
@@ -40,12 +40,12 @@ int main(int argc, char *argv[])
 {
 
 
-    __u32 i;
-    __u32 size = 3355;
-    __u32 *array = (__u32 *) malloc(size * sizeof(__u32));
+    uint32_t i;
+    uint32_t size = 3355;
+    uint32_t *array = (uint32_t *) malloc(size * sizeof(uint32_t));
 
-    __u32 found = 0;
-    __u32 falsepos = 0;
+    uint32_t found = 0;
+    uint32_t falsepos = 0;
     printf("%s\n", "Create bloomStream" );
     struct BloomStream *bloomStream = newBloomStream(size, 4);
 

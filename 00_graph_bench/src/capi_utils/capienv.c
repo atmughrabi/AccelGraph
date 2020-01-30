@@ -62,7 +62,6 @@ void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     do
     {
         cxl_mmio_write64((*afu), AFU_CONFIGURE, afu_status->afu_config);
-        cxl_mmio_write64((*afu), AFU_CONFIGURE_2, afu_status->afu_config_2);
         cxl_mmio_read64((*afu), AFU_STATUS, (uint64_t *) & (afu_status->afu_status));
     }
     while(!(afu_status->afu_status));
@@ -87,7 +86,6 @@ void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     do
     {
         cxl_mmio_write64((*afu), CU_CONFIGURE, (uint64_t)afu_status->cu_config);
-        cxl_mmio_write64((*afu), CU_CONFIGURE_2, (uint64_t)afu_status->cu_config_2);
         cxl_mmio_read64((*afu), CU_STATUS, (uint64_t *) & (afu_status->cu_status));
     }
     while(!((afu_status->cu_status)));
@@ -303,7 +301,7 @@ void printMMIO_error( uint64_t error )
 }
 
 // ********************************************************************************************
-// ***************                  CSR DataStructure                            **************
+// ***************                   DataStructure                            **************
 // ********************************************************************************************
 
 struct  WEDStruct *mapDataArraysToWED(struct DataArrays *dataArrays)
@@ -338,4 +336,94 @@ void printWEDPointers(struct  WEDStruct *wed)
     printf("| %-22s | %-27p| \n", "wed->array_receive", wed->array_receive);
     printf(" -----------------------------------------------------\n");
 
+}
+
+
+// ********************************************************************************************
+// ***************                  CSR DataStructure                            **************
+// ********************************************************************************************
+
+struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
+{
+
+    struct WEDGraphCSR *wed = my_malloc(sizeof(struct WEDGraphCSR));
+
+    wed->num_edges    = graph->num_edges;
+    wed->num_vertices = graph->num_vertices;
+#if WEIGHTED
+    wed->max_weight   = graph->max_weight;
+#else
+    wed->max_weight   = 0;
+#endif
+
+    wed->vertex_out_degree  = graph->vertices->out_degree;
+    wed->vertex_in_degree   = graph->vertices->in_degree;
+    wed->vertex_edges_idx   = graph->vertices->edges_idx;
+
+    wed->edges_array_src    = graph->sorted_edges_array->edges_array_src;
+    wed->edges_array_dest   = graph->sorted_edges_array->edges_array_dest;
+#if WEIGHTED
+    wed->edges_array_weight = graph->sorted_edges_array->edges_array_weight;
+#endif
+
+#if DIRECTED
+    wed->inverse_vertex_out_degree  = graph->inverse_vertices->out_degree;
+    wed->inverse_vertex_in_degree   = graph->inverse_vertices->in_degree;
+    wed->inverse_vertex_edges_idx   = graph->inverse_vertices->edges_idx;
+
+    wed->inverse_edges_array_src    = graph->inverse_sorted_edges_array->edges_array_src;
+    wed->inverse_edges_array_dest   = graph->inverse_sorted_edges_array->edges_array_dest;
+#if WEIGHTED
+    wed->inverse_edges_array_weight = graph->inverse_sorted_edges_array->edges_array_weight;
+#endif
+#endif
+
+
+    wed->auxiliary0 = 0;
+
+#ifdef  VERBOSE
+    printWEDGraphCSRPointers(wed);
+#endif
+
+    return wed;
+}
+
+
+void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
+{
+
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-18s %-15s | \n", " ", "WED GraphCSR structure", " ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27p| \n", "wed",   wed);
+    printf("| %-22s | %-27u| \n", "wed->num_edges", wed->num_edges);
+    printf("| %-22s | %-27u| \n", "wed->num_vertices", wed->num_vertices);
+    #if WEIGHTED
+       printf("| %-22s | %-27u| \n", "wed->max_weight", wed->max_weight);
+    #endif
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27p| \n", "wed->vertex_in_degree", wed->vertex_in_degree);
+    printf("| %-22s | %-27p| \n", "wed->vertex_out_degree", wed->vertex_out_degree);
+    printf("| %-22s | %-27p| \n", "wed->vertex_edges_idx", wed->vertex_edges_idx);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27p| \n", "wed->edges_array_src", wed->edges_array_src);
+    printf("| %-22s | %-27p| \n", "wed->edges_array_dest", wed->edges_array_dest);
+    #if WEIGHTED
+    printf("| %-22s | %-27p| \n", "wed->edges_array_weight", wed->edges_array_weight);
+    #endif
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27p| \n", "wed->inverse_vertex_in_degree", wed->inverse_vertex_in_degree);
+    printf("| %-22s | %-27p| \n", "wed->inverse_vertex_out_degree", wed->inverse_vertex_out_degree);
+    printf("| %-22s | %-27p| \n", "wed->inverse_vertex_edges_idx", wed->inverse_vertex_edges_idx);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27p| \n", "wed->inverse_edges_array_src", wed->inverse_edges_array_src);
+    printf("| %-22s | %-27p| \n", "wed->inverse_edges_array_dest", wed->inverse_edges_array_dest);
+    #if WEIGHTED
+    printf("| %-22s | %-27p| \n", "wed->inverse_edges_array_weight", wed->inverse_edges_array_weight);
+    #endif
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27u| \n", "wed->auxiliary0", wed->auxiliary0);
+    printf("| %-22s | %-27p| \n", "wed->auxiliary1", wed->auxiliary1);
+    printf("| %-22s | %-27p| \n", "wed->auxiliary2", wed->auxiliary2);
+    printf(" -----------------------------------------------------\n");
 }

@@ -14,9 +14,8 @@ export GAPP_TEST          = test_afu
 
 # dirs Root app 
 export APP_DIR           	= .
-export SCRIPT_DIR          	= ../04_scripts
 # BENCHMARKS_DIR    	= ../../01_GraphDatasets/Aladdin-graphs
-export BENCHMARKS_DIR    	= ../03_test_graphs
+export BENCHMARKS_DIR    	= ../04_test_graphs
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -35,18 +34,6 @@ export PREPRO_DIR		  	= preprocessing
 export ALGO_DIR		  		= graphalgorithms
 export UTIL_DIR		  		= utils
 export CAPI_UTIL_DIR		= capi_utils
-
-
-# Folders needed when using gem5-aladdin
-export ALADDIN_COMMON_DIR			= aladdin_common
-export ALADDIN_CACTI_DIR			= cacti_configs
-export ALADDIN_GEM5_DIR				= gem5_configs
-export ALADDIN_ALGO_DIR				= algorithms_configs
-export DYNAMIC_TRACES_DIR		  	= dynamic_traces
-export ALADDIN_STATS_DIR		  	= stats_aladdin
-export GEM5_STATS_DIR		  		= stats_gem5
-
-# Folders needed when using CAPI
 
 
 #contains the tests use make run-test to compile what in this directory
@@ -125,6 +112,9 @@ export CONVERT_FORMAT 	= 1
 export BIN_SIZE = 512
 export INOUT_STATS = 2
 
+#########################################################
+#                RUN  ARGUMENTS                         #
+#########################################################
 export ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 ##############################################
 # CAPI FPGA  GRAPH AFU PERFORMANCE CONFIG    #
@@ -134,42 +124,69 @@ export ARGS = -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT
 # // cu_edge_data_control         5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00000 00000 00000 00000 00
-export AFU_CONFIG_STRICT_1=0x00000000  
+export CU_CONFIG_MODE=0x00000000  
+
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00010 00001 00000 00000 00
-export AFU_CONFIG_STRICT_2=0x00041000  
+# export CU_CONFIG_MODE=0x00041000  
 
 # // cu_vertex_job_control        5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits ABORT | READ_CL_S  | WRITE_NA 10010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits ABORT | READ_CL_NA | WRITE_MS 10001 [22:26] [19] [18] [15:17]
 #  // 0b 10000 10000 10010 10001 00000 00000 00
-export AFU_CONFIG_ABORT_1=0x84251000 
+# export CU_CONFIG_MODE=0x84251000 
 
 # // cu_vertex_job_control        5-bits PREF | READ_CL_NA | WRITE_NA 11000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [19] [18] [15:17]
 # // 0b 11000 11000 11000 11000 00000 00000 00
-export AFU_CONFIG_PREF_1=0xC6318000  
+# export CU_CONFIG_MODE=0xC6318000  
 
 # // cu_vertex_job_control        5-bits PREF | READ_CL_NA | WRITE_NA 11000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits PREF | READ_CL_S  | WRITE_NA 11010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits PREF | READ_CL_NA | WRITE_MS 11001 [22:26] [19] [18] [15:17]
 # // 0b 11000 11000 11010 11001 00000 00000 00
-export AFU_CONFIG_PREF_2=0xC6359000 
+# export CU_CONFIG_MODE=0xC6359000 
  
-export AFU_CONFIG_GENERIC=$(AFU_CONFIG_PREF_2)
+##############################################
+# CAPI FPGA AFU ARBITER CONFIG               #
+##############################################
+# shift credits >> 
+# read_credits            [0:3]
+# write_credits           [4:7]
+# prefetch_read_credits   [8:11]
+# prefetch_write_credits  [12:15]
+# FIXED_ARB               [62]
+# ROUND_ROBIN_ARB         [63]
+
+ROUND_ROBIN_ARB=0x1111000000000001
+FIXED_ARB=0x1111000000000002
+
+##############################################
+# CAPI FPGA AFU/CU      CONFIG               #
+##############################################
+
+export AFU_CONFIG_MODE=$(ROUND_ROBIN_ARB)
+# export AFU_CONFIG_MODE=$(FIXED_ARB)
+
+export CU_CONFIG_GENERIC=$(CU_CONFIG_MODE)
+export AFU_CONFIG_GENERIC=$(AFU_CONFIG_MODE)
 ##################################################
 
-APP_DIR           	= .
-MAKE_DIR      = 00_graph_bench
-MAKE_NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-MAKE_ARGS = -w -C $(APP_DIR)/$(MAKE_DIR) -j$(MAKE_NUM_THREADS)
+APP_DIR                 = .
+MAKE_DIR                = 00_graph_bench
+MAKE_DIR_SYNTH          = 01_capi_integration/accelerator_synth
+
+MAKE_NUM_THREADS        = $(shell grep -c ^processor /proc/cpuinfo)
+MAKE_ARGS               = -w -C $(APP_DIR)/$(MAKE_DIR) -j$(MAKE_NUM_THREADS)
+MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH) -j$(MAKE_NUM_THREADS)
+
 
 ##################################################
 ##################################################
@@ -247,84 +264,11 @@ clean:
 clean-obj: 
 	$(MAKE) clean-obj $(MAKE_ARGS)
 
-##################################################
-##################################################
-
-############################################
-#      		GEM5  TOP LEVEL RULES          #
-############################################
-
-# Builds both standalone CPU version and the HW accelerated version.
-.PHONY: gem5 
-gem5: 
-	$(MAKE) gem5 $(MAKE_ARGS)
-
-.PHONY: run-gem5
-run-gem5: 
-	$(MAKE) run-gem5 $(MAKE_ARGS)
-
-.PHONY: run-gem5-openmp 
-run-gem5-openmp: 
-	$(MAKE) run-gem5-openmp $(MAKE_ARGS)
-
-.PHONY: run-gem5-cache-prefetch 
-run-gem5-cache-prefetch:
-	$(MAKE) run-gem5-cache-prefetch $(MAKE_ARGS)
-
-.PHONY: run-gem5-cache 
-run-gem5-cache: 
-	$(MAKE) run-gem5-cache $(MAKE_ARGS)
-	
-.PHONY: run-gem5-cpu 
-run-gem5-cpu: 
-	$(MAKE) run-gem5-cpu $(MAKE_ARGS)
-
-.PHONY: run-gem5-cpu-only 
-run-gem5-cpu-only: 
-	$(MAKE) run-gem5-cpu-only $(MAKE_ARGS)
-
-.PHONY: run-gem5-accel 
-run-gem5-accel: 
-	$(MAKE) run-gem5-accel $(MAKE_ARGS)
-
-.PHONY: run-gem5-accel-debug
-run-gem5-accel-debug: 
-	$(MAKE) run-gem5-accel-debug $(MAKE_ARGS)
-	  
-##################################################
-##################################################
-
-############################################
-#      LLVM TRACER  TOP LEVEL RULES        #
-############################################
-
-.PHONY: trace-binary
-trace-binary:
-	$(MAKE) trace-binary $(MAKE_ARGS)
-
-.PHONY: dma-trace-binary
-dma-trace-binary :
-	$(MAKE) dma-trace-binary $(MAKE_ARGS)
-
-.PHONY: run-llvm-tracer
-run-llvm-tracer :
-	$(MAKE) run-llvm-tracer $(MAKE_ARGS)
-
-.PHONY: run-llvm-tracer-force
-run-llvm-tracer-force :
-	$(MAKE) run-llvm-tracer-force $(MAKE_ARGS)
-
-.PHONY: run-aladdin
-run-aladdin :
-	$(MAKE) run-aladdin $(MAKE_ARGS)
-
-.PHONY: run-aladdin-force
-run-aladdin-force :
-	$(MAKE) run-aladdin-force $(MAKE_ARGS)
+.PHONY: clean-all
+clean-all: clean clean-sim clean-synth
 
 ##################################################
 ##################################################
-
 
 ##############################################
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #
@@ -346,6 +290,11 @@ run-capi-sim-verbose:
 run-capi-fpga-verbose:
 	$(MAKE) run-capi-fpga-verbose $(MAKE_ARGS)
 
+.PHONY: capi
+capi:
+	$(MAKE) run-capi-fpga-verbose $(MAKE_ARGS) &&\
+	sudo ./03_scripts/clear_cache.sh
+
 .PHONY: run-test-capi
 run-test-capi:
 	$(MAKE) run-test-capi $(MAKE_ARGS)
@@ -365,5 +314,75 @@ build-pslse:
 .PHONY: clean-sim
 clean-sim:
 	 $(MAKE) clean-sim $(MAKE_ARGS)
+##################################################
+##################################################
+
+##############################################
+#           ACCEL SYNTHESIZE LEVEL RULES     #
+##############################################
+
+.PHONY: run-capi-synth
+run-capi-synth:
+	$(MAKE) all $(MAKE_ARGS_SYNTH)
+
+.PHONY: run-capi-gui
+run-capi-gui:
+	$(MAKE) gui $(MAKE_ARGS_SYNTH)
+
+.PHONY: run-capi-sweep
+run-capi-sweep:
+	$(MAKE) sweep $(MAKE_ARGS_SYNTH)
+
+.PHONY: map
+map:
+	$(MAKE) map $(MAKE_ARGS_SYNTH)
+
+.PHONY: fit
+fit:
+	$(MAKE) fit $(MAKE_ARGS_SYNTH)
+
+.PHONY: asm
+asm:
+	$(MAKE) asm $(MAKE_ARGS_SYNTH)
+
+.PHONY: sta
+sta:
+	$(MAKE) sta $(MAKE_ARGS_SYNTH)
+
+.PHONY: qxp
+qxp:
+	$(MAKE) qxp $(MAKE_ARGS_SYNTH)
+
+.PHONY: rbf
+rbf:
+	$(MAKE) rbf $(MAKE_ARGS_SYNTH)
+
+.PHONY: smart
+smart:
+	$(MAKE) smart $(MAKE_ARGS_SYNTH)
+
+.PHONY: program
+program:
+	$(MAKE) program $(MAKE_ARGS_SYNTH)
+
+.PHONY: timing
+timing:
+	$(MAKE) timing $(MAKE_ARGS_SYNTH)
+
+.PHONY: stats
+stats:
+	$(MAKE) stats $(MAKE_ARGS_SYNTH)
+
+.PHONY: gen-rbf
+gen-rbf:
+	$(MAKE) gen-rbf $(MAKE_ARGS_SYNTH)
+
+.PHONY:copy-rbf
+copy-rbf:
+	$(MAKE) copy-rbf $(MAKE_ARGS_SYNTH)
+
+.PHONY: clean-synth
+clean-synth:
+	$(MAKE) clean $(MAKE_ARGS_SYNTH)
 ##################################################
 ##################################################
