@@ -1,0 +1,18 @@
+# do vsim.tcl
+# ** Warning: (vlib-34) Library already exists at "work".
+# Model Technology ModelSim - Intel FPGA Edition vmap 10.5b Lib Mapping Utility 2016.10 Oct  5 2016
+# vmap work work 
+# Modifying modelsim.ini
+# Compiling libs
+# Compiling Packages AFU
+# ** Error: ../../accelerator_rtl/pkg/afu_pkg.sv(19): (vlog-13006) Could not find the package (CU_PKG).  Design read will continue, but expect a cascade of errors after this failure.  Furthermore if you experience a vopt-7 error immediately before this error then please check the package names or the library search paths on the command line.
+# ** Error: (vlog-13069) ../../accelerator_rtl/pkg/afu_pkg.sv(81): near "array_struct_type": syntax error, unexpected IDENTIFIER.
+# ** Error: (vlog-13069) ../../accelerator_rtl/pkg/afu_pkg.sv(88): near "}": syntax error, unexpected '}', expecting class.
+# ** Error: /home/ab/intelFPGA/18.1/modelsim_ase/linuxaloem/vlog failed.
+# Error in macro ./vsim.tcl line 106
+# /home/ab/intelFPGA/18.1/modelsim_ase/linuxaloem/vlog failed.
+#     while executing
+# "vlog -quiet ../../accelerator_rtl/pkg/afu_pkg.sv"
+#     (procedure "r" line 13)
+#     invoked from within
+# "r"

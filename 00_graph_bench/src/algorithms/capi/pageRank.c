@@ -1263,15 +1263,6 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  uint32_t i
     //CAPI variables
     struct cxl_afu_h *afu;
     struct WEDGraphCSR *wedGraphCSR;
-    struct AFUStatus afu_status;
-
-    afu_status.algo_status = 0;
-    afu_status.num_cu = numThreads; // non zero CU triggers the AFU to work
-    afu_status.error = 0;
-    afu_status.afu_status = 0;
-    afu_status.algo_running = 0;
-    afu_status.algo_stop = graph->num_vertices; // stoping condition
-
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
 
@@ -1304,18 +1295,27 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  uint32_t i
     
     // ********************************************************************************************
     // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
 
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
 
     wedGraphCSR->auxiliary1 = riDividedOnDiClause;
     wedGraphCSR->auxiliary2 = pageRanksNext;
-    wedGraphCSR->afu_config = AFU_CONFIG;
-    // ********************************************************************************************
 
     // ********************************************************************************************
+    // ********************************************************************************************
     // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
     setupAFUGraphCSR(&afu, wedGraphCSR);
-    waitJOBRunning(&afu, &afu_status);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config = afu_config;
+    afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config = ((afu_status.cu_config << 32) | (numThreads));
+    afu_status.cu_stop = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    startAFU(&afu, &afu_status);
     // ********************************************************************************************
 
     #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext)
@@ -1343,8 +1343,8 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  uint32_t i
 
         //  Start(timer_inner);
         // ********************************************************************************************
-        // ***************                 START AFU                                     **************
-        startAFU(&afu, &afu_status);
+        // ***************                 START CU                                      **************
+        startCU(&afu, &afu_status);
         // ********************************************************************************************
 
         // ********************************************************************************************

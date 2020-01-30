@@ -5,11 +5,11 @@
 #       		 GENERAL DIRECTOIRES   	    			#
 #########################################################
 # globals binaary /bin/accel-graph name doesn't need to match main/accel-graph.c
-export GAPP               = accel-graph
+export APP               = accel-graph
 
 # test name needs to match the file name test/test_accel-graph.c
 #   GAPP_TEST          = test_accel-graph
-export GAPP_TEST          = test_afu
+export APP_TEST          = test_afu
 
 
 # dirs Root app 
@@ -29,8 +29,8 @@ export BUILD_DIR		  	= build
 
 # relative directories used for managing src/obj files
 export STRUCT_DIR		  	= structures
-export PREPRO_DIR		  	= preprocessing
-export ALGO_DIR		  		= graphalgorithms
+export PREPRO_DIR		  	= preprocess
+export ALGO_DIR		  		= algorithms
 export UTIL_DIR		  		= utils
 export CAPI_UTIL_DIR		= capi_utils
 

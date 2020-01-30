@@ -35,8 +35,6 @@
 #include "triangleCount.h"
 
 
-
-
 struct TCStats *newTCStatsGraphCSR(struct GraphCSR *graph)
 {
     uint32_t v;
@@ -296,7 +294,7 @@ struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph)
 
     stats->total_counts = counts / 6;
 
-    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
     free(timer);
@@ -376,7 +374,7 @@ struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph)
 
     stats->total_counts = counts;
 
-    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
     free(timer);
@@ -458,7 +456,7 @@ struct TCStats *triangleCountPushGraphCSR(struct GraphCSR *graph)
 
     stats->total_counts = counts;
 
-    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
     free(timer);
@@ -506,7 +504,7 @@ struct TCStats *triangleCountBinaryIntersectionGraphCSR(struct GraphCSR *graph)
 
     stats->total_counts = counts;
 
-    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
     free(timer);
@@ -554,7 +552,7 @@ struct TCStats *triangleCountRowGraphGrid(struct GraphGrid *graph)
     Stop(timer);
     stats->time_total = Seconds(timer);
     stats->total_counts = counts;
-    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
     return stats;
 
@@ -574,7 +572,7 @@ struct TCStats *triangleCountColumnGraphGrid(struct GraphGrid *graph)
     Stop(timer);
     stats->time_total = Seconds(timer);
     stats->total_counts = counts;
-    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
     return stats;
 
@@ -618,7 +616,7 @@ struct TCStats *triangleCountPullGraphAdjArrayList(struct GraphAdjArrayList *gra
     Stop(timer);
     stats->time_total = Seconds(timer);
     stats->total_counts = counts;
-    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
     return stats;
 
@@ -637,7 +635,7 @@ struct TCStats *triangleCountPushGraphAdjArrayList(struct GraphAdjArrayList *gra
     Stop(timer);
     stats->time_total = Seconds(timer);
     stats->total_counts = counts;
-    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
     return stats;
 }
@@ -679,7 +677,7 @@ struct TCStats *triangleCountPullGraphAdjLinkedList(struct GraphAdjLinkedList *g
     Stop(timer);
     stats->time_total = Seconds(timer);
     stats->total_counts = counts;
-    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
     return stats;
 
@@ -699,7 +697,7 @@ struct TCStats *triangleCountPushGraphAdjLinkedList(struct GraphAdjLinkedList *g
     Stop(timer);
     stats->time_total = Seconds(timer);
     stats->total_counts = counts;
-    printf("| %-21llu | %-27f | \n", stats->total_counts, stats->time_total);
+    printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
     return stats;
 

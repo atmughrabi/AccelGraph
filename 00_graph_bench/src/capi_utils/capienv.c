@@ -21,13 +21,13 @@
 #include "libcxl.h"
 #include "capienv.h"
 
-#include "algorithm.h"
+#include "graphCSR.h"
 
 // ********************************************************************************************
 // ***************                  AFU General                                  **************
 // ********************************************************************************************
 
-int setupAFU(struct cxl_afu_h **afu, struct WEDStruct *wed)
+int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR)
 {
 
     (*afu) = cxl_afu_open_dev(DEVICE_1);
@@ -37,7 +37,7 @@ int setupAFU(struct cxl_afu_h **afu, struct WEDStruct *wed)
         return 1;
     }
 
-    cxl_afu_attach((*afu), (uint64_t)wed);
+    cxl_afu_attach((*afu), (uint64_t)wedGraphCSR);
     int base_address = cxl_mmio_map ((*afu), CXL_MMIO_BIG_ENDIAN);
 
     if (base_address < 0)
@@ -303,40 +303,6 @@ void printMMIO_error( uint64_t error )
 // ********************************************************************************************
 // ***************                   DataStructure                            **************
 // ********************************************************************************************
-
-struct  WEDStruct *mapDataArraysToWED(struct DataArrays *dataArrays)
-{
-
-    struct WEDStruct *wed = my_malloc(sizeof(struct WEDStruct));
-
-    wed->size_send    = dataArrays->size;
-    wed->size_recive  = dataArrays->size;
-    wed->array_send     = dataArrays->array_send;
-    wed->array_receive  = dataArrays->array_receive;
-
-
-#ifdef  VERBOSE
-    printWEDPointers(wed);
-#endif
-
-    return wed;
-}
-
-
-void printWEDPointers(struct  WEDStruct *wed)
-{
-
-    printf("*-----------------------------------------------------*\n");
-    printf("| %-15s %-18s %-15s | \n", " ", "WEDStruct structure", " ");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-22s | %-27p| \n", "wed",   wed);
-    printf("| %-22s | %-27lu| \n", "wed->size_send", wed->size_send);
-    printf("| %-22s | %-27lu| \n", "wed->size_recive", wed->size_recive);
-    printf("| %-22s | %-27p| \n", "wed->array_send", wed->array_send);
-    printf("| %-22s | %-27p| \n", "wed->array_receive", wed->array_receive);
-    printf(" -----------------------------------------------------\n");
-
-}
 
 
 // ********************************************************************************************

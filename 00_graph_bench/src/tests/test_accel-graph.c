@@ -59,6 +59,8 @@
 #include <assert.h>
 #include "graphTest.h"
 
+uint64_t afu_config;
+uint64_t cu_config;
 int numThreads;
 mt19937state *mt19937var;
 
@@ -99,7 +101,7 @@ main (int argc, char **argv)
     arguments.convert_format = 1;
 
     void *graph = NULL;
-
+    
     numThreads =  arguments.numThreads;
 
     struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));

@@ -5,7 +5,7 @@
 #include "myMalloc.h"
 #include "libcxl.h"
 
-#include "algorithm.h"
+#include "graphCSR.h"
 
 // ********************************************************************************************
 // ***************                  MMIO General                                 **************
@@ -91,30 +91,10 @@ struct CmdResponseStats
     uint64_t CYCLE_count       ;
 };
 
-// ********************************************************************************************
-// ***************                      DataStructure                            **************
-// ********************************************************************************************
 
-struct __attribute__((__packed__)) WEDStruct
-{
-    uint64_t size_send;                // 8-Bytes
-    uint64_t size_recive;              // 8-Bytes
-    void *array_send;               // 8-Bytes
-    void *array_receive;            // 8-Bytes
-    void *pointer1;                 // 8-Bytes
-    void *pointer2;                 // 8-Bytes
-    void *pointer3;                 // 8-Bytes
-    void *pointer4;                 // 8-Bytes
-    //---------------------------------------------------//--// 64bytes
-    void *pointer5;                 // 8-Bytes
-    void *pointer6;                 // 8-Bytes
-    void *pointer7;                 // 8-Bytes
-    void *pointer8;                 // 8-Bytes
-    void *pointer9;                 // 8-Bytes
-    void *pointer10;                // 8-Bytes
-    void *pointer11;                // 8-Bytes
-    void *pointer12;                // 8-Bytes
-}; // 32-bytes used from 128-Bytes WED;
+// ********************************************************************************************
+// ***************                      DataStructure CSR                        **************
+// ********************************************************************************************
 
 struct __attribute__((__packed__)) WEDGraphCSR
 {
@@ -144,8 +124,6 @@ struct __attribute__((__packed__)) WEDGraphCSR
 // ********************************************************************************************
 
 struct WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph);
-struct WEDStruct *mapDataArraysToWED(struct DataArrays *dataArrays);
-void printWEDPointers(struct  WEDStruct *wed);
 void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed);
 
 // ********************************************************************************************
@@ -159,7 +137,6 @@ void printMMIO_error( uint64_t error );
 // ********************************************************************************************
 
 int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR);
-int setupAFU(struct cxl_afu_h **afu, struct WEDStruct *wed);
 void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
 void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
 void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);

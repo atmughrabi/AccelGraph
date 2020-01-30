@@ -1,5 +1,5 @@
 # recompile
-proc r  {} {
+proc r  { {cu "cu_PageRank"} } {
 
   # compile SystemVerilog files
 
@@ -7,13 +7,15 @@ proc r  {} {
   echo "Compiling libs"
   
   # compile packages
-  echo "Compiling Packages"
+  echo "Compiling Packages AFU"
   vlog -quiet ../../accelerator_rtl/pkg/globals_pkg.sv
   vlog -quiet ../../accelerator_rtl/pkg/capi_pkg.sv
-  vlog -quiet ../../accelerator_rtl/pkg/wed_pkg.sv
-  vlog -quiet ../../accelerator_rtl/pkg/cu_pkg.sv
   vlog -quiet ../../accelerator_rtl/pkg/credit_pkg.sv
   vlog -quiet ../../accelerator_rtl/pkg/afu_pkg.sv
+
+  echo "Compiling Packages CU"
+  vlog -quiet ../../accelerator_rtl/$cu/pkg/cu_pkg.sv
+  vlog -quiet ../../accelerator_rtl/$cu/pkg/wed_pkg.sv
 
   # compile afu
   echo "Compiling RTL General"
@@ -50,17 +52,29 @@ proc r  {} {
   vlog -quiet ../../accelerator_rtl/afu/wed_control.sv
 
   echo "Compiling RTL CU control "
-  vlog -quiet ../../accelerator_rtl/cu/cu_prefetch_stream_engine_control.sv
-  vlog -quiet ../../accelerator_rtl/cu/cu_data_read_engine_control.sv
-  vlog -quiet ../../accelerator_rtl/cu/cu_data_write_engine_control.sv
-  vlog -quiet ../../accelerator_rtl/cu/cu_control.sv
 
- 
-  echo "Compiling RTL AFU"
-  vlog -quiet ../../accelerator_rtl/afu/afu.sv
-  vlog -quiet ../../accelerator_rtl/afu/cached_afu.sv
-  
-  
+  if {$cu eq "cu_PageRank"} {
+    echo "Compiling RTL CU control PAGERANK"
+    vlog -quiet ../../accelerator/$cu/cu/cu_cacheline_stream.sv
+    vlog -quiet ../../accelerator/$cu/cu/cu_sum_kernel_control.sv
+    vlog -quiet ../../accelerator/$cu/cu/cu_edge_data_write_control.sv
+    vlog -quiet ../../accelerator/$cu/cu/cu_edge_data_read_control.sv
+    vlog -quiet ../../accelerator/$cu/cu/cu_edge_data_control.sv
+    vlog -quiet ../../accelerator/$cu/cu/cu_edge_job_control.sv
+    vlog -quiet ../../accelerator/$cu/cu/cu_vertex_job_control.sv
+    vlog -quiet ../../accelerator/$cu/cu/cu_vertex_pagerank.sv
+    vlog -quiet ../../accelerator/$cu/cu/cu_graph_algorithm_control.sv
+    vlog -quiet ../../accelerator/$cu/cu/cu_control.sv
+    } else {
+      echo "UNKNOWN RTL CU"
+    }
+    
+    
+    echo "Compiling RTL AFU"
+    vlog -quiet ../../accelerator_rtl/afu/afu.sv
+    vlog -quiet ../../accelerator_rtl/afu/cached_afu.sv
+    
+    
   # compile top level
   echo "Compiling top level"
   # vlog -quiet       pslse/afu_driver/verilog/top.v
@@ -91,8 +105,8 @@ proc c {} {
 }
 
 # shortcut for recompilation + simulation
-proc rc {} {
-  r
+proc rc {{cu "cu_PageRank"}} {
+  r $cu
   c
 }
 

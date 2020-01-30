@@ -37,7 +37,8 @@
 // " #    # "#mm"  "#mm"  "#mm"    "mm          "mmm"  #     "mm"#  ##m#"  #   # \n"
 // "                                                                #            \n"
 
-
+uint64_t afu_config;
+uint64_t cu_config;
 int numThreads;
 mt19937state *mt19937var;
 
@@ -275,6 +276,8 @@ main (int argc, char **argv)
     argp_parse (&argp, argc, argv, 0, 0, &arguments);
 
     numThreads =  arguments.numThreads;
+    afu_config =  arguments.afu_config;
+    cu_config  =  arguments.cu_config;
 
     struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
 

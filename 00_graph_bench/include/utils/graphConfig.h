@@ -8,6 +8,8 @@
 #define WEIGHTED 1
 #define DIRECTED 1
 
+extern  uint64_t afu_config;
+extern  uint64_t cu_config;
 extern int numThreads;
 extern mt19937state *mt19937var;
 

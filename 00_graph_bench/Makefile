@@ -29,8 +29,8 @@ BUILD_DIR		  	?= build
 
 # relative directories used for managing src/obj files
 STRUCT_DIR		  	?= structures
-PREPRO_DIR		  	?= preprocessing
-ALGO_DIR		  	?= graphalgorithms
+PREPRO_DIR		  	?= preprocess
+ALGO_DIR		  	?= algorithms
 UTIL_DIR		  	?= utils
 CAPI_UTIL_DIR		?= capi_utils
 
