@@ -116,13 +116,13 @@ export INOUT_STATS = 2
 ##############################################
 
 #disable both PREFETCH
-# ENABLE_RD_WR_PREFETCH=0
+ENABLE_RD_WR_PREFETCH=0
 #enable write PREFETCH
 # ENABLE_RD_WR_PREFETCH=1
 #enable read PREFETCH
 # ENABLE_RD_WR_PREFETCH=2
 #enable both PREFETCH
-export ENABLE_RD_WR_PREFETCH=3
+# export ENABLE_RD_WR_PREFETCH=3
 
 ##############################################
 # CAPI FPGA  GRAPH AFU PERFORMANCE CONFIG    #
