@@ -46,6 +46,10 @@ int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR)
         return 1;
     }
 
+#ifdef  VERBOSE
+    printWEDGraphCSRPointers(wedGraphCSR);
+#endif
+
     return 0;
 
 }
@@ -406,10 +410,6 @@ struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
 
 
     wed->auxiliary0 = 0;
-
-#ifdef  VERBOSE
-    printWEDGraphCSRPointers(wed);
-#endif
 
     return wed;
 }

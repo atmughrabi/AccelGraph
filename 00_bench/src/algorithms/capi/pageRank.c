@@ -1275,8 +1275,8 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  uint32_t i
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
 
-    volatile uint64_t *pageRanksNext = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
-    volatile uint64_t *riDividedOnDiClause = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint64_t *pageRanksNext = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint64_t *riDividedOnDiClause = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
     // uint64_t* outDegreesFP = (uint64_t*) my_malloc(graph->num_vertices*sizeof(uint64_t));
     // uint64_t* pageRanksFP = (uint64_t*) my_malloc(graph->num_vertices*sizeof(uint64_t));
 
@@ -1296,6 +1296,7 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  uint32_t i
     // ********************************************************************************************
     // ***************                  MAP CSR DataStructure                        **************
     // ********************************************************************************************
+
 
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
 
