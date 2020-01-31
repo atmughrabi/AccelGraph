@@ -29,10 +29,30 @@ package GLOBALS_CU_PKG;
 ////////////////////////////////////////////////////////////////////////////
 
 	parameter NUM_GRAPH_CU_GLOBAL  = 1;
-	parameter NUM_VERTEX_CU_GLOBAL = 16;
+	parameter NUM_VERTEX_CU_GLOBAL = 32;
 
 	parameter CU_VERTEX_JOB_BUFFER_SIZE = 256;
 	parameter CU_EDGE_JOB_BUFFER_SIZE   = 256;
+
+	parameter READ_VERTEX_CMD_BUFFER_SIZE           = 64;
+	parameter WRITE_VERTEX_CMD_BUFFER_SIZE          = 64;
+	parameter PREFETCH_VERTEX_READ_CMD_BUFFER_SIZE  = 64;
+	parameter PREFETCH_VERTEX_WRITE_CMD_BUFFER_SIZE = 64;
+	
+	parameter READ_VERTEX_RSP_BUFFER_SIZE           = 64;
+	parameter PREFETCH_VERTEX_READ_RSP_BUFFER_SIZE  = 64;
+	parameter PREFETCH_VERTEX_WRITE_RSP_BUFFER_SIZE = 64;
+	parameter WRITE_VERTEX_RSP_BUFFER_SIZE          = 64;
+
+	parameter READ_EDGE_CMD_BUFFER_SIZE           = 64;
+	parameter WRITE_EDGE_CMD_BUFFER_SIZE          = 64;
+	parameter PREFETCH_EDGE_READ_CMD_BUFFER_SIZE  = 64;
+	parameter PREFETCH_EDGE_WRITE_CMD_BUFFER_SIZE = 64;
+	
+	parameter READ_EDGE_RSP_BUFFER_SIZE           = 64;
+	parameter PREFETCH_EDGE_READ_RSP_BUFFER_SIZE  = 64;
+	parameter PREFETCH_EDGE_WRITE_RSP_BUFFER_SIZE = 64;
+	parameter WRITE_EDGE_RSP_BUFFER_SIZE          = 64;
 
 ////////////////////////////////////////////////////////////////////////////
 // CU-Control CU Globals
@@ -58,7 +78,7 @@ package GLOBALS_CU_PKG;
 	parameter CACHELINE_INT_COUNTER_BITS = $clog2((VERTEX_SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? (2 * CACHELINE_SIZE_BITS_HF)/VERTEX_SIZE_BITS : 2);
 
 ////////////////////////////////////////////////////////////////////////////
-//  AFU/CU-Control CU IDs any compute unite that generate command must have an ID
+//  AFU/CU-Control CU IDs any compute unit that generate command must have an ID
 ////////////////////////////////////////////////////////////////////////////
 
 	parameter VERTEX_CONTROL_ID          = (RESTART_ID - 1)                ;

@@ -108,7 +108,10 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 {
 
     struct CmdResponseStats cmdResponseStats = {0};
-
+#ifdef  VERBOSE_2
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-22s | %-27lu|\n", "Vertex Total #", afu_status->cu_stop);
+#endif
     do
     {
         // Poll for errors always
@@ -118,12 +121,12 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
         // read final return result
         cxl_mmio_read64((*afu), CU_RETURN_DONE, (uint64_t *) & (afu_status->cu_return_done));
 
-    #ifdef  VERBOSE_2
+#ifdef  VERBOSE_2
         cxl_mmio_read64((*afu), CU_RETURN, (uint64_t *) & (afu_status->cu_return));
         if(afu_status->cu_return)
-            printf("\r| %-22s | %-27lu|", "Vertex #",afu_status->cu_return);
+            printf("\r| %-22s | %-27lu|", "Vertex #", afu_status->cu_return_done);
         fflush(stdout);
-    #endif
+#endif
         // if((((afu_status->cu_return_done) << 32) >> 32) >= (afu_status->cu_stop))
         //     break;
 
@@ -137,7 +140,7 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     while((!(afu_status->error)));
 #ifdef  VERBOSE_2
     printf("\n*-----------------------------------------------------*\n");
-#endif 
+#endif
 #ifdef  VERBOSE
     printCmdResponseStats(&cmdResponseStats);
 
@@ -199,22 +202,22 @@ void printCmdResponseStats(struct CmdResponseStats *cmdResponseStats)
 {
 
     uint64_t size_read  = (cmdResponseStats->DONE_READ_count);
-    uint64_t size_write = (cmdResponseStats->DONE_WRITE_count)/16;
+    uint64_t size_write = (cmdResponseStats->DONE_WRITE_count) / 16;
     uint64_t size       = size_read + (size_write);
 
     uint64_t size_read_byte  = (cmdResponseStats->READ_BYTE_count);
     uint64_t size_write_byte = (cmdResponseStats->WRITE_BYTE_count);
     uint64_t size_byte       = size_read_byte + (size_write_byte);
-  
+
     double time_elapsed = (double)(cmdResponseStats->CYCLE_count * 4) / 1e9;
-   
+
     printf("*-----------------------------------------------------*\n");
     printf("| %-15s %-19s %-15s | \n", " ", "AFU Stats", " ");
     printf(" -----------------------------------------------------\n");
     printf("| %-22s | %-27lu| \n", "CYCLE_count ", cmdResponseStats->CYCLE_count);
     printf("| %-22s | %-27.20lf| \n", "Time (Seconds)", time_elapsed);
     printf(" -----------------------------------------------------\n");
-    
+
     printf("*-----------------------------------------------------*\n");
     printf("| %-15s %-19s %-15s | \n", " ", "Total BW", " ");
     printf(" -----------------------------------------------------\n");
@@ -231,17 +234,17 @@ void printCmdResponseStats(struct CmdResponseStats *cmdResponseStats)
     printBandwidth(size_write, time_elapsed, 128);
 
     printf("*-----------------------------------------------------*\n");
-    printf("| %-15s %-19s %-15s | \n", " ", "real BW", " ");
+    printf("| %-15s %-19s %-15s | \n", " ", "Effective total BW", " ");
     printf(" -----------------------------------------------------\n");
     printBandwidth(size_byte, time_elapsed, 1);
 
     printf("*-----------------------------------------------------*\n");
-    printf("| %-15s %-19s %-15s | \n", " ", "real Read BW", " ");
+    printf("| %-15s %-19s %-15s | \n", " ", "Effective Read BW", " ");
     printf(" -----------------------------------------------------\n");
     printBandwidth(size_read_byte, time_elapsed, 1);
 
     printf("*-----------------------------------------------------*\n");
-    printf("| %-15s %-19s %-15s | \n", " ", "real Write BW", " ");
+    printf("| %-15s %-19s %-15s | \n", " ", "Effective Write BW", " ");
     printf(" -----------------------------------------------------\n");
     printBandwidth(size_write_byte, time_elapsed, 1);
 
@@ -424,9 +427,9 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
     printf("| %-25s | %-24p| \n", "wed",   wed);
     printf("| %-25s | %-24u| \n", "num_edges", wed->num_edges);
     printf("| %-25s | %-24u| \n", "num_vertices", wed->num_vertices);
-    #if WEIGHTED
-       printf("| %-25s | %-24u| \n", "max_weight", wed->max_weight);
-    #endif
+#if WEIGHTED
+    printf("| %-25s | %-24u| \n", "max_weight", wed->max_weight);
+#endif
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24p| \n", "vertex_in_degree", wed->vertex_in_degree);
     printf("| %-25s | %-24p| \n", "vertex_out_degree", wed->vertex_out_degree);
@@ -434,9 +437,9 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24p| \n", "edges_array_src", wed->edges_array_src);
     printf("| %-25s | %-24p| \n", "edges_array_dest", wed->edges_array_dest);
-    #if WEIGHTED
+#if WEIGHTED
     printf("| %-25s | %-24p| \n", "edges_array_weight", wed->edges_array_weight);
-    #endif
+#endif
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24p| \n", "inverse_vertex_in_degree", wed->inverse_vertex_in_degree);
     printf("| %-25s | %-24p| \n", "inverse_vertex_out_degree", wed->inverse_vertex_out_degree);
@@ -444,9 +447,9 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24p| \n", "inverse_edges_array_src", wed->inverse_edges_array_src);
     printf("| %-25s | %-24p| \n", "inverse_edges_array_dest", wed->inverse_edges_array_dest);
-    #if WEIGHTED
+#if WEIGHTED
     printf("| %-25s| %-24p| \n", "inverse_edges_array_weight", wed->inverse_edges_array_weight);
-    #endif
+#endif
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24u| \n", "auxiliary0", wed->auxiliary0);
     printf("| %-25s | %-24p| \n", "auxiliary1", wed->auxiliary1);
