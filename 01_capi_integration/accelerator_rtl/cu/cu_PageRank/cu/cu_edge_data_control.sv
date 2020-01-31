@@ -125,10 +125,11 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 				if(edge_job_variable.valid && wed_request_in_latched.valid)begin
 					read_command_out_latched.valid <= 1'b1;
 
-					read_command_out_latched.address <= wed_request_in_latched.wed.auxiliary1 + (edge_job_variable.dest << $clog2(DATA_SIZE_READ));
-					read_command_out_latched.size    <= DATA_SIZE_READ;
-
-					read_command_out_latched.cmd.array_struct    <= READ_GRAPH_DATA;
+					read_command_out_latched.address              <= wed_request_in_latched.wed.auxiliary1 + ((edge_job_variable.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_ALIGN_MASK);
+					read_command_out_latched.size                 <= 12'h080;
+					read_command_out_latched.cmd.real_size        <= 1'b1;
+        			read_command_out_latched.cmd.real_size_bytes  <= DATA_SIZE_READ;
+					read_command_out_latched.cmd.array_struct     <= READ_GRAPH_DATA;
 					read_command_out_latched.cmd.cacheline_offest <= (((edge_job_variable.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_MOD_MASK) >> $clog2(DATA_SIZE_READ));
 					read_command_out_latched.cmd.cu_id            <= CU_ID;
 					read_command_out_latched.cmd.cmd_type         <= CMD_READ;

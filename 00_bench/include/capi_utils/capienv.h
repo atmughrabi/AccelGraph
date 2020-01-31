@@ -13,10 +13,10 @@
 // 0x3fffff8 >> 2 = 0xfffffc
 #define AFU_CONFIGURE           0x3FFFFF8
 #define AFU_CONFIGURE_2         0x3FFFF30
-#define AFU_STATUS              0x3FFFFF0   
+#define AFU_STATUS              0x3FFFFF0
 
 #define CU_CONFIGURE            0x3FFFFE8
-#define CU_CONFIGURE_2          0x3FFFF28        
+#define CU_CONFIGURE_2          0x3FFFF28
 #define CU_STATUS               0x3FFFFE0
 
 #define CU_RETURN               0x3FFFFD8         // running counters that you can read continuosly     
@@ -49,6 +49,10 @@
 #define  NLOCK_COUNT_REG                    0x3FFFF40
 #define  CYCLE_COUNT_REG                    0x3FFFF38
 
+#define PREFETCH_READ_BYTE_COUNT_REG        0x3FFFF30
+#define PREFETCH_WRITE_BYTE_COUNT_REG       0x3FFFF28
+#define READ_BYTE_COUNT_REG                 0x3FFFF20
+#define WRITE_BYTE_COUNT_REG                0x3FFFF18
 
 
 #ifdef  SIM
@@ -91,6 +95,10 @@ struct CmdResponseStats
     uint64_t NRES_count        ;
     uint64_t NLOCK_count       ;
     uint64_t CYCLE_count       ;
+    uint64_t PREFETCH_READ_BYTE_count;
+    uint64_t PREFETCH_WRITE_BYTE_count;
+    uint64_t READ_BYTE_count   ;
+    uint64_t WRITE_BYTE_count  ;
 };
 
 
@@ -111,7 +119,7 @@ struct __attribute__((__packed__)) WEDGraphCSR
     void *edges_array_src;              // 8-Bytes
     void *edges_array_dest;             // 8-Bytes
     //---------------------------------------------------//--// 64bytes
-    void *inverse_vertex_out_degree;    // 8-Bytes  
+    void *inverse_vertex_out_degree;    // 8-Bytes
     void *inverse_vertex_in_degree;     // 8-Bytes
     void *inverse_vertex_edges_idx;     // 8-Bytes
     void *inverse_edges_array_weight;   // 8-Bytes
@@ -143,6 +151,7 @@ void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
 void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
 void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
 void readCmdResponseStats(struct cxl_afu_h **afu, struct CmdResponseStats *cmdResponseStats);
+void printBandwidth(uint64_t size, double time_elapsed, uint64_t rep_bytes);
 void printCmdResponseStats(struct CmdResponseStats *cmdResponseStats);
 void releaseAFU(struct cxl_afu_h **afu);
 

@@ -48,6 +48,8 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic              edge_request_latched    ;
 
 	CommandBufferLine read_command_out_latched       ;
+	CommandBufferLine read_command_out_latched_S2    ;
+	logic             generate_read_command          ;
 	BufferStatus      read_buffer_status_internal    ;
 	logic             read_command_job_edge_burst_pop;
 
@@ -202,7 +204,10 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			end
 			SEND_EDGE_WAIT : begin
 				if(send_request_ready)
-					next_state = CALC_EDGE_REQ_SIZE;
+					next_state = START_EDGE_REQ;
+			end
+			START_EDGE_REQ : begin
+				next_state = CALC_EDGE_REQ_SIZE;
 			end
 			CALC_EDGE_REQ_SIZE : begin
 				next_state = SEND_EDGE_IDLE;
@@ -231,16 +236,15 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				read_command_out_latched    <= 0;
 				request_size                <= 0;
 				edge_next_offest            <= 0;
-				edge_num_counter            <= 0;
 				shift_seek                  <= 0;
 				remainder                   <= 0;
 				aligned                     <= 0;
 				done_vertex_edge_processing <= 1;
+				generate_read_command       <= 0;
 			end
 			SEND_EDGE_INIT : begin
 				read_command_out_latched <= 0;
 				if(read_vertex_new_latched)begin
-					edge_num_counter <= vertex_job_latched.inverse_out_degree;
 					edge_next_offest <= (vertex_job_latched.inverse_edges_idx << $clog2(EDGE_SIZE));
 				end
 			end
@@ -248,71 +252,30 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				done_vertex_edge_processing <= 0;
 				read_command_out_latched    <= 0;
 				request_size                <= 0;
+				generate_read_command       <= 0;
 				remainder                   <= (edge_next_offest & ADDRESS_EDGE_MOD_MASK);
 				aligned                     <= (edge_next_offest & ADDRESS_EDGE_ALIGN_MASK);
 			end
-			CALC_EDGE_REQ_SIZE : begin
-				if(|remainder) begin // misaligned access
-					request_size <= CACHELINE_SIZE; // bring the whole cacheline
-
-					if(edge_num_counter >= ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE))) begin
-						edge_num_counter                       <= edge_num_counter - ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE));
-						read_command_out_latched.cmd.real_size <= ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE));
-					end
-					else if (edge_num_counter < ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE))) begin
-						edge_num_counter                       <= 0;
-						read_command_out_latched.cmd.real_size <= edge_num_counter;
-					end
-				end else begin
-					request_size <= cmd_size_calculate(edge_num_counter);
-
-					if(edge_num_counter >= CACHELINE_EDGE_NUM)begin
-						edge_num_counter                       <= edge_num_counter - CACHELINE_EDGE_NUM;
-						read_command_out_latched.cmd.real_size <= CACHELINE_EDGE_NUM;
-					end
-					else if (edge_num_counter < CACHELINE_EDGE_NUM) begin
-						edge_num_counter                       <= 0;
-						read_command_out_latched.cmd.real_size <= edge_num_counter;
-					end
-				end
-
-				read_command_out_latched.cmd.cacheline_offest <= (remainder >> $clog2(EDGE_SIZE));
-				read_command_out_latched.cmd.cu_id            <= CU_ID;
-				read_command_out_latched.cmd.cmd_type         <= CMD_READ;
-
-				read_command_out_latched.cmd.abt <= map_CABT(cu_configure_latched[5:7]);
-				read_command_out_latched.abt     <= map_CABT(cu_configure_latched[5:7]);
-
-				if (cu_configure_latched[8]) begin
-					read_command_out_latched.command <= READ_CL_S;
-				end else begin
-					read_command_out_latched.command <= READ_CL_NA;
-				end
-
+			START_EDGE_REQ : begin
+				generate_read_command <= 1;
 			end
-			SEND_EDGE_IDLE    : begin
+			CALC_EDGE_REQ_SIZE : begin
+				generate_read_command <= 0;
+			end
+			SEND_EDGE_IDLE : begin
+				read_command_out_latched <= read_command_out_latched_S2;
 			end
 			SEND_EDGE_INV_SRC : begin
-				read_command_out_latched.valid <= 1'b1;
-
+				read_command_out_latched.valid            <= 1'b1;
 				read_command_out_latched.address          <= wed_request_in_latched.wed.inverse_edges_array_src + aligned;
-				read_command_out_latched.size             <= request_size;
 				read_command_out_latched.cmd.array_struct <= INV_EDGE_ARRAY_SRC;
 			end
 			SEND_EDGE_INV_DEST : begin
-				read_command_out_latched.valid <= 1'b1;
-
-				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_dest + aligned;
-				read_command_out_latched.size    <= request_size;
-
+				read_command_out_latched.address          <= wed_request_in_latched.wed.inverse_edges_array_dest + aligned;
 				read_command_out_latched.cmd.array_struct <= INV_EDGE_ARRAY_DEST;
 			end
 			SEND_EDGE_INV_WEIGHT : begin
-				read_command_out_latched.valid <= 1'b1;
-
-				read_command_out_latched.address <= wed_request_in_latched.wed.inverse_edges_array_weight + aligned;
-				read_command_out_latched.size    <= request_size;
-
+				read_command_out_latched.address          <= wed_request_in_latched.wed.inverse_edges_array_weight + aligned;
 				read_command_out_latched.cmd.array_struct <= INV_EDGE_ARRAY_WEIGHT;
 
 				if(|remainder)
@@ -339,6 +302,91 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				response_counter <= response_counter - 1;
 			end else begin
 				response_counter <= response_counter;
+			end
+		end
+	end
+
+////////////////////////////////////////////////////////////////////////////
+//response tracking logic
+////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_command_out_latched_S2 <= 0;
+			edge_num_counter            <= 0;
+		end
+		else begin
+
+			if(read_vertex_new_latched && (vertex_job_latched.valid && wed_request_in_latched.valid))begin
+				edge_num_counter <= vertex_job_latched.inverse_out_degree;
+			end
+
+			if (generate_read_command) begin
+				if(|remainder) begin // misaligned access
+
+					read_command_out_latched_S2.size <= CACHELINE_SIZE;
+
+					if(edge_num_counter > ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE))) begin
+						edge_num_counter                                <= edge_num_counter - ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE));
+						read_command_out_latched_S2.cmd.real_size       <= ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE));
+						read_command_out_latched_S2.cmd.real_size_bytes <= ((CACHELINE_SIZE - remainder));
+
+						if (cu_configure_latched[8]) begin
+							read_command_out_latched_S2.command <= READ_CL_S;
+						end else begin
+							read_command_out_latched_S2.command <= READ_CL_NA;
+						end
+					end
+					else if (edge_num_counter <= ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE))) begin
+						edge_num_counter                                <= 0;
+						read_command_out_latched_S2.cmd.real_size       <= edge_num_counter;
+						read_command_out_latched_S2.cmd.real_size_bytes <= edge_num_counter << $clog2(EDGE_SIZE) ;
+
+						if (cu_configure_latched[8]) begin
+							read_command_out_latched_S2.command <= READ_CL_S;
+						end else begin
+							read_command_out_latched_S2.command <= READ_PNA;
+						end
+					end
+				end else begin
+					if(edge_num_counter > CACHELINE_EDGE_NUM)begin
+						edge_num_counter                                <= edge_num_counter - CACHELINE_EDGE_NUM;
+						read_command_out_latched_S2.cmd.real_size       <= CACHELINE_EDGE_NUM;
+						read_command_out_latched_S2.cmd.real_size_bytes <= CACHELINE_EDGE_NUM << $clog2(EDGE_SIZE) ;
+
+						if (cu_configure_latched[8]) begin
+							read_command_out_latched_S2.command <= READ_CL_S;
+							read_command_out_latched_S2.size    <= CACHELINE_SIZE;
+						end else begin
+							read_command_out_latched_S2.command <= READ_CL_NA;
+							read_command_out_latched_S2.size    <= cmd_size_calculate(edge_num_counter);
+						end
+					end
+					else if (edge_num_counter <= CACHELINE_EDGE_NUM) begin
+						edge_num_counter                                <= 0;
+						read_command_out_latched_S2.cmd.real_size       <= edge_num_counter;
+						read_command_out_latched_S2.cmd.real_size_bytes <= edge_num_counter << $clog2(EDGE_SIZE) ;
+
+						if (cu_configure_latched[8]) begin
+							read_command_out_latched_S2.command <= READ_CL_S;
+							read_command_out_latched_S2.size    <= CACHELINE_SIZE;
+						end else begin
+							read_command_out_latched_S2.command <= READ_PNA;
+							read_command_out_latched_S2.size    <= cmd_size_calculate(edge_num_counter);
+						end
+					end
+
+				end
+
+				read_command_out_latched_S2.cmd.cacheline_offest <= (remainder >> $clog2(EDGE_SIZE));
+				read_command_out_latched_S2.cmd.cu_id            <= CU_ID;
+				read_command_out_latched_S2.cmd.cmd_type         <= CMD_READ;
+
+				read_command_out_latched_S2.cmd.abt <= map_CABT(cu_configure_latched[5:7]);
+				read_command_out_latched_S2.abt     <= map_CABT(cu_configure_latched[5:7]);
+
+			end else begin
+				read_command_out_latched_S2 <= 0;
 			end
 		end
 	end

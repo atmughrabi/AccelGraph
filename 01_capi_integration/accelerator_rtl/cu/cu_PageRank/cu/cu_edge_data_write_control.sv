@@ -96,7 +96,9 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 	always_comb begin
 		cmd                  = 0;
 		offset_data          = (((CACHELINE_SIZE >> ($clog2(DATA_SIZE_WRITE)+1))-1) & edge_data_write.index);
-		cmd.array_struct    = WRITE_GRAPH_DATA;
+		cmd.array_struct     = WRITE_GRAPH_DATA;
+		cmd.real_size 		 = 1;
+        cmd.real_size_bytes  = DATA_SIZE_WRITE;
 		cmd.cacheline_offest = (((edge_data_write.index << $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_MOD_MASK) >> $clog2(DATA_SIZE_WRITE));
 		cmd.cu_id            = edge_data_write.cu_id;
 		cmd.cmd_type         = CMD_WRITE;
@@ -112,15 +114,9 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 			if (edge_data_write.valid && enabled) begin
 				write_command_out_latched.valid <= edge_data_write.valid;
 
-				if(cu_configure_latched[30])
-					write_command_out_latched.command <= WRITE_MS;
-				else
-					write_command_out_latched.command <= WRITE_NA;
-
 				write_command_out_latched.address <= wed_request_in_latched.wed.auxiliary2 + (edge_data_write.index << $clog2(DATA_SIZE_WRITE));
 				write_command_out_latched.size    <= DATA_SIZE_WRITE;
 				write_command_out_latched.cmd     <= cmd;
-
 
 				write_data_0_out_latched.valid                                                        <= edge_data_write.valid;
 				write_data_0_out_latched.cmd                                                          <= cmd;

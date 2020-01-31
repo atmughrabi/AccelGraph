@@ -27,6 +27,7 @@ module response_statistics_control (
 
 
   ResponseInterface          response_latched               ;
+  ResponseInterface          response_latched_S2            ;
   CommandTagLine             response_tag_id_latched        ;
   ResponseStatistcsInterface response_statistics_out_latched;
 
@@ -61,6 +62,20 @@ module response_statistics_control (
     end
   end
 
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      response_latched_S2 <= 0;
+      response_tag_id_latched <= 0;
+    end else begin
+      if(enabled && response_latched.valid) begin
+        response_latched_S2 <= response_latched;
+      end else begin
+        response_latched_S2 <= 0;
+      end
+       response_tag_id_latched <= response_tag_id_in;
+    end
+  end
+
 
 ////////////////////////////////////////////////////////////////////////////
 //output latching Logic
@@ -87,21 +102,25 @@ module response_statistics_control (
       response_statistics_out_latched <= 0;
     end else begin
       if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
-        if(response_latched.valid) begin
-          case(response_latched.response)
+        if(response_latched_S2.valid) begin
+          case(response_latched_S2.response)
             DONE : begin
 
-              if(response_tag_id_in.cmd_type == CMD_RESTART)
+              if(response_tag_id_latched.cmd_type == CMD_RESTART)
                 response_statistics_out_latched.DONE_RESTART_count <= response_statistics_out_latched.DONE_RESTART_count + 1;
-              else if (response_tag_id_in.cmd_type == CMD_PREFETCH_READ)
+              else if (response_tag_id_latched.cmd_type == CMD_PREFETCH_READ) begin
                 response_statistics_out_latched.DONE_PREFETCH_READ_count <= response_statistics_out_latched.DONE_PREFETCH_READ_count + 1;
-              else if (response_tag_id_in.cmd_type == CMD_PREFETCH_WRITE)
+                response_statistics_out_latched.PREFETCH_READ_BYTE_count <= response_statistics_out_latched.PREFETCH_READ_BYTE_count + response_tag_id_latched.real_size_bytes;
+              end else if (response_tag_id_latched.cmd_type == CMD_PREFETCH_WRITE) begin
                 response_statistics_out_latched.DONE_PREFETCH_WRITE_count <= response_statistics_out_latched.DONE_PREFETCH_WRITE_count + 1;
-              else if (response_tag_id_in.cmd_type == CMD_READ)
+                response_statistics_out_latched.PREFETCH_WRITE_BYTE_count <= response_statistics_out_latched.PREFETCH_WRITE_BYTE_count + response_tag_id_latched.real_size_bytes;
+              end else if (response_tag_id_latched.cmd_type == CMD_READ) begin
                 response_statistics_out_latched.DONE_READ_count <= response_statistics_out_latched.DONE_READ_count + 1;
-              else if (response_tag_id_in.cmd_type == CMD_WRITE)
+                response_statistics_out_latched.READ_BYTE_count <= response_statistics_out_latched.READ_BYTE_count + response_tag_id_latched.real_size_bytes;          
+              end else if (response_tag_id_latched.cmd_type == CMD_WRITE) begin
                 response_statistics_out_latched.DONE_WRITE_count <= response_statistics_out_latched.DONE_WRITE_count + 1;
-
+                response_statistics_out_latched.WRITE_BYTE_count <= response_statistics_out_latched.WRITE_BYTE_count + response_tag_id_latched.real_size_bytes;
+              end 
               response_statistics_out_latched.DONE_count <= response_statistics_out_latched.DONE_count + 1;
 
             end

@@ -161,36 +161,86 @@ void readCmdResponseStats(struct cxl_afu_h **afu, struct CmdResponseStats *cmdRe
     cxl_mmio_read64((*afu), DONE_READ_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_READ_count));
     cxl_mmio_read64((*afu), DONE_WRITE_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_WRITE_count));
 
+    cxl_mmio_read64((*afu), READ_BYTE_COUNT_REG, (uint64_t *) & (cmdResponseStats->READ_BYTE_count));
+    cxl_mmio_read64((*afu), WRITE_BYTE_COUNT_REG, (uint64_t *) & (cmdResponseStats->WRITE_BYTE_count));
+    cxl_mmio_read64((*afu), PREFETCH_READ_BYTE_COUNT_REG, (uint64_t *) & (cmdResponseStats->PREFETCH_READ_BYTE_count));
+    cxl_mmio_read64((*afu), PREFETCH_WRITE_BYTE_COUNT_REG, (uint64_t *) & (cmdResponseStats->PREFETCH_WRITE_BYTE_count));
+
+}
+
+void printBandwidth(uint64_t size, double time_elapsed, uint64_t rep_bytes)
+{
+
+    double size_GB = (double)(size) * (double)rep_bytes / (double)(1024 * 1024 * 1024);
+    double size_MB = (double)(size) * (double)rep_bytes / (double)(1024 * 1024);
+    double bandwidth_GB = size_GB / time_elapsed; //GB/s
+    double bandwidth_MB = size_MB / time_elapsed; //MB/s
+
+    printf("| %-22s | %-27.20lf| \n", "Data MB", size_MB);
+    printf("| %-22s | %-27.20lf| \n", "Data GB", size_GB);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27.20lf| \n", "BandWidth MB/s", bandwidth_MB);
+    printf("| %-22s | %-27.20lf| \n", "BandWidth GB/s", bandwidth_GB);
 }
 
 void printCmdResponseStats(struct CmdResponseStats *cmdResponseStats)
 {
 
     uint64_t size_read  = (cmdResponseStats->DONE_READ_count);
-    uint64_t size_write = (cmdResponseStats->DONE_WRITE_count);
-    uint64_t size       = size_read;
-    if(size_write > size_read)
-        size = size_write;
-    double time_elapsed = (double)(cmdResponseStats->CYCLE_count * 4) / 1e9;
-    double size_GB = (double)(size) / (double)(1024 * 1024 * 8);
-    double size_MB = (double)(size) / (double)(1024 * 8);
-    double bandwidth_GB = size_GB / time_elapsed; //GB/s
-    double bandwidth_MB = size_MB / time_elapsed; //MB/s
+    uint64_t size_write = (cmdResponseStats->DONE_WRITE_count)/16;
+    uint64_t size       = size_read + (size_write);
 
+    uint64_t size_read_byte  = (cmdResponseStats->READ_BYTE_count);
+    uint64_t size_write_byte = (cmdResponseStats->WRITE_BYTE_count);
+    uint64_t size_byte       = size_read_byte + (size_write_byte);
+  
+    double time_elapsed = (double)(cmdResponseStats->CYCLE_count * 4) / 1e9;
+   
     printf("*-----------------------------------------------------*\n");
     printf("| %-15s %-19s %-15s | \n", " ", "AFU Stats", " ");
     printf(" -----------------------------------------------------\n");
     printf("| %-22s | %-27lu| \n", "CYCLE_count ", cmdResponseStats->CYCLE_count);
-
     printf("| %-22s | %-27.20lf| \n", "Time (Seconds)", time_elapsed);
     printf(" -----------------------------------------------------\n");
-    printf("| %-22s | %-27.20lf| \n", "Data MB", size_MB);
-    printf("| %-22s | %-27.20lf| \n", "Data GB", size_GB);
+    
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-19s %-15s | \n", " ", "Total BW", " ");
     printf(" -----------------------------------------------------\n");
-    printf("| %-22s | %-27.20lf| \n", "BandWidth MB/s", bandwidth_MB);
-    printf("| %-22s | %-27.20lf| \n", "BandWidth GB/s", bandwidth_GB);
+    printBandwidth(size, time_elapsed, 128);
 
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-19s %-15s | \n", " ", "Total Read BW", " ");
+    printf(" -----------------------------------------------------\n");
+    printBandwidth(size_read, time_elapsed, 128);
 
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-19s %-15s | \n", " ", "Total Write BW", " ");
+    printf(" -----------------------------------------------------\n");
+    printBandwidth(size_write, time_elapsed, 128);
+
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-19s %-15s | \n", " ", "real BW", " ");
+    printf(" -----------------------------------------------------\n");
+    printBandwidth(size_byte, time_elapsed, 1);
+
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-19s %-15s | \n", " ", "real Read BW", " ");
+    printf(" -----------------------------------------------------\n");
+    printBandwidth(size_read_byte, time_elapsed, 1);
+
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-15s %-19s %-15s | \n", " ", "real Write BW", " ");
+    printf(" -----------------------------------------------------\n");
+    printBandwidth(size_write_byte, time_elapsed, 1);
+
+    printf("*-----------------------------------------------------*\n");
+    printf("| %-12s %-25s %-12s | \n", " ", "Byte Transfer Stats", " ");
+    printf(" -----------------------------------------------------\n");
+    printf("| %-22s | %-27lu| \n", "READ_BYTE_count", cmdResponseStats->READ_BYTE_count);
+    printf("| %-22s | %-27lu| \n", "WRITE_BYTE_count", cmdResponseStats->WRITE_BYTE_count);
+    printf(" -----------------------------------------------------\n");
+    printf("| %-26s | %-23lu| \n", "PREFETCH_READ_BYTE_count", cmdResponseStats->PREFETCH_READ_BYTE_count);
+    printf("| %-26s | %-23lu| \n", "PREFETCH_WRITE_BYTE_count", cmdResponseStats->PREFETCH_WRITE_BYTE_count);
     printf("*-----------------------------------------------------*\n");
     printf("| %-15s %-19s %-15s | \n", " ", "Responses Stats", " ");
     printf(" -----------------------------------------------------\n");
@@ -387,7 +437,7 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
     printf("| %-25s | %-24p| \n", "inverse_edges_array_src", wed->inverse_edges_array_src);
     printf("| %-25s | %-24p| \n", "inverse_edges_array_dest", wed->inverse_edges_array_dest);
     #if WEIGHTED
-    printf("| %-25s | %-24p| \n", "inverse_edges_array_weight", wed->inverse_edges_array_weight);
+    printf("| %-25s| %-24p| \n", "inverse_edges_array_weight", wed->inverse_edges_array_weight);
     #endif
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24u| \n", "auxiliary0", wed->auxiliary0);

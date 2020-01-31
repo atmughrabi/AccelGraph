@@ -44,22 +44,22 @@ package GLOBALS_AFU_PKG;
 
 	parameter BURST_CMD_BUFFER_SIZE = 32; // size of command burst for PSL leave as is
 
-	parameter READ_CMD_BUFFER_SIZE           = 64;
-	parameter WRITE_CMD_BUFFER_SIZE          = 64;
-	parameter PREFETCH_READ_CMD_BUFFER_SIZE  = 64;
-	parameter PREFETCH_WRITE_CMD_BUFFER_SIZE = 64;
+	parameter READ_CMD_BUFFER_SIZE           = 32;
+	parameter WRITE_CMD_BUFFER_SIZE          = 32;
+	parameter PREFETCH_READ_CMD_BUFFER_SIZE  = 32;
+	parameter PREFETCH_WRITE_CMD_BUFFER_SIZE = 32;
 	parameter RESTART_CMD_BUFFER_SIZE        = 4 ;
 	parameter WED_CMD_BUFFER_SIZE            = 4 ;
 
-	parameter READ_RSP_BUFFER_SIZE           = 64;
-	parameter PREFETCH_READ_RSP_BUFFER_SIZE  = 64;
-	parameter PREFETCH_WRITE_RSP_BUFFER_SIZE = 64;
-	parameter WRITE_RSP_BUFFER_SIZE          = 64;
+	parameter READ_RSP_BUFFER_SIZE           = 32;
+	parameter PREFETCH_READ_RSP_BUFFER_SIZE  = 32;
+	parameter PREFETCH_WRITE_RSP_BUFFER_SIZE = 32;
+	parameter WRITE_RSP_BUFFER_SIZE          = 32;
 	parameter RESTART_RSP_BUFFER_SIZE        = 4 ;
 	parameter WED_RSP_BUFFER_SIZE            = 4 ;
 
-	parameter READ_DATA_BUFFER_SIZE    = 64;
-	parameter WRITE_DATA_BUFFER_SIZE   = 64;
+	parameter READ_DATA_BUFFER_SIZE    = 32;
+	parameter WRITE_DATA_BUFFER_SIZE   = 32;
 	parameter RESTART_DATA_BUFFER_SIZE = 4 ;
 	parameter WED_DATA_BUFFER_SIZE     = 4 ;
 
@@ -72,10 +72,10 @@ package GLOBALS_AFU_PKG;
 
 	parameter PRIORITY_PREFTECH_WRITE = 2;
 	parameter PRIORITY_WRITE          = 3;
-	
+
 	parameter PRIORITY_PREFETCH_READ = 4;
 	parameter PRIORITY_READ          = 5;
-	
+
 
 ////////////////////////////////////////////////////////////////////////////
 // CU-Control  (Buffer size)
@@ -125,7 +125,10 @@ package GLOBALS_AFU_PKG;
 	parameter NLOCK_COUNT_REG   = 26'h 3FFFF40 >> 2;
 	parameter CYCLE_COUNT_REG   = 26'h 3FFFF38 >> 2;
 
-
+	parameter PREFETCH_READ_BYTE_COUNT_REG  = 26'h 3FFFF30 >> 2;
+	parameter PREFETCH_WRITE_BYTE_COUNT_REG = 26'h 3FFFF28 >> 2;
+	parameter READ_BYTE_COUNT_REG           = 26'h 3FFFF20 >> 2;
+	parameter WRITE_BYTE_COUNT_REG          = 26'h 3FFFF18 >> 2;
 
 
 ////////////////////////////////////////////////////////////////////////////

@@ -312,6 +312,18 @@ module mmio (
           DONE_PREFETCH_WRITE_COUNT_REG : begin
             data_out <= response_statistics_out_latched.DONE_PREFETCH_WRITE_count;
           end
+          READ_BYTE_COUNT_REG : begin
+            data_out <= response_statistics_out_latched.READ_BYTE_count;
+          end
+          WRITE_BYTE_COUNT_REG : begin
+            data_out <= response_statistics_out_latched.WRITE_BYTE_count;
+          end
+          PREFETCH_READ_BYTE_COUNT_REG : begin
+            data_out <= response_statistics_out_latched.PREFETCH_READ_BYTE_count;
+          end
+          PREFETCH_WRITE_BYTE_COUNT_REG : begin
+            data_out <= response_statistics_out_latched.PREFETCH_WRITE_BYTE_count;
+          end
           default : begin
             data_out <= data_out;
           end

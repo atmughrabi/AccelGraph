@@ -82,6 +82,7 @@ package AFU_PKG;
     array_struct_type                    array_struct    ;
     command_type                         cmd_type        ; // The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
     logic [0:CACHELINE_INT_COUNTER_BITS] real_size       ;
+    logic [                         0:7] real_size_bytes ;
     logic [0:CACHELINE_INT_COUNTER_BITS] cacheline_offest;
     logic [                        0:63] address_offest  ;
     logic [                         0:7] tag             ;
@@ -176,6 +177,10 @@ package AFU_PKG;
     logic [0:63] CYCLE_count              ;
     logic [0:63] DONE_READ_count          ;
     logic [0:63] DONE_WRITE_count         ;
+    logic [0:63] READ_BYTE_count          ;
+    logic [0:63] WRITE_BYTE_count         ;
+    logic [0:63] PREFETCH_READ_BYTE_count ;
+    logic [0:63] PREFETCH_WRITE_BYTE_count;
   } ResponseStatistcsInterface;
 
 ////////////////////////////////////////////////////////////////////////////
