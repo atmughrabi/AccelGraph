@@ -42,24 +42,24 @@ package GLOBALS_AFU_PKG;
 	parameter TAG_COUNT   = 256  ;
 	parameter INVALID_TAG = 8'h00;
 
-	parameter BURST_CMD_BUFFER_SIZE = 32; // size of command burst for PSL leave as is
+	parameter BURST_CMD_BUFFER_SIZE = 64; // size of command burst for PSL leave as is
 
-	parameter READ_CMD_BUFFER_SIZE           = 32;
-	parameter WRITE_CMD_BUFFER_SIZE          = 32;
-	parameter PREFETCH_READ_CMD_BUFFER_SIZE  = 32;
-	parameter PREFETCH_WRITE_CMD_BUFFER_SIZE = 32;
+	parameter READ_CMD_BUFFER_SIZE           = 64;
+	parameter WRITE_CMD_BUFFER_SIZE          = 64;
+	parameter PREFETCH_READ_CMD_BUFFER_SIZE  = 64;
+	parameter PREFETCH_WRITE_CMD_BUFFER_SIZE = 64;
 	parameter RESTART_CMD_BUFFER_SIZE        = 4 ;
 	parameter WED_CMD_BUFFER_SIZE            = 4 ;
 
-	parameter READ_RSP_BUFFER_SIZE           = 32;
-	parameter PREFETCH_READ_RSP_BUFFER_SIZE  = 32;
-	parameter PREFETCH_WRITE_RSP_BUFFER_SIZE = 32;
-	parameter WRITE_RSP_BUFFER_SIZE          = 32;
+	parameter READ_RSP_BUFFER_SIZE           = 64;
+	parameter PREFETCH_READ_RSP_BUFFER_SIZE  = 64;
+	parameter PREFETCH_WRITE_RSP_BUFFER_SIZE = 64;
+	parameter WRITE_RSP_BUFFER_SIZE          = 64;
 	parameter RESTART_RSP_BUFFER_SIZE        = 4 ;
 	parameter WED_RSP_BUFFER_SIZE            = 4 ;
 
-	parameter READ_DATA_BUFFER_SIZE    = 32;
-	parameter WRITE_DATA_BUFFER_SIZE   = 32;
+	parameter READ_DATA_BUFFER_SIZE    = 64;
+	parameter WRITE_DATA_BUFFER_SIZE   = 64;
 	parameter RESTART_DATA_BUFFER_SIZE = 4 ;
 	parameter WED_DATA_BUFFER_SIZE     = 4 ;
 
