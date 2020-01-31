@@ -50,14 +50,14 @@ export MAIN_DIR		  	= main
 
 #small test graphs
 # export GRAPH_NAME = test
-# export GRAPH_NAME = v51_e1021
+export GRAPH_NAME = v51_e1021
 # export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
 # export GRAPH_NAME = Gnutella
 # export GRAPH_NAME = dblp
 # export GRAPH_NAME = amazon
-export GRAPH_NAME = euall
+# export GRAPH_NAME = euall
 
 # generates large dynamic traces for gem5-Aladdin
 # export GRAPH_NAME = com-youtube
@@ -300,6 +300,10 @@ run-capi-fpga:
 .PHONY: run-capi-sim-verbose
 run-capi-sim-verbose:
 	$(MAKE) run-capi-sim-verbose $(MAKE_ARGS)
+
+.PHONY: run-capi-sim-verbose2
+run-capi-sim-verbose2:
+	$(MAKE) run-capi-sim-verbose2 $(MAKE_ARGS)
 
 .PHONY: run-capi-fpga-verbose
 run-capi-fpga-verbose:

@@ -114,6 +114,10 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
         // read final return result
         cxl_mmio_read64((*afu), CU_RETURN_DONE, (uint64_t *) & (afu_status->cu_return_done));
 
+    #ifdef  VERBOSE_2
+        cxl_mmio_read64((*afu), CU_RETURN, (uint64_t *) & (afu_status->cu_return));
+        printf("| %-22s | %-27lu| \n", "Vertex #",afu_status->cu_return);
+    #endif
         // if((((afu_status->cu_return_done) << 32) >> 32) >= (afu_status->cu_stop))
         //     break;
 
