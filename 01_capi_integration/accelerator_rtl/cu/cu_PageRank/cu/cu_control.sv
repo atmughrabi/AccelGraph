@@ -34,9 +34,8 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	input  BufferStatus       prefetch_read_buffer_status ,
 	input  BufferStatus       prefetch_write_buffer_status,
 	input  BufferStatus       write_buffer_status         ,
-	input  logic [0:63]       cu_configure                ,
-	input  logic [0:63]       cu_configure_2              ,
-	output logic [0:63]       cu_return                   ,
+	input  cu_configure_type  cu_configure                ,
+	output cu_return_type     cu_return                   ,
 	output logic              cu_done                     ,
 	output logic [0:63]       cu_status                   ,
 	output CommandBufferLine  read_command_out            ,
@@ -86,9 +85,9 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	logic             [NUM_REQUESTS-1:0] ready              ;
 	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in  ;
 
-	logic [0:63] cu_return_latched     ;
-	logic [0:63] cu_configure_latched  ;
-	logic [0:63] cu_configure_2_latched;
+	cu_return_type cu_return_latched     ;
+	logic [0:63]   cu_configure_latched  ;
+	logic [0:63]   cu_configure_2_latched;
 
 	logic done_algorithm;
 
@@ -151,8 +150,9 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		cu_return_latched = 0;
 		done_algorithm    = 0;
 		if(wed_request_in_latched.valid)begin
-			cu_return_latched = {(vertex_job_counter_filtered+vertex_job_counter_done)};
-			done_algorithm    = (wed_request_in_latched.wed.num_vertices == (vertex_job_counter_filtered_latched+vertex_job_counter_done_latched)) &&
+			cu_return_latched.var1 = {(vertex_job_counter_filtered+vertex_job_counter_done)};
+			cu_return_latched.var2 = {edge_job_counter_done_latched};
+			done_algorithm         = (wed_request_in_latched.wed.num_vertices == (vertex_job_counter_filtered_latched+vertex_job_counter_done_latched)) &&
 				(wed_request_in_latched.wed.num_edges == edge_job_counter_done_latched);
 		end
 	end
@@ -230,11 +230,11 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			cu_configure_2_latched <= 0;
 		end else begin
 			if(enabled)begin
-				if((|cu_configure))
-					cu_configure_latched <= cu_configure;
+				if((|cu_configure.var1))
+					cu_configure_latched <= cu_configure.var1;
 
-				if((|cu_configure_2))
-					cu_configure_2_latched <= cu_configure_2;
+				if((|cu_configure.var2))
+					cu_configure_2_latched <= cu_configure.var2;
 			end
 		end
 	end

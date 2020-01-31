@@ -20,6 +20,7 @@
 #define CU_STATUS               0x3FFFFE0
 
 #define CU_RETURN               0x3FFFFD8         // running counters that you can read continuosly     
+#define CU_RETURN_2             0x3FFFF10
 #define CU_RETURN_ACK           0x3FFFFD0
 
 #define  CU_RETURN_DONE         0x3FFFFC8
@@ -74,6 +75,7 @@ struct AFUStatus
     uint64_t afu_status;
     uint64_t error;
     uint64_t cu_return; // running return
+    uint64_t cu_return_2; // running return
     uint64_t cu_return_done; // final return when cu send done
 };
 

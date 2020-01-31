@@ -99,6 +99,7 @@ package GLOBALS_AFU_PKG;
 	parameter CU_STATUS      = 26'h 3FFFFE0 >> 2;
 
 	parameter CU_RETURN     = 26'h 3FFFFD8 >> 2; // algorithm status DONE/RUNNING HOST reads this address
+	parameter CU_RETURN_2   = 26'h 3FFFF10 >> 2;
 	parameter CU_RETURN_ACK = 26'h 3FFFFD0 >> 2;
 
 	parameter CU_RETURN_DONE     = 26'h 3FFFFC8 >> 2;

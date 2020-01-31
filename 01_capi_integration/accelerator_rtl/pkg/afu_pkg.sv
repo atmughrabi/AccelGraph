@@ -19,6 +19,25 @@ package AFU_PKG;
   import CAPI_PKG::*;
   import CU_PKG::*;
 
+////////////////////////////////////////////////////////////////////////////
+// CU return type
+////////////////////////////////////////////////////////////////////////////
+
+  typedef struct packed {
+    logic [0:63] var1;
+    logic [0:63] var2;
+  } cu_return_type;
+
+  typedef struct packed {
+    logic [0:63] var1;
+    logic [0:63] var2;
+  } cu_configure_type;
+
+  typedef struct packed {
+    logic [0:63] var1;
+    logic [0:63] var2;
+  } afu_configure_type;
+
   typedef enum int unsigned {
     CMD_INVALID,
     CMD_READ,
@@ -28,7 +47,6 @@ package AFU_PKG;
     CMD_WED,
     CMD_RESTART
   } command_type;
-
 
 ////////////////////////////////////////////////////////////////////////////
 // ERROR Control

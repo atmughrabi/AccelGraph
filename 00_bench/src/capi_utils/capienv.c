@@ -110,7 +110,8 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     struct CmdResponseStats cmdResponseStats = {0};
 #ifdef  VERBOSE_2
     printf("*-----------------------------------------------------*\n");
-    printf("| %-22s | %-27lu|\n", "Vertex Total #", afu_status->cu_stop);
+    printf("| (#) Vertex: %-12lu | %-24s |\n", afu_status->cu_stop, "(#) Edges Processed");
+    printf(" -----------------------------------------------------\n");
 #endif
     do
     {
@@ -123,8 +124,9 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 
 #ifdef  VERBOSE_2
         cxl_mmio_read64((*afu), CU_RETURN, (uint64_t *) & (afu_status->cu_return));
-        if(afu_status->cu_return)
-            printf("\r| %-22s | %-27lu|", "Vertex #", afu_status->cu_return_done);
+        cxl_mmio_read64((*afu), CU_RETURN_2, (uint64_t *) & (afu_status->cu_return_2));
+        if(afu_status->cu_return && afu_status->cu_return_2)
+            printf("\r| V: %-21lu | E: %-22lu|", afu_status->cu_return, afu_status->cu_return_2);
         fflush(stdout);
 #endif
         // if((((afu_status->cu_return_done) << 32) >> 32) >= (afu_status->cu_stop))

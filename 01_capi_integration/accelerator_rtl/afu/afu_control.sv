@@ -26,8 +26,7 @@ module afu_control #(
 	input  logic                         clock                      , // Clock
 	input  logic                         rstn                       ,
 	input  logic                         enabled_in                 ,
-	input  logic [0:63]                  afu_configure              ,
-	input  logic [0:63]                  afu_configure_2            ,
+	input  afu_configure_type            afu_configure              ,
 	input  CommandBufferLine             prefetch_read_command_in   ,
 	input  CommandBufferLine             prefetch_write_command_in  ,
 	input  CommandBufferLine             read_command_in            ,
@@ -217,12 +216,12 @@ module afu_control #(
 			afu_configure_2_latched <= 0;
 		end else begin
 			if(enabled) begin
-				if((|afu_configure)) begin
-					afu_status              <= afu_configure;
-					afu_configure_latched   <= afu_configure;
+				if((|afu_configure.var1)) begin
+					afu_status            <= afu_configure.var1;
+					afu_configure_latched <= afu_configure.var1;
 				end
-				if((|afu_configure_2)) begin
-					afu_configure_2_latched <= afu_configure_2;
+				if((|afu_configure.var2)) begin
+					afu_configure_2_latched <= afu_configure.var2;
 				end
 			end
 		end

@@ -15,7 +15,7 @@
 package CU_PKG;
 
 // Relating to Vertex int types and sizes
-    import GLOBALS_AFU_PKG::*;
+	import GLOBALS_AFU_PKG::*;
 	import GLOBALS_CU_PKG::*;
 
 	typedef enum int unsigned{
@@ -103,7 +103,7 @@ package CU_PKG;
 	typedef struct packed {
 		logic                              valid;
 		cu_id_t                            cu_id;
-		logic [0:(EDGE_SIZE_BITS-1)]       index;
+		logic [      0:(EDGE_SIZE_BITS-1)] index;
 		logic [0:(DATA_SIZE_WRITE_BITS-1)] data ;
 	} EdgeDataWrite;
 
@@ -190,5 +190,5 @@ package CU_PKG;
 
 	endfunction : cmd_size_calculate
 
-	
+
 endpackage
