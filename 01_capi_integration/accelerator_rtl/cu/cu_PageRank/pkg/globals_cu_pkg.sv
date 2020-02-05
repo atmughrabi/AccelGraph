@@ -42,7 +42,7 @@ package GLOBALS_CU_PKG;
 	parameter WRITE_VERTEX_CMD_BUFFER_SIZE          = 64;
 	parameter PREFETCH_VERTEX_READ_CMD_BUFFER_SIZE  = 64;
 	parameter PREFETCH_VERTEX_WRITE_CMD_BUFFER_SIZE = 64;
-	
+
 	parameter READ_VERTEX_RSP_BUFFER_SIZE           = 64;
 	parameter PREFETCH_VERTEX_READ_RSP_BUFFER_SIZE  = 64;
 	parameter PREFETCH_VERTEX_WRITE_RSP_BUFFER_SIZE = 64;
@@ -52,7 +52,7 @@ package GLOBALS_CU_PKG;
 	parameter WRITE_EDGE_CMD_BUFFER_SIZE          = 64;
 	parameter PREFETCH_EDGE_READ_CMD_BUFFER_SIZE  = 64;
 	parameter PREFETCH_EDGE_WRITE_CMD_BUFFER_SIZE = 64;
-	
+
 	parameter READ_EDGE_RSP_BUFFER_SIZE           = 64;
 	parameter PREFETCH_EDGE_READ_RSP_BUFFER_SIZE  = 64;
 	parameter PREFETCH_EDGE_WRITE_RSP_BUFFER_SIZE = 64;
@@ -77,8 +77,12 @@ package GLOBALS_CU_PKG;
 	parameter [0:63] ADDRESS_EDGE_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
 	parameter [0:63] ADDRESS_EDGE_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
 
-	parameter CACHELINE_VERTEX_NUM       = (CACHELINE_SIZE >> $clog2(VERTEX_SIZE))                                                                ; // number of vertices in one cacheline
-	parameter CACHELINE_EDGE_NUM         = (CACHELINE_SIZE >> $clog2(EDGE_SIZE))                                                                  ; // number of edges in one cacheline
+	parameter CACHELINE_VERTEX_NUM    = (CACHELINE_SIZE >> $clog2(VERTEX_SIZE))     ;
+	parameter CACHELINE_VERTEX_NUM_HF = (CACHELINE_SIZE >> $clog2(VERTEX_SIZE)) >> 1; // number of vertices in one cacheline
+
+	parameter CACHELINE_EDGE_NUM    = (CACHELINE_SIZE >> $clog2(EDGE_SIZE))     ;
+	parameter CACHELINE_EDGE_NUM_HF = (CACHELINE_SIZE >> $clog2(EDGE_SIZE)) >> 1; // number of edges in one cacheline
+
 	parameter CACHELINE_INT_COUNTER_BITS = $clog2((VERTEX_SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? (2 * CACHELINE_SIZE_BITS_HF)/VERTEX_SIZE_BITS : 2);
 
 ////////////////////////////////////////////////////////////////////////////

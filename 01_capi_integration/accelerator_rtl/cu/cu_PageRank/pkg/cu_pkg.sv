@@ -40,14 +40,17 @@ package CU_PKG;
 		SEND_VERTEX_RESET,
 		SEND_VERTEX_INIT,
 		SEND_VERTEX_IDLE,
-		SEND_VERTEX_WAIT,
+		START_VERTEX_REQ,		
 		CALC_VERTEX_REQ_SIZE,
+		SEND_VERTEX_START,
 		SEND_VERTEX_IN_DEGREE,
 		SEND_VERTEX_OUT_DEGREE,
 		SEND_VERTEX_EDGES_IDX,
 		SEND_VERTEX_INV_IN_DEGREE,
 		SEND_VERTEX_INV_OUT_DEGREE,
-		SEND_VERTEX_INV_EDGES_IDX
+		SEND_VERTEX_INV_EDGES_IDX,
+		WAIT_VERTEX_DATA,
+		SHIFT_VERTEX_DATA
 	} vertex_struct_state;
 
 	typedef enum int unsigned {
@@ -64,15 +67,6 @@ package CU_PKG;
 		SEND_EDGE_INV_DEST,
 		SEND_EDGE_INV_WEIGHT
 	} edge_struct_state;
-
-	typedef enum int unsigned {
-		SEND_DATA_RESET,
-		SEND_DATA_INIT,
-		SEND_DATA_IDLE,
-		SEND_DATA_WAIT,
-		CALC_DATA_REQ_SIZE,
-		SEND_DATA_DEST
-	} dara_struct_state;
 
 // Vertex data to travers neighbors
 	typedef struct packed {

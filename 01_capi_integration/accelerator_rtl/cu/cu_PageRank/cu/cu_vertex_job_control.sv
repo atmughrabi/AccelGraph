@@ -33,8 +33,45 @@ module cu_vertex_job_control (
 	output CommandBufferLine              read_command_out           ,
 	output BufferStatus                   vertex_buffer_status       ,
 	output VertexInterface                vertex                     ,
-	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered,
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter         ,
+	output logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_filtered
 );
+
+
+	localparam CACHELINE_STREAM_READ_ADDR_BITS  = $clog2((VERTEX_SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? (1 * CACHELINE_SIZE_BITS_HF)/VERTEX_SIZE_BITS : 1);
+	localparam CACHELINE_STREAM_WRITE_ADDR_BITS = $clog2((VERTEX_SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? 1 : (1 * VERTEX_SIZE_BITS)/CACHELINE_SIZE_BITS_HF);
+
+	logic [0:(CACHELINE_STREAM_WRITE_ADDR_BITS-1)] address_wr_0;
+	logic [ 0:(CACHELINE_STREAM_READ_ADDR_BITS-1)] address_rd_0;
+	logic [0:(CACHELINE_STREAM_WRITE_ADDR_BITS-1)] address_wr_1;
+	logic [ 0:(CACHELINE_STREAM_READ_ADDR_BITS-1)] address_rd_1;
+
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit      ;
+	logic                                shift_limit_clear;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter    ;
+	logic                                start_shift      ;
+	logic                                push_shift       ;
+
+	logic we_IN_DEGREE_0     ;
+	logic we_OUT_DEGREE_0    ;
+	logic we_EDGES_IDX_0     ;
+	logic we_INV_IN_DEGREE_0 ;
+	logic we_INV_OUT_DEGREE_0;
+	logic we_INV_EDGES_IDX_0 ;
+
+	logic we_IN_DEGREE_1     ;
+	logic we_OUT_DEGREE_1    ;
+	logic we_EDGES_IDX_1     ;
+	logic we_INV_IN_DEGREE_1 ;
+	logic we_INV_OUT_DEGREE_1;
+	logic we_INV_EDGES_IDX_1 ;
+
+	ReadWriteDataLine read_data_0_in_latched_S2;
+	ReadWriteDataLine read_data_1_in_latched_S2;
+
+	logic clear_data_ready      ;
+	logic fill_vertex_job_buffer;
 
 	//output latched
 	VertexInterface vertex_latched;
@@ -44,12 +81,13 @@ module cu_vertex_job_control (
 	ResponseBufferLine read_response_in_latched;
 	ReadWriteDataLine  read_data_0_in_latched  ;
 	ReadWriteDataLine  read_data_1_in_latched  ;
-	logic              vertex_request_latched  ;
+
+	logic vertex_request_latched;
 
 	CommandBufferLine read_command_out_latched         ;
+	CommandBufferLine read_command_out_latched_S2      ;
 	BufferStatus      read_buffer_status_internal      ;
 	logic             read_command_job_vertex_burst_pop;
-
 
 	BufferStatus    vertex_buffer_burst_status;
 	logic           vertex_buffer_burst_pop   ;
@@ -57,47 +95,52 @@ module cu_vertex_job_control (
 
 	// internal registers to track logic
 	// Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
-	logic [                  0:11] request_size              ;
-	logic                          send_request_ready        ;
-	logic                          fill_vertex_buffer_pending;
-	logic [                   0:7] response_counter          ;
-	logic [                  0:63] vertex_next_offest        ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter        ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_id_counter         ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_pushed ;
+	logic                          send_request_ready       ;
+	logic [                  0:63] vertex_next_offest       ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter       ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_id_counter        ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_pushed;
+	logic                          generate_read_command    ;
+	logic                          setup_read_command       ;
+	VertexInterface                vertex_variable          ;
 
-	VertexInterface vertex_variable;
+	logic [0:(VERTEX_SIZE_BITS-1)] in_degree_data               ;
+	logic [0:(VERTEX_SIZE_BITS-1)] out_degree_data              ;
+	logic [0:(VERTEX_SIZE_BITS-1)] edges_idx_degree_data        ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_in_degree_data       ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree_data      ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx_degree_data;
 
-	logic fill_vertex_buffer;
+	logic [0:(VERTEX_SIZE_BITS-1)] in_degree_data_0               ;
+	logic [0:(VERTEX_SIZE_BITS-1)] out_degree_data_0              ;
+	logic [0:(VERTEX_SIZE_BITS-1)] edges_idx_degree_data_0        ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_in_degree_data_0       ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree_data_0      ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx_degree_data_0;
 
-	logic [0:(VERTEX_SIZE_BITS-1)] in_degree_cacheline               ;
-	logic [0:(VERTEX_SIZE_BITS-1)] out_degree_cacheline              ;
-	logic [0:(VERTEX_SIZE_BITS-1)] edges_idx_degree_cacheline        ;
-	logic [0:(VERTEX_SIZE_BITS-1)] inverse_in_degree_cacheline       ;
-	logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree_cacheline      ;
-	logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx_degree_cacheline;
+	logic [0:(VERTEX_SIZE_BITS-1)] in_degree_data_1               ;
+	logic [0:(VERTEX_SIZE_BITS-1)] out_degree_data_1              ;
+	logic [0:(VERTEX_SIZE_BITS-1)] edges_idx_degree_data_1        ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_in_degree_data_1       ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree_data_1      ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx_degree_data_1;
 
-	logic in_degree_cacheline_ready               ;
-	logic out_degree_cacheline_ready              ;
-	logic edges_idx_degree_cacheline_ready        ;
-	logic inverse_in_degree_cacheline_ready       ;
-	logic inverse_out_degree_cacheline_ready      ;
-	logic inverse_edges_idx_degree_cacheline_ready;
-
-	logic in_degree_cacheline_pending               ;
-	logic out_degree_cacheline_pending              ;
-	logic edges_idx_degree_cacheline_pending        ;
-	logic inverse_in_degree_cacheline_pending       ;
-	logic inverse_out_degree_cacheline_pending      ;
-	logic inverse_edges_idx_degree_cacheline_pending;
+	logic in_degree_data_ready               ;
+	logic out_degree_data_ready              ;
+	logic edges_idx_degree_data_ready        ;
+	logic inverse_in_degree_data_ready       ;
+	logic inverse_out_degree_data_ready      ;
+	logic inverse_edges_idx_degree_data_ready;
 
 	logic push_vertex  ;
 	logic filter_vertex;
-	logic start_shift  ;
+
 
 	vertex_struct_state current_state, next_state;
 	logic               enabled             ;
 	logic [0:63]        cu_configure_latched;
+
+
 
 	assign vertex                 = vertex_latched;
 	assign vertex_request_latched = vertex_request;
@@ -162,18 +205,21 @@ module cu_vertex_job_control (
 					next_state = SEND_VERTEX_RESET;
 			end
 			SEND_VERTEX_INIT : begin
-				next_state = SEND_VERTEX_WAIT;
-			end
-			SEND_VERTEX_WAIT : begin
-				if(send_request_ready )
-					next_state = CALC_VERTEX_REQ_SIZE;
-				else
-					next_state = SEND_VERTEX_WAIT;
-			end
-			CALC_VERTEX_REQ_SIZE : begin
 				next_state = SEND_VERTEX_IDLE;
 			end
 			SEND_VERTEX_IDLE : begin
+				if(send_request_ready)
+					next_state = START_VERTEX_REQ;
+				else
+					next_state = SEND_VERTEX_IDLE;
+			end
+			START_VERTEX_REQ : begin
+				next_state = CALC_VERTEX_REQ_SIZE;
+			end
+			CALC_VERTEX_REQ_SIZE : begin
+				next_state = SEND_VERTEX_START;
+			end
+			SEND_VERTEX_START : begin
 				next_state = SEND_VERTEX_IN_DEGREE;
 			end
 			SEND_VERTEX_IN_DEGREE : begin
@@ -192,7 +238,19 @@ module cu_vertex_job_control (
 				next_state = SEND_VERTEX_INV_EDGES_IDX;
 			end
 			SEND_VERTEX_INV_EDGES_IDX : begin
-				next_state = SEND_VERTEX_WAIT;
+				next_state = WAIT_VERTEX_DATA;
+			end
+			WAIT_VERTEX_DATA : begin
+				if(fill_vertex_job_buffer)
+					next_state = SHIFT_VERTEX_DATA;
+				else
+					next_state = WAIT_VERTEX_DATA;
+			end
+			SHIFT_VERTEX_DATA : begin
+				if(start_shift)
+					next_state = SHIFT_VERTEX_DATA;
+				else
+					next_state = SEND_VERTEX_IDLE;
 			end
 		endcase
 	end // always_comb
@@ -202,51 +260,30 @@ module cu_vertex_job_control (
 			SEND_VERTEX_RESET : begin
 				read_command_out_latched <= 0;
 				vertex_next_offest       <= 0;
-				vertex_num_counter       <= 0;
+				generate_read_command    <= 0;
+				setup_read_command       <= 0;
+				clear_data_ready         <= 0;
+				shift_limit_clear        <= 0;
 			end
 			SEND_VERTEX_INIT : begin
 				read_command_out_latched <= 0;
-				vertex_num_counter       <= wed_request_in_latched.wed.num_vertices;
+				setup_read_command       <= 1;
 			end
-			SEND_VERTEX_WAIT : begin
+			SEND_VERTEX_IDLE : begin
 				read_command_out_latched <= 0;
+				setup_read_command       <= 0;
+				shift_limit_clear        <= 1;
+			end
+			START_VERTEX_REQ : begin
+				read_command_out_latched <= 0;
+				generate_read_command    <= 1;
+				shift_limit_clear        <= 0;
 			end
 			CALC_VERTEX_REQ_SIZE : begin
-				if(vertex_num_counter > CACHELINE_VERTEX_NUM)begin
-					vertex_num_counter                           <= vertex_num_counter - CACHELINE_VERTEX_NUM;
-					read_command_out_latched.cmd.real_size       <= CACHELINE_VERTEX_NUM;
-					read_command_out_latched.cmd.real_size_bytes <= 128;
-					read_command_out_latched.size                <= 12'h080;
-
-					if (cu_configure_latched[3]) begin
-						read_command_out_latched.command <= READ_CL_S;
-					end else begin
-						read_command_out_latched.command <= READ_CL_NA;
-					end
-
-				end
-				else if (vertex_num_counter <= CACHELINE_VERTEX_NUM) begin
-					vertex_num_counter                           <= 0;
-					read_command_out_latched.cmd.real_size       <= vertex_num_counter;
-					read_command_out_latched.cmd.real_size_bytes <= (vertex_num_counter << $clog2(VERTEX_SIZE));
-
-					if (cu_configure_latched[3]) begin
-						read_command_out_latched.command <= READ_CL_S;
-						read_command_out_latched.size    <= 12'h080;
-					end else begin
-						read_command_out_latched.command <= READ_PNA;
-						read_command_out_latched.size    <= cmd_size_calculate(vertex_num_counter);
-					end
-				end
-
-				read_command_out_latched.cmd.cu_id            <= VERTEX_CONTROL_ID;
-				read_command_out_latched.cmd.cmd_type         <= CMD_READ;
-				read_command_out_latched.cmd.cacheline_offest <= 0;
-
-				read_command_out_latched.cmd.abt <= map_CABT(cu_configure_latched[0:2]);
-				read_command_out_latched.abt     <= map_CABT(cu_configure_latched[0:2]);
+				generate_read_command <= 0;
 			end
-			SEND_VERTEX_IDLE      : begin
+			SEND_VERTEX_START : begin
+				read_command_out_latched <= read_command_out_latched_S2;
 			end
 			SEND_VERTEX_IN_DEGREE : begin
 				read_command_out_latched.valid            <= 1'b1;
@@ -274,22 +311,64 @@ module cu_vertex_job_control (
 				read_command_out_latched.cmd.array_struct <= INV_EDGES_IDX;
 				vertex_next_offest                        <= vertex_next_offest + CACHELINE_SIZE;
 			end
+			WAIT_VERTEX_DATA : begin
+				read_command_out_latched <= 0;
+				if(fill_vertex_job_buffer) begin
+					clear_data_ready <= 1;
+				end
+			end
+			SHIFT_VERTEX_DATA : begin
+				clear_data_ready <= 0;
+			end
 		endcase
 	end // always_ff @(posedge clock)
+
 ////////////////////////////////////////////////////////////////////////////
-//response tracking logic
+//generate Vertex data offset
 ////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn)
-			response_counter <= 0;
-		else begin
-			if ( read_command_out.valid) begin
-				response_counter <= response_counter + 1;
-			end else if (read_response_in_latched.valid) begin
-				response_counter <= response_counter - 1;
-			end else begin
-				response_counter <= response_counter;
+		if(~rstn) begin
+			read_command_out_latched_S2 <= 0;
+			vertex_num_counter          <= 0;
+		end else begin
+			if(setup_read_command)
+				vertex_num_counter <= wed_request_in_latched.wed.num_vertices;
+
+			if (generate_read_command) begin
+				if(vertex_num_counter > CACHELINE_VERTEX_NUM)begin
+					vertex_num_counter                              <= vertex_num_counter - CACHELINE_VERTEX_NUM;
+					read_command_out_latched_S2.cmd.real_size       <= CACHELINE_VERTEX_NUM;
+					read_command_out_latched_S2.cmd.real_size_bytes <= 128;
+					read_command_out_latched_S2.size                <= 12'h080;
+
+					if (cu_configure_latched[3]) begin
+						read_command_out_latched_S2.command <= READ_CL_S;
+					end else begin
+						read_command_out_latched_S2.command <= READ_CL_NA;
+					end
+
+				end
+				else if (vertex_num_counter <= CACHELINE_VERTEX_NUM) begin
+					vertex_num_counter                              <= 0;
+					read_command_out_latched_S2.cmd.real_size       <= vertex_num_counter;
+					read_command_out_latched_S2.cmd.real_size_bytes <= (vertex_num_counter << $clog2(VERTEX_SIZE));
+
+					if (cu_configure_latched[3]) begin
+						read_command_out_latched_S2.command <= READ_CL_S;
+						read_command_out_latched_S2.size    <= 12'h080;
+					end else begin
+						read_command_out_latched_S2.command <= READ_PNA;
+						read_command_out_latched_S2.size    <= cmd_size_calculate(vertex_num_counter);
+					end
+				end
+
+				read_command_out_latched_S2.cmd.cu_id            <= VERTEX_CONTROL_ID;
+				read_command_out_latched_S2.cmd.cmd_type         <= CMD_READ;
+				read_command_out_latched_S2.cmd.cacheline_offest <= 0;
+
+				read_command_out_latched_S2.cmd.abt <= map_CABT(cu_configure_latched[0:2]);
+				read_command_out_latched_S2.abt     <= map_CABT(cu_configure_latched[0:2]);
 			end
 		end
 	end
@@ -298,85 +377,233 @@ module cu_vertex_job_control (
 //Read Vertex data into registers
 ////////////////////////////////////////////////////////////////////////////
 
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			we_IN_DEGREE_0            <= 0;
+			we_OUT_DEGREE_0           <= 0;
+			we_EDGES_IDX_0            <= 0;
+			we_INV_IN_DEGREE_0        <= 0;
+			we_INV_OUT_DEGREE_0       <= 0;
+			we_INV_EDGES_IDX_0        <= 0;
+			address_wr_0              <= 0;
+			read_data_0_in_latched_S2 <= 0;
+		end else begin
+			if(enabled && read_data_0_in_latched.valid) begin
 
-	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_in_degree (
-		.clock         (clock                      ),
-		.rstn          (rstn                       ),
-		.enabled       (enabled                    ),
-		.start_shift   (start_shift                ),
-		.read_data_0_in(read_data_0_in_latched     ),
-		.read_data_1_in(read_data_1_in_latched     ),
-		.vertex_struct (IN_DEGREE                  ),
-		.vertex        (in_degree_cacheline        ),
-		.pending       (in_degree_cacheline_pending),
-		.valid         (in_degree_cacheline_ready  )
-	);
+				read_data_0_in_latched_S2 <= read_data_0_in_latched;
 
-	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_out_degree (
-		.clock         (clock                       ),
-		.rstn          (rstn                        ),
-		.enabled       (enabled                     ),
-		.start_shift   (start_shift                 ),
-		.read_data_0_in(read_data_0_in_latched      ),
-		.read_data_1_in(read_data_1_in_latched      ),
-		.vertex_struct (OUT_DEGREE                  ),
-		.vertex        (out_degree_cacheline        ),
-		.pending       (out_degree_cacheline_pending),
-		.valid         (out_degree_cacheline_ready  )
-	);
+				case (read_data_0_in_latched.cmd.array_struct)
+					IN_DEGREE : begin
+						we_IN_DEGREE_0      <= 1;
+						we_OUT_DEGREE_0     <= 0;
+						we_EDGES_IDX_0      <= 0;
+						we_INV_IN_DEGREE_0  <= 0;
+						we_INV_OUT_DEGREE_0 <= 0;
+						we_INV_EDGES_IDX_0  <= 0;
+					end
+					OUT_DEGREE : begin
+						we_IN_DEGREE_0      <= 0;
+						we_OUT_DEGREE_0     <= 1;
+						we_EDGES_IDX_0      <= 0;
+						we_INV_IN_DEGREE_0  <= 0;
+						we_INV_OUT_DEGREE_0 <= 0;
+						we_INV_EDGES_IDX_0  <= 0;
+					end
+					EDGES_IDX : begin
+						we_IN_DEGREE_0      <= 0;
+						we_OUT_DEGREE_0     <= 0;
+						we_EDGES_IDX_0      <= 1;
+						we_INV_IN_DEGREE_0  <= 0;
+						we_INV_OUT_DEGREE_0 <= 0;
+						we_INV_EDGES_IDX_0  <= 0;
+					end
+					INV_IN_DEGREE : begin
+						we_IN_DEGREE_0      <= 0;
+						we_OUT_DEGREE_0     <= 0;
+						we_EDGES_IDX_0      <= 0;
+						we_INV_IN_DEGREE_0  <= 1;
+						we_INV_OUT_DEGREE_0 <= 0;
+						we_INV_EDGES_IDX_0  <= 0;
+					end
+					INV_OUT_DEGREE : begin
+						we_IN_DEGREE_0      <= 0;
+						we_OUT_DEGREE_0     <= 0;
+						we_EDGES_IDX_0      <= 0;
+						we_INV_IN_DEGREE_0  <= 0;
+						we_INV_OUT_DEGREE_0 <= 1;
+						we_INV_EDGES_IDX_0  <= 0;
+					end
+					INV_EDGES_IDX : begin
+						we_IN_DEGREE_0      <= 0;
+						we_OUT_DEGREE_0     <= 0;
+						we_EDGES_IDX_0      <= 0;
+						we_INV_IN_DEGREE_0  <= 0;
+						we_INV_OUT_DEGREE_0 <= 0;
+						we_INV_EDGES_IDX_0  <= 1;
+					end
+					default : begin
+						we_IN_DEGREE_0      <= 0;
+						we_OUT_DEGREE_0     <= 0;
+						we_EDGES_IDX_0      <= 0;
+						we_INV_IN_DEGREE_0  <= 0;
+						we_INV_OUT_DEGREE_0 <= 0;
+						we_INV_EDGES_IDX_0  <= 0;
+						address_wr_0        <= 0;
+					end
+				endcase
+			end else begin
+				we_IN_DEGREE_0            <= 0;
+				we_OUT_DEGREE_0           <= 0;
+				we_EDGES_IDX_0            <= 0;
+				we_INV_IN_DEGREE_0        <= 0;
+				we_INV_OUT_DEGREE_0       <= 0;
+				we_INV_EDGES_IDX_0        <= 0;
+				address_wr_0              <= 0;
+				read_data_0_in_latched_S2 <= 0;
+			end
+		end
+	end
 
-	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_edges_idx (
-		.clock         (clock                             ),
-		.rstn          (rstn                              ),
-		.enabled       (enabled                           ),
-		.start_shift   (start_shift                       ),
-		.read_data_0_in(read_data_0_in_latched            ),
-		.read_data_1_in(read_data_1_in_latched            ),
-		.vertex_struct (EDGES_IDX                         ),
-		.vertex        (edges_idx_degree_cacheline        ),
-		.pending       (edges_idx_degree_cacheline_pending),
-		.valid         (edges_idx_degree_cacheline_ready  )
-	);
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			we_IN_DEGREE_1            <= 0;
+			we_OUT_DEGREE_1           <= 0;
+			we_EDGES_IDX_1            <= 0;
+			we_INV_IN_DEGREE_1        <= 0;
+			we_INV_OUT_DEGREE_1       <= 0;
+			we_INV_EDGES_IDX_1        <= 0;
+			address_wr_1              <= 0;
+			read_data_1_in_latched_S2 <= 0;
+		end else begin
+			if(enabled && read_data_1_in_latched.valid) begin
 
-	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_inverse_in_degree (
-		.clock         (clock                              ),
-		.rstn          (rstn                               ),
-		.enabled       (enabled                            ),
-		.start_shift   (start_shift                        ),
-		.read_data_0_in(read_data_0_in_latched             ),
-		.read_data_1_in(read_data_1_in_latched             ),
-		.vertex_struct (INV_IN_DEGREE                      ),
-		.vertex        (inverse_in_degree_cacheline        ),
-		.pending       (inverse_in_degree_cacheline_pending),
-		.valid         (inverse_in_degree_cacheline_ready  )
-	);
+				read_data_1_in_latched_S2 <= read_data_1_in_latched;
 
-	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_inverse_out_degree (
-		.clock         (clock                               ),
-		.rstn          (rstn                                ),
-		.enabled       (enabled                             ),
-		.start_shift   (start_shift                         ),
-		.read_data_0_in(read_data_0_in_latched              ),
-		.read_data_1_in(read_data_1_in_latched              ),
-		.vertex_struct (INV_OUT_DEGREE                      ),
-		.vertex        (inverse_out_degree_cacheline        ),
-		.pending       (inverse_out_degree_cacheline_pending),
-		.valid         (inverse_out_degree_cacheline_ready  )
-	);
+				case (read_data_1_in_latched.cmd.array_struct)
+					IN_DEGREE : begin
+						we_IN_DEGREE_1      <= 1;
+						we_OUT_DEGREE_1     <= 0;
+						we_EDGES_IDX_1      <= 0;
+						we_INV_IN_DEGREE_1  <= 0;
+						we_INV_OUT_DEGREE_1 <= 0;
+						we_INV_EDGES_IDX_1  <= 0;
+					end
+					OUT_DEGREE : begin
+						we_IN_DEGREE_1      <= 0;
+						we_OUT_DEGREE_1     <= 1;
+						we_EDGES_IDX_1      <= 0;
+						we_INV_IN_DEGREE_1  <= 0;
+						we_INV_OUT_DEGREE_1 <= 0;
+						we_INV_EDGES_IDX_1  <= 0;
+					end
+					EDGES_IDX : begin
+						we_IN_DEGREE_1      <= 0;
+						we_OUT_DEGREE_1     <= 0;
+						we_EDGES_IDX_1      <= 1;
+						we_INV_IN_DEGREE_1  <= 0;
+						we_INV_OUT_DEGREE_1 <= 0;
+						we_INV_EDGES_IDX_1  <= 0;
+					end
+					INV_IN_DEGREE : begin
+						we_IN_DEGREE_1      <= 0;
+						we_OUT_DEGREE_1     <= 0;
+						we_EDGES_IDX_1      <= 0;
+						we_INV_IN_DEGREE_1  <= 1;
+						we_INV_OUT_DEGREE_1 <= 0;
+						we_INV_EDGES_IDX_1  <= 0;
+					end
+					INV_OUT_DEGREE : begin
+						we_IN_DEGREE_1      <= 0;
+						we_OUT_DEGREE_1     <= 0;
+						we_EDGES_IDX_1      <= 0;
+						we_INV_IN_DEGREE_1  <= 0;
+						we_INV_OUT_DEGREE_1 <= 1;
+						we_INV_EDGES_IDX_1  <= 0;
+					end
+					INV_EDGES_IDX : begin
+						we_IN_DEGREE_1      <= 0;
+						we_OUT_DEGREE_1     <= 0;
+						we_EDGES_IDX_1      <= 0;
+						we_INV_IN_DEGREE_1  <= 0;
+						we_INV_OUT_DEGREE_1 <= 0;
+						we_INV_EDGES_IDX_1  <= 1;
+					end
+					default : begin
+						we_IN_DEGREE_1      <= 0;
+						we_OUT_DEGREE_1     <= 0;
+						we_EDGES_IDX_1      <= 0;
+						we_INV_IN_DEGREE_1  <= 0;
+						we_INV_OUT_DEGREE_1 <= 0;
+						we_INV_EDGES_IDX_1  <= 0;
+						address_wr_1        <= 0;
+					end
+				endcase
+			end else begin
+				we_IN_DEGREE_1            <= 0;
+				we_OUT_DEGREE_1           <= 0;
+				we_EDGES_IDX_1            <= 0;
+				we_INV_IN_DEGREE_1        <= 0;
+				we_INV_OUT_DEGREE_1       <= 0;
+				we_INV_EDGES_IDX_1        <= 0;
+				address_wr_1              <= 0;
+				read_data_1_in_latched_S2 <= 0;
+			end
+		end
+	end
 
-	cu_cacheline_stream #(.SIZE_BITS(VERTEX_SIZE_BITS)) cu_cacheline_stream_inverse_edges_idx (
-		.clock         (clock                                     ),
-		.rstn          (rstn                                      ),
-		.enabled       (enabled                                   ),
-		.start_shift   (start_shift                               ),
-		.read_data_0_in(read_data_0_in_latched                    ),
-		.read_data_1_in(read_data_1_in_latched                    ),
-		.vertex_struct (INV_EDGES_IDX                             ),
-		.vertex        (inverse_edges_idx_degree_cacheline        ),
-		.pending       (inverse_edges_idx_degree_cacheline_pending),
-		.valid         (inverse_edges_idx_degree_cacheline_ready  )
-	);
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			in_degree_data_ready                <= 0;
+			out_degree_data_ready               <= 0;
+			edges_idx_degree_data_ready         <= 0;
+			inverse_in_degree_data_ready        <= 0;
+			inverse_out_degree_data_ready       <= 0;
+			inverse_edges_idx_degree_data_ready <= 0;
+			shift_limit                         <= 0;
+		end else begin
+			if(enabled && read_response_in_latched.valid) begin
 
+
+				if(~(|shift_limit) && ~shift_limit_clear)
+					shift_limit <= read_response_in_latched.cmd.real_size;
+
+				case (read_response_in_latched.cmd.array_struct)
+					IN_DEGREE : begin
+						in_degree_data_ready <= 1;
+					end
+					OUT_DEGREE : begin
+						out_degree_data_ready <= 1;
+					end
+					EDGES_IDX : begin
+						edges_idx_degree_data_ready <= 1;
+					end
+					INV_IN_DEGREE : begin
+						inverse_in_degree_data_ready <= 1;
+					end
+					INV_OUT_DEGREE : begin
+						inverse_out_degree_data_ready <= 1;
+					end
+					INV_EDGES_IDX : begin
+						inverse_edges_idx_degree_data_ready <= 1;
+					end
+					default : begin
+					end
+				endcase
+			end
+
+			if(shift_limit_clear)
+				shift_limit <= 0;
+
+			if(clear_data_ready) begin
+				in_degree_data_ready                <= 0;
+				out_degree_data_ready               <= 0;
+				edges_idx_degree_data_ready         <= 0;
+				inverse_in_degree_data_ready        <= 0;
+				inverse_out_degree_data_ready       <= 0;
+				inverse_edges_idx_degree_data_ready <= 0;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Read Vertex registers into vertex job queue
@@ -385,12 +612,10 @@ module cu_vertex_job_control (
 ////////////////////////////////////////////////////////////////////////////
 //Buffers Vertices
 ////////////////////////////////////////////////////////////////////////////
-	assign fill_vertex_buffer_pending = in_degree_cacheline_pending || out_degree_cacheline_pending|| edges_idx_degree_cacheline_pending ||
-		inverse_in_degree_cacheline_pending || inverse_out_degree_cacheline_pending || inverse_edges_idx_degree_cacheline_pending;
-	assign send_request_ready = read_buffer_status_internal.empty && vertex_buffer_burst_status.empty && ~fill_vertex_buffer_pending && (|vertex_num_counter) && ~(|response_counter) && wed_request_in_latched.valid;
-	assign fill_vertex_buffer = in_degree_cacheline_ready && out_degree_cacheline_ready && edges_idx_degree_cacheline_ready &&
-		inverse_in_degree_cacheline_ready && inverse_out_degree_cacheline_ready && inverse_edges_idx_degree_cacheline_ready;
-	assign start_shift = fill_vertex_buffer_pending && ~(|response_counter);
+
+	assign send_request_ready     = read_buffer_status_internal.empty && vertex_buffer_burst_status.empty  && (|vertex_num_counter) && wed_request_in_latched.valid;
+	assign fill_vertex_job_buffer = in_degree_data_ready && out_degree_data_ready && edges_idx_degree_data_ready &&
+		inverse_in_degree_data_ready && inverse_out_degree_data_ready && inverse_edges_idx_degree_data_ready;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -398,23 +623,98 @@ module cu_vertex_job_control (
 			vertex_id_counter <= 0;
 		end
 		else begin
-			if(fill_vertex_buffer) begin
+			if(push_shift) begin
 				vertex_id_counter                  <= vertex_id_counter+1;
-				vertex_variable.valid              <= fill_vertex_buffer;
+				vertex_variable.valid              <= push_shift;
 				vertex_variable.id                 <= vertex_id_counter;
-				vertex_variable.in_degree          <= swap_endianness_vertex_read(in_degree_cacheline);
-				vertex_variable.out_degree         <= swap_endianness_vertex_read(out_degree_cacheline);
-				vertex_variable.edges_idx          <= swap_endianness_vertex_read(edges_idx_degree_cacheline);
-				vertex_variable.inverse_in_degree  <= swap_endianness_vertex_read(inverse_in_degree_cacheline);
-				vertex_variable.inverse_out_degree <= swap_endianness_vertex_read(inverse_out_degree_cacheline);
-				vertex_variable.inverse_edges_idx  <= swap_endianness_vertex_read(inverse_edges_idx_degree_cacheline);
+				vertex_variable.in_degree          <= swap_endianness_vertex_read(in_degree_data);
+				vertex_variable.out_degree         <= swap_endianness_vertex_read(out_degree_data);
+				vertex_variable.edges_idx          <= swap_endianness_vertex_read(edges_idx_degree_data);
+				vertex_variable.inverse_in_degree  <= swap_endianness_vertex_read(inverse_in_degree_data);
+				vertex_variable.inverse_out_degree <= swap_endianness_vertex_read(inverse_out_degree_data);
+				vertex_variable.inverse_edges_idx  <= swap_endianness_vertex_read(inverse_edges_idx_degree_data);
 			end else begin
 				vertex_variable <= 0;
 			end
 		end
 	end
 
-	// if the vertex has no in/out neighbors don't schedule it vertex_job_latched.inverse_out_degree;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			shift_counter <= 0;
+			address_rd_0  <= 0;
+			address_rd_1  <= 0;
+			start_shift   <= 0;
+		end else begin
+			if(fill_vertex_job_buffer) begin
+				start_shift <= 1;
+			end
+
+			if(start_shift) begin
+				if((shift_counter < CACHELINE_VERTEX_NUM_HF) && (shift_counter < shift_limit)) begin
+					shift_counter <= shift_counter + 1;
+					address_rd_0  <= address_rd_0 + 1;
+					address_rd_1  <= 0;
+				end else if((shift_counter >= CACHELINE_VERTEX_NUM_HF) && (shift_counter < shift_limit)) begin
+					shift_counter <= shift_counter + 1;
+					address_rd_1  <= address_rd_1 + 1;
+					address_rd_0  <= 0;
+				end else begin
+					shift_counter <= 0;
+					address_rd_0  <= 0;
+					address_rd_1  <= 0;
+					start_shift   <= 0;
+				end
+			end else begin
+				shift_counter <= 0;
+				address_rd_0  <= 0;
+				address_rd_1  <= 0;
+			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			in_degree_data                <= 0;
+			out_degree_data               <= 0;
+			edges_idx_degree_data         <= 0;
+			inverse_in_degree_data        <= 0;
+			inverse_out_degree_data       <= 0;
+			inverse_edges_idx_degree_data <= 0;
+			push_shift                    <= 0;
+		end else begin
+			 	if((|shift_counter) && (shift_counter <= CACHELINE_VERTEX_NUM_HF) && start_shift) begin
+				push_shift                    <= 1;
+				in_degree_data                <= in_degree_data_0;
+				out_degree_data               <= out_degree_data_0;
+				edges_idx_degree_data         <= edges_idx_degree_data_0;
+				inverse_in_degree_data        <= inverse_in_degree_data_0;
+				inverse_out_degree_data       <= inverse_out_degree_data_0;
+				inverse_edges_idx_degree_data <= inverse_edges_idx_degree_data_0;
+			end else if((shift_counter > CACHELINE_VERTEX_NUM_HF) && start_shift) begin
+				push_shift                    <= 1;
+				in_degree_data                <= in_degree_data_1;
+				out_degree_data               <= out_degree_data_1;
+				edges_idx_degree_data         <= edges_idx_degree_data_1;
+				inverse_in_degree_data        <= inverse_in_degree_data_1;
+				inverse_out_degree_data       <= inverse_out_degree_data_1;
+				inverse_edges_idx_degree_data <= inverse_edges_idx_degree_data_1;
+			end else begin
+				in_degree_data                <= 0;
+				out_degree_data               <= 0;
+				edges_idx_degree_data         <= 0;
+				inverse_in_degree_data        <= 0;
+				inverse_out_degree_data       <= 0;
+				inverse_edges_idx_degree_data <= 0;
+				push_shift                    <= 0;	
+			end
+		end
+	end
+
+
+////////////////////////////////////////////////////////////////////////////
+// If the vertex has no in/out neighbors don't schedule it vertex_job_latched.inverse_out_degree;
+////////////////////////////////////////////////////////////////////////////
 	assign push_vertex   = (vertex_variable.valid)   && ((|vertex_variable.inverse_out_degree));
 	assign filter_vertex = (vertex_variable.valid)   && (~(|vertex_variable.inverse_out_degree));
 
@@ -434,9 +734,17 @@ module cu_vertex_job_control (
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			vertex_job_counter_filtered <= 0;
+			vertex_job_counter          <= 0;
+			edge_job_counter_filtered   <= 0;
 		end else begin
 			if(filter_vertex)
 				vertex_job_counter_filtered <= vertex_job_counter_filtered + 1;;
+
+			if(vertex_latched.valid) begin
+				vertex_job_counter        <= vertex_job_counter + 1;
+				edge_job_counter_filtered <= edge_job_counter_filtered + vertex_latched.inverse_out_degree;
+			end
+
 		end
 	end
 
@@ -507,6 +815,184 @@ module cu_vertex_job_control (
 		.data_out(read_command_out                  ),
 		.empty   (read_buffer_status_internal.empty )
 	);
+
+///////////////////////////////////////////////////////////////////////////
+// different data_structures cacheline storage half 0
+////////////////////////////////////////////////////////////////////////////
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_IN_DEGREE_0 (
+		.clock   (clock                         ),
+		.we      (we_IN_DEGREE_0                ),
+		.wr_addr (address_wr_0                  ),
+		.data_in (read_data_0_in_latched_S2.data),
+		
+		.rd_addr (address_rd_0                  ),
+		.data_out(in_degree_data_0              )
+	);
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_OUT_DEGREE_0 (
+		.clock   (clock                         ),
+		.we      (we_OUT_DEGREE_0               ),
+		.wr_addr (address_wr_0                  ),
+		.data_in (read_data_0_in_latched_S2.data),
+		
+		.rd_addr (address_rd_0                  ),
+		.data_out(out_degree_data_0             )
+	);
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_EDGES_IDX_0 (
+		.clock   (clock                         ),
+		.we      (we_EDGES_IDX_0                ),
+		.wr_addr (address_wr_0                  ),
+		.data_in (read_data_0_in_latched_S2.data),
+		
+		.rd_addr (address_rd_0                  ),
+		.data_out(edges_idx_degree_data_0       )
+	);
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_INV_IN_DEGREE_0 (
+		.clock   (clock                         ),
+		.we      (we_INV_IN_DEGREE_0            ),
+		.wr_addr (address_wr_0                  ),
+		.data_in (read_data_0_in_latched_S2.data),
+		
+		.rd_addr (address_rd_0                  ),
+		.data_out(inverse_in_degree_data_0      )
+	);
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_INV_OUT_DEGREE_0 (
+		.clock   (clock                         ),
+		.we      (we_INV_OUT_DEGREE_0           ),
+		.wr_addr (address_wr_0                  ),
+		.data_in (read_data_0_in_latched_S2.data),
+		
+		.rd_addr (address_rd_0                  ),
+		.data_out(inverse_out_degree_data_0     )
+	);
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_INV_EDGES_IDX_0 (
+		.clock   (clock                          ),
+		.we      (we_INV_EDGES_IDX_0             ),
+		.wr_addr (address_wr_0                   ),
+		.data_in (read_data_0_in_latched_S2.data ),
+		
+		.rd_addr (address_rd_0                   ),
+		.data_out(inverse_edges_idx_degree_data_0)
+	);
+
+
+///////////////////////////////////////////////////////////////////////////
+// different data_structures cacheline storage half 1
+////////////////////////////////////////////////////////////////////////////
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_IN_DEGREE_1 (
+		.clock   (clock                         ),
+		.we      (we_IN_DEGREE_1                ),
+		.wr_addr (address_wr_1                  ),
+		.data_in (read_data_1_in_latched_S2.data),
+		
+		.rd_addr (address_rd_1                  ),
+		.data_out(in_degree_data_1              )
+	);
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_OUT_DEGREE_1 (
+		.clock   (clock                         ),
+		.we      (we_OUT_DEGREE_1               ),
+		.wr_addr (address_wr_1                  ),
+		.data_in (read_data_1_in_latched_S2.data),
+		
+		.rd_addr (address_rd_1                  ),
+		.data_out(out_degree_data_1             )
+	);
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_EDGES_IDX_1 (
+		.clock   (clock                         ),
+		.we      (we_EDGES_IDX_1                ),
+		.wr_addr (address_wr_1                  ),
+		.data_in (read_data_1_in_latched_S2.data),
+		
+		.rd_addr (address_rd_1                  ),
+		.data_out(edges_idx_degree_data_1       )
+	);
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_INV_IN_DEGREE_1 (
+		.clock   (clock                         ),
+		.we      (we_INV_IN_DEGREE_1            ),
+		.wr_addr (address_wr_1                  ),
+		.data_in (read_data_1_in_latched_S2.data),
+		
+		.rd_addr (address_rd_1                  ),
+		.data_out(inverse_in_degree_data_1      )
+	);
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_INV_OUT_DEGREE_1 (
+		.clock   (clock                         ),
+		.we      (we_INV_OUT_DEGREE_1           ),
+		.wr_addr (address_wr_1                  ),
+		.data_in (read_data_1_in_latched_S2.data),
+		
+		.rd_addr (address_rd_1                  ),
+		.data_out(inverse_out_degree_data_1     )
+	);
+
+	mixed_width_ram #(
+		.WORDS(1                     ),
+		.WW   (CACHELINE_SIZE_BITS_HF),
+		.RW   (VERTEX_SIZE_BITS      )
+	) cacheline_instant_INV_EDGES_IDX_1 (
+		.clock   (clock                          ),
+		.we      (we_INV_EDGES_IDX_1             ),
+		.wr_addr (address_wr_1                   ),
+		.data_in (read_data_1_in_latched_S2.data ),
+		
+		.rd_addr (address_rd_1                   ),
+		.data_out(inverse_edges_idx_degree_data_1)
+	);
+
 
 
 

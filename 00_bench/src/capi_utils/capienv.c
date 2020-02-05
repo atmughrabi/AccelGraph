@@ -138,8 +138,18 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
             cxl_mmio_write64((*afu), CU_RETURN_DONE_ACK, (uint64_t)afu_status->cu_return_done);
             break;
         }
+
+        if(afu_status->error)
+        {
+            printMMIO_error(afu_status->error);
+            readCmdResponseStats(afu, &cmdResponseStats);
+            cxl_mmio_write64((*afu), ERROR_REG_ACK, (uint64_t)afu_status->error);
+            break;
+        }
+
     }
-    while((!(afu_status->error)));
+    while(1);
+
 #ifdef  VERBOSE_2
     printf("\n*-----------------------------------------------------*\n");
 #endif

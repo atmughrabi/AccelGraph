@@ -1353,7 +1353,6 @@ struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  uint32_t i
         // ********************************************************************************************
         // ***************                 WAIT AFU                                     **************
         waitAFU(&afu, &afu_status);
-        printMMIO_error(afu_status.error);
         // ********************************************************************************************
 
         // Stop(timer_inner);
