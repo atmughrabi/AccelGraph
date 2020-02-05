@@ -33,8 +33,8 @@ TIMEOUT:10
 #SEED:52
 #SEED:1024
 #SEED:27491095
-SEED:37491095
-#SEED:1461247482
+#SEED:37491095
+SEED:1461247482
 # Percentage chance of PSL driving any pending responses in a clock cycle.
 # Can not be 0 otherwise PSL will never generate responses to commands.
 # Setting to 100 will cause all responses to be very rapid and generally
@@ -42,14 +42,14 @@ SEED:37491095
 # Lower values introduces delays on responses and allows for greater
 # randomization of response ordering.
 #RESPONSE_PERCENT:1,100
-RESPONSE_PERCENT:19,91
+RESPONSE_PERCENT:100,100
 
 
 # Percentage chance of PSL responding with PAGED for any command response.
 #PAGED_PERCENT:40,90
 #PAGED_PERCENT:1,100
-PAGED_PERCENT:29,98
-#PAGED_PERCENT:0,0
+#PAGED_PERCENT:29,98
+PAGED_PERCENT:0,0
 
 # Percentage chance of PSL reordering the execution of commands.
 # REORDER_PERCENT:1,100

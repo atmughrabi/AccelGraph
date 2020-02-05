@@ -47,10 +47,13 @@ module cu_vertex_job_control (
 	logic [0:(CACHELINE_STREAM_WRITE_ADDR_BITS-1)] address_wr_1;
 	logic [ 0:(CACHELINE_STREAM_READ_ADDR_BITS-1)] address_rd_1;
 
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit      ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0    ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1    ;
 	logic                                shift_limit_clear;
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter    ;
-	logic                                start_shift      ;
+	logic                                start_shift_hf_0 ;
+	logic                                start_shift_hf_1 ;
+	logic                                switch_shift_hf  ;
 	logic                                push_shift       ;
 
 	logic we_IN_DEGREE_0     ;
@@ -242,15 +245,30 @@ module cu_vertex_job_control (
 			end
 			WAIT_VERTEX_DATA : begin
 				if(fill_vertex_job_buffer)
-					next_state = SHIFT_VERTEX_DATA;
+					next_state = SHIFT_VERTEX_DATA_START;
 				else
 					next_state = WAIT_VERTEX_DATA;
 			end
-			SHIFT_VERTEX_DATA : begin
-				if(start_shift)
-					next_state = SHIFT_VERTEX_DATA;
+			SHIFT_VERTEX_DATA_START : begin
+				next_state = SHIFT_VERTEX_DATA_0;
+			end
+			SHIFT_VERTEX_DATA_0 : begin
+				if((shift_counter < shift_limit_0))
+					next_state = SHIFT_VERTEX_DATA_0;
 				else
-					next_state = SEND_VERTEX_IDLE;
+					next_state = SHIFT_VERTEX_DATA_DONE_0;
+			end
+			SHIFT_VERTEX_DATA_DONE_0 : begin
+				next_state = SHIFT_VERTEX_DATA_1;
+			end
+			SHIFT_VERTEX_DATA_1 : begin
+				if((shift_counter < shift_limit_1))
+					next_state = SHIFT_VERTEX_DATA_1;
+				else
+					next_state = SHIFT_VERTEX_DATA_DONE_1;
+			end
+			SHIFT_VERTEX_DATA_DONE_1 : begin
+				next_state = SEND_VERTEX_IDLE;
 			end
 		endcase
 	end // always_comb
@@ -264,6 +282,12 @@ module cu_vertex_job_control (
 				setup_read_command       <= 0;
 				clear_data_ready         <= 0;
 				shift_limit_clear        <= 0;
+				start_shift_hf_0         <= 0;
+				start_shift_hf_1         <= 0;
+				switch_shift_hf          <= 0;
+				shift_counter            <= 0;
+				address_rd_0             <= 0;
+				address_rd_1             <= 0;
 			end
 			SEND_VERTEX_INIT : begin
 				read_command_out_latched <= 0;
@@ -272,7 +296,10 @@ module cu_vertex_job_control (
 			SEND_VERTEX_IDLE : begin
 				read_command_out_latched <= 0;
 				setup_read_command       <= 0;
-				shift_limit_clear        <= 1;
+				shift_limit_clear        <= 0;
+				shift_counter            <= 0;
+				address_rd_0             <= 0;
+				address_rd_1             <= 0;
 			end
 			START_VERTEX_REQ : begin
 				read_command_out_latched <= 0;
@@ -317,8 +344,41 @@ module cu_vertex_job_control (
 					clear_data_ready <= 1;
 				end
 			end
-			SHIFT_VERTEX_DATA : begin
+			SHIFT_VERTEX_DATA_START : begin
 				clear_data_ready <= 0;
+				start_shift_hf_0 <= 0;
+				start_shift_hf_1 <= 0;
+				switch_shift_hf  <= 0;
+			end
+			SHIFT_VERTEX_DATA_0 : begin
+				start_shift_hf_0 <= 1;
+				start_shift_hf_1 <= 0;
+				switch_shift_hf  <= 0;
+				shift_counter    <= shift_counter + 1;
+				address_rd_0     <= address_rd_0 + 1;
+			end
+			SHIFT_VERTEX_DATA_DONE_0 : begin
+				start_shift_hf_0 <= 0;
+				start_shift_hf_1 <= 0;
+				switch_shift_hf  <= 0;
+				address_rd_0     <= 0;
+				shift_counter    <= 0;
+			end
+			SHIFT_VERTEX_DATA_1 : begin
+				start_shift_hf_0 <= 0;
+				start_shift_hf_1 <= 1;
+				switch_shift_hf  <= 1;
+				shift_counter    <= shift_counter + 1;
+				address_rd_1     <= address_rd_1 + 1;
+			end
+			SHIFT_VERTEX_DATA_DONE_1 : begin
+				start_shift_hf_0  <= 0;
+				start_shift_hf_1  <= 0;
+				shift_limit_clear <= 1;
+				switch_shift_hf   <= 0;
+				shift_counter     <= 0;
+				address_rd_0      <= 0;
+				address_rd_1      <= 0;
 			end
 		endcase
 	end // always_ff @(posedge clock)
@@ -559,13 +619,9 @@ module cu_vertex_job_control (
 			inverse_in_degree_data_ready        <= 0;
 			inverse_out_degree_data_ready       <= 0;
 			inverse_edges_idx_degree_data_ready <= 0;
-			shift_limit                         <= 0;
+
 		end else begin
 			if(enabled && read_response_in_latched.valid) begin
-
-
-				if(~(|shift_limit) && ~shift_limit_clear)
-					shift_limit <= read_response_in_latched.cmd.real_size;
 
 				case (read_response_in_latched.cmd.array_struct)
 					IN_DEGREE : begin
@@ -591,9 +647,6 @@ module cu_vertex_job_control (
 				endcase
 			end
 
-			if(shift_limit_clear)
-				shift_limit <= 0;
-
 			if(clear_data_ready) begin
 				in_degree_data_ready                <= 0;
 				out_degree_data_ready               <= 0;
@@ -601,6 +654,30 @@ module cu_vertex_job_control (
 				inverse_in_degree_data_ready        <= 0;
 				inverse_out_degree_data_ready       <= 0;
 				inverse_edges_idx_degree_data_ready <= 0;
+			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			shift_limit_0 <= 0;
+			shift_limit_1 <= 0;
+		end else begin
+			if(enabled && read_response_in_latched.valid) begin
+				if(~(|shift_limit_0) && ~shift_limit_clear) begin
+					if(read_response_in_latched.cmd.real_size > CACHELINE_VERTEX_NUM_HF) begin
+						shift_limit_0 <= CACHELINE_VERTEX_NUM_HF-1;
+						shift_limit_1 <= read_response_in_latched.cmd.real_size - CACHELINE_VERTEX_NUM_HF - 1;
+					end else begin
+						shift_limit_0 <= read_response_in_latched.cmd.real_size-1;
+						shift_limit_1 <= 0;
+					end
+				end
+			end
+
+			if(shift_limit_clear) begin
+				shift_limit_0 <= 0;
+				shift_limit_1 <= 0;
 			end
 		end
 	end
@@ -641,40 +718,6 @@ module cu_vertex_job_control (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			shift_counter <= 0;
-			address_rd_0  <= 0;
-			address_rd_1  <= 0;
-			start_shift   <= 0;
-		end else begin
-			if(fill_vertex_job_buffer) begin
-				start_shift <= 1;
-			end
-
-			if(start_shift) begin
-				if((shift_counter < CACHELINE_VERTEX_NUM_HF) && (shift_counter < shift_limit)) begin
-					shift_counter <= shift_counter + 1;
-					address_rd_0  <= address_rd_0 + 1;
-					address_rd_1  <= 0;
-				end else if((shift_counter >= CACHELINE_VERTEX_NUM_HF) && (shift_counter < shift_limit)) begin
-					shift_counter <= shift_counter + 1;
-					address_rd_1  <= address_rd_1 + 1;
-					address_rd_0  <= 0;
-				end else begin
-					shift_counter <= 0;
-					address_rd_0  <= 0;
-					address_rd_1  <= 0;
-					start_shift   <= 0;
-				end
-			end else begin
-				shift_counter <= 0;
-				address_rd_0  <= 0;
-				address_rd_1  <= 0;
-			end
-		end
-	end
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
 			in_degree_data                <= 0;
 			out_degree_data               <= 0;
 			edges_idx_degree_data         <= 0;
@@ -683,7 +726,7 @@ module cu_vertex_job_control (
 			inverse_edges_idx_degree_data <= 0;
 			push_shift                    <= 0;
 		end else begin
-			 	if((|shift_counter) && (shift_counter <= CACHELINE_VERTEX_NUM_HF) && start_shift) begin
+			if(~switch_shift_hf && start_shift_hf_0) begin
 				push_shift                    <= 1;
 				in_degree_data                <= in_degree_data_0;
 				out_degree_data               <= out_degree_data_0;
@@ -691,7 +734,7 @@ module cu_vertex_job_control (
 				inverse_in_degree_data        <= inverse_in_degree_data_0;
 				inverse_out_degree_data       <= inverse_out_degree_data_0;
 				inverse_edges_idx_degree_data <= inverse_edges_idx_degree_data_0;
-			end else if((shift_counter > CACHELINE_VERTEX_NUM_HF) && start_shift) begin
+			end else if(switch_shift_hf && start_shift_hf_1) begin
 				push_shift                    <= 1;
 				in_degree_data                <= in_degree_data_1;
 				out_degree_data               <= out_degree_data_1;
@@ -700,13 +743,13 @@ module cu_vertex_job_control (
 				inverse_out_degree_data       <= inverse_out_degree_data_1;
 				inverse_edges_idx_degree_data <= inverse_edges_idx_degree_data_1;
 			end else begin
+				push_shift                    <= 0;
 				in_degree_data                <= 0;
 				out_degree_data               <= 0;
 				edges_idx_degree_data         <= 0;
 				inverse_in_degree_data        <= 0;
 				inverse_out_degree_data       <= 0;
 				inverse_edges_idx_degree_data <= 0;
-				push_shift                    <= 0;	
 			end
 		end
 	end

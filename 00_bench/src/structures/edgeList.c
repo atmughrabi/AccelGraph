@@ -330,7 +330,8 @@ struct EdgeList *readEdgeListsbin(const char *fname, uint8_t inverse, uint32_t s
     offset = 2;
 #endif
 
-    uint32_t num_edges = (uint64_t)fs.st_size / ((offset) * sizeof(uint32_t));
+    // uint32_t num_edges = (uint64_t)fs.st_size / ((offset) * sizeof(uint32_t));
+    uint32_t num_edges = 11;
     struct EdgeList *edgeList;
 
 #if DIRECTED
@@ -365,7 +366,7 @@ struct EdgeList *readEdgeListsbin(const char *fname, uint8_t inverse, uint32_t s
     {
         src = buf_pointer[((offset) * i) + 0];
         dest = buf_pointer[((offset) * i) + 1];
-        // printf(" %u %lu -> %lu \n",src,dest);
+        // printf(" %u %lu -> %lu \n",i,src,dest);
 #if DIRECTED
         if(!inverse)
         {
