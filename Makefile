@@ -15,6 +15,7 @@ export APP_TEST          = test_afu
 # dirs Root app 
 export APP_DIR              = .
 export BENCHMARKS_DIR    	= ../04_test_graphs
+# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -54,7 +55,7 @@ export GRAPH_NAME = test
 # export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
-export GRAPH_NAME = Gnutella
+# export GRAPH_NAME = Gnutella
 # export GRAPH_NAME = dblp
 # export GRAPH_NAME = amazon
 # export GRAPH_NAME = euall
@@ -99,7 +100,7 @@ export PULL_PUSH 		= 2
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
-export NUM_THREADS  	= 1
+export NUM_THREADS  	= 64
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
@@ -132,14 +133,14 @@ ENABLE_RD_WR_PREFETCH=0
 # // cu_edge_data_control         5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00000 00000 00000 00000 00
-# export CU_CONFIG_MODE=0x0000000$(ENABLE_RD_WR_PREFETCH)  
+export CU_CONFIG_MODE=0x00000000
 
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00010 00001 00000 00000 00
-export CU_CONFIG_MODE=0x00041000  
+# export CU_CONFIG_MODE=0x00041000  
 
 # // cu_vertex_job_control        5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [22:26] [9] [8] [5:7]
@@ -173,7 +174,7 @@ export CU_CONFIG_MODE=0x00041000
 # FIXED_ARB               [62]
 # ROUND_ROBIN_ARB         [63]
 
-export ROUND_ROBIN_ARB=0x6611000000000001
+export ROUND_ROBIN_ARB=0x1111000000000001
 export FIXED_ARB=0x1111000000000002
 
 ##############################################

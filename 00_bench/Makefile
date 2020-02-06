@@ -13,7 +13,7 @@ APP_TEST          ?= test_accel-graph
 # dirs Root app 
 APP_DIR           	?= .
 SCRIPT_DIR          ?= ../03_scripts
-# BENCHMARKS_DIR    	= ../../01_GraphDatasets/Aladdin-graphs
+# BENCHMARKS_DIR    	= ../../01_GraphDatasets
 BENCHMARKS_DIR    	?= ../04_test_graphs
 
 #dir root/managed_folders

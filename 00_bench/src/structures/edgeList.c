@@ -331,7 +331,7 @@ struct EdgeList *readEdgeListsbin(const char *fname, uint8_t inverse, uint32_t s
 #endif
 
     uint32_t num_edges = (uint64_t)fs.st_size / ((offset) * sizeof(uint32_t));
-    // uint32_t num_edges = 11;
+    // uint32_t num_edges = 32;
     struct EdgeList *edgeList;
 
 #if DIRECTED
