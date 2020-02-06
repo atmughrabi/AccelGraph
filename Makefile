@@ -352,16 +352,16 @@ clean-sim:
 #           ACCEL SYNTHESIZE LEVEL RULES     #
 ##############################################
 
-.PHONY: run-capi-synth
-run-capi-synth:
+.PHONY: run-synth
+run-synth:
 	$(MAKE) all $(MAKE_ARGS_SYNTH)
 
-.PHONY: run-capi-gui
-run-capi-gui:
+.PHONY: run-synth-gui
+run-synth-gui:
 	$(MAKE) gui $(MAKE_ARGS_SYNTH)
 
-.PHONY: run-capi-sweep
-run-capi-sweep:
+.PHONY: run-synth-sweep
+run-synth-sweep:
 	$(MAKE) sweep $(MAKE_ARGS_SYNTH)
 
 .PHONY: map
