@@ -74,6 +74,8 @@ package GLOBALS_CU_PKG;
 	parameter DATA_SIZE_WRITE      = 8                  ; // edge data size is n bytes
 	parameter DATA_SIZE_WRITE_BITS = DATA_SIZE_WRITE * 8; // edge data size is n*8 Bits
 
+	parameter VERTEX_NULL_BITS = {VERTEX_SIZE_BITS{1'b0}};
+
 	parameter [0:63] ADDRESS_EDGE_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
 	parameter [0:63] ADDRESS_EDGE_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
 
