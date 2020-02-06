@@ -20,21 +20,19 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_vertex_job_control (
-	input  logic                          clock                    , // Clock
-	input  logic                          rstn                     ,
-	input  logic                          enabled_in               ,
-	input  logic [                  0:63] cu_configure             ,
-	input  WEDInterface                   wed_request_in           ,
-	input  ResponseBufferLine             read_response_in         ,
-	input  ReadWriteDataLine              read_data_0_in           ,
-	input  ReadWriteDataLine              read_data_1_in           ,
-	input  BufferStatus                   read_buffer_status       ,
-	input  logic                          vertex_request           ,
-	output CommandBufferLine              read_command_out         ,
-	output BufferStatus                   vertex_buffer_status     ,
-	output VertexInterface                vertex                   ,
-	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter       ,
-	output logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_filtered
+	input  logic              clock               , // Clock
+	input  logic              rstn                ,
+	input  logic              enabled_in          ,
+	input  logic [0:63]       cu_configure        ,
+	input  WEDInterface       wed_request_in      ,
+	input  ResponseBufferLine read_response_in    ,
+	input  ReadWriteDataLine  read_data_0_in      ,
+	input  ReadWriteDataLine  read_data_1_in      ,
+	input  BufferStatus       read_buffer_status  ,
+	input  logic              vertex_request      ,
+	output CommandBufferLine  read_command_out    ,
+	output BufferStatus       vertex_buffer_status,
+	output VertexInterface    vertex
 );
 
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0    ;
@@ -64,7 +62,8 @@ module cu_vertex_job_control (
 	logic fill_vertex_job_buffer;
 
 	//output latched
-	VertexInterface vertex_latched;
+	VertexInterface   vertex_latched          ;
+	CommandBufferLine read_command_out_latched;
 
 	//input lateched
 	WEDInterface       wed_request_in_latched  ;
@@ -74,10 +73,10 @@ module cu_vertex_job_control (
 
 	logic vertex_request_latched;
 
-	CommandBufferLine read_command_out_latched         ;
-	CommandBufferLine read_command_out_latched_S2      ;
-	BufferStatus      read_buffer_status_internal      ;
-	logic             read_command_job_vertex_burst_pop;
+	CommandBufferLine read_command_vertex_job_latched   ;
+	CommandBufferLine read_command_vertex_job_latched_S2;
+	BufferStatus      read_buffer_status_internal       ;
+	logic             read_command_job_vertex_burst_pop ;
 
 	BufferStatus    vertex_buffer_burst_status;
 	logic           vertex_buffer_burst_pop   ;
@@ -114,12 +113,6 @@ module cu_vertex_job_control (
 	logic [0:63]        cu_configure_latched;
 
 
-
-	assign vertex                 = vertex_latched;
-	assign vertex_request_latched = vertex_request;
-
-
-
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -135,6 +128,22 @@ module cu_vertex_job_control (
 	end
 
 ////////////////////////////////////////////////////////////////////////////
+//drive outputs
+////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			vertex           <= 0;
+			read_command_out <= 0;
+		end else begin
+			if(enabled) begin
+				vertex           <= vertex_latched;
+				read_command_out <= read_command_out_latched;
+			end
+		end
+	end
+
+////////////////////////////////////////////////////////////////////////////
 //drive inputs
 ////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
@@ -144,13 +153,14 @@ module cu_vertex_job_control (
 			read_data_0_in_latched   <= 0;
 			read_data_1_in_latched   <= 0;
 			cu_configure_latched     <= 0;
+			vertex_request_latched   <= 0;
 		end else begin
 			if(enabled) begin
 				wed_request_in_latched   <= wed_request_in;
 				read_response_in_latched <= read_response_in;
 				read_data_0_in_latched   <= read_data_0_in;
 				read_data_1_in_latched   <= read_data_1_in;
-				// vertex_request_latched <= vertex_request;
+				vertex_request_latched   <= vertex_request;
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
 			end
@@ -248,68 +258,68 @@ module cu_vertex_job_control (
 	always_ff @(posedge clock) begin
 		case (current_state)
 			SEND_VERTEX_RESET : begin
-				read_command_out_latched <= 0;
-				vertex_next_offest       <= 0;
-				generate_read_command    <= 0;
-				setup_read_command       <= 0;
-				clear_data_ready         <= 1;
-				shift_limit_clear        <= 1;
-				start_shift_hf_0         <= 0;
-				start_shift_hf_1         <= 0;
-				switch_shift_hf          <= 0;
-				shift_counter            <= 0;
+				read_command_vertex_job_latched <= 0;
+				vertex_next_offest              <= 0;
+				generate_read_command           <= 0;
+				setup_read_command              <= 0;
+				clear_data_ready                <= 1;
+				shift_limit_clear               <= 1;
+				start_shift_hf_0                <= 0;
+				start_shift_hf_1                <= 0;
+				switch_shift_hf                 <= 0;
+				shift_counter                   <= 0;
 			end
 			SEND_VERTEX_INIT : begin
-				read_command_out_latched <= 0;
-				clear_data_ready         <= 0;
-				shift_limit_clear        <= 0;
-				setup_read_command       <= 1;
+				read_command_vertex_job_latched <= 0;
+				clear_data_ready                <= 0;
+				shift_limit_clear               <= 0;
+				setup_read_command              <= 1;
 			end
 			SEND_VERTEX_IDLE : begin
-				read_command_out_latched <= 0;
-				setup_read_command       <= 0;
-				shift_limit_clear        <= 0;
-				shift_counter            <= 0;
+				read_command_vertex_job_latched <= 0;
+				setup_read_command              <= 0;
+				shift_limit_clear               <= 0;
+				shift_counter                   <= 0;
 			end
 			START_VERTEX_REQ : begin
-				read_command_out_latched <= 0;
-				generate_read_command    <= 1;
-				shift_limit_clear        <= 0;
+				read_command_vertex_job_latched <= 0;
+				generate_read_command           <= 1;
+				shift_limit_clear               <= 0;
 			end
 			CALC_VERTEX_REQ_SIZE : begin
 				generate_read_command <= 0;
 			end
 			SEND_VERTEX_START : begin
-				read_command_out_latched <= read_command_out_latched_S2;
+				read_command_vertex_job_latched <= read_command_vertex_job_latched_S2;
 			end
 			SEND_VERTEX_IN_DEGREE : begin
-				read_command_out_latched.valid            <= 1'b1;
-				read_command_out_latched.address          <= wed_request_in_latched.wed.vertex_in_degree + vertex_next_offest;
-				read_command_out_latched.cmd.array_struct <= IN_DEGREE;
+				read_command_vertex_job_latched.valid            <= 1'b1;
+				read_command_vertex_job_latched.address          <= wed_request_in_latched.wed.vertex_in_degree + vertex_next_offest;
+				read_command_vertex_job_latched.cmd.array_struct <= IN_DEGREE;
 			end
 			SEND_VERTEX_OUT_DEGREE : begin
-				read_command_out_latched.address          <= wed_request_in_latched.wed.vertex_out_degree + vertex_next_offest;
-				read_command_out_latched.cmd.array_struct <= OUT_DEGREE;
+				read_command_vertex_job_latched.address          <= wed_request_in_latched.wed.vertex_out_degree + vertex_next_offest;
+				read_command_vertex_job_latched.cmd.array_struct <= OUT_DEGREE;
 			end
 			SEND_VERTEX_EDGES_IDX : begin
-				read_command_out_latched.address          <= wed_request_in_latched.wed.vertex_edges_idx + vertex_next_offest;
-				read_command_out_latched.cmd.array_struct <= EDGES_IDX;
+				read_command_vertex_job_latched.address          <= wed_request_in_latched.wed.vertex_edges_idx + vertex_next_offest;
+				read_command_vertex_job_latched.cmd.array_struct <= EDGES_IDX;
 			end
 			SEND_VERTEX_INV_IN_DEGREE : begin
-				read_command_out_latched.address          <= wed_request_in_latched.wed.inverse_vertex_in_degree + vertex_next_offest;
-				read_command_out_latched.cmd.array_struct <= INV_IN_DEGREE;
+				read_command_vertex_job_latched.address          <= wed_request_in_latched.wed.inverse_vertex_in_degree + vertex_next_offest;
+				read_command_vertex_job_latched.cmd.array_struct <= INV_IN_DEGREE;
 			end
 			SEND_VERTEX_INV_OUT_DEGREE : begin
-				read_command_out_latched.address          <= wed_request_in_latched.wed.inverse_vertex_out_degree + vertex_next_offest;
-				read_command_out_latched.cmd.array_struct <= INV_OUT_DEGREE;
+				read_command_vertex_job_latched.address          <= wed_request_in_latched.wed.inverse_vertex_out_degree + vertex_next_offest;
+				read_command_vertex_job_latched.cmd.array_struct <= INV_OUT_DEGREE;
 			end
 			SEND_VERTEX_INV_EDGES_IDX : begin
-				read_command_out_latched.address          <= wed_request_in_latched.wed.inverse_vertex_edges_idx + vertex_next_offest;
-				read_command_out_latched.cmd.array_struct <= INV_EDGES_IDX;
-				vertex_next_offest                        <= vertex_next_offest + CACHELINE_SIZE;
+				read_command_vertex_job_latched.address          <= wed_request_in_latched.wed.inverse_vertex_edges_idx + vertex_next_offest;
+				read_command_vertex_job_latched.cmd.array_struct <= INV_EDGES_IDX;
+				vertex_next_offest                               <= vertex_next_offest + CACHELINE_SIZE;
 			end
 			WAIT_VERTEX_DATA : begin
-				read_command_out_latched <= 0;
+				read_command_vertex_job_latched <= 0;
 				if(fill_vertex_job_buffer) begin
 					clear_data_ready <= 1;
 				end
@@ -354,48 +364,48 @@ module cu_vertex_job_control (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_command_out_latched_S2 <= 0;
-			vertex_num_counter          <= 0;
+			read_command_vertex_job_latched_S2 <= 0;
+			vertex_num_counter                 <= 0;
 		end else begin
 			if(setup_read_command)
 				vertex_num_counter <= wed_request_in_latched.wed.num_vertices;
 
 			if (generate_read_command) begin
 				if(vertex_num_counter > CACHELINE_VERTEX_NUM)begin
-					vertex_num_counter                              <= vertex_num_counter - CACHELINE_VERTEX_NUM;
-					read_command_out_latched_S2.cmd.real_size       <= CACHELINE_VERTEX_NUM;
-					read_command_out_latched_S2.cmd.real_size_bytes <= 128;
-					read_command_out_latched_S2.size                <= 12'h080;
+					vertex_num_counter                                     <= vertex_num_counter - CACHELINE_VERTEX_NUM;
+					read_command_vertex_job_latched_S2.cmd.real_size       <= CACHELINE_VERTEX_NUM;
+					read_command_vertex_job_latched_S2.cmd.real_size_bytes <= 128;
+					read_command_vertex_job_latched_S2.size                <= 12'h080;
 
 					if (cu_configure_latched[3]) begin
-						read_command_out_latched_S2.command <= READ_CL_S;
+						read_command_vertex_job_latched_S2.command <= READ_CL_S;
 					end else begin
-						read_command_out_latched_S2.command <= READ_CL_NA;
+						read_command_vertex_job_latched_S2.command <= READ_CL_NA;
 					end
 
 				end
 				else if (vertex_num_counter <= CACHELINE_VERTEX_NUM) begin
-					vertex_num_counter                              <= 0;
-					read_command_out_latched_S2.cmd.real_size       <= vertex_num_counter;
-					read_command_out_latched_S2.cmd.real_size_bytes <= (vertex_num_counter << $clog2(VERTEX_SIZE));
+					vertex_num_counter                                     <= 0;
+					read_command_vertex_job_latched_S2.cmd.real_size       <= vertex_num_counter;
+					read_command_vertex_job_latched_S2.cmd.real_size_bytes <= (vertex_num_counter << $clog2(VERTEX_SIZE));
 
 					if (cu_configure_latched[3]) begin
-						read_command_out_latched_S2.command <= READ_CL_S;
-						read_command_out_latched_S2.size    <= 12'h080;
+						read_command_vertex_job_latched_S2.command <= READ_CL_S;
+						read_command_vertex_job_latched_S2.size    <= 12'h080;
 					end else begin
-						read_command_out_latched_S2.command <= READ_PNA;
-						read_command_out_latched_S2.size    <= cmd_size_calculate(vertex_num_counter);
+						read_command_vertex_job_latched_S2.command <= READ_PNA;
+						read_command_vertex_job_latched_S2.size    <= cmd_size_calculate(vertex_num_counter);
 					end
 				end
 
-				read_command_out_latched_S2.cmd.cu_id            <= VERTEX_CONTROL_ID;
-				read_command_out_latched_S2.cmd.cmd_type         <= CMD_READ;
-				read_command_out_latched_S2.cmd.cacheline_offest <= 0;
+				read_command_vertex_job_latched_S2.cmd.cu_id            <= VERTEX_CONTROL_ID;
+				read_command_vertex_job_latched_S2.cmd.cmd_type         <= CMD_READ;
+				read_command_vertex_job_latched_S2.cmd.cacheline_offest <= 0;
 
-				read_command_out_latched_S2.cmd.abt <= map_CABT(cu_configure_latched[0:2]);
-				read_command_out_latched_S2.abt     <= map_CABT(cu_configure_latched[0:2]);
+				read_command_vertex_job_latched_S2.cmd.abt <= map_CABT(cu_configure_latched[0:2]);
+				read_command_vertex_job_latched_S2.abt     <= map_CABT(cu_configure_latched[0:2]);
 			end else
-			read_command_out_latched_S2 <= 0;
+			read_command_vertex_job_latched_S2 <= 0;
 		end
 	end
 
@@ -630,21 +640,6 @@ module cu_vertex_job_control (
 
 
 ////////////////////////////////////////////////////////////////////////////
-// If the vertex has no in/out neighbors don't schedule it vertex_job_latched.inverse_out_degree;
-////////////////////////////////////////////////////////////////////////////
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			vertex_job_counter        <= 0;
-			edge_job_counter_filtered <= 0;
-		end else begin
-			if(vertex_variable.valid) begin
-				vertex_job_counter        <= vertex_job_counter + 1;
-				edge_job_counter_filtered <= edge_job_counter_filtered + vertex_variable.inverse_out_degree;
-			end
-		end
-	end
-////////////////////////////////////////////////////////////////////////////
 //Read Vertex double buffer
 ////////////////////////////////////////////////////////////////////////////
 	assign vertex_buffer_burst_pop = ~vertex_buffer_status.alfull && ~vertex_buffer_burst_status.empty;
@@ -696,18 +691,18 @@ module cu_vertex_job_control (
 		.WIDTH($bits(CommandBufferLine)),
 		.DEPTH(16                      )
 	) read_command_job_vertex_burst_fifo_instant (
-		.clock   (clock                             ),
-		.rstn    (rstn                              ),
+		.clock   (clock                                ),
+		.rstn    (rstn                                 ),
 		
-		.push    (read_command_out_latched.valid    ),
-		.data_in (read_command_out_latched          ),
-		.full    (read_buffer_status_internal.full  ),
-		.alFull  (read_buffer_status_internal.alfull),
+		.push    (read_command_vertex_job_latched.valid),
+		.data_in (read_command_vertex_job_latched      ),
+		.full    (read_buffer_status_internal.full     ),
+		.alFull  (read_buffer_status_internal.alfull   ),
 		
-		.pop     (read_command_job_vertex_burst_pop ),
-		.valid   (read_buffer_status_internal.valid ),
-		.data_out(read_command_out                  ),
-		.empty   (read_buffer_status_internal.empty )
+		.pop     (read_command_job_vertex_burst_pop    ),
+		.valid   (read_buffer_status_internal.valid    ),
+		.data_out(read_command_out_latched             ),
+		.empty   (read_buffer_status_internal.empty    )
 	);
 
 

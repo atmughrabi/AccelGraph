@@ -71,15 +71,15 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	logic [0:63]   cu_configure_latched  ;
 	logic [0:63]   cu_configure_2_latched;
 
-	logic done_algorithm;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done    ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done      ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_latched    ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_latched      ;
+	logic                          done_algorithm                 ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done        ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done          ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_latched;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_latched  ;
 
-	logic             enabled                 ;
-	logic             enabled_vertex_job      ;
-	logic             cu_ready                ;
+	logic enabled           ;
+	logic enabled_vertex_job;
+	logic cu_ready          ;
 
 	ResponseBufferLine prefetch_read_response_in_latched;
 	CommandBufferLine  prefetch_read_command_out_latched;
@@ -133,7 +133,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			done_algorithm    <= 0;
 		end else begin
 			if(enabled_vertex_job)begin
-				cu_return_latched.var1 <= {vertex_job_counter_done};
+				cu_return_latched.var1 <= {vertex_job_counter_done_latched};
 				cu_return_latched.var2 <= {edge_job_counter_done_latched};
 				done_algorithm         <= (wed_request_in_latched.wed.num_vertices == vertex_job_counter_done_latched ) &&
 					(wed_request_in_latched.wed.num_edges == edge_job_counter_done_latched);
@@ -298,24 +298,34 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 ////////////////////////////////////////////////////////////////////////////
 
 	cu_vertex_job_control cu_vertex_job_control_instant (
-		.clock                    (clock                   ),
-		.rstn                     (rstn                    ),
-		.enabled_in               (enabled_vertex_job      ),
-		.cu_configure             (cu_configure_latched    ),
-		.wed_request_in           (wed_request_in_latched  ),
-		.read_response_in         (read_response_in_latched),
-		.read_data_0_in           (read_data_0_in_latched  ),
-		.read_data_1_in           (read_data_1_in_latched  ),
-		.read_buffer_status       (read_buffer_status      ),
-		.vertex_request           (vertex_job_request      ),
-		.read_command_out         (read_command_out_vertex ),
-		.vertex_buffer_status     (vertex_buffer_status    ),
-		.vertex                   (vertex_job              ),
-		.vertex_job_counter       (vertex_job_counter_done ),
-		.edge_job_counter_filtered(edge_job_counter_done   )
+		.clock               (clock                   ),
+		.rstn                (rstn                    ),
+		.enabled_in          (enabled_vertex_job      ),
+		.cu_configure        (cu_configure_latched    ),
+		.wed_request_in      (wed_request_in_latched  ),
+		.read_response_in    (read_response_in_latched),
+		.read_data_0_in      (read_data_0_in_latched  ),
+		.read_data_1_in      (read_data_1_in_latched  ),
+		.read_buffer_status  (read_buffer_status      ),
+		.vertex_request      (vertex_job_request      ),
+		.read_command_out    (read_command_out_vertex ),
+		.vertex_buffer_status(vertex_buffer_status    ),
+		.vertex              (vertex_job              )
 	);
 
 	assign vertex_job_request = (~vertex_buffer_status.empty);
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			vertex_job_counter_done <= 0;
+			edge_job_counter_done   <= 0;
+		end else begin
+			if(vertex_job.valid) begin
+				vertex_job_counter_done <= vertex_job_counter_done + 1;
+				edge_job_counter_done   <= edge_job_counter_done + vertex_job.inverse_out_degree;
+			end
+		end
+	end
 
 
 endmodule
