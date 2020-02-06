@@ -132,6 +132,11 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
         // if((((afu_status->cu_return_done) << 32) >> 32) >= (afu_status->cu_stop))
         //     break;
 
+#ifdef  VERBOSE_3
+        readCmdResponseStats(afu, &cmdResponseStats);
+        printCmdResponseStats(&cmdResponseStats);
+#endif
+
         if((afu_status->cu_return_done) >= (afu_status->cu_stop))
         {
             readCmdResponseStats(afu, &cmdResponseStats);

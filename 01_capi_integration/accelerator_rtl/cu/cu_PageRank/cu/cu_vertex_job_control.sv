@@ -141,6 +141,7 @@ module cu_vertex_job_control (
 
 	vertex_struct_state current_state, next_state;
 	logic               enabled             ;
+	logic               enabled_cmd         ;
 	logic [0:63]        cu_configure_latched;
 
 
@@ -157,8 +158,10 @@ module cu_vertex_job_control (
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			enabled <= 0;
+			enabled_cmd <= 0;
 		end else begin
-			enabled <= enabled_in && (|cu_configure);
+			enabled <= enabled_in;
+			enabled_cmd <= enabled && (|cu_configure_latched);
 		end
 	end
 
@@ -202,7 +205,7 @@ module cu_vertex_job_control (
 		next_state = current_state;
 		case (current_state)
 			SEND_VERTEX_RESET : begin
-				if(wed_request_in_latched.valid)
+				if(wed_request_in_latched.valid && enabled_cmd)
 					next_state = SEND_VERTEX_INIT;
 				else
 					next_state = SEND_VERTEX_RESET;
@@ -448,7 +451,7 @@ module cu_vertex_job_control (
 			address_wr_0              <= 0;
 			read_data_0_in_latched_S2 <= 0;
 		end else begin
-			if(enabled && read_data_0_in_latched.valid) begin
+			if(enabled_cmd && read_data_0_in_latched.valid) begin
 
 				read_data_0_in_latched_S2 <= read_data_0_in_latched;
 
@@ -535,7 +538,7 @@ module cu_vertex_job_control (
 			address_wr_1              <= 0;
 			read_data_1_in_latched_S2 <= 0;
 		end else begin
-			if(enabled && read_data_1_in_latched.valid) begin
+			if(enabled_cmd && read_data_1_in_latched.valid) begin
 
 				read_data_1_in_latched_S2 <= read_data_1_in_latched;
 
@@ -621,7 +624,7 @@ module cu_vertex_job_control (
 			inverse_edges_idx_degree_data_ready <= 0;
 
 		end else begin
-			if(enabled && read_response_in_latched.valid) begin
+			if(enabled_cmd && read_response_in_latched.valid) begin
 
 				case (read_response_in_latched.cmd.array_struct)
 					IN_DEGREE : begin
@@ -663,7 +666,7 @@ module cu_vertex_job_control (
 			shift_limit_0 <= 0;
 			shift_limit_1 <= 0;
 		end else begin
-			if(enabled && read_response_in_latched.valid) begin
+			if(enabled_cmd && read_response_in_latched.valid) begin
 				if(~(|shift_limit_0) && ~shift_limit_clear) begin
 					if(read_response_in_latched.cmd.real_size > CACHELINE_VERTEX_NUM_HF) begin
 						shift_limit_0 <= CACHELINE_VERTEX_NUM_HF-1;

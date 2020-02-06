@@ -490,6 +490,13 @@ run-capi-sim-verbose2: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) 
 run-capi-sim-verbose2: app-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
+.PHONY: run-capi-sim-verbose3
+run-capi-sim-verbose3: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_3 
+run-capi-sim-verbose3: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
+run-capi-sim-verbose3: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
+run-capi-sim-verbose3: app-capi
+	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
+
 .PHONY: run-capi-fpga
 run-capi-fpga: CAPI_FLAGS = 
 run-capi-fpga: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
@@ -511,6 +518,12 @@ run-capi-fpga-verbose2: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAP
 run-capi-fpga-verbose2: app-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
+.PHONY: run-capi-fpga-verbose3
+run-capi-fpga-verbose3: CAPI_FLAGS = -DVERBOSE -DVERBOSE_3 
+run-capi-fpga-verbose3: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
+run-capi-fpga-verbose3: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
+run-capi-fpga-verbose3: app-capi
+	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-test-capi
 run-test-capi: CAPI_FLAGS = -DSIM -DVERBOSE 

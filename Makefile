@@ -50,8 +50,8 @@ export MAIN_DIR		  	= main
 
 # small test graphs
 export GRAPH_NAME = test
-# export GRAPH_NAME = v51_e1021
-# export GRAPH_NAME = v300_e2730
+export GRAPH_NAME = v51_e1021
+export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
 # export GRAPH_NAME = Gnutella
@@ -99,7 +99,7 @@ export PULL_PUSH 		= 2
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
-export NUM_THREADS  	= 64
+export NUM_THREADS  	= 3
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
@@ -305,6 +305,10 @@ run-capi-sim-verbose:
 run-capi-sim-verbose2:
 	$(MAKE) run-capi-sim-verbose2 $(MAKE_ARGS)
 
+.PHONY: run-capi-sim-verbose3
+run-capi-sim-verbose3:
+	$(MAKE) run-capi-sim-verbose3 $(MAKE_ARGS)
+
 .PHONY: run-capi-fpga-verbose
 run-capi-fpga-verbose:
 	$(MAKE) run-capi-fpga-verbose $(MAKE_ARGS)
@@ -313,9 +317,13 @@ run-capi-fpga-verbose:
 run-capi-fpga-verbose2:
 	$(MAKE) run-capi-fpga-verbose2 $(MAKE_ARGS)
 
+.PHONY: run-capi-fpga-verbose3
+run-capi-fpga-verbose3:
+	$(MAKE) run-capi-fpga-verbose3 $(MAKE_ARGS)
+
 .PHONY: capi
 capi:
-	$(MAKE) run-capi-fpga-verbose $(MAKE_ARGS) &&\
+	$(MAKE) run-capi-fpga-verbose2 $(MAKE_ARGS) &&\
 	sudo ./03_scripts/clear_cache.sh
 
 .PHONY: run-test-capi
