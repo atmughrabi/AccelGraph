@@ -846,7 +846,7 @@ module cu_vertex_job_control (
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(8                       )
+		.DEPTH(16                       )
 	) read_command_job_vertex_burst_fifo_instant (
 		.clock   (clock                             ),
 		.rstn    (rstn                              ),
