@@ -25,20 +25,17 @@ module round_robin_priority_arbiter_N_input_1_ouput #(
   input  logic                    rstn                        ,
   input  logic                    enabled                     ,
   input  logic [       0:WIDTH-1] buffer_in [0:NUM_REQUESTS-1],
+  input  logic [NUM_REQUESTS-1:0] submit                      ,
   input  logic [NUM_REQUESTS-1:0] requests                    ,
   output logic [       0:WIDTH-1] arbiter_out                 ,
   output logic [NUM_REQUESTS-1:0] ready
 );
-
-
 
 ////////////////////////////////////////////////////////////////////////////
 //requests
 ////////////////////////////////////////////////////////////////////////////
 
   logic [NUM_REQUESTS-1:0] grant            ;
-  logic [       0:WIDTH-1] arbiter_out_latch;
-
 
 // vc_RoundRobinArb
 //------------------------------------------------------------------------
@@ -69,34 +66,26 @@ module round_robin_priority_arbiter_N_input_1_ouput #(
 /////////////////////////////////////
 // ready the winner if any
   integer i;
-  integer j;
-
-  always_comb begin
-    arbiter_out_latch = 0;
-    for (i = 0; i < NUM_REQUESTS; i++) begin
-      if (grant[i]) begin
-        arbiter_out_latch = buffer_in[i];
-      end
-    end
-  end
 
   always @(posedge clock or negedge rstn) begin
+
     if (~rstn) begin
       arbiter_out <= 0;
+      ready       <= 0;
     end else begin
       if (enabled) begin
-        arbiter_out <= arbiter_out_latch;
-      end
-      else begin
-        arbiter_out <= 0;
+        for ( i = 0; i < NUM_REQUESTS; i++) begin
+          if (submit[i]) begin
+            arbiter_out <= buffer_in[i];
+          end
+          ready[i] <= grant[i];
+        end
+        if (~(|submit)) begin
+          arbiter_out <= 0;
+        end
       end
     end
-  end
 
-  always_comb begin
-    for (j = 0; j < NUM_REQUESTS; j++) begin
-      ready[j] = grant[j] & enabled;
-    end
   end
 
 endmodule

@@ -94,10 +94,11 @@ module cu_vertex_pagerank #(
 	EdgeDataRead edge_data;
 	logic        enabled  ;
 
-	CommandBufferLine                    command_arbiter_out;
-	logic             [NUM_REQUESTS-1:0] requests           ;
-	logic             [NUM_REQUESTS-1:0] ready              ;
-	CommandBufferLine [NUM_REQUESTS-1:0] command_buffer_in  ;
+	CommandBufferLine        command_arbiter_out                  ;
+	logic [NUM_REQUESTS-1:0] requests                             ;
+	logic [NUM_REQUESTS-1:0] ready                                ;
+	logic [NUM_REQUESTS-1:0] submit                               ;
+	CommandBufferLine        command_buffer_in  [0:NUM_REQUESTS-1];
 
 	CommandBufferLine read_command_out_edge_job          ;
 	CommandBufferLine read_command_edge_job_buffer       ;
@@ -149,20 +150,28 @@ module cu_vertex_pagerank #(
 	assign command_buffer_in[0] = read_command_edge_job_buffer;
 	assign command_buffer_in[1] = read_command_edge_data_buffer;
 
+	assign submit[0] = read_command_edge_job_buffer.valid;
+	assign submit[1] = read_command_edge_data_buffer.valid;
+
 	assign read_command_out_latched = burst_read_command_buffer_out;
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffer arbitration logic
 ////////////////////////////////////////////////////////////////////////////
 
-	command_buffer_arbiter #(.NUM_REQUESTS(NUM_REQUESTS)) read_command_buffer_arbiter_instant (
-		.clock              (clock              ),
-		.rstn               (rstn               ),
-		.enabled_in         (enabled            ),
-		.requests           (requests           ),
-		.command_buffer_in  (command_buffer_in  ),
-		.command_arbiter_out(command_arbiter_out),
-		.ready              (ready              )
+
+	round_robin_priority_arbiter_N_input_1_ouput #(
+		.NUM_REQUESTS(NUM_REQUESTS            ),
+		.WIDTH       ($bits(CommandBufferLine))
+	) read_command_buffer_arbiter_instant (
+		.clock      (clock              ),
+		.rstn       (rstn               ),
+		.enabled    (enabled            ),
+		.buffer_in  (command_buffer_in  ),
+		.submit     (submit             ),
+		.requests   (requests           ),
+		.arbiter_out(command_arbiter_out),
+		.ready      (ready              )
 	);
 
 ////////////////////////////////////////////////////////////////////////////

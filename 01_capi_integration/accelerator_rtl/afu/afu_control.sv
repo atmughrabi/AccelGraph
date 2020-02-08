@@ -143,6 +143,7 @@ module afu_control #(
 	CommandBufferLine command_arbiter_out_round_robin;
 
 	logic [NUM_REQUESTS-1:0] requests;
+	logic [NUM_REQUESTS-1:0] submit  ;
 
 	logic [NUM_REQUESTS-1:0] ready            ;
 	logic [NUM_REQUESTS-1:0] ready_fixed      ;
@@ -339,6 +340,13 @@ module afu_control #(
 	assign command_buffer_in[PRIORITY_PREFTECH_WRITE] = prefetch_write_command_buffer_out;
 	assign command_buffer_in[PRIORITY_PREFETCH_READ]  = prefetch_read_command_buffer_out;
 
+	assign submit[PRIORITY_RESTART]        = restart_command_buffer_out.valid;
+	assign submit[PRIORITY_WED]            = wed_command_buffer_out.valid;
+	assign submit[PRIORITY_WRITE]          = write_command_buffer_out.valid;
+	assign submit[PRIORITY_READ]           = read_command_buffer_out.valid;
+	assign submit[PRIORITY_PREFTECH_WRITE] = prefetch_write_command_buffer_out.valid;
+	assign submit[PRIORITY_PREFETCH_READ]  = prefetch_read_command_buffer_out.valid;
+
 ////////////////////////////////////////////////////////////////////////////
 //Buffer arbitration logic
 ////////////////////////////////////////////////////////////////////////////
@@ -381,6 +389,7 @@ module afu_control #(
 		.rstn       (rstn                           ),
 		.enabled    (round_robin_priority_enabled   ),
 		.buffer_in  (command_buffer_in              ),
+		.submit     (submit                         ),
 		.requests   (requests                       ),
 		.arbiter_out(command_arbiter_out_round_robin),
 		.ready      (ready_round_robin              )
@@ -394,6 +403,7 @@ module afu_control #(
 		.rstn       (rstn                     ),
 		.enabled    (fixed_priority_enabled   ),
 		.buffer_in  (command_buffer_in        ),
+		.submit     (submit                   ),
 		.requests   (requests                 ),
 		.arbiter_out(command_arbiter_out_fixed),
 		.ready      (ready_fixed              )

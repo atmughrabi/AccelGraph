@@ -193,7 +193,7 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
 
   afu_control afu_control_instant (
     .clock                      (clock                      ),
-    .rstn                       (combined_reset_afu         ),
+    .rstn                       (reset_afu                  ),
     .enabled_in                 (enabled                    ),
     .afu_configure              (afu_configure              ),
     .prefetch_read_command_in   (prefetch_read_command_out  ),

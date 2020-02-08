@@ -25,6 +25,7 @@ module fixed_priority_arbiter_N_input_1_ouput #(
   input  logic                    rstn                        ,
   input  logic                    enabled                     ,
   input  logic [       0:WIDTH-1] buffer_in [0:NUM_REQUESTS-1],
+  input  logic [NUM_REQUESTS-1:0] submit                      ,
   input  logic [NUM_REQUESTS-1:0] requests                    ,
   output logic [       0:WIDTH-1] arbiter_out                 ,
   output logic [NUM_REQUESTS-1:0] ready
@@ -73,7 +74,7 @@ module fixed_priority_arbiter_N_input_1_ouput #(
   always_comb begin
     arbiter_out_latch = 0;
     for (i = 0; i < NUM_REQUESTS; i++) begin
-      if (grant[i]) begin
+      if (submit[i]) begin
         arbiter_out_latch = buffer_in[i];
       end
     end

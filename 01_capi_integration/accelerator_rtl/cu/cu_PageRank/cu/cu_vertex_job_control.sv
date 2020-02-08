@@ -20,20 +20,26 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_vertex_job_control (
-	input  logic              clock               , // Clock
-	input  logic              rstn                ,
-	input  logic              enabled_in          ,
-	input  logic [0:63]       cu_configure        ,
-	input  WEDInterface       wed_request_in      ,
-	input  ResponseBufferLine read_response_in    ,
-	input  ReadWriteDataLine  read_data_0_in      ,
-	input  ReadWriteDataLine  read_data_1_in      ,
-	input  BufferStatus       read_buffer_status  ,
-	input  logic              vertex_request      ,
-	output CommandBufferLine  read_command_out    ,
-	output BufferStatus       vertex_buffer_status,
+	input  logic              clock                   , // Clock
+	input  logic              rstn                    ,
+	input  logic              enabled_in              ,
+	input  logic [0:63]       cu_configure            ,
+	input  WEDInterface       wed_request_in          ,
+	input  ResponseBufferLine read_response_in        ,
+	input  ReadWriteDataLine  read_data_0_in          ,
+	input  ReadWriteDataLine  read_data_1_in          ,
+	input  BufferStatus       read_buffer_status      ,
+	input  logic              vertex_request          ,
+	input  logic              read_command_bus_grant  ,
+	output logic              read_command_bus_request,
+	output CommandBufferLine  read_command_out        ,
 	output VertexInterface    vertex
 );
+
+
+	logic        read_command_bus_grant_latched  ;
+	logic        read_command_bus_request_latched;
+	BufferStatus vertex_buffer_status            ;
 
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0    ;
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1    ;
@@ -76,7 +82,6 @@ module cu_vertex_job_control (
 	CommandBufferLine read_command_vertex_job_latched   ;
 	CommandBufferLine read_command_vertex_job_latched_S2;
 	BufferStatus      read_buffer_status_internal       ;
-	logic             read_command_job_vertex_burst_pop ;
 
 	BufferStatus    vertex_buffer_burst_status;
 	logic           vertex_buffer_burst_pop   ;
@@ -241,7 +246,10 @@ module cu_vertex_job_control (
 					next_state = SHIFT_VERTEX_DATA_DONE_0;
 			end
 			SHIFT_VERTEX_DATA_DONE_0 : begin
-				next_state = SHIFT_VERTEX_DATA_1;
+				if(|shift_limit_1)
+					next_state = SHIFT_VERTEX_DATA_1;
+				else
+					next_state = SHIFT_VERTEX_DATA_DONE_1;
 			end
 			SHIFT_VERTEX_DATA_1 : begin
 				if((shift_counter < shift_limit_1))
@@ -684,8 +692,19 @@ module cu_vertex_job_control (
 //Read Command Vertex double buffer
 ////////////////////////////////////////////////////////////////////////////
 
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_command_bus_grant_latched <= 0;
+			read_command_bus_request       <= 0;
+		end else begin
+			if(enabled_cmd) begin
+				read_command_bus_grant_latched <= read_command_bus_grant;
+				read_command_bus_request       <= read_command_bus_request_latched;
+			end
+		end
+	end
 
-	assign read_command_job_vertex_burst_pop = ~read_buffer_status.alfull && ~read_buffer_status_internal.empty;
+	assign read_command_bus_request_latched = ~read_buffer_status.alfull && ~read_buffer_status_internal.empty;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -699,13 +718,11 @@ module cu_vertex_job_control (
 		.full    (read_buffer_status_internal.full     ),
 		.alFull  (read_buffer_status_internal.alfull   ),
 		
-		.pop     (read_command_job_vertex_burst_pop    ),
+		.pop     (read_command_bus_grant_latched       ),
 		.valid   (read_buffer_status_internal.valid    ),
 		.data_out(read_command_out_latched             ),
 		.empty   (read_buffer_status_internal.empty    )
 	);
-
-
 
 
 endmodule
