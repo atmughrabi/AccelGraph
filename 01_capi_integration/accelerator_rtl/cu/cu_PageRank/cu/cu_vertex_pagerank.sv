@@ -31,6 +31,10 @@ module cu_vertex_pagerank #(
 	input  logic [                  0:63] cu_configure       ,
 	input  ResponseBufferLine             read_response_in   ,
 	input  ResponseBufferLine             write_response_in  ,
+	// input  logic                          read_command_bus_grant   ,
+	// output logic                          read_command_bus_request ,
+	// input  logic                          write_command_bus_grant  ,
+	// output logic                          write_command_bus_request,
 	input  ReadWriteDataLine              read_data_0_in     ,
 	input  ReadWriteDataLine              read_data_1_in     ,
 	input  EdgeDataRead                   edge_data_read_in  ,
@@ -48,6 +52,11 @@ module cu_vertex_pagerank #(
 	logic           vertex_job_request_send;
 	VertexInterface vertex_job_latched     ;
 	logic [0:63]    cu_configure_latched   ;
+
+	logic           vertex_request_internal      ;
+	BufferStatus    vertex_buffer_status_internal;
+	VertexInterface vertex_job_burst_in          ;
+	VertexInterface vertex_job_burst_out         ;
 
 	//output latched
 	CommandBufferLine read_command_out_latched;
@@ -231,6 +240,7 @@ module cu_vertex_pagerank #(
 			read_data_1_in_latched    <= 0;
 			edge_data_read            <= 0;
 			cu_configure_latched      <= 0;
+			vertex_job_burst_in       <= 0;
 		end else begin
 			if(enabled)begin
 				wed_request_in_latched    <= wed_request_in;
@@ -239,6 +249,7 @@ module cu_vertex_pagerank #(
 				read_data_0_in_latched    <= read_data_0_in;
 				read_data_1_in_latched    <= read_data_1_in;
 				edge_data_read            <= edge_data_read_in;
+				vertex_job_burst_in       <= vertex_job;
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
 			end
@@ -254,8 +265,8 @@ module cu_vertex_pagerank #(
 			vertex_job_latched <= 0;
 		end else begin
 			if(enabled)begin
-				if(vertex_job.valid && ~processing_vertex) begin
-					vertex_job_latched <= vertex_job;
+				if(vertex_job_burst_out.valid && ~processing_vertex) begin
+					vertex_job_latched <= vertex_job_burst_out;
 				end
 				if ((edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree) && vertex_job_latched.valid) begin
 					vertex_job_latched <= 0;
@@ -313,7 +324,9 @@ module cu_vertex_pagerank #(
 		end
 	end
 
-	assign vertex_job_request_send = ~processing_vertex;
+
+	assign vertex_request_internal = (~vertex_buffer_status_internal.empty) && (~processing_vertex) && ~vertex_job_latched.valid;
+	assign vertex_job_request_send = vertex_buffer_status_internal.empty;
 
 	////////////////////////////////////////////////////////////////////////////
 	// Edge job control
@@ -672,7 +685,27 @@ module cu_vertex_pagerank #(
 	);
 
 
+	////////////////////////////////////////////////////////////////////////////
+	// Vretex job burst guard
+	////////////////////////////////////////////////////////////////////////////
 
+	fifo #(
+		.WIDTH($bits(VertexInterface)),
+		.DEPTH(16                    )
+	) vertex_job_burst_in_buffer_fifo_instant (
+		.clock   (clock                               ),
+		.rstn    (rstn                                ),
+		
+		.push    (vertex_job_burst_in.valid           ),
+		.data_in (vertex_job_burst_in                 ),
+		.full    (vertex_buffer_status_internal.full  ),
+		.alFull  (vertex_buffer_status_internal.alfull),
+		
+		.pop     (vertex_request_internal             ),
+		.valid   (vertex_buffer_status_internal.valid ),
+		.data_out(vertex_job_burst_out                ),
+		.empty   (vertex_buffer_status_internal.empty )
+	);
 
 
 endmodule

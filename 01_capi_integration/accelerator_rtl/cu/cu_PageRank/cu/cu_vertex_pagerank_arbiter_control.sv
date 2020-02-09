@@ -6,7 +6,7 @@
 // Copyright (c) 2014-2019 All rights reserved
 // -----------------------------------------------------------------------------
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
-// File   : cu_graph_algorithm_control.sv
+// File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2019-09-26 15:19:08
 // Revise : 2019-11-07 18:11:05
 // Editor : sublime text3, tab size (4)
@@ -19,7 +19,7 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL) (
+module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL) (
 	input  logic                          clock                   , // Clock
 	input  logic                          rstn                    ,
 	input  logic                          enabled_in              ,
@@ -64,13 +64,11 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	CommandBufferLine read_command_out_latched ;
 
 	//input lateched
-	WEDInterface       wed_request_in_latched    ;
-	ResponseBufferLine read_response_in_latched  ;
-	ResponseBufferLine read_response_in_edge_data;
-	ResponseBufferLine read_response_in_edge_job ;
-	ResponseBufferLine write_response_in_latched ;
-	ReadWriteDataLine  read_data_0_in_latched    ;
-	ReadWriteDataLine  read_data_1_in_latched    ;
+	WEDInterface       wed_request_in_latched   ;
+	ResponseBufferLine read_response_in_latched ;
+	ResponseBufferLine write_response_in_latched;
+	ReadWriteDataLine  read_data_0_in_latched   ;
+	ReadWriteDataLine  read_data_1_in_latched   ;
 
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_cu[0:NUM_VERTEX_CU-1];
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter_cu  [0:NUM_VERTEX_CU-1];
@@ -495,7 +493,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		.clock            (clock                        ),
 		.rstn             (rstn                         ),
 		.enabled_in       (enabled                      ),
-		.read_response_in (read_response_in_edge_data   ),
 		.read_data_0_in   (read_data_0_in_edge_data     ),
 		.read_data_1_in   (read_data_1_in_edge_data     ),
 		.edge_data_request(edge_data_read_buffer_request),
@@ -527,44 +524,13 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	);
 
 	////////////////////////////////////////////////////////////////////////////
-	//read data response logic - input
-	////////////////////////////////////////////////////////////////////////////
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_response_in_edge_job  <= 0;
-			read_response_in_edge_data <= 0;
-		end else begin
-			if(enabled && read_response_in_latched.valid) begin
-				case (read_response_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_response_in_edge_job  <= read_response_in_latched;
-						read_response_in_edge_data <= 0;
-					end
-					READ_GRAPH_DATA : begin
-						read_response_in_edge_job  <= 0;
-						read_response_in_edge_data <= read_response_in_latched;
-					end
-					default : begin
-						read_response_in_edge_job  <= 0;
-						read_response_in_edge_data <= 0;
-					end
-				endcase
-			end else begin
-				read_response_in_edge_job  <= 0;
-				read_response_in_edge_data <= 0;
-			end
-		end
-	end
-
-	////////////////////////////////////////////////////////////////////////////
 	// Vertex CU Response Arbitration
 	////////////////////////////////////////////////////////////////////////////
 
 	always_comb  begin
 		for (jj = 0; jj < NUM_VERTEX_CU; jj++) begin
-			if(read_response_in_edge_job.cmd.cu_id == jj && enable_cu[jj] && read_response_in_edge_job.valid)begin
-				read_response_cu_internal[jj] = read_response_in_edge_job;
+			if(read_response_in_latched.cmd.cu_id == jj && enable_cu[jj] && read_response_in_latched.valid)begin
+				read_response_cu_internal[jj] = read_response_in_latched;
 			end else begin
 				read_response_cu_internal[jj] = 0;
 			end

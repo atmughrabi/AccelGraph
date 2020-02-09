@@ -70,6 +70,7 @@ proc r  { {cu "cu_PageRank"} } {
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_read_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_job_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_vertex_job_filter.sv
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_vertex_job_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_vertex_pagerank.sv
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_graph_algorithm_control.sv

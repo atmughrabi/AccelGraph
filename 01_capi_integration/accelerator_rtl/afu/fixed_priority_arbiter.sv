@@ -17,6 +17,7 @@ import CREDIT_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
+
 module fixed_priority_arbiter_N_input_1_ouput #(
   parameter NUM_REQUESTS = 4,
   parameter WIDTH        = 8
@@ -31,15 +32,11 @@ module fixed_priority_arbiter_N_input_1_ouput #(
   output logic [NUM_REQUESTS-1:0] ready
 );
 
-
-
 ////////////////////////////////////////////////////////////////////////////
 //requests
 ////////////////////////////////////////////////////////////////////////////
 
-  logic [NUM_REQUESTS-1:0] grant            ;
-  logic [       0:WIDTH-1] arbiter_out_latch;
-
+  logic [NUM_REQUESTS-1:0] grant;
 
 //------------------------------------------------------------------------
 // vc_FixedArb
@@ -69,33 +66,23 @@ module fixed_priority_arbiter_N_input_1_ouput #(
 /////////////////////////////////////
 // ready the winner if any
   integer i;
-  integer j;
-
-  always_comb begin
-    arbiter_out_latch = 0;
-    for (i = 0; i < NUM_REQUESTS; i++) begin
-      if (submit[i]) begin
-        arbiter_out_latch = buffer_in[i];
-      end
-    end
-  end
 
   always @(posedge clock or negedge rstn) begin
     if (~rstn) begin
       arbiter_out <= 0;
+      ready       <= 0;
     end else begin
       if (enabled) begin
-        arbiter_out <= arbiter_out_latch;
+        for ( i = 0; i < NUM_REQUESTS; i++) begin
+          if (submit[i]) begin
+            arbiter_out <= buffer_in[i];
+          end
+          ready[i] <= grant[i];
+        end
+        if (~(|submit)) begin
+          arbiter_out <= 0;
+        end
       end
-      else begin
-        arbiter_out <= 0;
-      end
-    end
-  end
-
-  always_comb begin
-    for (j = 0; j < NUM_REQUESTS; j++) begin
-      ready[j] = grant[j] & enabled;
     end
   end
 

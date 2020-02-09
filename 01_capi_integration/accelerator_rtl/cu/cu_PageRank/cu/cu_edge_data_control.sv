@@ -42,6 +42,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	//output latched
 	EdgeInterface edge_job_latched ;
 	EdgeInterface edge_job_variable;
+	EdgeDataRead  edge_data_latched;
 
 
 	//input lateched
@@ -54,12 +55,10 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	logic              read_command_job_edge_data_burst_pop;
 	logic              enabled                             ;
 	logic              edge_data_request_latched           ;
-	logic              edge_data_request_latched_internal  ;
 	logic              edge_variable_pop                   ;
 	EdgeDataRead       edge_data_variable                  ;
 	logic [0:63]       cu_configure_latched                ;
 
-// assign edge_request = edge_request_latched;
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -81,9 +80,11 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			edge_request <= 0;
+			edge_data    <= 0;
 		end else begin
 			if(enabled) begin
 				edge_request <= edge_request_latched;
+				edge_data    <= edge_data_latched;
 			end
 		end
 	end
@@ -128,7 +129,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 					read_command_out_latched.address              <= wed_request_in_latched.wed.auxiliary1 + ((edge_job_variable.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_ALIGN_MASK);
 					read_command_out_latched.size                 <= 12'h080;
 					read_command_out_latched.cmd.real_size        <= 1'b1;
-        			read_command_out_latched.cmd.real_size_bytes  <= DATA_SIZE_READ;
+					read_command_out_latched.cmd.real_size_bytes  <= DATA_SIZE_READ;
 					read_command_out_latched.cmd.array_struct     <= READ_GRAPH_DATA;
 					read_command_out_latched.cmd.cacheline_offest <= (((edge_job_variable.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_MOD_MASK) >> $clog2(DATA_SIZE_READ));
 					read_command_out_latched.cmd.cu_id            <= CU_ID;
@@ -168,7 +169,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		
 		.pop     (edge_data_request_latched),
 		.valid   (data_buffer_status.valid ),
-		.data_out(edge_data                ),
+		.data_out(edge_data_latched        ),
 		.empty   (data_buffer_status.empty )
 	);
 

@@ -35,7 +35,7 @@ module round_robin_priority_arbiter_N_input_1_ouput #(
 //requests
 ////////////////////////////////////////////////////////////////////////////
 
-  logic [NUM_REQUESTS-1:0] grant            ;
+  logic [NUM_REQUESTS-1:0] grant;
 
 // vc_RoundRobinArb
 //------------------------------------------------------------------------
@@ -68,7 +68,6 @@ module round_robin_priority_arbiter_N_input_1_ouput #(
   integer i;
 
   always @(posedge clock or negedge rstn) begin
-
     if (~rstn) begin
       arbiter_out <= 0;
       ready       <= 0;
@@ -85,7 +84,6 @@ module round_robin_priority_arbiter_N_input_1_ouput #(
         end
       end
     end
-
   end
 
 endmodule
