@@ -66,6 +66,7 @@ module cu_vertex_job_control (
 
 	logic clear_data_ready      ;
 	logic fill_vertex_job_buffer;
+	logic zero_pass             ;
 
 	//output latched
 	VertexInterface   vertex_latched          ;
@@ -246,7 +247,7 @@ module cu_vertex_job_control (
 					next_state = SHIFT_VERTEX_DATA_DONE_0;
 			end
 			SHIFT_VERTEX_DATA_DONE_0 : begin
-				if(|shift_limit_1)
+				if(|shift_limit_1 || zero_pass)
 					next_state = SHIFT_VERTEX_DATA_1;
 				else
 					next_state = SHIFT_VERTEX_DATA_DONE_1;
@@ -554,15 +555,18 @@ module cu_vertex_job_control (
 		if(~rstn) begin
 			shift_limit_0 <= 0;
 			shift_limit_1 <= 0;
+			zero_pass     <= 0;
 		end else begin
 			if(enabled_cmd && read_response_in_latched.valid) begin
 				if(~(|shift_limit_0) && ~shift_limit_clear) begin
 					if(read_response_in_latched.cmd.real_size > CACHELINE_VERTEX_NUM_HF) begin
 						shift_limit_0 <= CACHELINE_VERTEX_NUM_HF-1;
 						shift_limit_1 <= read_response_in_latched.cmd.real_size - CACHELINE_VERTEX_NUM_HF - 1;
+						zero_pass     <= ((read_response_in_latched.cmd.real_size - CACHELINE_EDGE_NUM_HF) == 1);
 					end else begin
 						shift_limit_0 <= read_response_in_latched.cmd.real_size-1;
 						shift_limit_1 <= 0;
+						zero_pass     <= 0;
 					end
 				end
 			end
@@ -570,6 +574,7 @@ module cu_vertex_job_control (
 			if(shift_limit_clear) begin
 				shift_limit_0 <= 0;
 				shift_limit_1 <= 0;
+				zero_pass     <= 0;
 			end
 		end
 	end

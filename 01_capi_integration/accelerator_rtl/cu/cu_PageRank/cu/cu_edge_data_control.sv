@@ -21,20 +21,21 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_edge_data_control #(parameter CU_ID = 1) (
-	input  logic              clock             , // Clock
-	input  logic              rstn              ,
-	input  logic              enabled_in        ,
-	input  logic [0:63]       cu_configure      ,
-	input  WEDInterface       wed_request_in    ,
-	input  ResponseBufferLine read_response_in  ,
-	input  EdgeDataRead       edge_data_read_in ,
-	input  BufferStatus       read_buffer_status,
-	input  BufferStatus       edge_buffer_status,
-	input  logic              edge_data_request ,
-	input  EdgeInterface      edge_job          ,
-	output logic              edge_request      ,
-	output CommandBufferLine  read_command_out  ,
-	output BufferStatus       data_buffer_status,
+	input  logic              clock                   , // Clock
+	input  logic              rstn                    ,
+	input  logic              enabled_in              ,
+	input  logic [0:63]       cu_configure            ,
+	input  WEDInterface       wed_request_in          ,
+	input  ResponseBufferLine read_response_in        ,
+	input  EdgeDataRead       edge_data_read_in       ,
+	input  BufferStatus       read_buffer_status      ,
+	input  logic              edge_data_request       ,
+	input  EdgeInterface      edge_job                ,
+	output logic              edge_request            ,
+	input  logic              read_command_bus_grant  ,
+	output logic              read_command_bus_request,
+	output CommandBufferLine  read_command_out        ,
+	output BufferStatus       data_buffer_status      ,
 	output EdgeDataRead       edge_data
 );
 
@@ -44,20 +45,22 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	EdgeInterface edge_job_variable;
 	EdgeDataRead  edge_data_latched;
 
-
+	logic read_command_bus_grant_latched  ;
+	logic read_command_bus_request_latched;
 	//input lateched
-	ResponseBufferLine read_response_in_latched            ;
-	logic              edge_request_latched                ;
-	BufferStatus       edge_buffer_status_internal         ;
-	WEDInterface       wed_request_in_latched              ;
-	CommandBufferLine  read_command_out_latched            ;
-	BufferStatus       read_buffer_status_internal         ;
-	logic              read_command_job_edge_data_burst_pop;
-	logic              enabled                             ;
-	logic              edge_data_request_latched           ;
-	logic              edge_variable_pop                   ;
-	EdgeDataRead       edge_data_variable                  ;
-	logic [0:63]       cu_configure_latched                ;
+	ResponseBufferLine read_response_in_latched                ;
+	logic              edge_request_latched                    ;
+	BufferStatus       edge_buffer_status_internal             ;
+	WEDInterface       wed_request_in_latched                  ;
+	CommandBufferLine  read_command_out_latched                ;
+	BufferStatus       read_buffer_status_internal             ;
+	logic              enabled                                 ;
+	logic              enabled_cmd                             ;
+	logic              edge_data_request_latched               ;
+	logic              edge_variable_pop                       ;
+	EdgeDataRead       edge_data_variable                      ;
+	logic [0:63]       cu_configure_latched                    ;
+	CommandBufferLine  read_command_edge_data_burst_out_latched;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -66,9 +69,11 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			enabled <= 0;
+			enabled     <= 0;
+			enabled_cmd <= 0;
 		end else begin
-			enabled <= enabled_in;
+			enabled     <= enabled_in;
+			enabled_cmd <= enabled && (|cu_configure_latched);
 		end
 	end
 
@@ -79,12 +84,14 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_request <= 0;
-			edge_data    <= 0;
+			edge_request     <= 0;
+			edge_data        <= 0;
+			read_command_out <= 0;
 		end else begin
 			if(enabled) begin
-				edge_request <= edge_request_latched;
-				edge_data    <= edge_data_latched;
+				edge_request     <= edge_request_latched;
+				edge_data        <= edge_data_latched;
+				read_command_out <= read_command_edge_data_burst_out_latched;
 			end
 		end
 	end
@@ -122,7 +129,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		if(~rstn) begin
 			read_command_out_latched <= 0;
 		end else begin
-			if(enabled) begin
+			if(enabled_cmd) begin
 				if(edge_job_variable.valid && wed_request_in_latched.valid)begin
 					read_command_out_latched.valid <= 1'b1;
 
@@ -177,7 +184,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 //Edge job buffer
 ///////////////////////////////////////////////////////////////////////////
 
-	assign edge_request_latched = ~edge_buffer_status.empty && ~edge_buffer_status_internal.alfull; // request edges for Data job control
+	assign edge_request_latched = ~edge_buffer_status_internal.alfull; // request edges for Data job control
 	assign edge_variable_pop    = ~edge_buffer_status_internal.empty && ~read_buffer_status_internal.alfull;
 
 	fifo #(
@@ -202,24 +209,36 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 //Read Command Edge double buffer
 ///////////////////////////////////////////////////////////////////////////
 
-	assign read_command_job_edge_data_burst_pop = ~read_buffer_status_internal.empty && ~read_buffer_status.alfull;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_command_bus_grant_latched <= 0;
+			read_command_bus_request       <= 0;
+		end else begin
+			if(enabled_cmd) begin
+				read_command_bus_grant_latched <= read_command_bus_grant;
+				read_command_bus_request       <= read_command_bus_request_latched;
+			end
+		end
+	end
+
+	assign read_command_bus_request_latched = ~read_buffer_status.alfull && ~read_buffer_status_internal.empty;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
 		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE )
 	) read_command_edge_data_burst_fifo_instant (
-		.clock   (clock                               ),
-		.rstn    (rstn                                ),
+		.clock   (clock                                   ),
+		.rstn    (rstn                                    ),
 		
-		.push    (read_command_out_latched.valid      ),
-		.data_in (read_command_out_latched            ),
-		.full    (read_buffer_status_internal.full    ),
-		.alFull  (read_buffer_status_internal.alfull  ),
+		.push    (read_command_out_latched.valid          ),
+		.data_in (read_command_out_latched                ),
+		.full    (read_buffer_status_internal.full        ),
+		.alFull  (read_buffer_status_internal.alfull      ),
 		
-		.pop     (read_command_job_edge_data_burst_pop),
-		.valid   (read_buffer_status_internal.valid   ),
-		.data_out(read_command_out                    ),
-		.empty   (read_buffer_status_internal.empty   )
+		.pop     (read_command_bus_grant_latched          ),
+		.valid   (read_buffer_status_internal.valid       ),
+		.data_out(read_command_edge_data_burst_out_latched),
+		.empty   (read_buffer_status_internal.empty       )
 	);
 
 
