@@ -90,6 +90,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_total_latched;
 
 	logic enabled                ;
+	logic enabled_cmd            ;
 	logic enabled_vertex_job     ;
 	logic enabled_graph_algorithm;
 	logic cu_ready               ;
@@ -132,6 +133,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			enabled                 <= enabled_in;
 			enabled_vertex_job      <= cu_ready;
 			enabled_graph_algorithm <= cu_ready;
+			enabled_cmd <= cu_ready;
 			// enabled_prefetch_read  <= cu_ready && cu_configure_latched[30];
 			// enabled_prefetch_write <= cu_ready && cu_configure_latched[31];
 
@@ -197,7 +199,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			write_buffer_status_latched.empty <= 1;
 			read_buffer_status_latched.empty  <= 1;
 		end else begin
-			if(enabled)begin
+			if(enabled_cmd)begin
 				write_command_out           <= write_command_out_graph_algorithm;
 				write_data_0_out            <= write_data_0_out_graph_algorithm;
 				write_data_1_out            <= write_data_1_out_graph_algorithm;
@@ -374,7 +376,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	) read_command_buffer_arbiter_instant (
 		.clock      (clock                          ),
 		.rstn       (rstn                           ),
-		.enabled    (enabled                        ),
+		.enabled    (enabled_vertex_job             ),
 		.buffer_in  (read_command_buffer_arbiter_in ),
 		.submit     (submit                         ),
 		.requests   (requests                       ),
@@ -412,7 +414,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 	cu_vertex_job_filter cu_vertex_job_filter_instant (
 		.clock                      (clock                      ),
 		.rstn                       (rstn                       ),
-		.enabled_in                 (enabled                    ),
+		.enabled_in                 (enabled_vertex_job         ),
 		.vertex_in                  (vertex_unfiltered          ),
 		.vertex_request_filtered    (vertex_request_filtered    ),
 		.vertex_request_unfiltered  (vertex_request_unfiltered  ),

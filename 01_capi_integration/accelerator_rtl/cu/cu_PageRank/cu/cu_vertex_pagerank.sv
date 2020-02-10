@@ -24,29 +24,35 @@ module cu_vertex_pagerank #(
 	parameter PAGERANK_CU_ID = 1,
 	parameter NUM_REQUESTS   = 2
 ) (
-	input  logic                          clock              , // Clock
-	input  logic                          rstn               ,
-	input  logic                          enabled_in         ,
-	input  WEDInterface                   wed_request_in     ,
-	input  logic [                  0:63] cu_configure       ,
-	input  ResponseBufferLine             read_response_in   ,
-	input  ResponseBufferLine             write_response_in  ,
-	// input  logic                          read_command_bus_grant   ,
-	// output logic                          read_command_bus_request ,
-	// input  logic                          write_command_bus_grant  ,
-	// output logic                          write_command_bus_request,
-	input  ReadWriteDataLine              read_data_0_in     ,
-	input  ReadWriteDataLine              read_data_1_in     ,
-	input  EdgeDataRead                   edge_data_read_in  ,
-	input  BufferStatus                   read_buffer_status ,
-	output CommandBufferLine              read_command_out   ,
-	input  BufferStatus                   write_buffer_status,
-	output EdgeDataWrite                  edge_data_write_out,
-	input  VertexInterface                vertex_job         ,
-	output logic                          vertex_job_request ,
-	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter ,
+	input  logic                          clock                      , // Clock
+	input  logic                          rstn                       ,
+	input  logic                          enabled_in                 ,
+	input  WEDInterface                   wed_request_in             ,
+	input  logic [                  0:63] cu_configure               ,
+	input  ResponseBufferLine             read_response_in           ,
+	input  ResponseBufferLine             write_response_in          ,
+	input  logic                          read_command_bus_grant     ,
+	output logic                          read_command_bus_request   ,
+	input  logic                          edge_data_write_bus_grant  ,
+	output logic                          edge_data_write_bus_request,
+	input  ReadWriteDataLine              read_data_0_in             ,
+	input  ReadWriteDataLine              read_data_1_in             ,
+	input  EdgeDataRead                   edge_data_read_in          ,
+	input  BufferStatus                   read_buffer_status         ,
+	output CommandBufferLine              read_command_out           ,
+	input  BufferStatus                   write_buffer_status        ,
+	output EdgeDataWrite                  edge_data_write_out        ,
+	input  VertexInterface                vertex_job                 ,
+	output logic                          vertex_job_request         ,
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter         ,
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter
 );
+
+
+	logic read_command_bus_grant_latched     ;
+	logic read_command_bus_request_latched   ;
+	logic edge_data_write_bus_grant_latched  ;
+	logic edge_data_write_bus_request_latched;
 
 // vertex control variables
 	logic           vertex_job_request_send;
@@ -78,22 +84,14 @@ module cu_vertex_pagerank #(
 	ReadWriteDataLine  read_data_0_in_edge_data  ;
 	ReadWriteDataLine  read_data_1_in_edge_data  ;
 
-	BufferStatus read_data_0_buffer_status;
-	BufferStatus read_data_1_buffer_status;
-
-	ReadWriteDataLine read_data_cu_0_buffer   ;
-	ReadWriteDataLine read_data_cu_1_buffer   ;
-	logic             read_data_cu_0_pop      ;
-	logic             read_data_cu_1_pop      ;
-	logic             read_data_buffer_request;
-
 	logic         edge_request      ;
 	EdgeInterface edge_job          ;
 	BufferStatus  data_buffer_status;
 	logic         processing_vertex ;
 
-	EdgeDataRead edge_data;
-	logic        enabled  ;
+	EdgeDataRead edge_data  ;
+	logic        enabled    ;
+	logic        enabled_cmd;
 
 	CommandBufferLine              command_arbiter_out                               ;
 	logic [      NUM_REQUESTS-1:0] requests                                          ;
@@ -103,13 +101,11 @@ module cu_vertex_pagerank #(
 	CommandBufferLine              read_command_edge_job_buffer                      ;
 	CommandBufferLine              read_command_edge_data_buffer                     ;
 	BufferStatus                   edge_data_write_buffer_states_cu                  ;
-	logic                          ready_edge_data_write_command_cu                  ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum                           ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal                  ;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp                           ;
 
 	BufferStatus      burst_read_command_buffer_states_cu;
-	logic             burst_read_command_buffer_pop      ;
 	CommandBufferLine burst_read_command_buffer_out      ;
 
 	EdgeDataRead edge_data_read_buffer        ;
@@ -127,9 +123,11 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			enabled <= 0;
+			enabled     <= 0;
+			enabled_cmd <= 0;
 		end else begin
-			enabled <= enabled_in;
+			enabled     <= enabled_in;
+			enabled_cmd <= (|cu_configure_latched) && wed_request_in_latched.valid;
 		end
 	end
 
@@ -164,30 +162,6 @@ module cu_vertex_pagerank #(
 		.ready      (ready              )
 	);
 
-////////////////////////////////////////////////////////////////////////////
-//Burst Buffer Read Commands
-////////////////////////////////////////////////////////////////////////////
-
-	assign burst_read_command_buffer_pop = ~burst_read_command_buffer_states_cu.empty && ~read_buffer_status.alfull;
-
-	fifo #(
-		.WIDTH   ($bits(CommandBufferLine)),
-		.DEPTH   (16                      ),
-		.HEADROOM(8                       )
-	) burst_read_command_buffer_fifo_instant (
-		.clock   (clock                                     ),
-		.rstn    (rstn                                      ),
-		
-		.push    (command_arbiter_out.valid                 ),
-		.data_in (command_arbiter_out                       ),
-		.full    (burst_read_command_buffer_states_cu.full  ),
-		.alFull  (burst_read_command_buffer_states_cu.alfull),
-		
-		.pop     (burst_read_command_buffer_pop             ),
-		.valid   (burst_read_command_buffer_states_cu.valid ),
-		.data_out(burst_read_command_buffer_out             ),
-		.empty   (burst_read_command_buffer_states_cu.empty )
-	);
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input out put
@@ -200,7 +174,7 @@ module cu_vertex_pagerank #(
 			vertex_job_request  <= 0;
 			edge_data_write_out <= 0;
 		end else begin
-			if(enabled)begin
+			if(enabled_cmd)begin
 				edge_data_write_out <= edge_data_write_buffer_out;
 				read_command_out    <= read_command_out_latched;
 				vertex_job_request  <= vertex_job_request_send;
@@ -316,7 +290,7 @@ module cu_vertex_pagerank #(
 	cu_edge_job_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_job_control_instant (
 		.clock                   (clock                       ),
 		.rstn                    (rstn                        ),
-		.enabled_in              (enabled                     ),
+		.enabled_in              (enabled_cmd                 ),
 		.cu_configure            (cu_configure_latched        ),
 		.wed_request_in          (wed_request_in_latched      ),
 		.read_response_in        (read_response_in_edge_job   ),
@@ -338,7 +312,7 @@ module cu_vertex_pagerank #(
 	cu_edge_data_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_data_control_instant (
 		.clock                   (clock                        ),
 		.rstn                    (rstn                         ),
-		.enabled_in              (enabled                      ),
+		.enabled_in              (enabled_cmd                  ),
 		.cu_configure            (cu_configure_latched         ),
 		.wed_request_in          (wed_request_in_latched       ),
 		.read_response_in        (read_response_in_edge_data   ),
@@ -362,7 +336,7 @@ module cu_vertex_pagerank #(
 	cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
 		.clock                           (clock                           ),
 		.rstn                            (rstn                            ),
-		.enabled_in                      (enabled                         ),
+		.enabled_in                      (enabled_cmd                     ),
 		.wed_request_in                  (wed_request_in                  ),
 		.write_response_in               (write_response_in_edge_data     ),
 		.write_buffer_status             (edge_data_write_buffer_states_cu),
@@ -488,6 +462,45 @@ module cu_vertex_pagerank #(
 		end
 	end
 
+	////////////////////////////////////////////////////////////////////////////
+	//Burst Buffer Read Commands
+	////////////////////////////////////////////////////////////////////////////
+
+	///////////////////////////////////////////////////////////////////////////
+	// Bus requests Grants
+	///////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_command_bus_grant_latched <= 0;
+			read_command_bus_request       <= 0;
+		end else begin
+			if(enabled_cmd) begin
+				read_command_bus_grant_latched <= read_command_bus_grant;
+				read_command_bus_request       <= read_command_bus_request_latched;
+			end
+		end
+	end
+
+	assign read_command_bus_request_latched = ~burst_read_command_buffer_states_cu.empty && ~read_buffer_status.alfull;
+
+	fifo #(
+		.WIDTH($bits(CommandBufferLine)),
+		.DEPTH(READ_CMD_BUFFER_SIZE    )
+	) burst_read_command_buffer_fifo_instant (
+		.clock   (clock                                     ),
+		.rstn    (rstn                                      ),
+		
+		.push    (command_arbiter_out.valid                 ),
+		.data_in (command_arbiter_out                       ),
+		.full    (burst_read_command_buffer_states_cu.full  ),
+		.alFull  (burst_read_command_buffer_states_cu.alfull),
+		
+		.pop     (read_command_bus_grant_latched            ),
+		.valid   (burst_read_command_buffer_states_cu.valid ),
+		.data_out(burst_read_command_buffer_out             ),
+		.empty   (burst_read_command_buffer_states_cu.empty )
+	);
 
 	///////////////////////////////////////////////////////////////////////////
 	// read Edge DATA CU Buffers
@@ -496,8 +509,8 @@ module cu_vertex_pagerank #(
 	assign edge_data_read_buffer_request = ~edge_data_read_buffer_status.empty && ~data_buffer_status.alfull;
 
 	fifo #(
-		.WIDTH($bits(EdgeDataRead)    ),
-		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
+		.WIDTH($bits(EdgeDataRead) ),
+		.DEPTH(READ_CMD_BUFFER_SIZE)
 	) edge_data_read_buffer_fifo_instant (
 		.clock   (clock                              ),
 		.rstn    (rstn                               ),
@@ -517,11 +530,27 @@ module cu_vertex_pagerank #(
 	// write Edge DATA CU Buffers
 	////////////////////////////////////////////////////////////////////////////
 
-	assign ready_edge_data_write_command_cu = ~edge_data_write_buffer_states_cu.empty && ~write_buffer_status.alfull;
+	///////////////////////////////////////////////////////////////////////////
+	// Bus requests Grants
+	///////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_write_bus_grant_latched <= 0;
+			edge_data_write_bus_request       <= 0;
+		end else begin
+			if(enabled_cmd) begin
+				edge_data_write_bus_grant_latched <= edge_data_write_bus_grant;
+				edge_data_write_bus_request       <= edge_data_write_bus_request_latched;
+			end
+		end
+	end
+
+	assign edge_data_write_bus_request_latched = ~edge_data_write_buffer_states_cu.empty && ~write_buffer_status.alfull;
 
 	fifo #(
-		.WIDTH($bits(EdgeDataWrite)   ),
-		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
+		.WIDTH($bits(EdgeDataWrite) ),
+		.DEPTH(WRITE_CMD_BUFFER_SIZE)
 	) edge_data_write_buffer_fifo_instant (
 		.clock   (clock                                  ),
 		.rstn    (rstn                                   ),
@@ -531,14 +560,14 @@ module cu_vertex_pagerank #(
 		.full    (edge_data_write_buffer_states_cu.full  ),
 		.alFull  (edge_data_write_buffer_states_cu.alfull),
 		
-		.pop     (ready_edge_data_write_command_cu       ),
+		.pop     (edge_data_write_bus_grant_latched      ),
 		.valid   (edge_data_write_buffer_states_cu.valid ),
 		.data_out(edge_data_write_buffer_out             ),
 		.empty   (edge_data_write_buffer_states_cu.empty )
 	);
 
 
-	
+
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vretex job burst guard

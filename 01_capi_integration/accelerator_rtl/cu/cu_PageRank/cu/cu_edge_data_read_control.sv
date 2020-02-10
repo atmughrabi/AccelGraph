@@ -21,21 +21,18 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_edge_data_read_control #(parameter CU_ID = 1) (
-	input  logic              clock            , // Clock
-	input  logic              rstn             ,
-	input  logic              enabled_in       ,
-	input  ResponseBufferLine read_response_in ,
-	input  ReadWriteDataLine  read_data_0_in   ,
-	input  ReadWriteDataLine  read_data_1_in   ,
-	input  logic              edge_data_request,
+	input  logic              clock           , // Clock
+	input  logic              rstn            ,
+	input  logic              enabled_in      ,
+	input  ResponseBufferLine read_response_in,
+	input  ReadWriteDataLine  read_data_0_in  ,
+	input  ReadWriteDataLine  read_data_1_in  ,
 	output EdgeDataRead       edge_data
 );
 
 	//output latched
 	EdgeDataRead       edge_data_variable      ;
 	EdgeDataRead       edge_data_variable_reg  ;
-	BufferStatus       data_buffer_status      ;
-	EdgeDataRead       edge_data_latched       ;
 	ResponseBufferLine read_response_in_latched;
 	//input lateched
 	ReadWriteDataLine read_data_0_in_latched   ;
@@ -44,9 +41,8 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 	logic [0:7]       offset_data_0            ;
 	cu_id_t           cu_id                    ;
 	logic             enabled                  ;
-	logic             edge_data_request_latched;
 
-	logic [              0:CACHELINE_SIZE_BITS-1] read_data_in;
+	logic [           0:CACHELINE_SIZE_BITS-1] read_data_in;
 	logic [0:(CACHELINE_DATA_READ_NUM_BITS-1)] address_rd  ;
 
 	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_DATA_VARIABLE_0      ;
@@ -78,14 +74,12 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 			read_data_0_in_latched    <= 0;
 			read_data_0_in_latched_S2 <= 0;
 			read_data_1_in_latched    <= 0;
-			edge_data_request_latched <= 0;
 			read_response_in_latched  <= 0;
 		end else begin
 			if(enabled) begin
 				read_data_0_in_latched_S2 <= read_data_0_in;
 				read_data_0_in_latched    <= read_data_0_in_latched_S2;
 				read_data_1_in_latched    <= read_data_1_in;
-				edge_data_request_latched <= (edge_data_request && ~data_buffer_status.empty);
 				read_response_in_latched  <= read_response_in;
 			end
 		end
@@ -100,7 +94,7 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 			edge_data <= 0;
 		end else begin
 			if(enabled) begin
-				edge_data <= edge_data_latched;
+				edge_data <= edge_data_variable;
 			end
 		end
 	end
@@ -205,28 +199,5 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 			end
 		end
 	end
-
-
-///////////////////////////////////////////////////////////////////////////
-//Edge data buffer
-///////////////////////////////////////////////////////////////////////////
-
-	fifo #(
-		.WIDTH($bits(EdgeDataRead)    ),
-		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
-	) edge_data_buffer_fifo_instant (
-		.clock   (clock                    ),
-		.rstn    (rstn                     ),
-		
-		.push    (edge_data_variable.valid ),
-		.data_in (edge_data_variable       ),
-		.full    (data_buffer_status.full  ),
-		.alFull  (data_buffer_status.alfull),
-		
-		.pop     (edge_data_request_latched),
-		.valid   (data_buffer_status.valid ),
-		.data_out(edge_data_latched        ),
-		.empty   (data_buffer_status.empty )
-	);
 
 endmodule
