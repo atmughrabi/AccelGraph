@@ -52,7 +52,7 @@ export MAIN_DIR		  	= main
 # small test graphs
 export GRAPH_NAME = test
 export GRAPH_NAME = v51_e1021
-# export GRAPH_NAME = v300_e2730
+export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
 # export GRAPH_NAME = Gnutella
@@ -102,7 +102,7 @@ export DELTA 			= 800
 
 export NUM_THREADS  	= 64
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 1
+export NUM_ITERATIONS 	= 5
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 	= 1
@@ -174,7 +174,7 @@ export CU_CONFIG_MODE=0x00000000
 # FIXED_ARB               [62]
 # ROUND_ROBIN_ARB         [63]
 
-export ROUND_ROBIN_ARB=0x1111000000000001
+export ROUND_ROBIN_ARB=0x6611000000000001
 export FIXED_ARB=0x1111000000000002
 
 ##############################################
