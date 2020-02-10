@@ -78,21 +78,14 @@ module cu_vertex_pagerank #(
 	ReadWriteDataLine  read_data_0_in_edge_data  ;
 	ReadWriteDataLine  read_data_1_in_edge_data  ;
 
-	BufferStatus read_data_0_buffer_status   ;
-	BufferStatus read_data_1_buffer_status   ;
-	BufferStatus read_response_buffer_status ;
-	BufferStatus write_response_buffer_status;
+	BufferStatus read_data_0_buffer_status;
+	BufferStatus read_data_1_buffer_status;
 
 	ReadWriteDataLine read_data_cu_0_buffer   ;
 	ReadWriteDataLine read_data_cu_1_buffer   ;
 	logic             read_data_cu_0_pop      ;
 	logic             read_data_cu_1_pop      ;
 	logic             read_data_buffer_request;
-
-	logic              read_response_buffer_pop ;
-	logic              write_response_buffer_pop;
-	ResponseBufferLine read_response_buffer     ;
-	ResponseBufferLine write_response_buffer    ;
 
 	logic         edge_request      ;
 	EdgeInterface edge_job          ;
@@ -392,15 +385,15 @@ module cu_vertex_pagerank #(
 			read_response_in_edge_job  <= 0;
 			read_response_in_edge_data <= 0;
 		end else begin
-			if(enabled && read_response_buffer.valid) begin
-				case (read_response_buffer.cmd.array_struct)
+			if(enabled && read_response_in_latched.valid) begin
+				case (read_response_in_latched.cmd.array_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT, EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_response_in_edge_job  <= read_response_buffer;
+						read_response_in_edge_job  <= read_response_in_latched;
 						read_response_in_edge_data <= 0;
 					end
 					READ_GRAPH_DATA : begin
 						read_response_in_edge_job  <= 0;
-						read_response_in_edge_data <= read_response_buffer;
+						read_response_in_edge_data <= read_response_in_latched;
 					end
 					default : begin
 						read_response_in_edge_job  <= 0;
@@ -422,10 +415,10 @@ module cu_vertex_pagerank #(
 		if(~rstn) begin
 			write_response_in_edge_data <= 0;
 		end else begin
-			if(enabled && write_response_buffer.valid) begin
-				case (write_response_buffer.cmd.array_struct)
+			if(enabled && write_response_in_latched.valid) begin
+				case (write_response_in_latched.cmd.array_struct)
 					WRITE_GRAPH_DATA : begin
-						write_response_in_edge_data <= write_response_buffer;
+						write_response_in_edge_data <= write_response_in_latched;
 					end
 					default : begin
 						write_response_in_edge_data <= 0;
@@ -446,15 +439,15 @@ module cu_vertex_pagerank #(
 			read_data_0_in_edge_job  <= 0;
 			read_data_0_in_edge_data <= 0;
 		end else begin
-			if(enabled && read_data_cu_0_buffer.valid) begin
-				case (read_data_cu_0_buffer.cmd.array_struct)
+			if(enabled && read_data_0_in_latched.valid) begin
+				case (read_data_0_in_latched.cmd.array_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_data_0_in_edge_job  <= read_data_cu_0_buffer;
+						read_data_0_in_edge_job  <= read_data_0_in_latched;
 						read_data_0_in_edge_data <= 0;
 					end
 					READ_GRAPH_DATA : begin
 						read_data_0_in_edge_job  <= 0;
-						read_data_0_in_edge_data <= read_data_cu_0_buffer;
+						read_data_0_in_edge_data <= read_data_0_in_latched;
 					end
 					default : begin
 						read_data_0_in_edge_job  <= 0;
@@ -473,15 +466,15 @@ module cu_vertex_pagerank #(
 			read_data_1_in_edge_job  <= 0;
 			read_data_1_in_edge_data <= 0;
 		end else begin
-			if(enabled && read_data_cu_1_buffer.valid) begin
-				case (read_data_cu_1_buffer.cmd.array_struct)
+			if(enabled && read_data_1_in_latched.valid) begin
+				case (read_data_1_in_latched.cmd.array_struct)
 					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_data_1_in_edge_job  <= read_data_cu_1_buffer;
+						read_data_1_in_edge_job  <= read_data_1_in_latched;
 						read_data_1_in_edge_data <= 0;
 					end
 					READ_GRAPH_DATA : begin
 						read_data_1_in_edge_job  <= 0;
-						read_data_1_in_edge_data <= read_data_cu_1_buffer;
+						read_data_1_in_edge_data <= read_data_1_in_latched;
 					end
 					default : begin
 						read_data_1_in_edge_job  <= 0;
@@ -495,51 +488,6 @@ module cu_vertex_pagerank #(
 		end
 	end
 
-
-	////////////////////////////////////////////////////////////////////////////
-	// Read DATA Buffers
-	////////////////////////////////////////////////////////////////////////////
-
-	assign read_data_buffer_request = enabled;
-	assign read_data_cu_0_pop       = ~read_data_0_buffer_status.empty && read_data_buffer_request;
-	assign read_data_cu_1_pop       = ~read_data_1_buffer_status.empty && read_data_buffer_request;
-
-	fifo #(
-		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(READ_DATA_BUFFER_SIZE   )
-	) read_data_cu_0_buffer_fifo_instant (
-		.clock   (clock                           ),
-		.rstn    (rstn                            ),
-		
-		.push    (read_data_0_in_latched.valid    ),
-		.data_in (read_data_0_in_latched          ),
-		.full    (read_data_0_buffer_status.full  ),
-		.alFull  (read_data_0_buffer_status.alfull),
-		
-		.pop     (read_data_cu_0_pop              ),
-		.valid   (read_data_0_buffer_status.valid ),
-		.data_out(read_data_cu_0_buffer           ),
-		.empty   (read_data_0_buffer_status.empty )
-	);
-
-
-	fifo #(
-		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(READ_DATA_BUFFER_SIZE   )
-	) read_data_cu_1_buffer_fifo_instant (
-		.clock   (clock                           ),
-		.rstn    (rstn                            ),
-		
-		.push    (read_data_1_in_latched.valid    ),
-		.data_in (read_data_1_in_latched          ),
-		.full    (read_data_1_buffer_status.full  ),
-		.alFull  (read_data_1_buffer_status.alfull),
-		
-		.pop     (read_data_cu_1_pop              ),
-		.valid   (read_data_1_buffer_status.valid ),
-		.data_out(read_data_cu_1_buffer           ),
-		.empty   (read_data_1_buffer_status.empty )
-	);
 
 	///////////////////////////////////////////////////////////////////////////
 	// read Edge DATA CU Buffers
@@ -589,49 +537,8 @@ module cu_vertex_pagerank #(
 		.empty   (edge_data_write_buffer_states_cu.empty )
 	);
 
-	////////////////////////////////////////////////////////////////////////////
-	// Read/Write Response Buffers
-	////////////////////////////////////////////////////////////////////////////
 
-	assign read_response_buffer_pop  = ~read_response_buffer_status.empty && enabled;
-	assign write_response_buffer_pop = ~write_response_buffer_status.empty && enabled;
-
-	fifo #(
-		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(READ_RSP_BUFFER_SIZE     )
-	) read_response_cu_buffer_fifo_instant (
-		.clock   (clock                             ),
-		.rstn    (rstn                              ),
-		
-		.push    (read_response_in_latched.valid    ),
-		.data_in (read_response_in_latched          ),
-		.full    (read_response_buffer_status.full  ),
-		.alFull  (read_response_buffer_status.alfull),
-		
-		.pop     (read_response_buffer_pop          ),
-		.valid   (read_response_buffer_status.valid ),
-		.data_out(read_response_buffer              ),
-		.empty   (read_response_buffer_status.empty )
-	);
-
-	fifo #(
-		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(WRITE_RSP_BUFFER_SIZE    )
-	) write_response_cu_buffer_fifo_instant (
-		.clock   (clock                              ),
-		.rstn    (rstn                               ),
-		
-		.push    (write_response_in_latched.valid    ),
-		.data_in (write_response_in_latched          ),
-		.full    (write_response_buffer_status.full  ),
-		.alFull  (write_response_buffer_status.alfull),
-		
-		.pop     (write_response_buffer_pop          ),
-		.valid   (write_response_buffer_status.valid ),
-		.data_out(write_response_buffer              ),
-		.empty   (write_response_buffer_status.empty )
-	);
-
+	
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vretex job burst guard

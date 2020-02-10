@@ -29,10 +29,10 @@ package GLOBALS_CU_PKG;
 ////////////////////////////////////////////////////////////////////////////
 
 	parameter NUM_GRAPH_CU_GLOBAL  = 1;
-	parameter NUM_VERTEX_CU_GLOBAL = 16;
+	parameter NUM_VERTEX_CU_GLOBAL = 24;
 
-	parameter CU_VERTEX_JOB_BUFFER_SIZE = 256;
-	parameter CU_EDGE_JOB_BUFFER_SIZE   = 256;
+	parameter CU_VERTEX_JOB_BUFFER_SIZE = 64;
+	parameter CU_EDGE_JOB_BUFFER_SIZE   = 64;
 
 ///////////////////////////////////////////////////////////////////////////
 // CU-Control (Buffer sizes)
