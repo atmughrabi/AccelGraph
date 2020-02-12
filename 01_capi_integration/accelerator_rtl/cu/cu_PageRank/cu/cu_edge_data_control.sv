@@ -41,9 +41,10 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 
 	//output latched
-	EdgeInterface edge_job_latched ;
-	EdgeInterface edge_job_variable;
-	EdgeDataRead  edge_data_latched;
+	EdgeInterface edge_job_latched        ;
+	EdgeInterface edge_job_variable       ;
+	EdgeDataRead  edge_data_latched       ;
+	BufferStatus  data_buffer_status_latch;
 
 	logic read_command_bus_grant_latched  ;
 	logic read_command_bus_request_latched;
@@ -84,14 +85,17 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_request     <= 0;
-			edge_data        <= 0;
-			read_command_out <= 0;
+			edge_request             <= 0;
+			edge_data                <= 0;
+			read_command_out         <= 0;
+			data_buffer_status       <= 0;
+			data_buffer_status.empty <= 1;
 		end else begin
 			if(enabled) begin
-				edge_request     <= edge_request_latched;
-				edge_data        <= edge_data_latched;
-				read_command_out <= read_command_edge_data_burst_out_latched;
+				edge_request       <= edge_request_latched;
+				edge_data          <= edge_data_latched;
+				read_command_out   <= read_command_edge_data_burst_out_latched;
+				data_buffer_status <= data_buffer_status_latch;
 			end
 		end
 	end
@@ -114,7 +118,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 				read_response_in_latched  <= read_response_in;
 				edge_job_latched          <= edge_job;
 				edge_data_variable        <= edge_data_read_in;
-				edge_data_request_latched <= (edge_data_request && ~data_buffer_status.empty);
+				edge_data_request_latched <= edge_data_request;
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
 			end
@@ -166,18 +170,18 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		.WIDTH($bits(EdgeDataRead)    ),
 		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE)
 	) edge_data_buffer_fifo_instant (
-		.clock   (clock                    ),
-		.rstn    (rstn                     ),
+		.clock   (clock                          ),
+		.rstn    (rstn                           ),
 		
-		.push    (edge_data_variable.valid ),
-		.data_in (edge_data_variable       ),
-		.full    (data_buffer_status.full  ),
-		.alFull  (data_buffer_status.alfull),
+		.push    (edge_data_variable.valid       ),
+		.data_in (edge_data_variable             ),
+		.full    (data_buffer_status_latch.full  ),
+		.alFull  (data_buffer_status_latch.alfull),
 		
-		.pop     (edge_data_request_latched),
-		.valid   (data_buffer_status.valid ),
-		.data_out(edge_data_latched        ),
-		.empty   (data_buffer_status.empty )
+		.pop     (edge_data_request_latched      ),
+		.valid   (data_buffer_status_latch.valid ),
+		.data_out(edge_data_latched              ),
+		.empty   (data_buffer_status_latch.empty )
 	);
 
 ///////////////////////////////////////////////////////////////////////////

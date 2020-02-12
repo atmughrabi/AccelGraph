@@ -28,6 +28,8 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 	input  BufferStatus                   write_buffer_status             ,
 	input  EdgeDataRead                   edge_data                       ,
 	input  BufferStatus                   data_buffer_status              ,
+	input  logic                          edge_data_write_bus_grant       ,
+	output logic                          edge_data_write_bus_request     ,
 	output logic                          edge_data_request               ,
 	output EdgeDataWrite                  edge_data_write_out             ,
 	input  VertexInterface                vertex_job                      ,
@@ -37,27 +39,30 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 );
 
 
-	EdgeDataRead    edge_data_latched            ;
-	EdgeDataWrite   edge_data_accumulator        ;
-	EdgeDataWrite   edge_data_accumulator_latch  ;
-	logic           enabled                      ;
-	VertexInterface vertex_job_latched           ;
-	WEDInterface    wed_request_in_latched       ;
-	logic           ready_edge_data_write_cu     ;
-	BufferStatus    edge_data_write_buffer_status;
-	EdgeDataWrite   edge_data_write_buffer       ;
+	EdgeDataRead    edge_data_latched                  ;
+	EdgeDataWrite   edge_data_accumulator              ;
+	EdgeDataWrite   edge_data_accumulator_latch        ;
+	logic           enabled                            ;
+	VertexInterface vertex_job_latched                 ;
+	WEDInterface    wed_request_in_latched             ;
+	BufferStatus    edge_data_write_buffer_status      ;
+	EdgeDataWrite   edge_data_write_buffer             ;
+	logic           edge_data_write_bus_grant_latched  ;
+	logic           edge_data_write_bus_request_latched;
+	BufferStatus    data_buffer_status_latch           ;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
 ////////////////////////////////////////////////////////////////////////////
-	assign edge_data_request = ~data_buffer_status.empty;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			edge_data_write_out <= 0;
+			edge_data_request   <= 0;
 		end else begin
 			if(enabled) begin
 				edge_data_write_out <= edge_data_write_buffer;
+				edge_data_request   <= ~data_buffer_status_latch.empty && ~edge_data_write_buffer_status.alfull;
 			end
 		end
 	end
@@ -69,12 +74,16 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_job_latched     <= 0;
-			wed_request_in_latched <= 0;
+			vertex_job_latched             <= 0;
+			wed_request_in_latched         <= 0;
+			data_buffer_status_latch       <= 0;
+			data_buffer_status_latch.empty <= 1;
+
 		end else begin
 			if(enabled) begin
-				vertex_job_latched     <= vertex_job;
-				wed_request_in_latched <= wed_request_in;
+				vertex_job_latched       <= vertex_job;
+				wed_request_in_latched   <= wed_request_in;
+				data_buffer_status_latch <= data_buffer_status;
 			end
 		end
 	end
@@ -172,11 +181,23 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 	// write Edge DATA CU Buffers
 	////////////////////////////////////////////////////////////////////////////
 
-	assign ready_edge_data_write_cu = ~edge_data_write_buffer_status.empty && ~write_buffer_status.alfull;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_write_bus_grant_latched <= 0;
+			edge_data_write_bus_request       <= 0;
+		end else begin
+			if(enabled) begin
+				edge_data_write_bus_grant_latched <= edge_data_write_bus_grant;
+				edge_data_write_bus_request       <= edge_data_write_bus_request_latched;
+			end
+		end
+	end
+
+	assign edge_data_write_bus_request_latched = ~edge_data_write_buffer_status.empty && ~write_buffer_status.alfull;
 
 	fifo #(
-		.WIDTH($bits(EdgeDataWrite)),
-		.DEPTH(16                  )
+		.WIDTH($bits(EdgeDataWrite) ),
+		.DEPTH(WRITE_CMD_BUFFER_SIZE)
 	) edge_data_write_buffer_fifo_instant (
 		.clock   (clock                               ),
 		.rstn    (rstn                                ),
@@ -186,7 +207,7 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 		.full    (edge_data_write_buffer_status.full  ),
 		.alFull  (edge_data_write_buffer_status.alfull),
 		
-		.pop     (ready_edge_data_write_cu            ),
+		.pop     (edge_data_write_bus_grant_latched   ),
 		.valid   (edge_data_write_buffer_status.valid ),
 		.data_out(edge_data_write_buffer              ),
 		.empty   (edge_data_write_buffer_status.empty )

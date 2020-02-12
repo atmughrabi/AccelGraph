@@ -54,6 +54,9 @@ module cu_vertex_pagerank #(
 	logic edge_data_write_bus_grant_latched  ;
 	logic edge_data_write_bus_request_latched;
 
+	BufferStatus read_buffer_status_latched ;
+	BufferStatus write_buffer_status_latched;
+
 // vertex control variables
 	logic           vertex_job_request_send;
 	VertexInterface vertex_job_latched     ;
@@ -100,22 +103,14 @@ module cu_vertex_pagerank #(
 	CommandBufferLine              command_buffer_in               [0:NUM_REQUESTS-1];
 	CommandBufferLine              read_command_edge_job_buffer                      ;
 	CommandBufferLine              read_command_edge_data_buffer                     ;
-	BufferStatus                   edge_data_write_buffer_states_cu                  ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum                           ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal                  ;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp                           ;
 
 	BufferStatus      burst_read_command_buffer_states_cu;
 	CommandBufferLine burst_read_command_buffer_out      ;
-
-	EdgeDataRead edge_data_read_buffer        ;
-	BufferStatus edge_data_read_buffer_status ;
-	logic        edge_data_read_buffer_request;
-	EdgeDataRead edge_data_read               ;
-
-
-	EdgeDataWrite edge_data_write_buffer_out  ;
-	EdgeDataWrite edge_data_write_out_internal;
+	EdgeDataRead  edge_data_read               ;
+	EdgeDataWrite edge_data_write_out_internal ;
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -175,7 +170,7 @@ module cu_vertex_pagerank #(
 			edge_data_write_out <= 0;
 		end else begin
 			if(enabled_cmd)begin
-				edge_data_write_out <= edge_data_write_buffer_out;
+				edge_data_write_out <= edge_data_write_out_internal;
 				read_command_out    <= read_command_out_latched;
 				vertex_job_request  <= vertex_job_request_send;
 			end
@@ -188,23 +183,29 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched    <= 0;
-			read_response_in_latched  <= 0;
-			write_response_in_latched <= 0;
-			read_data_0_in_latched    <= 0;
-			read_data_1_in_latched    <= 0;
-			edge_data_read            <= 0;
-			cu_configure_latched      <= 0;
-			vertex_job_burst_in       <= 0;
+			wed_request_in_latched            <= 0;
+			read_response_in_latched          <= 0;
+			write_response_in_latched         <= 0;
+			read_data_0_in_latched            <= 0;
+			read_data_1_in_latched            <= 0;
+			edge_data_read                    <= 0;
+			cu_configure_latched              <= 0;
+			vertex_job_burst_in               <= 0;
+			write_buffer_status_latched       <= 0;
+			write_buffer_status_latched.empty <= 1;
+			read_buffer_status_latched        <= 0;
+			read_buffer_status_latched.empty  <= 1;
 		end else begin
 			if(enabled)begin
-				wed_request_in_latched    <= wed_request_in;
-				read_response_in_latched  <= read_response_in;
-				write_response_in_latched <= write_response_in;
-				read_data_0_in_latched    <= read_data_0_in;
-				read_data_1_in_latched    <= read_data_1_in;
-				edge_data_read            <= edge_data_read_in;
-				vertex_job_burst_in       <= vertex_job;
+				wed_request_in_latched      <= wed_request_in;
+				read_response_in_latched    <= read_response_in;
+				write_response_in_latched   <= write_response_in;
+				read_data_0_in_latched      <= read_data_0_in;
+				read_data_1_in_latched      <= read_data_1_in;
+				edge_data_read              <= edge_data_read_in;
+				vertex_job_burst_in         <= vertex_job;
+				write_buffer_status_latched <= write_buffer_status;
+				read_buffer_status_latched  <= read_buffer_status;
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
 			end
@@ -296,7 +297,7 @@ module cu_vertex_pagerank #(
 		.read_response_in        (read_response_in_edge_job   ),
 		.read_data_0_in          (read_data_0_in_edge_job     ),
 		.read_data_1_in          (read_data_1_in_edge_job     ),
-		.read_buffer_status      (read_buffer_status          ),
+		.read_buffer_status      (read_buffer_status_latched  ),
 		.edge_request            (edge_request                ),
 		.vertex_job              (vertex_job_latched          ),
 		.read_command_bus_grant  (ready[0]                    ),
@@ -316,8 +317,8 @@ module cu_vertex_pagerank #(
 		.cu_configure            (cu_configure_latched         ),
 		.wed_request_in          (wed_request_in_latched       ),
 		.read_response_in        (read_response_in_edge_data   ),
-		.edge_data_read_in       (edge_data_read_buffer        ),
-		.read_buffer_status      (read_buffer_status           ),
+		.edge_data_read_in       (edge_data_read               ),
+		.read_buffer_status      (read_buffer_status_latched   ),
 		.edge_data_request       (edge_data_request            ),
 		.edge_job                (edge_job                     ),
 		.edge_request            (edge_request                 ),
@@ -334,20 +335,22 @@ module cu_vertex_pagerank #(
 
 
 	cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
-		.clock                           (clock                           ),
-		.rstn                            (rstn                            ),
-		.enabled_in                      (enabled_cmd                     ),
-		.wed_request_in                  (wed_request_in                  ),
-		.write_response_in               (write_response_in_edge_data     ),
-		.write_buffer_status             (edge_data_write_buffer_states_cu),
-		.edge_data                       (edge_data                       ),
-		.edge_data_request               (edge_data_request               ),
-		.data_buffer_status              (data_buffer_status              ),
-		.edge_data_write_out             (edge_data_write_out_internal    ),
-		.vertex_job                      (vertex_job_latched              ),
-		.vertex_num_counter_resp         (vertex_num_counter_resp         ),
-		.edge_data_counter_accum         (edge_data_counter_accum         ),
-		.edge_data_counter_accum_internal(edge_data_counter_accum_internal)
+		.clock                           (clock                              ),
+		.rstn                            (rstn                               ),
+		.enabled_in                      (enabled_cmd                        ),
+		.wed_request_in                  (wed_request_in                     ),
+		.write_response_in               (write_response_in_edge_data        ),
+		.write_buffer_status             (write_buffer_status_latched        ),
+		.edge_data                       (edge_data                          ),
+		.edge_data_request               (edge_data_request                  ),
+		.data_buffer_status              (data_buffer_status                 ),
+		.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
+		.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
+		.edge_data_write_out             (edge_data_write_out_internal       ),
+		.vertex_job                      (vertex_job_latched                 ),
+		.vertex_num_counter_resp         (vertex_num_counter_resp            ),
+		.edge_data_counter_accum         (edge_data_counter_accum            ),
+		.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
 	);
 
 ////////////////////////////////////////////////////////////////////////////
@@ -482,7 +485,7 @@ module cu_vertex_pagerank #(
 		end
 	end
 
-	assign read_command_bus_request_latched = ~burst_read_command_buffer_states_cu.empty && ~read_buffer_status.alfull;
+	assign read_command_bus_request_latched = ~burst_read_command_buffer_states_cu.empty && ~read_buffer_status_latched.alfull;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -502,36 +505,12 @@ module cu_vertex_pagerank #(
 		.empty   (burst_read_command_buffer_states_cu.empty )
 	);
 
-	///////////////////////////////////////////////////////////////////////////
-	// read Edge DATA CU Buffers
-	///////////////////////////////////////////////////////////////////////////
-
-	assign edge_data_read_buffer_request = ~edge_data_read_buffer_status.empty && ~data_buffer_status.alfull;
-
-	fifo #(
-		.WIDTH($bits(EdgeDataRead) ),
-		.DEPTH(READ_CMD_BUFFER_SIZE)
-	) edge_data_read_buffer_fifo_instant (
-		.clock   (clock                              ),
-		.rstn    (rstn                               ),
-		
-		.push    (edge_data_read.valid               ),
-		.data_in (edge_data_read                     ),
-		.full    (edge_data_read_buffer_status.full  ),
-		.alFull  (edge_data_read_buffer_status.alfull),
-		
-		.pop     (edge_data_read_buffer_request      ),
-		.valid   (edge_data_read_buffer_status.valid ),
-		.data_out(edge_data_read_buffer              ),
-		.empty   (edge_data_read_buffer_status.empty )
-	);
-
 	////////////////////////////////////////////////////////////////////////////
 	// write Edge DATA CU Buffers
 	////////////////////////////////////////////////////////////////////////////
 
 	///////////////////////////////////////////////////////////////////////////
-	// Bus requests Grants
+	// Bus requests Grants PageRank write data
 	///////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -545,29 +524,6 @@ module cu_vertex_pagerank #(
 			end
 		end
 	end
-
-	assign edge_data_write_bus_request_latched = ~edge_data_write_buffer_states_cu.empty && ~write_buffer_status.alfull;
-
-	fifo #(
-		.WIDTH($bits(EdgeDataWrite) ),
-		.DEPTH(WRITE_CMD_BUFFER_SIZE)
-	) edge_data_write_buffer_fifo_instant (
-		.clock   (clock                                  ),
-		.rstn    (rstn                                   ),
-		
-		.push    (edge_data_write_out_internal.valid     ),
-		.data_in (edge_data_write_out_internal           ),
-		.full    (edge_data_write_buffer_states_cu.full  ),
-		.alFull  (edge_data_write_buffer_states_cu.alfull),
-		
-		.pop     (edge_data_write_bus_grant_latched      ),
-		.valid   (edge_data_write_buffer_states_cu.valid ),
-		.data_out(edge_data_write_buffer_out             ),
-		.empty   (edge_data_write_buffer_states_cu.empty )
-	);
-
-
-
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vretex job burst guard
