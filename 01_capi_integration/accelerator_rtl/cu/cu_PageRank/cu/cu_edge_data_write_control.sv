@@ -23,7 +23,7 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 	input  logic             clock            , // Clock
 	input  logic             rstn             ,
 	input  logic             enabled_in       ,
-	input  logic [                0:63] cu_configure           ,
+	input  logic [0:63]      cu_configure     ,
 	input  WEDInterface      wed_request_in   ,
 	input  EdgeDataWrite     edge_data_write  ,
 	output ReadWriteDataLine write_data_0_out ,
@@ -36,8 +36,8 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 	ReadWriteDataLine write_data_1_out_latched ;
 	CommandBufferLine write_command_out_latched;
 	WEDInterface      wed_request_in_latched   ;
-	logic [0:7]       offset_data              ;
-	logic [0:63] cu_configure_latched;
+	logic [ 0:7]      offset_data              ;
+	logic [0:63]      cu_configure_latched     ;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			wed_request_in_latched <= 0;
-			cu_configure_latched     <= 0;
+			cu_configure_latched   <= 0;
 		end else begin
 			if(enabled) begin
 				wed_request_in_latched <= wed_request_in;
@@ -97,8 +97,8 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 		cmd                  = 0;
 		offset_data          = (((CACHELINE_SIZE >> ($clog2(DATA_SIZE_WRITE)+1))-1) & edge_data_write.index);
 		cmd.array_struct     = WRITE_GRAPH_DATA;
-		cmd.real_size 		 = 1;
-        cmd.real_size_bytes  = DATA_SIZE_WRITE;
+		cmd.real_size        = 1;
+		cmd.real_size_bytes  = DATA_SIZE_WRITE;
 		cmd.cacheline_offest = (((edge_data_write.index << $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_MOD_MASK) >> $clog2(DATA_SIZE_WRITE));
 		cmd.cu_id            = edge_data_write.cu_id;
 		cmd.cmd_type         = CMD_WRITE;
@@ -132,12 +132,10 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 				write_command_out_latched.abt     <= map_CABT(cu_configure_latched[15:17]);
 
 				if (cu_configure_latched[19]) begin
-					write_command_out_latched.command 			  <= WRITE_MS; 
+					write_command_out_latched.command <= WRITE_MS;
 				end else begin
-					write_command_out_latched.command 			  <= WRITE_NA; 
+					write_command_out_latched.command <= WRITE_NA;
 				end
-
-
 
 			end else begin
 				write_command_out_latched <= 0;

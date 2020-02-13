@@ -462,7 +462,6 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.clock           (clock                     ),
 		.rstn            (rstn                      ),
 		.enabled_in      (enabled                   ),
-		.read_response_in(read_response_in_edge_data),
 		.read_data_0_in  (read_data_0_in_edge_data  ),
 		.read_data_1_in  (read_data_1_in_edge_data  ),
 		.edge_data       (edge_data_variable        )

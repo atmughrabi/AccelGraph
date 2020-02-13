@@ -46,6 +46,9 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	logic read_command_bus_grant_latched  ;
 	logic read_command_bus_request_latched;
 
+	BufferStatus read_buffer_status_latched ;
+	BufferStatus write_buffer_status_latched;
+
 // vertex control variables
 
 	BufferStatus                   vertex_buffer_status_internal;
@@ -162,19 +165,26 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched    <= 0;
-			read_response_in_latched  <= 0;
-			write_response_in_latched <= 0;
-			read_data_0_in_latched    <= 0;
-			read_data_1_in_latched    <= 0;
-			cu_configure_latched      <= 0;
+			wed_request_in_latched            <= 0;
+			read_response_in_latched          <= 0;
+			write_response_in_latched         <= 0;
+			read_data_0_in_latched            <= 0;
+			read_data_1_in_latched            <= 0;
+			cu_configure_latched              <= 0;
+			read_buffer_status_latched        <= 0;
+			read_buffer_status_latched.empty  <= 1;
+			write_buffer_status_latched       <= 0;
+			write_buffer_status_latched.empty <= 1;
 		end else begin
 			if(enabled)begin
-				wed_request_in_latched    <= wed_request_in;
-				read_response_in_latched  <= read_response_in;
-				write_response_in_latched <= write_response_in;
-				read_data_0_in_latched    <= read_data_0_in;
-				read_data_1_in_latched    <= read_data_1_in;
+				wed_request_in_latched      <= wed_request_in;
+				read_response_in_latched    <= read_response_in;
+				write_response_in_latched   <= write_response_in;
+				read_data_0_in_latched      <= read_data_0_in;
+				read_data_1_in_latched      <= read_data_1_in;
+				read_buffer_status_latched  <= read_buffer_status;
+				write_buffer_status_latched <= write_buffer_status;
+
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
 			end
@@ -270,7 +280,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		end
 	end
 
-	assign read_command_bus_request_latched = ~burst_read_command_buffer_states_cu.empty && ~read_buffer_status.alfull;
+	assign read_command_bus_request_latched = ~burst_read_command_buffer_states_cu.empty && ~read_buffer_status_latched.alfull;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -312,7 +322,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	// Burst Buffer Write Commands
 	////////////////////////////////////////////////////////////////////////////
 
-	assign burst_edge_data_write_buffer_pop = ~burst_edge_data_write_cu_buffer_states_cu.empty && ~write_buffer_status.alfull;
+	assign burst_edge_data_write_buffer_pop = ~burst_edge_data_write_cu_buffer_states_cu.empty && ~write_buffer_status_latched.alfull;
 
 	fifo #(
 		.WIDTH($bits(EdgeDataWrite) ),
@@ -462,7 +472,6 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		.clock           (clock                     ),
 		.rstn            (rstn                      ),
 		.enabled_in      (enabled                   ),
-		.read_response_in(read_response_in_edge_data),
 		.read_data_0_in  (read_data_0_in_edge_data  ),
 		.read_data_1_in  (read_data_1_in_edge_data  ),
 		.edge_data       (edge_data_variable        )

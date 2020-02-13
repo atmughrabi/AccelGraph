@@ -21,19 +21,17 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_edge_data_read_control #(parameter CU_ID = 1) (
-	input  logic              clock           , // Clock
-	input  logic              rstn            ,
-	input  logic              enabled_in      ,
-	input  ResponseBufferLine read_response_in,
-	input  ReadWriteDataLine  read_data_0_in  ,
-	input  ReadWriteDataLine  read_data_1_in  ,
-	output EdgeDataRead       edge_data
+	input  logic             clock         , // Clock
+	input  logic             rstn          ,
+	input  logic             enabled_in    ,
+	input  ReadWriteDataLine read_data_0_in,
+	input  ReadWriteDataLine read_data_1_in,
+	output EdgeDataRead      edge_data
 );
 
 	//output latched
-	EdgeDataRead       edge_data_variable      ;
-	EdgeDataRead       edge_data_variable_reg  ;
-	ResponseBufferLine read_response_in_latched;
+	EdgeDataRead edge_data_variable    ;
+	EdgeDataRead edge_data_variable_reg;
 	//input lateched
 	ReadWriteDataLine read_data_0_in_latched   ;
 	ReadWriteDataLine read_data_0_in_latched_S2;
@@ -74,13 +72,11 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 			read_data_0_in_latched    <= 0;
 			read_data_0_in_latched_S2 <= 0;
 			read_data_1_in_latched    <= 0;
-			read_response_in_latched  <= 0;
 		end else begin
 			if(enabled) begin
 				read_data_0_in_latched_S2 <= read_data_0_in;
 				read_data_0_in_latched    <= read_data_0_in_latched_S2;
 				read_data_1_in_latched    <= read_data_1_in;
-				read_response_in_latched  <= read_response_in;
 			end
 		end
 	end
