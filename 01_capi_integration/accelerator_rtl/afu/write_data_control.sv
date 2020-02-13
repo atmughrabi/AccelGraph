@@ -42,6 +42,8 @@ module write_data_control (
   ReadWriteDataLine write_data_1_in_latched    ;
   logic [0:7]       command_tag_in_latched     ;
 
+  logic [0:7] buffer_out_read_parity;
+
   ReadWriteDataLine write_data_0_out;
   ReadWriteDataLine write_data_1_out;
   logic             enabled         ;
@@ -112,10 +114,16 @@ module write_data_control (
 //Read Buffer out data parity check
 ////////////////////////////////////////////////////////////////////////////
 
+  // dw_parity #(.DOUBLE_WORDS(8)) write_data_parity_instant (
+  //   .data(buffer_out.read_data  ),
+  //   .odd (odd_parity            ),
+  //   .par (buffer_out.read_parity)
+  // );
+
   dw_parity #(.DOUBLE_WORDS(8)) write_data_parity_instant (
-    .data(buffer_out.read_data  ),
+    .data(write_data            ),
     .odd (odd_parity            ),
-    .par (buffer_out.read_parity)
+    .par (buffer_out_read_parity)
   );
 
 ////////////////////////////////////////////////////////////////////////////
@@ -160,7 +168,8 @@ module write_data_control (
   end
 
   always_ff @(posedge clock) begin
-    buffer_out.read_data <= write_data;
+    buffer_out.read_parity <= buffer_out_read_parity;
+    buffer_out.read_data   <= write_data;
   end
 
 // uncomment for latency 1 cycles

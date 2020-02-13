@@ -149,25 +149,34 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 ////////////////////////////////////////////////////////////////////////////
 //drive inputs
 ////////////////////////////////////////////////////////////////////////////
+	
+	always_ff @(posedge clock or negedge rstn) begin : proc_
+		if(~rstn) begin
+			read_data_0_in_latched   <= 0;
+			read_data_1_in_latched   <= 0;
+			read_response_in_latched <= 0;
+			edge_request_latched     <= 0;
+		end else begin
+			 if(enabled_cmd) begin
+				read_response_in_latched <= read_response_in;
+				read_data_0_in_latched   <= read_data_0_in;
+				read_data_1_in_latched   <= read_data_1_in;
+				edge_request_latched     <= edge_request && ~edge_buffer_status.empty;
+			end
+		end
+	end
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			wed_request_in_latched   <= 0;
-			read_response_in_latched <= 0;
-			read_data_0_in_latched   <= 0;
-			read_data_1_in_latched   <= 0;
 			cu_configure_latched     <= 0;
-			edge_request_latched     <= 0;
 			read_vertex_new          <= 0;
 			read_vertex_new_latched  <= 0;
 			vertex_job_latched       <= 0;
 		end else begin
 			if(enabled) begin
 				wed_request_in_latched   <= wed_request_in;
-				read_response_in_latched <= read_response_in;
-				read_data_0_in_latched   <= read_data_0_in;
-				read_data_1_in_latched   <= read_data_1_in;
-				edge_request_latched     <= edge_request&& ~edge_buffer_status.empty;
-
+				
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
 
