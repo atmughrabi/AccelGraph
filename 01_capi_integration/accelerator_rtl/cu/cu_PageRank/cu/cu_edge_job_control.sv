@@ -365,30 +365,21 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			end
 			SHIFT_EDGE_DATA_START : begin
 				clear_data_ready <= 0;
-				start_shift_hf_0 <= 0;
-				start_shift_hf_1 <= 0;
-				switch_shift_hf  <= 0;
 			end
 			SHIFT_EDGE_DATA_0 : begin
 				start_shift_hf_0 <= 1;
-				start_shift_hf_1 <= 0;
-				switch_shift_hf  <= 0;
 				shift_counter    <= shift_counter + 1;
 			end
 			SHIFT_EDGE_DATA_DONE_0 : begin
 				start_shift_hf_0 <= 0;
-				start_shift_hf_1 <= 0;
-				switch_shift_hf  <= 0;
 				shift_counter    <= 0;
 			end
 			SHIFT_EDGE_DATA_1 : begin
-				start_shift_hf_0 <= 0;
 				start_shift_hf_1 <= 1;
 				switch_shift_hf  <= 1;
 				shift_counter    <= shift_counter + 1;
 			end
 			SHIFT_EDGE_DATA_DONE_1 : begin
-				start_shift_hf_0  <= 0;
 				start_shift_hf_1  <= 0;
 				shift_limit_clear <= 1;
 				switch_shift_hf   <= 0;

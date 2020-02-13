@@ -33,9 +33,10 @@ module write_data_control (
   logic tag_parity     ;
   logic tag_parity_link;
 
-  logic enable_errors   ;
-  logic detected_errors ;
-  logic tag_parity_error;
+  logic       enable_errors   ;
+  logic       detected_errors ;
+  logic       tag_parity_error;
+  logic [0:3] read_latency    ;
 
   logic             command_write_valid_latched;
   ReadWriteDataLine write_data_0_in_latched    ;
@@ -44,10 +45,10 @@ module write_data_control (
 
   logic [0:7] buffer_out_read_parity;
 
-  ReadWriteDataLine write_data_0_out;
-  ReadWriteDataLine write_data_1_out;
-  logic             enabled         ;
-  ReadWriteDataLine write_data      ;
+  ReadWriteDataLine                    write_data_0_out;
+  ReadWriteDataLine                    write_data_1_out;
+  logic                                enabled         ;
+  logic [0:(CACHELINE_SIZE_BITS_HF-1)] write_data      ;
 
   logic       read_valid  ; // ha_brvalid,     // Buffer Read valid
   logic [0:7] read_tag    ; // ha_brtag,       // Buffer Read tag
@@ -152,7 +153,7 @@ module write_data_control (
 //Ram Data each hold half cache line
 ////////////////////////////////////////////////////////////////////////////
 // uncomment for latency 4 cycles
-  assign buffer_out.read_latency = 4'h3;
+  assign read_latency = 4'h3;
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn)
@@ -168,8 +169,9 @@ module write_data_control (
   end
 
   always_ff @(posedge clock) begin
-    buffer_out.read_parity <= buffer_out_read_parity;
-    buffer_out.read_data   <= write_data;
+    buffer_out.read_latency <= read_latency;
+    buffer_out.read_parity  <= buffer_out_read_parity;
+    buffer_out.read_data    <= write_data;
   end
 
 // uncomment for latency 1 cycles
