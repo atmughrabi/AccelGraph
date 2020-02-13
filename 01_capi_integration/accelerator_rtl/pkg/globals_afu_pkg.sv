@@ -18,8 +18,6 @@ package GLOBALS_AFU_PKG;
 	parameter CREDITS_WRITE = 32                          ;
 	parameter CREDITS_TOTAL = CREDITS_READ + CREDITS_WRITE; // MUST be 64 credits max
 
-
-
 ////////////////////////////////////////////////////////////////////////////
 //  AFU-Control CAPI Globals
 ////////////////////////////////////////////////////////////////////////////
@@ -48,34 +46,23 @@ package GLOBALS_AFU_PKG;
 	parameter WRITE_CMD_BUFFER_SIZE          = 64;
 	parameter PREFETCH_READ_CMD_BUFFER_SIZE  = 64;
 	parameter PREFETCH_WRITE_CMD_BUFFER_SIZE = 64;
-	parameter RESTART_CMD_BUFFER_SIZE        = 4 ;
 	parameter WED_CMD_BUFFER_SIZE            = 4 ;
 
-	parameter READ_RSP_BUFFER_SIZE           = 64;
-	parameter PREFETCH_READ_RSP_BUFFER_SIZE  = 64;
-	parameter PREFETCH_WRITE_RSP_BUFFER_SIZE = 64;
-	parameter WRITE_RSP_BUFFER_SIZE          = 64;
-	parameter RESTART_RSP_BUFFER_SIZE        = 4 ;
-	parameter WED_RSP_BUFFER_SIZE            = 4 ;
-
-	parameter READ_DATA_BUFFER_SIZE    = 64;
-	parameter WRITE_DATA_BUFFER_SIZE   = 64;
-	parameter RESTART_DATA_BUFFER_SIZE = 4 ;
-	parameter WED_DATA_BUFFER_SIZE     = 4 ;
+	parameter READ_DATA_BUFFER_SIZE  = 64;
+	parameter WRITE_DATA_BUFFER_SIZE = 64;
+	parameter WED_DATA_BUFFER_SIZE   = 4 ;
 
 ////////////////////////////////////////////////////////////////////////////
 // AFU-Control (Buffer Priorities) for Arbitration
 ////////////////////////////////////////////////////////////////////////////
 
-	parameter PRIORITY_RESTART = 0;
-	parameter PRIORITY_WED     = 1;
+	parameter PRIORITY_WED = 0;
 
-	parameter PRIORITY_PREFTECH_WRITE = 2;
-	parameter PRIORITY_WRITE          = 3;
+	parameter PRIORITY_PREFTECH_WRITE = 1;
+	parameter PRIORITY_WRITE          = 2;
 
-	parameter PRIORITY_PREFETCH_READ = 4;
-	parameter PRIORITY_READ          = 5;
-
+	parameter PRIORITY_PREFETCH_READ = 3;
+	parameter PRIORITY_READ          = 4;
 
 ////////////////////////////////////////////////////////////////////////////
 // CU-Control  (Buffer size)

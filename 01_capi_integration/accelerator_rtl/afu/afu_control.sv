@@ -20,7 +20,7 @@ import CU_PKG::*;
 
 
 module afu_control #(
-	parameter NUM_REQUESTS = 6,
+	parameter NUM_REQUESTS = 5,
 	parameter RSP_DELAY    = 4
 ) (
 	input  logic                         clock                      , // Clock
@@ -98,19 +98,10 @@ module afu_control #(
 	CommandBufferLine read_command_buffer_out          ;
 	CommandBufferLine write_command_buffer_out         ;
 	CommandBufferLine wed_command_buffer_out           ;
-	CommandBufferLine restart_command_buffer_out       ;
-	CommandBufferLine restart_command_in               ;
 
-	assign restart_command_in = 0;
 
-	ResponseControlInterfaceOut response_control_out              ;
-	ResponseControlInterfaceOut response_control_out_internal     ;
-	logic                       wed_response_buffer_pop           ;
-	logic                       read_response_buffer_pop          ;
-	logic                       prefetch_read_response_buffer_pop ;
-	logic                       prefetch_write_response_buffer_pop;
-	logic                       write_response_buffer_pop         ;
-	logic                       restart_response_buffer_pop       ;
+	ResponseControlInterfaceOut response_control_out         ;
+	ResponseControlInterfaceOut response_control_out_internal;
 
 	DataControlInterfaceOut read_data_control_out_0   ;
 	DataControlInterfaceOut read_data_control_out_1   ;
@@ -151,8 +142,6 @@ module afu_control #(
 
 	CommandBufferLine command_buffer_in[0:NUM_REQUESTS-1];
 
-	logic valid_request;
-
 	logic enabled                      ;
 	logic enabled_credit_total         ;
 	logic enabled_credit_read          ;
@@ -178,8 +167,6 @@ module afu_control #(
 	logic                      restart_pending        ;
 	logic                      ready_restart_issue    ;
 
-	genvar i;
-
 	CommandBufferLine command_issue_register;
 
 	ResponseControlInterfaceOut response_control_out_latched_S[0:RSP_DELAY-1];
@@ -192,6 +179,7 @@ module afu_control #(
 	logic [0:63] afu_configure_latched  ;
 	logic [0:63] afu_configure_2_latched;
 
+	genvar i;
 
 	assign afu_config_ready = (|afu_configure_latched);
 ////////////////////////////////////////////////////////////////////////////
@@ -322,25 +310,18 @@ module afu_control #(
 //command request logic Priority 0->NUM_REQUESTS (high)->(low)
 ////////////////////////////////////////////////////////////////////////////
 
-
-	assign requests[PRIORITY_RESTART]        = ~command_buffer_status.restart_buffer.empty 	 && ~burst_command_buffer_states_afu.alfull;
 	assign requests[PRIORITY_WED]            = ~command_buffer_status.wed_buffer.empty 		 && ~burst_command_buffer_states_afu.alfull;
 	assign requests[PRIORITY_WRITE]          = ~command_buffer_status.write_buffer.empty  	 && ~burst_command_buffer_states_afu.alfull && (|credits_write.credits);
 	assign requests[PRIORITY_READ]           = ~command_buffer_status.read_buffer.empty   	 && ~burst_command_buffer_states_afu.alfull && (|credits_read.credits);
 	assign requests[PRIORITY_PREFTECH_WRITE] = ~command_buffer_status.prefetch_write_buffer.empty    && ~burst_command_buffer_states_afu.alfull && (|credits_prefetch_write.credits);
 	assign requests[PRIORITY_PREFETCH_READ]  = ~command_buffer_status.prefetch_read_buffer.empty     && ~burst_command_buffer_states_afu.alfull && (|credits_prefetch_read.credits);
 
-
-	assign valid_request = |requests;
-
-	assign command_buffer_in[PRIORITY_RESTART]        = restart_command_buffer_out;
 	assign command_buffer_in[PRIORITY_WED]            = wed_command_buffer_out;
 	assign command_buffer_in[PRIORITY_WRITE]          = write_command_buffer_out;
 	assign command_buffer_in[PRIORITY_READ]           = read_command_buffer_out;
 	assign command_buffer_in[PRIORITY_PREFTECH_WRITE] = prefetch_write_command_buffer_out;
 	assign command_buffer_in[PRIORITY_PREFETCH_READ]  = prefetch_read_command_buffer_out;
 
-	assign submit[PRIORITY_RESTART]        = restart_command_buffer_out.valid;
 	assign submit[PRIORITY_WED]            = wed_command_buffer_out.valid;
 	assign submit[PRIORITY_WRITE]          = write_command_buffer_out.valid;
 	assign submit[PRIORITY_READ]           = read_command_buffer_out.valid;
@@ -408,7 +389,6 @@ module afu_control #(
 		.arbiter_out(command_arbiter_out_fixed),
 		.ready      (ready_fixed              )
 	);
-
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -827,6 +807,7 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 //Buffers WED Commands
 ////////////////////////////////////////////////////////////////////////////
+
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
 		.DEPTH(WED_CMD_BUFFER_SIZE     )
@@ -847,27 +828,6 @@ module afu_control #(
 
 
 ////////////////////////////////////////////////////////////////////////////
-//Buffers Restart Commands
-////////////////////////////////////////////////////////////////////////////
-	fifo #(
-		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(RESTART_CMD_BUFFER_SIZE )
-	) restart_command_buffer_fifo_instant (
-		.clock   (clock                                      ),
-		.rstn    (rstn                                       ),
-		
-		.push    (restart_command_in.valid                   ),
-		.data_in (restart_command_in                         ),
-		.full    (command_buffer_status.restart_buffer.full  ),
-		.alFull  (command_buffer_status.restart_buffer.alfull),
-		
-		.pop     (ready[PRIORITY_RESTART]                    ),
-		.valid   (command_buffer_status.restart_buffer.valid ),
-		.data_out(restart_command_buffer_out                 ),
-		.empty   (command_buffer_status.restart_buffer.empty )
-	);
-
-////////////////////////////////////////////////////////////////////////////
 //Response Buffers
 ////////////////////////////////////////////////////////////////////////////
 
@@ -875,145 +835,103 @@ module afu_control #(
 //Buffers Write Responses
 ////////////////////////////////////////////////////////////////////////////
 
-	assign write_response_buffer_pop = ~response_buffer_status.write_buffer.empty;
-
-	fifo #(
-		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(WRITE_RSP_BUFFER_SIZE    )
-	) write_response_buffer_fifo_instant (
-		.clock   (clock                                     ),
-		.rstn    (rstn                                      ),
-		
-		.push    (response_control_out.write_response       ),
-		.data_in (response_control_out.response             ),
-		.full    (response_buffer_status.write_buffer.full  ),
-		.alFull  (response_buffer_status.write_buffer.alfull),
-		
-		.pop     (write_response_buffer_pop                 ),
-		.valid   (response_buffer_status.write_buffer.valid ),
-		.data_out(write_response_out                        ),
-		.empty   (response_buffer_status.write_buffer.empty )
-	);
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			write_response_out <= 0;
+		end else begin
+			if(enabled) begin
+				if(response_control_out.write_response)
+					write_response_out <= response_control_out.response;
+				else
+					write_response_out <= 0;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffers Read Responses
 ////////////////////////////////////////////////////////////////////////////
 
-	assign read_response_buffer_pop = ~response_buffer_status.read_buffer.empty;
-
-	fifo #(
-		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(READ_RSP_BUFFER_SIZE     )
-	) read_response_buffer_fifo_instant (
-		.clock   (clock                                    ),
-		.rstn    (rstn                                     ),
-		
-		.push    (response_control_out.read_response       ),
-		.data_in (response_control_out.response            ),
-		.full    (response_buffer_status.read_buffer.full  ),
-		.alFull  (response_buffer_status.read_buffer.alfull),
-		
-		.pop     (read_response_buffer_pop                 ),
-		.valid   (response_buffer_status.read_buffer.valid ),
-		.data_out(read_response_out                        ),
-		.empty   (response_buffer_status.read_buffer.empty )
-	);
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_response_out <= 0;
+		end else begin
+			if(enabled) begin
+				if(response_control_out.read_response)
+					read_response_out <= response_control_out.response;
+				else
+					read_response_out <= 0;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffers Prefetch READ Responses
 ////////////////////////////////////////////////////////////////////////////
 
-	assign prefetch_read_response_buffer_pop = ~response_buffer_status.prefetch_read_buffer.empty;
-
-	fifo #(
-		.WIDTH($bits(ResponseBufferLine)    ),
-		.DEPTH(PREFETCH_READ_RSP_BUFFER_SIZE)
-	) prefetch_read_response_buffer_fifo_instant (
-		.clock   (clock                                             ),
-		.rstn    (rstn                                              ),
-		
-		.push    (response_control_out.prefetch_read_response       ),
-		.data_in (response_control_out.response                     ),
-		.full    (response_buffer_status.prefetch_read_buffer.full  ),
-		.alFull  (response_buffer_status.prefetch_read_buffer.alfull),
-		
-		.pop     (prefetch_read_response_buffer_pop                 ),
-		.valid   (response_buffer_status.prefetch_read_buffer.valid ),
-		.data_out(prefetch_read_response_out                        ),
-		.empty   (response_buffer_status.prefetch_read_buffer.empty )
-	);
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			prefetch_read_response_out <= 0;
+		end else begin
+			if(enabled) begin
+				if(response_control_out.prefetch_read_response)
+					prefetch_read_response_out <= response_control_out.response;
+				else
+					prefetch_read_response_out <= 0;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffers Prefetch WRITE Responses
 ////////////////////////////////////////////////////////////////////////////
 
-	assign prefetch_write_response_buffer_pop = ~response_buffer_status.prefetch_write_buffer.empty;
-
-	fifo #(
-		.WIDTH($bits(ResponseBufferLine)     ),
-		.DEPTH(PREFETCH_WRITE_RSP_BUFFER_SIZE)
-	) prefetch_write_response_buffer_fifo_instant (
-		.clock   (clock                                              ),
-		.rstn    (rstn                                               ),
-		
-		.push    (response_control_out.prefetch_write_response       ),
-		.data_in (response_control_out.response                      ),
-		.full    (response_buffer_status.prefetch_write_buffer.full  ),
-		.alFull  (response_buffer_status.prefetch_write_buffer.alfull),
-		
-		.pop     (prefetch_write_response_buffer_pop                 ),
-		.valid   (response_buffer_status.prefetch_write_buffer.valid ),
-		.data_out(prefetch_write_response_out                        ),
-		.empty   (response_buffer_status.prefetch_write_buffer.empty )
-	);
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			prefetch_write_response_out <= 0;
+		end else begin
+			if(enabled) begin
+				if(response_control_out.prefetch_write_response)
+					prefetch_write_response_out <= response_control_out.response;
+				else
+					prefetch_write_response_out <= 0;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //restart Read Responses
 ////////////////////////////////////////////////////////////////////////////
 
-	assign restart_response_buffer_pop = ~response_buffer_status.restart_buffer.empty;
-
-	fifo #(
-		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(RESTART_RSP_BUFFER_SIZE  )
-	) restart_response_buffer_fifo_instant (
-		.clock   (clock                                       ),
-		.rstn    (rstn                                        ),
-		
-		.push    (response_control_out.restart_response       ),
-		.data_in (response_control_out.response               ),
-		.full    (response_buffer_status.restart_buffer.full  ),
-		.alFull  (response_buffer_status.restart_buffer.alfull),
-		
-		.pop     (restart_response_buffer_pop                 ),
-		.valid   (response_buffer_status.restart_buffer.valid ),
-		.data_out(restart_response_out                        ),
-		.empty   (response_buffer_status.restart_buffer.empty )
-	);
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			restart_response_out <= 0;
+		end else begin
+			if(enabled) begin
+				if(response_control_out.restart_response)
+					restart_response_out <= response_control_out.response;
+				else
+					restart_response_out <= 0;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffers WED Responses
 ////////////////////////////////////////////////////////////////////////////
 
-	assign wed_response_buffer_pop = ~response_buffer_status.wed_buffer.empty;
-
-	fifo #(
-		.WIDTH($bits(ResponseBufferLine)),
-		.DEPTH(WED_RSP_BUFFER_SIZE      )
-	) wed_response_buffer_fifo_instant (
-		.clock   (clock                                   ),
-		.rstn    (rstn                                    ),
-		
-		.push    (response_control_out.wed_response       ),
-		.data_in (response_control_out.response           ),
-		.full    (response_buffer_status.wed_buffer.full  ),
-		.alFull  (response_buffer_status.wed_buffer.alfull),
-		
-		.pop     (wed_response_buffer_pop                 ),
-		.valid   (response_buffer_status.wed_buffer.valid ),
-		.data_out(wed_response_out                        ),
-		.empty   (response_buffer_status.wed_buffer.empty )
-	);
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			wed_response_out <= 0;
+		end else begin
+			if(enabled) begin
+				if(response_control_out.wed_response)
+					wed_response_out <= response_control_out.response;
+				else
+					wed_response_out <= 0;
+			end
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffers WED Read Data
