@@ -35,23 +35,25 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
 
   // logic jdone;
 
-  logic [0:NUM_EXTERNAL_RESETS-1] external_rstn         ;
-  logic [                    0:1] job_errors            ;
-  logic [                    0:1] mmio_errors           ;
-  logic [                    0:1] data_read_error       ;
-  logic                           data_write_error      ;
-  logic                           credit_overflow_error ;
-  logic [                    0:6] command_response_error;
-  logic [                   0:63] external_errors       ;
-  logic [                   0:63] report_errors         ;
-  cu_return_type                  cu_return             ;
-  logic [                   0:63] cu_return_done        ;
-  cu_configure_type               cu_configure          ;
-  afu_configure_type              afu_configure         ;
-  logic                           report_errors_ack     ;
-  logic                           reset_afu             ;
-  logic                           reset_afu_soft        ;
-  logic                           cu_done               ;
+  logic [0:NUM_EXTERNAL_RESETS-1] external_rstn          ;
+  logic [                    0:1] job_errors             ;
+  logic [                    0:1] mmio_errors            ;
+  logic [                    0:1] data_read_error        ;
+  logic                           data_write_error       ;
+  logic                           credit_overflow_error  ;
+  logic [                    0:6] command_response_error ;
+  logic [                   0:63] external_errors        ;
+  logic [                   0:63] report_errors          ;
+  cu_return_type                  cu_return              ;
+  logic [                   0:63] cu_return_done         ;
+  cu_configure_type               cu_configure           ;
+  afu_configure_type              afu_configure          ;
+  logic                           report_errors_ack      ;
+  logic                           reset_afu_internal     ;
+  logic                           reset_afu_soft_internal;
+  logic                           reset_afu              ;
+  logic                           reset_afu_soft         ;
+  logic                           cu_done                ;
 
   logic combined_reset_afu;
   logic reset_done        ;

@@ -111,6 +111,7 @@ module round_robin_priority_arbiter_1_input_N_ouput #(
   logic [NUM_REQUESTS-1:0] grant                              ;
   logic [NUM_REQUESTS-1:0] grant_latched                      ;
   logic [       0:WIDTH-1] arbiter_out_latch[0:NUM_REQUESTS-1];
+  logic [NUM_REQUESTS-1:0] ready_latched;
 
 // vc_RoundRobinArb
 //------------------------------------------------------------------------
@@ -163,9 +164,11 @@ module round_robin_priority_arbiter_1_input_N_ouput #(
 
   always @(posedge clock ) begin
     arbiter_out <= arbiter_out_latch;
+    // ready <= ready_latched;
   end
 
   always_comb begin
+    ready = 0;
     for (j = 0; j < NUM_REQUESTS; j++) begin
       ready[j] = grant_latched[j] & enabled;
     end
