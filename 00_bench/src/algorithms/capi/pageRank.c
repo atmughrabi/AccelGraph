@@ -982,8 +982,8 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  uint32_t iterations,
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
-    float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
-    float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
+    double *pageRanksNext = (double *) my_malloc(graph->num_vertices * sizeof(double));
+    double *riDividedOnDiClause = (double *) my_malloc(graph->num_vertices * sizeof(double));
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "               ---->>> CAPI <<<----");
@@ -1070,8 +1070,8 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  uint32_t iterations,
         #pragma omp parallel for private(v) shared(epsilon, pageRanksNext,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
         {
-            float prevPageRank =  stats->pageRanks[v];
-            float nextPageRank =  stats->base_pr + (stats->damp * pageRanksNext[v]);
+            double prevPageRank =  stats->pageRanks[v];
+            double nextPageRank =  stats->base_pr + (stats->damp * pageRanksNext[v]);
             stats->pageRanks[v] = nextPageRank;
             pageRanksNext[v] = 0.0f;
             double error = fabs( nextPageRank - prevPageRank);

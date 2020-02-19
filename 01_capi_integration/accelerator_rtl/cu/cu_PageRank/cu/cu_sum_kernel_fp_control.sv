@@ -51,16 +51,16 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 	logic                        edge_data_write_bus_request_latched;
 	BufferStatus                 data_buffer_status_latch           ;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_latched    ;
-	logic [                 0:2] accum_delay                        ;
+	logic [                 0:3] accum_delay                        ;
 
-	logic [0:(VERTEX_SIZE_BITS-1)] input_value    ;
-	logic                          valid_value    ;
-	logic                          valid_stream   ;
-	logic [0:(VERTEX_SIZE_BITS-1)] running_value  ;
-	logic                          overflow_x     ;
-	logic                          underflow_x    ;
-	logic                          overflow_accume;
-	logic                          rstp           ;
+	logic [ 0:(DATA_SIZE_READ_BITS-1)] input_value    ;
+	logic                              valid_value    ;
+	logic                              valid_stream   ;
+	logic [0:(DATA_SIZE_WRITE_BITS-1)] running_value  ;
+	logic                              overflow_x     ;
+	logic                              underflow_x    ;
+	logic                              overflow_accume;
+	logic                              rstp           ;
 
 	// assign input_value = 32'h 3f800000;
 	// assign valid_value = vertex_job_latched.valid;
@@ -166,7 +166,7 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 					input_value <= 0;
 				end
 
-				if((edge_data_counter_accum_latched == vertex_job_latched.inverse_out_degree) && (accum_delay == 3'h F)) begin
+				if((edge_data_counter_accum_latched == vertex_job_latched.inverse_out_degree) && (accum_delay == 4'h F)) begin
 					accum_delay                      <= 0;
 					edge_data_counter_accum_internal <= edge_data_counter_accum_latched;
 					edge_data_counter_accum_latched  <= 0;
