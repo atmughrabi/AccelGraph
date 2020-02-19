@@ -1,14 +1,3 @@
-set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_add_acc_sim"
-set USER_DEFINED_COMPILE_OPTIONS ""
-set USER_DEFINED_VHDL_COMPILE_OPTIONS ""
-set USER_DEFINED_VERILOG_COMPILE_OPTIONS ""
-
-source $QSYS_SIMDIR/mentor/msim_setup.tcl
-
-proc altera_fp {} {
-  dev_com
-  com
-}
 
 # recompile
 proc r  { {cu "cu_PageRank"} } {
@@ -154,7 +143,17 @@ proc rc {{cu "cu_PageRank"}} {
 }
 
 proc rcf {{cu "cu_PageRank"}} {
-  altera_fp
+
+  set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_add_acc_sim"
+  set USER_DEFINED_COMPILE_OPTIONS ""
+  set USER_DEFINED_VHDL_COMPILE_OPTIONS ""
+  set USER_DEFINED_VERILOG_COMPILE_OPTIONS ""
+
+  source $QSYS_SIMDIR/mentor/msim_setup.tcl
+
+  dev_com
+  com
+
   r $cu
   c_fp
 }

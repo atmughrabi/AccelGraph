@@ -109,8 +109,8 @@ module cu_vertex_pagerank #(
 
 	BufferStatus      burst_read_command_buffer_states_cu;
 	CommandBufferLine burst_read_command_buffer_out      ;
-	EdgeDataRead  edge_data_read               ;
-	EdgeDataWrite edge_data_write_out_internal ;
+	EdgeDataRead      edge_data_read                     ;
+	EdgeDataWrite     edge_data_write_out_internal       ;
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -330,50 +330,46 @@ module cu_vertex_pagerank #(
 	);
 
 	////////////////////////////////////////////////////////////////////////////
-	// Data SUM control Fixed Point
+	// Data SUM control Float/Fixed Point
 	////////////////////////////////////////////////////////////////////////////
 
-	// cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
-	// 	.clock                           (clock                              ),
-	// 	.rstn                            (rstn                               ),
-	// 	.enabled_in                      (enabled_cmd                        ),
-	// 	.wed_request_in                  (wed_request_in                     ),
-	// 	.write_response_in               (write_response_in_edge_data        ),
-	// 	.write_buffer_status             (write_buffer_status_latched        ),
-	// 	.edge_data                       (edge_data                          ),
-	// 	.edge_data_request               (edge_data_request                  ),
-	// 	.data_buffer_status              (data_buffer_status                 ),
-	// 	.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
-	// 	.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
-	// 	.edge_data_write_out             (edge_data_write_out_internal       ),
-	// 	.vertex_job                      (vertex_job_latched                 ),
-	// 	.vertex_num_counter_resp         (vertex_num_counter_resp            ),
-	// 	.edge_data_counter_accum         (edge_data_counter_accum            ),
-	// 	.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
-	// );
+		cu_sum_kernel_fp_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_fp_control_instant (
+			.clock                           (clock                              ),
+			.rstn                            (rstn                               ),
+			.enabled_in                      (enabled_cmd                        ),
+			.wed_request_in                  (wed_request_in                     ),
+			.write_response_in               (write_response_in_edge_data        ),
+			.write_buffer_status             (write_buffer_status_latched        ),
+			.edge_data                       (edge_data                          ),
+			.edge_data_request               (edge_data_request                  ),
+			.data_buffer_status              (data_buffer_status                 ),
+			.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
+			.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
+			.edge_data_write_out             (edge_data_write_out_internal       ),
+			.vertex_job                      (vertex_job_latched                 ),
+			.vertex_num_counter_resp         (vertex_num_counter_resp            ),
+			.edge_data_counter_accum         (edge_data_counter_accum            ),
+			.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
+		);
 
-	////////////////////////////////////////////////////////////////////////////
-	// Data SUM control single percision floating Point
-	////////////////////////////////////////////////////////////////////////////
-
-	cu_sum_kernel_fp_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_fp_control_instant (
-		.clock                           (clock                              ),
-		.rstn                            (rstn                               ),
-		.enabled_in                      (enabled_cmd                        ),
-		.wed_request_in                  (wed_request_in                     ),
-		.write_response_in               (write_response_in_edge_data        ),
-		.write_buffer_status             (write_buffer_status_latched        ),
-		.edge_data                       (edge_data                          ),
-		.edge_data_request               (edge_data_request                  ),
-		.data_buffer_status              (data_buffer_status                 ),
-		.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
-		.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
-		.edge_data_write_out             (edge_data_write_out_internal       ),
-		.vertex_job                      (vertex_job_latched                 ),
-		.vertex_num_counter_resp         (vertex_num_counter_resp            ),
-		.edge_data_counter_accum         (edge_data_counter_accum            ),
-		.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
-	);
+		// cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
+		// 	.clock                           (clock                              ),
+		// 	.rstn                            (rstn                               ),
+		// 	.enabled_in                      (enabled_cmd                        ),
+		// 	.wed_request_in                  (wed_request_in                     ),
+		// 	.write_response_in               (write_response_in_edge_data        ),
+		// 	.write_buffer_status             (write_buffer_status_latched        ),
+		// 	.edge_data                       (edge_data                          ),
+		// 	.edge_data_request               (edge_data_request                  ),
+		// 	.data_buffer_status              (data_buffer_status                 ),
+		// 	.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
+		// 	.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
+		// 	.edge_data_write_out             (edge_data_write_out_internal       ),
+		// 	.vertex_job                      (vertex_job_latched                 ),
+		// 	.vertex_num_counter_resp         (vertex_num_counter_resp            ),
+		// 	.edge_data_counter_accum         (edge_data_counter_accum            ),
+		// 	.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
+		// );
 
 ////////////////////////////////////////////////////////////////////////////
 //read response arbitration logic - input

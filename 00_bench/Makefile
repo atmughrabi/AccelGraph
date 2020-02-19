@@ -388,6 +388,7 @@ clean-sim:
 	@rm -f $(CAPI_SIM)/vish_stacktrace.vstf
 	@rm -f $(CAPI_SIM)/vsim.wlf
 	@rm -rf $(CAPI_SIM)/work
+	@rm -rf $(CAPI_SIM)/libraries
 	@rm -f $(CAPI_SERVER)/debug.log
 	@rm -f $(CAPI_SIM)/gmon.out  
 	@cd $(PSLSE_DIR)/afu_driver/src && make clean

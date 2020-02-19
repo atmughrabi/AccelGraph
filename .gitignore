@@ -16,6 +16,7 @@ nohup.out
 01_capi_integration/accelerator_sim/sim/transcript
 01_capi_integration/accelerator_sim/sim/vish_stacktrace.vstf
 01_capi_integration/accelerator_sim/sim/vsim.wlf
+01_capi_integration/accelerator_sim/sim/libraries
 01_capi_integration/accelerator_sim/sim/work
 01_capi_integration/accelerator_sim/sim/debug.log
 01_capi_integration/accelerator_sim/sim/gmon.out

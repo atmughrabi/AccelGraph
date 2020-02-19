@@ -11,6 +11,7 @@ set_global_assignment -name QIP_FILE  $PSL_FPGA/quartus_ip/gpios/psl_gpio.qip
 set_global_assignment -name QIP_FILE  $PSL_FPGA/quartus_ip/pcie_wrap0/synthesis/pcie_wrap0.qip
 set_global_assignment -name QIP_FILE  $PSL_FPGA/quartus_ip/clkcntl/psl_clkcntl.qip
 set_global_assignment -name QIP_FILE  $PSL_FPGA/quartus_ip/sfpp/sfpp_phy.qip
+set_global_assignment -name QIP_FILE  $PSL_FPGA/quartus_ip/fp/fp_add_acc.qip
 
 set_global_assignment -name SDC_FILE $PSL_FPGA/psl/psl.sdc
 set_global_assignment -name QIP_FILE $PSL_FPGA/psl/psl.qip

@@ -970,33 +970,23 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  uint32_t iterations,
 {
 
     double error_total = 0.0;
-    uint32_t j;
     uint32_t v;
-    uint32_t u;
-    uint32_t degree;
-    uint32_t edge_idx;
     uint32_t activeVertices = 0;
+
+    //CAPI variables
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
 
     // float init_pr = 1.0f / (float)graph->num_vertices;
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
-    struct Vertex *vertices = NULL;
-    uint32_t *sorted_edges_array = NULL;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-
-#if DIRECTED
-    vertices = graph->inverse_vertices;
-    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
-#else
-    vertices = graph->vertices;
-    sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
-#endif
-
 
     float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
 
-
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "               ---->>> CAPI <<<----");
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Page Rank Pull (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
@@ -1006,11 +996,41 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  uint32_t iterations,
     printf(" -----------------------------------------------------\n");
 
     Start(timer);
+
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
+
+
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+
+    wedGraphCSR->auxiliary1 = riDividedOnDiClause;
+    wedGraphCSR->auxiliary2 = pageRanksNext;
+
+    // ********************************************************************************************
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config = afu_config;
+    afu_status.afu_config_2 = afu_config_2;
+    afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config = ((cu_config << 32) | (numThreads));
+    afu_status.cu_config_2 = cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_stop = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
+
+
     #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext)
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        pageRanksNext[v] = 0;
+        pageRanksNext[v] = 0.0f;
     }
 
     for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
@@ -1027,19 +1047,25 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  uint32_t iterations,
                 riDividedOnDiClause[v] = 0.0f;
         }
 
-        #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            float nodeIncomingPR = 0.0f;
-            degree = vertices->out_degree[v];
-            edge_idx = vertices->edges_idx[v];
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                u = sorted_edges_array[j];
-                nodeIncomingPR += riDividedOnDiClause[u]; // stats->pageRanks[v]/graph->vertices[v].out_degree;
-            }
-            pageRanksNext[v] = nodeIncomingPR;
-        }
+     
+        // Stop(timer_inner);
+        // printf("|A %-9u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
+
+        //  Start(timer_inner);
+        // ********************************************************************************************
+        // ***************                 START CU                                      **************
+        startCU(&afu, &afu_status);
+        // ********************************************************************************************
+
+        // ********************************************************************************************
+        // ***************                 WAIT AFU                                     **************
+        waitAFU(&afu, &afu_status);
+        // ********************************************************************************************
+
+        // Stop(timer_inner);
+        // printf("|B %-9u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
+
+        // Start(timer_inner);
 
         #pragma omp parallel for private(v) shared(epsilon, pageRanksNext,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
@@ -1088,6 +1114,12 @@ struct PageRankStats *pageRankPullGraphCSR(double epsilon,  uint32_t iterations,
     // printf(" -----------------------------------------------------\n");
 
     // pageRankPrint(pageRanks, graph->num_vertices);
+
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
     free(timer);
     free(timer_inner);
     free(pageRanksNext);
@@ -1595,11 +1627,16 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterat
     uint32_t activeVertices = 0;
     double error_total = 0;
 
+    //CAPI variables
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
+
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
     struct Vertex *vertices = NULL;
     uint32_t *sorted_edges_array = NULL;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
+    
 #if DIRECTED
     vertices = graph->inverse_vertices;
     sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
@@ -1608,14 +1645,17 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterat
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #endif
 
-    float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
 #if QUANT_SCALE == 16
     uint16_t *riDividedOnDiClause_quant = (uint16_t *)my_malloc(graph->num_vertices * sizeof(uint16_t));
+    uint32_t *pageRanksNext_quant = (uint32_t *)my_malloc(graph->num_vertices * sizeof(uint32_t));
 #else /* QUANT_SCALE == 32 */
     uint32_t *riDividedOnDiClause_quant = (uint32_t *)my_malloc(graph->num_vertices * sizeof(uint32_t));
+    uint64_t *pageRanksNext_quant = (uint64_t *)my_malloc(graph->num_vertices * sizeof(uint64_t));
 #endif
 
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "               ---->>> CAPI <<<----");
     printf(" -----------------------------------------------------\n");
     printf("| %-30s%d %-19s| \n", "Starting Page Rank Pull Quant_", QUANT_SCALE, "(tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
@@ -1625,10 +1665,39 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterat
     printf(" -----------------------------------------------------\n");
 
     Start(timer);
-    #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext)
+
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
+
+
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+
+    wedGraphCSR->auxiliary1 = riDividedOnDiClause_quant;
+    wedGraphCSR->auxiliary2 = pageRanksNext_quant;
+
+    // ********************************************************************************************
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config = afu_config;
+    afu_status.afu_config_2 = afu_config_2;
+    afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config = ((cu_config << 32) | (numThreads));
+    afu_status.cu_config_2 = cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_stop = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
+
+    #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext_quant)
     for(v = 0; v < graph->num_vertices; v++)
     {
-        pageRanksNext[v] = 0;
+        pageRanksNext_quant[v] = 0;
     }
 
     for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)
@@ -1661,29 +1730,33 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterat
             riDividedOnDiClause_quant[v] = quantize(riDividedOnDiClause[v], rDivD_params.scale, rDivD_params.zero);
         }
 
-        #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            __uint64_t nodeIncomingPR = 0;
-            degree = vertices->out_degree[v];
-            edge_idx = vertices->edges_idx[v];
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                u = sorted_edges_array[j];
-                nodeIncomingPR += riDividedOnDiClause_quant[u];
-            }
-            //nodeIncomingPR -= (degree * rDivD_params.zero);
-            pageRanksNext[v] = rDivD_params.scale * nodeIncomingPR;
-        }
+         // Stop(timer_inner);
+        // printf("|A %-9u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
+
+        //  Start(timer_inner);
+        // ********************************************************************************************
+        // ***************                 START CU                                      **************
+        startCU(&afu, &afu_status);
+        // ********************************************************************************************
+
+        // ********************************************************************************************
+        // ***************                 WAIT AFU                                     **************
+        waitAFU(&afu, &afu_status);
+        // ********************************************************************************************
+
+        // Stop(timer_inner);
+        // printf("|B %-9u | %-8u | %-15.13lf | %-9f | \n",stats->iterations, activeVertices,error_total, Seconds(timer_inner));
+
+        // Start(timer_inner);
 
         //uint64_t temp_degree = 0;
-        #pragma omp parallel for private(v) shared(epsilon,pageRanksNext,stats) reduction(+ : error_total, activeVertices)
+        #pragma omp parallel for private(v) shared(rDivD_params,epsilon,pageRanksNext_quant,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
         {
             float prevPageRank =  stats->pageRanks[v];
-            float nextPageRank =  stats->base_pr + stats->damp * pageRanksNext[v];
+            float nextPageRank =  stats->base_pr + stats->damp * (rDivD_params.scale * pageRanksNext_quant[v]);
             stats->pageRanks[v] = nextPageRank;
-            pageRanksNext[v] = 0.0f;
+            pageRanksNext_quant[v] = 0;
             double error = fabs(nextPageRank - prevPageRank);
             error_total += (error / graph->num_vertices);
 
@@ -1719,7 +1792,7 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterat
 
     free(timer);
     free(timer_inner);
-    free(pageRanksNext);
+    free(pageRanksNext_quant);
     free(riDividedOnDiClause);
     free(riDividedOnDiClause_quant);
 
