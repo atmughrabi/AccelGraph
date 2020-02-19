@@ -1,3 +1,15 @@
+set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_add_acc_sim"
+set USER_DEFINED_COMPILE_OPTIONS ""
+set USER_DEFINED_VHDL_COMPILE_OPTIONS ""
+set USER_DEFINED_VERILOG_COMPILE_OPTIONS ""
+
+source $QSYS_SIMDIR/mentor/msim_setup.tcl
+
+proc altera_fp {} {
+  dev_com
+  com
+}
+
 # recompile
 proc r  { {cu "cu_PageRank"} } {
 
@@ -12,7 +24,7 @@ proc r  { {cu "cu_PageRank"} } {
   vlog -quiet ../../accelerator_rtl/pkg/capi_pkg.sv
   vlog -quiet ../../accelerator_rtl/pkg/wed_pkg.sv
   vlog -quiet ../../accelerator_rtl/pkg/credit_pkg.sv
- 
+
 
 
   if {$cu eq "cu_PageRank"} {
@@ -66,6 +78,7 @@ proc r  { {cu "cu_PageRank"} } {
     echo "Compiling RTL CU control PAGERANK"
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_cacheline_stream.sv
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_sum_kernel_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_sum_kernel_fp_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_write_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_read_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_control.sv
@@ -114,15 +127,41 @@ proc c {} {
   # run 40
 }
 
+proc c_fp {} {
+  # vsim -t ns -novopt -c -pli pslse/afu_driver/src/veriuser.sl +nowarnTSCALE work.top
+  vsim -novopt -t ns -L work -L work_lib -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L stratixv_ver -L stratixv_hssi_ver -L stratixv_pcie_hip_ver   -voptargs=+acc=npr -c -sv_lib ../../pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
+  view wave
+  radix h
+  log * -r
+  # do wave.do
+  # do watch_job_interface.do
+  # do watch_mmio_interface.do
+  # do watch_command_interface.do
+  # do watch_buffer_interface.do
+  # do watch_response_interface.do
+  
+  # view structure
+  # view signals
+  # view wave
+  run -all
+  # run 40
+}
+
 # shortcut for recompilation + simulation
 proc rc {{cu "cu_PageRank"}} {
   r $cu
   c
 }
 
-# init libs
-vlib work
-vmap work work
+proc rcf {{cu "cu_PageRank"}} {
+  altera_fp
+  r $cu
+  c_fp
+}
 
-# automatically recompile on first call
-r
+# init libs
+# vlib work
+# vmap work work
+
+# # automatically recompile on first call
+# r
