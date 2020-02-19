@@ -1619,11 +1619,7 @@ struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  uint32_t i
 struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph)
 {
     //QUANT_SCALE = 32;
-    uint32_t j;
     uint32_t v;
-    uint32_t u;
-    uint32_t degree;
-    uint32_t edge_idx;
     uint32_t activeVertices = 0;
     double error_total = 0;
 
@@ -1632,20 +1628,12 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterat
     struct WEDGraphCSR *wedGraphCSR;
 
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
-    struct Vertex *vertices = NULL;
-    uint32_t *sorted_edges_array = NULL;
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
-    
-#if DIRECTED
-    vertices = graph->inverse_vertices;
-    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
-#else
-    vertices = graph->vertices;
-    sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
-#endif
+
 
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
+
 #if QUANT_SCALE == 16
     uint16_t *riDividedOnDiClause_quant = (uint16_t *)my_malloc(graph->num_vertices * sizeof(uint16_t));
     uint32_t *pageRanksNext_quant = (uint32_t *)my_malloc(graph->num_vertices * sizeof(uint32_t));

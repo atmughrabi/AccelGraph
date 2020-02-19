@@ -39,17 +39,19 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 );
 
 
-	EdgeDataRead    edge_data_latched                  ;
-	EdgeDataWrite   edge_data_accumulator              ;
-	EdgeDataWrite   edge_data_accumulator_latch        ;
-	logic           enabled                            ;
-	VertexInterface vertex_job_latched                 ;
-	WEDInterface    wed_request_in_latched             ;
-	BufferStatus    edge_data_write_buffer_status      ;
-	EdgeDataWrite   edge_data_write_buffer             ;
-	logic           edge_data_write_bus_grant_latched  ;
-	logic           edge_data_write_bus_request_latched;
-	BufferStatus    data_buffer_status_latch           ;
+	EdgeDataRead                 edge_data_latched                  ;
+	EdgeDataWrite                edge_data_accumulator              ;
+	EdgeDataWrite                edge_data_accumulator_latch        ;
+	logic                        enabled                            ;
+	VertexInterface              vertex_job_latched                 ;
+	WEDInterface                 wed_request_in_latched             ;
+	BufferStatus                 edge_data_write_buffer_status      ;
+	EdgeDataWrite                edge_data_write_buffer             ;
+	logic                        edge_data_write_bus_grant_latched  ;
+	logic                        edge_data_write_bus_request_latched;
+	BufferStatus                 data_buffer_status_latch           ;
+	logic [0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_latched    ;
+	logic [                 0:2] accum_delay                        ;
 
 	logic [0:(VERTEX_SIZE_BITS-1)] input_value    ;
 	logic                          valid_value    ;
@@ -143,34 +145,44 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 			edge_data_counter_accum_internal <= 0;
 			edge_data_accumulator_latch      <= 0;
 			input_value                      <= 0;
-			valid_stream <= 0;
+			edge_data_counter_accum_latched  <= 0;
+			valid_stream                     <= 0;
+			accum_delay                      <= 0;
 		end else begin
-			if (enabled) begin
+			if (enabled && vertex_job_latched.valid) begin
 				if(edge_data_latched.valid)begin
-					edge_data_accumulator.valid      <= 1;
-					edge_data_accumulator.index      <= vertex_job_latched.id;
-					edge_data_accumulator.cu_id      <= CU_ID;
-					edge_data_accumulator.data       <= edge_data_accumulator.data + edge_data_latched.data;
-					edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
-					input_value                      <= 32'h 3f800000;
+					edge_data_counter_accum_latched <= edge_data_counter_accum_latched + 1;
+					input_value                     <= edge_data_latched.data;
 
 					if(~valid_stream)begin
-						valid_value                      <= 1;
-						valid_stream                     <= 1;
+						valid_value  <= 1;
+						valid_stream <= 1;
 					end else begin
-						valid_value                      <= 0;
+						valid_value <= 0;
 					end
-					
+
 				end else begin
 					valid_value <= 0;
 					input_value <= 0;
 				end
 
-				if(edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree && vertex_job_latched.valid)begin
+				if((edge_data_counter_accum_latched == vertex_job_latched.inverse_out_degree) && (accum_delay == 3'h F)) begin
+					accum_delay                      <= 0;
+					edge_data_counter_accum_internal <= edge_data_counter_accum_latched;
+					edge_data_counter_accum_latched  <= 0;
+					edge_data_accumulator.valid      <= 1;
+					edge_data_accumulator.index      <= vertex_job_latched.id;
+					edge_data_accumulator.cu_id      <= CU_ID;
+					edge_data_accumulator.data       <= running_value;
+				end else if(edge_data_counter_accum_latched == vertex_job_latched.inverse_out_degree) begin
+					accum_delay <= accum_delay + 1;
+				end
+
+				if(edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree )begin
 					edge_data_accumulator            <= 0;
 					edge_data_counter_accum_internal <= 0;
 					edge_data_accumulator_latch      <= edge_data_accumulator;
-					valid_stream <= 0;
+					valid_stream                     <= 0;
 				end else begin
 					edge_data_accumulator_latch <= 0;
 				end

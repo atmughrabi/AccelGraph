@@ -138,6 +138,11 @@ proc c_fp {} {
 
 # shortcut for recompilation + simulation
 proc rc {{cu "cu_PageRank"}} {
+
+  # init libs
+  vlib work
+  vmap work work
+
   r $cu
   c
 }
