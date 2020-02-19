@@ -1,0 +1,3 @@
+fp_double_add_acc_sim/dspba_library_package.vhd
+fp_double_add_acc_sim/dspba_library.vhd
+fp_double_add_acc_sim/fp_double_add_acc.vhd

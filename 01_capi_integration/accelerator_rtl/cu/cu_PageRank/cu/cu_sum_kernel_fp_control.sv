@@ -242,7 +242,7 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 	// single percision floating point add accume module
 	////////////////////////////////////////////////////////////////////////////
 
-	fp_add_acc fp_add_acc_instant (
+	fp_single_add_acc fp_single_add_acc_instant (
 		.clk   (clock          ),
 		.areset(rstp           ),
 		.x     (input_value    ),
