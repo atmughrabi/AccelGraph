@@ -3,7 +3,7 @@ set PSL_FPGA ./psl_fpga
 set LIBCAPI  ./capi
 set VERSION   [binary format A24 [exec $LIBCAPI/scripts/version.py]]
 set project_revision accel-graph
-set project_algorithm cu_PageRank
+set project_algorithm cu_PageRank_pull
 
 project_new $project_name -overwrite -revision $project_revision
 
