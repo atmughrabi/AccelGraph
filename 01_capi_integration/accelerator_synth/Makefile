@@ -26,6 +26,7 @@
 
 PART=5SGXMA7H2F35C2
 PROJECT ?= accel-graph
+CU ?= cu_PageRank_pull
 VERION_GIT = $(shell python ./capi/scripts/version.py)
 TIME_STAMP = $(shell date +%Y_%m_%d_%H_%M_%S)
 ACCEL_RTL_DIR = accelerator_rtl
@@ -120,7 +121,7 @@ $(PROJECT).qxp: $(PROJECT).map.rpt
 ###################################################################
 
 $(ASSIGNMENT_FILES): $(PROJECT).tcl ./capi/fpga/*.tcl
-	quartus_sh -t $(PROJECT).tcl
+	quartus_sh -t $(PROJECT).tcl $(CU)
 	quartus_sh --prepare $(PROJECT)
 	#quartus_stp $(PROJECT) --enable --logic_analyzer_interface --lai_file=probes.lai
 
