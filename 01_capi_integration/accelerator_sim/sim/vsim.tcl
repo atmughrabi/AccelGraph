@@ -1,6 +1,6 @@
 
 # recompile
-proc r  { {cu "cu_PageRank"} } {
+proc r  { {cu "cu_PageRank_pull"} } {
 
   # compile SystemVerilog files
 
@@ -16,7 +16,7 @@ proc r  { {cu "cu_PageRank"} } {
 
 
 
-  if {$cu eq "cu_PageRank"} {
+  if {$cu eq "cu_PageRank_pull"} {
    echo "Compiling Packages CU"
    vlog -quiet ../../accelerator_rtl/cu/$cu/pkg/globals_cu_pkg.sv
    vlog -quiet ../../accelerator_rtl/cu/$cu/pkg/cu_pkg.sv
@@ -63,7 +63,7 @@ proc r  { {cu "cu_PageRank"} } {
 
   echo "Compiling RTL CU control "
 
-  if {$cu eq "cu_PageRank"} {
+  if {$cu eq "cu_PageRank_pull"} {
     echo "Compiling RTL CU control PAGERANK"
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_cacheline_stream.sv
     vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_sum_kernel_control.sv
@@ -137,7 +137,7 @@ proc c_fp {} {
 }
 
 # shortcut for recompilation + simulation
-proc rc {{cu "cu_PageRank"}} {
+proc rc {{cu "cu_PageRank_pull"}} {
 
   # init libs
   vlib work
@@ -147,7 +147,7 @@ proc rc {{cu "cu_PageRank"}} {
   c
 }
 
-proc rcf {{cu "cu_PageRank"}} {
+proc rcf {{cu "cu_PageRank_pull"}} {
 
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp_single_precision/fp_single_add_acc_sim"
   set USER_DEFINED_COMPILE_OPTIONS ""
@@ -163,7 +163,7 @@ proc rcf {{cu "cu_PageRank"}} {
   c_fp
 }
 
-proc rcd {{cu "cu_PageRank"}} {
+proc rcd {{cu "cu_PageRank_pull"}} {
 
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp_double_precision/fp_double_add_acc_sim"
   set USER_DEFINED_COMPILE_OPTIONS ""

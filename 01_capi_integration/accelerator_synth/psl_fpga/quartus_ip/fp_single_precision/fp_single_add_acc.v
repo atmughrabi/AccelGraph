@@ -60,9 +60,9 @@ endmodule
 // Retrieval info: 	<generic name="fp_format" value="single" />
 // Retrieval info: 	<generic name="frequency" value="250" />
 // Retrieval info: 	<generic name="gen_enable" value="true" />
-// Retrieval info: 	<generic name="MSBA" value="30" />
-// Retrieval info: 	<generic name="maxMSBX" value="12" />
-// Retrieval info: 	<generic name="LSBA" value="-60" />
+// Retrieval info: 	<generic name="MSBA" value="32" />
+// Retrieval info: 	<generic name="maxMSBX" value="32" />
+// Retrieval info: 	<generic name="LSBA" value="-62" />
 // Retrieval info: 	<generic name="selected_device_family" value="Stratix V" />
 // Retrieval info: 	<generic name="selected_device_speedgrade" value="2_H2" />
 // Retrieval info: </instance>

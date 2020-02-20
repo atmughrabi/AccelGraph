@@ -1638,7 +1638,7 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterat
       #pragma omp parallel for reduction(+ : error_total,activeVertices) private(v,j,u,degree,edge_idx) schedule(dynamic, 1024)
       for(v = 0; v < graph->num_vertices; v++)
       {
-          __uint64_t nodeIncomingPR = 0;
+          uint64_t nodeIncomingPR = 0;
           degree = vertices->out_degree[v];
           edge_idx = vertices->edges_idx[v];
           for(j = edge_idx ; j < (edge_idx + degree) ; j++)
