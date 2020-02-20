@@ -535,7 +535,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		end else begin
 			if(enabled && read_data_0_in_latched.valid) begin
 				case (read_data_0_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
+					INV_EDGE_ARRAY_DEST: begin
 						read_data_0_in_edge_job  <= read_data_0_in_latched;
 						read_data_0_in_edge_data <= 0;
 					end
@@ -562,7 +562,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		end else begin
 			if(enabled && read_data_1_in_latched.valid) begin
 				case (read_data_1_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
+					INV_EDGE_ARRAY_DEST: begin
 						read_data_1_in_edge_job  <= read_data_1_in_latched;
 						read_data_1_in_edge_data <= 0;
 					end
@@ -611,7 +611,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		end else begin
 			if(enabled && read_response_in_latched.valid) begin
 				case (read_response_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
+					INV_EDGE_ARRAY_DEST: begin
 						read_response_in_edge_job  <= read_response_in_latched;
 						read_response_in_edge_data <= 0;
 					end
