@@ -133,14 +133,14 @@ ENABLE_RD_WR_PREFETCH=0
 # // cu_edge_data_control         5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00000 00000 00000 00000 00
-export CU_CONFIG_MODE=0x00000000
+# export CU_CONFIG_MODE=0x00000000
 
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00010 00001 00000 00000 00
-# export CU_CONFIG_MODE=0x00041000  
+export CU_CONFIG_MODE=0x00041000  
 
 # // cu_vertex_job_control        5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [22:26] [9] [8] [5:7]
@@ -348,6 +348,17 @@ clean-sim:
 	 $(MAKE) clean-sim $(MAKE_ARGS)
 ##################################################
 ##################################################
+
+##############################################
+# Synthesis CONFIG 						     #
+##############################################
+# put your design in 01_capi_integration/accelerator_rtl/cu/$CU(algorithm name)
+# 
+
+export PART=5SGXMA7H2F35C2
+export PROJECT = accel-graph
+export CU = cu_PageRank_pull
+# export CU = cu_PageRank_push
 
 ##############################################
 #           ACCEL SYNTHESIZE LEVEL RULES     #

@@ -3,27 +3,24 @@ set PSL_FPGA ./psl_fpga
 set LIBCAPI  ./capi
 set VERSION   [binary format A24 [exec $LIBCAPI/scripts/version.py]]
 set project_revision accel-graph
-set project_algorithm cu_PageRank_pull
 
 if { $argc != 1 } {
 	puts "Default Project cu_PageRank_pull"
 	set project_algorithm cu_PageRank_pull
-	} else {
-		puts "SET Project to [lindex $argv 0]"
-		set project_algorithm [lindex $argv 0]
-	}
+} else {
+	puts "SET Project to [lindex $argv 0]"
+	set project_algorithm "[lindex $argv 0]"
+}
 
-	set project_algorithm cu_PageRank_pull
+project_new $project_name -overwrite -revision $project_revision
 
-	project_new $project_name -overwrite -revision $project_revision
-
-	set_global_assignment -name TOP_LEVEL_ENTITY psl_fpga
+set_global_assignment -name TOP_LEVEL_ENTITY psl_fpga
 
 
-	source $LIBCAPI/fpga/common.tcl
-	source $LIBCAPI/fpga/ibm_sources.tcl
-	source $LIBCAPI/fpga/pins.tcl
-	source $LIBCAPI/fpga/build_version.tcl
+source $LIBCAPI/fpga/common.tcl
+source $LIBCAPI/fpga/ibm_sources.tcl
+source $LIBCAPI/fpga/pins.tcl
+source $LIBCAPI/fpga/build_version.tcl
 
 
 # foreach filename [glob ../accelerator/rtl/*.vhd] {

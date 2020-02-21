@@ -24,18 +24,17 @@
 ########################################################################
 
 
-PART=5SGXMA7H2F35C2
+ALTERA_PART?=5SGXMA7H2F35C2
 PROJECT ?= accel-graph
 CU ?= cu_PageRank_pull
 VERION_GIT = $(shell python ./capi/scripts/version.py)
 TIME_STAMP = $(shell date +%Y_%m_%d_%H_%M_%S)
 ACCEL_RTL_DIR = accelerator_rtl
 ACCEL_BIN_DIR = accelerator_bin
-ACCEL_ALGO_DIR = accelerator_bin
 SOURCE_FILES =  $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.sv)   \
 				$(wildcard ../$(ACCEL_RTL_DIR)/pkg/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/pkg/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/pkg/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/pkg/*.sv)   \
-				$(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/cu/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/cu/$(ACCEL_ALGO_DIR)/cu/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/cu/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/cu/*.sv)   \
-				$(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/pkg/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/pkg/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/pkg/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(ACCEL_ALGO_DIR)/pkg/*.sv)   
+				$(wildcard ../$(ACCEL_RTL_DIR)/cu/$(CU)/cu/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(CU)/cu/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(CU)/cu/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(CU)/cu/*.sv)   \
+				$(wildcard ../$(ACCEL_RTL_DIR)/cu/$(CU)/pkg/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(CU)/pkg/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(CU)/pkg/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/cu/$(CU)/pkg/*.sv)   
 				
 
 export LM_LICENSE_FILE := $(LM_LICENSE_FILE):$(shell pwd)/psl_fpga/psl/psl_A000_license.dat
@@ -72,8 +71,8 @@ smart: smart.log
 ###################################################################
 # Executable Configuration
 ###################################################################
-MAP_ARGS = --family=StratixV --part=$(PART)
-FIT_ARGS = --part=$(PART)
+MAP_ARGS = --family=StratixV --part=$(ALTERA_PART)
+FIT_ARGS = --part=$(ALTERA_PART)
 ASM_ARGS =
 STA_ARGS = --do_report_timing
 
@@ -102,7 +101,7 @@ $(PROJECT).sta.rpt: sta.chg $(PROJECT).fit.rpt
 
 $(PROJECT).rbf: $(PROJECT).asm.rpt $(PROJECT).sta.rpt
 	quartus_cpf --64bit -c $(PROJECT).sof $(PROJECT).rbf &&\
-	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(VERION_GIT)_$(TIME_STAMP).rbf 
+	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU)_$(VERION_GIT)_$(TIME_STAMP).rbf 
 
 
 smart.log: $(ASSIGNMENT_FILES)
@@ -145,11 +144,11 @@ program: $(PROJECT).sof
 .PHONY:gen-rbf
 gen-rbf:
 	quartus_cpf --64bit -c $(PROJECT).sof $(PROJECT).rbf &&\
-	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(VERION_GIT)_$(TIME_STAMP).rbf 
+	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU)_$(VERION_GIT)_$(TIME_STAMP).rbf 
 
 .PHONY:copy-rbf
 copy-rbf:
-	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(VERION_GIT)_$(TIME_STAMP).rbf 
+	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU)_$(VERION_GIT)_$(TIME_STAMP).rbf 
 
 .PHONY:stats
 stats:
