@@ -1,3 +1,4 @@
+  #!/usr/bin/tclsh
 set project_name accel-graph
 set PSL_FPGA ./psl_fpga
 set LIBCAPI  ./capi

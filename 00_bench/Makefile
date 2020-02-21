@@ -465,6 +465,10 @@ cache-perf-openmp: app-openmp
 ##################################################
 ##################################################
 
+ PART?=5SGXMA7H2F35C2
+ PROJECT?= accel-graph
+ CU?=cu_PageRank_pull
+
 ##############################################
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #
 ##############################################
@@ -535,7 +539,7 @@ run-test-capi: test-capi
 
 .PHONY: run-vsim
 run-vsim: build-libdpi
-	cd $(CAPI_SIM) && vsim -do vsim.tcl
+	cd $(CAPI_SIM) && vsim -do "set project_algorithm $(CU);source vsim.tcl"
 
 .PHONY: run-pslse
 run-pslse: build-pslse

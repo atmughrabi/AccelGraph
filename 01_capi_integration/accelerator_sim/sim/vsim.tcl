@@ -1,7 +1,16 @@
+  #!/usr/bin/tclsh
+
+# if { $argc != 1 } {
+#   puts "Default Project cu_PageRank_pull"
+#   set project_algorithm "cu_PageRank_pull"
+# } else {
+#   puts "SET Project to [lindex $argv 0]"
+#   set project_algorithm "[lindex $argv 0]"
+# }
 
 # recompile
-proc r  { {cu "cu_PageRank_pull"} } {
-
+proc r  {} {
+  global project_algorithm
   # compile SystemVerilog files
 
   # compile libs
@@ -16,10 +25,14 @@ proc r  { {cu "cu_PageRank_pull"} } {
 
 
 
-  if {$cu eq "cu_PageRank_pull"} {
-   echo "Compiling Packages CU"
-   vlog -quiet ../../accelerator_rtl/cu/$cu/pkg/globals_cu_pkg.sv
-   vlog -quiet ../../accelerator_rtl/cu/$cu/pkg/cu_pkg.sv
+  if {$project_algorithm eq "cu_PageRank_pull"} {
+   echo "Compiling Packages CU PAGERANK PULL"
+   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
+   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
+   } elseif {$project_algorithm eq "cu_PageRank_push"} {
+   echo "Compiling Packages CU PAGERANK PUSH"
+   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
+   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
    } else {
     echo "UNKNOWN Packages CU"
   }
@@ -63,21 +76,36 @@ proc r  { {cu "cu_PageRank_pull"} } {
 
   echo "Compiling RTL CU control "
 
-  if {$cu eq "cu_PageRank_pull"} {
-    echo "Compiling RTL CU control PAGERANK"
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_cacheline_stream.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_sum_kernel_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_sum_kernel_fp_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_write_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_read_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_data_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_edge_job_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_vertex_job_filter.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_vertex_job_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_vertex_pagerank_arbiter_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_vertex_pagerank.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_graph_algorithm_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$cu/cu/cu_control.sv
+  if {$project_algorithm eq "cu_PageRank_pull"} {
+    echo "Compiling RTL CU control PAGERANK PULL"
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_fp_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_write_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_read_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_job_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_filter.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank_arbiter_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
+    } elseif {$project_algorithm eq "cu_PageRank_push"} {
+    echo "Compiling RTL CU control PAGERANK PUSH"
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_fp_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_write_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_read_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_job_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_filter.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank_arbiter_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
     } else {
       echo "UNKNOWN RTL CU"
     }
@@ -137,17 +165,17 @@ proc c_fp {} {
 }
 
 # shortcut for recompilation + simulation
-proc rc {{cu "cu_PageRank_pull"}} {
+proc rc {} {
 
   # init libs
   vlib work
   vmap work work
 
-  r $cu
+  r
   c
 }
 
-proc rcf {{cu "cu_PageRank_pull"}} {
+proc rcf {} {
 
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp_single_precision/fp_single_add_acc_sim"
   set USER_DEFINED_COMPILE_OPTIONS ""
@@ -159,11 +187,11 @@ proc rcf {{cu "cu_PageRank_pull"}} {
   dev_com
   com
 
-  r $cu
+  r
   c_fp
 }
 
-proc rcd {{cu "cu_PageRank_pull"}} {
+proc rcd {} {
 
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp_double_precision/fp_double_add_acc_sim"
   set USER_DEFINED_COMPILE_OPTIONS ""
@@ -175,7 +203,7 @@ proc rcd {{cu "cu_PageRank_pull"}} {
   dev_com
   com
 
-  r $cu
+  r
   c_fp
 }
 

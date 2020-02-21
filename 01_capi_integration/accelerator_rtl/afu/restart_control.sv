@@ -113,7 +113,6 @@ module restart_control (
 				outstanding_restart_commands <= outstanding_restart_commands;
 			else if(is_restart_cmd && is_restart_rsp_done && is_restart_rsp_flush)
 				outstanding_restart_commands <= outstanding_restart_commands - 1;
-
 			else if(~is_restart_cmd && is_restart_rsp_done && is_restart_rsp_flush)
 				outstanding_restart_commands <= outstanding_restart_commands - 2;
 			else if(~is_restart_cmd && ~is_restart_rsp_done && is_restart_rsp_flush)

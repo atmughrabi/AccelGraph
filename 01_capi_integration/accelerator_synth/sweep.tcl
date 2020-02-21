@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # By Boon Seong https://almost-a-technocrat.blogspot.com/2013/07/run-quartus-ii-fitter-and-timequest_3.html
 # This tcl is used to sweep seed by running fitter and STA, the timing report will be stored in seed_rpt directory
 load_package flow

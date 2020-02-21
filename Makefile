@@ -350,7 +350,7 @@ clean-sim:
 ##################################################
 
 ##############################################
-# Synthesis CONFIG 						     #
+# Simulation/Synthesis CONFIG 						     #
 ##############################################
 # put your design in 01_capi_integration/accelerator_rtl/cu/$CU(algorithm name)
 # 
