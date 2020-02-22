@@ -19,7 +19,10 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
+module cu_sum_kernel_fp_control #(
+	parameter CU_ID    = 1,
+	parameter FP_DELAY = 7
+) (
 	input  logic                          clock                           , // Clock
 	input  logic                          rstn                            ,
 	input  logic                          enabled_in                      ,
@@ -40,7 +43,6 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 
 
 	EdgeDataRead                 edge_data_latched                  ;
-	EdgeDataWrite                edge_data_accumulator              ;
 	EdgeDataWrite                edge_data_accumulator_latch        ;
 	logic                        enabled                            ;
 	VertexInterface              vertex_job_latched                 ;
@@ -52,19 +54,21 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 	BufferStatus                 data_buffer_status_latch           ;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_latched    ;
 	logic [                 0:3] accum_delay                        ;
+	logic                        new_vertex                         ;
 
-	logic [ 0:(DATA_SIZE_READ_BITS-1)] input_value    ;
-	logic                              valid_value    ;
-	logic                              valid_stream   ;
-	logic [0:(DATA_SIZE_WRITE_BITS-1)] running_value  ;
-	logic                              overflow_x     ;
-	logic                              underflow_x    ;
-	logic                              overflow_accume;
-	logic                              rstp           ;
+	logic [ 0:(DATA_SIZE_READ_BITS-1)] input_value_1                      ;
+	logic [0:(DATA_SIZE_WRITE_BITS-1)] input_value_2                      ;
+	logic                              valid_value                        ;
+	logic [0:(DATA_SIZE_WRITE_BITS-1)] running_value                      ;
+	logic                              rstp                               ;
+	logic [      0:(EDGE_SIZE_BITS-1)] dest_id_latched                    ;
+	logic [      0:(EDGE_SIZE_BITS-1)] dest_id_latched_S    [0:FP_DELAY-1];
+	logic                              valid_value_latched_S[0:FP_DELAY-1];
+	genvar                             i                                  ;
 
 	// assign input_value = 32'h 3f800000;
 	// assign valid_value = vertex_job_latched.valid;
-	always_ff @(posedge clock or negedge rstn) begin
+	always_ff @(posedge clock) begin
 		rstp <= ~rstn;
 	end
 
@@ -141,54 +145,103 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_data_accumulator            <= 0;
 			edge_data_counter_accum_internal <= 0;
 			edge_data_accumulator_latch      <= 0;
-			input_value                      <= 0;
+			input_value_1                    <= 0;
+			input_value_2                    <= 0;
 			edge_data_counter_accum_latched  <= 0;
-			valid_stream                     <= 0;
 			accum_delay                      <= 0;
+			dest_id_latched                  <= 0;
+			valid_value                      <= 0;
 		end else begin
 			if (enabled && vertex_job_latched.valid) begin
-				if(edge_data_latched.valid)begin
+				
+				if(write_response_in.valid)
 					edge_data_counter_accum_latched <= edge_data_counter_accum_latched + 1;
-					input_value                     <= edge_data_latched.data;
 
-					if(~valid_stream)begin
-						valid_value  <= 1;
-						valid_stream <= 1;
-					end else begin
-						valid_value <= 0;
-					end
-
+				if(edge_data_latched.valid)begin
+					input_value_1                   <= vertex_job_latched.data;
+					input_value_2                   <= edge_data_latched.data;
+					dest_id_latched                 <= edge_data_latched.id;
+					valid_value                     <= 1;
 				end else begin
-					valid_value <= 0;
-					input_value <= 0;
+					valid_value     <= 0;
+					input_value_1   <= 0;
+					input_value_2   <= 0;
+					dest_id_latched <= 0;
 				end
 
-				if((edge_data_counter_accum_latched == vertex_job_latched.inverse_out_degree) && (accum_delay == 4'h F)) begin
+				if((edge_data_counter_accum_latched == vertex_job_latched.out_degree) && (accum_delay == 4'h F)) begin
 					accum_delay                      <= 0;
 					edge_data_counter_accum_internal <= edge_data_counter_accum_latched;
 					edge_data_counter_accum_latched  <= 0;
-					edge_data_accumulator.valid      <= 1;
-					edge_data_accumulator.index      <= vertex_job_latched.id;
-					edge_data_accumulator.cu_id      <= CU_ID;
-					edge_data_accumulator.data       <= running_value;
-				end else if(edge_data_counter_accum_latched == vertex_job_latched.inverse_out_degree) begin
+				end else if(edge_data_counter_accum_latched == vertex_job_latched.out_degree) begin
 					accum_delay <= accum_delay + 1;
 				end
 
-				if(edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree )begin
-					edge_data_accumulator            <= 0;
+				if(edge_data_counter_accum_internal == vertex_job_latched.out_degree )begin
 					edge_data_counter_accum_internal <= 0;
-					edge_data_accumulator_latch      <= edge_data_accumulator;
-					valid_stream                     <= 0;
-				end else begin
-					edge_data_accumulator_latch <= 0;
 				end
 			end
 		end
 	end
+
+
+
+////////////////////////////////////////////////////////////////////////////
+//Output Delay
+////////////////////////////////////////////////////////////////////////////
+
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			dest_id_latched_S[0]     <= 0;
+			valid_value_latched_S[0] <= 0;
+		end else begin
+			if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
+				dest_id_latched_S[0]     <= dest_id_latched;
+				valid_value_latched_S[0] <= valid_value;
+			end else begin
+				dest_id_latched_S[0]     <= 0;
+				valid_value_latched_S[0] <= 0;
+			end
+		end
+	end
+
+	generate
+		for ( i = 1; i < (FP_DELAY); i++) begin : generate_fp_delay
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					dest_id_latched_S[i]     <= 0;
+					valid_value_latched_S[i] <= 0;
+				end else begin
+					if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
+						dest_id_latched_S[i]     <= dest_id_latched_S[i-1];
+						valid_value_latched_S[i] <= valid_value_latched_S[i-1];
+					end else begin
+						dest_id_latched_S[i]     <= 0;
+						valid_value_latched_S[i] <= 0;
+					end
+				end
+			end
+		end
+	endgenerate
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_accumulator_latch <= 0;
+		end else begin
+			if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
+				edge_data_accumulator_latch.valid <= valid_value_latched_S[FP_DELAY-1];
+				edge_data_accumulator_latch.index <= dest_id_latched_S[FP_DELAY-1];
+				edge_data_accumulator_latch.cu_id <= CU_ID;
+				edge_data_accumulator_latch.data  <= running_value;
+			end else begin
+				edge_data_accumulator_latch <= 0;
+			end
+		end
+	end
+
 
 ////////////////////////////////////////////////////////////////////////////
 //counter trackings
@@ -199,7 +252,7 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 			edge_data_counter_accum <= 0;
 		end else begin
 			if (enabled) begin
-				if(edge_data_latched.valid) begin
+				if(write_response_in.valid) begin
 					edge_data_counter_accum <= edge_data_counter_accum + 1;
 				end
 			end
@@ -210,10 +263,14 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			vertex_num_counter_resp <= 0;
+			new_vertex              <= 0;
 		end else begin
 			if (enabled) begin
-				if(write_response_in.valid) begin
+				if(vertex_job_latched.valid && ~new_vertex) begin
+					new_vertex              <= 1;
 					vertex_num_counter_resp <= vertex_num_counter_resp + 1;
+				end else if(~vertex_job_latched.valid)  begin
+					new_vertex <= 0;
 				end
 			end
 		end
@@ -237,23 +294,18 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 
 	assign edge_data_write_bus_request_latched = ~edge_data_write_buffer_status.empty && ~write_buffer_status.alfull;
 
-
 	////////////////////////////////////////////////////////////////////////////
-	// single percision floating point add accume module
+	// single percision floating point add module
 	////////////////////////////////////////////////////////////////////////////
 
-	fp_single_add_acc fp_single_add_acc_instant (
-		.clk   (clock          ),
-		.areset(rstp           ),
-		.x     (input_value    ),
-		.n     (valid_value    ),
-		.r     (running_value  ),
-		.xo    (overflow_x     ),
-		.xu    (underflow_x    ),
-		.ao    (overflow_accume),
-		.en    (enabled        )
+	fp_single_add fp_single_add_instant (
+		.clk   (clock        ),
+		.areset(rstp         ),
+		.en    (enabled  	 ),
+		.a     (input_value_1),
+		.b     (input_value_2),
+		.q     (running_value)
 	);
-
 
 	fifo #(
 		.WIDTH($bits(EdgeDataWrite) ),

@@ -52,7 +52,7 @@ export MAIN_DIR		  	= main
 # small test graphs
 export GRAPH_NAME = test
 # export GRAPH_NAME = v51_e1021
-export GRAPH_NAME = v300_e2730
+# export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
 # export GRAPH_NAME = Gnutella
@@ -96,7 +96,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 0
+export PULL_PUSH 		= 1
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -357,8 +357,8 @@ clean-sim:
 
 export PART=5SGXMA7H2F35C2
 export PROJECT = accel-graph
-export CU = cu_PageRank_pull
-# export CU = cu_PageRank_push
+# export CU = cu_PageRank_pull
+export CU = cu_PageRank_push
 
 ##############################################
 #           ACCEL SYNTHESIZE LEVEL RULES     #

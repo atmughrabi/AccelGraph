@@ -3,12 +3,12 @@
 //		"ACCEL-GRAPH Shared Memory Accelerator Project"
 //
 // -----------------------------------------------------------------------------
-// Copyright (c) 2014-2019 All rights reserved
+// Copyright (c) 2014-2020 All rights reserved
 // -----------------------------------------------------------------------------
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
-// Create : 2019-09-26 15:19:08
-// Revise : 2019-11-07 18:11:05
+// Create : 2020-02-21 19:15:46
+// Revise : 2020-02-21 23:18:03
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -68,15 +68,12 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done  ;
 // vertex control variables
 
-	BufferStatus                   vertex_buffer_status_internal;
-	logic                          vertex_request_internal      ;
-	logic                          vertex_job_request_latched   ;
-	VertexInterface                vertex_job_latched           ;
-	VertexInterface                vertex_job_buffer_out        ;
-	VertexInterface                vertex_job_arbiter_in        ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_temp      ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter_temp        ;
-
+	BufferStatus    vertex_buffer_status_internal;
+	logic           vertex_request_internal      ;
+	logic           vertex_job_request_latched   ;
+	VertexInterface vertex_job_latched           ;
+	VertexInterface vertex_job_buffer_out        ;
+	VertexInterface vertex_job_arbiter_in        ;
 
 	//output latched
 	CommandBufferLine read_command_out_latched;
@@ -106,16 +103,11 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	logic [NUM_VERTEX_CU-1:0] edge_data_write_arbiter_cu_submit;
 
 
-	ResponseBufferLine read_response_cu          [0:NUM_VERTEX_CU-1];
-	ResponseBufferLine write_response_cu         [0:NUM_VERTEX_CU-1];
-	ResponseBufferLine read_response_cu_internal [0:NUM_VERTEX_CU-1];
-	ResponseBufferLine write_response_cu_internal[0:NUM_VERTEX_CU-1];
+	ResponseBufferLine read_response_cu [0:NUM_VERTEX_CU-1];
+	ResponseBufferLine write_response_cu[0:NUM_VERTEX_CU-1];
 
-	ReadWriteDataLine read_data_0_cu         [0:NUM_VERTEX_CU-1];
-	ReadWriteDataLine read_data_1_cu         [0:NUM_VERTEX_CU-1];
-	ReadWriteDataLine read_data_0_cu_internal[0:NUM_VERTEX_CU-1];
-	ReadWriteDataLine read_data_1_cu_internal[0:NUM_VERTEX_CU-1];
-
+	ReadWriteDataLine read_data_0_cu[0:NUM_VERTEX_CU-1];
+	ReadWriteDataLine read_data_1_cu[0:NUM_VERTEX_CU-1];
 
 	VertexInterface           vertex_job_cu                 [0:NUM_VERTEX_CU-1];
 	logic [NUM_VERTEX_CU-1:0] request_vertex_job_cu                            ;
@@ -137,10 +129,15 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	ReadWriteDataLine read_data_0_in_edge_data;
 	ReadWriteDataLine read_data_1_in_edge_data;
 
-	EdgeDataRead edge_data_read_cu         [0:NUM_VERTEX_CU-1];
-	EdgeDataRead edge_data_read_cu_internal[0:NUM_VERTEX_CU-1];
-	EdgeDataRead edge_data_variable                           ;
+	EdgeDataRead edge_data_read_cu [0:NUM_VERTEX_CU-1];
+	EdgeDataRead edge_data_variable                   ;
 
+	ReadWriteDataLine  read_data_0_data_out  [0:1];
+	ReadWriteDataLine  read_data_1_data_out  [0:1];
+	ResponseBufferLine read_response_data_out[0:1];
+
+	////////////////////////////////////////////////////////////////////////////
+	genvar i;
 	////////////////////////////////////////////////////////////////////////////
 	//enable logic
 	////////////////////////////////////////////////////////////////////////////
@@ -260,30 +257,17 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		end
 	end
 
-	////////////////////////////////////////////////////////////////////////////
-	genvar  i  ;
-	integer j  ;
-	integer z  ;
-	integer ii ;
-	integer kk ;
-	integer jj ;
-	integer kkk;
-	integer jjj;
-	integer iii;
 
 
 	////////////////////////////////////////////////////////////////////////////
 	// Enable logic
 	////////////////////////////////////////////////////////////////////////////
 
-	always_comb  begin
-		for (iii = 0; iii < NUM_VERTEX_CU; iii++) begin
-			if((iii < cu_configure_latched[32:63]))
-				enable_cu_latched[iii] = 1;
-			else
-				enable_cu_latched[iii] = 0;
+	generate
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_enable_cu
+			assign enable_cu_latched[i] = (i < cu_configure_latched[32:63]);
 		end
-	end
+	endgenerate
 
 	always_ff @(posedge clock) begin
 		if(~rstn) begin
@@ -377,9 +361,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_read_command_cu
-
 			assign read_command_arbiter_cu_submit[i] = read_command_cu[i].valid;
-
 		end
 	endgenerate
 
@@ -444,9 +426,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_edge_data_write_cu
-
 			assign edge_data_write_arbiter_cu_submit[i] = edge_data_write_cu[i].valid;
-
 		end
 	endgenerate
 
@@ -480,35 +460,29 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	// Vertex CU Read Data Arbitration
 	////////////////////////////////////////////////////////////////////////////
 
-	always_comb  begin
-		for (jjj = 0; jjj < NUM_VERTEX_CU; jjj++) begin
-			if(read_data_0_in_edge_job.cmd.cu_id == jjj && enable_cu[jjj] && read_data_0_in_edge_job.valid)begin
-				read_data_0_cu_internal[jjj] = read_data_0_in_edge_job;
-			end else begin
-				read_data_0_cu_internal[jjj] = 0;
-			end
-		end
-	end
+	demux_bus #(
+		.DATA_WIDTH($bits(ReadWriteDataLine)),
+		.BUS_WIDTH (NUM_VERTEX_CU           )
+	) read_data_0_cu_demux_bus_instant (
+		.clock     (clock                                                                             ),
+		.rstn      (rstn                                                                              ),
+		.enabled_in(read_data_0_in_edge_job.valid                                                     ),
+		.sel_in    (read_data_0_in_edge_job.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.data_in   (read_data_0_in_edge_job                                                           ),
+		.data_out  (read_data_0_cu                                                                    )
+	);
 
-	always_ff @(posedge clock) begin
-		read_data_0_cu <= read_data_0_cu_internal;
-	end
-
-	always_comb  begin
-		for (kkk = 0; kkk < NUM_VERTEX_CU; kkk++) begin
-			if(read_data_1_in_edge_job.cmd.cu_id == kkk && enable_cu[kkk] && read_data_1_in_edge_job.valid)begin
-				read_data_1_cu_internal[kkk] = read_data_1_in_edge_job;
-			end else begin
-				read_data_1_cu_internal[kkk] = 0;
-			end
-		end
-	end
-
-	always_ff @(posedge clock) begin
-		read_data_1_cu <= read_data_1_cu_internal;
-	end
-
-
+	demux_bus #(
+		.DATA_WIDTH($bits(ReadWriteDataLine)),
+		.BUS_WIDTH (NUM_VERTEX_CU           )
+	) read_data_1_cu_demux_bus_instant (
+		.clock     (clock                                                                             ),
+		.rstn      (rstn                                                                              ),
+		.enabled_in(read_data_1_in_edge_job.valid                                                     ),
+		.sel_in    (read_data_1_in_edge_job.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.data_in   (read_data_1_in_edge_job                                                           ),
+		.data_out  (read_data_1_cu                                                                    )
+	);
 
 	////////////////////////////////////////////////////////////////////////////
 	//data request read logic extract single edgedata from cacheline
@@ -527,184 +501,131 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	//read data request logic - input
 	////////////////////////////////////////////////////////////////////////////
 
+	assign read_data_0_in_edge_job  = read_data_0_data_out[0];
+	assign read_data_0_in_edge_data = read_data_0_data_out[1];
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_data_0_in_edge_job  <= 0;
-			read_data_0_in_edge_data <= 0;
-		end else begin
-			if(enabled && read_data_0_in_latched.valid) begin
-				case (read_data_0_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_data_0_in_edge_job  <= read_data_0_in_latched;
-						read_data_0_in_edge_data <= 0;
-					end
-					READ_GRAPH_DATA : begin
-						read_data_0_in_edge_job  <= 0;
-						read_data_0_in_edge_data <= read_data_0_in_latched;
-					end
-					default : begin
-						read_data_0_in_edge_job  <= 0;
-						read_data_0_in_edge_data <= 0;
-					end
-				endcase
-			end else begin
-				read_data_0_in_edge_job  <= 0;
-				read_data_0_in_edge_data <= 0;
-			end
-		end
-	end
+	array_struct_type_demux_bus #(
+		.DATA_WIDTH($bits(ReadWriteDataLine)),
+		.BUS_WIDTH (2                       )
+	) read_data_0_array_struct_type_demux_bus_instant (
+		.clock     (clock                                  ),
+		.rstn      (rstn                                   ),
+		.enabled_in(read_data_0_in_latched.valid           ),
+		.sel_in    (read_data_0_in_latched.cmd.array_struct),
+		.data_in   (read_data_0_in_latched                 ),
+		.data_out  (read_data_0_data_out                   )
+	);
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_data_1_in_edge_job  <= 0;
-			read_data_1_in_edge_data <= 0;
-		end else begin
-			if(enabled && read_data_1_in_latched.valid) begin
-				case (read_data_1_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_data_1_in_edge_job  <= read_data_1_in_latched;
-						read_data_1_in_edge_data <= 0;
-					end
-					READ_GRAPH_DATA : begin
-						read_data_1_in_edge_job  <= 0;
-						read_data_1_in_edge_data <= read_data_1_in_latched;
-					end
-					default : begin
-						read_data_1_in_edge_job  <= 0;
-						read_data_1_in_edge_data <= 0;
-					end
-				endcase
-			end else begin
-				read_data_1_in_edge_job  <= 0;
-				read_data_1_in_edge_data <= 0;
-			end
-		end
-	end
+	assign read_data_1_in_edge_job  = read_data_1_data_out[0];
+	assign read_data_1_in_edge_data = read_data_1_data_out[1];
+
+	array_struct_type_demux_bus #(
+		.DATA_WIDTH($bits(ReadWriteDataLine)),
+		.BUS_WIDTH (2                       )
+	) read_data_1_array_struct_type_demux_bus_instant (
+		.clock     (clock                                  ),
+		.rstn      (rstn                                   ),
+		.enabled_in(read_data_1_in_latched.valid           ),
+		.sel_in    (read_data_1_in_latched.cmd.array_struct),
+		.data_in   (read_data_1_in_latched                 ),
+		.data_out  (read_data_1_data_out                   )
+	);
 
 	////////////////////////////////////////////////////////////////////////////
 	//data request read logic
 	////////////////////////////////////////////////////////////////////////////
 
-	always_comb  begin
-		for (z = 0; z < NUM_VERTEX_CU; z++) begin
-			if(edge_data_variable.cu_id == z && enable_cu[z] && edge_data_variable.valid)begin
-				edge_data_read_cu_internal[z] = edge_data_variable;
-			end else begin
-				edge_data_read_cu_internal[z] = 0;
-			end
-		end
-	end
-
-	always_ff @(posedge clock) begin
-		edge_data_read_cu <= edge_data_read_cu_internal;
-	end
+	demux_bus #(
+		.DATA_WIDTH($bits(EdgeDataRead)),
+		.BUS_WIDTH (NUM_VERTEX_CU      )
+	) edge_data_read_cu_demux_bus_instant (
+		.clock     (clock                                                                    ),
+		.rstn      (rstn                                                                     ),
+		.enabled_in(edge_data_variable.valid                                                 ),
+		.sel_in    (edge_data_variable.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.data_in   (edge_data_variable                                                       ),
+		.data_out  (edge_data_read_cu                                                        )
+	);
 
 	////////////////////////////////////////////////////////////////////////////
 	//read data response logic - input
 	////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_response_in_edge_job  <= 0;
-			read_response_in_edge_data <= 0;
-		end else begin
-			if(enabled && read_response_in_latched.valid) begin
-				case (read_response_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_response_in_edge_job  <= read_response_in_latched;
-						read_response_in_edge_data <= 0;
-					end
-					READ_GRAPH_DATA : begin
-						read_response_in_edge_job  <= 0;
-						read_response_in_edge_data <= read_response_in_latched;
-					end
-					default : begin
-						read_response_in_edge_job  <= 0;
-						read_response_in_edge_data <= 0;
-					end
-				endcase
-			end else begin
-				read_response_in_edge_job  <= 0;
-				read_response_in_edge_data <= 0;
-			end
-		end
-	end
+	assign read_response_in_edge_job  = read_response_data_out[0];
+	assign read_response_in_edge_data = read_response_data_out[1];
+
+	array_struct_type_demux_bus #(
+		.DATA_WIDTH($bits(ResponseBufferLine)),
+		.BUS_WIDTH (2                        )
+	) read_response_array_struct_type_demux_bus_instant (
+		.clock     (clock                                    ),
+		.rstn      (rstn                                     ),
+		.enabled_in(read_response_in_latched.valid           ),
+		.sel_in    (read_response_in_latched.cmd.array_struct),
+		.data_in   (read_response_in_latched                 ),
+		.data_out  (read_response_data_out                   )
+	);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex CU Response Arbitration
 	////////////////////////////////////////////////////////////////////////////
 
-	always_comb  begin
-		for (jj = 0; jj < NUM_VERTEX_CU; jj++) begin
-			if(read_response_in_edge_job.cmd.cu_id == jj && enable_cu[jj] && read_response_in_edge_job.valid)begin
-				read_response_cu_internal[jj] = read_response_in_edge_job;
-			end else begin
-				read_response_cu_internal[jj] = 0;
-			end
-		end
-	end
+	demux_bus #(
+		.DATA_WIDTH($bits(ResponseBufferLine)),
+		.BUS_WIDTH (NUM_VERTEX_CU            )
+	) read_response_demux_bus_instant (
+		.clock     (clock                                                                               ),
+		.rstn      (rstn                                                                                ),
+		.enabled_in(read_response_in_edge_job.valid                                                     ),
+		.sel_in    (read_response_in_edge_job.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.data_in   (read_response_in_edge_job                                                           ),
+		.data_out  (read_response_cu                                                                    )
+	);
 
-	always_ff @(posedge clock) begin
-		read_response_cu <= read_response_cu_internal;
-	end
-
-	always_comb  begin
-		for (kk = 0; kk < NUM_VERTEX_CU; kk++) begin
-			if(write_response_in_latched.cmd.cu_id == kk && enable_cu[kk] && write_response_in_latched.valid)begin
-				write_response_cu_internal[kk] = write_response_in_latched;
-			end else begin
-				write_response_cu_internal[kk] = 0;
-			end
-		end
-	end
-
-	always_ff @(posedge clock) begin
-		write_response_cu <= write_response_cu_internal;
-	end
-
+	demux_bus #(
+		.DATA_WIDTH($bits(ResponseBufferLine)),
+		.BUS_WIDTH (NUM_VERTEX_CU            )
+	) write_response_demux_bus_instant (
+		.clock     (clock                                                                               ),
+		.rstn      (rstn                                                                                ),
+		.enabled_in(write_response_in_latched.valid                                                     ),
+		.sel_in    (write_response_in_latched.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.data_in   (write_response_in_latched                                                           ),
+		.data_out  (write_response_cu                                                                   )
+	);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Once processed all verticess edges send done signal
 	////////////////////////////////////////////////////////////////////////////
 
-	always_comb begin
-		vertex_num_counter_temp = 0;
-		for (j = 0; j < NUM_VERTEX_CU; j++) begin
-			vertex_num_counter_temp = vertex_num_counter_temp + vertex_num_counter_cu[j];
-		end
-	end
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			vertex_job_counter_done <= 0;
-		end else begin
-			if(enabled)begin
-				vertex_job_counter_done <= vertex_num_counter_temp;
-			end
-		end
-	end
+	sum_reduce #(
+		.DATA_WIDTH_IN (VERTEX_SIZE_BITS),
+		.DATA_WIDTH_OUT(VERTEX_SIZE_BITS),
+		.BUS_WIDTH     (NUM_VERTEX_CU   )
+	) vertex_job_counter_sum_reduce_instant (
+		.clock          (clock                  ),
+		.rstn           (rstn                   ),
+		.enabled_in     (enabled                ),
+		.partial_sums_in(vertex_num_counter_cu  ),
+		.total_sum_out  (vertex_job_counter_done)
+	);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Once processed all edges send done signal
 	////////////////////////////////////////////////////////////////////////////
 
-	always_comb begin
-		edge_num_counter_temp = 0;
-		for (ii = 0; ii < NUM_VERTEX_CU; ii++) begin
-			edge_num_counter_temp = edge_num_counter_temp + edge_num_counter_cu[ii];
-		end
-	end
+	sum_reduce #(
+		.DATA_WIDTH_IN (EDGE_SIZE_BITS),
+		.DATA_WIDTH_OUT(EDGE_SIZE_BITS),
+		.BUS_WIDTH     (NUM_VERTEX_CU )
+	) edge_job_counter_sum_reduce_instant (
+		.clock          (clock                ),
+		.rstn           (rstn                 ),
+		.enabled_in     (enabled              ),
+		.partial_sums_in(edge_num_counter_cu  ),
+		.total_sum_out  (edge_job_counter_done)
+	);
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			edge_job_counter_done <= 0;
-		end else begin
-			if(enabled)begin
-				edge_job_counter_done <= edge_num_counter_temp;
-			end
-		end
-	end
 
 
 endmodule

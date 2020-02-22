@@ -112,6 +112,10 @@ module cu_vertex_pagerank #(
 	EdgeDataRead      edge_data_read                     ;
 	EdgeDataWrite     edge_data_write_out_internal       ;
 
+	ReadWriteDataLine  read_data_0_data_out  [0:1];
+	ReadWriteDataLine  read_data_1_data_out  [0:1];
+	ResponseBufferLine read_response_data_out[0:1];
+
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -224,7 +228,7 @@ module cu_vertex_pagerank #(
 				if(vertex_job_burst_out.valid && ~processing_vertex) begin
 					vertex_job_latched <= vertex_job_burst_out;
 				end
-				if ((edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree) && vertex_job_latched.valid) begin
+				if ((edge_data_counter_accum_internal == vertex_job_latched.out_degree) && vertex_job_latched.valid) begin
 					vertex_job_latched <= 0;
 				end
 			end
@@ -272,7 +276,7 @@ module cu_vertex_pagerank #(
 					if(~processing_vertex) begin
 						processing_vertex <= 1;
 					end
-					if (edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree) begin
+					if (edge_data_counter_accum_internal == vertex_job_latched.out_degree) begin
 						processing_vertex <= 0;
 					end
 				end
@@ -333,74 +337,62 @@ module cu_vertex_pagerank #(
 	// Data SUM control Float/Fixed Point
 	////////////////////////////////////////////////////////////////////////////
 
-		cu_sum_kernel_fp_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_fp_control_instant (
-			.clock                           (clock                              ),
-			.rstn                            (rstn                               ),
-			.enabled_in                      (enabled_cmd                        ),
-			.wed_request_in                  (wed_request_in                     ),
-			.write_response_in               (write_response_in_edge_data        ),
-			.write_buffer_status             (write_buffer_status_latched        ),
-			.edge_data                       (edge_data                          ),
-			.edge_data_request               (edge_data_request                  ),
-			.data_buffer_status              (data_buffer_status                 ),
-			.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
-			.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
-			.edge_data_write_out             (edge_data_write_out_internal       ),
-			.vertex_job                      (vertex_job_latched                 ),
-			.vertex_num_counter_resp         (vertex_num_counter_resp            ),
-			.edge_data_counter_accum         (edge_data_counter_accum            ),
-			.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
-		);
+	cu_sum_kernel_fp_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_fp_control_instant (
+		.clock                           (clock                              ),
+		.rstn                            (rstn                               ),
+		.enabled_in                      (enabled_cmd                        ),
+		.wed_request_in                  (wed_request_in                     ),
+		.write_response_in               (write_response_in_edge_data        ),
+		.write_buffer_status             (write_buffer_status_latched        ),
+		.edge_data                       (edge_data                          ),
+		.edge_data_request               (edge_data_request                  ),
+		.data_buffer_status              (data_buffer_status                 ),
+		.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
+		.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
+		.edge_data_write_out             (edge_data_write_out_internal       ),
+		.vertex_job                      (vertex_job_latched                 ),
+		.vertex_num_counter_resp         (vertex_num_counter_resp            ),
+		.edge_data_counter_accum         (edge_data_counter_accum            ),
+		.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
+	);
 
-		// cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
-		// 	.clock                           (clock                              ),
-		// 	.rstn                            (rstn                               ),
-		// 	.enabled_in                      (enabled_cmd                        ),
-		// 	.wed_request_in                  (wed_request_in                     ),
-		// 	.write_response_in               (write_response_in_edge_data        ),
-		// 	.write_buffer_status             (write_buffer_status_latched        ),
-		// 	.edge_data                       (edge_data                          ),
-		// 	.edge_data_request               (edge_data_request                  ),
-		// 	.data_buffer_status              (data_buffer_status                 ),
-		// 	.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
-		// 	.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
-		// 	.edge_data_write_out             (edge_data_write_out_internal       ),
-		// 	.vertex_job                      (vertex_job_latched                 ),
-		// 	.vertex_num_counter_resp         (vertex_num_counter_resp            ),
-		// 	.edge_data_counter_accum         (edge_data_counter_accum            ),
-		// 	.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
-		// );
+	// cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
+	// 	.clock                           (clock                              ),
+	// 	.rstn                            (rstn                               ),
+	// 	.enabled_in                      (enabled_cmd                        ),
+	// 	.wed_request_in                  (wed_request_in                     ),
+	// 	.write_response_in               (write_response_in_edge_data        ),
+	// 	.write_buffer_status             (write_buffer_status_latched        ),
+	// 	.edge_data                       (edge_data                          ),
+	// 	.edge_data_request               (edge_data_request                  ),
+	// 	.data_buffer_status              (data_buffer_status                 ),
+	// 	.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
+	// 	.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
+	// 	.edge_data_write_out             (edge_data_write_out_internal       ),
+	// 	.vertex_job                      (vertex_job_latched                 ),
+	// 	.vertex_num_counter_resp         (vertex_num_counter_resp            ),
+	// 	.edge_data_counter_accum         (edge_data_counter_accum            ),
+	// 	.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
+	// );
 
 ////////////////////////////////////////////////////////////////////////////
 //read response arbitration logic - input
 ////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_response_in_edge_job  <= 0;
-			read_response_in_edge_data <= 0;
-		end else begin
-			if(enabled && read_response_in_latched.valid) begin
-				case (read_response_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT, EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_response_in_edge_job  <= read_response_in_latched;
-						read_response_in_edge_data <= 0;
-					end
-					READ_GRAPH_DATA : begin
-						read_response_in_edge_job  <= 0;
-						read_response_in_edge_data <= read_response_in_latched;
-					end
-					default : begin
-						read_response_in_edge_job  <= 0;
-						read_response_in_edge_data <= 0;
-					end
-				endcase
-			end else begin
-				read_response_in_edge_job  <= 0;
-				read_response_in_edge_data <= 0;
-			end
-		end
-	end
+	assign read_response_in_edge_job  = read_response_data_out[0];
+	assign read_response_in_edge_data = read_response_data_out[1];
+
+	array_struct_type_demux_bus #(
+		.DATA_WIDTH($bits(ResponseBufferLine)),
+		.BUS_WIDTH (2                        )
+	) read_response_array_struct_type_demux_bus_instant (
+		.clock     (clock                                    ),
+		.rstn      (rstn                                     ),
+		.enabled_in(read_response_in_latched.valid           ),
+		.sel_in    (read_response_in_latched.cmd.array_struct),
+		.data_in   (read_response_in_latched                 ),
+		.data_out  (read_response_data_out                   )
+	);
 
 ////////////////////////////////////////////////////////////////////////////
 //write response arbitration logic - input
@@ -429,59 +421,35 @@ module cu_vertex_pagerank #(
 //read data request logic - input
 ////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_data_0_in_edge_job  <= 0;
-			read_data_0_in_edge_data <= 0;
-		end else begin
-			if(enabled && read_data_0_in_latched.valid) begin
-				case (read_data_0_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_data_0_in_edge_job  <= read_data_0_in_latched;
-						read_data_0_in_edge_data <= 0;
-					end
-					READ_GRAPH_DATA : begin
-						read_data_0_in_edge_job  <= 0;
-						read_data_0_in_edge_data <= read_data_0_in_latched;
-					end
-					default : begin
-						read_data_0_in_edge_job  <= 0;
-						read_data_0_in_edge_data <= 0;
-					end
-				endcase
-			end else begin
-				read_data_0_in_edge_job  <= 0;
-				read_data_0_in_edge_data <= 0;
-			end
-		end
-	end
+	assign read_data_0_in_edge_job  = read_data_0_data_out[0];
+	assign read_data_0_in_edge_data = read_data_0_data_out[1];
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_data_1_in_edge_job  <= 0;
-			read_data_1_in_edge_data <= 0;
-		end else begin
-			if(enabled && read_data_1_in_latched.valid) begin
-				case (read_data_1_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC,INV_EDGE_ARRAY_DEST,INV_EDGE_ARRAY_WEIGHT,EDGE_ARRAY_SRC, EDGE_ARRAY_DEST, EDGE_ARRAY_WEIGHT: begin
-						read_data_1_in_edge_job  <= read_data_1_in_latched;
-						read_data_1_in_edge_data <= 0;
-					end
-					READ_GRAPH_DATA : begin
-						read_data_1_in_edge_job  <= 0;
-						read_data_1_in_edge_data <= read_data_1_in_latched;
-					end
-					default : begin
-						read_data_1_in_edge_job  <= 0;
-						read_data_1_in_edge_data <= 0;
-					end
-				endcase
-			end else begin
-				read_data_1_in_edge_job  <= 0;
-				read_data_1_in_edge_data <= 0;
-			end
-		end
-	end
+	array_struct_type_demux_bus #(
+		.DATA_WIDTH($bits(ReadWriteDataLine)),
+		.BUS_WIDTH (2                       )
+	) read_data_0_array_struct_type_demux_bus_instant (
+		.clock     (clock                                  ),
+		.rstn      (rstn                                   ),
+		.enabled_in(read_data_0_in_latched.valid           ),
+		.sel_in    (read_data_0_in_latched.cmd.array_struct),
+		.data_in   (read_data_0_in_latched                 ),
+		.data_out  (read_data_0_data_out                   )
+	);
+
+	assign read_data_1_in_edge_job  = read_data_1_data_out[0];
+	assign read_data_1_in_edge_data = read_data_1_data_out[1];
+
+	array_struct_type_demux_bus #(
+		.DATA_WIDTH($bits(ReadWriteDataLine)),
+		.BUS_WIDTH (2                       )
+	) read_data_1_array_struct_type_demux_bus_instant (
+		.clock     (clock                                  ),
+		.rstn      (rstn                                   ),
+		.enabled_in(read_data_1_in_latched.valid           ),
+		.sel_in    (read_data_1_in_latched.cmd.array_struct),
+		.data_in   (read_data_1_in_latched                 ),
+		.data_out  (read_data_1_data_out                   )
+	);
 
 	////////////////////////////////////////////////////////////////////////////
 	//Burst Buffer Read Commands

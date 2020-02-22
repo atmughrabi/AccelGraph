@@ -29,12 +29,12 @@ package GLOBALS_CU_PKG;
 ////////////////////////////////////////////////////////////////////////////
 
 	parameter NUM_GRAPH_CU_GLOBAL  = 1;
-	parameter NUM_VERTEX_CU_GLOBAL = 4;
+	parameter NUM_VERTEX_CU_GLOBAL = 2;
 
 	parameter CU_VERTEX_JOB_BUFFER_SIZE = 64;
 	parameter CU_EDGE_JOB_BUFFER_SIZE   = 64;
 
-	
+
 ////////////////////////////////////////////////////////////////////////////
 // CU-Control CU Globals
 ////////////////////////////////////////////////////////////////////////////
@@ -59,11 +59,23 @@ package GLOBALS_CU_PKG;
 	parameter CACHELINE_DATA_READ_NUM      = (CACHELINE_SIZE >> $clog2(DATA_SIZE_READ))     ;
 	parameter CACHELINE_DATA_READ_NUM_HF   = (CACHELINE_SIZE >> $clog2(DATA_SIZE_READ)) >> 1;
 	parameter CACHELINE_DATA_READ_NUM_BITS = $clog2(CACHELINE_DATA_READ_NUM)                ; // number of edges in one cacheline
+	parameter DATA_READ_NULL_BITS          = {DATA_SIZE_READ_BITS{1'b0}}                    ;
 
 	parameter DATA_SIZE_WRITE             = 4                                               ; // edge data size is n bytes Auxiliary2
 	parameter DATA_SIZE_WRITE_BITS        = DATA_SIZE_WRITE * 8                             ; // edge data size is n*8 Bits
 	parameter CACHELINE_DATA_WRITE_NUM    = (CACHELINE_SIZE >> $clog2(DATA_SIZE_WRITE))     ;
 	parameter CACHELINE_DATA_WRITE_NUM_HF = (CACHELINE_SIZE >> $clog2(DATA_SIZE_WRITE)) >> 1; // number of edges in one cacheline
+	parameter DATA_WRITE_NULL_BITS        = {DATA_SIZE_WRITE_BITS{1'b0}}                    ;
+
+	// aligenment to cacheline 128-BYTES
+	parameter [0:63] ADDRESS_ARRAY_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
+	parameter [0:63] ADDRESS_ARRAY_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
+
+	parameter [0:63] ADDRESS_DATA_READ_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
+	parameter [0:63] ADDRESS_DATA_READ_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
+
+	parameter [0:63] ADDRESS_DATA_WRITE_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
+	parameter [0:63] ADDRESS_DATA_WRITE_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
 
 	parameter [0:63] ADDRESS_EDGE_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
 	parameter [0:63] ADDRESS_EDGE_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};

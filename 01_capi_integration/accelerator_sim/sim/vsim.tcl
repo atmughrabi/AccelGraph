@@ -94,7 +94,7 @@ proc r  {} {
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
-    } elseif {$project_algorithm eq "cu_PageRank_push"} {
+  } elseif {$project_algorithm eq "cu_PageRank_push"} {
     echo "Compiling RTL CU control PAGERANK PUSH"
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
@@ -110,9 +110,9 @@ proc r  {} {
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
-    } else {
-      echo "UNKNOWN RTL CU"
-    }
+  } else {
+    echo "UNKNOWN RTL CU"
+  }
 
     echo "Compiling RTL AFU"
     vlog -quiet ../../accelerator_rtl/afu/afu.sv
@@ -180,8 +180,16 @@ proc rc {} {
 }
 
 proc rcf {} {
+  global project_algorithm
 
-  set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp_single_precision/fp_single_add_acc_sim"
+  if {$project_algorithm eq "cu_PageRank_pull"} {
+  set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_acc/fp_single_add_acc_sim"
+  } elseif {$project_algorithm eq "cu_PageRank_push"} {
+  set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_add/fp_single_add_sim"
+  } else {
+  echo "UNKNOWN Packages CU"
+  }
+
   set USER_DEFINED_COMPILE_OPTIONS ""
   set USER_DEFINED_VHDL_COMPILE_OPTIONS ""
   set USER_DEFINED_VERILOG_COMPILE_OPTIONS ""
@@ -196,8 +204,16 @@ proc rcf {} {
 }
 
 proc rcd {} {
+  global project_algorithm
+  
+  if {$project_algorithm eq "cu_PageRank_pull"} {
+  set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_double_precision_acc/fp_double_add_acc_sim"
+  } elseif {$project_algorithm eq "cu_PageRank_push"} {
+  set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_double_precision_add/fp_double_add_sim"
+  } else {
+  echo "UNKNOWN Packages CU"
+  }
 
-  set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp_double_precision/fp_double_add_acc_sim"
   set USER_DEFINED_COMPILE_OPTIONS ""
   set USER_DEFINED_VHDL_COMPILE_OPTIONS ""
   set USER_DEFINED_VERILOG_COMPILE_OPTIONS ""
@@ -211,10 +227,3 @@ proc rcd {} {
   c_fp
 }
 
-
-# init libs
-# vlib work
-# vmap work work
-
-# # automatically recompile on first call
-# r

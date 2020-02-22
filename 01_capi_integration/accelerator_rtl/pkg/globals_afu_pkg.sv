@@ -123,16 +123,6 @@ package GLOBALS_AFU_PKG;
 // CU-Control CU Globals
 ////////////////////////////////////////////////////////////////////////////
 
-// aligenment to cacheline 128-BYTES
-	parameter [0:63] ADDRESS_ARRAY_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
-	parameter [0:63] ADDRESS_ARRAY_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
-
-	parameter [0:63] ADDRESS_DATA_READ_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
-	parameter [0:63] ADDRESS_DATA_READ_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
-
-	parameter [0:63] ADDRESS_DATA_WRITE_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
-	parameter [0:63] ADDRESS_DATA_WRITE_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
-
 // aligenment to page 64K-BYTES
 	parameter [0:63] ADDRESS_PAGE_MOD_MASK   = {{48{1'b0}},{16{1'b1}}};
 	parameter [0:63] ADDRESS_PAGE_ALIGN_MASK = {{48{1'b1}},{16{1'b0}}};

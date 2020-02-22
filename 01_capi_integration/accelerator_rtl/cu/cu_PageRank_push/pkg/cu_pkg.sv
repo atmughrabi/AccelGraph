@@ -20,18 +20,9 @@ package CU_PKG;
 
 	typedef enum int unsigned{
 		STRUCT_INVALID,
-		IN_DEGREE,
 		OUT_DEGREE,
 		EDGES_IDX,
-		INV_IN_DEGREE,
-		INV_OUT_DEGREE,
-		INV_EDGES_IDX,
-		EDGE_ARRAY_SRC,
 		EDGE_ARRAY_DEST,
-		EDGE_ARRAY_WEIGHT,
-		INV_EDGE_ARRAY_SRC,
-		INV_EDGE_ARRAY_DEST,
-		INV_EDGE_ARRAY_WEIGHT,
 		READ_GRAPH_DATA,
 		WRITE_GRAPH_DATA
 	} array_struct_type;
@@ -40,15 +31,12 @@ package CU_PKG;
 		SEND_VERTEX_RESET,
 		SEND_VERTEX_INIT,
 		SEND_VERTEX_IDLE,
-		START_VERTEX_REQ,		
+		START_VERTEX_REQ,
 		CALC_VERTEX_REQ_SIZE,
 		SEND_VERTEX_START,
-		SEND_VERTEX_IN_DEGREE,
 		SEND_VERTEX_OUT_DEGREE,
+		SEND_VERTEX_READ_DATA,
 		SEND_VERTEX_EDGES_IDX,
-		SEND_VERTEX_INV_IN_DEGREE,
-		SEND_VERTEX_INV_OUT_DEGREE,
-		SEND_VERTEX_INV_EDGES_IDX,
 		WAIT_VERTEX_DATA,
 		SHIFT_VERTEX_DATA_START,
 		SHIFT_VERTEX_DATA_0,
@@ -61,12 +49,10 @@ package CU_PKG;
 		SEND_EDGE_RESET,
 		SEND_EDGE_INIT,
 		SEND_EDGE_IDLE,
-		START_EDGE_REQ,		
+		START_EDGE_REQ,
 		CALC_EDGE_REQ_SIZE,
 		SEND_EDGE_START,
-		SEND_EDGE_INV_EDGE_ARRAY_SRC,
-		SEND_EDGE_INV_EDGE_ARRAY_DEST,
-		SEND_EDGE_INV_EDGE_ARRAY_WEIGHT,
+		SEND_EDGE_EDGE_ARRAY_DEST,
 		WAIT_EDGE_DATA,
 		SHIFT_EDGE_DATA_START,
 		SHIFT_EDGE_DATA_0,
@@ -85,35 +71,32 @@ package CU_PKG;
 	// 	SEND_EDGE_SRC,
 	// 	SEND_EDGE_DEST,
 	// 	SEND_EDGE_WEIGHT,
-	// 	SEND_EDGE_INV_SRC,
-	// 	SEND_EDGE_INV_DEST,
-	// 	SEND_EDGE_INV_WEIGHT
+	// 	SEND_EDGE_SRC,
+	// 	SEND_EDGE_DEST,
+	// 	SEND_EDGE_WEIGHT
 	// } edge_struct_state;
 
 // Vertex data to travers neighbors
 	typedef struct packed {
-		logic                          valid             ;
-		logic [0:(VERTEX_SIZE_BITS-1)] id                ;
-		logic [0:(VERTEX_SIZE_BITS-1)] in_degree         ;
-		logic [0:(VERTEX_SIZE_BITS-1)] out_degree        ;
-		logic [0:(VERTEX_SIZE_BITS-1)] edges_idx         ;
-		logic [0:(VERTEX_SIZE_BITS-1)] inverse_in_degree ;
-		logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree;
-		logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx ;
+		logic                             valid     ;
+		logic [   0:(VERTEX_SIZE_BITS-1)] id        ;
+		logic [   0:(VERTEX_SIZE_BITS-1)] out_degree;
+		logic [   0:(VERTEX_SIZE_BITS-1)] edges_idx ;
+		logic [0:(DATA_SIZE_READ_BITS-1)] data      ;
 	} VertexInterface;
 
 	typedef struct packed {
-		logic                        valid ;
-		logic [0:(EDGE_SIZE_BITS-1)] id    ;
-		logic [0:(EDGE_SIZE_BITS-1)] src   ;
-		logic [0:(EDGE_SIZE_BITS-1)] dest  ;
-		logic [0:(EDGE_SIZE_BITS-1)] weight;
+		logic                        valid;
+		logic [0:(EDGE_SIZE_BITS-1)] id   ;
+		logic [0:(EDGE_SIZE_BITS-1)] src  ;
+		logic [0:(EDGE_SIZE_BITS-1)] dest ;
 	} EdgeInterface;
 
 	typedef struct packed {
-		logic                             valid;
-		cu_id_t                           cu_id;
-		logic [0:(DATA_SIZE_READ_BITS-1)] data ;
+		logic                              valid;
+		cu_id_t                            cu_id;
+		logic [      0:(EDGE_SIZE_BITS-1)] id   ;
+		logic [0:(DATA_SIZE_WRITE_BITS-1)] data ;
 	} EdgeDataRead;
 
 	typedef struct packed {

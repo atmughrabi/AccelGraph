@@ -264,9 +264,9 @@ package AFU_PKG;
       NRES : begin
         cmd_response_error = 6'b010000;
       end
-      NLOCK : begin
-        cmd_response_error = 6'b100000;
-      end
+      // NLOCK : begin
+      //   cmd_response_error = 6'b100000;
+      // end
       default : begin
         cmd_response_error = 6'b000000;
       end

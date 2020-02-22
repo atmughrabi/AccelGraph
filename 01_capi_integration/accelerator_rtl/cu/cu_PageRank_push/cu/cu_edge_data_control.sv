@@ -46,22 +46,27 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	EdgeDataRead  edge_data_latched       ;
 	BufferStatus  data_buffer_status_latch;
 
-	logic read_command_bus_grant_latched  ;
-	logic read_command_bus_request_latched;
+	logic read_command_bus_grant_latched      ;
+	logic read_command_bus_grant_latched_NLOCK;
+	logic read_command_bus_request_latched    ;
 	//input lateched
-	ResponseBufferLine read_response_in_latched                ;
-	logic              edge_request_latched                    ;
-	BufferStatus       edge_buffer_status_internal             ;
-	WEDInterface       wed_request_in_latched                  ;
-	CommandBufferLine  read_command_out_latched                ;
-	BufferStatus       read_buffer_status_internal             ;
-	logic              enabled                                 ;
-	logic              enabled_cmd                             ;
-	logic              edge_data_request_latched               ;
-	logic              edge_variable_pop                       ;
-	EdgeDataRead       edge_data_variable                      ;
-	logic [0:63]       cu_configure_latched                    ;
-	CommandBufferLine  read_command_edge_data_burst_out_latched;
+	ResponseBufferLine read_response_in_latched                      ;
+	logic              edge_request_latched                          ;
+	BufferStatus       edge_buffer_status_internal                   ;
+	WEDInterface       wed_request_in_latched                        ;
+	CommandBufferLine  read_command_out_latched                      ;
+	CommandBufferLine  read_command_out_latched_NLOCK                ;
+	CommandBufferLine  read_command_out_latched_issue                ;
+	BufferStatus       read_buffer_status_internal                   ;
+	BufferStatus       read_buffer_status_internal_NLOCK             ;
+	logic              enabled                                       ;
+	logic              enabled_cmd                                   ;
+	logic              edge_data_request_latched                     ;
+	logic              edge_variable_pop                             ;
+	EdgeDataRead       edge_data_variable                            ;
+	logic [0:63]       cu_configure_latched                          ;
+	CommandBufferLine  read_command_edge_data_burst_out_latched      ;
+	CommandBufferLine  read_command_edge_data_burst_out_latched_NLOCK;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -137,23 +142,20 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 				if(edge_job_variable.valid && wed_request_in_latched.valid)begin
 					read_command_out_latched.valid <= 1'b1;
 
-					read_command_out_latched.address              <= wed_request_in_latched.wed.auxiliary1 + ((edge_job_variable.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_ALIGN_MASK);
+					read_command_out_latched.address              <= wed_request_in_latched.wed.auxiliary1 + ((edge_job_variable.dest<< $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_ALIGN_MASK);
 					read_command_out_latched.size                 <= 12'h080;
 					read_command_out_latched.cmd.real_size        <= 1'b1;
-					read_command_out_latched.cmd.real_size_bytes  <= DATA_SIZE_READ;
+					read_command_out_latched.cmd.real_size_bytes  <= DATA_SIZE_WRITE;
 					read_command_out_latched.cmd.array_struct     <= READ_GRAPH_DATA;
-					read_command_out_latched.cmd.cacheline_offest <= (((edge_job_variable.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_MOD_MASK) >> $clog2(DATA_SIZE_READ));
+					read_command_out_latched.cmd.cacheline_offest <= (((edge_job_variable.dest<< $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_ALIGN_MASK) >> $clog2(DATA_SIZE_WRITE));
 					read_command_out_latched.cmd.cu_id            <= CU_ID;
 					read_command_out_latched.cmd.cmd_type         <= CMD_READ;
+					read_command_out_latched.cmd.address_offest   <= edge_job_variable.dest;
 
 					read_command_out_latched.cmd.abt <= map_CABT(cu_configure_latched[10:12]);
 					read_command_out_latched.abt     <= map_CABT(cu_configure_latched[10:12]);
 
-					if (cu_configure_latched[13]) begin
-						read_command_out_latched.command <= READ_CL_S;
-					end else begin
-						read_command_out_latched.command <= READ_CL_NA;
-					end
+					read_command_out_latched.command <= READ_CL_LCK;
 
 				end else begin
 					read_command_out_latched <= 0;
@@ -161,6 +163,40 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 			end
 		end
 	end
+
+///////////////////////////////////////////////////////////////////////////
+//Response Managment
+///////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_command_out_latched_NLOCK <= 0;
+		end else begin
+			if(read_response_in_latched.valid && read_response_in_latched.response == NLOCK) begin
+				read_command_out_latched_NLOCK.valid <= 1'b1;
+
+				read_command_out_latched_NLOCK.cmd     <= read_response_in_latched.cmd;
+				read_command_out_latched_NLOCK.size    <= 12'h080;
+				read_command_out_latched_NLOCK.address <= wed_request_in_latched.wed.auxiliary1 + (read_response_in_latched.cmd.cacheline_offest << $clog2(DATA_SIZE_WRITE));
+				read_command_out_latched_NLOCK.abt     <= read_response_in_latched.cmd.abt;
+				read_command_out_latched_NLOCK.command <= READ_CL_LCK;
+			end else begin
+				read_command_out_latched_NLOCK <= 0;
+			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin : proc_
+		if(~rstn) begin
+			read_command_out_latched_issue <= 0;
+		end else begin
+			if(read_command_edge_data_burst_out_latched_NLOCK.valid && ~read_command_out_latched.valid)
+				read_command_out_latched_issue <= read_command_edge_data_burst_out_latched_NLOCK;
+			else
+				read_command_out_latched_issue <= read_command_out_latched;
+		end
+	end
+
 
 ///////////////////////////////////////////////////////////////////////////
 //Edge data buffer
@@ -189,7 +225,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 ///////////////////////////////////////////////////////////////////////////
 
 	assign edge_request_latched = ~edge_buffer_status_internal.alfull; // request edges for Data job control
-	assign edge_variable_pop    = ~edge_buffer_status_internal.empty && ~read_buffer_status_internal.alfull;
+	assign edge_variable_pop    = ~edge_buffer_status_internal.empty && ~read_buffer_status_internal.alfull && read_buffer_status_internal_NLOCK.empty;
 
 	fifo #(
 		.WIDTH($bits(EdgeInterface)   ),
@@ -234,8 +270,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		.clock   (clock                                   ),
 		.rstn    (rstn                                    ),
 		
-		.push    (read_command_out_latched.valid          ),
-		.data_in (read_command_out_latched                ),
+		.push    (read_command_out_latched_issue.valid    ),
+		.data_in (read_command_out_latched_issue          ),
 		.full    (read_buffer_status_internal.full        ),
 		.alFull  (read_buffer_status_internal.alfull      ),
 		
@@ -245,6 +281,25 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		.empty   (read_buffer_status_internal.empty       )
 	);
 
+	assign read_command_bus_grant_latched_NLOCK = ~read_buffer_status_internal.alfull && ~read_buffer_status_internal_NLOCK.empty && ~read_command_out_latched.valid;
+
+	fifo #(
+		.WIDTH($bits(CommandBufferLine)),
+		.DEPTH(CU_EDGE_JOB_BUFFER_SIZE )
+	) read_command_NLOCK_edge_data_burst_fifo_instant (
+		.clock   (clock                                         ),
+		.rstn    (rstn                                          ),
+		
+		.push    (read_command_out_latched_NLOCK.valid          ),
+		.data_in (read_command_out_latched_NLOCK                ),
+		.full    (read_buffer_status_internal_NLOCK.full        ),
+		.alFull  (read_buffer_status_internal_NLOCK.alfull      ),
+		
+		.pop     (read_command_bus_grant_latched_NLOCK          ),
+		.valid   (read_buffer_status_internal_NLOCK.valid       ),
+		.data_out(read_command_edge_data_burst_out_latched_NLOCK),
+		.empty   (read_buffer_status_internal_NLOCK.empty       )
+	);
 
 
 

@@ -12,6 +12,7 @@
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
+
 import GLOBALS_AFU_PKG::*;
 import GLOBALS_CU_PKG::*;
 import CAPI_PKG::*;
@@ -42,22 +43,18 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic           read_command_bus_request_latched;
 	BufferStatus    edge_buffer_status              ;
 
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0              ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1              ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_seek                 ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] global_shift_counter       ;
-	logic                                shift_limit_clear          ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter              ;
-	logic                                start_shift_hf_0           ;
-	logic                                start_shift_hf_1           ;
-	logic                                switch_shift_hf            ;
-	logic                                push_shift                 ;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_SRC_0   ;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_DEST_0  ;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_WEIGHT_0;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_SRC_1   ;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_DEST_1  ;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_WEIGHT_1;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0            ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1            ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_seek               ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] global_shift_counter     ;
+	logic                                shift_limit_clear        ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter            ;
+	logic                                start_shift_hf_0         ;
+	logic                                start_shift_hf_1         ;
+	logic                                switch_shift_hf          ;
+	logic                                push_shift               ;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_EDGE_ARRAY_DEST_0;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_EDGE_ARRAY_DEST_1;
 
 	logic clear_data_ready    ;
 	logic fill_edge_job_buffer;
@@ -94,14 +91,9 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic [                 0:7] remainder            ;
 	logic [                0:63] aligned              ;
 
-	logic [0:(EDGE_SIZE_BITS-1)] inverse_edge_array_src_data   ;
-	logic [0:(EDGE_SIZE_BITS-1)] inverse_edge_array_dest_data  ;
-	logic [0:(EDGE_SIZE_BITS-1)] inverse_edge_array_weight_data;
-
-	logic inverse_edge_array_src_data_ready   ;
-	logic inverse_edge_array_dest_data_ready  ;
-	logic inverse_edge_array_weight_data_ready;
-	logic zero_pass                           ; // a signal when edges are 17 you get this extra edge at the othe have
+	logic [0:(EDGE_SIZE_BITS-1)] edge_array_dest_data      ;
+	logic                        edge_array_dest_data_ready;
+	logic                        zero_pass                         ; // a signal when edges are 17 you get this extra edge at the othe have
 
 	edge_struct_state current_state       ;
 	edge_struct_state next_state          ;
@@ -149,15 +141,15 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 ////////////////////////////////////////////////////////////////////////////
 //drive inputs
 ////////////////////////////////////////////////////////////////////////////
-	
-	always_ff @(posedge clock or negedge rstn) begin : proc_
+
+	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			read_data_0_in_latched   <= 0;
 			read_data_1_in_latched   <= 0;
 			read_response_in_latched <= 0;
 			edge_request_latched     <= 0;
 		end else begin
-			 if(enabled_cmd) begin
+			if(enabled_cmd) begin
 				read_response_in_latched <= read_response_in;
 				read_data_0_in_latched   <= read_data_0_in;
 				read_data_1_in_latched   <= read_data_1_in;
@@ -168,15 +160,15 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched   <= 0;
-			cu_configure_latched     <= 0;
-			read_vertex_new          <= 0;
-			read_vertex_new_latched  <= 0;
-			vertex_job_latched       <= 0;
+			wed_request_in_latched  <= 0;
+			cu_configure_latched    <= 0;
+			read_vertex_new         <= 0;
+			read_vertex_new_latched <= 0;
+			vertex_job_latched      <= 0;
 		end else begin
 			if(enabled) begin
-				wed_request_in_latched   <= wed_request_in;
-				
+				wed_request_in_latched <= wed_request_in;
+
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
 
@@ -247,15 +239,9 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				next_state = SEND_EDGE_START;
 			end
 			SEND_EDGE_START : begin
-				next_state = SEND_EDGE_INV_EDGE_ARRAY_SRC;
+				next_state = SEND_EDGE_EDGE_ARRAY_DEST;
 			end
-			SEND_EDGE_INV_EDGE_ARRAY_SRC : begin
-				next_state = SEND_EDGE_INV_EDGE_ARRAY_DEST;
-			end
-			SEND_EDGE_INV_EDGE_ARRAY_DEST : begin
-				next_state = SEND_EDGE_INV_EDGE_ARRAY_WEIGHT;
-			end
-			SEND_EDGE_INV_EDGE_ARRAY_WEIGHT : begin
+			SEND_EDGE_EDGE_ARRAY_DEST : begin
 				next_state = WAIT_EDGE_DATA;
 			end
 			WAIT_EDGE_DATA : begin
@@ -317,7 +303,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				shift_limit_clear             <= 0;
 				setup_read_command            <= read_vertex_new_latched;
 				if(read_vertex_new_latched)begin
-					edge_next_offest <= (vertex_job_latched.inverse_edges_idx << $clog2(EDGE_SIZE));
+					edge_next_offest <= (vertex_job_latched.edges_idx << $clog2(EDGE_SIZE));
 				end
 			end
 			SEND_EDGE_IDLE : begin
@@ -340,18 +326,11 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			SEND_EDGE_START : begin
 				read_command_edge_job_latched <= read_command_edge_job_latched_S2;
 			end
-			SEND_EDGE_INV_EDGE_ARRAY_SRC : begin
+			SEND_EDGE_EDGE_ARRAY_DEST : begin
 				read_command_edge_job_latched.valid            <= 1'b1;
-				read_command_edge_job_latched.address          <= wed_request_in_latched.wed.inverse_edges_array_src + aligned;
-				read_command_edge_job_latched.cmd.array_struct <= INV_EDGE_ARRAY_SRC;
-			end
-			SEND_EDGE_INV_EDGE_ARRAY_DEST : begin
-				read_command_edge_job_latched.address          <= wed_request_in_latched.wed.inverse_edges_array_dest + aligned;
-				read_command_edge_job_latched.cmd.array_struct <= INV_EDGE_ARRAY_DEST;
-			end
-			SEND_EDGE_INV_EDGE_ARRAY_WEIGHT : begin
-				read_command_edge_job_latched.address          <= wed_request_in_latched.wed.inverse_edges_array_weight + aligned;
-				read_command_edge_job_latched.cmd.array_struct <= INV_EDGE_ARRAY_WEIGHT;
+				read_command_edge_job_latched.address          <= wed_request_in_latched.wed.edges_array_dest + aligned;
+				read_command_edge_job_latched.cmd.array_struct <= EDGE_ARRAY_DEST;
+
 				if(|remainder)
 					edge_next_offest <= edge_next_offest + (CACHELINE_SIZE-remainder);
 				else
@@ -403,7 +382,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		else begin
 
 			if(read_vertex_new_latched && (vertex_job_latched.valid && wed_request_in_latched.valid))begin
-				edge_num_counter <= vertex_job_latched.inverse_out_degree;
+				edge_num_counter <= vertex_job_latched.out_degree;
 			end
 
 			if (generate_read_command) begin
@@ -483,84 +462,54 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			reg_INV_EDGE_ARRAY_SRC_0    <= 0;
-			reg_INV_EDGE_ARRAY_DEST_0   <= 0;
-			reg_INV_EDGE_ARRAY_WEIGHT_0 <= 0;
+			reg_EDGE_ARRAY_DEST_0 <= 0;
 		end else begin
 			if(enabled_cmd && read_data_0_in_latched.valid) begin
 				case (read_data_0_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC : begin
-						reg_INV_EDGE_ARRAY_SRC_0 <= read_data_0_in_latched;
-					end
-					INV_EDGE_ARRAY_DEST : begin
-						reg_INV_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched;
-					end
-					INV_EDGE_ARRAY_WEIGHT : begin
-						reg_INV_EDGE_ARRAY_WEIGHT_0 <= read_data_0_in_latched;
+					EDGE_ARRAY_DEST : begin
+						reg_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched;
 					end
 				endcase
 			end
 
 			if(~switch_shift_hf && start_shift_hf_0) begin
-				reg_INV_EDGE_ARRAY_SRC_0    <= {reg_INV_EDGE_ARRAY_SRC_0[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
-				reg_INV_EDGE_ARRAY_DEST_0   <= {reg_INV_EDGE_ARRAY_DEST_0[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
-				reg_INV_EDGE_ARRAY_WEIGHT_0 <= {reg_INV_EDGE_ARRAY_WEIGHT_0[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
+				reg_EDGE_ARRAY_DEST_0 <= {reg_EDGE_ARRAY_DEST_0[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
 			end
 		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			reg_INV_EDGE_ARRAY_SRC_1    <= 0;
-			reg_INV_EDGE_ARRAY_DEST_1   <= 0;
-			reg_INV_EDGE_ARRAY_WEIGHT_1 <= 0;
+			reg_EDGE_ARRAY_DEST_1 <= 0;
 		end else begin
 			if(enabled_cmd && read_data_1_in_latched.valid) begin
 				case (read_data_1_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC : begin
-						reg_INV_EDGE_ARRAY_SRC_1 <= read_data_1_in_latched;
-					end
-					INV_EDGE_ARRAY_DEST : begin
-						reg_INV_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched;
-					end
-					INV_EDGE_ARRAY_WEIGHT : begin
-						reg_INV_EDGE_ARRAY_WEIGHT_1 <= read_data_1_in_latched;
+					EDGE_ARRAY_DEST : begin
+						reg_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched;
 					end
 				endcase
 			end
 
 			if(switch_shift_hf && start_shift_hf_1) begin
-				reg_INV_EDGE_ARRAY_SRC_1    <= {reg_INV_EDGE_ARRAY_SRC_1[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
-				reg_INV_EDGE_ARRAY_DEST_1   <= {reg_INV_EDGE_ARRAY_DEST_1[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
-				reg_INV_EDGE_ARRAY_WEIGHT_1 <= {reg_INV_EDGE_ARRAY_WEIGHT_1[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
+				reg_EDGE_ARRAY_DEST_1 <= {reg_EDGE_ARRAY_DEST_1[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
 			end
 		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			inverse_edge_array_src_data_ready    <= 0;
-			inverse_edge_array_dest_data_ready   <= 0;
-			inverse_edge_array_weight_data_ready <= 0;
+			edge_array_dest_data_ready <= 0;
 		end else begin
 			if(enabled_cmd && read_response_in_latched.valid) begin
 				case (read_response_in_latched.cmd.array_struct)
-					INV_EDGE_ARRAY_SRC : begin
-						inverse_edge_array_src_data_ready <= 1;
-					end
-					INV_EDGE_ARRAY_DEST : begin
-						inverse_edge_array_dest_data_ready <= 1;
-					end
-					INV_EDGE_ARRAY_WEIGHT : begin
-						inverse_edge_array_weight_data_ready <= 1;
+					EDGE_ARRAY_DEST : begin
+						edge_array_dest_data_ready <= 1;
 					end
 				endcase
 			end
 
 			if(clear_data_ready) begin
-				inverse_edge_array_src_data_ready    <= 0;
-				inverse_edge_array_dest_data_ready   <= 0;
-				inverse_edge_array_weight_data_ready <= 0;
+				edge_array_dest_data_ready <= 0;
 			end
 		end
 	end
@@ -606,7 +555,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 ////////////////////////////////////////////////////////////////////////////
 
 	assign send_request_ready   = read_buffer_status_internal.empty && edge_buffer_burst_status.empty  && (|edge_num_counter) && wed_request_in_latched.valid;
-	assign fill_edge_job_buffer = inverse_edge_array_src_data_ready && inverse_edge_array_dest_data_ready && inverse_edge_array_weight_data_ready;
+	assign fill_edge_job_buffer = edge_array_dest_data_ready;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -615,12 +564,11 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		end
 		else begin
 			if(push_shift) begin
-				edge_id_counter      <= edge_id_counter+1;
-				edge_variable.valid  <= push_shift;
-				edge_variable.id     <= edge_id_counter;
-				edge_variable.src    <= swap_endianness_edge_read(inverse_edge_array_src_data);
-				edge_variable.dest   <= swap_endianness_edge_read(inverse_edge_array_dest_data);
-				edge_variable.weight <= swap_endianness_edge_read(inverse_edge_array_weight_data);
+				edge_id_counter     <= edge_id_counter+1;
+				edge_variable.valid <= push_shift;
+				edge_variable.id    <= edge_id_counter;
+				edge_variable.src   <= vertex_job_latched.id;
+				edge_variable.dest  <= swap_endianness_edge_read(edge_array_dest_data);
 			end else begin
 				edge_variable <= 0;
 			end
@@ -633,29 +581,21 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			inverse_edge_array_src_data    <= 0;
-			inverse_edge_array_dest_data   <= 0;
-			inverse_edge_array_weight_data <= 0;
-			push_shift                     <= 0;
-			global_shift_counter           <= 0;
+			edge_array_dest_data <= 0;
+			push_shift                   <= 0;
+			global_shift_counter         <= 0;
 		end else begin
 			if(~switch_shift_hf && start_shift_hf_0) begin
-				global_shift_counter           <= global_shift_counter + 1;
-				push_shift                     <= ((global_shift_counter) >= shift_seek);
-				inverse_edge_array_src_data    <= reg_INV_EDGE_ARRAY_SRC_0[0:EDGE_SIZE_BITS-1];
-				inverse_edge_array_dest_data   <= reg_INV_EDGE_ARRAY_DEST_0[0:EDGE_SIZE_BITS-1];
-				inverse_edge_array_weight_data <= reg_INV_EDGE_ARRAY_WEIGHT_0[0:EDGE_SIZE_BITS-1];
+				global_shift_counter         <= global_shift_counter + 1;
+				push_shift                   <= ((global_shift_counter) >= shift_seek);
+				edge_array_dest_data <= reg_EDGE_ARRAY_DEST_0[0:EDGE_SIZE_BITS-1];
 			end else if(switch_shift_hf && start_shift_hf_1) begin
-				global_shift_counter           <= global_shift_counter + 1;
-				push_shift                     <= ((global_shift_counter) >= shift_seek);
-				inverse_edge_array_src_data    <= reg_INV_EDGE_ARRAY_SRC_1[0:EDGE_SIZE_BITS-1];
-				inverse_edge_array_dest_data   <= reg_INV_EDGE_ARRAY_DEST_1[0:EDGE_SIZE_BITS-1];
-				inverse_edge_array_weight_data <= reg_INV_EDGE_ARRAY_WEIGHT_1[0:EDGE_SIZE_BITS-1];
+				global_shift_counter         <= global_shift_counter + 1;
+				push_shift                   <= ((global_shift_counter) >= shift_seek);
+				edge_array_dest_data <= reg_EDGE_ARRAY_DEST_1[0:EDGE_SIZE_BITS-1];
 			end else begin
-				push_shift                     <= 0;
-				inverse_edge_array_src_data    <= 0;
-				inverse_edge_array_dest_data   <= 0;
-				inverse_edge_array_weight_data <= 0;
+				push_shift                   <= 0;
+				edge_array_dest_data <= 0;
 			end
 
 			if(shift_limit_clear) begin

@@ -33,12 +33,13 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 	EdgeDataRead edge_data_variable    ;
 	EdgeDataRead edge_data_variable_reg;
 	//input lateched
-	ReadWriteDataLine read_data_0_in_latched   ;
-	ReadWriteDataLine read_data_0_in_latched_S2;
-	ReadWriteDataLine read_data_1_in_latched   ;
-	logic [0:7]       offset_data_0            ;
-	cu_id_t           cu_id                    ;
-	logic             enabled                  ;
+	ReadWriteDataLine            read_data_0_in_latched   ;
+	ReadWriteDataLine            read_data_0_in_latched_S2;
+	ReadWriteDataLine            read_data_1_in_latched   ;
+	logic [                 0:7] offset_data_0            ;
+	logic [0:(EDGE_SIZE_BITS-1)] dest_id                  ;
+	cu_id_t                      cu_id                    ;
+	logic                        enabled                  ;
 
 	logic [           0:CACHELINE_SIZE_BITS-1] read_data_in;
 	logic [0:(CACHELINE_DATA_READ_NUM_BITS-1)] address_rd  ;
@@ -107,17 +108,20 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 			read_data_in <= 0;
 			address_rd   <= 0;
 			cu_id        <= 0;
+			dest_id      <= 0;
 		end else begin
 			if(enabled) begin
 				if(read_data_0_in_latched.valid && read_data_1_in_latched.valid)begin
 					read_data_in[0:CACHELINE_SIZE_BITS_HF-1]                   <= read_data_0_in_latched.data;
 					read_data_in[CACHELINE_SIZE_BITS_HF:CACHELINE_SIZE_BITS-1] <= read_data_1_in_latched.data;
+					dest_id                                                    <= read_data_0_in_latched.cmd.address_offest[(64-EDGE_SIZE_BITS):63];
 					cu_id                                                      <= read_data_0_in_latched.cmd.cu_id;
 					address_rd                                                 <= offset_data_0;
 				end else begin
 					read_data_in <= 0;
 					address_rd   <= 0;
 					cu_id        <= 0;
+					dest_id      <= 0;
 				end
 			end
 		end
@@ -132,6 +136,7 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 				if(edge_data_variable_reg.valid)begin
 					edge_data_variable.valid <= edge_data_variable_reg.valid;
 					edge_data_variable.cu_id <= edge_data_variable_reg.cu_id;
+					edge_data_variable.id    <= edge_data_variable_reg.id;
 					edge_data_variable.data  <= swap_endianness_data_read(edge_data_variable_reg.data);
 				end else begin
 					edge_data_variable <= 0;
@@ -182,6 +187,7 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 
 					edge_data_variable_reg.valid <= reg_DATA_VARIABLE_ready;
 					edge_data_variable_reg.cu_id <= cu_id;
+					edge_data_variable_reg.id    <= dest_id;
 
 					if(~read_data_0_in_latched.valid)
 						reg_DATA_VARIABLE_0_ready <= 0;

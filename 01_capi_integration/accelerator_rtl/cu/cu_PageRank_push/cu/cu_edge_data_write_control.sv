@@ -101,6 +101,7 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 		cmd.real_size_bytes  = DATA_SIZE_WRITE;
 		cmd.cacheline_offest = (((edge_data_write.index << $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_MOD_MASK) >> $clog2(DATA_SIZE_WRITE));
 		cmd.cu_id            = edge_data_write.cu_id;
+		cmd.address_offest   = edge_data_write.index;
 		cmd.cmd_type         = CMD_WRITE;
 		cmd.abt              = STRICT;
 	end
@@ -131,12 +132,8 @@ module cu_edge_data_write_control #(parameter CU_ID = 1) (
 				write_command_out_latched.cmd.abt <= map_CABT(cu_configure_latched[15:17]);
 				write_command_out_latched.abt     <= map_CABT(cu_configure_latched[15:17]);
 
-				if (cu_configure_latched[19]) begin
-					write_command_out_latched.command <= WRITE_MS;
-				end else begin
-					write_command_out_latched.command <= WRITE_NA;
-				end
-
+				write_command_out_latched.command <= WRITE_UNLOCK;
+				
 			end else begin
 				write_command_out_latched <= 0;
 				write_data_0_out_latched  <= 0;
