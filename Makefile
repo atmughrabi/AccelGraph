@@ -14,7 +14,9 @@ export APP_TEST          = test_afu
 
 # dirs Root app 
 export APP_DIR              = .
+export SCRIPT_DIR          	= 03_scripts
 export BENCHMARKS_DIR    	= ../04_test_graphs
+
 # export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
@@ -22,6 +24,7 @@ export SRC_DIR           	= src
 export OBJ_DIR			  	= obj
 export INC_DIR			  	= include
 export BIN_DIR			  	= bin
+
 
 #if you want to compile from cmake you need this directory
 #cd build
@@ -287,6 +290,18 @@ clean-all: clean clean-sim clean-synth
 ##################################################
 
 ##############################################
+# Simulation/Synthesis CONFIG 						     #
+##############################################
+# put your design in 01_capi_integration/accelerator_rtl/cu/$CU(algorithm name)
+# 
+
+export PART=5SGXMA7H2F35C2
+export PROJECT = accel-graph
+export CU=$(shell python ./$(SCRIPT_DIR)/choose_algorithm.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
+
+# export CU = cu_PageRank_pull
+
+##############################################
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #
 ##############################################
 
@@ -325,7 +340,7 @@ run-capi-fpga-verbose3:
 .PHONY: capi
 capi:
 	$(MAKE) run-capi-fpga-verbose2 $(MAKE_ARGS) &&\
-	sudo ./03_scripts/clear_cache.sh
+	sudo ./$(SCRIPT_DIR)/clear_cache.sh
 
 .PHONY: run-test-capi
 run-test-capi:
@@ -348,17 +363,6 @@ clean-sim:
 	 $(MAKE) clean-sim $(MAKE_ARGS)
 ##################################################
 ##################################################
-
-##############################################
-# Simulation/Synthesis CONFIG 						     #
-##############################################
-# put your design in 01_capi_integration/accelerator_rtl/cu/$CU(algorithm name)
-# 
-
-export PART=5SGXMA7H2F35C2
-export PROJECT = accel-graph
-# export CU = cu_PageRank_pull
-export CU = cu_PageRank_push
 
 ##############################################
 #           ACCEL SYNTHESIZE LEVEL RULES     #
