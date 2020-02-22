@@ -64,7 +64,7 @@ module cu_sum_kernel_fp_control #(parameter CU_ID = 1) (
 
 	// assign input_value = 32'h 3f800000;
 	// assign valid_value = vertex_job_latched.valid;
-	always_ff @(posedge clock or negedge rstn) begin
+	always_ff @(posedge clock) begin
 		rstp <= ~rstn;
 	end
 

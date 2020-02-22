@@ -130,7 +130,6 @@ set_global_assignment -name LL_CORE_ONLY OFF -section_id "alt_xcvr_reconfig:alt_
 set_global_assignment -name LL_CORE_ONLY OFF -section_id "psl:p"
 set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 
-
 set_global_assignment -name LL_ENABLED ON -section_id "psl_accel:a0"
 set_global_assignment -name LL_AUTO_SIZE OFF -section_id "psl_accel:a0"
 set_global_assignment -name LL_STATE LOCKED -section_id "psl_accel:a0"
@@ -170,6 +169,7 @@ set_global_assignment -name LL_ROUTING_REGION_EXPANSION_SIZE 2147483647 -section
 set_global_assignment -name LL_WIDTH 33 -section_id afu_control
 set_global_assignment -name LL_HEIGHT 68 -section_id afu_control
 set_global_assignment -name LL_ORIGIN X105_Y1 -section_id afu_control
+
 set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|afu_control:afu_control_instant" -section_id afu_control
 set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|done_control:done_control_instant" -section_id afu_control
 set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|error_control:error_control_instant" -section_id afu_control
@@ -188,7 +188,21 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
 set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
 set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 
+set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id "cu_control:cu_control_instant"
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id "cu_control:cu_control_instant"
+set_global_assignment -name PARTITION_COLOR 65535 -section_id "cu_control:cu_control_instant"
+set_global_assignment -name PARTITION_NETLIST_TYPE POST_SYNTH -section_id "cu_graph_algorithm_control:cu_graph_algorithm_control_instant"
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id "cu_graph_algorithm_control:cu_graph_algorithm_control_instant"
+set_global_assignment -name PARTITION_COLOR 16777164 -section_id "cu_graph_algorithm_control:cu_graph_algorithm_control_instant"
+set_global_assignment -name LL_ROUTING_REGION EXPANDED -section_id afu_control
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY altxc_79511 -to "psl_pcihip0:pcihip0|pcie_wrap0:p|alt_xcvr_reconfig:alt_xcvr_reconfig_0" -section_id "alt_xcvr_reconfig:alt_xcvr_reconfig_0"
 set_instance_assignment -name PARTITION_HIERARCHY p_d2061 -to "psl:p" -section_id "psl:p"
 set_instance_assignment -name PARTITION_HIERARCHY a0_8a551 -to "psl_accel:a0" -section_id "psl_accel:a0"
+set_instance_assignment -name PARTITION_HIERARCHY cucon_54971 -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|cu_control:cu_control_instant" -section_id "cu_control:cu_control_instant"
+set_instance_assignment -name PARTITION_HIERARCHY cugra_42421 -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|cu_control:cu_control_instant|cu_graph_algorithm_control:cu_graph_algorithm_control_instant" -section_id "cu_graph_algorithm_control:cu_graph_algorithm_control_instant"
+
+# set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+# set_instance_assignment -name PARTITION_HIERARCHY altxc_79511 -to "psl_pcihip0:pcihip0|pcie_wrap0:p|alt_xcvr_reconfig:alt_xcvr_reconfig_0" -section_id "alt_xcvr_reconfig:alt_xcvr_reconfig_0"
+# set_instance_assignment -name PARTITION_HIERARCHY p_d2061 -to "psl:p" -section_id "psl:p"
+# set_instance_assignment -name PARTITION_HIERARCHY a0_8a551 -to "psl_accel:a0" -section_id "psl_accel:a0"

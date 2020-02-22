@@ -47,6 +47,8 @@ proc r  {} {
   vlog -quiet ../../accelerator_rtl/afu/reset_control.sv
   vlog -quiet ../../accelerator_rtl/afu/error_control.sv
   vlog -quiet ../../accelerator_rtl/afu/done_control.sv
+  vlog -quiet ../../accelerator_rtl/afu/sum_reduce.sv
+  vlog -quiet ../../accelerator_rtl/afu/demux_bus.sv
   vlog -quiet ../../accelerator_rtl/afu/ram.sv
   vlog -quiet ../../accelerator_rtl/afu/fifo.sv
   vlog -quiet ../../accelerator_rtl/afu/priority_arbiters.sv
@@ -79,6 +81,7 @@ proc r  {} {
   if {$project_algorithm eq "cu_PageRank_pull"} {
     echo "Compiling RTL CU control PAGERANK PULL"
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_fp_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_write_control.sv
@@ -94,6 +97,7 @@ proc r  {} {
     } elseif {$project_algorithm eq "cu_PageRank_push"} {
     echo "Compiling RTL CU control PAGERANK PUSH"
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_fp_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_write_control.sv
