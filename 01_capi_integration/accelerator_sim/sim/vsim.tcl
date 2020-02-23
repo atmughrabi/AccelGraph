@@ -23,14 +23,16 @@ proc r  {} {
   vlog -quiet ../../accelerator_rtl/pkg/wed_pkg.sv
   vlog -quiet ../../accelerator_rtl/pkg/credit_pkg.sv
 
-
-
   if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
    echo "Compiling Packages CU CSR PAGERANK PULL"
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
-   } elseif {$project_algorithm eq "cu_CSR_PageRank_push"} {
-   echo "Compiling Packages CU CSR PAGERANK PUSH"
+   } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_FixedPoint"} {
+   echo "Compiling Packages CU CSR PAGERANK PULL FixedPoint"
+   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
+   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
+   } elseif {$project_algorithm eq "cu_CSR_PageRank_push_Quant"} {
+   echo "Compiling Packages CU CSR PAGERANK PULL Quant"
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
    } else {
@@ -82,7 +84,6 @@ proc r  {} {
     echo "Compiling RTL CU control CSR PAGERANK PULL"
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_fp_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_write_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_read_control.sv
@@ -94,12 +95,26 @@ proc r  {} {
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
-  } elseif {$project_algorithm eq "cu_CSR_PageRank_push"} {
-    echo "Compiling RTL CU control CSR PAGERANK PUSH"
+  } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_FixedPoint"} {
+    echo "Compiling RTL CU control CSR PAGERANK PULL"
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_fp_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_write_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_read_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_job_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_filter.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank_arbiter_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
+  } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_Quant"} {
+    echo "Compiling RTL CU control CSR PAGERANK PULL"
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
+    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_write_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_read_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_control.sv

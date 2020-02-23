@@ -337,7 +337,7 @@ module cu_vertex_pagerank #(
 	// Data SUM control Float/Fixed Point
 	////////////////////////////////////////////////////////////////////////////
 
-	cu_sum_kernel_fp_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_fp_control_instant (
+	cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
 		.clock                           (clock                              ),
 		.rstn                            (rstn                               ),
 		.enabled_in                      (enabled_cmd                        ),
