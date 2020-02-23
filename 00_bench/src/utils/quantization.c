@@ -21,8 +21,9 @@
 
 /* function to find min and max values simultanuously amongst the ranks (array)
  it has an O(N) complexity*/
-void getMinMax(struct quant_params * x, float * ranks, uint32_t size)
+void getMinMax(struct quant_params *x, float *ranks, uint32_t size)
 {
+    int i ;
 
     if (size == 1)
     {
@@ -42,7 +43,7 @@ void getMinMax(struct quant_params * x, float * ranks, uint32_t size)
         x->min = ranks[0];
     }
 
-    for (int i = 2; i < size; i++)
+    for (i = 2; i < size; i++)
     {
         if (ranks[i] > x->max)
             x->max = ranks[i];
