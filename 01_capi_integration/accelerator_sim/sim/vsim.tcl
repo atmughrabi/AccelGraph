@@ -24,14 +24,14 @@ proc r  {} {
   vlog -quiet ../../accelerator_rtl/pkg/credit_pkg.sv
 
   if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
-   echo "Compiling Packages CU CSR PAGERANK PULL"
+   echo "Compiling Packages CU CSR PAGERANK PULL Float"
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
    } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_FixedPoint"} {
    echo "Compiling Packages CU CSR PAGERANK PULL FixedPoint"
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
-   } elseif {$project_algorithm eq "cu_CSR_PageRank_push_Quant"} {
+   } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_Quant"} {
    echo "Compiling Packages CU CSR PAGERANK PULL Quant"
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
@@ -81,7 +81,7 @@ proc r  {} {
   echo "Compiling RTL CU control "
 
   if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
-    echo "Compiling RTL CU control CSR PAGERANK PULL"
+    echo "Compiling RTL CU control CSR PAGERANK PULL Float"
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_fp_control.sv
@@ -96,7 +96,7 @@ proc r  {} {
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
   } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_FixedPoint"} {
-    echo "Compiling RTL CU control CSR PAGERANK PULL"
+    echo "Compiling RTL CU control CSR PAGERANK PULL FixedPoint"
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
@@ -111,7 +111,7 @@ proc r  {} {
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
   } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_Quant"} {
-    echo "Compiling RTL CU control CSR PAGERANK PULL"
+    echo "Compiling RTL CU control CSR PAGERANK PULL Quant"
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
