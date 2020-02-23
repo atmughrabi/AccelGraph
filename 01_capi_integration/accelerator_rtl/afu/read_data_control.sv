@@ -247,7 +247,7 @@ module read_data_control (
       read_data_control_out_0            <= 0;
       read_data_control_out_1_latched_S2 <= 0;
     end else begin
-      if(response_latched.response.valid && (response_latched.read_response || response_latched.wed_response ) && enabled) begin
+      if(response_latched.response.valid && (response_latched.read_response || response_latched.wed_response ) && enabled && (response_latched.response.response != NLOCK)) begin
         read_data_control_out_0            <= data_out_0;
         read_data_control_out_1_latched_S2 <= data_out_1;
       end else begin

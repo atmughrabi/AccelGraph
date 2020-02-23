@@ -1,8 +1,8 @@
   #!/usr/bin/tclsh
 
 # if { $argc != 1 } {
-#   puts "Default Project cu_PageRank_pull"
-#   set project_algorithm "cu_PageRank_pull"
+#   puts "Default Project cu_CSR_PageRank_pull"
+#   set project_algorithm "cu_CSR_PageRank_pull"
 # } else {
 #   puts "SET Project to [lindex $argv 0]"
 #   set project_algorithm "[lindex $argv 0]"
@@ -25,12 +25,12 @@ proc r  {} {
 
 
 
-  if {$project_algorithm eq "cu_PageRank_pull"} {
-   echo "Compiling Packages CU PAGERANK PULL"
+  if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
+   echo "Compiling Packages CU CSR PAGERANK PULL"
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
-   } elseif {$project_algorithm eq "cu_PageRank_push"} {
-   echo "Compiling Packages CU PAGERANK PUSH"
+   } elseif {$project_algorithm eq "cu_CSR_PageRank_push"} {
+   echo "Compiling Packages CU CSR PAGERANK PUSH"
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
    } else {
@@ -78,8 +78,8 @@ proc r  {} {
 
   echo "Compiling RTL CU control "
 
-  if {$project_algorithm eq "cu_PageRank_pull"} {
-    echo "Compiling RTL CU control PAGERANK PULL"
+  if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
+    echo "Compiling RTL CU control CSR PAGERANK PULL"
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
@@ -94,8 +94,8 @@ proc r  {} {
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
-  } elseif {$project_algorithm eq "cu_PageRank_push"} {
-    echo "Compiling RTL CU control PAGERANK PUSH"
+  } elseif {$project_algorithm eq "cu_CSR_PageRank_push"} {
+    echo "Compiling RTL CU control CSR PAGERANK PUSH"
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
     vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
@@ -182,9 +182,9 @@ proc rc {} {
 proc rcf {} {
   global project_algorithm
 
-  if {$project_algorithm eq "cu_PageRank_pull"} {
+  if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_acc/fp_single_add_acc_sim"
-  } elseif {$project_algorithm eq "cu_PageRank_push"} {
+  } elseif {$project_algorithm eq "cu_CSR_PageRank_push"} {
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_add/fp_single_add_sim"
   } else {
   echo "UNKNOWN Packages CU"
@@ -205,10 +205,10 @@ proc rcf {} {
 
 proc rcd {} {
   global project_algorithm
-  
-  if {$project_algorithm eq "cu_PageRank_pull"} {
+
+  if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_double_precision_acc/fp_double_add_acc_sim"
-  } elseif {$project_algorithm eq "cu_PageRank_push"} {
+  } elseif {$project_algorithm eq "cu_CSR_PageRank_push"} {
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_double_precision_add/fp_double_add_sim"
   } else {
   echo "UNKNOWN Packages CU"

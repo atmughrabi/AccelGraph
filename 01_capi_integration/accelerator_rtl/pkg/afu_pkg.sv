@@ -103,6 +103,7 @@ package AFU_PKG;
     logic [                         0:7] real_size_bytes ;
     logic [0:CACHELINE_INT_COUNTER_BITS] cacheline_offest;
     logic [                        0:63] address_offest  ;
+    logic [                        0:63] aux_data        ;
     logic [                         0:7] tag             ;
     trans_order_behavior_t               abt             ; // ah_cabt,        // Command ABT
   } CommandTagLine;

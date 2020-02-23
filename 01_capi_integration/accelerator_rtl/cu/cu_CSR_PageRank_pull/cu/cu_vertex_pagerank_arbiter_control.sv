@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-02-21 23:18:03
+// Revise : 2020-02-22 19:50:20
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -80,8 +80,6 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 
 	//input lateched
 	ResponseBufferLine read_response_in_latched  ;
-	ResponseBufferLine read_response_in_edge_data;
-	ResponseBufferLine read_response_in_edge_job ;
 	ResponseBufferLine write_response_in_latched ;
 	ReadWriteDataLine  read_data_0_in_latched    ;
 	ReadWriteDataLine  read_data_1_in_latched    ;
@@ -134,7 +132,6 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 
 	ReadWriteDataLine  read_data_0_data_out  [0:1];
 	ReadWriteDataLine  read_data_1_data_out  [0:1];
-	ResponseBufferLine read_response_data_out[0:1];
 
 	////////////////////////////////////////////////////////////////////////////
 	genvar i;
@@ -547,24 +544,6 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.data_out  (edge_data_read_cu                                                        )
 	);
 
-	////////////////////////////////////////////////////////////////////////////
-	//read data response logic - input
-	////////////////////////////////////////////////////////////////////////////
-
-	assign read_response_in_edge_job  = read_response_data_out[0];
-	assign read_response_in_edge_data = read_response_data_out[1];
-
-	array_struct_type_demux_bus #(
-		.DATA_WIDTH($bits(ResponseBufferLine)),
-		.BUS_WIDTH (2                        )
-	) read_response_array_struct_type_demux_bus_instant (
-		.clock     (clock                                    ),
-		.rstn      (rstn                                     ),
-		.enabled_in(read_response_in_latched.valid           ),
-		.sel_in    (read_response_in_latched.cmd.array_struct),
-		.data_in   (read_response_in_latched                 ),
-		.data_out  (read_response_data_out                   )
-	);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex CU Response Arbitration
@@ -576,9 +555,9 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	) read_response_demux_bus_instant (
 		.clock     (clock                                                                               ),
 		.rstn      (rstn                                                                                ),
-		.enabled_in(read_response_in_edge_job.valid                                                     ),
-		.sel_in    (read_response_in_edge_job.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
-		.data_in   (read_response_in_edge_job                                                           ),
+		.enabled_in(read_response_in_latched.valid                                                     ),
+		.sel_in    (read_response_in_latched.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.data_in   (read_response_in_latched                                                           ),
 		.data_out  (read_response_cu                                                                    )
 	);
 

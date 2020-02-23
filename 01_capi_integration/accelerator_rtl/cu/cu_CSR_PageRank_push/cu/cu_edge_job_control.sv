@@ -43,21 +43,22 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic           read_command_bus_request_latched;
 	BufferStatus    edge_buffer_status              ;
 
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0            ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1            ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_seek               ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] global_shift_counter     ;
-	logic                                shift_limit_clear        ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter            ;
-	logic                                start_shift_hf_0         ;
-	logic                                start_shift_hf_1         ;
-	logic                                switch_shift_hf          ;
-	logic                                push_shift               ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0        ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1        ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_seek           ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] global_shift_counter ;
+	logic                                shift_limit_clear    ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter        ;
+	logic                                start_shift_hf_0     ;
+	logic                                start_shift_hf_1     ;
+	logic                                switch_shift_hf      ;
+	logic                                push_shift           ;
 	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_EDGE_ARRAY_DEST_0;
 	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_EDGE_ARRAY_DEST_1;
 
-	logic clear_data_ready    ;
-	logic fill_edge_job_buffer;
+	logic clear_data_ready          ;
+	logic fill_edge_job_buffer      ;
+	logic fill_edge_job_buffer_NLOCK;
 
 	//output latched
 	EdgeInterface     edge_latched            ;
@@ -73,6 +74,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	CommandBufferLine read_command_edge_job_latched   ;
 	CommandBufferLine read_command_edge_job_latched_S2;
+	CommandBufferLine read_command_out_latched_NLOCK;
 	BufferStatus      read_buffer_status_internal     ;
 
 	BufferStatus  edge_buffer_burst_status;
@@ -93,7 +95,8 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	logic [0:(EDGE_SIZE_BITS-1)] edge_array_dest_data      ;
 	logic                        edge_array_dest_data_ready;
-	logic                        zero_pass                         ; // a signal when edges are 17 you get this extra edge at the othe have
+	logic                        edge_array_dest_data_NLOCK;
+	logic                        zero_pass                 ; // a signal when edges are 17 you get this extra edge at the othe have
 
 	edge_struct_state current_state       ;
 	edge_struct_state next_state          ;
@@ -247,11 +250,16 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			WAIT_EDGE_DATA : begin
 				if(fill_edge_job_buffer)
 					next_state = SHIFT_EDGE_DATA_START;
+				else if(fill_edge_job_buffer_NLOCK)
+					next_state = SEND_EDGE_START_NLOCK;
 				else
 					next_state = WAIT_EDGE_DATA;
 			end
 			SHIFT_EDGE_DATA_START : begin
 				next_state = SHIFT_EDGE_DATA_0;
+			end
+			SEND_EDGE_START_NLOCK : begin
+				next_state = WAIT_EDGE_DATA;
 			end
 			SHIFT_EDGE_DATA_0 : begin
 				if((shift_counter < shift_limit_0))
@@ -324,7 +332,12 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				generate_read_command <= 0;
 			end
 			SEND_EDGE_START : begin
+				clear_data_ready <= 0;
 				read_command_edge_job_latched <= read_command_edge_job_latched_S2;
+			end
+			SEND_EDGE_START_NLOCK : begin
+				clear_data_ready <= 0;
+				read_command_edge_job_latched <= read_command_out_latched_NLOCK;
 			end
 			SEND_EDGE_EDGE_ARRAY_DEST : begin
 				read_command_edge_job_latched.valid            <= 1'b1;
@@ -338,7 +351,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			end
 			WAIT_EDGE_DATA : begin
 				read_command_edge_job_latched <= 0;
-				if(fill_edge_job_buffer) begin
+				if(fill_edge_job_buffer || fill_edge_job_buffer_NLOCK) begin
 					clear_data_ready <= 1;
 				end
 			end
@@ -455,6 +468,15 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		end
 	end
 
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_command_out_latched_NLOCK <= 0;
+		end else begin
+			if(read_command_edge_job_latched.valid) begin
+				read_command_out_latched_NLOCK <= read_command_edge_job_latched;
+			end 
+		end
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Read Edge data into registers
@@ -500,7 +522,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		if(~rstn) begin
 			edge_array_dest_data_ready <= 0;
 		end else begin
-			if(enabled_cmd && read_response_in_latched.valid) begin
+			if(enabled_cmd && read_response_in_latched.valid && (read_response_in_latched.response != NLOCK)) begin
 				case (read_response_in_latched.cmd.array_struct)
 					EDGE_ARRAY_DEST : begin
 						edge_array_dest_data_ready <= 1;
@@ -516,12 +538,30 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
+			edge_array_dest_data_ready <= 0;
+		end else begin
+			if(enabled_cmd && read_response_in_latched.valid && (read_response_in_latched.response == NLOCK)) begin
+				case (read_response_in_latched.cmd.array_struct)
+					EDGE_ARRAY_DEST : begin
+						edge_array_dest_data_NLOCK <= 1;
+					end
+				endcase
+			end
+
+			if(clear_data_ready) begin
+				edge_array_dest_data_NLOCK <= 0;
+			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
 			shift_limit_0 <= 0;
 			shift_limit_1 <= 0;
 			shift_seek    <= 0;
 			zero_pass     <= 0;
 		end else begin
-			if(enabled_cmd && read_response_in_latched.valid) begin
+			if(enabled_cmd && read_response_in_latched.valid && (read_response_in_latched.response != NLOCK)) begin
 				if(~(|shift_limit_0) && ~shift_limit_clear) begin
 					if((read_response_in_latched.cmd.real_size+read_response_in_latched.cmd.cacheline_offest) > CACHELINE_EDGE_NUM_HF) begin
 						shift_limit_0 <= CACHELINE_EDGE_NUM_HF-1;
@@ -554,8 +594,9 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 //Buffers Vertices
 ////////////////////////////////////////////////////////////////////////////
 
-	assign send_request_ready   = read_buffer_status_internal.empty && edge_buffer_burst_status.empty  && (|edge_num_counter) && wed_request_in_latched.valid;
-	assign fill_edge_job_buffer = edge_array_dest_data_ready;
+	assign send_request_ready         = read_buffer_status_internal.empty && edge_buffer_burst_status.empty  && (|edge_num_counter) && wed_request_in_latched.valid;
+	assign fill_edge_job_buffer       = edge_array_dest_data_ready;
+	assign fill_edge_job_buffer_NLOCK = edge_array_dest_data_NLOCK;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -582,19 +623,19 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			edge_array_dest_data <= 0;
-			push_shift                   <= 0;
-			global_shift_counter         <= 0;
+			push_shift           <= 0;
+			global_shift_counter <= 0;
 		end else begin
 			if(~switch_shift_hf && start_shift_hf_0) begin
-				global_shift_counter         <= global_shift_counter + 1;
-				push_shift                   <= ((global_shift_counter) >= shift_seek);
+				global_shift_counter <= global_shift_counter + 1;
+				push_shift           <= ((global_shift_counter) >= shift_seek);
 				edge_array_dest_data <= reg_EDGE_ARRAY_DEST_0[0:EDGE_SIZE_BITS-1];
 			end else if(switch_shift_hf && start_shift_hf_1) begin
-				global_shift_counter         <= global_shift_counter + 1;
-				push_shift                   <= ((global_shift_counter) >= shift_seek);
+				global_shift_counter <= global_shift_counter + 1;
+				push_shift           <= ((global_shift_counter) >= shift_seek);
 				edge_array_dest_data <= reg_EDGE_ARRAY_DEST_1[0:EDGE_SIZE_BITS-1];
 			end else begin
-				push_shift                   <= 0;
+				push_shift           <= 0;
 				edge_array_dest_data <= 0;
 			end
 

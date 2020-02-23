@@ -186,7 +186,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin : proc_
+	always_ff @(posedge clock or negedge rstn) begin 
 		if(~rstn) begin
 			read_command_out_latched_issue <= 0;
 		end else begin

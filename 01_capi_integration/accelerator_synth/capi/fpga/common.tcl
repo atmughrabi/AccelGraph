@@ -8,14 +8,14 @@ set_global_assignment -name DEVICE 5SGXMA7H2F35C2
 set_global_assignment -name TOP_LEVEL_ENTITY psl_fpga
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 11.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:53:12  OCTOBER 25, 2011"
-set_global_assignment -name LAST_QUARTUS_VERSION 13.1
+set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Standard Edition"
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
 set_global_assignment -name REMOVE_DUPLICATE_REGISTERS OFF
@@ -38,18 +38,17 @@ set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
 set_global_assignment -name FIT_ONLY_ONE_ATTEMPT ON
-set_global_assignment -name ENABLE_BENEFICIAL_SKEW_OPTIMIZATION OFF
+set_global_assignment -name ENABLE_BENEFICIAL_SKEW_OPTIMIZATION ON
 
 set_global_assignment -name SAVE_DISK_SPACE OFF
-set_global_assignment -name FLOW_DISABLE_ASSEMBLER ON
+set_global_assignment -name FLOW_DISABLE_ASSEMBLER OFF
 set_global_assignment -name FLOW_ENABLE_RTL_VIEWER ON
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name ALLOW_POWER_UP_DONT_CARE OFF
 set_global_assignment -name OPTIMIZE_POWER_DURING_SYNTHESIS OFF
 set_global_assignment -name HDL_MESSAGE_LEVEL LEVEL3
 
-
-set_global_assignment -name RAPID_RECOMPILE_MODE OFF
+#set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to pci_pi_npor
 set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 4
 set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 set_global_assignment -name ENABLE_HOLD_BACK_OFF OFF
@@ -57,30 +56,23 @@ set_global_assignment -name INI_VARS "vpr_net_rr_default_lab_source_level=0;vpr_
 
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 
+set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL ON
+set_global_assignment -name TIMEQUEST_DO_REPORT_TIMING OFF
+set_global_assignment -name TIMEQUEST_REPORT_NUM_WORST_CASE_TIMING_PATHS 100
+set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER ON
 set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA ON
-set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
-set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION OFF
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
-set_global_assignment -name SEED 3
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
+set_global_assignment -name SEED 11
 
 set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id "psl_accel:a0"
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT -section_id "psl_accel:a0"
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id "psl_accel:a0"
 set_global_assignment -name PARTITION_COLOR 39423 -section_id "psl_accel:a0"
 set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id "psl:p"
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id "psl:p"
 set_global_assignment -name PARTITION_COLOR 52377 -section_id "psl:p"
-set_global_assignment -name LL_ENABLED ON -section_id "psl_accel:a0"
-set_global_assignment -name LL_AUTO_SIZE OFF -section_id "psl_accel:a0"
-set_global_assignment -name LL_STATE LOCKED -section_id "psl_accel:a0"
-set_global_assignment -name LL_RESERVED OFF -section_id "psl_accel:a0"
-set_global_assignment -name LL_SECURITY_ROUTING_INTERFACE OFF -section_id "psl_accel:a0"
-set_global_assignment -name LL_IGNORE_IO_BANK_SECURITY_CONSTRAINT OFF -section_id "psl_accel:a0"
-set_global_assignment -name LL_PR_REGION OFF -section_id "psl_accel:a0"
-set_global_assignment -name LL_WIDTH 80 -section_id "psl_accel:a0"
-set_global_assignment -name LL_HEIGHT 87 -section_id "psl_accel:a0"
-set_global_assignment -name LL_ORIGIN X107_Y22 -section_id "psl_accel:a0"
-set_instance_assignment -name LL_MEMBER_OF "psl_accel:a0" -to "psl_accel:a0" -section_id "psl_accel:a0"
 set_global_assignment -name LL_ENABLED ON -section_id "psl:p"
 set_global_assignment -name LL_AUTO_SIZE OFF -section_id "psl:p"
 set_global_assignment -name LL_STATE LOCKED -section_id "psl:p"
@@ -122,6 +114,7 @@ set_global_assignment -name OPTIMIZATION_TECHNIQUE SPEED
 # -------------------------------------------------------------------------- #
 # Global Settings                                                            #
 # -------------------------------------------------------------------------- #
+set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 0.9V
 set_global_assignment -name VCCT_GXBL_USER_VOLTAGE 1.0V
 set_global_assignment -name VCCT_GXBR_USER_VOLTAGE 1.0V
 set_global_assignment -name VCCR_GXBL_USER_VOLTAGE 1.0V
@@ -131,13 +124,69 @@ set_global_assignment -name VCCA_GXBR_USER_VOLTAGE 3.0V
 set_global_assignment -name POWER_HSSI_VCCHIP_LEFT "Opportunistically power off"
 set_global_assignment -name POWER_HSSI_VCCHIP_RIGHT "Opportunistically power off"
 
-
-set_global_assignment -name LL_ROUTING_REGION_EXPANSION_SIZE 2147483647 -section_id "psl_accel:a0"
-
-
 set_global_assignment -name SIGNALTAP_FILE soft_reconfig.stp
 
+set_global_assignment -name LL_CORE_ONLY OFF -section_id "alt_xcvr_reconfig:alt_xcvr_reconfig_0"
+set_global_assignment -name LL_CORE_ONLY OFF -section_id "psl:p"
+set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 
+
+set_global_assignment -name LL_ENABLED ON -section_id "psl_accel:a0"
+set_global_assignment -name LL_AUTO_SIZE OFF -section_id "psl_accel:a0"
+set_global_assignment -name LL_STATE LOCKED -section_id "psl_accel:a0"
+set_global_assignment -name LL_RESERVED OFF -section_id "psl_accel:a0"
+set_global_assignment -name LL_CORE_ONLY OFF -section_id "psl_accel:a0"
+set_global_assignment -name LL_REGION_SECURITY_LEVEL UNSECURED -section_id "psl_accel:a0"
+set_global_assignment -name LL_SECURITY_ROUTING_INTERFACE OFF -section_id "psl_accel:a0"
+set_global_assignment -name LL_IGNORE_IO_BANK_SECURITY_CONSTRAINT OFF -section_id "psl_accel:a0"
+set_global_assignment -name LL_PR_REGION OFF -section_id "psl_accel:a0"
+set_global_assignment -name LL_ROUTING_REGION_EXPANSION_SIZE 2147483647 -section_id "psl_accel:a0"
+set_global_assignment -name LL_RECT X0_Y69 -width 106 -height 60 -section_id "psl_accel:a0"
+set_global_assignment -name LL_RECT X106_Y0 -width 105 -height 129 -section_id "psl_accel:a0"
+set_instance_assignment -name LL_MEMBER_OF "psl_accel:a0" -to "psl_accel:a0" -section_id "psl_accel:a0"
+set_global_assignment -name LL_ENABLED ON -section_id "psl_flash:f"
+set_global_assignment -name LL_RESERVED OFF -section_id "psl_flash:f"
+set_global_assignment -name LL_CORE_ONLY OFF -section_id "psl_flash:f"
+set_global_assignment -name LL_SECURITY_ROUTING_INTERFACE OFF -section_id "psl_flash:f"
+set_global_assignment -name LL_IGNORE_IO_BANK_SECURITY_CONSTRAINT OFF -section_id "psl_flash:f"
+set_global_assignment -name LL_PR_REGION OFF -section_id "psl_flash:f"
+set_global_assignment -name LL_ROUTING_REGION_EXPANSION_SIZE 2147483647 -section_id "psl_flash:f"
+set_instance_assignment -name LL_MEMBER_OF "psl_flash:f" -to "psl_flash:f" -section_id "psl_flash:f"
+set_global_assignment -name LL_HEIGHT 15 -section_id "psl_flash:f"
+set_global_assignment -name LL_WIDTH 14 -section_id "psl_flash:f"
+set_global_assignment -name LL_ORIGIN X7_Y114 -section_id "psl_flash:f"
+set_global_assignment -name LL_STATE LOCKED -section_id "psl_flash:f"
+set_global_assignment -name LL_AUTO_SIZE OFF -section_id "psl_flash:f"
+set_global_assignment -name SMART_RECOMPILE OFF
+set_global_assignment -name LL_ENABLED ON -section_id afu_control
+set_global_assignment -name LL_AUTO_SIZE OFF -section_id afu_control
+set_global_assignment -name LL_STATE LOCKED -section_id afu_control
+set_global_assignment -name LL_RESERVED OFF -section_id afu_control
+set_global_assignment -name LL_CORE_ONLY OFF -section_id afu_control
+set_global_assignment -name LL_SECURITY_ROUTING_INTERFACE OFF -section_id afu_control
+set_global_assignment -name LL_IGNORE_IO_BANK_SECURITY_CONSTRAINT OFF -section_id afu_control
+set_global_assignment -name LL_PR_REGION OFF -section_id afu_control
+set_global_assignment -name LL_ROUTING_REGION_EXPANSION_SIZE 2147483647 -section_id afu_control
+set_global_assignment -name LL_WIDTH 33 -section_id afu_control
+set_global_assignment -name LL_HEIGHT 68 -section_id afu_control
+set_global_assignment -name LL_ORIGIN X105_Y1 -section_id afu_control
+set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|afu_control:afu_control_instant" -section_id afu_control
+set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|done_control:done_control_instant" -section_id afu_control
+set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|error_control:error_control_instant" -section_id afu_control
+set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|job:job_instant" -section_id afu_control
+set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|mmio:mmio_instant" -section_id afu_control
+set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|reset_control:reset_instant_hard" -section_id afu_control
+set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|reset_control:reset_instant_soft" -section_id afu_control
+set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|wed_control:wed_control_instant" -section_id afu_control
+set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
+set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
+set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON
+set_global_assignment -name MUX_RESTRUCTURE OFF
+set_global_assignment -name STATE_MACHINE_PROCESSING "ONE-HOT"
+set_global_assignment -name ROUTER_CLOCKING_TOPOLOGY_ANALYSIS ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
+set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
+set_global_assignment -name VERILOG_SHOW_LMF_MAPPING_MESSAGES OFF
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY altxc_79511 -to "psl_pcihip0:pcihip0|pcie_wrap0:p|alt_xcvr_reconfig:alt_xcvr_reconfig_0" -section_id "alt_xcvr_reconfig:alt_xcvr_reconfig_0"

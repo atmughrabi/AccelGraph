@@ -1197,7 +1197,7 @@ struct PageRankStats *pageRankPushGraphCSR(double epsilon,  uint32_t iterations,
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        pageRanksNext[v] = 0;
+        pageRanksNext[v] = 0.0f;
     }
 
     for(stats->iterations = 0; stats->iterations < iterations; stats->iterations++)

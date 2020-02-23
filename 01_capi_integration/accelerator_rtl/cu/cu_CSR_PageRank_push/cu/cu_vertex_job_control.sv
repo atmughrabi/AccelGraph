@@ -70,10 +70,12 @@ module cu_vertex_job_control (
 	CommandBufferLine read_command_out_latched_S2;
 
 	//input lateched
-	WEDInterface       wed_request_in_latched  ;
-	ResponseBufferLine read_response_in_latched;
-	ReadWriteDataLine  read_data_0_in_latched  ;
-	ReadWriteDataLine  read_data_1_in_latched  ;
+	WEDInterface       wed_request_in_latched     ;
+	ResponseBufferLine read_response_in_latched   ;
+	ResponseBufferLine read_response_in_latched_S1;
+	ResponseBufferLine read_response_in_latched_S2;
+	ReadWriteDataLine  read_data_0_in_latched     ;
+	ReadWriteDataLine  read_data_1_in_latched     ;
 
 	logic vertex_request_latched;
 
@@ -145,19 +147,24 @@ module cu_vertex_job_control (
 ////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched   <= 0;
-			read_response_in_latched <= 0;
-			read_data_0_in_latched   <= 0;
-			read_data_1_in_latched   <= 0;
-			cu_configure_latched     <= 0;
-			vertex_request_latched   <= 0;
+			wed_request_in_latched      <= 0;
+			read_response_in_latched    <= 0;
+			read_response_in_latched_S1 <= 0;
+			read_response_in_latched_S2 <= 0;
+			read_data_0_in_latched      <= 0;
+			read_data_1_in_latched      <= 0;
+			cu_configure_latched        <= 0;
+			vertex_request_latched      <= 0;
+
 		end else begin
 			if(enabled) begin
-				wed_request_in_latched   <= wed_request_in;
-				read_response_in_latched <= read_response_in;
-				read_data_0_in_latched   <= read_data_0_in;
-				read_data_1_in_latched   <= read_data_1_in;
-				vertex_request_latched   <= vertex_request;
+				wed_request_in_latched      <= wed_request_in;
+				read_response_in_latched_S1 <= read_response_in;
+				read_response_in_latched_S2 <= read_response_in_latched_S1;
+				read_response_in_latched    <= read_response_in_latched_S2;
+				read_data_0_in_latched      <= read_data_0_in;
+				read_data_1_in_latched      <= read_data_1_in;
+				vertex_request_latched      <= vertex_request;
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
 			end
