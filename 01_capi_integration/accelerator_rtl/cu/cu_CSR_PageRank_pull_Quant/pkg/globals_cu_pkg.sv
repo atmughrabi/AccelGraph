@@ -29,7 +29,7 @@ package GLOBALS_CU_PKG;
 ////////////////////////////////////////////////////////////////////////////
 
 	parameter NUM_GRAPH_CU_GLOBAL  = 1 ;
-	parameter NUM_VERTEX_CU_GLOBAL = 16;
+	parameter NUM_VERTEX_CU_GLOBAL = 12;
 
 	parameter CU_VERTEX_JOB_BUFFER_SIZE = 64;
 	parameter CU_EDGE_JOB_BUFFER_SIZE   = 64;

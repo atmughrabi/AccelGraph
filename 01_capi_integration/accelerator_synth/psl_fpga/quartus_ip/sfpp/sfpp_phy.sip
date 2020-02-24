@@ -1,5 +1,5 @@
 set_global_assignment -entity "sfpp_phy" -library "lib_sfpp_phy" -name IP_TOOL_NAME "altera_xcvr_custom_phy"
-set_global_assignment -entity "sfpp_phy" -library "lib_sfpp_phy" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "sfpp_phy" -library "lib_sfpp_phy" -name IP_TOOL_VERSION "18.1"
 set_global_assignment -entity "sfpp_phy" -library "lib_sfpp_phy" -name IP_TOOL_ENV "mwpim"
 set_global_assignment -library "lib_sfpp_phy" -name SPD_FILE [file join $::quartus(sip_path) "sfpp_phy.spd"]
 

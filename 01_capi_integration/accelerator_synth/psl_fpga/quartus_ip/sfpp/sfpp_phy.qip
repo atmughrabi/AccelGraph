@@ -1,5 +1,5 @@
 set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_TOOL_NAME "altera_xcvr_custom_phy"
-set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_TOOL_VERSION "18.1"
 set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_TOOL_ENV "mwpim"
 set_global_assignment -library "sfpp_phy" -name MISC_FILE [file join $::quartus(qip_path) "sfpp_phy.cmp"]
 set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_TARGETED_DEVICE_FAMILY "Stratix V"
@@ -7,18 +7,18 @@ set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_GENERATED_
 set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_QSYS_MODE "UNKNOWN"
 set_global_assignment -name SYNTHESIS_ONLY_QIP ON
 set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_COMPONENT_NAME "c2ZwcF9waHk="
-set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_COMPONENT_DISPLAY_NAME "Q3VzdG9tIFBIWQ=="
+set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_COMPONENT_DISPLAY_NAME "Q3VzdG9tIFBIWSBJbnRlbCBGUEdBIElQ"
 set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
 set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_COMPONENT_INTERNAL "On"
 set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
-set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_COMPONENT_VERSION "MTguMQ=="
 set_global_assignment -entity "sfpp_phy" -library "sfpp_phy" -name IP_COMPONENT_DESCRIPTION "U3RhbmRhcmQgVHJhbnNjZWl2ZXIgUENTIEN1c3RvbSBQSFkgSVA="
 set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_NAME "YWx0ZXJhX3hjdnJfY3VzdG9t"
-set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_DISPLAY_NAME "Q3VzdG9tIFBIWQ=="
+set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_DISPLAY_NAME "Q3VzdG9tIFBIWSBJbnRlbCBGUEdBIElQ"
 set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
 set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_INTERNAL "On"
 set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
-set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_VERSION "MTUuMQ=="
+set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_VERSION "MTguMQ=="
 set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_DESCRIPTION "U3RhbmRhcmQgVHJhbnNjZWl2ZXIgUENTIEN1c3RvbSBQSFkgSVA="
 set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_PARAMETER "Z3VpX3BhcmFtZXRlcl9ydWxlcw==::Q3VzdG9t::UGFyYW1ldGVyIHZhbGlkYXRpb24gcnVsZXM="
 set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_COMPONENT_PARAMETER "cHJvdG9jb2xfaGludA==::YmFzaWM=::cHJvdG9jb2xfaGludA=="
@@ -164,5 +164,5 @@ set_global_assignment -library "sfpp_phy" -name SYSTEMVERILOG_FILE [file join $:
 set_global_assignment -library "sfpp_phy" -name SOURCE_FILE [file join $::quartus(qip_path) "sfpp_phy/plain_files.txt"]
 
 set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_TOOL_NAME "altera_xcvr_custom_phy"
-set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_TOOL_VERSION "15.1"
+set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_TOOL_VERSION "18.1"
 set_global_assignment -entity "altera_xcvr_custom" -library "sfpp_phy" -name IP_TOOL_ENV "mwpim"

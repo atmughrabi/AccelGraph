@@ -7,7 +7,7 @@ direction = int(sys.argv[3])
 
 datastructure_arr = ["CSR","Grid","AdjLinkedList","AdjArrayList"]
 
-workloads_csr = [["BFS_pull","BFS_push"],["PageRank_pull", "PageRank_push",
+workloads_csr = [["BFS_pull","BFS_push"],["PageRank_pull_Float", "PageRank_push_Float",
 				 "PageRank_pull_FixedPoint","PageRank_push_FixedPoint",
 				 "PageRank_pull_Quant","PageRank_push_Quant",
 				 "PageRank_DD_pull","PageRank_DD_push",

@@ -77,6 +77,9 @@ module cu_vertex_pagerank #(
 	ReadWriteDataLine  read_data_0_in_latched   ;
 	ReadWriteDataLine  read_data_1_in_latched   ;
 
+	ReadWriteDataLine read_data_0_in_latched_S2;
+	ReadWriteDataLine read_data_1_in_latched_S2;
+
 
 	ResponseBufferLine write_response_in_edge_data;
 	ResponseBufferLine read_response_in_edge_job  ;
@@ -153,7 +156,7 @@ module cu_vertex_pagerank #(
 	) read_command_buffer_arbiter_instant (
 		.clock      (clock              ),
 		.rstn       (rstn               ),
-		.enabled    (enabled            ),
+		.enabled    (enabled_cmd        ),
 		.buffer_in  (command_buffer_in  ),
 		.submit     (submit             ),
 		.requests   (requests           ),
@@ -187,11 +190,29 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
+			read_data_0_in_latched <= 0;
+			read_data_1_in_latched <= 0;
+		end else begin
+			read_data_0_in_latched <= read_data_0_in_latched_S2;
+			read_data_1_in_latched <= read_data_1_in_latched_S2;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_data_0_in_latched_S2 <= 0;
+			read_data_1_in_latched_S2 <= 0;
+		end else begin
+			read_data_0_in_latched_S2   <= read_data_0_in;
+			read_data_1_in_latched_S2   <= read_data_1_in;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
 			wed_request_in_latched            <= 0;
 			read_response_in_latched          <= 0;
 			write_response_in_latched         <= 0;
-			read_data_0_in_latched            <= 0;
-			read_data_1_in_latched            <= 0;
 			edge_data_read                    <= 0;
 			cu_configure_latched              <= 0;
 			vertex_job_burst_in               <= 0;
@@ -204,8 +225,6 @@ module cu_vertex_pagerank #(
 				wed_request_in_latched      <= wed_request_in;
 				read_response_in_latched    <= read_response_in;
 				write_response_in_latched   <= write_response_in;
-				read_data_0_in_latched      <= read_data_0_in;
-				read_data_1_in_latched      <= read_data_1_in;
 				edge_data_read              <= edge_data_read_in;
 				vertex_job_burst_in         <= vertex_job;
 				write_buffer_status_latched <= write_buffer_status;

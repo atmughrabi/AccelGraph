@@ -231,7 +231,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 
 ////////////////////////////////////////////////////////////////////////////
-//Graph algorithm compute units arbitration
+//vertex algorithm compute units arbitration
 ////////////////////////////////////////////////////////////////////////////
 
 	cu_vertex_pagerank_arbiter_control #(.NUM_VERTEX_CU(NUM_VERTEX_CU)) cu_vertex_pagerank_arbiter_control_instant (

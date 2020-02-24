@@ -1,13 +1,13 @@
-// (C) 2001-2015 Altera Corporation. All rights reserved.
-// Your use of Altera Corporation's design tools, logic functions and other 
+// (C) 2001-2018 Intel Corporation. All rights reserved.
+// Your use of Intel Corporation's design tools, logic functions and other 
 // software and tools, and its AMPP partner logic functions, and any output 
-// files any of the foregoing (including device programming or simulation 
+// files from any of the foregoing (including device programming or simulation 
 // files), and any associated documentation or information are expressly subject 
-// to the terms and conditions of the Altera Program License Subscription 
-// Agreement, Altera MegaCore Function License Agreement, or other applicable 
+// to the terms and conditions of the Intel Program License Subscription 
+// Agreement, Intel FPGA IP License Agreement, or other applicable 
 // license agreement, including, without limitation, that your use is for the 
-// sole purpose of programming logic devices manufactured by Altera and sold by 
-// Altera or its authorized distributors.  Please refer to the applicable 
+// sole purpose of programming logic devices manufactured by Intel and sold by 
+// Intel or its authorized distributors.  Please refer to the applicable 
 // agreement for further details.
 
 
@@ -185,10 +185,12 @@ generate if(TX_ENABLE) begin: g_tx
       wire  [PLL_SEL_WIDTH-1:0]  lcl_pll_select;
       // Synchronized signals
       wire  tx_cal_busy_sync; // tx_cal_busy after synchronization
+      wire  pll_cal_busy_sync;// pll_cal_busy after synchronization
       wire  tx_manual_sync;   // Synchronous reset trigger for TX resets
       wire  pll_locked_sync;  // pll_locked after synchronization
       wire  pll_locked_hyst;  // pll_locked after hysteresis
       reg   pll_locked_latch; // One shot latched pll_locked
+      wire  tx_or_pll_cal_busy_sync; //output of OR between synchronized tx_cal_busy and pll_cal_busy
       // Reset status signals
       wire  stat_tx_analogreset;
       wire  stat_tx_digitalreset;
@@ -210,16 +212,18 @@ generate if(TX_ENABLE) begin: g_tx
                                                      : (PLLS > 1)   ? pll_select
                                                      : 1'b0;
       
+      assign tx_or_pll_cal_busy_sync = tx_cal_busy_sync | pll_cal_busy_sync;
+
       // Synchonize TX inputs
       alt_xcvr_resync #(
           .SYNC_CHAIN_LENGTH(2),  // Number of flip-flops for retiming
-          .WIDTH      (3),
+          .WIDTH      (4),
           .INIT_VALUE (0)
       ) resync_tx_cal_busy (
         .clk    (clock            ),
         .reset  (reset_sync       ),
-        .d      ({lcl_tx_cal_busy|lcl_pll_cal_busy ,lcl_tx_manual ,lcl_pll_locked }),
-        .q      ({tx_cal_busy_sync,tx_manual_sync,pll_locked_sync})
+        .d      ({lcl_tx_cal_busy ,lcl_pll_cal_busy ,lcl_tx_manual ,lcl_pll_locked }),
+        .q      ({tx_cal_busy_sync,pll_cal_busy_sync,tx_manual_sync,pll_locked_sync})
       );
 
       // Add hysteresis to pll_locked if needed
@@ -259,13 +263,13 @@ generate if(TX_ENABLE) begin: g_tx
             .CLKS_PER_SEC (SYS_CLK_IN_HZ    ), // Clock frequency in Hz
             .RESET_PER_NS (T_TX_ANALOGRESET )  // Reset period in ns
         ) counter_tx_analogreset (
-          .clk        (clock              ),
-          .async_req  (reset_sync         ),  // asynchronous reset request
-          .sync_req   (tx_cal_busy_sync   ),  // synchronous reset request
-          .reset_or   (1'b0               ),  // auxilliary reset override
-          .reset      (tx_analogreset [ig]),  // synchronous reset out
-          .reset_n    (/*unused*/         ),
-          .reset_stat (stat_tx_analogreset)
+          .clk        (clock                  ),
+          .async_req  (reset_sync             ),  // asynchronous reset request
+          .sync_req   (tx_or_pll_cal_busy_sync),  // synchronous reset request
+          .reset_or   (1'b0                   ),  // auxilliary reset override
+          .reset      (tx_analogreset [ig]    ),  // synchronous reset out
+          .reset_n    (/*unused*/             ),
+          .reset_stat (stat_tx_analogreset    )
         );
       end
 
