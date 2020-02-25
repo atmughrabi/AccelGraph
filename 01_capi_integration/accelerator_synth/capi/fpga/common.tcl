@@ -18,7 +18,7 @@ set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
-set_global_assignment -name REMOVE_DUPLICATE_REGISTERS OFF
+set_global_assignment -name REMOVE_DUPLICATE_REGISTERS ON
 set_global_assignment -name PARTITION_NETLIST_TYPE POST_SYNTH -section_id "psl_cd:cd"
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id "psl_cd:cd"
 set_global_assignment -name PARTITION_COLOR 39423 -section_id "psl_cd:cd"
@@ -65,7 +65,7 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
-set_global_assignment -name SEED 11
+set_global_assignment -name SEED 14
 
 set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id "psl_accel:a0"
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id "psl_accel:a0"
@@ -157,7 +157,7 @@ set_global_assignment -name LL_WIDTH 14 -section_id "psl_flash:f"
 set_global_assignment -name LL_ORIGIN X7_Y114 -section_id "psl_flash:f"
 set_global_assignment -name LL_STATE LOCKED -section_id "psl_flash:f"
 set_global_assignment -name LL_AUTO_SIZE OFF -section_id "psl_flash:f"
-set_global_assignment -name SMART_RECOMPILE ON
+set_global_assignment -name SMART_RECOMPILE OFF
 set_global_assignment -name LL_ENABLED ON -section_id afu_control
 set_global_assignment -name LL_AUTO_SIZE OFF -section_id afu_control
 set_global_assignment -name LL_STATE LOCKED -section_id afu_control

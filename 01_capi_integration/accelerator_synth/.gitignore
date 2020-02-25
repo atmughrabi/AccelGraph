@@ -10,6 +10,7 @@ quartus_output
 incremental_db
 seed_rpt
 *.rpt
+*.xml
 *.summary
 *.smsg
 *.pin

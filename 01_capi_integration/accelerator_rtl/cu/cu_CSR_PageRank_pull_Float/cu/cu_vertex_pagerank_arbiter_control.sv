@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-02-22 19:50:20
+// Revise : 2020-02-24 03:41:29
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -20,52 +20,61 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL) (
-	input  logic                          clock                                            , // Clock
-	input  logic                          rstn                                             ,
-	input  logic                          enabled_in                                       ,
-	output logic [     NUM_VERTEX_CU-1:0] enable_cu_out                                    ,
-	input  logic [                  0:63] cu_configure                                     ,
-	input  ResponseBufferLine             read_response_in                                 ,
-	input  ReadWriteDataLine              read_data_0_in                                   ,
-	input  ReadWriteDataLine              read_data_1_in                                   ,
-	input  BufferStatus                   read_buffer_status                               ,
-	input  BufferStatus                   write_buffer_status                              ,
-	input  logic                          read_command_bus_grant                           ,
-	output logic                          read_command_bus_request                         ,
-	output ResponseBufferLine             read_response_cu_out [0:NUM_VERTEX_CU-1]         ,
-	input  ResponseBufferLine             write_response_in                                ,
-	output ResponseBufferLine             write_response_cu_out [0:NUM_VERTEX_CU-1]        ,
-	input  CommandBufferLine              read_command_cu_in [0:NUM_VERTEX_CU-1]           ,
-	input  logic [     NUM_VERTEX_CU-1:0] request_read_command_cu_in                       ,
-	output logic [     NUM_VERTEX_CU-1:0] ready_read_command_cu_out                        ,
-	output CommandBufferLine              read_command_out                                 ,
-	input  EdgeDataWrite                  edge_data_write_cu_in [0:NUM_VERTEX_CU-1]        ,
-	input  logic [     NUM_VERTEX_CU-1:0] request_edge_data_write_cu_in                    ,
-	output logic [     NUM_VERTEX_CU-1:0] ready_edge_data_write_cu_out                     ,
-	output EdgeDataWrite                  burst_edge_data_out                              ,
-	output ReadWriteDataLine              read_data_0_cu_out [0:NUM_VERTEX_CU-1]           ,
-	output ReadWriteDataLine              read_data_1_cu_out [0:NUM_VERTEX_CU-1]           ,
-	output EdgeDataRead                   edge_data_read_cu_out         [0:NUM_VERTEX_CU-1],
-	output BufferStatus                   burst_read_command_buffer_states_cu_out          ,
-	output BufferStatus                   burst_edge_data_write_cu_buffer_states_cu_out    ,
-	output VertexInterface                vertex_job_cu_out [0:NUM_VERTEX_CU-1]            ,
-	input  logic [     NUM_VERTEX_CU-1:0] request_vertex_job_cu_in                         ,
-	input  VertexInterface                vertex_job                                       ,
-	input  logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_cu_in[0:NUM_VERTEX_CU-1]      ,
-	input  logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter_cu_in  [0:NUM_VERTEX_CU-1]      ,
-	output logic                          vertex_job_request                               ,
-	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_out                      ,
+	input  logic                          clock                                                            , // Clock
+	input  logic                          rstn                                                             ,
+	output logic                          cu_rstn_out [0:NUM_VERTEX_CU-1]                                  ,
+	input  logic                          enabled_in                                                       ,
+	input  WEDInterface                   wed_request_in                                                   ,
+	output WEDInterface                   cu_wed_request_out  [0:NUM_VERTEX_CU-1]                          ,
+	output logic [     NUM_VERTEX_CU-1:0] enable_cu_out                                                    ,
+	input  logic [                  0:63] cu_configure                                                     ,
+	output logic [                  0:63] cu_configure_out [0:NUM_VERTEX_CU-1]                             ,
+	input  ResponseBufferLine             read_response_in                                                 ,
+	input  ReadWriteDataLine              read_data_0_in                                                   ,
+	input  ReadWriteDataLine              read_data_1_in                                                   ,
+	input  BufferStatus                   read_buffer_status                                               ,
+	input  BufferStatus                   write_buffer_status                                              ,
+	input  logic                          read_command_bus_grant                                           ,
+	output logic                          read_command_bus_request                                         ,
+	output ResponseBufferLine             read_response_cu_out [0:NUM_VERTEX_CU-1]                         ,
+	input  ResponseBufferLine             write_response_in                                                ,
+	output ResponseBufferLine             write_response_cu_out [0:NUM_VERTEX_CU-1]                        ,
+	input  CommandBufferLine              read_command_cu_in [0:NUM_VERTEX_CU-1]                           ,
+	input  logic [     NUM_VERTEX_CU-1:0] request_read_command_cu_in                                       ,
+	output logic [     NUM_VERTEX_CU-1:0] ready_read_command_cu_out                                        ,
+	output CommandBufferLine              read_command_out                                                 ,
+	input  EdgeDataWrite                  edge_data_write_cu_in [0:NUM_VERTEX_CU-1]                        ,
+	input  logic [     NUM_VERTEX_CU-1:0] request_edge_data_write_cu_in                                    ,
+	output logic [     NUM_VERTEX_CU-1:0] ready_edge_data_write_cu_out                                     ,
+	output EdgeDataWrite                  burst_edge_data_out                                              ,
+	output ReadWriteDataLine              read_data_0_cu_out [0:NUM_VERTEX_CU-1]                           ,
+	output ReadWriteDataLine              read_data_1_cu_out [0:NUM_VERTEX_CU-1]                           ,
+	output EdgeDataRead                   edge_data_read_cu_out         [0:NUM_VERTEX_CU-1]                ,
+	output BufferStatus                   burst_read_command_buffer_states_cu_out      [0:NUM_VERTEX_CU-1] ,
+	output BufferStatus                   burst_edge_data_write_cu_buffer_states_cu_out [0:NUM_VERTEX_CU-1],
+	output VertexInterface                vertex_job_cu_out [0:NUM_VERTEX_CU-1]                            ,
+	input  logic [     NUM_VERTEX_CU-1:0] request_vertex_job_cu_in                                         ,
+	input  VertexInterface                vertex_job                                                       ,
+	input  logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_cu_in[0:NUM_VERTEX_CU-1]                      ,
+	input  logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter_cu_in  [0:NUM_VERTEX_CU-1]                      ,
+	output logic                          vertex_job_request                                               ,
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_out                                      ,
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_out
 );
 
 	logic read_command_bus_grant_latched  ;
 	logic read_command_bus_request_latched;
 
+	WEDInterface wed_request_in_latched                       ;
+	WEDInterface cu_wed_request_out_latched[0:NUM_VERTEX_CU-1];
+
 	BufferStatus read_buffer_status_latched ;
 	BufferStatus write_buffer_status_latched;
 
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done  ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done                    ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done                      ;
+	logic [                  0:63] cu_configure_out_latched[0:NUM_VERTEX_CU-1];
+	logic                          cu_rstn_out_latched     [0:NUM_VERTEX_CU-1];
 // vertex control variables
 
 	BufferStatus    vertex_buffer_status_internal;
@@ -79,10 +88,10 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	CommandBufferLine read_command_out_latched;
 
 	//input lateched
-	ResponseBufferLine read_response_in_latched  ;
-	ResponseBufferLine write_response_in_latched ;
-	ReadWriteDataLine  read_data_0_in_latched    ;
-	ReadWriteDataLine  read_data_1_in_latched    ;
+	ResponseBufferLine read_response_in_latched ;
+	ResponseBufferLine write_response_in_latched;
+	ReadWriteDataLine  read_data_0_in_latched   ;
+	ReadWriteDataLine  read_data_1_in_latched   ;
 
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_cu[0:NUM_VERTEX_CU-1];
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter_cu  [0:NUM_VERTEX_CU-1];
@@ -114,13 +123,16 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	logic                     enabled                                          ;
 	logic [             0:63] cu_configure_latched                             ;
 
-	BufferStatus      burst_read_command_buffer_states_cu;
-	CommandBufferLine burst_read_command_buffer_out      ;
+	BufferStatus      burst_read_command_buffer_states_cu                               ;
+	BufferStatus      burst_read_command_buffer_states_cu_out_latched[0:NUM_VERTEX_CU-1];
+	CommandBufferLine burst_read_command_buffer_out                                     ;
 
-	BufferStatus  burst_edge_data_write_cu_buffer_states_cu;
-	logic         burst_edge_data_write_buffer_pop         ;
-	EdgeDataWrite burst_edge_data_buffer_out               ;
-	EdgeDataWrite edge_data_write_arbiter_out              ;
+	BufferStatus burst_edge_data_write_cu_buffer_states_cu                               ;
+	BufferStatus burst_edge_data_write_cu_buffer_states_cu_out_latched[0:NUM_VERTEX_CU-1];
+
+	logic         burst_edge_data_write_buffer_pop;
+	EdgeDataWrite burst_edge_data_buffer_out      ;
+	EdgeDataWrite edge_data_write_arbiter_out     ;
 
 	ReadWriteDataLine read_data_0_in_edge_job ;
 	ReadWriteDataLine read_data_1_in_edge_job ;
@@ -130,8 +142,8 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	EdgeDataRead edge_data_read_cu [0:NUM_VERTEX_CU-1];
 	EdgeDataRead edge_data_variable                   ;
 
-	ReadWriteDataLine  read_data_0_data_out  [0:1];
-	ReadWriteDataLine  read_data_1_data_out  [0:1];
+	ReadWriteDataLine read_data_0_data_out[0:1];
+	ReadWriteDataLine read_data_1_data_out[0:1];
 
 	////////////////////////////////////////////////////////////////////////////
 	genvar i;
@@ -154,25 +166,19 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_response_cu_out                                <= '{default:0};
-			write_response_cu_out                               <= '{default:0};
-			read_data_0_cu_out                                  <= '{default:0};
-			read_data_1_cu_out                                  <= '{default:0};
-			edge_data_read_cu_out                               <= '{default:0};
-			burst_read_command_buffer_states_cu_out             <= 0;
-			burst_read_command_buffer_states_cu_out.empty       <= 1;
-			burst_edge_data_write_cu_buffer_states_cu_out       <= 0;
-			burst_edge_data_write_cu_buffer_states_cu_out.empty <= 1;
-			vertex_job_request                                  <= 0;
+			read_response_cu_out  <= '{default:0};
+			write_response_cu_out <= '{default:0};
+			read_data_0_cu_out    <= '{default:0};
+			read_data_1_cu_out    <= '{default:0};
+			edge_data_read_cu_out <= '{default:0};
+			vertex_job_request    <= 0;
 		end else begin
-			read_response_cu_out                          <= read_response_cu;
-			write_response_cu_out                         <= write_response_cu;
-			read_data_0_cu_out                            <= read_data_0_cu;
-			read_data_1_cu_out                            <= read_data_1_cu;
-			burst_read_command_buffer_states_cu_out       <= burst_read_command_buffer_states_cu;
-			burst_edge_data_write_cu_buffer_states_cu_out <= burst_edge_data_write_cu_buffer_states_cu;
-			vertex_job_request                            <= vertex_job_request_latched;
-			edge_data_read_cu_out                         <= edge_data_read_cu;
+			read_response_cu_out  <= read_response_cu;
+			write_response_cu_out <= write_response_cu;
+			read_data_0_cu_out    <= read_data_0_cu;
+			read_data_1_cu_out    <= read_data_1_cu;
+			vertex_job_request    <= vertex_job_request_latched;
+			edge_data_read_cu_out <= edge_data_read_cu;
 		end
 	end
 
@@ -213,6 +219,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 			vertex_job_latched         <= 0;
 			vertex_num_counter_cu      <= '{default:0};
 			edge_num_counter_cu        <= '{default:0};
+			wed_request_in_latched     <= 0;
 		end else begin
 			read_command_cu            <= read_command_cu_in;
 			request_read_command_cu    <= request_read_command_cu_in;
@@ -222,6 +229,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 			vertex_job_latched         <= vertex_job;
 			vertex_num_counter_cu      <= vertex_num_counter_cu_in;
 			edge_num_counter_cu        <= edge_num_counter_cu_in;
+			wed_request_in_latched     <= wed_request_in;
 		end
 	end
 
@@ -257,7 +265,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 
 
 	////////////////////////////////////////////////////////////////////////////
-	// Enable logic
+	// Reset/Enable logic
 	////////////////////////////////////////////////////////////////////////////
 
 	generate
@@ -267,16 +275,42 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	endgenerate
 
 	always_ff @(posedge clock) begin
+		enable_cu <= enable_cu_latched;
+	end
+
+	generate
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_cu_configure
+			assign cu_configure_out_latched[i] = cu_configure_latched;
+		end
+	endgenerate
+
+	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			enable_cu <= 0;
+			cu_configure_out <= '{default:0};
 		end else begin
-			if(enabled)begin
-				enable_cu <= enable_cu_latched;
-			end
+			cu_configure_out <= cu_configure_out_latched;
 		end
 	end
 
+	generate
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_rstn
+			assign cu_rstn_out_latched[i] = rstn;
+		end
+	endgenerate
 
+	always_ff @(posedge clock) begin
+		cu_rstn_out <= cu_rstn_out_latched;
+	end
+
+	generate
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_cu_wed_request_out
+			assign cu_wed_request_out_latched[i] = wed_request_in_latched;
+		end
+	endgenerate
+
+	always_ff @(posedge clock) begin
+		cu_wed_request_out <= cu_wed_request_out_latched;
+	end
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex Job Buffer
 	////////////////////////////////////////////////////////////////////////////
@@ -357,7 +391,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	////////////////////////////////////////////////////////////////////////////
 
 	generate
-		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_read_command_cu
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_read_command_arbiter_cu_submit
 			assign read_command_arbiter_cu_submit[i] = read_command_cu[i].valid;
 		end
 	endgenerate
@@ -399,6 +433,18 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.empty   (burst_read_command_buffer_states_cu.empty )
 	);
 
+	generate
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_burst_read_command_buffer_states_cu
+			assign burst_read_command_buffer_states_cu_out_latched[i] = burst_read_command_buffer_states_cu;
+		end
+	endgenerate
+
+	always_ff @(posedge clock) begin
+		burst_read_command_buffer_states_cu_out <= burst_read_command_buffer_states_cu_out_latched;
+	end
+
+
+
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex CU Write Command/Data Arbitration
 	////////////////////////////////////////////////////////////////////////////
@@ -422,7 +468,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	////////////////////////////////////////////////////////////////////////////
 
 	generate
-		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_edge_data_write_cu
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_edge_data_write_arbiter_cu
 			assign edge_data_write_arbiter_cu_submit[i] = edge_data_write_cu[i].valid;
 		end
 	endgenerate
@@ -452,6 +498,15 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.empty   (burst_edge_data_write_cu_buffer_states_cu.empty )
 	);
 
+	generate
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_burst_edge_data_write_cu_buffer_states_cu
+			assign burst_edge_data_write_cu_buffer_states_cu_out_latched[i] = burst_edge_data_write_cu_buffer_states_cu;
+		end
+	endgenerate
+
+	always_ff @(posedge clock) begin
+		burst_edge_data_write_cu_buffer_states_cu_out <= burst_read_command_buffer_states_cu_out_latched;
+	end
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex CU Read Data Arbitration
@@ -553,12 +608,12 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.DATA_WIDTH($bits(ResponseBufferLine)),
 		.BUS_WIDTH (NUM_VERTEX_CU            )
 	) read_response_demux_bus_instant (
-		.clock     (clock                                                                               ),
-		.rstn      (rstn                                                                                ),
+		.clock     (clock                                                                              ),
+		.rstn      (rstn                                                                               ),
 		.enabled_in(read_response_in_latched.valid                                                     ),
 		.sel_in    (read_response_in_latched.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in   (read_response_in_latched                                                           ),
-		.data_out  (read_response_cu                                                                    )
+		.data_out  (read_response_cu                                                                   )
 	);
 
 	demux_bus #(

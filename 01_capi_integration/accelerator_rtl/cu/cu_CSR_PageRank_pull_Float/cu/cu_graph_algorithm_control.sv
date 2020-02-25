@@ -53,8 +53,8 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	logic read_command_bus_request_latched;
 
 // vertex control variables
-	logic           vertex_job_request_latched   ;
-	VertexInterface vertex_job_latched           ;
+	logic           vertex_job_request_latched;
+	VertexInterface vertex_job_latched        ;
 
 	//output latched
 	ReadWriteDataLine write_data_0_out_latched ;
@@ -93,12 +93,18 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	logic                     enabled                                 ;
 	logic [             0:63] cu_configure_latched                    ;
 
-	BufferStatus      burst_read_command_buffer_states_cu;
-	CommandBufferLine burst_read_command_buffer_out      ;
+	BufferStatus      burst_read_command_buffer_states_cu[0:NUM_VERTEX_CU-1];
+	CommandBufferLine burst_read_command_buffer_out                         ;
 
-	BufferStatus      burst_edge_data_write_cu_buffer_states_cu                   ;
-	EdgeDataWrite     burst_edge_data_buffer_out                                  ;
-	EdgeDataRead      edge_data_read_cu                        [0:NUM_VERTEX_CU-1];
+	BufferStatus  burst_edge_data_write_cu_buffer_states_cu[0:NUM_VERTEX_CU-1];
+	EdgeDataWrite burst_edge_data_buffer_out                                  ;
+
+	EdgeDataRead edge_data_read_cu[0:NUM_VERTEX_CU-1];
+
+
+	logic [0:63] cu_configure_out  [0:NUM_VERTEX_CU-1];
+	logic        cu_rstn_out       [0:NUM_VERTEX_CU-1];
+	WEDInterface cu_wed_request_out[0:NUM_VERTEX_CU-1];
 
 
 	genvar i;
@@ -121,24 +127,24 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			write_command_out        <= 0;
-			write_data_0_out         <= 0;
-			write_data_1_out         <= 0;
-			read_command_out         <= 0;
-			vertex_job_request       <= 0;
-			vertex_job_counter_done  <= 0;
-			edge_job_counter_done    <= 0;
-			
+			write_command_out       <= 0;
+			write_data_0_out        <= 0;
+			write_data_1_out        <= 0;
+			read_command_out        <= 0;
+			vertex_job_request      <= 0;
+			vertex_job_counter_done <= 0;
+			edge_job_counter_done   <= 0;
+
 			read_command_bus_request <= 0;
 		end else begin
-			write_command_out        <= write_command_out_latched;
-			write_data_0_out         <= write_data_0_out_latched;
-			write_data_1_out         <= write_data_1_out_latched;
-			read_command_out         <= burst_read_command_buffer_out;
-			vertex_job_request       <= vertex_job_request_latched;
-			vertex_job_counter_done  <= vertex_job_counter_done_latched;
-			edge_job_counter_done    <= edge_job_counter_done_latched;
-			
+			write_command_out       <= write_command_out_latched;
+			write_data_0_out        <= write_data_0_out_latched;
+			write_data_1_out        <= write_data_1_out_latched;
+			read_command_out        <= burst_read_command_buffer_out;
+			vertex_job_request      <= vertex_job_request_latched;
+			vertex_job_counter_done <= vertex_job_counter_done_latched;
+			edge_job_counter_done   <= edge_job_counter_done_latched;
+
 			read_command_bus_request <= read_command_bus_request_latched;
 		end
 	end
@@ -160,18 +166,18 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 			write_buffer_status_latched       <= 0;
 			write_buffer_status_latched.empty <= 1;
 			vertex_job_latched                <= 0;
-			read_command_bus_grant_latched   <= 0;
+			read_command_bus_grant_latched    <= 0;
 		end else begin
 			if(enabled)begin
-				wed_request_in_latched      <= wed_request_in;
-				read_response_in_latched    <= read_response_in;
-				write_response_in_latched   <= write_response_in;
-				read_data_0_in_latched      <= read_data_0_in;
-				read_data_1_in_latched      <= read_data_1_in;
-				read_buffer_status_latched  <= read_buffer_status;
-				write_buffer_status_latched <= write_buffer_status;
-				vertex_job_latched          <= vertex_job;
-				read_command_bus_grant_latched   <= read_command_bus_grant;
+				wed_request_in_latched         <= wed_request_in;
+				read_response_in_latched       <= read_response_in;
+				write_response_in_latched      <= write_response_in;
+				read_data_0_in_latched         <= read_data_0_in;
+				read_data_1_in_latched         <= read_data_1_in;
+				read_buffer_status_latched     <= read_buffer_status;
+				write_buffer_status_latched    <= write_buffer_status;
+				vertex_job_latched             <= vertex_job;
+				read_command_bus_grant_latched <= read_command_bus_grant;
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
 			end
@@ -203,43 +209,47 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_pagerank_cu
 			cu_vertex_pagerank #(.PAGERANK_CU_ID(i)) cu_vertex_pagerank_instant (
-				.clock                      (clock                                    ),
-				.rstn                       (rstn                                     ),
-				.enabled_in                 (enable_cu[i]                             ),
-				.wed_request_in             (wed_request_in_latched                   ),
-				.cu_configure               (cu_configure_latched                     ),
-				.read_response_in           (read_response_cu[i]                      ),
-				.write_response_in          (write_response_cu[i]                     ),
-				.read_command_bus_grant     (ready_read_command_cu[i]                 ),
-				.read_command_bus_request   (request_read_command_cu[i]               ),
-				.edge_data_write_bus_grant  (ready_edge_data_write_cu[i]              ),
-				.edge_data_write_bus_request(request_edge_data_write_cu[i]            ),
-				.edge_data_read_in          (edge_data_read_cu[i]                     ),
-				.read_data_0_in             (read_data_0_cu[i]                        ),
-				.read_data_1_in             (read_data_1_cu[i]                        ),
-				.read_buffer_status         (burst_read_command_buffer_states_cu      ),
-				.read_command_out           (read_command_cu[i]                       ),
-				.write_buffer_status        (burst_edge_data_write_cu_buffer_states_cu),
-				.edge_data_write_out        (edge_data_write_cu[i]                    ),
-				.vertex_job                 (vertex_job_cu[i]                         ),
-				.vertex_job_request         (request_vertex_job_cu[i]                 ),
-				.vertex_num_counter         (vertex_num_counter_cu[i]                 ),
-				.edge_num_counter           (edge_num_counter_cu[i]                   )
+				.clock                      (clock                                       ),
+				.rstn                       (cu_rstn_out[i]                              ),
+				.enabled_in                 (enable_cu[i]                                ),
+				.wed_request_in             (cu_wed_request_out[i]                       ),
+				.cu_configure               (cu_configure_out[i]                         ),
+				.read_response_in           (read_response_cu[i]                         ),
+				.write_response_in          (write_response_cu[i]                        ),
+				.read_command_bus_grant     (ready_read_command_cu[i]                    ),
+				.read_command_bus_request   (request_read_command_cu[i]                  ),
+				.edge_data_write_bus_grant  (ready_edge_data_write_cu[i]                 ),
+				.edge_data_write_bus_request(request_edge_data_write_cu[i]               ),
+				.edge_data_read_in          (edge_data_read_cu[i]                        ),
+				.read_data_0_in             (read_data_0_cu[i]                           ),
+				.read_data_1_in             (read_data_1_cu[i]                           ),
+				.read_buffer_status         (burst_read_command_buffer_states_cu[i]      ),
+				.read_command_out           (read_command_cu[i]                          ),
+				.write_buffer_status        (burst_edge_data_write_cu_buffer_states_cu[i]),
+				.edge_data_write_out        (edge_data_write_cu[i]                       ),
+				.vertex_job                 (vertex_job_cu[i]                            ),
+				.vertex_job_request         (request_vertex_job_cu[i]                    ),
+				.vertex_num_counter         (vertex_num_counter_cu[i]                    ),
+				.edge_num_counter           (edge_num_counter_cu[i]                      )
 			);
 		end
 	endgenerate
 
 
 ////////////////////////////////////////////////////////////////////////////
-//vertex algorithm compute units arbitration
+//Graph algorithm compute units arbitration
 ////////////////////////////////////////////////////////////////////////////
 
 	cu_vertex_pagerank_arbiter_control #(.NUM_VERTEX_CU(NUM_VERTEX_CU)) cu_vertex_pagerank_arbiter_control_instant (
 		.clock                                        (clock                                    ),
 		.rstn                                         (rstn                                     ),
+		.cu_rstn_out                                  (cu_rstn_out                              ),
 		.enabled_in                                   (enabled                                  ),
+		.wed_request_in                               (wed_request_in_latched                   ),
+		.cu_wed_request_out                           (cu_wed_request_out                       ),
 		.enable_cu_out                                (enable_cu                                ),
 		.cu_configure                                 (cu_configure_latched                     ),
+		.cu_configure_out                             (cu_configure_out                         ),
 		.read_response_in                             (read_response_in_latched                 ),
 		.read_data_0_in                               (read_data_0_in_latched                   ),
 		.read_data_1_in                               (read_data_1_in_latched                   ),

@@ -467,7 +467,7 @@ cache-perf-openmp: app-openmp
 
  PART?=5SGXMA7H2F35C2
  PROJECT?= accel-graph
- CU?=cu_PageRank_pull
+ CU_SET_SIM?=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 
 ##############################################
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #
@@ -539,7 +539,7 @@ run-test-capi: test-capi
 
 .PHONY: run-vsim
 run-vsim: build-libdpi
-	cd $(CAPI_SIM) && vsim -do "set project_algorithm $(CU);source vsim.tcl"
+	cd $(CAPI_SIM) && vsim -do "$(CU_SET_SIM);source vsim.tcl"
 
 .PHONY: run-pslse
 run-pslse: build-pslse

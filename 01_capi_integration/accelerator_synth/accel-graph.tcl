@@ -5,13 +5,25 @@ set LIBCAPI  ./capi
 set VERSION   [binary format A24 [exec $LIBCAPI/scripts/version.py]]
 set project_revision accel-graph
 
-if { $argc != 1 } {
-	puts "Default Project cu_PageRank_pull"
-	set project_algorithm cu_PageRank_pull
+
+if { $argc != 4 } {
+	puts "SET Project to DEFAULT"
+	set graph_algorithm "cu_PageRank"
+	set data_structure 	"CSR"
+	set direction 		"PULL"
+	set cu_precision 	"Float"
 } else {
-	puts "SET Project to [lindex $argv 0]"
-	set project_algorithm "[lindex $argv 0]"
+	puts "SET Project to ARGV"
+	set graph_algorithm "[lindex $argv 0]"
+	set data_structure 	"[lindex $argv 1]"
+	set direction 		"[lindex $argv 2]"
+	set cu_precision 	"[lindex $argv 3]"
 }
+
+puts "Algorithm $graph_algorithm"
+puts "Datastructure $data_structure"
+puts "Direction $direction"
+puts "Precision $cu_precision"
 
 project_new $project_name -overwrite -revision $project_revision
 
@@ -56,10 +68,18 @@ foreach filename [glob ../accelerator_rtl/pkg/*.sv] {
 #     set_global_assignment -name SYSTEMVERILOG_FILE $filename
 # }
 
-foreach filename [glob ../accelerator_rtl/cu/$project_algorithm/cu/*.sv] {
+foreach filename [glob ../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/*.sv] {
 	set_global_assignment -name SYSTEMVERILOG_FILE $filename
 }
 
-foreach filename [glob ../accelerator_rtl/cu/$project_algorithm/pkg/*.sv] {
+foreach filename [glob ../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_pkg/*.sv] {
+	set_global_assignment -name SYSTEMVERILOG_FILE $filename
+}
+
+foreach filename [glob ../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/$cu_precision/cu/*.sv] {
+	set_global_assignment -name SYSTEMVERILOG_FILE $filename
+}
+
+foreach filename [glob ../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/$cu_precision/pkg/*.sv] {
 	set_global_assignment -name SYSTEMVERILOG_FILE $filename
 }

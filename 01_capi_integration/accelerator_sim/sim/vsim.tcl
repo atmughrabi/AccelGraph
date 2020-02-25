@@ -10,7 +10,10 @@
 
 # recompile
 proc r  {} {
-  global project_algorithm
+  global graph_algorithm
+  global data_structure
+  global direction
+  global cu_precision
   # compile SystemVerilog files
 
   # compile libs
@@ -23,21 +26,31 @@ proc r  {} {
   vlog -quiet ../../accelerator_rtl/pkg/wed_pkg.sv
   vlog -quiet ../../accelerator_rtl/pkg/credit_pkg.sv
 
-  if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
-   echo "Compiling Packages CU CSR PAGERANK PULL Float"
-   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
-   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
-   } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_FixedPoint"} {
-   echo "Compiling Packages CU CSR PAGERANK PULL FixedPoint"
-   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
-   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
-   } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_Quant"} {
-   echo "Compiling Packages CU CSR PAGERANK PULL Quant"
-   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/globals_cu_pkg.sv
-   vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/pkg/cu_pkg.sv
+
+  echo "Compiling CU Packages"
+  echo "Algorithm $graph_algorithm"
+  echo "Datastructure $data_structure"
+  echo "Direction $direction"
+  echo "Precision $cu_precision"
+
+  if {$graph_algorithm eq "cu_PageRank"} {
+    if {$data_structure eq "CSR"} {
+     vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/$cu_precision/pkg/globals_cu_pkg.sv
+     vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_pkg/cu_pkg.sv
+  
+   } elseif {$data_structure eq "GRID"} {
+    
+  
    } else {
-    echo "UNKNOWN Packages CU"
+    echo "UNKNOWN Datastructure"
   }
+   } elseif {$graph_algorithm eq "cu_BFS"} {
+  
+  
+   } else {
+    echo "UNKNOWN Algorithm"
+  }
+
 
   echo "Compiling Packages AFU-2"
   vlog -quiet ../../accelerator_rtl/pkg/afu_pkg.sv
@@ -79,54 +92,36 @@ proc r  {} {
   vlog -quiet ../../accelerator_rtl/afu/wed_control.sv
 
   echo "Compiling RTL CU control "
+  echo "Algorithm $graph_algorithm"
+  echo "Datastructure $data_structure"
+  echo "Direction $direction"
+  echo "Precision $cu_precision"
 
-  if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
-    echo "Compiling RTL CU control CSR PAGERANK PULL Float"
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_fp_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_write_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_read_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_job_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_filter.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank_arbiter_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
-  } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_FixedPoint"} {
-    echo "Compiling RTL CU control CSR PAGERANK PULL FixedPoint"
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_write_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_read_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_job_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_filter.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank_arbiter_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
-  } elseif {$project_algorithm eq "cu_CSR_PageRank_pull_Quant"} {
-    echo "Compiling RTL CU control CSR PAGERANK PULL Quant"
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_cacheline_stream.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/array_struct_type_demux_bus.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_sum_kernel_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_write_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_read_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_data_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_edge_job_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_filter.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_job_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank_arbiter_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_vertex_pagerank.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_graph_algorithm_control.sv
-    vlog -quiet ../../accelerator_rtl/cu/$project_algorithm/cu/cu_control.sv
-  } else {
-    echo "UNKNOWN RTL CU"
+  if {$graph_algorithm eq "cu_PageRank"} {
+    if {$data_structure eq "CSR"} {
+
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/array_struct_type_demux_bus.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/$cu_precision/cu/cu_sum_kernel_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_write_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_read_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_job_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_job_filter.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_job_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_pagerank_arbiter_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_pagerank.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_graph_algorithm_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_control.sv
+  
+   } elseif {$data_structure eq "GRID"} {
+  
+   } else {
+    echo "UNKNOWN Datastructure"
+    }
+   } elseif {$graph_algorithm eq "cu_BFS"} {
+  
+   } else {
+    echo "UNKNOWN Algorithm"
   }
 
     echo "Compiling RTL AFU"
@@ -185,7 +180,6 @@ proc c_fp {} {
 
 # shortcut for recompilation + simulation
 proc rc {} {
-
   # init libs
   vlib work
   vmap work work
@@ -195,11 +189,11 @@ proc rc {} {
 }
 
 proc rcf {} {
-  global project_algorithm
+  global direction
 
-  if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
+  if {$direction eq "PULL"} {
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_acc/fp_single_add_acc_sim"
-  } elseif {$project_algorithm eq "cu_CSR_PageRank_push"} {
+  } elseif {$direction eq "PUSH"} {
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_add/fp_single_add_sim"
   } else {
   echo "UNKNOWN Packages CU"
@@ -219,11 +213,11 @@ proc rcf {} {
 }
 
 proc rcd {} {
-  global project_algorithm
+  global direction
 
-  if {$project_algorithm eq "cu_CSR_PageRank_pull"} {
+  if {$direction eq "PULL"} {
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_double_precision_acc/fp_double_add_acc_sim"
-  } elseif {$project_algorithm eq "cu_CSR_PageRank_push"} {
+  } elseif {$direction eq "PUSH"} {
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_double_precision_add/fp_double_add_sim"
   } else {
   echo "UNKNOWN Packages CU"

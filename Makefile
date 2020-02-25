@@ -99,13 +99,13 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 4
+export PULL_PUSH 		= 0
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
 export NUM_THREADS  	= 64
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 5
+export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 	= 1
@@ -177,7 +177,7 @@ export CU_CONFIG_MODE=0x00000000
 # FIXED_ARB               [62]
 # ROUND_ROBIN_ARB         [63]
 
-export ROUND_ROBIN_ARB=0x6611000000000001
+export ROUND_ROBIN_ARB=0x1111000000000001
 export FIXED_ARB=0x1111000000000002
 
 ##############################################
@@ -297,7 +297,13 @@ clean-all: clean clean-sim clean-synth
 
 export PART=5SGXMA7H2F35C2
 export PROJECT = accel-graph
-export CU=$(shell python ./$(SCRIPT_DIR)/choose_algorithm.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
+export CU_SET_SIM=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
+export CU_SET_SYNTH=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
+
+export CU_GRAPH_ALGORITHM = $(word 1, $(CU_SET_SYNTH))
+export CU_DATA_STRUCTURE =  $(word 2, $(CU_SET_SYNTH))
+export CU_DIRECTION =       $(word 3, $(CU_SET_SYNTH))
+export CU_PRECISION = 	  $(word 4, $(CU_SET_SYNTH))
 
 # export CU = cu_PageRank_pull
 
