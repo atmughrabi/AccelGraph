@@ -138,6 +138,10 @@ proc r  {} {
 
 # simulate
 proc c {} {
+  global graph_algorithm
+  global data_structure
+  global direction
+  global cu_precision
   # vsim -t ns -novopt -c -pli pslse/afu_driver/src/veriuser.sl +nowarnTSCALE work.top
   # vsim -t ns -L work -L work_lib -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L stratixv_ver -L stratixv_hssi_ver -L stratixv_pcie_hip_ver -novopt  -voptargs=+acc=npr -c -sv_lib ../../pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
   vsim -t ns -novopt -voptargs=+acc=npr -c -sv_lib ../../pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
@@ -150,7 +154,9 @@ proc c {} {
   # do watch_command_interface.do
   # do watch_buffer_interface.do
   # do watch_response_interface.do
-  
+  # vcd file ${graph_algorithm}_${data_structure}_${direction}_${cu_precision}.vcd
+
+  # vcd add * -r
   # view structure
   # view signals
   # view wave

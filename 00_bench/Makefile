@@ -388,6 +388,7 @@ clean-sim:
 	@rm -f $(CAPI_SIM)/vsim_stacktrace.vstf
 	@rm -f $(CAPI_SIM)/vish_stacktrace.vstf
 	@rm -f $(CAPI_SIM)/vsim.wlf
+	@rm -f $(CAPI_SIM)/*.vcd
 	@rm -rf $(CAPI_SIM)/work
 	@rm -rf $(CAPI_SIM)/libraries
 	@rm -f $(CAPI_SERVER)/debug.log
