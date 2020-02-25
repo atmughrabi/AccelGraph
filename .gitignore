@@ -12,6 +12,7 @@ nohup.out
 .qsys_edit
 00_bench/nohup.out
 
+01_capi_integration/synthesize_*
 01_capi_integration/accelerator_sim/sim/modelsim.ini
 01_capi_integration/accelerator_sim/sim/transcript
 01_capi_integration/accelerator_sim/sim/vish_stacktrace.vstf

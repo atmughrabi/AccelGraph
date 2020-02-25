@@ -12,7 +12,8 @@ APP_TEST          ?= test_accel-graph
 
 # dirs Root app 
 APP_DIR           	?= .
-SCRIPT_DIR          ?= ../03_scripts
+CAPI_INTEG_DIR      ?= 01_capi_integration
+SCRIPT_DIR          ?= 03_scripts
 # BENCHMARKS_DIR    	= ../../01_GraphDatasets
 BENCHMARKS_DIR    	?= ../04_test_graphs
 
@@ -229,11 +230,11 @@ FAIL = \033[91mFAIL\033[0m
 
 ARCHITECTURE = $(shell uname -p) # store the output of the command in a variable if on intel run simulation if power8 run fpga
 
-PSLSE_DIR         = ../01_capi_integration/pslse
-LIBCXL_DIR        = ../01_capi_integration/libcxl
-CAPI_UTILS_DIR    = ../01_capi_integration/capi-utils
-CAPI_ACCEL		  = ../01_capi_integration/accelerator_rtl
-CAPI_COMMON		  = ../01_capi_integration/accelerator_sim
+PSLSE_DIR         = ../$(CAPI_INTEG_DIR)/pslse
+LIBCXL_DIR        = ../$(CAPI_INTEG_DIR)/libcxl
+CAPI_UTILS_DIR    = ../$(CAPI_INTEG_DIR)/capi-utils
+CAPI_ACCEL		  = ../$(CAPI_INTEG_DIR)/accelerator_rtl
+CAPI_COMMON		  = ../$(CAPI_INTEG_DIR)/accelerator_sim
 
 CAPI_SIM		  = $(CAPI_COMMON)/sim
 CAPI_SERVER		  = $(CAPI_COMMON)/server
@@ -467,7 +468,7 @@ cache-perf-openmp: app-openmp
 
  PART?=5SGXMA7H2F35C2
  PROJECT?= accel-graph
- CU_SET_SIM?=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
+ CU_SET_SIM?=$(shell python ../$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 
 ##############################################
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #

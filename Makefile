@@ -1,6 +1,3 @@
-
-
-
 #########################################################
 #       		 GENERAL DIRECTOIRES   	    			#
 #########################################################
@@ -14,6 +11,7 @@ export APP_TEST          = test_afu
 
 # dirs Root app 
 export APP_DIR              = .
+export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 export BENCHMARKS_DIR    	= ../04_test_graphs
 
@@ -99,7 +97,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 0
+export PULL_PUSH 		= 4
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -108,12 +106,12 @@ export NUM_THREADS  	= 64
 export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
 
-export FILE_FORMAT 	= 1
+export FILE_FORMAT 		= 1
 export CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
-export BIN_SIZE = 512
-export INOUT_STATS = 2
+export BIN_SIZE 		= 512
+export INOUT_STATS 		= 2
 
 ##############################################
 # CAPI FPGA AFU PREFETCH CONFIG              #
@@ -194,7 +192,8 @@ export AFU_CONFIG_GENERIC=$(AFU_CONFIG_MODE)
 
 APP_DIR                 = .
 MAKE_DIR                = 00_bench
-MAKE_DIR_SYNTH          = 01_capi_integration/accelerator_synth
+# MAKE_DIR_SYNTH          = 01_capi_integration/accelerator_synth
+MAKE_DIR_SYNTH          = $(CAPI_INTEG_DIR)/$(SYNTH_DIR)
 
 MAKE_NUM_THREADS        = $(shell grep -c ^processor /proc/cpuinfo)
 MAKE_ARGS               = -w -C $(APP_DIR)/$(MAKE_DIR) -j$(MAKE_NUM_THREADS)
@@ -284,7 +283,7 @@ clean-obj:
 	$(MAKE) clean-obj $(MAKE_ARGS)
 
 .PHONY: clean-all
-clean-all: clean clean-sim clean-synth
+clean-all: clean clean-sim clean-synth 
 
 ##################################################
 ##################################################
@@ -300,10 +299,15 @@ export PROJECT = accel-graph
 export CU_SET_SIM=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 export CU_SET_SYNTH=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 
-export CU_GRAPH_ALGORITHM = $(word 1, $(CU_SET_SYNTH))
-export CU_DATA_STRUCTURE =  $(word 2, $(CU_SET_SYNTH))
-export CU_DIRECTION =       $(word 3, $(CU_SET_SYNTH))
-export CU_PRECISION = 	  $(word 4, $(CU_SET_SYNTH))
+export CU_GRAPH_ALGORITHM 	= 	$(word 1, $(CU_SET_SYNTH))
+export CU_DATA_STRUCTURE 	= 	$(word 2, $(CU_SET_SYNTH))
+export CU_DIRECTION 		=   $(word 3, $(CU_SET_SYNTH))
+export CU_PRECISION 		= 	$(word 4, $(CU_SET_SYNTH))
+
+export VERSION_GIT = $(shell python ./$(SCRIPT_DIR)/version.py)
+export TIME_STAMP = $(shell date +%Y_%m_%d_%H_%M_%S)
+
+export SYNTH_DIR = synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)
 
 # export CU = cu_PageRank_pull
 
@@ -375,67 +379,80 @@ clean-sim:
 ##############################################
 
 .PHONY: run-synth
-run-synth:
+run-synth: synth-directories
 	$(MAKE) all $(MAKE_ARGS_SYNTH)
 
 .PHONY: run-synth-gui
-run-synth-gui:
+run-synth-gui: synth-directories
 	$(MAKE) gui $(MAKE_ARGS_SYNTH)
 
 .PHONY: run-synth-sweep
-run-synth-sweep:
+run-synth-sweep: synth-directories
 	$(MAKE) sweep $(MAKE_ARGS_SYNTH)
 
 .PHONY: map
-map:
+map: synth-directories
 	$(MAKE) map $(MAKE_ARGS_SYNTH)
 
 .PHONY: fit
-fit:
+fit: synth-directories
 	$(MAKE) fit $(MAKE_ARGS_SYNTH)
 
 .PHONY: asm
-asm:
+asm: synth-directories
 	$(MAKE) asm $(MAKE_ARGS_SYNTH)
 
 .PHONY: sta
-sta:
+sta: synth-directories
 	$(MAKE) sta $(MAKE_ARGS_SYNTH)
 
 .PHONY: qxp
-qxp:
+qxp: synth-directories
 	$(MAKE) qxp $(MAKE_ARGS_SYNTH)
 
 .PHONY: rbf
-rbf:
+rbf: synth-directories
 	$(MAKE) rbf $(MAKE_ARGS_SYNTH)
 
 .PHONY: smart
-smart:
+smart: synth-directories
 	$(MAKE) smart $(MAKE_ARGS_SYNTH)
 
 .PHONY: program
-program:
+program: synth-directories
 	$(MAKE) program $(MAKE_ARGS_SYNTH)
 
 .PHONY: timing
-timing:
+timing: synth-directories
 	$(MAKE) timing $(MAKE_ARGS_SYNTH)
 
 .PHONY: stats
-stats:
+stats: synth-directories
 	$(MAKE) stats $(MAKE_ARGS_SYNTH)
 
 .PHONY: gen-rbf
-gen-rbf:
+gen-rbf: synth-directories
 	$(MAKE) gen-rbf $(MAKE_ARGS_SYNTH)
 
 .PHONY:copy-rbf
-copy-rbf:
+copy-rbf: synth-directories
 	$(MAKE) copy-rbf $(MAKE_ARGS_SYNTH)
 
 .PHONY: clean-synth
-clean-synth:
+clean-synth: 
 	$(MAKE) clean $(MAKE_ARGS_SYNTH)
+
+.PHONY: clean-synth-all
+clean-synth-all: 
+	@rm -rf $(APP_DIR)/$(CAPI_INTEG_DIR)/synthesize_*
+
+.PHONY: synth-directories
+synth-directories : $(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR)
+
+.PHONY: $(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR)
+$(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR) :	
+	@mkdir -p $(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR)
+	@cp  -a $(APP_DIR)/$(CAPI_INTEG_DIR)/accelerator_synth/* $(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR)
+
 ##################################################
 ##################################################

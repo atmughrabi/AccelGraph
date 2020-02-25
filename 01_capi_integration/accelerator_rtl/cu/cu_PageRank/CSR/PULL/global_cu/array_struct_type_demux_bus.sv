@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : array_struct_type_demux_bus.sv
 // Create : 2020-02-21 22:35:40
-// Revise : 2020-02-21 22:58:21
+// Revise : 2020-02-25 01:22:43
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -26,12 +26,13 @@ module array_struct_type_demux_bus #(
 	output logic [0:DATA_WIDTH-1] data_out [0:BUS_WIDTH-1]
 );
 
-	logic                  enabled                        ;
-	array_struct_type      sel_in_latched                 ;
-	array_struct_type      sel_in_internal                ;
-	logic [0:DATA_WIDTH-1] data_in_latched                ;
-	logic [0:DATA_WIDTH-1] data_in_internal               ;
-	logic [0:DATA_WIDTH-1] data_out_latched[0:BUS_WIDTH-1];
+	logic                  enabled                           ;
+	array_struct_type      sel_in_latched                    ;
+	array_struct_type      sel_in_internal                   ;
+	logic [0:DATA_WIDTH-1] data_in_latched                   ;
+	logic [0:DATA_WIDTH-1] data_in_internal                  ;
+	logic [0:DATA_WIDTH-1] data_out_latched   [0:BUS_WIDTH-1];
+	logic [0:DATA_WIDTH-1] data_out_latched_S2[0:BUS_WIDTH-1];
 
 	integer i;
 
@@ -82,7 +83,11 @@ module array_struct_type_demux_bus #(
 	end
 
 	always_ff @(posedge clock) begin
-		data_out <= data_out_latched;
+		data_out_latched_S2 <= data_out_latched;
+	end
+
+	always_ff @(posedge clock) begin
+		data_out <= data_out_latched_S2;
 	end
 
 

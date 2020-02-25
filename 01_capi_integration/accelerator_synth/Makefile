@@ -38,8 +38,10 @@ CU_DATA_STRUCTURE ?=  $(word 2, $(CU_SET_SYNTH))
 CU_DIRECTION ?=       $(word 3, $(CU_SET_SYNTH))
 CU_PRECISION ?= 	  $(word 4, $(CU_SET_SYNTH))
 
-VERION_GIT = $(shell python ./capi/scripts/version.py)
-TIME_STAMP = $(shell date +%Y_%m_%d_%H_%M_%S)
+SYNTH_DIR ?= synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)
+
+VERSION_GIT ?= $(shell python ./capi/scripts/version.py)
+TIME_STAMP ?= $(shell date +%Y_%m_%d_%H_%M_%S)
 ACCEL_RTL_DIR = accelerator_rtl
 ACCEL_BIN_DIR = accelerator_bin
 SOURCE_FILES =  $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.vhdl) $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.vhd) $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.v) $(wildcard ../$(ACCEL_RTL_DIR)/afu/*.sv)   \
@@ -114,7 +116,7 @@ $(PROJECT).sta.rpt: sta.chg $(PROJECT).fit.rpt
 
 $(PROJECT).rbf: $(PROJECT).asm.rpt $(PROJECT).sta.rpt
 	quartus_cpf --64bit -c $(PROJECT).sof $(PROJECT).rbf &&\
-	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_$(VERION_GIT)_$(TIME_STAMP).rbf 
+	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_$(VERSION_GIT)_$(TIME_STAMP).rbf 
 
 
 smart.log: $(ASSIGNMENT_FILES)
@@ -157,11 +159,11 @@ program: $(PROJECT).sof
 .PHONY:gen-rbf
 gen-rbf:
 	quartus_cpf --64bit -c $(PROJECT).sof $(PROJECT).rbf &&\
-	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_$(VERION_GIT)_$(TIME_STAMP).rbf 
+	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_$(VERSION_GIT)_$(TIME_STAMP).rbf 
 
 .PHONY:copy-rbf
 copy-rbf:
-	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_$(VERION_GIT)_$(TIME_STAMP).rbf 
+	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_$(VERSION_GIT)_$(TIME_STAMP).rbf 
 
 .PHONY:stats
 stats:
@@ -173,4 +175,4 @@ gui: $(ASSIGNMENT_FILES)
 
 .PHONY:sweep 
 sweep: sweep.chg $(PROJECT).merge.rpt
-	quartus_sh --64bit -t sweep.tcl
+	quartus_sh --64bit -t sweep.tcl 
