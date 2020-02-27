@@ -62,6 +62,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	EdgeDataRead       edge_data_variable                      ;
 	logic [0:63]       cu_configure_latched                    ;
 	CommandBufferLine  read_command_edge_data_burst_out_latched;
+	logic [0:63]       cu_configure_internal                   ;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -70,11 +71,13 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			enabled     <= 0;
-			enabled_cmd <= 0;
+			enabled               <= 0;
+			enabled_cmd           <= 0;
+			cu_configure_internal <= 0;
 		end else begin
-			enabled     <= enabled_in;
-			enabled_cmd <= enabled && (|cu_configure_latched);
+			enabled               <= enabled_in;
+			enabled_cmd           <= enabled && (|cu_configure_latched);
+			cu_configure_internal <= cu_configure;
 		end
 	end
 
@@ -119,8 +122,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 				edge_job_latched          <= edge_job;
 				edge_data_variable        <= edge_data_read_in;
 				edge_data_request_latched <= edge_data_request;
-				if((|cu_configure))
-					cu_configure_latched <= cu_configure;
+				if((|cu_configure_internal))
+					cu_configure_latched <= cu_configure_internal;
 			end
 		end
 	end

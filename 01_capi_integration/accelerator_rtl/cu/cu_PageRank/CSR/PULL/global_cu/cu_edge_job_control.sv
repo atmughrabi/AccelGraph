@@ -42,6 +42,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	logic           read_command_bus_grant_latched  ;
 	logic           read_command_bus_request_latched;
 	BufferStatus    edge_buffer_status              ;
+	logic [0:63]    cu_configure_internal           ;
 
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0            ;
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1            ;
@@ -113,11 +114,13 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			enabled     <= 0;
-			enabled_cmd <= 0;
+			enabled               <= 0;
+			enabled_cmd           <= 0;
+			cu_configure_internal <= 0;
 		end else begin
-			enabled     <= enabled_in;
-			enabled_cmd <= enabled && (|cu_configure_latched);
+			enabled               <= enabled_in;
+			enabled_cmd           <= enabled && (|cu_configure_latched);
+			cu_configure_internal <= cu_configure;
 		end
 	end
 
@@ -169,8 +172,8 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			if(enabled) begin
 				wed_request_in_latched <= wed_request_in;
 
-				if((|cu_configure))
-					cu_configure_latched <= cu_configure;
+				if((|cu_configure_internal))
+					cu_configure_latched <= cu_configure_internal;
 
 				if(read_vertex)begin
 					vertex_job_latched <= vertex_job;
@@ -464,7 +467,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		if(~rstn) begin
 			reg_INV_EDGE_ARRAY_DEST_0 <= 0;
 		end else begin
-			if(enabled_cmd && read_data_0_in_latched.valid) begin
+			if(read_data_0_in_latched.valid) begin
 				case (read_data_0_in_latched.cmd.array_struct)
 					INV_EDGE_ARRAY_DEST : begin
 						reg_INV_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched;
@@ -482,7 +485,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		if(~rstn) begin
 			reg_INV_EDGE_ARRAY_DEST_1 <= 0;
 		end else begin
-			if(enabled_cmd && read_data_1_in_latched.valid) begin
+			if( read_data_1_in_latched.valid) begin
 				case (read_data_1_in_latched.cmd.array_struct)
 					INV_EDGE_ARRAY_DEST : begin
 						reg_INV_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched;
@@ -500,7 +503,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 		if(~rstn) begin
 			inverse_edge_array_dest_data_ready <= 0;
 		end else begin
-			if(enabled_cmd && read_response_in_latched.valid) begin
+			if(read_response_in_latched.valid) begin
 				case (read_response_in_latched.cmd.array_struct)
 					INV_EDGE_ARRAY_DEST : begin
 						inverse_edge_array_dest_data_ready <= 1;
@@ -521,7 +524,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			shift_seek    <= 0;
 			zero_pass     <= 0;
 		end else begin
-			if(enabled_cmd && read_response_in_latched.valid) begin
+			if(read_response_in_latched.valid) begin
 				if(~(|shift_limit_0) && ~shift_limit_clear) begin
 					if((read_response_in_latched.cmd.real_size+read_response_in_latched.cmd.cacheline_offest) > CACHELINE_EDGE_NUM_HF) begin
 						shift_limit_0 <= CACHELINE_EDGE_NUM_HF-1;

@@ -36,11 +36,22 @@ module round_robin_priority_arbiter_N_input_1_ouput #(
 ////////////////////////////////////////////////////////////////////////////
 
   logic [NUM_REQUESTS-1:0] grant;
+  logic enabled_internal;
 
 // vc_RoundRobinArb
 //------------------------------------------------------------------------
 // Ensures strong fairness among the requesters. The requester which wins
 // the grant will be the lowest priority requester the next cycle.
+
+
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      enabled_internal     <= 0;
+    end else begin
+      enabled_internal     <= enabled;
+    end
+  end
+
 
 
   generate if(NUM_REQUESTS > 1) begin
@@ -72,7 +83,7 @@ module round_robin_priority_arbiter_N_input_1_ouput #(
       arbiter_out <= 0;
       ready       <= 0;
     end else begin
-      if (enabled) begin
+      if (enabled_internal) begin
         for ( i = 0; i < NUM_REQUESTS; i++) begin
           if (submit[i]) begin
             arbiter_out <= buffer_in[i];

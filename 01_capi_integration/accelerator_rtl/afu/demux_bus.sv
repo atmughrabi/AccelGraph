@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : demux_bus.sv
 // Create : 2020-02-21 19:20:47
-// Revise : 2020-02-21 21:46:32
+// Revise : 2020-02-27 07:55:18
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -25,12 +25,13 @@ module demux_bus #(
 	output logic [0:DATA_WIDTH-1] data_out [0:BUS_WIDTH-1]
 );
 
-	logic                  enabled                        ;
-	logic [ 0:SEL_WIDTH-1] sel_in_latched                 ;
-	logic [ 0:SEL_WIDTH-1] sel_in_internal                ;
-	logic [0:DATA_WIDTH-1] data_in_latched                ;
-	logic [0:DATA_WIDTH-1] data_in_internal               ;
-	logic [0:DATA_WIDTH-1] data_out_latched[0:BUS_WIDTH-1];
+	logic                  enabled                           ;
+	logic [ 0:SEL_WIDTH-1] sel_in_latched                    ;
+	logic [ 0:SEL_WIDTH-1] sel_in_internal                   ;
+	logic [0:DATA_WIDTH-1] data_in_latched                   ;
+	logic [0:DATA_WIDTH-1] data_in_internal                  ;
+	logic [0:DATA_WIDTH-1] data_out_latched   [0:BUS_WIDTH-1];
+	logic [0:DATA_WIDTH-1] data_out_latched_S2[0:BUS_WIDTH-1];
 
 	integer i;
 
@@ -74,8 +75,13 @@ module demux_bus #(
 		end
 	end
 
+
 	always_ff @(posedge clock) begin
-		data_out <= data_out_latched;
+		data_out_latched_S2 <= data_out_latched;
+	end
+
+	always_ff @(posedge clock) begin
+		data_out <= data_out_latched_S2;
 	end
 
 
