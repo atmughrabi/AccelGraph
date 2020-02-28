@@ -60,25 +60,36 @@ module cu_vertex_pagerank #(
 // vertex control variables
 	logic           vertex_job_request_send;
 	VertexInterface vertex_job_latched     ;
-	VertexInterface vertex_job_latched_S2  ;
-	logic [0:63]    cu_configure_latched   ;
-	logic [0:63]    cu_configure_internal  ;
+
+	logic [0:63] cu_configure_latched ;
+	logic [0:63] cu_configure_internal;
 
 	logic           vertex_request_internal      ;
 	BufferStatus    vertex_buffer_status_internal;
 	VertexInterface vertex_job_burst_in          ;
-	VertexInterface vertex_job_burst_out         ;
+
+	VertexInterface vertex_job_burst_out;
 
 	//output latched
 	CommandBufferLine read_command_out_latched;
 
 	//input lateched
-	WEDInterface       wed_request_in_latched   ;
+	WEDInterface wed_request_in_latched;
+
 	ResponseBufferLine read_response_in_latched ;
 	ResponseBufferLine write_response_in_latched;
 	ReadWriteDataLine  read_data_0_in_latched   ;
 	ReadWriteDataLine  read_data_1_in_latched   ;
 
+
+	logic vertex_job_burst_in_valid      ;
+	logic vertex_job_latched_valid       ;
+	logic wed_request_in_latched_valid   ;
+	logic read_data_0_in_latched_valid   ;
+	logic read_data_1_in_latched_valid   ;
+	logic read_response_in_latched_valid ;
+	logic write_response_in_latched_valid;
+	logic edge_data_read_valid           ;
 
 	ResponseBufferLine write_response_in_edge_data;
 	ResponseBufferLine read_response_in_edge_job  ;
@@ -128,7 +139,7 @@ module cu_vertex_pagerank #(
 			enabled_cmd <= 0;
 		end else begin
 			enabled     <= enabled_in;
-			enabled_cmd <= (|cu_configure_latched) && wed_request_in_latched.valid;
+			enabled_cmd <= (|cu_configure_latched) && wed_request_in_latched_valid;
 		end
 	end
 
@@ -171,16 +182,17 @@ module cu_vertex_pagerank #(
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_command_out    <= 0;
-			vertex_job_request  <= 0;
-			edge_data_write_out <= 0;
+			vertex_job_request <= 0;
 		end else begin
 			if(enabled_cmd)begin
-				edge_data_write_out <= edge_data_write_out_internal;
-				read_command_out    <= read_command_out_latched;
-				vertex_job_request  <= vertex_job_request_send;
+				vertex_job_request <= vertex_job_request_send;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		edge_data_write_out <= edge_data_write_out_internal;
+		read_command_out    <= read_command_out_latched;
 	end
 
 	////////////////////////////////////////////////////////////////////////////
@@ -189,35 +201,44 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_in_latched <= 0;
-			read_data_1_in_latched <= 0;
-			cu_configure_internal  <= 0;
+			read_data_0_in_latched_valid    <= 0;
+			read_data_1_in_latched_valid    <= 0;
+			cu_configure_internal           <= 0;
+			wed_request_in_latched_valid    <= 0;
+			read_response_in_latched_valid  <= 0;
+			write_response_in_latched_valid <= 0;
+			vertex_job_burst_in_valid       <= 0;
 		end else begin
-			read_data_0_in_latched <= read_data_0_in;
-			read_data_1_in_latched <= read_data_1_in;
-			cu_configure_internal  <= cu_configure;
+			read_data_0_in_latched_valid    <= read_data_0_in.valid;
+			read_data_1_in_latched_valid    <= read_data_1_in.valid;
+			cu_configure_internal           <= cu_configure;
+			wed_request_in_latched_valid    <= wed_request_in.valid;
+			read_response_in_latched_valid  <= read_response_in.valid;
+			write_response_in_latched_valid <= write_response_in.valid;
+			vertex_job_burst_in_valid       <= vertex_job.valid;
+			edge_data_read_valid            <= edge_data_read_in.valid;
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		read_data_0_in_latched    <= read_data_0_in;
+		read_data_1_in_latched    <= read_data_1_in;
+		wed_request_in_latched    <= wed_request_in;
+		read_response_in_latched  <= read_response_in;
+		write_response_in_latched <= write_response_in;
+		vertex_job_burst_in       <= vertex_job;
+		edge_data_read            <= edge_data_read_in;
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched            <= 0;
-			read_response_in_latched          <= 0;
-			write_response_in_latched         <= 0;
-			edge_data_read                    <= 0;
 			cu_configure_latched              <= 0;
-			vertex_job_burst_in               <= 0;
 			write_buffer_status_latched       <= 0;
 			write_buffer_status_latched.empty <= 1;
 			read_buffer_status_latched        <= 0;
 			read_buffer_status_latched.empty  <= 1;
 		end else begin
 			if(enabled)begin
-				wed_request_in_latched      <= wed_request_in;
-				read_response_in_latched    <= read_response_in;
-				write_response_in_latched   <= write_response_in;
-				edge_data_read              <= edge_data_read_in;
-				vertex_job_burst_in         <= vertex_job;
 				write_buffer_status_latched <= write_buffer_status;
 				read_buffer_status_latched  <= read_buffer_status;
 				if((|cu_configure_internal))
@@ -232,19 +253,25 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_job_latched    <= 0;
-			vertex_job_latched_S2 <= 0;
+			vertex_job_latched_valid <= 0;
 		end else begin
 			if(enabled)begin
 				if(vertex_job_burst_out.valid && ~processing_vertex) begin
-					vertex_job_latched <= vertex_job_burst_out;
+					vertex_job_latched_valid <= vertex_job_burst_out.valid;
 				end
-				if ((edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree) && vertex_job_latched.valid) begin
-					vertex_job_latched <= 0;
+				if ((edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree) && vertex_job_latched_valid) begin
+					vertex_job_latched_valid <= 0;
 				end
 			end
+		end
+	end
 
-			vertex_job_latched_S2 <= vertex_job_latched;
+	always_ff @(posedge clock) begin
+		if(vertex_job_burst_out.valid && ~processing_vertex) begin
+			vertex_job_latched <= vertex_job_burst_out;
+		end
+		if ((edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree) && vertex_job_latched_valid) begin
+			vertex_job_latched <= 0;
 		end
 	end
 
@@ -285,7 +312,7 @@ module cu_vertex_pagerank #(
 			processing_vertex <= 0;
 		end else begin
 			if(enabled)begin
-				if(vertex_job_latched.valid) begin
+				if(vertex_job_latched_valid) begin
 					if(~processing_vertex) begin
 						processing_vertex <= 1;
 					end
@@ -298,7 +325,7 @@ module cu_vertex_pagerank #(
 	end
 
 
-	assign vertex_request_internal = (~vertex_buffer_status_internal.empty) && (~processing_vertex) && ~vertex_job_latched.valid;
+	assign vertex_request_internal = (~vertex_buffer_status_internal.empty) && (~processing_vertex) && ~vertex_job_latched_valid;
 	assign vertex_job_request_send = vertex_buffer_status_internal.empty;
 
 	////////////////////////////////////////////////////////////////////////////
@@ -316,7 +343,7 @@ module cu_vertex_pagerank #(
 		.read_data_1_in          (read_data_1_in_edge_job     ),
 		.read_buffer_status      (read_buffer_status_latched  ),
 		.edge_request            (edge_request                ),
-		.vertex_job              (vertex_job_latched_S2       ),
+		.vertex_job              (vertex_job_latched          ),
 		.read_command_bus_grant  (ready[0]                    ),
 		.read_command_bus_request(requests[0]                 ),
 		.read_command_out        (read_command_edge_job_buffer),
@@ -363,7 +390,7 @@ module cu_vertex_pagerank #(
 		.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
 		.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
 		.edge_data_write_out             (edge_data_write_out_internal       ),
-		.vertex_job                      (vertex_job_latched_S2              ),
+		.vertex_job                      (vertex_job_latched                 ),
 		.vertex_num_counter_resp         (vertex_num_counter_resp            ),
 		.edge_data_counter_accum         (edge_data_counter_accum            ),
 		.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
@@ -382,7 +409,7 @@ module cu_vertex_pagerank #(
 	) read_response_array_struct_type_demux_bus_instant (
 		.clock     (clock                                    ),
 		.rstn      (rstn                                     ),
-		.enabled_in(read_response_in_latched.valid           ),
+		.enabled_in(read_response_in_latched_valid           ),
 		.sel_in    (read_response_in_latched.cmd.array_struct),
 		.data_in   (read_response_in_latched                 ),
 		.data_out  (read_response_data_out                   )
@@ -396,7 +423,7 @@ module cu_vertex_pagerank #(
 		if(~rstn) begin
 			write_response_in_edge_data <= 0;
 		end else begin
-			if(enabled && write_response_in_latched.valid) begin
+			if(enabled && write_response_in_latched_valid) begin
 				case (write_response_in_latched.cmd.array_struct)
 					WRITE_GRAPH_DATA : begin
 						write_response_in_edge_data <= write_response_in_latched;
@@ -424,7 +451,7 @@ module cu_vertex_pagerank #(
 	) read_data_0_array_struct_type_demux_bus_instant (
 		.clock     (clock                                  ),
 		.rstn      (rstn                                   ),
-		.enabled_in(read_data_0_in_latched.valid           ),
+		.enabled_in(read_data_0_in_latched_valid           ),
 		.sel_in    (read_data_0_in_latched.cmd.array_struct),
 		.data_in   (read_data_0_in_latched                 ),
 		.data_out  (read_data_0_data_out                   )
@@ -439,7 +466,7 @@ module cu_vertex_pagerank #(
 	) read_data_1_array_struct_type_demux_bus_instant (
 		.clock     (clock                                  ),
 		.rstn      (rstn                                   ),
-		.enabled_in(read_data_1_in_latched.valid           ),
+		.enabled_in(read_data_1_in_latched_valid           ),
 		.sel_in    (read_data_1_in_latched.cmd.array_struct),
 		.data_in   (read_data_1_in_latched                 ),
 		.data_out  (read_data_1_data_out                   )
@@ -516,7 +543,7 @@ module cu_vertex_pagerank #(
 		.clock   (clock                               ),
 		.rstn    (rstn                                ),
 		
-		.push    (vertex_job_burst_in.valid           ),
+		.push    (vertex_job_burst_in_valid           ),
 		.data_in (vertex_job_burst_in                 ),
 		.full    (vertex_buffer_status_internal.full  ),
 		.alFull  (vertex_buffer_status_internal.alfull),

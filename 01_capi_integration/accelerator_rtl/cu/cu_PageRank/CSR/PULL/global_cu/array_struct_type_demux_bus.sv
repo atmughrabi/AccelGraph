@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : array_struct_type_demux_bus.sv
 // Create : 2020-02-21 22:35:40
-// Revise : 2020-02-25 01:22:43
+// Revise : 2020-02-28 02:44:06
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -52,18 +52,15 @@ module array_struct_type_demux_bus #(
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			data_in_latched <= 0;
-			sel_in_latched  <= STRUCT_INVALID;
+	always_ff @(posedge clock ) begin
+		data_in_latched <= data_in_internal;
+	end
+
+	always_ff @(posedge clock) begin
+		if(enabled) begin
+			sel_in_latched <= sel_in_internal;
 		end else begin
-			if(enabled) begin
-				data_in_latched <= data_in_internal;
-				sel_in_latched  <= sel_in_internal;
-			end else begin
-				data_in_latched <= 0;
-				sel_in_latched  <= STRUCT_INVALID;
-			end
+			sel_in_latched <= STRUCT_INVALID;
 		end
 	end
 

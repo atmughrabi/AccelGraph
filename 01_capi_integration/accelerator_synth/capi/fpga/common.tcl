@@ -130,7 +130,6 @@ set_global_assignment -name LL_CORE_ONLY OFF -section_id "alt_xcvr_reconfig:alt_
 set_global_assignment -name LL_CORE_ONLY OFF -section_id "psl:p"
 set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 
-
 set_global_assignment -name LL_ENABLED ON -section_id "psl_accel:a0"
 set_global_assignment -name LL_AUTO_SIZE OFF -section_id "psl_accel:a0"
 set_global_assignment -name LL_STATE LOCKED -section_id "psl_accel:a0"
@@ -157,27 +156,8 @@ set_global_assignment -name LL_WIDTH 14 -section_id "psl_flash:f"
 set_global_assignment -name LL_ORIGIN X7_Y114 -section_id "psl_flash:f"
 set_global_assignment -name LL_STATE LOCKED -section_id "psl_flash:f"
 set_global_assignment -name LL_AUTO_SIZE OFF -section_id "psl_flash:f"
-set_global_assignment -name SMART_RECOMPILE OFF
-set_global_assignment -name LL_ENABLED ON -section_id afu_control
-set_global_assignment -name LL_AUTO_SIZE OFF -section_id afu_control
-set_global_assignment -name LL_STATE LOCKED -section_id afu_control
-set_global_assignment -name LL_RESERVED OFF -section_id afu_control
-set_global_assignment -name LL_CORE_ONLY OFF -section_id afu_control
-set_global_assignment -name LL_SECURITY_ROUTING_INTERFACE OFF -section_id afu_control
-set_global_assignment -name LL_IGNORE_IO_BANK_SECURITY_CONSTRAINT OFF -section_id afu_control
-set_global_assignment -name LL_PR_REGION OFF -section_id afu_control
-set_global_assignment -name LL_ROUTING_REGION_EXPANSION_SIZE 2147483647 -section_id afu_control
-set_global_assignment -name LL_WIDTH 33 -section_id afu_control
-set_global_assignment -name LL_HEIGHT 84 -section_id afu_control
-set_global_assignment -name LL_ORIGIN X105_Y1 -section_id afu_control
-set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|afu_control:afu_control_instant" -section_id afu_control
-set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|done_control:done_control_instant" -section_id afu_control
-set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|error_control:error_control_instant" -section_id afu_control
-set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|job:job_instant" -section_id afu_control
-set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|mmio:mmio_instant" -section_id afu_control
-set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|reset_control:reset_instant_hard" -section_id afu_control
-set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|reset_control:reset_instant_soft" -section_id afu_control
-set_instance_assignment -name LL_MEMBER_OF afu_control -to "psl_accel:a0|afu:afu0|cached_afu:svAFU|wed_control:wed_control_instant" -section_id afu_control
+set_global_assignment -name SMART_RECOMPILE ON
+
 set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
 set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON

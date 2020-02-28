@@ -30,6 +30,7 @@ project_new $project_name -overwrite -revision $project_revision
 set_global_assignment -name TOP_LEVEL_ENTITY psl_fpga
 
 
+# source $LIBCAPI/fpga/common_${graph_algorithm}_${data_structure}_${direction}_${cu_precision}.tcl
 source $LIBCAPI/fpga/common.tcl
 source $LIBCAPI/fpga/ibm_sources.tcl
 source $LIBCAPI/fpga/pins.tcl
