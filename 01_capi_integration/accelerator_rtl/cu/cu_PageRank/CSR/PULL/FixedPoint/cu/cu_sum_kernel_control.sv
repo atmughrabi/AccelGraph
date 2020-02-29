@@ -130,14 +130,14 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 		end else begin
 			if (enabled) begin
 				if(edge_data_latched.valid)begin
-					edge_data_accumulator.valid      <= 1;
-					edge_data_accumulator.index      <= vertex_job_latched.id;
-					edge_data_accumulator.cu_id      <= CU_ID;
-					edge_data_accumulator.data       <= edge_data_accumulator.data + edge_data_latched.data;
-					edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
+					edge_data_accumulator.valid         <= 1;
+					edge_data_accumulator.payload.index <= vertex_job_latched.payload.id;
+					edge_data_accumulator.payload.cu_id <= CU_ID;
+					edge_data_accumulator.payload.data  <= edge_data_accumulator.payload.data + edge_data_latched.payload.data;
+					edge_data_counter_accum_internal    <= edge_data_counter_accum_internal + 1;
 				end
 
-				if(edge_data_counter_accum_internal == vertex_job_latched.inverse_out_degree && vertex_job_latched.valid)begin
+				if(edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree && vertex_job_latched.valid)begin
 					edge_data_accumulator            <= 0;
 					edge_data_counter_accum_internal <= 0;
 					edge_data_accumulator_latch      <= edge_data_accumulator;

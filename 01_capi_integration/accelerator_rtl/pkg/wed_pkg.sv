@@ -47,11 +47,19 @@ package WED_PKG;
         logic [0:63] auxiliary2                ; // 8-Bytes
     } WED_request;// 108-bytes used from 128-Bytes WED
 
+
+
     typedef struct packed{
-        logic        valid  ;
         logic [0:63] address;
         WED_request  wed    ;
+    } WEDInterfacePayload;
+
+    
+    typedef struct packed{
+        logic               valid  ;
+        WEDInterfacePayload payload;
     } WEDInterface;
+
 
     function WED_request map_DataArrays_to_WED(logic [0:(CACHELINE_SIZE_BITS-1)] in);
 

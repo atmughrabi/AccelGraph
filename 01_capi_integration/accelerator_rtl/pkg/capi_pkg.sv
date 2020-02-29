@@ -123,8 +123,6 @@ package CAPI_PKG;
     logic [                         0:7] read_parity ; //ah_brpar,       // Buffer Read parity
   } BufferInterfaceOutput;
 
-
-
   typedef struct packed {
     logic          valid      ; // ha_rvalid,     // Response valid
     logic [ 0:7]   tag        ; // ha_rtag,       // Response tag

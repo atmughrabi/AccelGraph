@@ -162,7 +162,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			if(enabled_vertex_job)begin
 				cu_return_latched.var1 <= vertex_job_counter_total_latched;
 				cu_return_latched.var2 <= edge_job_counter_done_latched;
-				done_algorithm         <= (wed_request_in_latched.wed.num_vertices == vertex_job_counter_total_latched) && (wed_request_in_latched.wed.num_edges == edge_job_counter_done_latched);
+				done_algorithm         <= (wed_request_in_latched.payload.wed.num_vertices == vertex_job_counter_total_latched) && (wed_request_in_latched.payload.wed.num_edges == edge_job_counter_done_latched);
 			end
 		end
 	end
@@ -298,7 +298,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			read_response_in_graph_algorithm <= 0;
 		end else begin
 			if(enabled && read_response_in_latched.valid) begin
-				case (read_response_in_latched.cmd.cu_id)
+				case (read_response_in_latched.payload.cmd.cu_id)
 					VERTEX_CONTROL_ID : begin
 						read_response_in_vertex_job      <= read_response_in_latched;
 						read_response_in_graph_algorithm <= 0;
@@ -325,7 +325,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			read_data_0_in_graph_algorithm <= 0;
 		end else begin
 			if(enabled && read_data_0_in_latched.valid) begin
-				case (read_data_0_in_latched.cmd.cu_id)
+				case (read_data_0_in_latched.payload.cmd.cu_id)
 					VERTEX_CONTROL_ID : begin
 						read_data_0_in_vertex_job      <= read_data_0_in_latched;
 						read_data_0_in_graph_algorithm <= 0;
@@ -348,7 +348,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			read_data_1_in_graph_algorithm <= 0;
 		end else begin
 			if(enabled && read_data_1_in_latched.valid) begin
-				case (read_data_1_in_latched.cmd.cu_id)
+				case (read_data_1_in_latched.payload.cmd.cu_id)
 					VERTEX_CONTROL_ID : begin
 						read_data_1_in_vertex_job      <= read_data_1_in_latched;
 						read_data_1_in_graph_algorithm <= 0;

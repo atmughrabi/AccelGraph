@@ -114,13 +114,19 @@ package AFU_PKG;
 ////////////////////////////////////////////////////////////////////////////
 
   typedef struct packed {
-    logic                  valid  ;
     CommandTagLine         cmd    ;
     afu_command_t          command; // ah_com,         // Command code
     logic [0:63]           address; // ah_cea,         // Command address
     logic [0:11]           size   ; // ah_csize,       // Command size
     trans_order_behavior_t abt    ; // ah_cabt,        // Command ABT
+  } CommandBufferLinePayload;
+
+  typedef struct packed {
+    logic                    valid  ;
+    CommandBufferLinePayload payload;
   } CommandBufferLine;
+
+
 
 
   typedef struct packed {
@@ -156,10 +162,14 @@ package AFU_PKG;
 ////////////////////////////////////////////////////////////////////////////
 
   typedef struct packed {
-    logic          valid           ; // ha_rvalid,     // Response valid
     CommandTagLine cmd             ;
     logic [0:8]    response_credits;
     psl_response_t response        ; // ha_response,   // Response
+  } ResponseBufferLinePayload;
+
+  typedef struct packed {
+    logic                     valid  ; // ha_rvalid,     // Response valid
+    ResponseBufferLinePayload payload;
   } ResponseBufferLine;
 
   typedef struct packed {
@@ -223,9 +233,13 @@ package AFU_PKG;
   } WriteDataControlInterface;
 
   typedef struct packed { // one cacheline is 128bytes each sent on separate 64bytes chunks
-    logic                                valid;
-    CommandTagLine                       cmd  ;
-    logic [0:(CACHELINE_SIZE_BITS_HF-1)] data ;
+    CommandTagLine                       cmd ;
+    logic [0:(CACHELINE_SIZE_BITS_HF-1)] data;
+  } ReadWriteDataLinePayload;
+
+  typedef struct packed { // one cacheline is 128bytes each sent on separate 64bytes chunks
+    logic                    valid  ;
+    ReadWriteDataLinePayload payload;
   } ReadWriteDataLine;
 
   typedef struct packed {

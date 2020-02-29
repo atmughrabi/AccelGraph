@@ -3,7 +3,7 @@
 //		"CAPIPrecis Shared Memory Accelerator Project"
 //
 // -----------------------------------------------------------------------------
-// Copyright (c) 2014-2019 All rights reserved
+// Copyright (c) 2014-2020 All rights reserved
 // -----------------------------------------------------------------------------
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : restart_control.sv
@@ -96,9 +96,9 @@ module restart_control (
 	//keep in check outstanding restart commands send;
 	////////////////////////////////////////////////////////////////////////////
 
-	assign is_restart_cmd       = (restart_command_out.valid && restart_command_out.cmd.cmd_type == CMD_RESTART);
+	assign is_restart_cmd       = (restart_command_out.valid && restart_command_out.payload.cmd.cmd_type == CMD_RESTART);
 	assign is_restart_rsp_done  = (restart_response_in.valid);
-	assign is_restart_rsp_flush = (command_outstanding_rd_S2 && command_outstanding_data_out.cmd.cmd_type == CMD_RESTART && command_outstanding_data_out.cmd.cu_id == RESTART_ID);
+	assign is_restart_rsp_flush = (command_outstanding_rd_S2 && command_outstanding_data_out.payload.cmd.cmd_type == CMD_RESTART && command_outstanding_data_out.payload.cmd.cu_id == RESTART_ID);
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -138,10 +138,10 @@ module restart_control (
 			command_outstanding_data_in <= 0;
 		end else begin
 			if(enabled) begin
-				command_outstanding_we              <= command_outstanding_in.valid;
-				command_outstanding_wr_addr         <= command_tag_in;
-				command_outstanding_data_in         <= command_outstanding_in;
-				command_outstanding_data_in.cmd.tag <= command_tag_in;
+				command_outstanding_we                      <= command_outstanding_in.valid;
+				command_outstanding_wr_addr                 <= command_tag_in;
+				command_outstanding_data_in                 <= command_outstanding_in;
+				command_outstanding_data_in.payload.cmd.tag <= command_tag_in;
 			end
 		end
 	end
@@ -308,10 +308,10 @@ module restart_control (
 				restart_command_send <= 0;
 
 				if(restart_command_buffer_out.valid) begin
-					restart_command_out         <= restart_command_buffer_out;
-					restart_command_out.abt     <= STRICT;
-					restart_command_out.cmd.abt <= STRICT;
-					restart_command_flushed     <= restart_command_buffer_out.valid;
+					restart_command_out                 <= restart_command_buffer_out;
+					restart_command_out.payload.abt     <= STRICT;
+					restart_command_out.payload.cmd.abt <= STRICT;
+					restart_command_flushed             <= restart_command_buffer_out.valid;
 				end else begin
 					restart_command_out     <= 0;
 					restart_command_flushed <= 0;
@@ -319,14 +319,14 @@ module restart_control (
 
 			end
 			RESTART_SEND_CMD : begin
-				restart_command_out              <= command_outstanding_data_out;
-				restart_command_out.command      <= RESTART;
-				restart_command_out.abt          <= STRICT;
-				restart_command_out.cmd.abt      <= STRICT;
-				restart_command_out.cmd.cmd_type <= CMD_RESTART;
-				restart_command_out.cmd.cu_id    <= RESTART_ID;
-				restart_command_flushed          <= 0;
-				restart_command_send             <= 0;
+				restart_command_out                      <= command_outstanding_data_out;
+				restart_command_out.payload.command      <= RESTART;
+				restart_command_out.payload.abt          <= STRICT;
+				restart_command_out.payload.cmd.abt      <= STRICT;
+				restart_command_out.payload.cmd.cmd_type <= CMD_RESTART;
+				restart_command_out.payload.cmd.cu_id    <= RESTART_ID;
+				restart_command_flushed                  <= 0;
+				restart_command_send                     <= 0;
 			end
 			RESTART_RESP_WAIT : begin
 				restart_command_out     <= 0;
@@ -334,10 +334,10 @@ module restart_control (
 			end
 			RESTART_SEND_CMD_FLUSHED : begin
 				if(~restart_command_buffer_status_internal.empty) begin
-					restart_command_out     <= restart_command_buffer_out;
-					restart_command_out.abt <= STRICT;
-					restart_command_flushed <= restart_command_buffer_out.valid;
-					restart_command_send    <= 1;
+					restart_command_out             <= restart_command_buffer_out;
+					restart_command_out.payload.abt <= STRICT;
+					restart_command_flushed         <= restart_command_buffer_out.valid;
+					restart_command_send            <= 1;
 				end else begin
 					restart_command_out     <= 0;
 					restart_command_flushed <= 0;

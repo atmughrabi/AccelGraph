@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-02-24 03:41:29
+// Revise : 2020-02-29 05:38:54
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -519,7 +519,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.clock     (clock                                                                             ),
 		.rstn      (rstn                                                                              ),
 		.enabled_in(read_data_0_in_edge_job.valid                                                     ),
-		.sel_in    (read_data_0_in_edge_job.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.sel_in    (read_data_0_in_edge_job.payload.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in   (read_data_0_in_edge_job                                                           ),
 		.data_out  (read_data_0_cu                                                                    )
 	);
@@ -531,7 +531,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.clock     (clock                                                                             ),
 		.rstn      (rstn                                                                              ),
 		.enabled_in(read_data_1_in_edge_job.valid                                                     ),
-		.sel_in    (read_data_1_in_edge_job.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.sel_in    (read_data_1_in_edge_job.payload.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in   (read_data_1_in_edge_job                                                           ),
 		.data_out  (read_data_1_cu                                                                    )
 	);
@@ -563,7 +563,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.clock     (clock                                  ),
 		.rstn      (rstn                                   ),
 		.enabled_in(read_data_0_in_latched.valid           ),
-		.sel_in    (read_data_0_in_latched.cmd.array_struct),
+		.sel_in    (read_data_0_in_latched.payload.cmd.array_struct),
 		.data_in   (read_data_0_in_latched                 ),
 		.data_out  (read_data_0_data_out                   )
 	);
@@ -578,7 +578,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.clock     (clock                                  ),
 		.rstn      (rstn                                   ),
 		.enabled_in(read_data_1_in_latched.valid           ),
-		.sel_in    (read_data_1_in_latched.cmd.array_struct),
+		.sel_in    (read_data_1_in_latched.payload.cmd.array_struct),
 		.data_in   (read_data_1_in_latched                 ),
 		.data_out  (read_data_1_data_out                   )
 	);
@@ -594,7 +594,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.clock     (clock                                                                    ),
 		.rstn      (rstn                                                                     ),
 		.enabled_in(edge_data_variable.valid                                                 ),
-		.sel_in    (edge_data_variable.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.sel_in    (edge_data_variable.payload.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in   (edge_data_variable                                                       ),
 		.data_out  (edge_data_read_cu                                                        )
 	);
@@ -611,7 +611,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.clock     (clock                                                                              ),
 		.rstn      (rstn                                                                               ),
 		.enabled_in(read_response_in_latched.valid                                                     ),
-		.sel_in    (read_response_in_latched.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.sel_in    (read_response_in_latched.payload.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in   (read_response_in_latched                                                           ),
 		.data_out  (read_response_cu                                                                   )
 	);
@@ -623,7 +623,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 		.clock     (clock                                                                               ),
 		.rstn      (rstn                                                                                ),
 		.enabled_in(write_response_in_latched.valid                                                     ),
-		.sel_in    (write_response_in_latched.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.sel_in    (write_response_in_latched.payload.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in   (write_response_in_latched                                                           ),
 		.data_out  (write_response_cu                                                                   )
 	);

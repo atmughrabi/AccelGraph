@@ -75,11 +75,11 @@ module command_control (
     else begin
       if(enabled) begin
         command_out_latch.valid   <= command_arbiter_in.valid;
-        command_out_latch.command <= command_arbiter_in.command;
-        command_out_latch.address <= command_arbiter_in.address;
+        command_out_latch.command <= command_arbiter_in.payload.command;
+        command_out_latch.address <= command_arbiter_in.payload.address;
         command_out_latch.tag     <= command_tag_in;
-        command_out_latch.size    <= command_arbiter_in.size;
-        command_out_latch.abt     <= command_arbiter_in.abt;
+        command_out_latch.size    <= command_arbiter_in.payload.size;
+        command_out_latch.abt     <= command_arbiter_in.payload.abt;
       end
     end
   end // always_ff @(posedge clock)

@@ -127,11 +127,11 @@ module read_data_control (
           end
         endcase
 
-        read_data_control_out_0_latched.line.valid   <= buffer_in_latched.write_valid;
-        read_data_control_out_0_latched.line.cmd     <= data_read_tag_id_in;
-        read_data_control_out_0_latched.line.cmd.tag <= buffer_in_latched.write_tag;
-        read_data_control_out_0_latched.line.data    <= buffer_in_latched.write_data;
-        wr_addr_0                                    <= buffer_in_latched.write_tag;
+        read_data_control_out_0_latched.line.valid           <= buffer_in_latched.write_valid;
+        read_data_control_out_0_latched.line.payload.cmd     <= data_read_tag_id_in;
+        read_data_control_out_0_latched.line.payload.cmd.tag <= buffer_in_latched.write_tag;
+        read_data_control_out_0_latched.line.payload.data    <= buffer_in_latched.write_data;
+        wr_addr_0                                            <= buffer_in_latched.write_tag;
 
       end else begin
         read_data_control_out_0_latched <= 0;
@@ -165,11 +165,11 @@ module read_data_control (
           end
         endcase
 
-        read_data_control_out_1_latched.line.valid   <= buffer_in_latched.write_valid;
-        read_data_control_out_1_latched.line.cmd     <= data_read_tag_id_in;
-        read_data_control_out_1_latched.line.cmd.tag <= buffer_in_latched.write_tag;
-        read_data_control_out_1_latched.line.data    <= buffer_in_latched.write_data;
-        wr_addr_1                                    <= buffer_in_latched.write_tag;
+        read_data_control_out_1_latched.line.valid           <= buffer_in_latched.write_valid;
+        read_data_control_out_1_latched.line.payload.cmd     <= data_read_tag_id_in;
+        read_data_control_out_1_latched.line.payload.cmd.tag <= buffer_in_latched.write_tag;
+        read_data_control_out_1_latched.line.payload.data    <= buffer_in_latched.write_data;
+        wr_addr_1                                            <= buffer_in_latched.write_tag;
 
       end else begin
         read_data_control_out_1_latched <= 0;
@@ -247,7 +247,7 @@ module read_data_control (
       read_data_control_out_0            <= 0;
       read_data_control_out_1_latched_S2 <= 0;
     end else begin
-      if(response_latched.response.valid && (response_latched.read_response || response_latched.wed_response ) && enabled && (response_latched.response.response != NLOCK)) begin
+      if(response_latched.response.valid && (response_latched.read_response || response_latched.wed_response ) && enabled && (response_latched.response.payload.response != NLOCK)) begin
         read_data_control_out_0            <= data_out_0;
         read_data_control_out_1_latched_S2 <= data_out_1;
       end else begin
@@ -276,8 +276,8 @@ module read_data_control (
 
   assign read_data_0_we = read_data_control_out_0_latched.read_data || read_data_control_out_0_latched.wed_data;
   assign read_data_1_we = read_data_control_out_1_latched.read_data || read_data_control_out_1_latched.wed_data;
-  assign rd_addr_0      = response_control_in.response.cmd.tag;
-  assign rd_addr_1      = response_control_in.response.cmd.tag;
+  assign rd_addr_0      = response_control_in.response.payload.cmd.tag;
+  assign rd_addr_1      = response_control_in.response.payload.cmd.tag;
 
 
   ram #(

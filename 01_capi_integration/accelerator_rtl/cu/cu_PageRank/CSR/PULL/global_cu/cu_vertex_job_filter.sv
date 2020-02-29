@@ -92,8 +92,8 @@ module cu_vertex_job_filter (
 //Filter logic inputs
 ////////////////////////////////////////////////////////////////////////////
 
-	assign filter_vertex = (vertex_in_latched.valid)   && (~(|vertex_in_latched.inverse_out_degree));
-	assign push_vertex   = (vertex_in_latched.valid)   && ((|vertex_in_latched.inverse_out_degree));
+	assign filter_vertex = (vertex_in_latched.valid)   && (~(|vertex_in_latched.payload.inverse_out_degree));
+	assign push_vertex   = (vertex_in_latched.valid)   && ((|vertex_in_latched.payload.inverse_out_degree));
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -123,7 +123,7 @@ module cu_vertex_job_filter (
 		.full    (vertex_job_filtered_buffer_status.full  ),
 		.alFull  (vertex_job_filtered_buffer_status.alfull),
 		
-		.pop     (vertex_job_filtered_pop                  ),
+		.pop     (vertex_job_filtered_pop                 ),
 		.valid   (vertex_job_filtered_buffer_status.valid ),
 		.data_out(vertex_out_latched                      ),
 		.empty   (vertex_job_filtered_buffer_status.empty )

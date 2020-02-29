@@ -43,14 +43,14 @@ module cu_vertex_job_control (
 	logic        read_command_bus_request_latched_S2;
 	BufferStatus vertex_buffer_status               ;
 
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0    ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1    ;
-	logic                                shift_limit_clear;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter    ;
-	logic                                start_shift_hf_0 ;
-	logic                                start_shift_hf_1 ;
-	logic                                switch_shift_hf  ;
-	logic                                push_shift       ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0       ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1       ;
+	logic                                shift_limit_clear   ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter       ;
+	logic                                start_shift_hf_0    ;
+	logic                                start_shift_hf_1    ;
+	logic                                switch_shift_hf     ;
+	logic                                push_shift          ;
 	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_OUT_DEGREE_0;
 	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGES_IDX_0 ;
 	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_OUT_DEGREE_1;
@@ -83,17 +83,17 @@ module cu_vertex_job_control (
 
 	// internal registers to track logic
 	// Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
-	logic                          send_request_ready   ;
-	logic [                  0:63] vertex_next_offest   ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter   ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_id_counter    ;
-	logic                          generate_read_command;
-	logic                          setup_read_command   ;
-	VertexInterface                vertex_variable      ;
-	logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree_data      ;
-	logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx_degree_data;
-	logic inverse_out_degree_data_ready      ;
-	logic inverse_edges_idx_degree_data_ready;
+	logic                          send_request_ready                 ;
+	logic [                  0:63] vertex_next_offest                 ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter                 ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_id_counter                  ;
+	logic                          generate_read_command              ;
+	logic                          setup_read_command                 ;
+	VertexInterface                vertex_variable                    ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree_data            ;
+	logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx_degree_data      ;
+	logic                          inverse_out_degree_data_ready      ;
+	logic                          inverse_edges_idx_degree_data_ready;
 
 
 	vertex_struct_state current_state, next_state;
@@ -275,14 +275,14 @@ module cu_vertex_job_control (
 				read_command_vertex_job_latched <= read_command_vertex_job_latched_S2;
 			end
 			SEND_VERTEX_INV_OUT_DEGREE : begin
-				read_command_vertex_job_latched.valid            <= 1'b1;
-				read_command_vertex_job_latched.address          <= wed_request_in_latched.wed.inverse_vertex_out_degree + vertex_next_offest;
-				read_command_vertex_job_latched.cmd.array_struct <= INV_OUT_DEGREE;
+				read_command_vertex_job_latched.valid                    <= 1'b1;
+				read_command_vertex_job_latched.payload.address          <= wed_request_in_latched.payload.wed.inverse_vertex_out_degree + vertex_next_offest;
+				read_command_vertex_job_latched.payload.cmd.array_struct <= INV_OUT_DEGREE;
 			end
 			SEND_VERTEX_INV_EDGES_IDX : begin
-				read_command_vertex_job_latched.address          <= wed_request_in_latched.wed.inverse_vertex_edges_idx + vertex_next_offest;
-				read_command_vertex_job_latched.cmd.array_struct <= INV_EDGES_IDX;
-				vertex_next_offest                               <= vertex_next_offest + CACHELINE_SIZE;
+				read_command_vertex_job_latched.payload.address          <= wed_request_in_latched.payload.wed.inverse_vertex_edges_idx + vertex_next_offest;
+				read_command_vertex_job_latched.payload.cmd.array_struct <= INV_EDGES_IDX;
+				vertex_next_offest                                       <= vertex_next_offest + CACHELINE_SIZE;
 			end
 			WAIT_VERTEX_DATA : begin
 				read_command_vertex_job_latched <= 0;
@@ -334,42 +334,42 @@ module cu_vertex_job_control (
 			vertex_num_counter                 <= 0;
 		end else begin
 			if(setup_read_command)
-				vertex_num_counter <= wed_request_in_latched.wed.num_vertices;
+				vertex_num_counter <= wed_request_in_latched.payload.wed.num_vertices;
 
 			if (generate_read_command) begin
 				if(vertex_num_counter > CACHELINE_VERTEX_NUM)begin
-					vertex_num_counter                                     <= vertex_num_counter - CACHELINE_VERTEX_NUM;
-					read_command_vertex_job_latched_S2.cmd.real_size       <= CACHELINE_VERTEX_NUM;
-					read_command_vertex_job_latched_S2.cmd.real_size_bytes <= 128;
-					read_command_vertex_job_latched_S2.size                <= 12'h080;
+					vertex_num_counter                                             <= vertex_num_counter - CACHELINE_VERTEX_NUM;
+					read_command_vertex_job_latched_S2.payload.cmd.real_size       <= CACHELINE_VERTEX_NUM;
+					read_command_vertex_job_latched_S2.payload.cmd.real_size_bytes <= 128;
+					read_command_vertex_job_latched_S2.payload.size                <= 12'h080;
 
 					if (cu_configure_latched[3]) begin
-						read_command_vertex_job_latched_S2.command <= READ_CL_S;
+						read_command_vertex_job_latched_S2.payload.command <= READ_CL_S;
 					end else begin
-						read_command_vertex_job_latched_S2.command <= READ_CL_NA;
+						read_command_vertex_job_latched_S2.payload.command <= READ_CL_NA;
 					end
 
 				end
 				else if (vertex_num_counter <= CACHELINE_VERTEX_NUM) begin
-					vertex_num_counter                                     <= 0;
-					read_command_vertex_job_latched_S2.cmd.real_size       <= vertex_num_counter;
-					read_command_vertex_job_latched_S2.cmd.real_size_bytes <= (vertex_num_counter << $clog2(VERTEX_SIZE));
+					vertex_num_counter                                             <= 0;
+					read_command_vertex_job_latched_S2.payload.cmd.real_size       <= vertex_num_counter;
+					read_command_vertex_job_latched_S2.payload.cmd.real_size_bytes <= (vertex_num_counter << $clog2(VERTEX_SIZE));
 
 					if (cu_configure_latched[3]) begin
-						read_command_vertex_job_latched_S2.command <= READ_CL_S;
-						read_command_vertex_job_latched_S2.size    <= 12'h080;
+						read_command_vertex_job_latched_S2.payload.command <= READ_CL_S;
+						read_command_vertex_job_latched_S2.payload.size    <= 12'h080;
 					end else begin
-						read_command_vertex_job_latched_S2.command <= READ_PNA;
-						read_command_vertex_job_latched_S2.size    <= cmd_size_calculate(vertex_num_counter);
+						read_command_vertex_job_latched_S2.payload.command <= READ_PNA;
+						read_command_vertex_job_latched_S2.payload.size    <= cmd_size_calculate(vertex_num_counter);
 					end
 				end
 
-				read_command_vertex_job_latched_S2.cmd.cu_id            <= VERTEX_CONTROL_ID;
-				read_command_vertex_job_latched_S2.cmd.cmd_type         <= CMD_READ;
-				read_command_vertex_job_latched_S2.cmd.cacheline_offest <= 0;
+				read_command_vertex_job_latched_S2.payload.cmd.cu_id            <= VERTEX_CONTROL_ID;
+				read_command_vertex_job_latched_S2.payload.cmd.cmd_type         <= CMD_READ;
+				read_command_vertex_job_latched_S2.payload.cmd.cacheline_offest <= 0;
 
-				read_command_vertex_job_latched_S2.cmd.abt <= map_CABT(cu_configure_latched[0:2]);
-				read_command_vertex_job_latched_S2.abt     <= map_CABT(cu_configure_latched[0:2]);
+				read_command_vertex_job_latched_S2.payload.cmd.abt <= map_CABT(cu_configure_latched[0:2]);
+				read_command_vertex_job_latched_S2.payload.abt     <= map_CABT(cu_configure_latched[0:2]);
 			end else
 			read_command_vertex_job_latched_S2 <= 0;
 		end
@@ -385,7 +385,7 @@ module cu_vertex_job_control (
 			reg_INV_EDGES_IDX_0  <= 0;
 		end else begin
 			if(enabled_cmd && read_data_0_in_latched.valid) begin
-				case (read_data_0_in_latched.cmd.array_struct)
+				case (read_data_0_in_latched.payload.cmd.array_struct)
 					INV_OUT_DEGREE : begin
 						reg_INV_OUT_DEGREE_0 <= read_data_0_in_latched;
 					end
@@ -408,7 +408,7 @@ module cu_vertex_job_control (
 			reg_INV_EDGES_IDX_1  <= 0;
 		end else begin
 			if(enabled_cmd && read_data_1_in_latched.valid) begin
-				case (read_data_1_in_latched.cmd.array_struct)
+				case (read_data_1_in_latched.payload.cmd.array_struct)
 					INV_OUT_DEGREE : begin
 						reg_INV_OUT_DEGREE_1 <= read_data_1_in_latched;
 					end
@@ -431,7 +431,7 @@ module cu_vertex_job_control (
 			inverse_edges_idx_degree_data_ready <= 0;
 		end else begin
 			if(enabled_cmd && read_response_in_latched.valid) begin
-				case (read_response_in_latched.cmd.array_struct)
+				case (read_response_in_latched.payload.cmd.array_struct)
 					INV_OUT_DEGREE : begin
 						inverse_out_degree_data_ready <= 1;
 					end
@@ -456,12 +456,12 @@ module cu_vertex_job_control (
 		end else begin
 			if(enabled_cmd && read_response_in_latched.valid) begin
 				if(~(|shift_limit_0) && ~shift_limit_clear) begin
-					if(read_response_in_latched.cmd.real_size > CACHELINE_VERTEX_NUM_HF) begin
+					if(read_response_in_latched.payload.cmd.real_size > CACHELINE_VERTEX_NUM_HF) begin
 						shift_limit_0 <= CACHELINE_VERTEX_NUM_HF-1;
-						shift_limit_1 <= read_response_in_latched.cmd.real_size - CACHELINE_VERTEX_NUM_HF - 1;
-						zero_pass     <= ((read_response_in_latched.cmd.real_size - CACHELINE_EDGE_NUM_HF) == 1);
+						shift_limit_1 <= read_response_in_latched.payload.cmd.real_size - CACHELINE_VERTEX_NUM_HF - 1;
+						zero_pass     <= ((read_response_in_latched.payload.cmd.real_size - CACHELINE_EDGE_NUM_HF) == 1);
 					end else begin
-						shift_limit_0 <= read_response_in_latched.cmd.real_size-1;
+						shift_limit_0 <= read_response_in_latched.payload.cmd.real_size-1;
 						shift_limit_1 <= 0;
 						zero_pass     <= 0;
 					end
@@ -494,11 +494,11 @@ module cu_vertex_job_control (
 		end
 		else begin
 			if(push_shift) begin
-				vertex_id_counter                  <= vertex_id_counter+1;
-				vertex_variable.valid              <= push_shift;
-				vertex_variable.id                 <= vertex_id_counter;
-				vertex_variable.inverse_out_degree <= swap_endianness_vertex_read(inverse_out_degree_data);
-				vertex_variable.inverse_edges_idx  <= swap_endianness_vertex_read(inverse_edges_idx_degree_data);
+				vertex_id_counter                          <= vertex_id_counter+1;
+				vertex_variable.valid                      <= push_shift;
+				vertex_variable.payload.id                 <= vertex_id_counter;
+				vertex_variable.payload.inverse_out_degree <= swap_endianness_vertex_read(inverse_out_degree_data);
+				vertex_variable.payload.inverse_edges_idx  <= swap_endianness_vertex_read(inverse_edges_idx_degree_data);
 			end else begin
 				vertex_variable <= 0;
 			end

@@ -160,9 +160,9 @@ module write_data_control (
       write_data <= ~0;
     else begin
       if(~(|read_address) && read_valid)
-        write_data <= write_data_0_out.data;
+        write_data <= write_data_0_out.payload.data;
       else if((|read_address) && read_valid)
-        write_data <= write_data_1_out.data;
+        write_data <= write_data_1_out.payload.data;
       else
         write_data <= ~0;
     end

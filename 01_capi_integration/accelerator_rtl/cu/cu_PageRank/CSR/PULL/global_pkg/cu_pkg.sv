@@ -31,7 +31,7 @@ package CU_PKG;
 		SEND_VERTEX_RESET,
 		SEND_VERTEX_INIT,
 		SEND_VERTEX_IDLE,
-		START_VERTEX_REQ,		
+		START_VERTEX_REQ,
 		CALC_VERTEX_REQ_SIZE,
 		SEND_VERTEX_START,
 		SEND_VERTEX_INV_OUT_DEGREE,
@@ -48,7 +48,7 @@ package CU_PKG;
 		SEND_EDGE_RESET,
 		SEND_EDGE_INIT,
 		SEND_EDGE_IDLE,
-		START_EDGE_REQ,		
+		START_EDGE_REQ,
 		CALC_EDGE_REQ_SIZE,
 		SEND_EDGE_START,
 		SEND_EDGE_INV_EDGE_ARRAY_DEST,
@@ -77,31 +77,49 @@ package CU_PKG;
 
 // Vertex data to travers neighbors
 	typedef struct packed {
-		logic                          valid             ;
 		logic [0:(VERTEX_SIZE_BITS-1)] id                ;
 		logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree;
 		logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx ;
+	} VertexInterfacePayload;
+
+	typedef struct packed {
+		logic                  valid  ;
+		VertexInterfacePayload payload;
 	} VertexInterface;
 
 	typedef struct packed {
-		logic                        valid ;
-		logic [0:(EDGE_SIZE_BITS-1)] id    ;
-		logic [0:(EDGE_SIZE_BITS-1)] src   ;
-		logic [0:(EDGE_SIZE_BITS-1)] dest  ;
+		logic [0:(EDGE_SIZE_BITS-1)] id  ;
+		logic [0:(EDGE_SIZE_BITS-1)] src ;
+		logic [0:(EDGE_SIZE_BITS-1)] dest;
+	} EdgeInterfacePayload;
+
+	typedef struct packed {
+		logic                valid  ;
+		EdgeInterfacePayload payload;
 	} EdgeInterface;
 
 	typedef struct packed {
-		logic                             valid;
 		cu_id_t                           cu_id;
 		logic [0:(DATA_SIZE_READ_BITS-1)] data ;
+	} EdgeDataReadPayload;
+
+	typedef struct packed {
+		logic               valid  ;
+		EdgeDataReadPayload payload;
 	} EdgeDataRead;
 
 	typedef struct packed {
-		logic                              valid;
 		cu_id_t                            cu_id;
 		logic [      0:(EDGE_SIZE_BITS-1)] index;
 		logic [0:(DATA_SIZE_WRITE_BITS-1)] data ;
+	} EdgeDataWritePayload;
+
+	typedef struct packed {
+		logic                valid  ;
+		EdgeDataWritePayload payload;
 	} EdgeDataWrite;
+
+
 
 
 	function logic [0:DATA_SIZE_WRITE_BITS-1] swap_endianness_data_write(logic [0:DATA_SIZE_WRITE_BITS-1] in);

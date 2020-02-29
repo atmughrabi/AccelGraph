@@ -73,7 +73,7 @@ module wed_control (
         next_state = WED_WAITING_FOR_REQUEST;
       end // WED_REQ
       WED_WAITING_FOR_REQUEST : begin
-        if (wed_response_in.valid && wed_response_in.cmd.cu_id == WED_ID && wed_response_in.response == DONE) begin
+        if (wed_response_in.valid && wed_response_in.payload.cmd.cu_id == WED_ID && wed_response_in.payload.response == DONE) begin
           next_state = WED_DONE_REQ;
         end
         else
@@ -99,34 +99,34 @@ module wed_control (
       end // WED_IDLE:
       WED_REQ : begin
         command_out.valid   <= 1'b1;
-        command_out.size    <= 12'h080;
-        command_out.command <= READ_CL_NA;
-        command_out.address <= wed_address;
+        command_out.payload.size    <= 12'h080;
+        command_out.payload.command <= READ_CL_NA;
+        command_out.payload.address <= wed_address;
 
-        command_out.cmd.cu_id            <= WED_ID;
-        command_out.cmd.cmd_type         <= CMD_WED;
-        command_out.cmd.array_struct     <= STRUCT_INVALID;
-        command_out.cmd.real_size        <= 32;
-        command_out.cmd.real_size_bytes  <= 128;
-        command_out.cmd.cacheline_offest <= 0;
-        command_out.cmd.address_offest   <= 0;
-        command_out.cmd.tag              <= 0;
-        command_out.cmd.abt              <= STRICT;
+        command_out.payload.cmd.cu_id            <= WED_ID;
+        command_out.payload.cmd.cmd_type         <= CMD_WED;
+        command_out.payload.cmd.array_struct     <= STRUCT_INVALID;
+        command_out.payload.cmd.real_size        <= 32;
+        command_out.payload.cmd.real_size_bytes  <= 128;
+        command_out.payload.cmd.cacheline_offest <= 0;
+        command_out.payload.cmd.address_offest   <= 0;
+        command_out.payload.cmd.tag              <= 0;
+        command_out.payload.cmd.abt              <= STRICT;
 
-        wed_request_out.address <= wed_address;
+        wed_request_out.payload.address <= wed_address;
       end // WED_REQ
       WED_WAITING_FOR_REQUEST : begin
         command_out.valid <= 0;
-        if (wed_data_0_in.cmd.cu_id == WED_ID) begin
-          wed_cacheline128[0:CACHELINE_SIZE_BITS_HF-1] <= wed_data_0_in.data;
+        if (wed_data_0_in.payload.cmd.cu_id == WED_ID) begin
+          wed_cacheline128[0:CACHELINE_SIZE_BITS_HF-1] <= wed_data_0_in.payload.data;
         end
-        if (wed_data_1_in.cmd.cu_id == WED_ID) begin
-          wed_cacheline128[CACHELINE_SIZE_BITS_HF:CACHELINE_SIZE_BITS-1] <= wed_data_1_in.data;
+        if (wed_data_1_in.payload.cmd.cu_id == WED_ID) begin
+          wed_cacheline128[CACHELINE_SIZE_BITS_HF:CACHELINE_SIZE_BITS-1] <= wed_data_1_in.payload.data;
         end
       end // WED_WAITING_FOR_REQUEST
       WED_DONE_REQ : begin
         wed_request_out.valid <= 1'b1;
-        wed_request_out.wed   <= map_DataArrays_to_WED(wed_cacheline128);
+        wed_request_out.payload.wed   <= map_DataArrays_to_WED(wed_cacheline128);
       end // WED_WAITING_FOR_REQUEST
     endcase // next_state
   end // always_ff @(posedge clock)

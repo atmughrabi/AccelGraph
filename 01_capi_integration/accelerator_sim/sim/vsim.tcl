@@ -76,7 +76,6 @@ proc r  {} {
   vlog -quiet ../../accelerator_rtl/afu/response_control.sv
   vlog -quiet ../../accelerator_rtl/afu/restart_control.sv
   vlog -quiet ../../accelerator_rtl/afu/command_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/command_buffer_arbiter.sv
   vlog -quiet ../../accelerator_rtl/afu/tag_control.sv
   vlog -quiet ../../accelerator_rtl/afu/read_data_control.sv
   vlog -quiet ../../accelerator_rtl/afu/write_data_control.sv

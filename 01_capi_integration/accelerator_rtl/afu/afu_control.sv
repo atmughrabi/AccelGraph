@@ -440,7 +440,7 @@ module afu_control #(
 			if(enabled) begin
 				if(ready_restart_issue && command_buffer_out_bypass.valid) begin
 					command_issue_register <= command_buffer_out_bypass;
-					command_tag_latched    <= command_buffer_out_bypass.cmd.tag;
+					command_tag_latched    <= command_buffer_out_bypass.payload.cmd.tag;
 				end else begin
 					command_issue_register <= command_buffer_out;
 					command_tag_latched    <= command_tag;
@@ -524,7 +524,7 @@ module afu_control #(
 		.clock     (clock                                                                                                                      ),
 		.rstn      (rstn                                                                                                                       ),
 		.enabled_in(enabled_credit_total                                                                                                       ),
-		.credit_in ({command_buffer_out.valid,response_control_out.response.valid,response_control_out.response.response_credits,total_credits}),
+		.credit_in ({command_buffer_out.valid,response_control_out.response.valid,response_control_out.response.payload.response_credits,total_credits}),
 		.credit_out(credits                                                                                                                    )
 	);
 
@@ -532,7 +532,7 @@ module afu_control #(
 		.clock     (clock                                                                                                                         ),
 		.rstn      (rstn                                                                                                                          ),
 		.enabled_in(enabled_credit_read                                                                                                           ),
-		.credit_in ({read_command_buffer_out.valid,response_control_out.read_response,response_control_out.response.response_credits,read_credits}),
+		.credit_in ({read_command_buffer_out.valid,response_control_out.read_response,response_control_out.response.payload.response_credits,read_credits}),
 		.credit_out(credits_read                                                                                                                  )
 	);
 
@@ -541,7 +541,7 @@ module afu_control #(
 		.clock     (clock                                                                                                                            ),
 		.rstn      (rstn                                                                                                                             ),
 		.enabled_in(enabled_credit_write                                                                                                             ),
-		.credit_in ({write_command_buffer_out.valid,response_control_out.write_response,response_control_out.response.response_credits,write_credits}),
+		.credit_in ({write_command_buffer_out.valid,response_control_out.write_response,response_control_out.response.payload.response_credits,write_credits}),
 		.credit_out(credits_write                                                                                                                    )
 	);
 
@@ -549,7 +549,7 @@ module afu_control #(
 		.clock     (clock                                                                                                                                                    ),
 		.rstn      (rstn                                                                                                                                                     ),
 		.enabled_in(enabled_credit_prefetch_read                                                                                                                             ),
-		.credit_in ({prefetch_read_command_buffer_out.valid,response_control_out.prefetch_read_response,response_control_out.response.response_credits,prefetch_read_credits}),
+		.credit_in ({prefetch_read_command_buffer_out.valid,response_control_out.prefetch_read_response,response_control_out.response.payload.response_credits,prefetch_read_credits}),
 		.credit_out(credits_prefetch_read                                                                                                                                    )
 	);
 
@@ -557,7 +557,7 @@ module afu_control #(
 		.clock     (clock                                                                                                                                                       ),
 		.rstn      (rstn                                                                                                                                                        ),
 		.enabled_in(enabled_credit_prefetch_write                                                                                                                               ),
-		.credit_in ({prefetch_write_command_buffer_out.valid,response_control_out.prefetch_write_response,response_control_out.response.response_credits,prefetch_write_credits}),
+		.credit_in ({prefetch_write_command_buffer_out.valid,response_control_out.prefetch_write_response,response_control_out.response.payload.response_credits,prefetch_write_credits}),
 		.credit_out(credits_prefetch_write                                                                                                                                      )
 	);
 
@@ -641,7 +641,7 @@ module afu_control #(
 	always_comb begin
 		command_write_valid = 0;
 		if(command_buffer_out.valid)begin
-			if(command_buffer_out.cmd.cmd_type == CMD_WRITE)
+			if(command_buffer_out.payload.cmd.cmd_type == CMD_WRITE)
 				command_write_valid = 1;
 			else
 				command_write_valid = 0;
@@ -668,7 +668,7 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign command_tag_id = command_buffer_out.cmd;
+	assign command_tag_id = command_buffer_out.payload.cmd;
 
 	tag_control tag_control_instant (
 		.clock               (clock                        ),
