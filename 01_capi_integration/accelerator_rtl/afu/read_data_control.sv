@@ -29,14 +29,13 @@ module read_data_control (
   output DataControlInterfaceOut     read_data_control_out_1
 );
 
-  logic                       odd_parity               ;
-  logic                       tag_parity               ;
-  logic                       tag_parity_link          ;
-  logic [0:7]                 data_write_parity_latched;
-  logic                       write_valid_latched      ;
-  logic [0:7]                 data_write_parity_link   ;
-  ReadDataControlInterface    buffer_in_latched        ;
-  ResponseControlInterfaceOut response_latched         ;
+  logic                    odd_parity               ;
+  logic                    tag_parity               ;
+  logic                    tag_parity_link          ;
+  logic [0:7]              data_write_parity_latched;
+  logic                    write_valid_latched      ;
+  logic [0:7]              data_write_parity_link   ;
+  ReadDataControlInterface buffer_in_latched        ;
 
   logic       enable_errors    ;
   logic [0:1] detected_errors  ;
@@ -58,7 +57,10 @@ module read_data_control (
   DataControlInterfaceOut read_data_control_out_1_latched   ;
   DataControlInterfaceOut read_data_control_out_1_latched_S2;
 
-
+  logic          response_latched_response_valid           ;
+  logic          response_latched_read_response            ;
+  logic          response_latched_wed_response             ;
+  psl_response_t response_latched_response_payload_response;
 
   assign odd_parity    = 1'b1; // Odd parity
   assign enable_errors = 1'b1; // enable errors
@@ -82,23 +84,34 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      buffer_in_latched         <= 0;
-      data_write_parity_latched <= 0;
-      write_valid_latched       <= 0;
-      response_latched          <= 0;
+      buffer_in_latched.write_valid <= 0;
+      data_write_parity_latched     <= 0;
+      write_valid_latched           <= 0;
+
+      response_latched_response_valid            <= 0;
+      response_latched_read_response             <= 0;
+      response_latched_wed_response              <= 0;
+      response_latched_response_payload_response <= DONE;
     end else begin
       if(enabled) begin
-        buffer_in_latched         <= buffer_in;
-        data_write_parity_latched <= buffer_in.write_parity;
-        write_valid_latched       <= buffer_in.write_valid;
-        response_latched          <= response_control_in;
-      end else begin
-        buffer_in_latched         <= 0;
-        data_write_parity_latched <= 0;
-        write_valid_latched       <= 0;
-        response_latched          <= 0;
+        buffer_in_latched.write_valid <= buffer_in.write_valid;
+        data_write_parity_latched     <= buffer_in.write_parity;
+        write_valid_latched           <= buffer_in.write_valid;
+
+        response_latched_response_valid            <= response_control_in.response.valid;
+        response_latched_read_response             <= response_control_in.read_response;
+        response_latched_wed_response              <= response_control_in.wed_response;
+        response_latched_response_payload_response <= response_control_in.response.payload.response;
       end
     end
+  end
+
+  always_ff @(posedge clock ) begin
+    buffer_in_latched.write_tag        <= buffer_in.write_tag;
+    buffer_in_latched.write_tag_parity <= buffer_in.write_tag_parity;
+    buffer_in_latched.write_address    <= buffer_in.write_address;
+    buffer_in_latched.write_data       <= buffer_in.write_data;
+    buffer_in_latched.write_parity     <= buffer_in.write_parity;
   end
 
 
@@ -108,7 +121,9 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_data_control_out_0_latched <= 0;
+      read_data_control_out_0_latched.read_data  <= 0;
+      read_data_control_out_0_latched.wed_data   <= 0;
+      read_data_control_out_0_latched.line.valid <= 0;
     end else begin
       if(enabled && buffer_in_latched.write_valid && ~(|buffer_in_latched.write_address)) begin
 
@@ -127,16 +142,22 @@ module read_data_control (
           end
         endcase
 
-        read_data_control_out_0_latched.line.valid           <= buffer_in_latched.write_valid;
-        read_data_control_out_0_latched.line.payload.cmd     <= data_read_tag_id_in;
-        read_data_control_out_0_latched.line.payload.cmd.tag <= buffer_in_latched.write_tag;
-        read_data_control_out_0_latched.line.payload.data    <= buffer_in_latched.write_data;
-        wr_addr_0                                            <= buffer_in_latched.write_tag;
+        read_data_control_out_0_latched.line.valid <= buffer_in_latched.write_valid;
+
 
       end else begin
-        read_data_control_out_0_latched <= 0;
+        read_data_control_out_0_latched.read_data  <= 0;
+        read_data_control_out_0_latched.wed_data   <= 0;
+        read_data_control_out_0_latched.line.valid <= 0;
       end
     end
+  end
+
+  always_ff @(posedge clock) begin
+    read_data_control_out_0_latched.line.payload.cmd     <= data_read_tag_id_in;
+    read_data_control_out_0_latched.line.payload.cmd.tag <= buffer_in_latched.write_tag;
+    read_data_control_out_0_latched.line.payload.data    <= buffer_in_latched.write_data;
+    wr_addr_0                                            <= buffer_in_latched.write_tag;
   end
 
 
@@ -146,7 +167,9 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_data_control_out_1_latched <= 0;
+      read_data_control_out_1_latched.read_data  <= 0;
+      read_data_control_out_1_latched.wed_data   <= 0;
+      read_data_control_out_1_latched.line.valid <= 0;
     end else begin
       if(enabled && buffer_in_latched.write_valid && (|buffer_in_latched.write_address)) begin
 
@@ -165,16 +188,21 @@ module read_data_control (
           end
         endcase
 
-        read_data_control_out_1_latched.line.valid           <= buffer_in_latched.write_valid;
-        read_data_control_out_1_latched.line.payload.cmd     <= data_read_tag_id_in;
-        read_data_control_out_1_latched.line.payload.cmd.tag <= buffer_in_latched.write_tag;
-        read_data_control_out_1_latched.line.payload.data    <= buffer_in_latched.write_data;
-        wr_addr_1                                            <= buffer_in_latched.write_tag;
+        read_data_control_out_1_latched.line.valid <= buffer_in_latched.write_valid;
 
       end else begin
-        read_data_control_out_1_latched <= 0;
+        read_data_control_out_1_latched.read_data  <= 0;
+        read_data_control_out_1_latched.wed_data   <= 0;
+        read_data_control_out_1_latched.line.valid <= 0;
       end
     end
+  end
+
+  always_ff @(posedge clock) begin
+    read_data_control_out_1_latched.line.payload.cmd     <= data_read_tag_id_in;
+    read_data_control_out_1_latched.line.payload.cmd.tag <= buffer_in_latched.write_tag;
+    read_data_control_out_1_latched.line.payload.data    <= buffer_in_latched.write_data;
+    wr_addr_1                                            <= buffer_in_latched.write_tag;
   end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -244,15 +272,25 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_data_control_out_0            <= 0;
-      read_data_control_out_1_latched_S2 <= 0;
+      read_data_control_out_0.read_data  <= 0;
+      read_data_control_out_0.wed_data   <= 0;
+      read_data_control_out_0.line.valid <= 0;
+
+      read_data_control_out_1_latched_S2.read_data  <= 0;
+      read_data_control_out_1_latched_S2.wed_data   <= 0;
+      read_data_control_out_1_latched_S2.line.valid <= 0;
     end else begin
-      if(response_latched.response.valid && (response_latched.read_response || response_latched.wed_response ) && enabled && (response_latched.response.payload.response != NLOCK)) begin
+      if(response_latched_response_valid && (response_latched_read_response || response_latched_wed_response ) && enabled && (response_latched_response_payload_response != NLOCK)) begin
         read_data_control_out_0            <= data_out_0;
         read_data_control_out_1_latched_S2 <= data_out_1;
       end else begin
-        read_data_control_out_0            <= 0;
-        read_data_control_out_1_latched_S2 <= 0;
+        read_data_control_out_0.read_data  <= 0;
+        read_data_control_out_0.wed_data   <= 0;
+        read_data_control_out_0.line.valid <= 0;
+
+        read_data_control_out_1_latched_S2.read_data  <= 0;
+        read_data_control_out_1_latched_S2.wed_data   <= 0;
+        read_data_control_out_1_latched_S2.line.valid <= 0;
       end
     end
   end
@@ -260,12 +298,17 @@ module read_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_data_control_out_1 <= 0;
+      read_data_control_out_1.read_data  <= 0;
+      read_data_control_out_1.wed_data   <= 0;
+      read_data_control_out_1.line.valid <= 0;
+
     end else begin
       if(enabled) begin
         read_data_control_out_1 <= read_data_control_out_1_latched_S2;
       end else begin
-        read_data_control_out_1 <= 0;
+        read_data_control_out_1.read_data  <= 0;
+        read_data_control_out_1.wed_data   <= 0;
+        read_data_control_out_1.line.valid <= 0;
       end
     end
   end

@@ -27,18 +27,18 @@ module command_control (
 );
 
 
-  logic odd_parity;
-  logic enabled;
+  logic                  odd_parity       ;
+  logic                  enabled          ;
   CommandInterfaceOutput command_out_latch;
 
-  assign odd_parity            = 1'b1; // Odd parity
+  assign odd_parity = 1'b1; // Odd parity
   // command_out_latch.abt                  = STRICT;
   // assign command_out_latch.abt            = ABORT;
   // assign command_out_latch.abt            = PREF;
   // assign command_out_latch.abt            = PAGE;
   // assign command_out_latch.abt            = SPEC;
   assign command_out_latch.context_handle = 16'h00; // dedicated mode cch always zero
- 
+
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
@@ -65,23 +65,21 @@ module command_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      command_out_latch.valid   <= 1'b0;
-      command_out_latch.command <= INVALID; // just zero it out
-      command_out_latch.address <= 64'h0000_0000_0000_0000;
-      command_out_latch.tag     <= INVALID_TAG;
-      command_out_latch.size    <= 12'h000;
-      command_out_latch.abt     <= STRICT;
+      command_out_latch.valid <= 1'b0;
     end
     else begin
       if(enabled) begin
-        command_out_latch.valid   <= command_arbiter_in.valid;
-        command_out_latch.command <= command_arbiter_in.payload.command;
-        command_out_latch.address <= command_arbiter_in.payload.address;
-        command_out_latch.tag     <= command_tag_in;
-        command_out_latch.size    <= command_arbiter_in.payload.size;
-        command_out_latch.abt     <= command_arbiter_in.payload.abt;
+        command_out_latch.valid <= command_arbiter_in.valid;
       end
     end
+  end // always_ff @(posedge clock)
+
+  always_ff @(posedge clock) begin
+    command_out_latch.command <= command_arbiter_in.payload.command;
+    command_out_latch.address <= command_arbiter_in.payload.address;
+    command_out_latch.tag     <= command_tag_in;
+    command_out_latch.size    <= command_arbiter_in.payload.size;
+    command_out_latch.abt     <= command_arbiter_in.payload.abt;
   end // always_ff @(posedge clock)
 
 

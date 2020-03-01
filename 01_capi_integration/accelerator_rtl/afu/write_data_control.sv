@@ -17,15 +17,14 @@ import CAPI_PKG::*;
 import AFU_PKG::*;
 
 module write_data_control (
-  input  logic                     clock              , // Clock
-  input  logic                     rstn               ,
-  input  logic                     enabled_in         ,
-  input  WriteDataControlInterface buffer_in          ,
-  input  logic                     command_write_valid,
-  input  logic [0:7]               command_tag_in     ,
-  input  ReadWriteDataLine         write_data_0_in    ,
-  input  ReadWriteDataLine         write_data_1_in    ,
-  output logic                     data_write_error   ,
+  input  logic                     clock           , // Clock
+  input  logic                     rstn            ,
+  input  logic                     enabled_in      ,
+  input  WriteDataControlInterface buffer_in       ,
+  input  logic [0:7]               command_tag_in  ,
+  input  ReadWriteDataLine         write_data_0_in ,
+  input  ReadWriteDataLine         write_data_1_in ,
+  output logic                     data_write_error,
   output BufferInterfaceOutput     buffer_out
 );
 
@@ -37,8 +36,6 @@ module write_data_control (
   logic       detected_errors ;
   logic       tag_parity_error;
   logic [0:3] read_latency    ;
-
-  logic             command_write_valid_latched;
   ReadWriteDataLine write_data_0_in_latched    ;
   ReadWriteDataLine write_data_1_in_latched    ;
   logic [0:7]       command_tag_in_latched     ;
@@ -63,18 +60,21 @@ module write_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      command_write_valid_latched <= 0;
-      write_data_0_in_latched     <= 0;
-      write_data_1_in_latched     <= 0;
-      command_tag_in_latched      <= 0;
+      write_data_0_in_latched.valid <= 0;
+      write_data_1_in_latched.valid <= 0;
+      command_tag_in_latched        <= 0;
     end else begin
       if(enabled) begin
-        command_write_valid_latched <= command_write_valid;
-        write_data_0_in_latched     <= write_data_0_in;
-        write_data_1_in_latched     <= write_data_1_in;
-        command_tag_in_latched      <= command_tag_in;
+        write_data_0_in_latched.valid <= write_data_0_in.valid;
+        write_data_1_in_latched.valid <= write_data_1_in.valid;
+        command_tag_in_latched        <= command_tag_in;
       end
     end
+  end
+
+  always_ff @(posedge clock) begin
+    write_data_0_in_latched.payload <= write_data_0_in.payload;
+    write_data_1_in_latched.payload <= write_data_1_in.payload;
   end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -189,13 +189,13 @@ module write_data_control (
     .WIDTH($bits(ReadWriteDataLine)),
     .DEPTH(256                     )
   ) write_data_0_ram_instant (
-    .clock   (clock                      ),
-    .we      (command_write_valid_latched),
-    .wr_addr (command_tag_in_latched     ),
-    .data_in (write_data_0_in_latched    ),
+    .clock   (clock                        ),
+    .we      (write_data_0_in_latched.valid),
+    .wr_addr (command_tag_in_latched       ),
+    .data_in (write_data_0_in_latched      ),
     
-    .rd_addr (buffer_in.read_tag         ),
-    .data_out(write_data_0_out           )
+    .rd_addr (buffer_in.read_tag           ),
+    .data_out(write_data_0_out             )
   );
 
 
@@ -203,13 +203,13 @@ module write_data_control (
     .WIDTH($bits(ReadWriteDataLine)),
     .DEPTH(256                     )
   ) write_data_1_ram_instant (
-    .clock   (clock                      ),
-    .we      (command_write_valid_latched),
-    .wr_addr (command_tag_in_latched     ),
-    .data_in (write_data_1_in_latched    ),
+    .clock   (clock                        ),
+    .we      (write_data_1_in_latched.valid),
+    .wr_addr (command_tag_in_latched       ),
+    .data_in (write_data_1_in_latched      ),
     
-    .rd_addr (buffer_in.read_tag         ),
-    .data_out(write_data_1_out           )
+    .rd_addr (buffer_in.read_tag           ),
+    .data_out(write_data_1_out             )
   );
 
 ////////////////////////////////////////////////////////////////////////////

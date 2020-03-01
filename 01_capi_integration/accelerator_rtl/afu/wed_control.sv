@@ -90,15 +90,15 @@ module wed_control (
   always_ff @(posedge clock) begin
     case (current_state)
       WED_RESET : begin
-        command_out      <= 0;
-        wed_cacheline128 <= 0;
-        wed_request_out  <= 0;
+        command_out.valid     <= 0;
+        wed_cacheline128      <= 0;
+        wed_request_out.valid <= 0;
       end // WED_RESET:
       WED_IDLE : begin
         command_out.valid <= 1'b0;
       end // WED_IDLE:
       WED_REQ : begin
-        command_out.valid   <= 1'b1;
+        command_out.valid           <= 1'b1;
         command_out.payload.size    <= 12'h080;
         command_out.payload.command <= READ_CL_NA;
         command_out.payload.address <= wed_address;
@@ -125,8 +125,8 @@ module wed_control (
         end
       end // WED_WAITING_FOR_REQUEST
       WED_DONE_REQ : begin
-        wed_request_out.valid <= 1'b1;
-        wed_request_out.payload.wed   <= map_DataArrays_to_WED(wed_cacheline128);
+        wed_request_out.valid       <= 1'b1;
+        wed_request_out.payload.wed <= map_DataArrays_to_WED(wed_cacheline128);
       end // WED_WAITING_FOR_REQUEST
     endcase // next_state
   end // always_ff @(posedge clock)

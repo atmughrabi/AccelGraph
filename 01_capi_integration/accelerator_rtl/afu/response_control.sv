@@ -72,20 +72,36 @@ module response_control (
     end
   end
 
+
+
 ////////////////////////////////////////////////////////////////////////////
 //output latching Logic
 ////////////////////////////////////////////////////////////////////////////
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      response_control_out <= 0;
+      response_control_out.read_response           <= 1'b0;
+      response_control_out.write_response          <= 1'b0;
+      response_control_out.wed_response            <= 1'b0;
+      response_control_out.restart_response        <= 1'b0;
+      response_control_out.prefetch_read_response  <= 1'b0;
+      response_control_out.prefetch_write_response <= 1'b0;
+      response_control_out.response.valid          <= 1'b0;
     end else begin
       if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
-        response_control_out <= response_control_out_latched;
-      end else begin
-        response_control_out <= 0;
+        response_control_out.read_response           <= response_control_out_latched.read_response;
+        response_control_out.write_response          <= response_control_out_latched.write_response;
+        response_control_out.wed_response            <= response_control_out_latched.wed_response;
+        response_control_out.restart_response        <= response_control_out_latched.restart_response;
+        response_control_out.prefetch_read_response  <= response_control_out_latched.prefetch_read_response;
+        response_control_out.prefetch_write_response <= response_control_out_latched.prefetch_write_response;
+        response_control_out.response.valid          <= response_control_out_latched.response.valid;
       end
     end
+  end
+
+  always_ff @(posedge clock) begin
+    response_control_out.response.payload <= response_control_out_latched.response.payload;
   end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -94,7 +110,13 @@ module response_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      response_control_out_latched <= 0;
+      response_control_out_latched.read_response           <= 1'b0;
+      response_control_out_latched.write_response          <= 1'b0;
+      response_control_out_latched.wed_response            <= 1'b0;
+      response_control_out_latched.restart_response        <= 1'b0;
+      response_control_out_latched.prefetch_read_response  <= 1'b0;
+      response_control_out_latched.prefetch_write_response <= 1'b0;
+      response_control_out_latched.response.valid          <= 1'b0;
     end else begin
       if(enabled && response_in.valid) begin
         case (response_tag_id_in.cmd_type)
@@ -168,16 +190,25 @@ module response_control (
           end
         endcase
 
-        response_control_out_latched.response.valid                    <= response_in.valid;
-        response_control_out_latched.response.payload.cmd              <= response_tag_id_in;
-        response_control_out_latched.response.payload.cmd.tag          <= response_in.tag;
-        response_control_out_latched.response.payload.response         <= response_in.response;
-        response_control_out_latched.response.payload.response_credits <= response_in.credits;
+        response_control_out_latched.response.valid <= response_in.valid;
 
       end else begin
-        response_control_out_latched <= 0;
+        response_control_out_latched.read_response           <= 1'b0;
+        response_control_out_latched.write_response          <= 1'b0;
+        response_control_out_latched.wed_response            <= 1'b0;
+        response_control_out_latched.restart_response        <= 1'b0;
+        response_control_out_latched.prefetch_read_response  <= 1'b0;
+        response_control_out_latched.prefetch_write_response <= 1'b0;
+        response_control_out_latched.response.valid          <= 1'b0;
       end
     end
+  end
+
+  always_ff @(posedge clock) begin
+    response_control_out_latched.response.payload.cmd              <= response_tag_id_in;
+    response_control_out_latched.response.payload.cmd.tag          <= response_in.tag;
+    response_control_out_latched.response.payload.response         <= response_in.response;
+    response_control_out_latched.response.payload.response_credits <= response_in.credits;
   end
 
 ////////////////////////////////////////////////////////////////////////////

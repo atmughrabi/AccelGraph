@@ -289,18 +289,18 @@ module restart_control (
 	always_ff @(posedge clock) begin
 		case (current_state)
 			RESTART_RESET : begin
-				ready_restart_issue     <= 0;
-				restart_command_out     <= 0;
-				restart_pending         <= 0;
-				restart_command_send    <= 0;
-				restart_command_flushed <= 0;
+				ready_restart_issue       <= 0;
+				restart_command_out.valid <= 0;
+				restart_pending           <= 0;
+				restart_command_send      <= 0;
+				restart_command_flushed   <= 0;
 			end
 			RESTART_IDLE : begin
-				ready_restart_issue     <= 0;
-				restart_command_out     <= 0;
-				restart_pending         <= 0;
-				restart_command_send    <= 0;
-				restart_command_flushed <= 0;
+				ready_restart_issue       <= 0;
+				restart_command_out.valid <= 0;
+				restart_pending           <= 0;
+				restart_command_send      <= 0;
+				restart_command_flushed   <= 0;
 			end
 			RESTART_INIT : begin
 				ready_restart_issue  <= 1;
@@ -329,8 +329,8 @@ module restart_control (
 				restart_command_send                     <= 0;
 			end
 			RESTART_RESP_WAIT : begin
-				restart_command_out     <= 0;
-				restart_command_flushed <= 0;
+				restart_command_out.valid <= 0;
+				restart_command_flushed   <= 0;
 			end
 			RESTART_SEND_CMD_FLUSHED : begin
 				if(~restart_command_buffer_status_internal.empty) begin
@@ -339,14 +339,14 @@ module restart_control (
 					restart_command_flushed         <= restart_command_buffer_out.valid;
 					restart_command_send            <= 1;
 				end else begin
-					restart_command_out     <= 0;
-					restart_command_flushed <= 0;
-					restart_command_send    <= 0;
+					restart_command_out.valid <= 0;
+					restart_command_flushed   <= 0;
+					restart_command_send      <= 0;
 				end
 			end
 			RESTART_DONE : begin
-				restart_command_out  <= 0;
-				restart_command_send <= 0;
+				restart_command_out.valid <= 0;
+				restart_command_send      <= 0;
 			end
 		endcase
 	end

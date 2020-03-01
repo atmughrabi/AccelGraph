@@ -126,7 +126,6 @@ module done_control (
 			end
 			DONE_IDLE : begin
 				cu_return_done                     <= 0;
-				report_response_statistics         <= 0;
 				cu_return_done_latched             <= cu_return.var1;
 				report_response_statistics 		   <= response_statistics;
 				report_response_statistics_latched <= response_statistics;

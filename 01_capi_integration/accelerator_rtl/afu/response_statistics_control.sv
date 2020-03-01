@@ -54,44 +54,62 @@ module response_statistics_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      response_latched <= 0;
+      response_latched.valid <= 0;
     end else begin
-      if(enabled && response.valid) begin
-        response_latched <= response;
-      end else begin
-        response_latched <= 0;
+      if(enabled) begin
+        response_latched.valid <= response.valid;
       end
     end
+  end
+
+  always_ff @(posedge clock) begin
+    response_latched.tag         <= response.tag;
+    response_latched.tag_parity  <= response.tag_parity;
+    response_latched.response    <= response.response;
+    response_latched.credits     <= response.credits;
+    response_latched.cache_state <= response.cache_state;
+    response_latched.cache_pos   <= response.cache_pos;
   end
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      response_latched_S2     <= 0;
-      response_tag_id_latched <= 0;
+      response_latched_S2.valid <= 0;
     end else begin
-      if(enabled && response_latched.valid) begin
-        response_latched_S2 <= response_latched;
-      end else begin
-        response_latched_S2 <= 0;
+      if(enabled) begin
+        response_latched_S2.valid <= response_latched.valid;
       end
-      response_tag_id_latched <= response_tag_id_in;
     end
+  end
+
+  always_ff @(posedge clock) begin
+    response_latched_S2.tag         <= response_latched.tag;
+    response_latched_S2.tag_parity  <= response_latched.tag_parity;
+    response_latched_S2.response    <= response_latched.response;
+    response_latched_S2.credits     <= response_latched.credits;
+    response_latched_S2.cache_state <= response_latched.cache_state;
+    response_latched_S2.cache_pos   <= response_latched.cache_pos;
+    response_tag_id_latched         <= response_tag_id_in;
   end
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      response_latched_S3        <= 0;
-      response_tag_id_latched_S2 <= 0;
+      response_latched_S3.valid <= 0;
     end else begin
-      if(enabled && response_latched_S2.valid) begin
-        response_latched_S3 <= response_latched_S2;
-      end else begin
-        response_latched_S3 <= 0;
+      if(enabled) begin
+        response_latched_S3.valid <= response_latched_S2.valid ;
       end
-      response_tag_id_latched_S2 <= response_tag_id_latched;
     end
   end
 
+  always_ff @(posedge clock) begin
+    response_latched_S3.tag         <= response_latched_S2.tag;
+    response_latched_S3.tag_parity  <= response_latched_S2.tag_parity;
+    response_latched_S3.response    <= response_latched_S2.response;
+    response_latched_S3.credits     <= response_latched_S2.credits;
+    response_latched_S3.cache_state <= response_latched_S2.cache_state;
+    response_latched_S3.cache_pos   <= response_latched_S2.cache_pos;
+    response_tag_id_latched_S2      <= response_tag_id_latched;
+  end
 
 ////////////////////////////////////////////////////////////////////////////
 //output latching Logic
@@ -103,8 +121,6 @@ module response_statistics_control (
     end else begin
       if(enabled) begin // cycle delay for responses to make sure data_out arrives and handled before
         response_statistics_out <= response_statistics_out_latched;
-      end else begin
-        response_statistics_out <= 0;
       end
     end
   end
