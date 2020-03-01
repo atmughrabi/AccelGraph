@@ -118,6 +118,10 @@ module cu_vertex_pagerank #(
 	ReadWriteDataLine  read_data_0_data_out  [0:1];
 	ReadWriteDataLine  read_data_1_data_out  [0:1];
 	ResponseBufferLine read_response_data_out[0:1];
+	ResponseBufferLine read_response_data_out_latched[0:1];
+	ReadWriteDataLine read_data_0_data_out_latched[0:1];
+	ReadWriteDataLine read_data_1_data_out_latched[0:1];
+
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -398,29 +402,35 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_response_data_out[0].valid <= 0;
-			read_response_data_out[1].valid <= 0;
+			read_response_data_out_latched[0].valid <= 0;
+			read_response_data_out_latched[1].valid <= 0;
 		end else begin
 			case (read_response_in_latched.payload.cmd.array_struct)
 				INV_EDGE_ARRAY_DEST : begin
-					read_response_data_out[0].valid <= read_response_in_latched.valid;
-					read_response_data_out[1].valid <= 0;
+					read_response_data_out_latched[0].valid <= read_response_in_latched.valid;
+					read_response_data_out_latched[1].valid <= 0;
 				end
 				READ_GRAPH_DATA : begin
-					read_response_data_out[0].valid <= 0;
-					read_response_data_out[1].valid <= read_response_in_latched.valid;
+					read_response_data_out_latched[0].valid <= 0;
+					read_response_data_out_latched[1].valid <= read_response_in_latched.valid;
 				end
 				default : begin
-					read_response_data_out[0].valid <= 0;
-					read_response_data_out[1].valid <= 0;
+					read_response_data_out_latched[0].valid <= 0;
+					read_response_data_out_latched[1].valid <= 0;
 				end
 			endcase
 		end
 	end
 
 	always_ff @(posedge clock) begin
-		read_response_data_out[0].payload <= read_response_in_latched.payload;
-		read_response_data_out[1].payload <= read_response_in_latched.payload;
+		read_response_data_out_latched[0].payload <= read_response_in_latched.payload;
+		read_response_data_out_latched[1].payload <= read_response_in_latched.payload;
+	end
+
+
+	always_ff @(posedge clock) begin
+		read_response_data_out[0] <= read_response_data_out_latched[0];
+		read_response_data_out[1] <= read_response_data_out_latched[1];
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -459,29 +469,34 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_data_out[0].valid <= 0;
-			read_data_0_data_out[1].valid <= 0;
+			read_data_0_data_out_latched[0].valid <= 0;
+			read_data_0_data_out_latched[1].valid <= 0;
 		end else begin
 			case (read_data_0_in_latched.payload.cmd.array_struct)
 				INV_EDGE_ARRAY_DEST : begin
-					read_data_0_data_out[0].valid <= read_data_0_in_latched.valid;
-					read_data_0_data_out[1].valid <= 0;
+					read_data_0_data_out_latched[0].valid <= read_data_0_in_latched.valid;
+					read_data_0_data_out_latched[1].valid <= 0;
 				end
 				READ_GRAPH_DATA : begin
-					read_data_0_data_out[0].valid <= 0;
-					read_data_0_data_out[1].valid <= read_data_0_in_latched.valid;
+					read_data_0_data_out_latched[0].valid <= 0;
+					read_data_0_data_out_latched[1].valid <= read_data_0_in_latched.valid;
 				end
 				default : begin
-					read_data_0_data_out[0].valid <= 0;
-					read_data_0_data_out[1].valid <= 0;
+					read_data_0_data_out_latched[0].valid <= 0;
+					read_data_0_data_out_latched[1].valid <= 0;
 				end
 			endcase
 		end
 	end
 
 	always_ff @(posedge clock) begin
-		read_data_0_data_out[0].payload <= read_data_0_in_latched.payload;
-		read_data_0_data_out[1].payload <= read_data_0_in_latched.payload;
+		read_data_0_data_out_latched[0].payload <= read_data_0_in_latched.payload;
+		read_data_0_data_out_latched[1].payload <= read_data_0_in_latched.payload;
+	end
+
+	always_ff @(posedge clock) begin
+		read_data_0_data_out[0] <= read_data_0_data_out_latched[0];
+		read_data_0_data_out[1] <= read_data_0_data_out_latched[1];
 	end
 
 	assign read_data_1_in_edge_job  = read_data_1_data_out[0];
@@ -489,30 +504,36 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_1_data_out[0].valid <= 0;
-			read_data_1_data_out[1].valid <= 0;
+			read_data_1_data_out_latched[0].valid <= 0;
+			read_data_1_data_out_latched[1].valid <= 0;
 		end else begin
 			case (read_data_1_in_latched.payload.cmd.array_struct)
 				INV_EDGE_ARRAY_DEST : begin
-					read_data_1_data_out[0].valid <= read_data_1_in_latched.valid;
-					read_data_1_data_out[1].valid <= 0;
+					read_data_1_data_out_latched[0].valid <= read_data_1_in_latched.valid;
+					read_data_1_data_out_latched[1].valid <= 0;
 				end
 				READ_GRAPH_DATA : begin
-					read_data_1_data_out[0].valid <= 0;
-					read_data_1_data_out[1].valid <= read_data_1_in_latched.valid;
+					read_data_1_data_out_latched[0].valid <= 0;
+					read_data_1_data_out_latched[1].valid <= read_data_1_in_latched.valid;
 				end
 				default : begin
-					read_data_1_data_out[0].valid <= 0;
-					read_data_1_data_out[1].valid <= 0;
+					read_data_1_data_out_latched[0].valid <= 0;
+					read_data_1_data_out_latched[1].valid <= 0;
 				end
 			endcase
 		end
 	end
 
 	always_ff @(posedge clock) begin
-		read_data_1_data_out[0].payload <= read_data_1_in_latched.payload;
-		read_data_1_data_out[1].payload <= read_data_1_in_latched.payload;
+		read_data_1_data_out_latched[0].payload <= read_data_1_in_latched.payload;
+		read_data_1_data_out_latched[1].payload <= read_data_1_in_latched.payload;
 	end
+
+	always_ff @(posedge clock) begin
+		read_data_1_data_out[0] <= read_data_1_data_out_latched[0];
+		read_data_1_data_out[1] <= read_data_1_data_out_latched[1];
+	end
+
 
 	////////////////////////////////////////////////////////////////////////////
 	//Burst Buffer Read Commands
