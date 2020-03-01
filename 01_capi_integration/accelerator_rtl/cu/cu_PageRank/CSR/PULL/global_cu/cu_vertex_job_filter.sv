@@ -60,16 +60,20 @@ module cu_vertex_job_filter (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_out                  <= 0;
+			vertex_out.valid            <= 0;
 			vertex_request_unfiltered   <= 0;
 			vertex_job_counter_filtered <= 0;
 		end else begin
 			if(enabled) begin
-				vertex_out                  <= vertex_out_latched;
+				vertex_out.valid            <= vertex_out_latched.valid;
 				vertex_request_unfiltered   <= vertex_request_unfiltered_latched;
 				vertex_job_counter_filtered <= vertex_job_counter_filtered_latched;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		vertex_out.payload <= vertex_out_latched.payload;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -78,14 +82,18 @@ module cu_vertex_job_filter (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_in_latched               <= 0;
+			vertex_in_latched.valid         <= 0;
 			vertex_request_filtered_latched <= 0;
 		end else begin
 			if(enabled) begin
-				vertex_in_latched               <= vertex_in;
+				vertex_in_latched.valid         <= vertex_in.valid;
 				vertex_request_filtered_latched <= vertex_request_filtered;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		vertex_in_latched.payload <= vertex_in.payload;
 	end
 
 ////////////////////////////////////////////////////////////////////////////

@@ -157,7 +157,6 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		if(~rstn) begin
 			cu_return_latched <= 0;
 			done_algorithm    <= 0;
-
 		end else begin
 			if(enabled_vertex_job)begin
 				cu_return_latched.var1 <= vertex_job_counter_total_latched;
@@ -193,24 +192,32 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			write_command_out                 <= 0;
-			write_data_0_out                  <= 0;
-			write_data_1_out                  <= 0;
-			read_command_out                  <= 0;
+			write_command_out.valid           <= 0;
+			write_data_0_out.valid            <= 0;
+			write_data_1_out.valid            <= 0;
+			read_command_out.valid            <= 0;
 			write_buffer_status_latched       <= 0;
 			read_buffer_status_latched        <= 0;
 			write_buffer_status_latched.empty <= 1;
 			read_buffer_status_latched.empty  <= 1;
 		end else begin
 			if(enabled_cmd)begin
-				write_command_out           <= write_command_out_graph_algorithm;
-				write_data_0_out            <= write_data_0_out_graph_algorithm;
-				write_data_1_out            <= write_data_1_out_graph_algorithm;
-				read_command_out            <= read_command_buffer_arbiter_out;
+				write_command_out.valid     <= write_command_out_graph_algorithm.valid;
+				write_data_0_out.valid      <= write_data_0_out_graph_algorithm.valid;
+				write_data_1_out.valid      <= write_data_1_out_graph_algorithm.valid;
+				read_command_out.valid      <= read_command_buffer_arbiter_out.valid;
 				write_buffer_status_latched <= write_buffer_status;
 				read_buffer_status_latched  <= read_buffer_status;
 			end
 		end
+	end
+
+
+	always_ff @(posedge clock) begin
+		write_command_out.payload <= write_command_out_graph_algorithm.payload ;
+		write_data_0_out.payload  <= write_data_0_out_graph_algorithm.payload ;
+		write_data_1_out.payload  <= write_data_1_out_graph_algorithm.payload ;
+		read_command_out.payload  <= read_command_buffer_arbiter_out.payload ;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -219,20 +226,28 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched            <= 0;
-			read_response_in_latched          <= 0;
-			write_response_in_graph_algorithm <= 0;
-			read_data_0_in_latched            <= 0;
-			read_data_1_in_latched            <= 0;
+			wed_request_in_latched.valid            <= 0;
+			read_response_in_latched.valid          <= 0;
+			write_response_in_graph_algorithm.valid <= 0;
+			read_data_0_in_latched.valid            <= 0;
+			read_data_1_in_latched.valid            <= 0;
 		end else begin
 			if(enabled)begin
-				wed_request_in_latched            <= wed_request_in;
-				read_response_in_latched          <= read_response_in;
-				write_response_in_graph_algorithm <= write_response_in;
-				read_data_0_in_latched            <= read_data_0_in;
-				read_data_1_in_latched            <= read_data_1_in;
+				wed_request_in_latched.valid            <= wed_request_in.valid;
+				read_response_in_latched.valid          <= read_response_in.valid;
+				write_response_in_graph_algorithm.valid <= write_response_in.valid;
+				read_data_0_in_latched.valid            <= read_data_0_in.valid;
+				read_data_1_in_latched.valid            <= read_data_1_in.valid;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		wed_request_in_latched.payload            <= wed_request_in.payload;
+		read_response_in_latched.payload          <= read_response_in.payload;
+		write_response_in_graph_algorithm.payload <= write_response_in.payload;
+		read_data_0_in_latched.payload            <= read_data_0_in.payload;
+		read_data_1_in_latched.payload            <= read_data_1_in.payload;
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -256,14 +271,19 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			prefetch_read_response_in_latched <= 0;
-			prefetch_read_command_out         <= 0;
+			prefetch_read_response_in_latched.valid <= 0;
+			prefetch_read_command_out.valid         <= 0;
 		end else begin
 			if(enabled_prefetch_read)begin
-				prefetch_read_response_in_latched <= prefetch_read_response_in;
-				prefetch_read_command_out         <= prefetch_read_command_out_latched;
+				prefetch_read_response_in_latched.valid <= prefetch_read_response_in.valid;
+				prefetch_read_command_out.valid         <= prefetch_read_command_out_latched.valid;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		prefetch_read_response_in_latched.payload <= prefetch_read_response_in.payload;
+		prefetch_read_command_out.payload         <= prefetch_read_command_out_latched.payload;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -272,16 +292,20 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			prefetch_write_response_in_latched <= 0;
-			prefetch_write_command_out         <= 0;
+			prefetch_write_response_in_latched.valid <= 0;
+			prefetch_write_command_out.valid         <= 0;
 		end else begin
 			if(enabled_prefetch_write)begin
-				prefetch_write_response_in_latched <= prefetch_write_response_in;
-				prefetch_write_command_out         <= prefetch_write_command_out_latched;
+				prefetch_write_response_in_latched.valid <= prefetch_write_response_in.valid;
+				prefetch_write_command_out.valid         <= prefetch_write_command_out_latched.valid;
 			end
 		end
 	end
 
+	always_ff @(posedge clock) begin
+		prefetch_write_response_in_latched.payload <= prefetch_write_response_in.payload;
+		prefetch_write_command_out.payload         <= prefetch_write_command_out_latched.payload;
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //cu_vertex_control - graph algorithm compute units arbitration
@@ -294,25 +318,30 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_response_in_vertex_job      <= 0;
-			read_response_in_graph_algorithm <= 0;
+			read_response_in_vertex_job.valid      <= 0;
+			read_response_in_graph_algorithm.valid <= 0;
 		end else begin
 			if(enabled && read_response_in_latched.valid) begin
 				case (read_response_in_latched.payload.cmd.cu_id)
 					VERTEX_CONTROL_ID : begin
-						read_response_in_vertex_job      <= read_response_in_latched;
-						read_response_in_graph_algorithm <= 0;
+						read_response_in_vertex_job.valid      <= read_response_in_latched.valid;
+						read_response_in_graph_algorithm.valid <= 0;
 					end
 					default : begin
-						read_response_in_graph_algorithm <= read_response_in_latched;
-						read_response_in_vertex_job      <= 0;
+						read_response_in_graph_algorithm.valid <= read_response_in_latched.valid;
+						read_response_in_vertex_job.valid      <= 0;
 					end
 				endcase
 			end else begin
-				read_response_in_vertex_job      <= 0;
-				read_response_in_graph_algorithm <= 0;
+				read_response_in_vertex_job.valid      <= 0;
+				read_response_in_graph_algorithm.valid <= 0;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		read_response_in_vertex_job.payload      <= read_response_in_latched.payload;
+		read_response_in_graph_algorithm.payload <= read_response_in_latched.payload;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -321,50 +350,60 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_in_vertex_job      <= 0;
-			read_data_0_in_graph_algorithm <= 0;
+			read_data_0_in_vertex_job.valid      <= 0;
+			read_data_0_in_graph_algorithm.valid <= 0;
 		end else begin
 			if(enabled && read_data_0_in_latched.valid) begin
 				case (read_data_0_in_latched.payload.cmd.cu_id)
 					VERTEX_CONTROL_ID : begin
-						read_data_0_in_vertex_job      <= read_data_0_in_latched;
-						read_data_0_in_graph_algorithm <= 0;
+						read_data_0_in_vertex_job.valid      <= read_data_0_in_latched.valid;
+						read_data_0_in_graph_algorithm.valid <= 0;
 					end
 					default : begin
-						read_data_0_in_graph_algorithm <= read_data_0_in_latched;
-						read_data_0_in_vertex_job      <= 0;
+						read_data_0_in_graph_algorithm.valid <= read_data_0_in_latched.valid;
+						read_data_0_in_vertex_job.valid      <= 0;
 					end
 				endcase
 			end else begin
-				read_data_0_in_vertex_job      <= 0;
-				read_data_0_in_graph_algorithm <= 0;
+				read_data_0_in_vertex_job.valid      <= 0;
+				read_data_0_in_graph_algorithm.valid <= 0;
 			end
 		end
 	end
 
+	always_ff @(posedge clock) begin
+		read_data_0_in_vertex_job.payload      <= read_data_0_in_latched.payload;
+		read_data_0_in_graph_algorithm.payload <= read_data_0_in_latched.payload;
+	end
+
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_1_in_vertex_job      <= 0;
-			read_data_1_in_graph_algorithm <= 0;
+			read_data_1_in_vertex_job.valid      <= 0;
+			read_data_1_in_graph_algorithm.valid <= 0;
 		end else begin
 			if(enabled && read_data_1_in_latched.valid) begin
 				case (read_data_1_in_latched.payload.cmd.cu_id)
 					VERTEX_CONTROL_ID : begin
-						read_data_1_in_vertex_job      <= read_data_1_in_latched;
-						read_data_1_in_graph_algorithm <= 0;
+						read_data_1_in_vertex_job.valid      <= read_data_1_in_latched.valid;
+						read_data_1_in_graph_algorithm.valid <= 0;
 					end
 					default : begin
-						read_data_1_in_graph_algorithm <= read_data_1_in_latched;
-						read_data_1_in_vertex_job      <= 0;
+						read_data_1_in_graph_algorithm.valid <= read_data_1_in_latched.valid;
+						read_data_1_in_vertex_job.valid      <= 0;
 					end
 				endcase
 			end else begin
-				read_data_1_in_vertex_job      <= 0;
-				read_data_1_in_graph_algorithm <= 0;
+				read_data_1_in_vertex_job.valid      <= 0;
+				read_data_1_in_graph_algorithm.valid <= 0;
 			end
 		end
 	end
 
+	always_ff @(posedge clock) begin
+		read_data_1_in_vertex_job.payload      <= read_data_1_in_latched.payload;
+		read_data_1_in_graph_algorithm.payload <= read_data_1_in_latched.payload;
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //read Buffer arbitration logic
