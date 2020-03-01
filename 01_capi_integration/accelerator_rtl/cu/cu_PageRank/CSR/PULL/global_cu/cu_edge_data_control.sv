@@ -89,18 +89,23 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			edge_request             <= 0;
-			edge_data                <= 0;
-			read_command_out         <= 0;
+			edge_data.valid          <= 0;
+			read_command_out.valid   <= 0;
 			data_buffer_status       <= 0;
 			data_buffer_status.empty <= 1;
 		end else begin
 			if(enabled) begin
-				edge_request       <= edge_request_latched;
-				edge_data          <= edge_data_latched;
-				read_command_out   <= read_command_edge_data_burst_out_latched;
-				data_buffer_status <= data_buffer_status_latch;
+				edge_request           <= edge_request_latched;
+				edge_data.valid        <= edge_data_latched.valid;
+				read_command_out.valid <= read_command_edge_data_burst_out_latched.valid;
+				data_buffer_status     <= data_buffer_status_latch;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		edge_data.payload        <= edge_data_latched.payload ;
+		read_command_out.payload <= read_command_edge_data_burst_out_latched.payload ;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -109,23 +114,31 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_response_in_latched  <= 0;
-			edge_job_latched          <= 0;
-			edge_data_request_latched <= 0;
-			wed_request_in_latched    <= 0;
-			edge_data_variable        <= 0;
-			cu_configure_latched      <= 0;
+			read_response_in_latched.valid <= 0;
+			edge_job_latched.valid         <= 0;
+			edge_data_request_latched      <= 0;
+			wed_request_in_latched.valid   <= 0;
+			edge_data_variable.valid       <= 0;
+			cu_configure_latched           <= 0;
 		end else begin
 			if(enabled) begin
-				wed_request_in_latched    <= wed_request_in;
-				read_response_in_latched  <= read_response_in;
-				edge_job_latched          <= edge_job;
-				edge_data_variable        <= edge_data_read_in;
-				edge_data_request_latched <= edge_data_request;
+				wed_request_in_latched.valid   <= wed_request_in.valid;
+				read_response_in_latched.valid <= read_response_in.valid;
+				edge_job_latched.valid         <= edge_job.valid;
+				edge_data_variable.valid       <= edge_data_read_in.valid;
+				edge_data_request_latched      <= edge_data_request;
 				if((|cu_configure_internal))
 					cu_configure_latched <= cu_configure_internal;
 			end
 		end
+	end
+
+
+	always_ff @(posedge clock) begin
+		wed_request_in_latched.payload   <= wed_request_in.payload;
+		read_response_in_latched.payload <= read_response_in.payload;
+		edge_job_latched.payload         <= edge_job.payload;
+		edge_data_variable.payload       <= edge_data_read_in.payload;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -134,34 +147,35 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_command_out_latched <= 0;
+			read_command_out_latched.valid <= 0;
 		end else begin
 			if(enabled_cmd) begin
 				if(edge_job_variable.valid && wed_request_in_latched.valid)begin
-					read_command_out_latched.valid <= 1'b1;
-
-					read_command_out_latched.payload.address              <= wed_request_in_latched.payload.wed.auxiliary1 + ((edge_job_variable.payload.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_ALIGN_MASK);
-					read_command_out_latched.payload.size                 <= 12'h080;
-					read_command_out_latched.payload.cmd.real_size        <= 1'b1;
-					read_command_out_latched.payload.cmd.real_size_bytes  <= DATA_SIZE_READ;
-					read_command_out_latched.payload.cmd.array_struct     <= READ_GRAPH_DATA;
-					read_command_out_latched.payload.cmd.cacheline_offest <= (((edge_job_variable.payload.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_MOD_MASK) >> $clog2(DATA_SIZE_READ));
-					read_command_out_latched.payload.cmd.cu_id            <= CU_ID;
-					read_command_out_latched.payload.cmd.cmd_type         <= CMD_READ;
-
-					read_command_out_latched.payload.cmd.abt <= map_CABT(cu_configure_latched[10:12]);
-					read_command_out_latched.payload.abt     <= map_CABT(cu_configure_latched[10:12]);
-
-					if (cu_configure_latched[13]) begin
-						read_command_out_latched.payload.command <= READ_CL_S;
-					end else begin
-						read_command_out_latched.payload.command <= READ_CL_NA;
-					end
-
+					read_command_out_latched.valid <= 1;
 				end else begin
-					read_command_out_latched <= 0;
+					read_command_out_latched.valid <= 0;
 				end
 			end
+		end
+	end
+
+	always_ff @(posedge clock) begin
+		read_command_out_latched.payload.address              <= wed_request_in_latched.payload.wed.auxiliary1 + ((edge_job_variable.payload.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_ALIGN_MASK);
+		read_command_out_latched.payload.size                 <= 12'h080;
+		read_command_out_latched.payload.cmd.real_size        <= 1'b1;
+		read_command_out_latched.payload.cmd.real_size_bytes  <= DATA_SIZE_READ;
+		read_command_out_latched.payload.cmd.array_struct     <= READ_GRAPH_DATA;
+		read_command_out_latched.payload.cmd.cacheline_offest <= (((edge_job_variable.payload.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_MOD_MASK) >> $clog2(DATA_SIZE_READ));
+		read_command_out_latched.payload.cmd.cu_id            <= CU_ID;
+		read_command_out_latched.payload.cmd.cmd_type         <= CMD_READ;
+
+		read_command_out_latched.payload.cmd.abt <= map_CABT(cu_configure_latched[10:12]);
+		read_command_out_latched.payload.abt     <= map_CABT(cu_configure_latched[10:12]);
+
+		if (cu_configure_latched[13]) begin
+			read_command_out_latched.payload.command <= READ_CL_S;
+		end else begin
+			read_command_out_latched.payload.command <= READ_CL_NA;
 		end
 	end
 

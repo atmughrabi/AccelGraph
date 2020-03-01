@@ -130,14 +130,19 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_job         <= 0;
-			read_command_out <= 0;
+			edge_job.valid         <= 0;
+			read_command_out.valid <= 0;
 		end else begin
 			if(enabled) begin
-				edge_job         <= edge_latched;
-				read_command_out <= read_command_out_latched;
+				edge_job.valid         <= edge_latched.valid;
+				read_command_out.valid <= read_command_out_latched.valid;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		edge_job.payload         <= edge_latched.payload;
+		read_command_out.payload <= read_command_out_latched.payload;
 	end
 
 
@@ -147,37 +152,44 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_in_latched   <= 0;
-			read_data_1_in_latched   <= 0;
-			read_response_in_latched <= 0;
-			edge_request_latched     <= 0;
+			read_data_0_in_latched.valid   <= 0;
+			read_data_1_in_latched.valid   <= 0;
+			read_response_in_latched.valid <= 0;
+			edge_request_latched           <= 0;
+			wed_request_in_latched.valid   <= 0;
 		end else begin
 			if(enabled_cmd) begin
-				read_response_in_latched <= read_response_in;
-				read_data_0_in_latched   <= read_data_0_in;
-				read_data_1_in_latched   <= read_data_1_in;
-				edge_request_latched     <= edge_request && ~edge_buffer_status.empty;
+				read_response_in_latched.valid <= read_response_in.valid ;
+				read_data_0_in_latched.valid   <= read_data_0_in.valid ;
+				read_data_1_in_latched.valid   <= read_data_1_in.valid ;
+				wed_request_in_latched.valid   <= wed_request_in.valid;
+				edge_request_latched           <= edge_request && ~edge_buffer_status.empty;
 			end
 		end
 	end
 
+	always_ff @(posedge clock) begin
+		wed_request_in_latched.payload   <= wed_request_in.payload;
+		read_response_in_latched.payload <= read_response_in.payload;
+		read_data_0_in_latched.payload   <= read_data_0_in.payload;
+		read_data_1_in_latched.payload   <= read_data_1_in.payload;
+	end
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched  <= 0;
-			cu_configure_latched    <= 0;
-			read_vertex_new         <= 0;
-			read_vertex_new_latched <= 0;
-			vertex_job_latched      <= 0;
+			cu_configure_latched     <= 0;
+			read_vertex_new          <= 0;
+			read_vertex_new_latched  <= 0;
+			vertex_job_latched.valid <= 0;
 		end else begin
 			if(enabled) begin
-				wed_request_in_latched <= wed_request_in;
 
 				if((|cu_configure_internal))
 					cu_configure_latched <= cu_configure_internal;
 
 				if(read_vertex)begin
-					vertex_job_latched <= vertex_job;
-					read_vertex_new    <= 1;
+					vertex_job_latched.valid <= vertex_job.valid;
+					read_vertex_new          <= 1;
 				end
 
 				if(read_vertex_new && (~(|edge_num_counter)))begin
@@ -186,6 +198,12 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 				read_vertex_new_latched <= read_vertex_new;
 			end
+		end
+	end
+
+	always_ff @(posedge clock ) begin
+		if(read_vertex)begin
+			vertex_job_latched.payload <= vertex_job.payload;
 		end
 	end
 
@@ -286,51 +304,51 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 	always_ff @(posedge clock) begin
 		case (current_state)
 			SEND_EDGE_RESET : begin
-				read_command_edge_job_latched <= 0;
-				edge_next_offest              <= 0;
-				generate_read_command         <= 0;
-				setup_read_command            <= 0;
-				clear_data_ready              <= 1;
-				shift_limit_clear             <= 1;
-				start_shift_hf_0              <= 0;
-				start_shift_hf_1              <= 0;
-				switch_shift_hf               <= 0;
-				shift_counter                 <= 0;
-				remainder                     <= 0;
-				aligned                       <= 0;
-				done_vertex_edge_processing   <= 1;
+				read_command_edge_job_latched.valid <= 0;
+				edge_next_offest                    <= 0;
+				generate_read_command               <= 0;
+				setup_read_command                  <= 0;
+				clear_data_ready                    <= 1;
+				shift_limit_clear                   <= 1;
+				start_shift_hf_0                    <= 0;
+				start_shift_hf_1                    <= 0;
+				switch_shift_hf                     <= 0;
+				shift_counter                       <= 0;
+				remainder                           <= 0;
+				aligned                             <= 0;
+				done_vertex_edge_processing         <= 1;
 			end
 			SEND_EDGE_INIT : begin
-				read_command_edge_job_latched <= 0;
-				clear_data_ready              <= 0;
-				shift_limit_clear             <= 0;
-				setup_read_command            <= read_vertex_new_latched;
+				read_command_edge_job_latched.valid <= 0;
+				clear_data_ready                    <= 0;
+				shift_limit_clear                   <= 0;
+				setup_read_command                  <= read_vertex_new_latched;
 				if(read_vertex_new_latched)begin
 					edge_next_offest <= (vertex_job_latched.payload.inverse_edges_idx << $clog2(EDGE_SIZE));
 				end
 			end
 			SEND_EDGE_IDLE : begin
-				done_vertex_edge_processing   <= 0;
-				read_command_edge_job_latched <= 0;
-				setup_read_command            <= 0;
-				shift_limit_clear             <= 0;
-				shift_counter                 <= 0;
-				remainder                     <= (edge_next_offest & ADDRESS_EDGE_MOD_MASK);
-				aligned                       <= (edge_next_offest & ADDRESS_EDGE_ALIGN_MASK);
+				done_vertex_edge_processing         <= 0;
+				read_command_edge_job_latched.valid <= 0;
+				setup_read_command                  <= 0;
+				shift_limit_clear                   <= 0;
+				shift_counter                       <= 0;
+				remainder                           <= (edge_next_offest & ADDRESS_EDGE_MOD_MASK);
+				aligned                             <= (edge_next_offest & ADDRESS_EDGE_ALIGN_MASK);
 			end
 			START_EDGE_REQ : begin
-				read_command_edge_job_latched <= 0;
-				generate_read_command         <= 1;
-				shift_limit_clear             <= 0;
+				read_command_edge_job_latched.valid <= 0;
+				generate_read_command               <= 1;
+				shift_limit_clear                   <= 0;
 			end
 			CALC_EDGE_REQ_SIZE : begin
 				generate_read_command <= 0;
 			end
 			SEND_EDGE_START : begin
-				read_command_edge_job_latched <= read_command_edge_job_latched_S2;
+				read_command_edge_job_latched.payload <= read_command_edge_job_latched_S2.payload;
 			end
 			SEND_EDGE_INV_EDGE_ARRAY_DEST : begin
-				read_command_edge_job_latched.valid            <= 1'b1;
+				read_command_edge_job_latched.valid                    <= 1'b1;
 				read_command_edge_job_latched.payload.address          <= wed_request_in_latched.payload.wed.inverse_edges_array_dest + aligned;
 				read_command_edge_job_latched.payload.cmd.array_struct <= INV_EDGE_ARRAY_DEST;
 
@@ -340,7 +358,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 					edge_next_offest <= edge_next_offest + CACHELINE_SIZE;
 			end
 			WAIT_EDGE_DATA : begin
-				read_command_edge_job_latched <= 0;
+				read_command_edge_job_latched.valid <= 0;
 				if(fill_edge_job_buffer) begin
 					clear_data_ready <= 1;
 				end
@@ -379,8 +397,8 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_command_edge_job_latched_S2 <= 0;
-			edge_num_counter                 <= 0;
+			read_command_edge_job_latched_S2.valid <= 0;
+			edge_num_counter                       <= 0;
 		end
 		else begin
 
@@ -394,7 +412,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 					read_command_edge_job_latched_S2.payload.size <= CACHELINE_SIZE;
 
 					if(edge_num_counter > ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE))) begin
-						edge_num_counter                                     <= edge_num_counter - ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE));
+						edge_num_counter                                             <= edge_num_counter - ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE));
 						read_command_edge_job_latched_S2.payload.cmd.real_size       <= ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE));
 						read_command_edge_job_latched_S2.payload.cmd.real_size_bytes <= ((CACHELINE_SIZE - remainder));
 
@@ -405,7 +423,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 						end
 					end
 					else if (edge_num_counter <= ((CACHELINE_SIZE - remainder) >> $clog2(EDGE_SIZE))) begin
-						edge_num_counter                                     <= 0;
+						edge_num_counter                                             <= 0;
 						read_command_edge_job_latched_S2.payload.cmd.real_size       <= edge_num_counter;
 						read_command_edge_job_latched_S2.payload.cmd.real_size_bytes <= edge_num_counter << $clog2(EDGE_SIZE) ;
 
@@ -417,7 +435,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 					end
 				end else begin
 					if(edge_num_counter > CACHELINE_EDGE_NUM)begin
-						edge_num_counter                                     <= edge_num_counter - CACHELINE_EDGE_NUM;
+						edge_num_counter                                             <= edge_num_counter - CACHELINE_EDGE_NUM;
 						read_command_edge_job_latched_S2.payload.cmd.real_size       <= CACHELINE_EDGE_NUM;
 						read_command_edge_job_latched_S2.payload.cmd.real_size_bytes <= CACHELINE_EDGE_NUM << $clog2(EDGE_SIZE) ;
 
@@ -430,7 +448,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 						end
 					end
 					else if (edge_num_counter <= CACHELINE_EDGE_NUM) begin
-						edge_num_counter                                     <= 0;
+						edge_num_counter                                             <= 0;
 						read_command_edge_job_latched_S2.payload.cmd.real_size       <= edge_num_counter;
 						read_command_edge_job_latched_S2.payload.cmd.real_size_bytes <= edge_num_counter << $clog2(EDGE_SIZE) ;
 
@@ -453,7 +471,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				read_command_edge_job_latched_S2.payload.abt     <= map_CABT(cu_configure_latched[5:7]);
 
 			end else begin
-				read_command_edge_job_latched_S2 <= 0;
+				read_command_edge_job_latched_S2.valid <= 0;
 			end
 		end
 	end
@@ -470,7 +488,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			if(read_data_0_in_latched.valid) begin
 				case (read_data_0_in_latched.payload.cmd.array_struct)
 					INV_EDGE_ARRAY_DEST : begin
-						reg_INV_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched;
+						reg_INV_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched.payload.data;
 					end
 				endcase
 			end
@@ -488,7 +506,7 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 			if( read_data_1_in_latched.valid) begin
 				case (read_data_1_in_latched.payload.cmd.array_struct)
 					INV_EDGE_ARRAY_DEST : begin
-						reg_INV_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched;
+						reg_INV_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched.payload.data;
 					end
 				endcase
 			end
