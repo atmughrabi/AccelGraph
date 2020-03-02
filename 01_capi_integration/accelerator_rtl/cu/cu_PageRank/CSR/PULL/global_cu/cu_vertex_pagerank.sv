@@ -77,6 +77,7 @@ module cu_vertex_pagerank #(
 	//input lateched
 	WEDInterface wed_request_in_latched ;
 	WEDInterface wed_request_in_internal;
+	WEDInterface wed_request_in_internal_S2;
 
 	ResponseBufferLine read_response_in_latched ;
 	ResponseBufferLine write_response_in_latched;
@@ -87,6 +88,13 @@ module cu_vertex_pagerank #(
 	ResponseBufferLine write_response_in_internal;
 	ReadWriteDataLine  read_data_0_in_internal   ;
 	ReadWriteDataLine  read_data_1_in_internal   ;
+
+	ResponseBufferLine read_response_in_internal_S2   ;
+	ResponseBufferLine write_response_in_internal_S2  ;
+	ReadWriteDataLine  read_data_0_in_internal_S2     ;
+	ReadWriteDataLine  read_data_1_in_internal_S2     ;
+	VertexInterface    vertex_job_burst_in_internal_S2;
+	EdgeDataRead       edge_data_read_internal_S2     ;
 
 	ResponseBufferLine write_response_in_edge_data;
 	ResponseBufferLine read_response_in_edge_job  ;
@@ -240,13 +248,23 @@ module cu_vertex_pagerank #(
 	end
 
 	always_ff @(posedge clock) begin
-		read_data_0_in_latched    <= read_data_0_in_internal;
-		read_data_1_in_latched    <= read_data_1_in_internal;
-		wed_request_in_latched    <= wed_request_in_internal;
-		read_response_in_latched  <= read_response_in_internal;
-		write_response_in_latched <= write_response_in_internal;
-		vertex_job_burst_in       <= vertex_job_burst_in_internal;
-		edge_data_read            <= edge_data_read_internal;
+		read_data_0_in_internal_S2      <= read_data_0_in_internal;
+		read_data_1_in_internal_S2      <= read_data_1_in_internal;
+		wed_request_in_internal_S2      <= wed_request_in_internal;
+		read_response_in_internal_S2    <= read_response_in_internal;
+		write_response_in_internal_S2   <= write_response_in_internal;
+		vertex_job_burst_in_internal_S2 <= vertex_job_burst_in_internal;
+		edge_data_read_internal_S2      <= edge_data_read_internal;
+	end
+
+	always_ff @(posedge clock) begin
+		read_data_0_in_latched    <= read_data_0_in_internal_S2 ;
+		read_data_1_in_latched    <= read_data_1_in_internal_S2 ;
+		wed_request_in_latched    <= wed_request_in_internal_S2 ;
+		read_response_in_latched  <= read_response_in_internal_S2 ;
+		write_response_in_latched <= write_response_in_internal_S2 ;
+		vertex_job_burst_in       <= vertex_job_burst_in_internal_S2 ;
+		edge_data_read            <= edge_data_read_internal_S2 ;
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
