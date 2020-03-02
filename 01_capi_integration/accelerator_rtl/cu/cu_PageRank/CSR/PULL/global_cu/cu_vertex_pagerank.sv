@@ -123,13 +123,15 @@ module cu_vertex_pagerank #(
 	EdgeDataRead      edge_data_read_internal            ;
 	EdgeDataWrite     edge_data_write_out_internal       ;
 
-	ReadWriteDataLine  read_data_0_data_out          [0:1];
-	ReadWriteDataLine  read_data_1_data_out          [0:1];
-	ResponseBufferLine read_response_data_out        [0:1];
-	ResponseBufferLine read_response_data_out_latched[0:1];
-	ReadWriteDataLine  read_data_0_data_out_latched  [0:1];
-	ReadWriteDataLine  read_data_1_data_out_latched  [0:1];
-
+	ReadWriteDataLine  read_data_0_data_out                [0:1];
+	ReadWriteDataLine  read_data_1_data_out                [0:1];
+	ResponseBufferLine read_response_data_out              [0:1];
+	ResponseBufferLine read_response_data_out_latched      [0:1];
+	logic              read_response_data_out_latched_valid[0:1];
+	ReadWriteDataLine  read_data_0_data_out_latched        [0:1];
+	ReadWriteDataLine  read_data_1_data_out_latched        [0:1];
+	logic              read_data_0_data_out_latched_valid  [0:1];
+	logic              read_data_1_data_out_latched_valid  [0:1];
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -416,41 +418,28 @@ module cu_vertex_pagerank #(
 //read response arbitration logic - input
 ////////////////////////////////////////////////////////////////////////////
 
+	array_struct_type_demux_bus #(
+		.DATA_WIDTH($bits(ResponseBufferLine)),
+		.BUS_WIDTH (2                        )
+	) read_response_in_array_struct_type_demux_bus_instant (
+		.clock         (clock                                            ),
+		.rstn          (rstn                                             ),
+		.sel_in        (read_response_in_latched.payload.cmd.array_struct),
+		.data_in       (read_response_in_latched                         ),
+		.data_in_valid (read_response_in_latched.valid                   ),
+		.data_out      (read_response_data_out_latched                   ),
+		.data_out_valid(read_response_data_out_latched_valid             )
+	);
+
+	always_ff @(posedge clock) begin
+		read_response_data_out[0].valid <= read_response_data_out_latched_valid[0];
+		read_response_data_out[1].valid <= read_response_data_out_latched_valid[1];
+		read_response_data_out[0].payload <= read_response_data_out_latched[0].payload;
+		read_response_data_out[1].payload <= read_response_data_out_latched[1].payload;
+	end
+
 	assign read_response_in_edge_job  = read_response_data_out[0];
 	assign read_response_in_edge_data = read_response_data_out[1];
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_response_data_out_latched[0].valid <= 0;
-			read_response_data_out_latched[1].valid <= 0;
-		end else begin
-			case (read_response_in_latched.payload.cmd.array_struct)
-				INV_EDGE_ARRAY_DEST : begin
-					read_response_data_out_latched[0].valid <= read_response_in_latched.valid;
-					read_response_data_out_latched[1].valid <= 0;
-				end
-				READ_GRAPH_DATA : begin
-					read_response_data_out_latched[0].valid <= 0;
-					read_response_data_out_latched[1].valid <= read_response_in_latched.valid;
-				end
-				default : begin
-					read_response_data_out_latched[0].valid <= 0;
-					read_response_data_out_latched[1].valid <= 0;
-				end
-			endcase
-		end
-	end
-
-	always_ff @(posedge clock) begin
-		read_response_data_out_latched[0].payload <= read_response_in_latched.payload;
-		read_response_data_out_latched[1].payload <= read_response_in_latched.payload;
-	end
-
-
-	always_ff @(posedge clock) begin
-		read_response_data_out[0] <= read_response_data_out_latched[0];
-		read_response_data_out[1] <= read_response_data_out_latched[1];
-	end
 
 ////////////////////////////////////////////////////////////////////////////
 //write response arbitration logic - input
@@ -483,75 +472,51 @@ module cu_vertex_pagerank #(
 //read data request logic - input
 ////////////////////////////////////////////////////////////////////////////
 
+	array_struct_type_demux_bus #(
+		.DATA_WIDTH($bits(ReadWriteDataLine)),
+		.BUS_WIDTH (2                       )
+	) read_data_0_array_struct_type_demux_bus_instant (
+		.clock         (clock                                          ),
+		.rstn          (rstn                                           ),
+		.sel_in        (read_data_0_in_latched.payload.cmd.array_struct),
+		.data_in       (read_data_0_in_latched                         ),
+		.data_in_valid (read_data_0_in_latched.valid                   ),
+		.data_out      (read_data_0_data_out_latched                   ),
+		.data_out_valid(read_data_0_data_out_latched_valid             )
+	);
+
+	always_ff @(posedge clock) begin
+		read_data_0_data_out[0].valid <= read_data_0_data_out_latched_valid[0];
+		read_data_0_data_out[1].valid <= read_data_0_data_out_latched_valid[1];
+		read_data_0_data_out[0].payload <= read_data_0_data_out_latched[0].payload;
+		read_data_0_data_out[1].payload <= read_data_0_data_out_latched[1].payload;
+	end
+
 	assign read_data_0_in_edge_job  = read_data_0_data_out[0];
 	assign read_data_0_in_edge_data = read_data_0_data_out[1];
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_data_0_data_out_latched[0].valid <= 0;
-			read_data_0_data_out_latched[1].valid <= 0;
-		end else begin
-			case (read_data_0_in_latched.payload.cmd.array_struct)
-				INV_EDGE_ARRAY_DEST : begin
-					read_data_0_data_out_latched[0].valid <= read_data_0_in_latched.valid;
-					read_data_0_data_out_latched[1].valid <= 0;
-				end
-				READ_GRAPH_DATA : begin
-					read_data_0_data_out_latched[0].valid <= 0;
-					read_data_0_data_out_latched[1].valid <= read_data_0_in_latched.valid;
-				end
-				default : begin
-					read_data_0_data_out_latched[0].valid <= 0;
-					read_data_0_data_out_latched[1].valid <= 0;
-				end
-			endcase
-		end
-	end
+	array_struct_type_demux_bus #(
+		.DATA_WIDTH($bits(ReadWriteDataLine)),
+		.BUS_WIDTH (2                       )
+	) read_data_1_array_struct_type_demux_bus_instant (
+		.clock         (clock                                          ),
+		.rstn          (rstn                                           ),
+		.sel_in        (read_data_1_in_latched.payload.cmd.array_struct),
+		.data_in       (read_data_1_in_latched                         ),
+		.data_in_valid (read_data_1_in_latched.valid                   ),
+		.data_out      (read_data_1_data_out_latched                   ),
+		.data_out_valid(read_data_1_data_out_latched_valid             )
+	);
 
 	always_ff @(posedge clock) begin
-		read_data_0_data_out_latched[0].payload <= read_data_0_in_latched.payload;
-		read_data_0_data_out_latched[1].payload <= read_data_0_in_latched.payload;
-	end
-
-	always_ff @(posedge clock) begin
-		read_data_0_data_out[0] <= read_data_0_data_out_latched[0];
-		read_data_0_data_out[1] <= read_data_0_data_out_latched[1];
+		read_data_1_data_out[0].valid <= read_data_1_data_out_latched_valid[0];
+		read_data_1_data_out[1].valid <= read_data_1_data_out_latched_valid[1];
+		read_data_1_data_out[0].payload <= read_data_1_data_out_latched[0].payload;
+		read_data_1_data_out[1].payload <= read_data_1_data_out_latched[1].payload;
 	end
 
 	assign read_data_1_in_edge_job  = read_data_1_data_out[0];
 	assign read_data_1_in_edge_data = read_data_1_data_out[1];
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_data_1_data_out_latched[0].valid <= 0;
-			read_data_1_data_out_latched[1].valid <= 0;
-		end else begin
-			case (read_data_1_in_latched.payload.cmd.array_struct)
-				INV_EDGE_ARRAY_DEST : begin
-					read_data_1_data_out_latched[0].valid <= read_data_1_in_latched.valid;
-					read_data_1_data_out_latched[1].valid <= 0;
-				end
-				READ_GRAPH_DATA : begin
-					read_data_1_data_out_latched[0].valid <= 0;
-					read_data_1_data_out_latched[1].valid <= read_data_1_in_latched.valid;
-				end
-				default : begin
-					read_data_1_data_out_latched[0].valid <= 0;
-					read_data_1_data_out_latched[1].valid <= 0;
-				end
-			endcase
-		end
-	end
-
-	always_ff @(posedge clock) begin
-		read_data_1_data_out_latched[0].payload <= read_data_1_in_latched.payload;
-		read_data_1_data_out_latched[1].payload <= read_data_1_in_latched.payload;
-	end
-
-	always_ff @(posedge clock) begin
-		read_data_1_data_out[0] <= read_data_1_data_out_latched[0];
-		read_data_1_data_out[1] <= read_data_1_data_out_latched[1];
-	end
 
 
 	////////////////////////////////////////////////////////////////////////////

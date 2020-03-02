@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : array_struct_type_demux_bus.sv
 // Create : 2020-02-21 22:35:40
-// Revise : 2020-02-28 02:44:06
+// Revise : 2020-03-02 06:28:13
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -18,73 +18,97 @@ module array_struct_type_demux_bus #(
 	parameter DATA_WIDTH = 32,
 	parameter BUS_WIDTH  = 2
 ) (
-	input  logic                  clock                   ,
-	input  logic                  rstn                    ,
-	input  logic                  enabled_in              ,
-	input  array_struct_type      sel_in                  ,
-	input  logic [0:DATA_WIDTH-1] data_in                 ,
-	output logic [0:DATA_WIDTH-1] data_out [0:BUS_WIDTH-1]
+	input  logic                  clock                         ,
+	input  logic                  rstn                          ,
+	input  array_struct_type      sel_in                        ,
+	input  logic [0:DATA_WIDTH-1] data_in                       ,
+	input  logic                  data_in_valid                 ,
+	output logic [0:DATA_WIDTH-1] data_out [0:BUS_WIDTH-1]      ,
+	output logic                  data_out_valid [0:BUS_WIDTH-1]
 );
 
-	logic                  enabled                           ;
-	array_struct_type      sel_in_latched                    ;
-	array_struct_type      sel_in_internal                   ;
-	logic [0:DATA_WIDTH-1] data_in_latched                   ;
-	logic [0:DATA_WIDTH-1] data_in_internal                  ;
-	logic [0:DATA_WIDTH-1] data_out_latched   [0:BUS_WIDTH-1];
-	logic [0:DATA_WIDTH-1] data_out_latched_S2[0:BUS_WIDTH-1];
+	array_struct_type sel_in_latched ;
+	array_struct_type sel_in_internal;
 
-	integer i;
+	logic [0:DATA_WIDTH-1] data_in_latched ;
+	logic [0:DATA_WIDTH-1] data_in_internal;
+
+	logic data_in_valid_latched ;
+	logic data_in_valid_internal;
+
+	logic data_out_valid_latched [0:BUS_WIDTH-1];
+	logic data_out_valid_internal[0:BUS_WIDTH-1];
+
+	logic [0:DATA_WIDTH-1] data_out_internal[0:BUS_WIDTH-1];
+	logic [0:DATA_WIDTH-1] data_out_latched [0:BUS_WIDTH-1];
+
+	genvar i;
 
 	////////////////////////////////////////////////////////////////////////////
-	//enable logic
+	//latche logic
 	////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			enabled          <= 0;
-			sel_in_internal  <= STRUCT_INVALID;
-			data_in_internal <= 0;
+			data_in_valid_internal <= 0;
+			data_in_valid_latched  <= 0;
+			sel_in_internal        <= STRUCT_INVALID;
+			sel_in_latched         <= STRUCT_INVALID;
 		end else begin
-			enabled          <= enabled_in;
-			sel_in_internal  <= sel_in;
-			data_in_internal <= data_in;
+			data_in_valid_internal <= data_in_valid;
+			data_in_valid_latched  <= data_in_valid_internal;
+			sel_in_internal        <= sel_in;
+			sel_in_latched         <= sel_in_internal;
 		end
 	end
 
-	always_ff @(posedge clock ) begin
+	always_ff @(posedge clock) begin
+		data_in_internal <= data_in;
+	end
+
+	always_ff @(posedge clock) begin
 		data_in_latched <= data_in_internal;
 	end
 
 	always_ff @(posedge clock) begin
-		if(enabled) begin
-			sel_in_latched <= sel_in_internal;
+		data_out       <= data_out_latched;
+		data_out_valid <= data_out_valid_latched;
+	end
+
+	////////////////////////////////////////////////////////////////////////////
+	//demux logic
+	////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			data_out_valid_internal[0] <= 0;
+			data_out_valid_internal[1] <= 0;
 		end else begin
-			sel_in_latched <= STRUCT_INVALID;
+			case (sel_in_latched)
+				INV_EDGE_ARRAY_DEST : begin
+					data_out_valid_internal[0] <= data_in_valid_latched;
+					data_out_valid_internal[1] <= 0;
+				end
+				READ_GRAPH_DATA : begin
+					data_out_valid_internal[0] <= 0;
+					data_out_valid_internal[1] <= data_in_valid_latched;
+				end
+				default : begin
+					data_out_valid_internal[0] <= 0;
+					data_out_valid_internal[1] <= 0;
+				end
+			endcase
 		end
 	end
 
-	always_comb  begin
-		data_out_latched = '{default:0};
-		case (sel_in_latched)
-			INV_EDGE_ARRAY_DEST : begin
-				data_out_latched[0] = data_in_latched;
-			end
-			READ_GRAPH_DATA : begin
-				data_out_latched[1] = data_in_latched;
-			end
-			default : begin
-				data_out_latched = '{default:0};
-			end
-		endcase
+	always_ff @(posedge clock) begin
+		data_out_internal[0] <= data_in_latched;
+		data_out_internal[1] <= data_in_latched;
 	end
 
 	always_ff @(posedge clock) begin
-		data_out_latched_S2 <= data_out_latched;
-	end
-
-	always_ff @(posedge clock) begin
-		data_out <= data_out_latched_S2;
+		data_out_valid_latched <= data_out_valid_internal;
+		data_out_latched       <= data_out_internal;
 	end
 
 
