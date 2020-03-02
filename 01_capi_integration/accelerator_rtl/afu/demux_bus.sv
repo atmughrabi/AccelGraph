@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : demux_bus.sv
 // Create : 2020-02-21 19:20:47
-// Revise : 2020-03-02 06:12:58
+// Revise : 2020-03-02 06:47:08
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -97,7 +97,7 @@ module demux_bus #(
 			end
 		end
 	endgenerate
-
+	
 	always_ff @(posedge clock) begin
 		data_out_valid_latched <= data_out_valid_internal;
 		data_out_latched       <= data_out_internal;

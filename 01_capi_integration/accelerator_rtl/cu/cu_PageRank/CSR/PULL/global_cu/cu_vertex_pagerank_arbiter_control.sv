@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-02 06:12:10
+// Revise : 2020-03-02 06:37:33
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
