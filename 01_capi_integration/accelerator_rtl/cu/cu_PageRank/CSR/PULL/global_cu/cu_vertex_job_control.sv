@@ -377,7 +377,8 @@ module cu_vertex_job_control (
 					end
 				end
 
-				read_command_vertex_job_latched_S2.payload.cmd.cu_id            <= VERTEX_CONTROL_ID;
+				read_command_vertex_job_latched_S2.payload.cmd.cu_id_x          <= VERTEX_CONTROL_ID;
+				read_command_vertex_job_latched_S2.payload.cmd.cu_id_y          <= VERTEX_CONTROL_ID;
 				read_command_vertex_job_latched_S2.payload.cmd.cmd_type         <= CMD_READ;
 				read_command_vertex_job_latched_S2.payload.cmd.cacheline_offest <= 0;
 
@@ -502,20 +503,23 @@ module cu_vertex_job_control (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_variable   <= 0;
-			vertex_id_counter <= 0;
+			vertex_variable.valid <= 0;
+			vertex_id_counter     <= 0;
 		end
 		else begin
 			if(push_shift) begin
-				vertex_id_counter                          <= vertex_id_counter+1;
-				vertex_variable.valid                      <= push_shift;
-				vertex_variable.payload.id                 <= vertex_id_counter;
-				vertex_variable.payload.inverse_out_degree <= swap_endianness_vertex_read(inverse_out_degree_data);
-				vertex_variable.payload.inverse_edges_idx  <= swap_endianness_vertex_read(inverse_edges_idx_degree_data);
+				vertex_id_counter     <= vertex_id_counter+1;
+				vertex_variable.valid <= 1;
 			end else begin
-				vertex_variable <= 0;
+				vertex_variable.valid <= 0;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		vertex_variable.payload.id                 <= vertex_id_counter + wed_request_in_latched.payload.wed.auxiliary0;
+		vertex_variable.payload.inverse_out_degree <= swap_endianness_vertex_read(inverse_out_degree_data);
+		vertex_variable.payload.inverse_edges_idx  <= swap_endianness_vertex_read(inverse_edges_idx_degree_data);
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin

@@ -73,7 +73,7 @@ module wed_control (
         next_state = WED_WAITING_FOR_REQUEST;
       end // WED_REQ
       WED_WAITING_FOR_REQUEST : begin
-        if (wed_response_in.valid && wed_response_in.payload.cmd.cu_id == WED_ID && wed_response_in.payload.response == DONE) begin
+        if (wed_response_in.valid && wed_response_in.payload.cmd.cu_id_x == WED_ID && wed_response_in.payload.response == DONE) begin
           next_state = WED_DONE_REQ;
         end
         else
@@ -103,7 +103,8 @@ module wed_control (
         command_out.payload.command <= READ_CL_NA;
         command_out.payload.address <= wed_address;
 
-        command_out.payload.cmd.cu_id            <= WED_ID;
+        command_out.payload.cmd.cu_id_x          <= WED_ID;
+        command_out.payload.cmd.cu_id_y          <= WED_ID;
         command_out.payload.cmd.cmd_type         <= CMD_WED;
         command_out.payload.cmd.array_struct     <= STRUCT_INVALID;
         command_out.payload.cmd.real_size        <= 32;
@@ -117,10 +118,10 @@ module wed_control (
       end // WED_REQ
       WED_WAITING_FOR_REQUEST : begin
         command_out.valid <= 0;
-        if (wed_data_0_in.payload.cmd.cu_id == WED_ID) begin
+        if (wed_data_0_in.payload.cmd.cu_id_x == WED_ID) begin
           wed_cacheline128[0:CACHELINE_SIZE_BITS_HF-1] <= wed_data_0_in.payload.data;
         end
-        if (wed_data_1_in.payload.cmd.cu_id == WED_ID) begin
+        if (wed_data_1_in.payload.cmd.cu_id_x == WED_ID) begin
           wed_cacheline128[CACHELINE_SIZE_BITS_HF:CACHELINE_SIZE_BITS-1] <= wed_data_1_in.payload.data;
         end
       end // WED_WAITING_FOR_REQUEST

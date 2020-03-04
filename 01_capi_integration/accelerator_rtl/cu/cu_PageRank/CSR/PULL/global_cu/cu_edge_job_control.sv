@@ -20,7 +20,10 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_edge_job_control #(parameter CU_ID = 1) (
+module cu_edge_job_control #(
+	parameter CU_ID_X = 1,
+	parameter CU_ID_Y = 1
+) (
 	input  logic              clock                   , // Clock
 	input  logic              rstn                    ,
 	input  logic              enabled_in              ,
@@ -464,7 +467,8 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 				end
 
 				read_command_edge_job_latched_S2.payload.cmd.cacheline_offest <= (remainder >> $clog2(EDGE_SIZE));
-				read_command_edge_job_latched_S2.payload.cmd.cu_id            <= CU_ID;
+				read_command_edge_job_latched_S2.payload.cmd.cu_id_x            <= CU_ID_X;
+				read_command_edge_job_latched_S2.payload.cmd.cu_id_y            <= CU_ID_Y;
 				read_command_edge_job_latched_S2.payload.cmd.cmd_type         <= CMD_READ;
 
 				read_command_edge_job_latched_S2.payload.cmd.abt <= map_CABT(cu_configure_latched[5:7]);
@@ -580,24 +584,27 @@ module cu_edge_job_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_variable   <= 0;
-			edge_id_counter <= 0;
+			edge_variable.valid <= 0;
+			edge_id_counter     <= 0;
 		end
 		else begin
 			if(push_shift) begin
-				edge_id_counter            <= edge_id_counter+1;
-				edge_variable.valid        <= push_shift;
-				edge_variable.payload.id   <= edge_id_counter;
-				edge_variable.payload.src  <= vertex_job_latched.payload.id;
-				edge_variable.payload.dest <= swap_endianness_edge_read(inverse_edge_array_dest_data);
+				edge_id_counter     <= edge_id_counter+1;
+				edge_variable.valid <= 1;
 			end else begin
-				edge_variable <= 0;
+				edge_variable.valid <= 0;
 			end
 
 			if(done_vertex_edge_processing) begin
 				edge_id_counter <= 0;
 			end
 		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		edge_variable.payload.id   <= edge_id_counter;
+		edge_variable.payload.src  <= vertex_job_latched.payload.id;
+		edge_variable.payload.dest <= swap_endianness_edge_read(inverse_edge_array_dest_data);
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin

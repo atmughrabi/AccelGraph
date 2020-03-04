@@ -96,7 +96,8 @@ package AFU_PKG;
   } tag_buffer_state;
 
   typedef struct packed {
-    cu_id_t                              cu_id           ; // Compute unit id generating the command for now we support four
+    cu_id_t                              cu_id_x         ; // Compute unit id 
+    cu_id_t                              cu_id_y         ; // Compute unit id
     array_struct_type                    array_struct    ;
     command_type                         cmd_type        ; // The compute unit from the AFU SIDE will send the command type Rd/Wr/Prefetch
     logic [0:CACHELINE_INT_COUNTER_BITS] real_size       ;

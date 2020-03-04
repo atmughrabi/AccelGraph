@@ -20,9 +20,9 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_vertex_pagerank #(
-	parameter NUM_EDGE_CU    = 1,
-	parameter PAGERANK_CU_ID = 1,
-	parameter NUM_REQUESTS   = 2
+	parameter CU_ID_X      = 1,
+	parameter CU_ID_Y      = 1,
+	parameter NUM_REQUESTS = 2
 ) (
 	input  logic                          clock                      , // Clock
 	input  logic                          rstn                       ,
@@ -67,7 +67,6 @@ module cu_vertex_pagerank #(
 	logic           vertex_request_internal      ;
 	BufferStatus    vertex_buffer_status_internal;
 	VertexInterface vertex_job_burst_in          ;
-	VertexInterface vertex_job_burst_in_internal ;
 
 	VertexInterface vertex_job_burst_out;
 
@@ -75,26 +74,12 @@ module cu_vertex_pagerank #(
 	CommandBufferLine read_command_out_latched;
 
 	//input lateched
-	WEDInterface wed_request_in_latched ;
-	WEDInterface wed_request_in_internal;
-	WEDInterface wed_request_in_internal_S2;
+	WEDInterface wed_request_in_latched;
 
 	ResponseBufferLine read_response_in_latched ;
 	ResponseBufferLine write_response_in_latched;
 	ReadWriteDataLine  read_data_0_in_latched   ;
 	ReadWriteDataLine  read_data_1_in_latched   ;
-
-	ResponseBufferLine read_response_in_internal ;
-	ResponseBufferLine write_response_in_internal;
-	ReadWriteDataLine  read_data_0_in_internal   ;
-	ReadWriteDataLine  read_data_1_in_internal   ;
-
-	ResponseBufferLine read_response_in_internal_S2   ;
-	ResponseBufferLine write_response_in_internal_S2  ;
-	ReadWriteDataLine  read_data_0_in_internal_S2     ;
-	ReadWriteDataLine  read_data_1_in_internal_S2     ;
-	VertexInterface    vertex_job_burst_in_internal_S2;
-	EdgeDataRead       edge_data_read_internal_S2     ;
 
 	ResponseBufferLine write_response_in_edge_data;
 	ResponseBufferLine read_response_in_edge_job  ;
@@ -128,7 +113,6 @@ module cu_vertex_pagerank #(
 	BufferStatus      burst_read_command_buffer_states_cu;
 	CommandBufferLine burst_read_command_buffer_out      ;
 	EdgeDataRead      edge_data_read                     ;
-	EdgeDataRead      edge_data_read_internal            ;
 	EdgeDataWrite     edge_data_write_out_internal       ;
 
 	ReadWriteDataLine  read_data_0_data_out                [0:1];
@@ -217,54 +201,34 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_in_internal.valid      <= 0;
-			read_data_1_in_internal.valid      <= 0;
-			cu_configure_internal              <= 0;
-			wed_request_in_internal.valid      <= 0;
-			read_response_in_internal.valid    <= 0;
-			write_response_in_internal.valid   <= 0;
-			vertex_job_burst_in_internal.valid <= 0;
-			edge_data_read_internal.valid      <= 0;
+			read_data_0_in_latched.valid    <= 0;
+			read_data_1_in_latched.valid    <= 0;
+			wed_request_in_latched.valid    <= 0;
+			read_response_in_latched.valid  <= 0;
+			write_response_in_latched.valid <= 0;
+			vertex_job_burst_in.valid       <= 0;
+			edge_data_read.valid            <= 0;
+			cu_configure_internal           <= 0;
 		end else begin
-			read_data_0_in_internal.valid      <= read_data_0_in.valid;
-			read_data_1_in_internal.valid      <= read_data_1_in.valid;
-			cu_configure_internal              <= cu_configure;
-			wed_request_in_internal.valid      <= wed_request_in.valid;
-			read_response_in_internal.valid    <= read_response_in.valid;
-			write_response_in_internal.valid   <= write_response_in.valid;
-			vertex_job_burst_in_internal.valid <= vertex_job.valid;
-			edge_data_read_internal.valid      <= edge_data_read_in.valid;
+			read_data_0_in_latched.valid    <= read_data_0_in.valid;
+			read_data_1_in_latched.valid    <= read_data_1_in.valid;
+			wed_request_in_latched.valid    <= wed_request_in.valid;
+			read_response_in_latched.valid  <= read_response_in.valid;
+			write_response_in_latched.valid <= write_response_in.valid;
+			vertex_job_burst_in.valid       <= vertex_job.valid;
+			edge_data_read.valid            <= edge_data_read_in.valid;
+			cu_configure_internal           <= cu_configure;
 		end
 	end
 
 	always_ff @(posedge clock) begin
-		read_data_0_in_internal.payload      <= read_data_0_in.payload;
-		read_data_1_in_internal.payload      <= read_data_1_in.payload;
-		wed_request_in_internal.payload      <= wed_request_in.payload;
-		read_response_in_internal.payload    <= read_response_in.payload;
-		write_response_in_internal.payload   <= write_response_in.payload;
-		vertex_job_burst_in_internal.payload <= vertex_job.payload;
-		edge_data_read_internal.payload      <= edge_data_read_in.payload;
-	end
-
-	always_ff @(posedge clock) begin
-		read_data_0_in_internal_S2      <= read_data_0_in_internal;
-		read_data_1_in_internal_S2      <= read_data_1_in_internal;
-		wed_request_in_internal_S2      <= wed_request_in_internal;
-		read_response_in_internal_S2    <= read_response_in_internal;
-		write_response_in_internal_S2   <= write_response_in_internal;
-		vertex_job_burst_in_internal_S2 <= vertex_job_burst_in_internal;
-		edge_data_read_internal_S2      <= edge_data_read_internal;
-	end
-
-	always_ff @(posedge clock) begin
-		read_data_0_in_latched    <= read_data_0_in_internal_S2 ;
-		read_data_1_in_latched    <= read_data_1_in_internal_S2 ;
-		wed_request_in_latched    <= wed_request_in_internal_S2 ;
-		read_response_in_latched  <= read_response_in_internal_S2 ;
-		write_response_in_latched <= write_response_in_internal_S2 ;
-		vertex_job_burst_in       <= vertex_job_burst_in_internal_S2 ;
-		edge_data_read            <= edge_data_read_internal_S2 ;
+		read_data_0_in_latched.payload    <= read_data_0_in.payload;
+		read_data_1_in_latched.payload    <= read_data_1_in.payload;
+		wed_request_in_latched.payload    <= wed_request_in.payload;
+		read_response_in_latched.payload  <= read_response_in.payload;
+		write_response_in_latched.payload <= write_response_in.payload;
+		vertex_job_burst_in.payload       <= vertex_job.payload;
+		edge_data_read.payload            <= edge_data_read_in.payload;
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -369,7 +333,10 @@ module cu_vertex_pagerank #(
 	// Edge job control
 	////////////////////////////////////////////////////////////////////////////
 
-	cu_edge_job_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_job_control_instant (
+	cu_edge_job_control #(
+		.CU_ID_X(CU_ID_X),
+		.CU_ID_Y(CU_ID_Y)
+	) cu_edge_job_control_instant (
 		.clock                   (clock                       ),
 		.rstn                    (rstn                        ),
 		.enabled_in              (enabled_cmd                 ),
@@ -391,7 +358,10 @@ module cu_vertex_pagerank #(
 	// Edge Data control
 	////////////////////////////////////////////////////////////////////////////
 
-	cu_edge_data_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_data_control_instant (
+	cu_edge_data_read_command_control #(
+		.CU_ID_X(CU_ID_X),
+		.CU_ID_Y(CU_ID_Y)
+	) cu_edge_data_read_command_control_instant (
 		.clock                   (clock                        ),
 		.rstn                    (rstn                         ),
 		.enabled_in              (enabled_cmd                  ),
@@ -414,22 +384,25 @@ module cu_vertex_pagerank #(
 	// Data SUM control Float/Fixed Point
 	////////////////////////////////////////////////////////////////////////////
 
-	cu_sum_kernel_control #(.CU_ID(PAGERANK_CU_ID)) cu_sum_kernel_control_instant (
-		.clock                           (clock                              ),
-		.rstn                            (rstn                               ),
-		.enabled_in                      (enabled_cmd                        ),
-		.write_response_in               (write_response_in_edge_data        ),
-		.write_buffer_status             (write_buffer_status_latched        ),
-		.edge_data                       (edge_data                          ),
-		.edge_data_request               (edge_data_request                  ),
-		.data_buffer_status              (data_buffer_status                 ),
-		.edge_data_write_bus_grant       (edge_data_write_bus_grant_latched  ),
-		.edge_data_write_bus_request     (edge_data_write_bus_request_latched),
-		.edge_data_write_out             (edge_data_write_out_internal       ),
-		.vertex_job                      (vertex_job_latched                 ),
-		.vertex_num_counter_resp         (vertex_num_counter_resp            ),
-		.edge_data_counter_accum         (edge_data_counter_accum            ),
-		.edge_data_counter_accum_internal(edge_data_counter_accum_internal   )
+	cu_sum_kernel_control #(
+		.CU_ID_X(CU_ID_X),
+		.CU_ID_Y(CU_ID_Y)
+	) cu_sum_kernel_control_instant (
+		.clock                               (clock                              ),
+		.rstn                                (rstn                               ),
+		.enabled_in                          (enabled_cmd                        ),
+		.write_response_in                   (write_response_in_edge_data        ),
+		.write_buffer_status                 (write_buffer_status_latched        ),
+		.edge_data                           (edge_data                          ),
+		.edge_data_request                   (edge_data_request                  ),
+		.data_buffer_status                  (data_buffer_status                 ),
+		.edge_data_write_bus_grant           (edge_data_write_bus_grant_latched  ),
+		.edge_data_write_bus_request         (edge_data_write_bus_request_latched),
+		.edge_data_write_out                 (edge_data_write_out_internal       ),
+		.vertex_job                          (vertex_job_latched                 ),
+		.vertex_num_counter_resp_out         (vertex_num_counter_resp            ),
+		.edge_data_counter_accum_out         (edge_data_counter_accum            ),
+		.edge_data_counter_accum_internal_out(edge_data_counter_accum_internal   )
 	);
 
 ////////////////////////////////////////////////////////////////////////////

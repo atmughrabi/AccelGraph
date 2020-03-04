@@ -6,7 +6,7 @@
 // Copyright (c) 2014-2019 All rights reserved
 // -----------------------------------------------------------------------------
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
-// File   : cu_edge_data_control.sv
+// File   : cu_edge_data_read_command_control.sv
 // Create : 2019-09-26 15:18:46
 // Revise : 2019-11-08 10:49:54
 // Editor : sublime text3, tab size (4)
@@ -20,7 +20,10 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_edge_data_control #(parameter CU_ID = 1) (
+module cu_edge_data_read_command_control #(
+	parameter CU_ID_X = 1,
+	parameter CU_ID_Y = 1
+) (
 	input  logic              clock                   , // Clock
 	input  logic              rstn                    ,
 	input  logic              enabled_in              ,
@@ -166,7 +169,8 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 		read_command_out_latched.payload.cmd.real_size_bytes  <= DATA_SIZE_READ;
 		read_command_out_latched.payload.cmd.array_struct     <= READ_GRAPH_DATA;
 		read_command_out_latched.payload.cmd.cacheline_offest <= (((edge_job_variable.payload.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_MOD_MASK) >> $clog2(DATA_SIZE_READ));
-		read_command_out_latched.payload.cmd.cu_id            <= CU_ID;
+		read_command_out_latched.payload.cmd.cu_id_x          <= CU_ID_X;
+		read_command_out_latched.payload.cmd.cu_id_y          <= CU_ID_Y;
 		read_command_out_latched.payload.cmd.cmd_type         <= CMD_READ;
 
 		read_command_out_latched.payload.cmd.abt <= map_CABT(cu_configure_latched[10:12]);

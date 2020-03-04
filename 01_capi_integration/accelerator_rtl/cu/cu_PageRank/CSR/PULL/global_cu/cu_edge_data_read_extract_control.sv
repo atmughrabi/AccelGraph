@@ -20,7 +20,10 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_edge_data_read_control #(parameter CU_ID = 1) (
+module cu_edge_data_read_extract_control #(
+	parameter CU_ID_X = 1,
+	parameter CU_ID_Y = 1
+) (
 	input  logic             clock         , // Clock
 	input  logic             rstn          ,
 	input  logic             enabled_in    ,
@@ -37,7 +40,8 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 	ReadWriteDataLine read_data_0_in_latched_S2;
 	ReadWriteDataLine read_data_1_in_latched   ;
 	logic [0:7]       offset_data_0            ;
-	cu_id_t           cu_id                    ;
+	cu_id_t           cu_id_x                  ;
+	cu_id_t           cu_id_y                  ;
 	logic             enabled                  ;
 
 	logic [           0:CACHELINE_SIZE_BITS-1] read_data_in;
@@ -69,16 +73,22 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_in_latched    <= 0;
-			read_data_0_in_latched_S2 <= 0;
-			read_data_1_in_latched    <= 0;
+			read_data_0_in_latched.valid    <= 0;
+			read_data_0_in_latched_S2.valid <= 0;
+			read_data_1_in_latched.valid    <= 0;
 		end else begin
 			if(enabled) begin
-				read_data_0_in_latched_S2 <= read_data_0_in;
-				read_data_0_in_latched    <= read_data_0_in_latched_S2;
-				read_data_1_in_latched    <= read_data_1_in;
+				read_data_0_in_latched_S2.valid <= read_data_0_in.valid;
+				read_data_0_in_latched.valid    <= read_data_0_in_latched_S2.valid;
+				read_data_1_in_latched.valid    <= read_data_1_in.valid;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		read_data_0_in_latched_S2.payload <= read_data_0_in.payload;
+		read_data_0_in_latched.payload    <= read_data_0_in_latched_S2.payload;
+		read_data_1_in_latched.payload    <= read_data_1_in.payload;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -87,14 +97,17 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_data <= 0;
+			edge_data.valid <= 0;
 		end else begin
 			if(enabled) begin
-				edge_data <= edge_data_variable;
+				edge_data.valid <= edge_data_variable.valid;
 			end
 		end
 	end
 
+	always_ff @(posedge clock) begin
+		edge_data.payload <= edge_data_variable.payload;
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //data request read logic
@@ -106,18 +119,21 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 		if(~rstn) begin
 			read_data_in <= 0;
 			address_rd   <= 0;
-			cu_id        <= 0;
+			cu_id_x      <= 0;
+			cu_id_y      <= 0;
 		end else begin
 			if(enabled) begin
 				if(read_data_0_in_latched.valid && read_data_1_in_latched.valid)begin
 					read_data_in[0:CACHELINE_SIZE_BITS_HF-1]                   <= read_data_0_in_latched.payload.data;
 					read_data_in[CACHELINE_SIZE_BITS_HF:CACHELINE_SIZE_BITS-1] <= read_data_1_in_latched.payload.data;
-					cu_id                                                      <= read_data_0_in_latched.payload.cmd.cu_id;
+					cu_id_x                                                    <= read_data_0_in_latched.payload.cmd.cu_id_x;
+					cu_id_y                                                    <= read_data_0_in_latched.payload.cmd.cu_id_y;
 					address_rd                                                 <= offset_data_0;
 				end else begin
 					read_data_in <= 0;
 					address_rd   <= 0;
-					cu_id        <= 0;
+					cu_id_x      <= 0;
+					cu_id_y      <= 0;
 				end
 			end
 		end
@@ -126,20 +142,23 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_data_variable <= 0;
+			edge_data_variable.valid <= 0;
 		end else begin
 			if(enabled) begin
 				if(edge_data_variable_reg.valid)begin
-					edge_data_variable.valid         <= edge_data_variable_reg.valid;
-					edge_data_variable.payload.cu_id <= edge_data_variable_reg.payload.cu_id;
-					edge_data_variable.payload.data  <= swap_endianness_data_read(edge_data_variable_reg.payload.data);
+					edge_data_variable.valid <= edge_data_variable_reg.valid;
 				end else begin
-					edge_data_variable <= 0;
+					edge_data_variable.valid <= 0;
 				end
 			end
 		end
 	end
 
+	always_ff @(posedge clock) begin
+		edge_data_variable.payload.cu_id_x <= edge_data_variable_reg.payload.cu_id_x;
+		edge_data_variable.payload.cu_id_y <= edge_data_variable_reg.payload.cu_id_y;
+		edge_data_variable.payload.data    <= swap_endianness_data_read(edge_data_variable_reg.payload.data);
+	end
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -150,11 +169,11 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			reg_DATA_VARIABLE_0       <= 0;
-			reg_DATA_VARIABLE_0_ready <= 0;
-			reg_DATA_VARIABLE_1       <= 0;
-			reg_DATA_VARIABLE_1_ready <= 0;
-			edge_data_variable_reg    <= 0;
+			reg_DATA_VARIABLE_0          <= 0;
+			reg_DATA_VARIABLE_0_ready    <= 0;
+			reg_DATA_VARIABLE_1          <= 0;
+			reg_DATA_VARIABLE_1_ready    <= 0;
+			edge_data_variable_reg.valid <= 0;
 		end else begin
 			if(enabled)begin
 				if(read_data_0_in_latched.valid) begin
@@ -168,20 +187,7 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 				end
 
 				if(reg_DATA_VARIABLE_ready)begin
-					for (i = 0; i < CACHELINE_DATA_READ_NUM_HF; i++) begin
-						if(address_rd == i)begin
-							edge_data_variable_reg.payload.data <= reg_DATA_VARIABLE_0[DATA_SIZE_READ_BITS*i +: DATA_SIZE_READ_BITS];
-						end
-					end
-
-					for (i = 0; i < CACHELINE_DATA_READ_NUM_HF; i++) begin
-						if(address_rd == (i+CACHELINE_DATA_READ_NUM_HF))begin
-							edge_data_variable_reg.payload.data <= reg_DATA_VARIABLE_1[DATA_SIZE_READ_BITS*i +: DATA_SIZE_READ_BITS];
-						end
-					end
-
-					edge_data_variable_reg.valid         <= reg_DATA_VARIABLE_ready;
-					edge_data_variable_reg.payload.cu_id <= cu_id;
+					edge_data_variable_reg.valid <= reg_DATA_VARIABLE_ready;
 
 					if(~read_data_0_in_latched.valid)
 						reg_DATA_VARIABLE_0_ready <= 0;
@@ -190,10 +196,25 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 						reg_DATA_VARIABLE_1_ready <= 0;
 
 				end else begin
-					edge_data_variable_reg <= 0;
+					edge_data_variable_reg.valid <= 0;
 				end
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		for (i = 0; i < CACHELINE_DATA_READ_NUM_HF; i++) begin
+			if(address_rd == i)begin
+				edge_data_variable_reg.payload.data <= reg_DATA_VARIABLE_0[DATA_SIZE_READ_BITS*i +: DATA_SIZE_READ_BITS];
+			end
+		end
+		for (i = 0; i < CACHELINE_DATA_READ_NUM_HF; i++) begin
+			if(address_rd == (i+CACHELINE_DATA_READ_NUM_HF))begin
+				edge_data_variable_reg.payload.data <= reg_DATA_VARIABLE_1[DATA_SIZE_READ_BITS*i +: DATA_SIZE_READ_BITS];
+			end
+		end
+		edge_data_variable_reg.payload.cu_id_x <= cu_id_x;
+		edge_data_variable_reg.payload.cu_id_y <= cu_id_y;
 	end
 
 endmodule

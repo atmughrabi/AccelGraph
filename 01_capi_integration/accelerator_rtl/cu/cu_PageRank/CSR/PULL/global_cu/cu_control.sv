@@ -322,7 +322,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			read_response_in_graph_algorithm.valid <= 0;
 		end else begin
 			if(enabled && read_response_in_latched.valid) begin
-				case (read_response_in_latched.payload.cmd.cu_id)
+				case (read_response_in_latched.payload.cmd.cu_id_x)
 					VERTEX_CONTROL_ID : begin
 						read_response_in_vertex_job.valid      <= read_response_in_latched.valid;
 						read_response_in_graph_algorithm.valid <= 0;
@@ -354,7 +354,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			read_data_0_in_graph_algorithm.valid <= 0;
 		end else begin
 			if(enabled && read_data_0_in_latched.valid) begin
-				case (read_data_0_in_latched.payload.cmd.cu_id)
+				case (read_data_0_in_latched.payload.cmd.cu_id_x)
 					VERTEX_CONTROL_ID : begin
 						read_data_0_in_vertex_job.valid      <= read_data_0_in_latched.valid;
 						read_data_0_in_graph_algorithm.valid <= 0;
@@ -383,7 +383,7 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 			read_data_1_in_graph_algorithm.valid <= 0;
 		end else begin
 			if(enabled && read_data_1_in_latched.valid) begin
-				case (read_data_1_in_latched.payload.cmd.cu_id)
+				case (read_data_1_in_latched.payload.cmd.cu_id_x)
 					VERTEX_CONTROL_ID : begin
 						read_data_1_in_vertex_job.valid      <= read_data_1_in_latched.valid;
 						read_data_1_in_graph_algorithm.valid <= 0;
@@ -472,7 +472,10 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 //graph algorithm compute units Pagerank
 ////////////////////////////////////////////////////////////////////////////
 
-	cu_graph_algorithm_control #(.NUM_VERTEX_CU(NUM_VERTEX_CU_GLOBAL)) cu_graph_algorithm_control_instant (
+	cu_graph_algorithm_control #(
+		.NUM_VERTEX_CU(NUM_VERTEX_CU_GLOBAL),
+		.NUM_GRAPH_CU (NUM_GRAPH_CU_GLOBAL )
+	) cu_graph_algorithm_control_instant (
 		.clock                   (clock                            ),
 		.rstn                    (rstn                             ),
 		.enabled_in              (enabled_graph_algorithm          ),
@@ -495,5 +498,9 @@ module cu_control #(parameter NUM_REQUESTS = 2) (
 		.vertex_job_counter_done (vertex_job_counter_done          ),
 		.edge_job_counter_done   (edge_job_counter_done            )
 	);
+
+////////////////////////////////////////////////////////////////////////////
+//graph algorithm arbitration units
+////////////////////////////////////////////////////////////////////////////
 
 endmodule

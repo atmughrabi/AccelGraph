@@ -20,21 +20,21 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_sum_kernel_control #(parameter CU_ID = 1) (
-	input  logic                          clock                           , // Clock
-	input  logic                          rstn                            ,
-	input  logic                          enabled_in                      ,
-	input  ResponseBufferLine             write_response_in               ,
-	input  BufferStatus                   write_buffer_status             ,
-	input  EdgeDataRead                   edge_data                       ,
-	input  BufferStatus                   data_buffer_status              ,
-	input  logic                          edge_data_write_bus_grant       ,
-	output logic                          edge_data_write_bus_request     ,
-	output logic                          edge_data_request               ,
-	output EdgeDataWrite                  edge_data_write_out             ,
-	input  VertexInterface                vertex_job                      ,
-	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ,
-	output logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ,
-	output logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal
+	input  logic                          clock                               , // Clock
+	input  logic                          rstn                                ,
+	input  logic                          enabled_in                          ,
+	input  ResponseBufferLine             write_response_in                   ,
+	input  BufferStatus                   write_buffer_status                 ,
+	input  EdgeDataRead                   edge_data                           ,
+	input  BufferStatus                   data_buffer_status                  ,
+	input  logic                          edge_data_write_bus_grant           ,
+	output logic                          edge_data_write_bus_request         ,
+	output logic                          edge_data_request                   ,
+	output EdgeDataWrite                  edge_data_write_out                 ,
+	input  VertexInterface                vertex_job                          ,
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp_out         ,
+	output logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_out         ,
+	output logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal_out
 );
 
 
@@ -49,18 +49,28 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 	logic           edge_data_write_bus_request_latched;
 	BufferStatus    data_buffer_status_latch           ;
 
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal;
+
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
 ////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_data_write_out.valid <= 0;
-			edge_data_request         <= 0;
+			edge_data_write_out.valid            <= 0;
+			edge_data_request                    <= 0;
+			vertex_num_counter_resp_out          <= 0;
+			edge_data_counter_accum_out          <= 0;
+			edge_data_counter_accum_internal_out <= 0;
 		end else begin
 			if(enabled) begin
-				edge_data_write_out.valid <= edge_data_write_buffer.valid;
-				edge_data_request         <= ~data_buffer_status_latch.empty && ~edge_data_write_buffer_status.alfull;
+				edge_data_write_out.valid            <= edge_data_write_buffer.valid;
+				edge_data_request                    <= ~data_buffer_status_latch.empty && ~edge_data_write_buffer_status.alfull;
+				vertex_num_counter_resp_out          <= vertex_num_counter_resp;
+				edge_data_counter_accum_out          <= edge_data_counter_accum;
+				edge_data_counter_accum_internal_out <= edge_data_counter_accum_internal;
 			end
 		end
 	end
@@ -137,7 +147,8 @@ module cu_sum_kernel_control #(parameter CU_ID = 1) (
 				if(edge_data_latched.valid)begin
 					edge_data_accumulator.valid         <= 1;
 					edge_data_accumulator.payload.index <= vertex_job_latched.payload.id;
-					edge_data_accumulator.payload.cu_id <= CU_ID;
+					edge_data_accumulator.payload.cu_id_x <= CU_ID_X;
+					edge_data_accumulator.payload.cu_id_y <= CU_ID_Y;
 					edge_data_accumulator.payload.data  <= edge_data_accumulator.payload.data + edge_data_latched.payload.data;
 					edge_data_counter_accum_internal    <= edge_data_counter_accum_internal + 1;
 				end

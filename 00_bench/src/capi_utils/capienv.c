@@ -430,7 +430,6 @@ struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
 
 
     wed->auxiliary0 = 0;
-
     return wed;
 }
 

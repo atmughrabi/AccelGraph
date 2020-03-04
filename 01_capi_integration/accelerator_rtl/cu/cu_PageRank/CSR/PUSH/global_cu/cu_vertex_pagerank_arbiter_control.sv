@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-02-22 19:50:52
+// Revise : 2020-03-04 08:52:55
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -485,7 +485,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	//data request read logic extract single edgedata from cacheline
 	////////////////////////////////////////////////////////////////////////////
 
-	cu_edge_data_read_control cu_edge_data_read_control_instant (
+	cu_edge_data_read_extract_control cu_edge_data_read_extract_control_instant (
 		.clock         (clock                   ),
 		.rstn          (rstn                    ),
 		.enabled_in    (enabled                 ),

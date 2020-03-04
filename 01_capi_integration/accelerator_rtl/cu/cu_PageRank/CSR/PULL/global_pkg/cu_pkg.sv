@@ -99,8 +99,9 @@ package CU_PKG;
 	} EdgeInterface;
 
 	typedef struct packed {
-		cu_id_t                           cu_id;
-		logic [0:(DATA_SIZE_READ_BITS-1)] data ;
+		cu_id_t                           cu_id_x;
+		cu_id_t                           cu_id_y;
+		logic [0:(DATA_SIZE_READ_BITS-1)] data   ;
 	} EdgeDataReadPayload;
 
 	typedef struct packed {
@@ -109,9 +110,10 @@ package CU_PKG;
 	} EdgeDataRead;
 
 	typedef struct packed {
-		cu_id_t                            cu_id;
-		logic [      0:(EDGE_SIZE_BITS-1)] index;
-		logic [0:(DATA_SIZE_WRITE_BITS-1)] data ;
+		cu_id_t                            cu_id_x;
+		cu_id_t                            cu_id_y;
+		logic [      0:(EDGE_SIZE_BITS-1)] index  ;
+		logic [0:(DATA_SIZE_WRITE_BITS-1)] data   ;
 	} EdgeDataWritePayload;
 
 	typedef struct packed {

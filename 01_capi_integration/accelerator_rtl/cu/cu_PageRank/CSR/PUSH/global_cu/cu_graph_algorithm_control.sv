@@ -183,7 +183,7 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	// Write command CU Generatrion add data to be written to a cacheline
 	////////////////////////////////////////////////////////////////////////////
 
-	cu_edge_data_write_control cu_edge_data_write_control_instant (
+	cu_edge_data_write_command_control cu_edge_data_write_command_control_instant (
 		.clock            (clock                     ),
 		.rstn             (rstn                      ),
 		.enabled_in       (enabled                   ),

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-02 06:37:33
+// Revise : 2020-03-04 09:26:27
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -19,7 +19,10 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL) (
+module cu_vertex_pagerank_arbiter_control #(
+	parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL,
+	parameter NUM_GRAPH_CU  = NUM_GRAPH_CU_GLOBAL
+) (
 	input  logic                          clock                                                            , // Clock
 	input  logic                          rstn                                                             ,
 	output logic                          cu_rstn_out [0:NUM_VERTEX_CU-1]                                  ,
@@ -601,7 +604,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	) read_data_0_cu_demux_bus_instant (
 		.clock         (clock                                                                                     ),
 		.rstn          (rstn                                                                                      ),
-		.sel_in        (read_data_0_in_edge_job.payload.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.sel_in        (read_data_0_in_edge_job.payload.cmd.cu_id_x[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in       (read_data_0_in_edge_job                                                                   ),
 		.data_in_valid (read_data_0_in_edge_job.valid                                                             ),
 		.data_out      (read_data_0_cu_latched                                                                    ),
@@ -623,7 +626,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	) read_data_1_cu_demux_bus_instant (
 		.clock         (clock),
 		.rstn          (rstn),
-		.sel_in        (read_data_1_in_edge_job.payload.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.sel_in        (read_data_1_in_edge_job.payload.cmd.cu_id_x[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in       (read_data_1_in_edge_job),
 		.data_in_valid (read_data_1_in_edge_job.valid),
 		.data_out      (read_data_1_cu_latched),
@@ -643,7 +646,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	//data request read logic extract single edgedata from cacheline
 	////////////////////////////////////////////////////////////////////////////
 
-	cu_edge_data_read_control cu_edge_data_read_control_instant (
+	cu_edge_data_read_extract_control cu_edge_data_read_extract_control_instant (
 		.clock         (clock                   ),
 		.rstn          (rstn                    ),
 		.enabled_in    (enabled                 ),
@@ -712,7 +715,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	) edge_data_read_cu_demux_bus_instant (
 		.clock         (clock                                                                            ),
 		.rstn          (rstn                                                                             ),
-		.sel_in        (edge_data_variable.payload.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.sel_in        (edge_data_variable.payload.cu_id_x[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in       (edge_data_variable                                                               ),
 		.data_in_valid (edge_data_variable.valid                                                         ),
 		.data_out      (edge_data_read_cu_latched                                                        ),
@@ -738,7 +741,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	) read_response_demux_bus_instant (
 		.clock         (clock),
 		.rstn          (rstn),
-		.sel_in        (read_response_in_latched.payload.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.sel_in        (read_response_in_latched.payload.cmd.cu_id_x[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in       (read_response_in_latched),
 		.data_in_valid (read_response_in_latched.valid),
 		.data_out      (read_response_cu_latched),
@@ -761,7 +764,7 @@ module cu_vertex_pagerank_arbiter_control #(parameter NUM_VERTEX_CU = NUM_VERTEX
 	) write_response_demux_bus_instant (
 		.clock         (clock),
 		.rstn          (rstn),
-		.sel_in        (write_response_in_latched.payload.cmd.cu_id[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
+		.sel_in        (write_response_in_latched.payload.cmd.cu_id_x[CU_ID_RANGE-$clog2(NUM_VERTEX_CU):CU_ID_RANGE-1]),
 		.data_in       (write_response_in_latched),
 		.data_in_valid (write_response_in_latched.valid),
 		.data_out      (write_response_cu_latched),

@@ -19,7 +19,10 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL) (
+module cu_graph_algorithm_control #(
+	parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL,
+	parameter NUM_GRAPH_CU  = NUM_GRAPH_CU_GLOBAL
+) (
 	input  logic                          clock                   , // Clock
 	input  logic                          rstn                    ,
 	input  logic                          enabled_in              ,
@@ -127,20 +130,20 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			write_command_out       <= 0;
-			write_data_0_out        <= 0;
-			write_data_1_out        <= 0;
-			read_command_out        <= 0;
+			write_command_out.valid <= 0;
+			write_data_0_out.valid  <= 0;
+			write_data_1_out.valid  <= 0;
+			read_command_out.valid  <= 0;
 			vertex_job_request      <= 0;
 			vertex_job_counter_done <= 0;
 			edge_job_counter_done   <= 0;
 
 			read_command_bus_request <= 0;
 		end else begin
-			write_command_out       <= write_command_out_latched;
-			write_data_0_out        <= write_data_0_out_latched;
-			write_data_1_out        <= write_data_1_out_latched;
-			read_command_out        <= burst_read_command_buffer_out;
+			write_command_out.valid <= write_command_out_latched.valid;
+			write_data_0_out.valid  <= write_data_0_out_latched.valid;
+			write_data_1_out.valid  <= write_data_1_out_latched.valid;
+			read_command_out.valid  <= burst_read_command_buffer_out.valid;
 			vertex_job_request      <= vertex_job_request_latched;
 			vertex_job_counter_done <= vertex_job_counter_done_latched;
 			edge_job_counter_done   <= edge_job_counter_done_latched;
@@ -149,47 +152,63 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 		end
 	end
 
+	// drive outputs
+	always_ff @(posedge clock) begin
+		write_command_out.payload <= write_command_out_latched.payload;
+		write_data_0_out.payload  <= write_data_0_out_latched.payload;
+		write_data_1_out.payload  <= write_data_1_out_latched.payload;
+		read_command_out.payload  <= burst_read_command_buffer_out.payload;
+	end
+
 	////////////////////////////////////////////////////////////////////////////
 	//Drive input
 	////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched            <= 0;
-			read_response_in_latched          <= 0;
-			write_response_in_latched         <= 0;
-			read_data_0_in_latched            <= 0;
-			read_data_1_in_latched            <= 0;
-			cu_configure_latched              <= 0;
+			wed_request_in_latched.valid      <= 0;
+			read_response_in_latched.valid    <= 0;
+			write_response_in_latched.valid   <= 0;
+			read_data_0_in_latched.valid      <= 0;
+			read_data_1_in_latched.valid      <= 0;
+			vertex_job_latched.valid          <= 0;
 			read_buffer_status_latched        <= 0;
 			read_buffer_status_latched.empty  <= 1;
 			write_buffer_status_latched       <= 0;
 			write_buffer_status_latched.empty <= 1;
-			vertex_job_latched                <= 0;
 			read_command_bus_grant_latched    <= 0;
+			cu_configure_latched              <= 0;
 		end else begin
 			if(enabled)begin
-				wed_request_in_latched         <= wed_request_in;
-				read_response_in_latched       <= read_response_in;
-				write_response_in_latched      <= write_response_in;
-				read_data_0_in_latched         <= read_data_0_in;
-				read_data_1_in_latched         <= read_data_1_in;
-				read_buffer_status_latched     <= read_buffer_status;
-				write_buffer_status_latched    <= write_buffer_status;
-				vertex_job_latched             <= vertex_job;
-				read_command_bus_grant_latched <= read_command_bus_grant;
+				wed_request_in_latched.valid    <= wed_request_in.valid;
+				read_response_in_latched.valid  <= read_response_in.valid;
+				write_response_in_latched.valid <= write_response_in.valid;
+				read_data_0_in_latched.valid    <= read_data_0_in.valid;
+				read_data_1_in_latched.valid    <= read_data_1_in.valid;
+				vertex_job_latched.valid        <= vertex_job.valid;
+				read_buffer_status_latched      <= read_buffer_status;
+				write_buffer_status_latched     <= write_buffer_status;
+				read_command_bus_grant_latched  <= read_command_bus_grant;
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
 			end
 		end
 	end
 
+	always_ff @(posedge clock) begin
+		wed_request_in_latched.payload    <= wed_request_in.payload;
+		read_response_in_latched.payload  <= read_response_in.payload;
+		write_response_in_latched.payload <= write_response_in.payload;
+		read_data_0_in_latched.payload    <= read_data_0_in.payload;
+		read_data_1_in_latched.payload    <= read_data_1_in.payload;
+		vertex_job_latched.payload        <= vertex_job.payload;
+	end
 
 	////////////////////////////////////////////////////////////////////////////
 	// Write command CU Generatrion add data to be written to a cacheline
 	////////////////////////////////////////////////////////////////////////////
 
-	cu_edge_data_write_control cu_edge_data_write_control_instant (
+	cu_edge_data_write_command_control cu_edge_data_write_command_control_instant (
 		.clock            (clock                     ),
 		.rstn             (rstn                      ),
 		.enabled_in       (enabled                   ),
@@ -208,7 +227,10 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_pagerank_cu
-			cu_vertex_pagerank #(.PAGERANK_CU_ID(i)) cu_vertex_pagerank_instant (
+			cu_vertex_pagerank #(
+				.CU_ID_X(i),
+				.CU_ID_Y(NUM_GRAPH_CU)
+			) cu_vertex_pagerank_instant (
 				.clock                      (clock                                       ),
 				.rstn                       (cu_rstn_out[i]                              ),
 				.enabled_in                 (enable_cu[i]                                ),
@@ -240,7 +262,10 @@ module cu_graph_algorithm_control #(parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOB
 //Graph algorithm compute units arbitration
 ////////////////////////////////////////////////////////////////////////////
 
-	cu_vertex_pagerank_arbiter_control #(.NUM_VERTEX_CU(NUM_VERTEX_CU)) cu_vertex_pagerank_arbiter_control_instant (
+	cu_vertex_pagerank_arbiter_control #(
+		.NUM_VERTEX_CU(NUM_VERTEX_CU),
+		.NUM_GRAPH_CU (NUM_GRAPH_CU )
+	) cu_vertex_pagerank_arbiter_control_instant (
 		.clock                                        (clock                                    ),
 		.rstn                                         (rstn                                     ),
 		.cu_rstn_out                                  (cu_rstn_out                              ),

@@ -101,12 +101,13 @@ proc r  {} {
 
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/array_struct_type_demux_bus.sv
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/$cu_precision/cu/cu_sum_kernel_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_write_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_read_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_write_command_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_read_extract_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_read_command_control.sv
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_job_control.sv
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_job_filter.sv
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_job_control.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_graph_algorithm_arbiter_control.sv
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_pagerank_arbiter_control.sv
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_pagerank.sv
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_graph_algorithm_control.sv

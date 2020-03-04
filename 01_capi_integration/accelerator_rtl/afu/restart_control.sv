@@ -98,7 +98,7 @@ module restart_control (
 
 	assign is_restart_cmd       = (restart_command_out.valid && restart_command_out.payload.cmd.cmd_type == CMD_RESTART);
 	assign is_restart_rsp_done  = (restart_response_in.valid);
-	assign is_restart_rsp_flush = (command_outstanding_rd_S2 && command_outstanding_data_out.payload.cmd.cmd_type == CMD_RESTART && command_outstanding_data_out.payload.cmd.cu_id == RESTART_ID);
+	assign is_restart_rsp_flush = (command_outstanding_rd_S2 && command_outstanding_data_out.payload.cmd.cmd_type == CMD_RESTART && command_outstanding_data_out.payload.cmd.cu_id_x == RESTART_ID);
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -324,7 +324,8 @@ module restart_control (
 				restart_command_out.payload.abt          <= STRICT;
 				restart_command_out.payload.cmd.abt      <= STRICT;
 				restart_command_out.payload.cmd.cmd_type <= CMD_RESTART;
-				restart_command_out.payload.cmd.cu_id    <= RESTART_ID;
+				restart_command_out.payload.cmd.cu_id_x  <= RESTART_ID;
+				restart_command_out.payload.cmd.cu_id_y  <= RESTART_ID;
 				restart_command_flushed                  <= 0;
 				restart_command_send                     <= 0;
 			end

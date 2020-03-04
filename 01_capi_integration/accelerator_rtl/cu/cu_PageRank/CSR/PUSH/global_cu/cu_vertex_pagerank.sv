@@ -314,7 +314,7 @@ module cu_vertex_pagerank #(
 	// Edge Data control
 	////////////////////////////////////////////////////////////////////////////
 
-	cu_edge_data_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_data_control_instant (
+	cu_edge_data_read_command_control #(.CU_ID(PAGERANK_CU_ID)) cu_edge_data_read_command_control_instant (
 		.clock                   (clock                        ),
 		.rstn                    (rstn                         ),
 		.enabled_in              (enabled_cmd                  ),
