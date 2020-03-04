@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-04 13:09:13
+// Revise : 2020-03-04 16:06:08
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -45,15 +45,15 @@ module cu_graph_algorithm_arbiter_control #(
 	input  BufferStatus                   write_buffer_status                             ,
 	output BufferStatus                   write_buffer_status_cu_out [0:NUM_GRAPH_CU-1]   ,
 	input  logic                          read_command_bus_grant                          ,
-	output logic [      0:NUM_GRAPH_CU-1] read_command_bus_grant_cu_out                   ,
+	output logic [      NUM_GRAPH_CU-1:0] read_command_bus_grant_cu_out                   ,
 	output logic                          read_command_bus_request                        ,
-	input  logic [      0:NUM_GRAPH_CU-1] read_command_bus_request_cu_in                  ,
+	input  logic [      NUM_GRAPH_CU-1:0] read_command_bus_request_cu_in                  ,
 	output CommandBufferLine              read_command_out                                ,
 	input  CommandBufferLine              read_command_out_cu_in [0:NUM_GRAPH_CU-1]       ,
 	input  logic                          write_command_bus_grant                         ,
-	output logic [      0:NUM_GRAPH_CU-1] write_command_bus_grant_cu_out                  ,
+	output logic [      NUM_GRAPH_CU-1:0] write_command_bus_grant_cu_out                  ,
 	output logic                          write_command_bus_request                       ,
-	input  logic [      0:NUM_GRAPH_CU-1] write_command_bus_request_cu_in                 ,
+	input  logic [      NUM_GRAPH_CU-1:0] write_command_bus_request_cu_in                 ,
 	output CommandBufferLine              write_command_out                               ,
 	input  CommandBufferLine              write_command_out_cu_in [0:NUM_GRAPH_CU-1]      ,
 	output ReadWriteDataLine              write_data_0_out                                ,
@@ -63,7 +63,7 @@ module cu_graph_algorithm_arbiter_control #(
 	input  VertexInterface                vertex_job                                      ,
 	output VertexInterface                vertex_job_cu_out [0:NUM_GRAPH_CU-1]            ,
 	output logic                          vertex_job_request                              ,
-	input  logic [      0:NUM_GRAPH_CU-1] vertex_job_request_cu_in                        ,
+	input  logic [      NUM_GRAPH_CU-1:0] vertex_job_request_cu_in                        ,
 	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done                         ,
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done                           ,
 	input  logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_cu_in [0:NUM_GRAPH_CU-1],
@@ -103,54 +103,54 @@ module cu_graph_algorithm_arbiter_control #(
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_cu_in_latched  [0:NUM_GRAPH_CU-1];
 
 
-	BufferStatus             read_buffer_status_latched                              ;
-	BufferStatus             read_buffer_status_cu_out_latched     [0:NUM_GRAPH_CU-1];
-	BufferStatus             read_buffer_status_cu_out_internal                      ;
-	logic                    read_command_bus_grant_latched                          ;
-	logic [0:NUM_GRAPH_CU-1] read_command_bus_grant_cu_out_latched                   ;
-	logic                    read_command_bus_request_latched                        ;
-	logic [0:NUM_GRAPH_CU-1] read_command_bus_request_cu_in_latched                  ;
-	CommandBufferLine        read_command_out_latched                                ;
-	CommandBufferLine        read_command_out_internal                               ;
-	CommandBufferLine        read_command_out_cu_in_latched        [0:NUM_GRAPH_CU-1];
-	logic [0:NUM_GRAPH_CU-1] read_command_out_cu_in_latched_submit                   ;
+	BufferStatus                   read_buffer_status_latched                              ;
+	BufferStatus                   read_buffer_status_cu_out_latched     [0:NUM_GRAPH_CU-1];
+	BufferStatus                   read_buffer_status_cu_out_internal                      ;
+	logic                          read_command_bus_grant_latched                          ;
+	logic [NUM_GRAPH_CU-1:0]       read_command_bus_grant_cu_out_latched                   ;
+	logic                          read_command_bus_request_latched                        ;
+	logic [NUM_GRAPH_CU-1:0]       read_command_bus_request_cu_in_latched                  ;
+	CommandBufferLine              read_command_out_latched                                ;
+	CommandBufferLine              read_command_out_internal                               ;
+	CommandBufferLine              read_command_out_cu_in_latched        [0:NUM_GRAPH_CU-1];
+	logic [NUM_GRAPH_CU-1:0]       read_command_out_cu_in_latched_submit                   ;
 
 
-	BufferStatus             write_buffer_status_latched                              ;
-	BufferStatus             write_buffer_status_cu_out_latched     [0:NUM_GRAPH_CU-1];
-	BufferStatus             write_buffer_status_cu_out_internal                      ;
-	logic                    write_command_bus_grant_latched                          ;
-	logic [0:NUM_GRAPH_CU-1] write_command_bus_grant_cu_out_latched                   ;
-	logic                    write_command_bus_request_latched                        ;
-	logic [0:NUM_GRAPH_CU-1] write_command_bus_request_cu_in_latched                  ;
-	CommandBufferLine        write_command_out_latched                                ;
-	CommandBufferLine        write_command_out_internal                               ;
-	CommandBufferLine        write_command_out_cu_in_latched        [0:NUM_GRAPH_CU-1];
-	logic [0:NUM_GRAPH_CU-1] write_command_out_cu_in_latched_submit                   ;
-	ReadWriteDataLine        write_data_0_out_latched                                 ;
-	ReadWriteDataLine        write_data_1_out_latched                                 ;
-	ReadWriteDataLine        write_data_0_out_cu_in_latched         [0:NUM_GRAPH_CU-1];
-	ReadWriteDataLine        write_data_1_out_cu_in_latched         [0:NUM_GRAPH_CU-1];
-	logic [0:NUM_GRAPH_CU-1] write_data_0_bus_grant_cu_out_latched                    ;
-	logic [0:NUM_GRAPH_CU-1] write_data_1_bus_grant_cu_out_latched                    ;
-	BufferStatus             write_data_0_status_cu_out_internal                      ;
-	BufferStatus             write_data_1_status_cu_out_internal                      ;
-	ReadWriteDataLine        write_data_0_out_internal                                ;
-	ReadWriteDataLine        write_data_1_out_internal                                ;
-	logic [0:NUM_GRAPH_CU-1] write_data_0_out_cu_in_latched_submit                    ;
-	logic [0:NUM_GRAPH_CU-1] write_data_1_out_cu_in_latched_submit                    ;
+	BufferStatus                   write_buffer_status_latched                              ;
+	BufferStatus                   write_buffer_status_cu_out_latched     [0:NUM_GRAPH_CU-1];
+	BufferStatus                   write_buffer_status_cu_out_internal                      ;
+	logic                          write_command_bus_grant_latched                          ;
+	logic [NUM_GRAPH_CU-1:0]       write_command_bus_grant_cu_out_latched                   ;
+	logic                          write_command_bus_request_latched                        ;
+	logic [NUM_GRAPH_CU-1:0]       write_command_bus_request_cu_in_latched                  ;
+	CommandBufferLine              write_command_out_latched                                ;
+	CommandBufferLine              write_command_out_internal                               ;
+	CommandBufferLine              write_command_out_cu_in_latched        [0:NUM_GRAPH_CU-1];
+	logic [NUM_GRAPH_CU-1:0]       write_command_out_cu_in_latched_submit                   ;
+	ReadWriteDataLine              write_data_0_out_latched                                 ;
+	ReadWriteDataLine              write_data_1_out_latched                                 ;
+	ReadWriteDataLine              write_data_0_out_cu_in_latched         [0:NUM_GRAPH_CU-1];
+	ReadWriteDataLine              write_data_1_out_cu_in_latched         [0:NUM_GRAPH_CU-1];
+	logic [NUM_GRAPH_CU-1:0]       write_data_0_bus_grant_cu_out_latched                    ;
+	logic [NUM_GRAPH_CU-1:0]       write_data_1_bus_grant_cu_out_latched                    ;
+	BufferStatus                   write_data_0_status_cu_out_internal                      ;
+	BufferStatus                   write_data_1_status_cu_out_internal                      ;
+	ReadWriteDataLine              write_data_0_out_internal                                ;
+	ReadWriteDataLine              write_data_1_out_internal                                ;
+	logic [NUM_GRAPH_CU-1:0]       write_data_0_out_cu_in_latched_submit                    ;
+	logic [NUM_GRAPH_CU-1:0]       write_data_1_out_cu_in_latched_submit                    ;
 
 
-	BufferStatus              vertex_buffer_status_internal                      ;
-	VertexInterface           vertex_job_buffer_out                              ;
-	VertexInterface           vertex_job_arbiter_in                              ;
-	logic [NUM_VERTEX_CU-1:0] ready_vertex_job_cu                                ;
-	logic                     vertex_request_internal                            ;
-	logic [NUM_VERTEX_CU-1:0] request_vertex_job_cu_internal                     ;
-	VertexInterface           vertex_job_latched                                 ;
-	VertexInterface           vertex_job_cu_out_latched        [0:NUM_GRAPH_CU-1];
-	logic                     vertex_job_request_latched                         ;
-	logic [ 0:NUM_GRAPH_CU-1] vertex_job_request_cu_in_latched                   ;
+	BufferStatus                   vertex_buffer_status_internal                     ;
+	VertexInterface                vertex_job_buffer_out                             ;
+	VertexInterface                vertex_job_arbiter_in                             ;
+	logic [NUM_VERTEX_CU-1:0]      ready_vertex_job_cu                               ;
+	logic                          vertex_request_internal                           ;
+	logic [NUM_VERTEX_CU-1:0]      request_vertex_job_cu_internal                    ;
+	VertexInterface                vertex_job_latched                                ;
+	VertexInterface                vertex_job_cu_out_latched       [0:NUM_GRAPH_CU-1];
+	logic                          vertex_job_request_latched                        ;
+	logic [ NUM_GRAPH_CU-1:0]      vertex_job_request_cu_in_latched                  ;
 
 
 	genvar i;
@@ -182,6 +182,7 @@ module cu_graph_algorithm_arbiter_control #(
 					vertex_job_cu_out[i].valid <= 0;
 					cu_configure_out[i]<=0;
 					read_command_bus_grant_cu_out[i] <= 0;
+					write_command_bus_grant_cu_out[i] <= 0;
 					read_buffer_status_cu_out[i] <= 0;
 					read_buffer_status_cu_out[i].empty <= 1;
 					write_buffer_status_cu_out[i] <= 0;
@@ -195,6 +196,7 @@ module cu_graph_algorithm_arbiter_control #(
 					vertex_job_cu_out[i].valid <= vertex_job_cu_out_latched[i].valid;
 					cu_configure_out[i]<=cu_configure_out_latched[i];
 					read_command_bus_grant_cu_out[i] <= read_command_bus_grant_cu_out_latched[i];
+					write_command_bus_grant_cu_out[i] <= write_command_bus_grant_cu_out_latched[i];
 					read_buffer_status_cu_out[i] <= read_buffer_status_cu_out_latched[i];
 					write_buffer_status_cu_out[i] <= write_buffer_status_cu_out_latched[i];
 				end
@@ -472,6 +474,11 @@ module cu_graph_algorithm_arbiter_control #(
 	// Read Command Arbitration
 	////////////////////////////////////////////////////////////////////////////
 
+	CommandBufferLine read_command_buffer_arbiter_out_cu0;
+	CommandBufferLine read_command_buffer_arbiter_out_cu1;
+
+	assign read_command_buffer_arbiter_out_cu0 = read_command_out_cu_in_latched[0];
+	assign read_command_buffer_arbiter_out_cu1 = read_command_out_cu_in_latched[1];
 
 	round_robin_priority_arbiter_N_input_1_ouput #(
 		.NUM_REQUESTS(NUM_GRAPH_CU            ),
@@ -484,7 +491,7 @@ module cu_graph_algorithm_arbiter_control #(
 		.submit     (read_command_out_cu_in_latched_submit ),
 		.requests   (read_command_bus_request_cu_in_latched),
 		.arbiter_out(read_command_out_internal             ),
-		.ready      (read_command_bus_grant_cu_out_latched)
+		.ready      (read_command_bus_grant_cu_out_latched )
 	);
 
 	////////////////////////////////////////////////////////////////////////////
