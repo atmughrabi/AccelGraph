@@ -19,8 +19,10 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_sum_kernel_control #(parameter CU_ID_X = 1,
-							   parameter CU_ID_Y = 1) (
+module cu_sum_kernel_control #(
+	parameter CU_ID_X = 1,
+	parameter CU_ID_Y = 1
+) (
 	input  logic                          clock                               , // Clock
 	input  logic                          rstn                                ,
 	input  logic                          enabled_in                          ,
@@ -185,14 +187,14 @@ module cu_sum_kernel_control #(parameter CU_ID_X = 1,
 				end
 
 				if((edge_data_counter_accum_latched == vertex_job_latched.payload.inverse_out_degree) && (accum_delay == 4'h F)) begin
-					accum_delay                         <= 0;
-					edge_data_counter_accum_internal    <= edge_data_counter_accum_latched;
-					edge_data_counter_accum_latched     <= 0;
-					edge_data_accumulator.valid         <= 1;
-					edge_data_accumulator.payload.index <= vertex_job_latched.payload.id;
+					accum_delay                           <= 0;
+					edge_data_counter_accum_internal      <= edge_data_counter_accum_latched;
+					edge_data_counter_accum_latched       <= 0;
+					edge_data_accumulator.valid           <= 1;
+					edge_data_accumulator.payload.index   <= vertex_job_latched.payload.id;
 					edge_data_accumulator.payload.cu_id_x <= CU_ID_X;
 					edge_data_accumulator.payload.cu_id_y <= CU_ID_Y;
-					edge_data_accumulator.payload.data  <= running_value;
+					edge_data_accumulator.payload.data    <= running_value;
 				end else if(edge_data_counter_accum_latched == vertex_job_latched.payload.inverse_out_degree) begin
 					accum_delay <= accum_delay + 1;
 				end

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-04 16:06:08
+// Revise : 2020-03-04 16:35:37
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -716,10 +716,12 @@ module cu_graph_algorithm_arbiter_control #(
 			vertex_job_arbiter_in.valid    <= 0;
 			request_vertex_job_cu_internal <= 0;
 		end else begin
-			vertex_job_request_latched     <= (~vertex_buffer_status_internal.alfull);
-			vertex_request_internal        <= (|vertex_job_request_cu_in_latched);
-			vertex_job_arbiter_in.valid    <= vertex_job_buffer_out.valid;
-			request_vertex_job_cu_internal <= vertex_job_request_cu_in_latched;
+			if(enabled) begin
+				vertex_job_request_latched     <= (~vertex_buffer_status_internal.alfull);
+				vertex_request_internal        <= (|vertex_job_request_cu_in_latched);
+				vertex_job_arbiter_in.valid    <= vertex_job_buffer_out.valid;
+				request_vertex_job_cu_internal <= vertex_job_request_cu_in_latched;
+			end
 		end
 	end
 
