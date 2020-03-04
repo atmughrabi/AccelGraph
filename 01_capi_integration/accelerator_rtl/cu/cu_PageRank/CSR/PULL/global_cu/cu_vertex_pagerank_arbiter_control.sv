@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-04 09:26:27
+// Revise : 2020-03-04 12:20:34
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -21,7 +21,8 @@ import CU_PKG::*;
 
 module cu_vertex_pagerank_arbiter_control #(
 	parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL,
-	parameter NUM_GRAPH_CU  = NUM_GRAPH_CU_GLOBAL
+	parameter NUM_GRAPH_CU  = NUM_GRAPH_CU_GLOBAL,
+	parameter CU_ID_Y      = 1
 ) (
 	input  logic                          clock                                                            , // Clock
 	input  logic                          rstn                                                             ,
@@ -39,6 +40,8 @@ module cu_vertex_pagerank_arbiter_control #(
 	input  BufferStatus                   write_buffer_status                                              ,
 	input  logic                          read_command_bus_grant                                           ,
 	output logic                          read_command_bus_request                                         ,
+	input  logic                          write_command_bus_grant                                           ,
+	output logic                          write_command_bus_request                                         ,
 	output ResponseBufferLine             read_response_cu_out [0:NUM_VERTEX_CU-1]                         ,
 	input  ResponseBufferLine             write_response_in                                                ,
 	output ResponseBufferLine             write_response_cu_out [0:NUM_VERTEX_CU-1]                        ,
@@ -67,6 +70,9 @@ module cu_vertex_pagerank_arbiter_control #(
 
 	logic read_command_bus_grant_latched  ;
 	logic read_command_bus_request_latched;
+
+	logic write_command_bus_grant_latched  ;
+	logic write_command_bus_request_latched;
 
 	WEDInterface wed_request_in_latched                       ;
 	WEDInterface wed_request_in_internal                      ;
@@ -564,7 +570,19 @@ module cu_vertex_pagerank_arbiter_control #(
 	// Burst Buffer Write Commands
 	////////////////////////////////////////////////////////////////////////////
 
-	assign burst_edge_data_write_buffer_pop = ~burst_edge_data_write_cu_buffer_states_cu.empty && ~write_buffer_status_latched.alfull;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			write_command_bus_grant_latched <= 0;
+			write_command_bus_request       <= 0;
+		end else begin
+			if(enabled) begin
+				write_command_bus_grant_latched <= write_command_bus_grant;
+				write_command_bus_request       <= write_command_bus_request_latched;
+			end
+		end
+	end
+
+	assign write_command_bus_request_latched = ~burst_edge_data_write_cu_buffer_states_cu.empty && ~write_buffer_status_latched.alfull;
 
 	fifo #(
 		.WIDTH($bits(EdgeDataWrite) ),
@@ -578,7 +596,7 @@ module cu_vertex_pagerank_arbiter_control #(
 		.full    (burst_edge_data_write_cu_buffer_states_cu.full  ),
 		.alFull  (burst_edge_data_write_cu_buffer_states_cu.alfull),
 		
-		.pop     (burst_edge_data_write_buffer_pop                ),
+		.pop     (write_command_bus_grant_latched                ),
 		.valid   (burst_edge_data_write_cu_buffer_states_cu.valid ),
 		.data_out(burst_edge_data_buffer_out                      ),
 		.empty   (burst_edge_data_write_cu_buffer_states_cu.empty )
