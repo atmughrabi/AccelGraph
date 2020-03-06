@@ -24,7 +24,7 @@ package GLOBALS_CU_PKG;
 // CU-Control CU Globals
 ////////////////////////////////////////////////////////////////////////////
 
-// How many compute unites you want : each 1 graph_cu contains N vertex_cu's
+// How many compute unites you want : each 1 graph_cu contains N vertex_cu's MIN (2 X 2) MAX (N X M)
 // TOTAL CUS = NUM_GRAPH_CU_GLOBAL X NUM_VERTEX_CU_GLOBAL
 ////////////////////////////////////////////////////////////////////////////
 

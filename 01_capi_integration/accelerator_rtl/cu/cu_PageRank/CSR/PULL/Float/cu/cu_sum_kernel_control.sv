@@ -58,6 +58,10 @@ module cu_sum_kernel_control #(
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal;
+	BufferStatus                   write_buffer_status_latched     ;
+	ResponseBufferLine             write_response_in_latched       ;
+	logic                          edge_data_write_bus_request_pop ;
+
 
 	logic [ 0:(DATA_SIZE_READ_BITS-1)] input_value    ;
 	logic                              valid_value    ;
@@ -107,14 +111,18 @@ module cu_sum_kernel_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_job_latched.valid       <= 0;
-			data_buffer_status_latch       <= 0;
-			data_buffer_status_latch.empty <= 1;
-
+			vertex_job_latched.valid          <= 0;
+			data_buffer_status_latch          <= 0;
+			data_buffer_status_latch.empty    <= 1;
+			write_buffer_status_latched       <= 0;
+			write_buffer_status_latched.empty <= 1;
+			write_response_in_latched.valid   <= 0;
 		end else begin
 			if(enabled) begin
-				vertex_job_latched.valid <= vertex_job.valid;
-				data_buffer_status_latch <= data_buffer_status;
+				vertex_job_latched.valid        <= vertex_job.valid;
+				data_buffer_status_latch        <= data_buffer_status;
+				write_buffer_status_latched     <= write_buffer_status;
+				write_response_in_latched.valid <= write_response_in.valid;
 			end
 		end
 	end
@@ -250,14 +258,14 @@ module cu_sum_kernel_control #(
 			edge_data_write_bus_request       <= 0;
 		end else begin
 			if(enabled) begin
-				edge_data_write_bus_grant_latched <= edge_data_write_bus_grant && ~write_buffer_status.alfull;
+				edge_data_write_bus_grant_latched <= edge_data_write_bus_grant;
 				edge_data_write_bus_request       <= edge_data_write_bus_request_latched;
 			end
 		end
 	end
 
-	assign edge_data_write_bus_request_latched = ~edge_data_write_buffer_status.empty && ~write_buffer_status.alfull;
-
+	assign edge_data_write_bus_request_latched = ~edge_data_write_buffer_status.empty && ~write_buffer_status_latched.alfull;
+	assign edge_data_write_bus_request_pop     = edge_data_write_bus_grant_latched && ~write_buffer_status_latched.alfull;
 
 	////////////////////////////////////////////////////////////////////////////
 	// single percision floating point add accume module
@@ -288,7 +296,7 @@ module cu_sum_kernel_control #(
 		.full    (edge_data_write_buffer_status.full  ),
 		.alFull  (edge_data_write_buffer_status.alfull),
 		
-		.pop     (edge_data_write_bus_grant_latched   ),
+		.pop     (edge_data_write_bus_request_pop     ),
 		.valid   (edge_data_write_buffer_status.valid ),
 		.data_out(edge_data_write_buffer              ),
 		.empty   (edge_data_write_buffer_status.empty )
