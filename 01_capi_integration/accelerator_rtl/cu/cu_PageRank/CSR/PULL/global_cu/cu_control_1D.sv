@@ -19,11 +19,7 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_control #(
-	parameter NUM_READ_REQUESTS = 2                   ,
-	parameter NUM_GRAPH_CU      = NUM_GRAPH_CU_GLOBAL ,
-	parameter NUM_VERTEX_CU     = NUM_VERTEX_CU_GLOBAL
-) (
+module cu_control #(parameter NUM_REQUESTS = 2) (
 	input  logic              clock                       , // Clock
 	input  logic              rstn                        ,
 	input  logic              enabled_in                  ,
@@ -50,12 +46,12 @@ module cu_control #(
 	output ReadWriteDataLine  write_data_1_out
 );
 
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered                           ;
-	logic [ NUM_READ_REQUESTS-1:0] submit                                                ;
-	logic [ NUM_READ_REQUESTS-1:0] requests                                              ;
-	logic [ NUM_READ_REQUESTS-1:0] ready                                                 ;
-	CommandBufferLine              read_command_buffer_arbiter_in [0:NUM_READ_REQUESTS-1];
-	CommandBufferLine              read_command_buffer_arbiter_out                       ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered                      ;
+	logic [      NUM_REQUESTS-1:0] submit                                           ;
+	logic [      NUM_REQUESTS-1:0] requests                                         ;
+	logic [      NUM_REQUESTS-1:0] ready                                            ;
+	CommandBufferLine              read_command_buffer_arbiter_in [0:NUM_REQUESTS-1];
+	CommandBufferLine              read_command_buffer_arbiter_out                  ;
 
 	CommandBufferLine read_command_buffer_arbiter_out_cu0;
 	CommandBufferLine read_command_buffer_arbiter_out_cu1;
@@ -116,54 +112,24 @@ module cu_control #(
 	logic enabled_prefetch_read ;
 	logic enabled_prefetch_write;
 
-	logic                          cu_rstn_out                    [0:NUM_GRAPH_CU-1];
-	logic [                  0:63] cu_configure_out               [0:NUM_GRAPH_CU-1];
-	WEDInterface                   cu_wed_request_out             [0:NUM_GRAPH_CU-1];
-	ResponseBufferLine             read_response_cu_out           [0:NUM_GRAPH_CU-1];
-	ResponseBufferLine             write_response_cu_out          [0:NUM_GRAPH_CU-1];
-	ReadWriteDataLine              read_data_0_cu_out             [0:NUM_GRAPH_CU-1];
-	ReadWriteDataLine              read_data_1_cu_out             [0:NUM_GRAPH_CU-1];
-	BufferStatus                   read_buffer_status_cu_out      [0:NUM_GRAPH_CU-1];
-	BufferStatus                   write_buffer_status_cu_out     [0:NUM_GRAPH_CU-1];
-	CommandBufferLine              read_command_out_cu_in         [0:NUM_GRAPH_CU-1];
-	CommandBufferLine              write_command_out_cu_in        [0:NUM_GRAPH_CU-1];
-	ReadWriteDataLine              write_data_0_out_cu_in         [0:NUM_GRAPH_CU-1];
-	ReadWriteDataLine              write_data_1_out_cu_in         [0:NUM_GRAPH_CU-1];
-	VertexInterface                vertex_job_cu_out              [0:NUM_GRAPH_CU-1];
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_cu_in  [0:NUM_GRAPH_CU-1];
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_cu_in    [0:NUM_GRAPH_CU-1];
-	logic [      NUM_GRAPH_CU-1:0] read_command_bus_grant_cu_out                    ;
-	logic [      NUM_GRAPH_CU-1:0] read_command_bus_request_cu_in                   ;
-	logic [      NUM_GRAPH_CU-1:0] write_command_bus_grant_cu_out                   ;
-	logic [      NUM_GRAPH_CU-1:0] write_command_bus_request_cu_in                  ;
-	logic [      NUM_GRAPH_CU-1:0] vertex_job_request_cu_in                         ;
-	logic [      NUM_GRAPH_CU-1:0] enable_cu_out                                    ;
-	logic                          write_command_bus_grant                          ;
-	logic                          write_command_bus_request                        ;
-
-	genvar i;
-
-////////////////////////////////////////////////////////////////////////////
-// logic
-////////////////////////////////////////////////////////////////////////////
-
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			prefetch_read_command_out_latched  <= 0;
-			prefetch_write_command_out_latched <= 0;
-		end else begin
-			prefetch_read_command_out_latched  <= 0;
-			prefetch_write_command_out_latched <= 0;
-		end
-	end
-
+	logic write_command_bus_grant  ;
+	logic write_command_bus_request;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			write_command_bus_grant <= 0;
 		end else begin
-			write_command_bus_grant <= write_command_bus_request && ~write_buffer_status_latched.alfull;
+			write_command_bus_grant <= write_command_bus_request & ~write_buffer_status_latched.alfull;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			prefetch_read_command_out_latched  <= 0;
+			prefetch_write_command_out_latched <= 0;
+		end else begin
+			prefetch_read_command_out_latched  <= 0;
+			prefetch_write_command_out_latched <= 0;
 		end
 	end
 
@@ -461,7 +427,7 @@ module cu_control #(
 	assign read_command_buffer_arbiter_out_cu1 = read_command_buffer_arbiter_in[1];
 
 	round_robin_priority_arbiter_N_input_1_ouput #(
-		.NUM_REQUESTS(NUM_READ_REQUESTS       ),
+		.NUM_REQUESTS(NUM_REQUESTS            ),
 		.WIDTH       ($bits(CommandBufferLine))
 	) read_command_buffer_arbiter_instant (
 		.clock      (clock                          ),
@@ -517,94 +483,30 @@ module cu_control #(
 //graph algorithm compute units Pagerank
 ////////////////////////////////////////////////////////////////////////////
 
-	generate
-		for (i = 0; i < NUM_GRAPH_CU; i++) begin : graph_algorithm_cu
-			cu_graph_algorithm_control #(
-				.NUM_VERTEX_CU(NUM_VERTEX_CU),
-				.NUM_GRAPH_CU (NUM_GRAPH_CU ),
-				.CU_ID_Y      (i                   )
-			) cu_graph_algorithm_control_instant (
-				.clock                    (clock                             ),
-				.rstn                     (cu_rstn_out[i]                    ),
-				.enabled_in               (enable_cu_out[i]                  ),
-				.cu_configure             (cu_configure_out[i]               ),
-				.wed_request_in           (cu_wed_request_out[i]             ),
-				.read_response_in         (read_response_cu_out[i]           ),
-				.write_response_in        (write_response_cu_out[i]          ),
-				.write_buffer_status      (write_buffer_status_cu_out[i]     ),
-				.read_data_0_in           (read_data_0_cu_out[i]             ),
-				.read_data_1_in           (read_data_1_cu_out[i]             ),
-				.read_buffer_status       (read_buffer_status_cu_out[i]      ),
-				.vertex_job               (vertex_job_cu_out[i]              ),
-				.read_command_bus_grant   (read_command_bus_grant_cu_out[i]  ),
-				.read_command_bus_request (read_command_bus_request_cu_in[i] ),
-				.read_command_out         (read_command_out_cu_in[i]         ),
-				.write_command_bus_grant  (write_command_bus_grant_cu_out[i] ),
-				.write_command_bus_request(write_command_bus_request_cu_in[i]),
-				.write_command_out        (write_command_out_cu_in[i]        ),
-				.write_data_0_out         (write_data_0_out_cu_in[i]         ),
-				.write_data_1_out         (write_data_1_out_cu_in[i]         ),
-				.vertex_job_request       (vertex_job_request_cu_in[i]       ),
-				.vertex_job_counter_done  (vertex_job_counter_done_cu_in[i]  ),
-				.edge_job_counter_done    (edge_job_counter_done_cu_in[i]    )
-			);
-		end
-	endgenerate
-
-////////////////////////////////////////////////////////////////////////////
-//graph algorithm arbitration units
-////////////////////////////////////////////////////////////////////////////
-
-	cu_graph_algorithm_arbiter_control #(
-		.NUM_GRAPH_CU (NUM_GRAPH_CU ),
-		.NUM_VERTEX_CU(NUM_VERTEX_CU)
-	) cu_graph_algorithm_arbiter_control_instant (
-		.clock                          (clock                            ),
-		.rstn                           (rstn                             ),
-		.cu_rstn_out                    (cu_rstn_out                      ),
-		.enabled_in                     (enabled_in                       ),
-		.enable_cu_out                  (enable_cu_out                    ),
-		.cu_configure                   (cu_configure_latched             ),
-		.cu_configure_out               (cu_configure_out                 ),
-		.wed_request_in                 (wed_request_in_latched           ),
-		.cu_wed_request_out             (cu_wed_request_out               ),
-		.read_response_in               (read_response_in_graph_algorithm ),
-		.read_response_cu_out           (read_response_cu_out             ),
-		.write_response_in              (write_response_in_graph_algorithm),
-		.write_response_cu_out          (write_response_cu_out            ),
-		.read_data_0_in                 (read_data_0_in_graph_algorithm   ),
-		.read_data_1_in                 (read_data_1_in_graph_algorithm   ),
-		.read_data_0_cu_out             (read_data_0_cu_out               ),
-		.read_data_1_cu_out             (read_data_1_cu_out               ),
-		.read_buffer_status             (read_buffer_status_latched       ),
-		.read_buffer_status_cu_out      (read_buffer_status_cu_out        ),
-		.write_buffer_status            (write_buffer_status_latched      ),
-		.write_buffer_status_cu_out     (write_buffer_status_cu_out       ),
-		.read_command_bus_grant         (ready[1]                         ),
-		.read_command_bus_grant_cu_out  (read_command_bus_grant_cu_out    ),
-		.read_command_bus_request       (requests[1]                      ),
-		.read_command_bus_request_cu_in (read_command_bus_request_cu_in   ),
-		.read_command_out               (read_command_buffer_arbiter_in[1]),
-		.read_command_out_cu_in         (read_command_out_cu_in           ),
-		.write_command_bus_grant        (write_command_bus_grant          ),
-		.write_command_bus_grant_cu_out (write_command_bus_grant_cu_out   ),
-		.write_command_bus_request      (write_command_bus_request        ),
-		.write_command_bus_request_cu_in(write_command_bus_request_cu_in  ),
-		.write_command_out              (write_command_out_graph_algorithm),
-		.write_command_out_cu_in        (write_command_out_cu_in          ),
-		.write_data_0_out               (write_data_0_out_graph_algorithm ),
-		.write_data_1_out               (write_data_1_out_graph_algorithm ),
-		.write_data_0_out_cu_in         (write_data_0_out_cu_in           ),
-		.write_data_1_out_cu_in         (write_data_1_out_cu_in           ),
-		.vertex_job                     (vertex_filtered                  ),
-		.vertex_job_cu_out              (vertex_job_cu_out                ),
-		.vertex_job_request             (vertex_request_filtered          ),
-		.vertex_job_request_cu_in       (vertex_job_request_cu_in         ),
-		.vertex_job_counter_done        (vertex_job_counter_done          ),
-		.edge_job_counter_done          (edge_job_counter_done            ),
-		.vertex_job_counter_done_cu_in  (vertex_job_counter_done_cu_in    ),
-		.edge_job_counter_done_cu_in    (edge_job_counter_done_cu_in      )
+	cu_graph_algorithm_control #(.NUM_VERTEX_CU(NUM_VERTEX_CU_GLOBAL), .NUM_GRAPH_CU(NUM_GRAPH_CU_GLOBAL), .CU_ID_Y(1)) cu_graph_algorithm_control_instant (
+		.clock                    (clock                            ),
+		.rstn                     (rstn                             ),
+		.enabled_in               (enabled_graph_algorithm          ),
+		.cu_configure             (cu_configure_latched             ),
+		.wed_request_in           (wed_request_in_latched           ),
+		.read_response_in         (read_response_in_graph_algorithm ),
+		.write_response_in        (write_response_in_graph_algorithm),
+		.write_buffer_status      (write_buffer_status_latched      ),
+		.read_data_0_in           (read_data_0_in_graph_algorithm   ),
+		.read_data_1_in           (read_data_1_in_graph_algorithm   ),
+		.read_buffer_status       (read_buffer_status_latched       ),
+		.vertex_job               (vertex_filtered                  ),
+		.read_command_bus_grant   (ready[1]                         ),
+		.read_command_bus_request (requests[1]                      ),
+		.write_command_bus_grant  (write_command_bus_grant          ),
+		.write_command_bus_request(write_command_bus_request        ),
+		.read_command_out         (read_command_buffer_arbiter_in[1]),
+		.write_command_out        (write_command_out_graph_algorithm),
+		.write_data_0_out         (write_data_0_out_graph_algorithm ),
+		.write_data_1_out         (write_data_1_out_graph_algorithm ),
+		.vertex_job_request       (vertex_request_filtered          ),
+		.vertex_job_counter_done  (vertex_job_counter_done          ),
+		.edge_job_counter_done    (edge_job_counter_done            )
 	);
-
 
 endmodule

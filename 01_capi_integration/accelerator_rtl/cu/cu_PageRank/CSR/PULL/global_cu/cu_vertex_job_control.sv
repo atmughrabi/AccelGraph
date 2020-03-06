@@ -610,7 +610,7 @@ module cu_vertex_job_control (
 			read_command_bus_request_latched_S2 <= 0;
 		end else begin
 			if(enabled_cmd) begin
-				read_command_bus_grant_latched      <= read_command_bus_grant_latched_S2;
+				read_command_bus_grant_latched      <= read_command_bus_grant_latched_S2 && ~read_buffer_status.alfull;
 				read_command_bus_request            <= read_command_bus_request_latched_S2;
 				read_command_bus_grant_latched_S2   <= read_command_bus_grant;
 				read_command_bus_request_latched_S2 <= read_command_bus_request_latched;

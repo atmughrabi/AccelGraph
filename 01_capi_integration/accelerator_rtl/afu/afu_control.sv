@@ -20,8 +20,8 @@ import CU_PKG::*;
 
 
 module afu_control #(
-	parameter NUM_REQUESTS = 5,
-	parameter RSP_DELAY    = 8
+	parameter NUM_REQUESTS = 5 ,
+	parameter RSP_DELAY    = 10
 ) (
 	input  logic                         clock                      , // Clock
 	input  logic                         rstn                       ,
@@ -332,32 +332,70 @@ module afu_control #(
 //Buffer arbitration logic
 ////////////////////////////////////////////////////////////////////////////
 
-	always_comb begin
-		command_arbiter_out.valid    = command_arbiter_out_round_robin.valid;
-		ready                        = ready_round_robin;
-		round_robin_priority_enabled = 0;
-		fixed_priority_enabled       = 0;
-		if(enabled)begin
-			if(afu_configure_latched[63]) begin
-				command_arbiter_out.valid    = command_arbiter_out_round_robin.valid;
-				ready                        = ready_round_robin;
-				round_robin_priority_enabled = 1;
-				fixed_priority_enabled       = 0;
-			end else if(afu_configure_latched[62]) begin
-				command_arbiter_out.valid    = command_arbiter_out_fixed.valid;
-				ready                        = ready_fixed;
-				round_robin_priority_enabled = 0;
-				fixed_priority_enabled       = 1;
+	// always_comb begin
+	// 	command_arbiter_out.valid    = command_arbiter_out_round_robin.valid;
+	// 	ready                        = ready_round_robin;
+	// 	round_robin_priority_enabled = 0;
+	// 	fixed_priority_enabled       = 0;
+	// 	if(enabled)begin
+	// 		if(afu_configure_latched[63]) begin
+	// 			command_arbiter_out.valid    = command_arbiter_out_round_robin.valid;
+	// 			ready                        = ready_round_robin;
+	// 			round_robin_priority_enabled = 1;
+	// 			fixed_priority_enabled       = 0;
+	// 		end else if(afu_configure_latched[62]) begin
+	// 			command_arbiter_out.valid    = command_arbiter_out_fixed.valid;
+	// 			ready                        = ready_fixed;
+	// 			round_robin_priority_enabled = 0;
+	// 			fixed_priority_enabled       = 1;
+	// 		end
+	// 	end
+	// end
+
+	// always_comb begin
+	// 	command_arbiter_out.payload = command_arbiter_out_round_robin.payload ;
+	// 	if(afu_configure_latched[63]) begin
+	// 		command_arbiter_out.payload = command_arbiter_out_round_robin.payload ;
+	// 	end else if(afu_configure_latched[62]) begin
+	// 		command_arbiter_out.payload = command_arbiter_out_fixed.payload ;
+	// 	end
+	// end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			command_arbiter_out.valid    <= 0;
+			ready                        <= 0;
+			round_robin_priority_enabled <= 0;
+			fixed_priority_enabled       <= 0;
+		end else begin
+			if(enabled)begin
+				if(afu_configure_latched[63]) begin
+					command_arbiter_out.valid    <= command_arbiter_out_round_robin.valid;
+					ready                        <= ready_round_robin;
+					round_robin_priority_enabled <= 1;
+					fixed_priority_enabled       <= 0;
+				end else if(afu_configure_latched[62]) begin
+					command_arbiter_out.valid    <= command_arbiter_out_fixed.valid;
+					ready                        <= ready_fixed;
+					round_robin_priority_enabled <= 0;
+					fixed_priority_enabled       <= 1;
+				end else begin
+					command_arbiter_out.valid    <= command_arbiter_out_round_robin.valid;
+					ready                        <= ready_round_robin;
+					round_robin_priority_enabled <= 1;
+					fixed_priority_enabled       <= 0;
+				end
 			end
 		end
 	end
 
-	always_comb begin
-		command_arbiter_out.payload = command_arbiter_out_round_robin.payload ;
+	always_ff @(posedge clock) begin
 		if(afu_configure_latched[63]) begin
-			command_arbiter_out.payload = command_arbiter_out_round_robin.payload ;
+			command_arbiter_out.payload <= command_arbiter_out_round_robin.payload ;
 		end else if(afu_configure_latched[62]) begin
-			command_arbiter_out.payload = command_arbiter_out_fixed.payload ;
+			command_arbiter_out.payload <= command_arbiter_out_fixed.payload ;
+		end else begin
+			command_arbiter_out.payload <= command_arbiter_out_round_robin.payload ;
 		end
 	end
 
@@ -706,7 +744,7 @@ module afu_control #(
 
 	// logic request_pulse                            ;
 	// assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (|credits.credits) && ~(|request_pulse);
-	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (credits.credits > 2) && ~restart_pending;
+	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (credits.credits > 3) && ~restart_pending;
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
 		.DEPTH(BURST_CMD_BUFFER_SIZE   )

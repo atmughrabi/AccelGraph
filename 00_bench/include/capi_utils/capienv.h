@@ -58,6 +58,7 @@
 
 #ifdef  SIM
 #define DEVICE_1              "/dev/cxl/afu0.0d"
+#define DEVICE_2              "/dev/cxl/afu1.0d"
 #else
 #define DEVICE_1              "/dev/cxl/afu0.0d"
 #define DEVICE_2              "/dev/cxl/afu1.0d"

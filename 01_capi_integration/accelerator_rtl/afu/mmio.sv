@@ -17,23 +17,32 @@ import CAPI_PKG::*;
 import AFU_PKG::*;
 
 module mmio (
-  input  logic                      clock              ,
-  input  logic                      rstn               ,
-  input  logic [0:63]               report_errors      ,
-  input  cu_return_type             cu_return          ,
-  input  logic [0:63]               cu_return_done     ,
-  input  logic [0:63]               cu_status          ,
-  input  logic [0:63]               afu_status         ,
-  input  ResponseStatistcsInterface response_statistics,
-  output afu_configure_type         afu_configure      ,
-  output cu_configure_type          cu_configure       ,
-  input  MMIOInterfaceInput         mmio_in            ,
-  output MMIOInterfaceOutput        mmio_out           ,
-  output logic [ 0:1]               mmio_errors        ,
-  output logic                      report_errors_ack  , // each register has an ack
-  output logic                      cu_return_done_ack , // each register has an ack
-  output logic                      reset_mmio
+  input  logic                      clock                 ,
+  input  logic                      rstn                  ,
+  input  logic [0:63]               report_errors         ,
+  input  cu_return_type             cu_return             ,
+  input  logic [0:63]               cu_return_done        ,
+  input  logic [0:63]               cu_status             ,
+  input  logic [0:63]               afu_status            ,
+  input  ResponseStatistcsInterface response_statistics   ,
+  output afu_configure_type         afu_configure_out     ,
+  output cu_configure_type          cu_configure_out      ,
+  input  MMIOInterfaceInput         mmio_in               ,
+  output MMIOInterfaceOutput        mmio_out_out          ,
+  output logic [ 0:1]               mmio_errors_out       ,
+  output logic                      report_errors_ack_out , // each register has an ack
+  output logic                      cu_return_done_ack_out, // each register has an ack
+  output logic                      reset_mmio_out
 );
+
+  MMIOInterfaceOutput mmio_out          ;
+  logic [0:1]         mmio_errors       ;
+  logic               report_errors_ack ; // each register has an ack
+  logic               cu_return_done_ack; // each register has an ack
+  logic               reset_mmio        ;
+
+  afu_configure_type afu_configure;
+  cu_configure_type  cu_configure ;
 
   AFUDescriptor afu_desc  ;
   logic         odd_parity;
@@ -107,12 +116,11 @@ module mmio (
   assign reset_mmio = 1;
 
 ////////////////////////////////////////////////////////////////////////////
-//latch the inputs from the PSL
+//latch the input/output from the PSL
 ////////////////////////////////////////////////////////////////////////////
 
 
-  always_ff @(posedge clock) begin
-
+  always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
       report_errors_latched           <= 0;
       cu_return_latched               <= 0;
@@ -120,16 +128,33 @@ module mmio (
       afu_status_latched              <= 0;
       cu_status_latched               <= 0;
       response_statistics_out_latched <= 0;
-
     end else  begin
-
       report_errors_latched           <= report_errors;
       cu_return_done_latched          <= cu_return_done;
       cu_return_latched               <= cu_return;
       afu_status_latched              <= afu_status;
       cu_status_latched               <= cu_status;
       response_statistics_out_latched <= response_statistics;
+    end
+  end
 
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      afu_configure_out      <= 0;
+      cu_configure_out       <= 0;
+      mmio_out_out           <= 0;
+      mmio_errors_out        <= 0;
+      report_errors_ack_out  <= 0;
+      cu_return_done_ack_out <= 0;
+      reset_mmio_out         <= 1;
+    end else  begin
+      afu_configure_out      <= afu_configure;
+      cu_configure_out       <= cu_configure;
+      mmio_out_out           <= mmio_out;
+      mmio_errors_out        <= mmio_errors;
+      report_errors_ack_out  <= report_errors_ack;
+      cu_return_done_ack_out <= cu_return_done_ack;
+      reset_mmio_out         <= reset_mmio;
     end
   end
 

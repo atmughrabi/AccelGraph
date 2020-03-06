@@ -205,7 +205,7 @@ module cu_sum_kernel_control #(
 			edge_data_write_bus_request       <= 0;
 		end else begin
 			if(enabled) begin
-				edge_data_write_bus_grant_latched <= edge_data_write_bus_grant;
+				edge_data_write_bus_grant_latched <= edge_data_write_bus_grant  && ~write_buffer_status.alfull;
 				edge_data_write_bus_request       <= edge_data_write_bus_request_latched;
 			end
 		end

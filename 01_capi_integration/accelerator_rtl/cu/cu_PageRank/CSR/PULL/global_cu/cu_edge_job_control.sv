@@ -467,8 +467,8 @@ module cu_edge_job_control #(
 				end
 
 				read_command_edge_job_latched_S2.payload.cmd.cacheline_offest <= (remainder >> $clog2(EDGE_SIZE));
-				read_command_edge_job_latched_S2.payload.cmd.cu_id_x            <= CU_ID_X;
-				read_command_edge_job_latched_S2.payload.cmd.cu_id_y            <= CU_ID_Y;
+				read_command_edge_job_latched_S2.payload.cmd.cu_id_x          <= CU_ID_X;
+				read_command_edge_job_latched_S2.payload.cmd.cu_id_y          <= CU_ID_Y;
 				read_command_edge_job_latched_S2.payload.cmd.cmd_type         <= CMD_READ;
 
 				read_command_edge_job_latched_S2.payload.cmd.abt <= map_CABT(cu_configure_latched[5:7]);
@@ -684,7 +684,7 @@ module cu_edge_job_control #(
 			read_command_bus_request       <= 0;
 		end else begin
 			if(enabled_cmd) begin
-				read_command_bus_grant_latched <= read_command_bus_grant;
+				read_command_bus_grant_latched <= read_command_bus_grant && ~read_buffer_status.alfull ;
 				read_command_bus_request       <= read_command_bus_request_latched;
 			end
 		end

@@ -241,22 +241,22 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
 ////////////////////////////////////////////////////////////////////////////
 
   mmio mmio_instant (
-    .clock              (clock                     ),
-    .rstn               (reset_afu_internal        ),
-    .report_errors      (report_errors             ),
-    .cu_return          (cu_return                 ),
-    .cu_return_done     (cu_return_done            ),
-    .cu_status          (cu_status                 ),
-    .afu_status         (afu_status                ),
-    .response_statistics(report_response_statistics),
-    .cu_configure       (cu_configure              ),
-    .afu_configure      (afu_configure             ),
-    .mmio_in            (mmio_in                   ),
-    .mmio_out           (mmio_out                  ),
-    .mmio_errors        (mmio_errors               ),
-    .report_errors_ack  (report_errors_ack         ),
-    .cu_return_done_ack (cu_return_done_ack        ),
-    .reset_mmio         (external_rstn[1]          )
+    .clock                 (clock                     ),
+    .rstn                  (reset_afu_internal        ),
+    .report_errors         (report_errors             ),
+    .cu_return             (cu_return                 ),
+    .cu_return_done        (cu_return_done            ),
+    .cu_status             (cu_status                 ),
+    .afu_status            (afu_status                ),
+    .response_statistics   (report_response_statistics),
+    .cu_configure_out      (cu_configure              ),
+    .afu_configure_out     (afu_configure             ),
+    .mmio_in               (mmio_in                   ),
+    .mmio_out_out          (mmio_out                  ),
+    .mmio_errors_out       (mmio_errors               ),
+    .report_errors_ack_out (report_errors_ack         ),
+    .cu_return_done_ack_out(cu_return_done_ack        ),
+    .reset_mmio_out        (external_rstn[1]          )
   );
 
 ////////////////////////////////////////////////////////////////////////////
