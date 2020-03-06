@@ -48,7 +48,7 @@ package GLOBALS_AFU_PKG;
 	parameter PREFETCH_WRITE_CMD_BUFFER_SIZE = 64;
 	parameter WED_CMD_BUFFER_SIZE            = 4 ;
 
-	parameter READ_DATA_BUFFER_SIZE  = 64;
+	parameter READ_DATA_BUFFER_SIZE  = 64; // not needed since data read in a non blocking manner
 	parameter WRITE_DATA_BUFFER_SIZE = 64;
 	parameter WED_DATA_BUFFER_SIZE   = 4 ;
 

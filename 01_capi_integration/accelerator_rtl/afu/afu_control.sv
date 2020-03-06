@@ -103,12 +103,8 @@ module afu_control #(
 	ResponseControlInterfaceOut response_control_out         ;
 	ResponseControlInterfaceOut response_control_out_internal;
 
-	DataControlInterfaceOut read_data_control_out_0   ;
-	DataControlInterfaceOut read_data_control_out_1   ;
-	logic                   wed_read_data_0_buffer_pop;
-	logic                   wed_read_data_1_buffer_pop;
-	logic                   read_data_0_buffer_pop    ;
-	logic                   read_data_1_buffer_pop    ;
+	DataControlInterfaceOut read_data_control_out_0;
+	DataControlInterfaceOut read_data_control_out_1;
 
 	//As long as there are commands in the FIFO set it request for bus access / if there are credits
 
@@ -1011,90 +1007,77 @@ module afu_control #(
 //Buffers WED Read Data
 ////////////////////////////////////////////////////////////////////////////
 
-	assign wed_read_data_0_buffer_pop = ~wed_data_buffer_status.buffer_0.empty;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			wed_data_0_out.valid <= 0;
+		end else begin
+			if(enabled) begin
+				if(read_data_control_out_0.wed_data)
+					wed_data_0_out.valid <= read_data_control_out_0.line.valid;
+				else
+					wed_data_0_out.valid <= 0;
+			end
+		end
+	end
 
-	fifo #(
-		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(WED_DATA_BUFFER_SIZE    )
-	) wed_read_data_0_buffer_fifo_instant (
-		.clock   (clock                                 ),
-		.rstn    (rstn                                  ),
-		
-		.push    (read_data_control_out_0.wed_data      ),
-		.data_in (read_data_control_out_0.line          ),
-		.full    (wed_data_buffer_status.buffer_0.full  ),
-		.alFull  (wed_data_buffer_status.buffer_0.alfull),
-		
-		.pop     (wed_read_data_0_buffer_pop            ),
-		.valid   (wed_data_buffer_status.buffer_0.valid ),
-		.data_out(wed_data_0_out                        ),
-		.empty   (wed_data_buffer_status.buffer_0.empty )
-	);
+	always_ff @(posedge clock) begin
+		wed_data_0_out.payload <= read_data_control_out_0.line.payload;
+	end
 
-	assign wed_read_data_1_buffer_pop = ~wed_data_buffer_status.buffer_1.empty;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			wed_data_1_out.valid <= 0;
+		end else begin
+			if(enabled) begin
+				if(read_data_control_out_1.wed_data)
+					wed_data_1_out.valid <= read_data_control_out_1.line.valid;
+				else
+					wed_data_1_out.valid <= 0;
+			end
+		end
+	end
 
-	fifo #(
-		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(WED_DATA_BUFFER_SIZE    )
-	) wed_read_data_1_buffer_fifo_instant (
-		.clock   (clock                                 ),
-		.rstn    (rstn                                  ),
-		
-		.push    (read_data_control_out_1.wed_data      ),
-		.data_in (read_data_control_out_1.line          ),
-		.full    (wed_data_buffer_status.buffer_1.full  ),
-		.alFull  (wed_data_buffer_status.buffer_1.alfull),
-		
-		.pop     (wed_read_data_1_buffer_pop            ),
-		.valid   (wed_data_buffer_status.buffer_1.valid ),
-		.data_out(wed_data_1_out                        ),
-		.empty   (wed_data_buffer_status.buffer_1.empty )
-	);
-
+	always_ff @(posedge clock) begin
+		wed_data_1_out.payload <= read_data_control_out_1.line.payload;
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffers CU Read Data
 ////////////////////////////////////////////////////////////////////////////
 
-	assign read_data_0_buffer_pop = ~read_data_buffer_status.buffer_0.empty;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_data_0_out.valid <= 0;
+		end else begin
+			if(enabled) begin
+				if(read_data_control_out_0.read_data)
+					read_data_0_out.valid <= read_data_control_out_0.line.valid;
+				else
+					read_data_0_out.valid <= 0;
+			end
+		end
+	end
 
-	fifo #(
-		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(READ_DATA_BUFFER_SIZE   )
-	) cu_read_data_0_buffer_fifo_instant (
-		.clock   (clock                                  ),
-		.rstn    (rstn                                   ),
-		
-		.push    (read_data_control_out_0.read_data      ),
-		.data_in (read_data_control_out_0.line           ),
-		.full    (read_data_buffer_status.buffer_0.full  ),
-		.alFull  (read_data_buffer_status.buffer_0.alfull),
-		
-		.pop     (read_data_0_buffer_pop                 ),
-		.valid   (read_data_buffer_status.buffer_0.valid ),
-		.data_out(read_data_0_out                        ),
-		.empty   (read_data_buffer_status.buffer_0.empty )
-	);
+	always_ff @(posedge clock) begin
+		read_data_0_out.payload <= read_data_control_out_0.line.payload;
+	end
 
-	assign read_data_1_buffer_pop = ~read_data_buffer_status.buffer_1.empty;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_data_1_out.valid <= 0;
+		end else begin
+			if(enabled) begin
+				if(read_data_control_out_1.read_data)
+					read_data_1_out.valid <= read_data_control_out_1.line.valid;
+				else
+					read_data_1_out.valid <= 0;
+			end
+		end
+	end
 
-	fifo #(
-		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(READ_DATA_BUFFER_SIZE   )
-	) cu_read_data_1_buffer_fifo_instant (
-		.clock   (clock                                  ),
-		.rstn    (rstn                                   ),
-		
-		.push    (read_data_control_out_1.read_data      ),
-		.data_in (read_data_control_out_1.line           ),
-		.full    (read_data_buffer_status.buffer_1.full  ),
-		.alFull  (read_data_buffer_status.buffer_1.alfull),
-		
-		.pop     (read_data_1_buffer_pop                 ),
-		.valid   (read_data_buffer_status.buffer_1.valid ),
-		.data_out(read_data_1_out                        ),
-		.empty   (read_data_buffer_status.buffer_1.empty )
-	);
+	always_ff @(posedge clock) begin
+		read_data_1_out.payload <= read_data_control_out_1.line.payload;
+	end
 
 ////////////////////////////////////////////////////////////////////////////
 //Buffers CU Write DATA
