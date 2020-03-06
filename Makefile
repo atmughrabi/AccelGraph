@@ -97,7 +97,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 4
+export PULL_PUSH 		= 0
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 

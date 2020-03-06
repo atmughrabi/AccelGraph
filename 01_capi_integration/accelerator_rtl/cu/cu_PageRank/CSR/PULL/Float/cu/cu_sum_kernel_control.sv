@@ -128,7 +128,8 @@ module cu_sum_kernel_control #(
 	end
 
 	always_ff @(posedge clock) begin
-		vertex_job_latched.payload <= vertex_job.payload;
+		vertex_job_latched.payload        <= vertex_job.payload;
+		write_response_in_latched.payload <= write_response_in.payload;
 	end
 
 
@@ -241,7 +242,7 @@ module cu_sum_kernel_control #(
 			vertex_num_counter_resp <= 0;
 		end else begin
 			if (enabled) begin
-				if(write_response_in.valid) begin
+				if(write_response_in_latched.valid) begin
 					vertex_num_counter_resp <= vertex_num_counter_resp + 1;
 				end
 			end
