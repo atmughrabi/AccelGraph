@@ -46,6 +46,7 @@ module cu_edge_job_control #(
 	logic           read_command_bus_request_latched;
 	BufferStatus    edge_buffer_status              ;
 	logic [0:63]    cu_configure_internal           ;
+	BufferStatus    read_buffer_status_latched      ;
 
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0               ;
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1               ;
@@ -156,13 +157,16 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_in_latched.valid   <= 0;
-			read_data_1_in_latched.valid   <= 0;
-			read_response_in_latched.valid <= 0;
-			edge_request_latched           <= 0;
-			wed_request_in_latched.valid   <= 0;
+			read_data_0_in_latched.valid     <= 0;
+			read_data_1_in_latched.valid     <= 0;
+			read_response_in_latched.valid   <= 0;
+			edge_request_latched             <= 0;
+			wed_request_in_latched.valid     <= 0;
+			read_buffer_status_latched       <= 0;
+			read_buffer_status_latched.empty <= 1;
 		end else begin
 			if(enabled_cmd) begin
+				read_buffer_status_latched     <= read_buffer_status;
 				read_response_in_latched.valid <= read_response_in.valid ;
 				read_data_0_in_latched.valid   <= read_data_0_in.valid ;
 				read_data_1_in_latched.valid   <= read_data_1_in.valid ;
@@ -691,8 +695,8 @@ module cu_edge_job_control #(
 		end
 	end
 
-	assign read_command_bus_request_latched = ~read_buffer_status.alfull && ~read_buffer_status_internal.empty;
-	assign read_command_bus_request_pop     = ~read_buffer_status.alfull && read_command_bus_grant_latched;
+	assign read_command_bus_request_latched = ~read_buffer_status_latched.alfull && ~read_buffer_status_internal.empty;
+	assign read_command_bus_request_pop     = ~read_buffer_status_latched.alfull && read_command_bus_grant_latched;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),

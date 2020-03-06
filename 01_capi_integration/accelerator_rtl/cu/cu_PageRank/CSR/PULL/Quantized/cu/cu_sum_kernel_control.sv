@@ -41,21 +41,25 @@ module cu_sum_kernel_control #(
 );
 
 
-	EdgeDataRead    edge_data_latched                  ;
-	EdgeDataWrite   edge_data_accumulator              ;
-	EdgeDataWrite   edge_data_accumulator_latch        ;
-	logic           enabled                            ;
-	VertexInterface vertex_job_latched                 ;
-	BufferStatus    edge_data_write_buffer_status      ;
-	EdgeDataWrite   edge_data_write_buffer             ;
-	logic           edge_data_write_bus_grant_latched  ;
-	logic           edge_data_write_bus_request_latched;
-	BufferStatus    data_buffer_status_latch           ;
-	logic           edge_data_write_bus_request_pop    ;
+	EdgeDataRead       edge_data_latched                  ;
+	EdgeDataWrite      edge_data_accumulator              ;
+	EdgeDataWrite      edge_data_accumulator_latch        ;
+	logic              enabled                            ;
+	VertexInterface    vertex_job_latched                 ;
+	BufferStatus       edge_data_write_buffer_status      ;
+	EdgeDataWrite      edge_data_write_buffer             ;
+	logic              edge_data_write_bus_grant_latched  ;
+	logic              edge_data_write_bus_request_latched;
+	BufferStatus       data_buffer_status_latch           ;
+	logic              edge_data_write_bus_request_pop    ;
+	logic              write_response_in_valid            ;
+	ResponseBufferLine write_response_in_latched          ;
+	BufferStatus       write_buffer_status_latched        ;
 
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp            ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum            ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal   ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal_S2;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
@@ -90,20 +94,25 @@ module cu_sum_kernel_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_job_latched.valid       <= 0;
-			data_buffer_status_latch       <= 0;
-			data_buffer_status_latch.empty <= 1;
-
+			vertex_job_latched.valid          <= 0;
+			data_buffer_status_latch          <= 0;
+			data_buffer_status_latch.empty    <= 1;
+			write_response_in_latched.valid   <= 0;
+			write_buffer_status_latched       <= 0;
+			write_buffer_status_latched.empty <= 1;
 		end else begin
 			if(enabled) begin
-				vertex_job_latched.valid <= vertex_job.valid;
-				data_buffer_status_latch <= data_buffer_status;
+				vertex_job_latched.valid        <= vertex_job.valid;
+				data_buffer_status_latch        <= data_buffer_status;
+				write_buffer_status_latched     <= write_buffer_status;
+				write_response_in_latched.valid <= write_response_in.valid;
 			end
 		end
 	end
 
 	always_ff @(posedge clock) begin
-		vertex_job_latched.payload <= vertex_job.payload;
+		vertex_job_latched.payload        <= vertex_job.payload;
+		write_response_in_latched.payload <= write_response_in.payload;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -143,9 +152,10 @@ module cu_sum_kernel_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_data_accumulator            <= 0;
-			edge_data_counter_accum_internal <= 0;
-			edge_data_accumulator_latch      <= 0;
+			edge_data_accumulator               <= 0;
+			edge_data_counter_accum_internal    <= 0;
+			edge_data_counter_accum_internal_S2 <= 0;
+			edge_data_accumulator_latch         <= 0;
 		end else begin
 			if (enabled && vertex_job_latched.valid) begin
 				if(edge_data_latched.valid)begin
@@ -154,16 +164,23 @@ module cu_sum_kernel_control #(
 					edge_data_accumulator.payload.cu_id_x <= CU_ID_X;
 					edge_data_accumulator.payload.cu_id_y <= CU_ID_Y;
 					edge_data_accumulator.payload.data    <= edge_data_accumulator.payload.data + edge_data_latched.payload.data;
-					edge_data_counter_accum_internal      <= edge_data_counter_accum_internal + 1;
+					edge_data_counter_accum_internal_S2   <= edge_data_counter_accum_internal_S2 + 1;
 				end
 
-				if(edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree)begin
-					edge_data_accumulator            <= 0;
-					edge_data_counter_accum_internal <= 0;
-					edge_data_accumulator_latch      <= edge_data_accumulator;
+				if(edge_data_counter_accum_internal_S2 == vertex_job_latched.payload.inverse_out_degree)begin
+					edge_data_accumulator       <= 0;
+					edge_data_accumulator_latch <= edge_data_accumulator;
 				end else begin
 					edge_data_accumulator_latch.valid <= 0;
 				end
+
+				if(write_response_in_latched.valid)begin
+					edge_data_counter_accum_internal_S2 <= 0;
+					edge_data_counter_accum_internal    <= edge_data_counter_accum_internal_S2;
+				end else begin
+					edge_data_counter_accum_internal <= 0;
+				end
+
 			end
 		end
 	end
@@ -176,10 +193,8 @@ module cu_sum_kernel_control #(
 		if(~rstn) begin
 			edge_data_counter_accum <= 0;
 		end else begin
-			if (enabled) begin
-				if(edge_data_latched.valid) begin
-					edge_data_counter_accum <= edge_data_counter_accum + 1;
-				end
+			if(edge_data_latched.valid) begin
+				edge_data_counter_accum <= edge_data_counter_accum + 1;
 			end
 		end
 	end
@@ -188,10 +203,8 @@ module cu_sum_kernel_control #(
 		if(~rstn) begin
 			vertex_num_counter_resp <= 0;
 		end else begin
-			if (enabled) begin
-				if(write_response_in.valid) begin
-					vertex_num_counter_resp <= vertex_num_counter_resp + 1;
-				end
+			if(write_response_in_latched.valid) begin
+				vertex_num_counter_resp <= vertex_num_counter_resp + 1;
 			end
 		end
 	end
@@ -206,14 +219,14 @@ module cu_sum_kernel_control #(
 			edge_data_write_bus_request       <= 0;
 		end else begin
 			if(enabled) begin
-				edge_data_write_bus_grant_latched <= edge_data_write_bus_grant  && ~write_buffer_status.alfull;
+				edge_data_write_bus_grant_latched <= edge_data_write_bus_grant  && ~write_buffer_status_latched.alfull;
 				edge_data_write_bus_request       <= edge_data_write_bus_request_latched;
 			end
 		end
 	end
 
-	assign edge_data_write_bus_request_latched = ~edge_data_write_buffer_status.empty && ~write_buffer_status.alfull;
-	assign edge_data_write_bus_request_pop     = edge_data_write_bus_grant_latched && ~write_buffer_status.alfull;
+	assign edge_data_write_bus_request_latched = ~edge_data_write_buffer_status.empty && ~write_buffer_status_latched.alfull;
+	assign edge_data_write_bus_request_pop     = edge_data_write_bus_grant_latched && ~write_buffer_status_latched.alfull;
 
 	fifo #(
 		.WIDTH($bits(EdgeDataWrite) ),

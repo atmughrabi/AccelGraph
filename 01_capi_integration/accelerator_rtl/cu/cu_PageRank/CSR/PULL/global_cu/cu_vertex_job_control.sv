@@ -42,6 +42,7 @@ module cu_vertex_job_control (
 	logic        read_command_bus_grant_latched_S2  ;
 	logic        read_command_bus_request_latched_S2;
 	BufferStatus vertex_buffer_status               ;
+	BufferStatus read_buffer_status_latched         ;
 
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0       ;
 	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1       ;
@@ -146,14 +147,17 @@ module cu_vertex_job_control (
 ////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched.valid   <= 0;
-			read_response_in_latched.valid <= 0;
-			read_data_0_in_latched.valid   <= 0;
-			read_data_1_in_latched.valid   <= 0;
-			vertex_request_latched         <= 0;
-			cu_configure_latched           <= 0;
+			wed_request_in_latched.valid     <= 0;
+			read_response_in_latched.valid   <= 0;
+			read_data_0_in_latched.valid     <= 0;
+			read_data_1_in_latched.valid     <= 0;
+			vertex_request_latched           <= 0;
+			cu_configure_latched             <= 0;
+			read_buffer_status_latched       <= 0;
+			read_buffer_status_latched.empty <= 1;
 		end else begin
 			if(enabled) begin
+				read_buffer_status_latched     <= read_buffer_status;
 				wed_request_in_latched.valid   <= wed_request_in.valid ;
 				read_response_in_latched.valid <= read_response_in.valid ;
 				read_data_0_in_latched.valid   <= read_data_0_in.valid ;
@@ -611,7 +615,7 @@ module cu_vertex_job_control (
 			read_command_bus_request_latched_S2 <= 0;
 		end else begin
 			if(enabled_cmd) begin
-				read_command_bus_grant_latched      <= read_command_bus_grant_latched_S2 && ~read_buffer_status.alfull;
+				read_command_bus_grant_latched      <= read_command_bus_grant_latched_S2;
 				read_command_bus_request            <= read_command_bus_request_latched_S2;
 				read_command_bus_grant_latched_S2   <= read_command_bus_grant;
 				read_command_bus_request_latched_S2 <= read_command_bus_request_latched;
@@ -619,8 +623,8 @@ module cu_vertex_job_control (
 		end
 	end
 
-	assign read_command_bus_request_latched = ~read_buffer_status.alfull && ~read_buffer_status_internal.empty;
-	assign read_command_bus_request_pop     = ~read_buffer_status.alfull && read_command_bus_grant_latched;
+	assign read_command_bus_request_latched = ~read_buffer_status_latched.alfull && ~read_buffer_status_internal.empty;
+	assign read_command_bus_request_pop     = ~read_buffer_status_latched.alfull && read_command_bus_grant_latched;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),

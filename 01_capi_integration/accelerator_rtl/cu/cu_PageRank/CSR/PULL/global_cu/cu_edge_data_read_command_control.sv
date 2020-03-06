@@ -44,10 +44,11 @@ module cu_edge_data_read_command_control #(
 
 
 	//output latched
-	EdgeInterface edge_job_latched        ;
-	EdgeInterface edge_job_variable       ;
-	EdgeDataRead  edge_data_latched       ;
-	BufferStatus  data_buffer_status_latch;
+	EdgeInterface edge_job_latched          ;
+	EdgeInterface edge_job_variable         ;
+	EdgeDataRead  edge_data_latched         ;
+	BufferStatus  data_buffer_status_latch  ;
+	BufferStatus  read_buffer_status_latched;
 
 	logic read_command_bus_grant_latched  ;
 	logic read_command_bus_request_latched;
@@ -118,14 +119,17 @@ module cu_edge_data_read_command_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_response_in_latched.valid <= 0;
-			edge_job_latched.valid         <= 0;
-			edge_data_request_latched      <= 0;
-			wed_request_in_latched.valid   <= 0;
-			edge_data_variable.valid       <= 0;
-			cu_configure_latched           <= 0;
+			read_response_in_latched.valid   <= 0;
+			edge_job_latched.valid           <= 0;
+			edge_data_request_latched        <= 0;
+			wed_request_in_latched.valid     <= 0;
+			edge_data_variable.valid         <= 0;
+			cu_configure_latched             <= 0;
+			read_buffer_status_latched       <= 0;
+			read_buffer_status_latched.empty <= 1;
 		end else begin
 			if(enabled) begin
+				read_buffer_status_latched     <= read_buffer_status;
 				wed_request_in_latched.valid   <= wed_request_in.valid;
 				read_response_in_latched.valid <= read_response_in.valid;
 				edge_job_latched.valid         <= edge_job.valid;
@@ -249,8 +253,8 @@ module cu_edge_data_read_command_control #(
 		end
 	end
 
-	assign read_command_bus_request_latched = ~read_buffer_status.alfull && ~read_buffer_status_internal.empty;
-	assign read_command_bus_request_pop     = ~read_buffer_status.alfull && read_command_bus_grant_latched;
+	assign read_command_bus_request_latched = ~read_buffer_status_latched.alfull && ~read_buffer_status_internal.empty;
+	assign read_command_bus_request_pop     = ~read_buffer_status_latched.alfull && read_command_bus_grant_latched;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
