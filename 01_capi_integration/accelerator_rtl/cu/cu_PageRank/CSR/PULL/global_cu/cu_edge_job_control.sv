@@ -47,18 +47,19 @@ module cu_edge_job_control #(
 	BufferStatus    edge_buffer_status              ;
 	logic [0:63]    cu_configure_internal           ;
 
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0            ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1            ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_seek               ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] global_shift_counter     ;
-	logic                                shift_limit_clear        ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter            ;
-	logic                                start_shift_hf_0         ;
-	logic                                start_shift_hf_1         ;
-	logic                                switch_shift_hf          ;
-	logic                                push_shift               ;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_DEST_0;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_DEST_1;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0               ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1               ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_seek                  ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] global_shift_counter        ;
+	logic                                shift_limit_clear           ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter               ;
+	logic                                start_shift_hf_0            ;
+	logic                                start_shift_hf_1            ;
+	logic                                switch_shift_hf             ;
+	logic                                push_shift                  ;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_DEST_0   ;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_DEST_1   ;
+	logic                                read_command_bus_request_pop;
 
 	logic clear_data_ready    ;
 	logic fill_edge_job_buffer;
@@ -684,13 +685,14 @@ module cu_edge_job_control #(
 			read_command_bus_request       <= 0;
 		end else begin
 			if(enabled_cmd) begin
-				read_command_bus_grant_latched <= read_command_bus_grant && ~read_buffer_status.alfull ;
+				read_command_bus_grant_latched <= read_command_bus_grant;
 				read_command_bus_request       <= read_command_bus_request_latched;
 			end
 		end
 	end
 
 	assign read_command_bus_request_latched = ~read_buffer_status.alfull && ~read_buffer_status_internal.empty;
+	assign read_command_bus_request_pop     = ~read_buffer_status.alfull && read_command_bus_grant_latched;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -704,7 +706,7 @@ module cu_edge_job_control #(
 		.full    (read_buffer_status_internal.full   ),
 		.alFull  (read_buffer_status_internal.alfull ),
 		
-		.pop     (read_command_bus_grant_latched     ),
+		.pop     (read_command_bus_request_pop       ),
 		.valid   (read_buffer_status_internal.valid  ),
 		.data_out(read_command_out_latched           ),
 		.empty   (read_buffer_status_internal.empty  )

@@ -94,6 +94,7 @@ module cu_vertex_job_control (
 	logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx_degree_data      ;
 	logic                          inverse_out_degree_data_ready      ;
 	logic                          inverse_edges_idx_degree_data_ready;
+	logic                          read_command_bus_request_pop       ;
 
 
 	vertex_struct_state current_state, next_state;
@@ -619,6 +620,7 @@ module cu_vertex_job_control (
 	end
 
 	assign read_command_bus_request_latched = ~read_buffer_status.alfull && ~read_buffer_status_internal.empty;
+	assign read_command_bus_request_pop     = ~read_buffer_status.alfull && read_command_bus_grant_latched;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -632,7 +634,7 @@ module cu_vertex_job_control (
 		.full    (read_buffer_status_internal.full     ),
 		.alFull  (read_buffer_status_internal.alfull   ),
 		
-		.pop     (read_command_bus_grant_latched       ),
+		.pop     (read_command_bus_request_pop         ),
 		.valid   (read_buffer_status_internal.valid    ),
 		.data_out(read_command_out_latched             ),
 		.empty   (read_buffer_status_internal.empty    )

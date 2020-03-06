@@ -66,6 +66,7 @@ module cu_edge_data_read_command_control #(
 	logic [0:63]       cu_configure_latched                    ;
 	CommandBufferLine  read_command_edge_data_burst_out_latched;
 	logic [0:63]       cu_configure_internal                   ;
+	logic              read_command_bus_request_pop            ;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -242,13 +243,14 @@ module cu_edge_data_read_command_control #(
 			read_command_bus_request       <= 0;
 		end else begin
 			if(enabled_cmd) begin
-				read_command_bus_grant_latched <= read_command_bus_grant && ~read_buffer_status.alfull;
+				read_command_bus_grant_latched <= read_command_bus_grant;
 				read_command_bus_request       <= read_command_bus_request_latched;
 			end
 		end
 	end
 
 	assign read_command_bus_request_latched = ~read_buffer_status.alfull && ~read_buffer_status_internal.empty;
+	assign read_command_bus_request_pop     = ~read_buffer_status.alfull && read_command_bus_grant_latched;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -262,7 +264,7 @@ module cu_edge_data_read_command_control #(
 		.full    (read_buffer_status_internal.full        ),
 		.alFull  (read_buffer_status_internal.alfull      ),
 		
-		.pop     (read_command_bus_grant_latched          ),
+		.pop     (read_command_bus_request_pop            ),
 		.valid   (read_buffer_status_internal.valid       ),
 		.data_out(read_command_edge_data_burst_out_latched),
 		.empty   (read_buffer_status_internal.empty       )

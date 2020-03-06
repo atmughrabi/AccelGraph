@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-05 23:45:56
+// Revise : 2020-03-06 00:34:27
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -141,16 +141,20 @@ module cu_graph_algorithm_arbiter_control #(
 	logic [NUM_GRAPH_CU-1:0] write_data_1_out_cu_in_latched_submit                    ;
 
 
-	BufferStatus              vertex_buffer_status_internal                     ;
-	VertexInterface           vertex_job_buffer_out                             ;
-	VertexInterface           vertex_job_arbiter_in                             ;
-	logic [NUM_GRAPH_CU-1:0]  ready_vertex_job_cu                               ;
-	logic                     vertex_request_internal                           ;
-	logic [NUM_GRAPH_CU-1:0]  request_vertex_job_cu_internal                    ;
-	VertexInterface           vertex_job_latched                                ;
-	VertexInterface           vertex_job_cu_out_latched       [0:NUM_GRAPH_CU-1];
-	logic                     vertex_job_request_latched                        ;
-	logic [NUM_GRAPH_CU-1:0]  vertex_job_request_cu_in_latched                  ;
+	BufferStatus             vertex_buffer_status_internal                     ;
+	VertexInterface          vertex_job_buffer_out                             ;
+	VertexInterface          vertex_job_arbiter_in                             ;
+	logic [NUM_GRAPH_CU-1:0] ready_vertex_job_cu                               ;
+	logic                    vertex_request_internal                           ;
+	logic [NUM_GRAPH_CU-1:0] request_vertex_job_cu_internal                    ;
+	VertexInterface          vertex_job_latched                                ;
+	VertexInterface          vertex_job_cu_out_latched       [0:NUM_GRAPH_CU-1];
+	logic                    vertex_job_request_latched                        ;
+	logic [NUM_GRAPH_CU-1:0] vertex_job_request_cu_in_latched                  ;
+
+
+	logic read_command_bus_request_pop ;
+	logic write_command_bus_request_pop;
 
 
 	genvar i;
@@ -195,8 +199,8 @@ module cu_graph_algorithm_arbiter_control #(
 					read_data_1_cu_out[i].valid <= read_data_1_cu_out_latched[i].valid;
 					vertex_job_cu_out[i].valid <= vertex_job_cu_out_latched[i].valid;
 					cu_configure_out[i]<=cu_configure_out_latched[i];
-					read_command_bus_grant_cu_out[i] <= read_command_bus_grant_cu_out_latched[i];
-					write_command_bus_grant_cu_out[i] <= write_command_bus_grant_cu_out_latched[i];
+					read_command_bus_grant_cu_out[i] <= read_command_bus_grant_cu_out_latched[i] && ~read_buffer_status_cu_out_latched[i].alfull;
+					write_command_bus_grant_cu_out[i] <= write_command_bus_grant_cu_out_latched[i] && ~write_buffer_status_cu_out_latched[i].alfull;
 					read_buffer_status_cu_out[i] <= read_buffer_status_cu_out_latched[i];
 					write_buffer_status_cu_out[i] <= write_buffer_status_cu_out_latched[i];
 				end
@@ -509,13 +513,16 @@ module cu_graph_algorithm_arbiter_control #(
 			read_command_bus_request       <= 0;
 		end else begin
 			if(enabled) begin
-				read_command_bus_grant_latched <= read_command_bus_grant && ~read_buffer_status_latched.alfull;
+				read_command_bus_grant_latched <= read_command_bus_grant;
 				read_command_bus_request       <= read_command_bus_request_latched;
 			end
 		end
 	end
 
 	assign read_command_bus_request_latched = ~read_buffer_status_cu_out_internal.empty && ~read_buffer_status_latched.alfull;
+	assign read_command_bus_request_pop     = read_command_bus_grant_latched && ~read_buffer_status_latched.alfull;
+
+
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -529,7 +536,7 @@ module cu_graph_algorithm_arbiter_control #(
 		.full    (read_buffer_status_cu_out_internal.full  ),
 		.alFull  (read_buffer_status_cu_out_internal.alfull),
 		
-		.pop     (read_command_bus_grant_latched           ),
+		.pop     (read_command_bus_request_pop             ),
 		.valid   (read_buffer_status_cu_out_internal.valid ),
 		.data_out(read_command_out_latched                 ),
 		.empty   (read_buffer_status_cu_out_internal.empty )
@@ -583,13 +590,14 @@ module cu_graph_algorithm_arbiter_control #(
 			write_command_bus_request       <= 0;
 		end else begin
 			if(enabled) begin
-				write_command_bus_grant_latched <= write_command_bus_grant && ~write_buffer_status_latched.alfull;
+				write_command_bus_grant_latched <= write_command_bus_grant;
 				write_command_bus_request       <= write_command_bus_request_latched;
 			end
 		end
 	end
 
 	assign write_command_bus_request_latched = ~write_buffer_status_cu_out_internal.empty && ~write_buffer_status_latched.alfull;
+	assign write_command_bus_request_pop     = write_command_bus_grant_latched && ~write_buffer_status_latched.alfull;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -603,7 +611,7 @@ module cu_graph_algorithm_arbiter_control #(
 		.full    (write_buffer_status_cu_out_internal.full  ),
 		.alFull  (write_buffer_status_cu_out_internal.alfull),
 		
-		.pop     (write_command_bus_grant_latched           ),
+		.pop     (write_command_bus_request_pop             ),
 		.valid   (write_buffer_status_cu_out_internal.valid ),
 		.data_out(write_command_out_latched                 ),
 		.empty   (write_buffer_status_cu_out_internal.empty )

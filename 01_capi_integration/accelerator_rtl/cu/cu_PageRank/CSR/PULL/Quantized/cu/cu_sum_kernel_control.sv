@@ -51,6 +51,7 @@ module cu_sum_kernel_control #(
 	logic           edge_data_write_bus_grant_latched  ;
 	logic           edge_data_write_bus_request_latched;
 	BufferStatus    data_buffer_status_latch           ;
+	logic           edge_data_write_bus_request_pop    ;
 
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ;
@@ -212,6 +213,7 @@ module cu_sum_kernel_control #(
 	end
 
 	assign edge_data_write_bus_request_latched = ~edge_data_write_buffer_status.empty && ~write_buffer_status.alfull;
+	assign edge_data_write_bus_request_pop     = edge_data_write_bus_grant_latched && ~write_buffer_status.alfull;
 
 	fifo #(
 		.WIDTH($bits(EdgeDataWrite) ),
@@ -225,7 +227,7 @@ module cu_sum_kernel_control #(
 		.full    (edge_data_write_buffer_status.full  ),
 		.alFull  (edge_data_write_buffer_status.alfull),
 		
-		.pop     (edge_data_write_bus_grant_latched   ),
+		.pop     (edge_data_write_bus_request_pop     ),
 		.valid   (edge_data_write_buffer_status.valid ),
 		.data_out(edge_data_write_buffer              ),
 		.empty   (edge_data_write_buffer_status.empty )

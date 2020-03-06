@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-05 23:47:30
+// Revise : 2020-03-06 00:48:40
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -73,6 +73,9 @@ module cu_vertex_pagerank_arbiter_control #(
 
 	logic write_command_bus_grant_latched  ;
 	logic write_command_bus_request_latched;
+
+	logic read_command_bus_request_pop ;
+	logic write_command_bus_request_pop;
 
 	WEDInterface wed_request_in_latched                       ;
 	WEDInterface wed_request_in_internal                      ;
@@ -205,6 +208,8 @@ module cu_vertex_pagerank_arbiter_control #(
 					read_data_1_cu_out[i].valid <= 0;
 					edge_data_read_cu_out[i].valid <= 0;
 					vertex_job_cu_out[i].valid <= 0;
+					ready_edge_data_write_cu_out[i] <= 0;
+					ready_read_command_cu_out[i]    <= 0;
 				end else begin
 					read_response_cu_out[i].valid <= read_response_cu[i].valid ;
 					write_response_cu_out[i].valid <= write_response_cu[i].valid ;
@@ -212,6 +217,8 @@ module cu_vertex_pagerank_arbiter_control #(
 					read_data_1_cu_out[i].valid <= read_data_1_cu[i].valid ;
 					edge_data_read_cu_out[i].valid <= edge_data_read_cu[i].valid ;
 					vertex_job_cu_out[i].valid <= vertex_job_cu[i].valid ;
+					ready_edge_data_write_cu_out[i] <= ready_edge_data_write_cu[i] && ~burst_read_command_buffer_states_cu_out_latched[i].alfull;
+					ready_read_command_cu_out[i]    <= ready_read_command_cu[i] && ~burst_edge_data_write_cu_buffer_states_cu_out_latched[i].alfull;
 				end
 			end
 		end
@@ -233,23 +240,19 @@ module cu_vertex_pagerank_arbiter_control #(
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_command_out.valid       <= 0;
-			burst_edge_data_out.valid    <= 0;
-			enable_cu_out                <= 0;
-			ready_read_command_cu_out    <= 0;
-			ready_edge_data_write_cu_out <= 0;
-			vertex_job_counter_done_out  <= 0;
-			edge_job_counter_done_out    <= 0;
-			vertex_job_request           <= 0;
+			read_command_out.valid      <= 0;
+			burst_edge_data_out.valid   <= 0;
+			enable_cu_out               <= 0;
+			vertex_job_counter_done_out <= 0;
+			edge_job_counter_done_out   <= 0;
+			vertex_job_request          <= 0;
 		end else begin
-			read_command_out.valid       <= burst_read_command_buffer_out.valid;
-			burst_edge_data_out.valid    <= burst_edge_data_buffer_out.valid;
-			enable_cu_out                <= enable_cu;
-			ready_read_command_cu_out    <= ready_read_command_cu;
-			vertex_job_counter_done_out  <= vertex_job_counter_done;
-			edge_job_counter_done_out    <= edge_job_counter_done;
-			ready_edge_data_write_cu_out <= ready_edge_data_write_cu;
-			vertex_job_request           <= vertex_job_request_latched;
+			read_command_out.valid      <= burst_read_command_buffer_out.valid;
+			burst_edge_data_out.valid   <= burst_edge_data_buffer_out.valid;
+			enable_cu_out               <= enable_cu;
+			vertex_job_counter_done_out <= vertex_job_counter_done;
+			edge_job_counter_done_out   <= edge_job_counter_done;
+			vertex_job_request          <= vertex_job_request_latched;
 		end
 	end
 
@@ -499,13 +502,14 @@ module cu_vertex_pagerank_arbiter_control #(
 			read_command_bus_request       <= 0;
 		end else begin
 			if(enabled) begin
-				read_command_bus_grant_latched <= read_command_bus_grant && ~read_buffer_status_latched.alfull;
+				read_command_bus_grant_latched <= read_command_bus_grant;
 				read_command_bus_request       <= read_command_bus_request_latched;
 			end
 		end
 	end
 
 	assign read_command_bus_request_latched = ~burst_read_command_buffer_states_cu.empty && ~read_buffer_status_latched.alfull;
+	assign read_command_bus_request_pop     = read_command_bus_grant_latched && ~read_buffer_status_latched.alfull;
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
@@ -519,7 +523,7 @@ module cu_vertex_pagerank_arbiter_control #(
 		.full    (burst_read_command_buffer_states_cu.full  ),
 		.alFull  (burst_read_command_buffer_states_cu.alfull),
 		
-		.pop     (read_command_bus_grant_latched            ),
+		.pop     (read_command_bus_request_pop              ),
 		.valid   (burst_read_command_buffer_states_cu.valid ),
 		.data_out(burst_read_command_buffer_out             ),
 		.empty   (burst_read_command_buffer_states_cu.empty )
@@ -576,13 +580,14 @@ module cu_vertex_pagerank_arbiter_control #(
 			write_command_bus_request       <= 0;
 		end else begin
 			if(enabled) begin
-				write_command_bus_grant_latched <= write_command_bus_grant && ~write_buffer_status_latched.alfull;
+				write_command_bus_grant_latched <= write_command_bus_grant;
 				write_command_bus_request       <= write_command_bus_request_latched;
 			end
 		end
 	end
 
 	assign write_command_bus_request_latched = ~burst_edge_data_write_cu_buffer_states_cu.empty && ~write_buffer_status_latched.alfull;
+	assign write_command_bus_request_pop     = write_command_bus_grant_latched && ~write_buffer_status_latched.alfull;
 
 	fifo #(
 		.WIDTH($bits(EdgeDataWrite) ),
