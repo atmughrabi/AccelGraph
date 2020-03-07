@@ -20,8 +20,9 @@ import CU_PKG::*;
 
 
 module afu_control #(
-	parameter NUM_REQUESTS = 5 ,
-	parameter RSP_DELAY    = 10
+	parameter NUM_REQUESTS    = 5 ,
+	parameter RSP_DELAY       = 10,
+	parameter CREDIT_HEADROOM = 8
 ) (
 	input  logic                         clock                      , // Clock
 	input  logic                         rstn                       ,
@@ -443,20 +444,20 @@ module afu_control #(
 
 
 	restart_control restart_command_control_instant (
-		.clock                  (clock                            ),
-		.enabled_in             (enabled                          ),
-		.rstn                   (rstn                             ),
-		.command_outstanding_in (command_issue_register           ),
-		.command_tag_in         (command_tag_latched              ),
-		.restart_response_in    (restart_response_out             ),
-		.response_in            (response_filtered_restart_latched),
-		.response_tag_id_in     (response_tag_id                  ),
-		.credits_in             (credits.credits                  ),
-		.total_credits          (total_credits                    ),
-		.ready_restart_issue    (ready_restart_issue              ),
-		.restart_command_out    (restart_command_out              ),
-		.restart_command_flushed(restart_command_flushed          ),
-		.restart_pending        (restart_pending                  )
+		.clock                    (clock                            ),
+		.enabled_in               (enabled                          ),
+		.rstn                     (rstn                             ),
+		.command_outstanding_in   (command_issue_register           ),
+		.command_tag_in           (command_tag_latched              ),
+		.restart_response_in      (restart_response_out             ),
+		.response_in              (response_filtered_restart_latched),
+		.response_tag_id_in       (response_tag_id                  ),
+		.credits_in               (credits.credits                  ),
+		.total_credits            (total_credits                    ),
+		.ready_restart_issue      (ready_restart_issue              ),
+		.restart_command_issue_out(restart_command_out              ),
+		.restart_command_flushed  (restart_command_flushed          ),
+		.restart_pending          (restart_pending                  )
 	);
 
 
@@ -538,7 +539,7 @@ module afu_control #(
 			credit_overflow_error  <= 0;
 		end else begin
 			if(afu_config_ready) begin
-				total_credits          <= (command_in_latched.room);
+				total_credits          <= (command_in_latched.room-CREDIT_HEADROOM);
 				read_credits           <= (total_credits >> afu_configure_latched[0:3]);
 				write_credits          <= (total_credits >> afu_configure_latched[4:7]);
 				prefetch_read_credits  <= (total_credits >> afu_configure_latched[8:11]);
@@ -740,7 +741,7 @@ module afu_control #(
 
 	// logic request_pulse                            ;
 	// assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (|credits.credits) && ~(|request_pulse);
-	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (credits.credits > 3) && ~restart_pending;
+	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (credits.credits>CREDIT_HEADROOM) && ~restart_pending;
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
 		.DEPTH(BURST_CMD_BUFFER_SIZE   )

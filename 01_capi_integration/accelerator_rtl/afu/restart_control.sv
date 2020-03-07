@@ -20,19 +20,19 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module restart_control (
-	input                     clock                  , // Clock
-	input                     enabled_in             ,
-	input                     rstn                   , // Asynchronous reset active low
-	input  CommandBufferLine  command_outstanding_in ,
-	input  logic [0:7]        command_tag_in         ,
-	input  ResponseBufferLine restart_response_in    ,
-	input  ResponseInterface  response_in            ,
-	input  CommandTagLine     response_tag_id_in     ,
-	input  logic [0:7]        credits_in             ,
-	input  logic [0:7]        total_credits          ,
-	output logic              ready_restart_issue    ,
-	output CommandBufferLine  restart_command_out    ,
-	output logic              restart_command_flushed,
+	input                     clock                    , // Clock
+	input                     enabled_in               ,
+	input                     rstn                     , // Asynchronous reset active low
+	input  CommandBufferLine  command_outstanding_in   ,
+	input  logic [0:7]        command_tag_in           ,
+	input  ResponseBufferLine restart_response_in      ,
+	input  ResponseInterface  response_in              ,
+	input  CommandTagLine     response_tag_id_in       ,
+	input  logic [0:7]        credits_in               ,
+	input  logic [0:7]        total_credits            ,
+	output logic              ready_restart_issue      ,
+	output CommandBufferLine  restart_command_issue_out,
+	output logic              restart_command_flushed  ,
 	output logic              restart_pending
 );
 
@@ -48,21 +48,27 @@ module restart_control (
 	logic [0:7]       command_outstanding_wr_addr ;
 	logic [0:7]       command_outstanding_rd_addr ;
 
-	logic             restart_command_send                  ;
-	logic             restart_command_flag                  ;
-	logic             restart_command_flag_latched          ;
-	logic             restart_command_buffer_push           ;
-	logic             restart_command_buffer_pop            ;
-	CommandBufferLine restart_command_buffer_out            ;
-	CommandBufferLine restart_command_buffer_in             ;
-	BufferStatus      restart_command_buffer_status_internal;
-	psl_response_t    response_type_latched                 ;
+	logic                    restart_command_send                  ;
+	logic                    restart_command_flag                  ;
+	logic                    restart_command_flag_latched          ;
+	logic                    restart_command_buffer_push           ;
+	logic                    restart_command_buffer_pop            ;
+	CommandBufferLine        restart_command_buffer_out            ;
+	CommandBufferLine        restart_command_buffer_in             ;
+	CommandBufferLineRestart restart_command_out                   ;
+	CommandBufferLineRestart restart_command_issue_buffer_out      ;
+	BufferStatus             restart_command_buffer_status_internal;
+	psl_response_t           response_type_latched                 ;
+
+	BufferStatus restart_command_issue_buffer_status_internal;
+	logic        restart_command_issue_buffer_pop            ;
 
 	restart_state current_state, next_state;
 
-	logic is_restart_cmd      ;
-	logic is_restart_rsp_done ;
-	logic is_restart_rsp_flush;
+	logic       is_restart_cmd      ;
+	logic       is_restart_rsp_done ;
+	logic       is_restart_rsp_flush;
+	logic [0:2] counter_state       ;
 
 
 	////////////////////////////////////////////////////////////////////////////
@@ -92,38 +98,63 @@ module restart_control (
 		end
 	end
 
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			restart_command_issue_out.valid <= 0;
+			restart_command_flushed         <= 0;
+		end else begin
+			restart_command_issue_out.valid <= restart_command_issue_buffer_out.cmd.valid;
+			restart_command_flushed         <= restart_command_issue_buffer_out.flushed;
+		end
+	end
+
+	always_ff @(posedge clock) begin
+		restart_command_issue_out.payload <= restart_command_issue_buffer_out.cmd.payload;
+	end
+
 	////////////////////////////////////////////////////////////////////////////
 	//keep in check outstanding restart commands send;
 	////////////////////////////////////////////////////////////////////////////
 
-	assign is_restart_cmd       = (restart_command_out.valid && restart_command_out.payload.cmd.cmd_type == CMD_RESTART);
+	assign is_restart_cmd       = (restart_command_out.cmd.valid && restart_command_out.cmd.payload.cmd.cmd_type == CMD_RESTART);
 	assign is_restart_rsp_done  = (restart_response_in.valid);
 	assign is_restart_rsp_flush = (command_outstanding_rd_S2 && command_outstanding_data_out.payload.cmd.cmd_type == CMD_RESTART && command_outstanding_data_out.payload.cmd.cu_id_x == RESTART_ID);
+
+	assign counter_state[0] = is_restart_cmd;
+	assign counter_state[1] = is_restart_rsp_done ;
+	assign counter_state[2] = is_restart_rsp_flush;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			outstanding_restart_commands <= 0;
 		end else begin
-
-			if(is_restart_cmd && ~is_restart_rsp_done && ~is_restart_rsp_flush)
-				outstanding_restart_commands <= outstanding_restart_commands + 1;
-			else if(is_restart_cmd && is_restart_rsp_done && ~is_restart_rsp_flush)
-				outstanding_restart_commands <= outstanding_restart_commands;
-			else if(is_restart_cmd && ~is_restart_rsp_done && is_restart_rsp_flush)
-				outstanding_restart_commands <= outstanding_restart_commands;
-			else if(is_restart_cmd && is_restart_rsp_done && is_restart_rsp_flush)
-				outstanding_restart_commands <= outstanding_restart_commands - 1;
-			else if(~is_restart_cmd && is_restart_rsp_done && is_restart_rsp_flush)
-				outstanding_restart_commands <= outstanding_restart_commands - 2;
-			else if(~is_restart_cmd && ~is_restart_rsp_done && is_restart_rsp_flush)
-				outstanding_restart_commands <= outstanding_restart_commands - 1;
-			else if(~is_restart_cmd && is_restart_rsp_done && ~is_restart_rsp_flush)
-				outstanding_restart_commands <= outstanding_restart_commands - 1;
-			else if(~is_restart_cmd && ~is_restart_rsp_done && ~is_restart_rsp_flush)
-				outstanding_restart_commands <= outstanding_restart_commands;
-			else
-				outstanding_restart_commands <= outstanding_restart_commands ;
-
+			case (counter_state)
+				3'b100 : begin
+					outstanding_restart_commands <= outstanding_restart_commands + 1;
+				end
+				3'b110 : begin
+					outstanding_restart_commands <= outstanding_restart_commands;
+				end
+				3'b101 : begin
+					outstanding_restart_commands <= outstanding_restart_commands;
+				end
+				3'b111 : begin
+					outstanding_restart_commands <= outstanding_restart_commands - 1;
+				end
+				3'b011 : begin
+					outstanding_restart_commands <= outstanding_restart_commands - 2;
+				end
+				3'b001 : begin
+					outstanding_restart_commands <= outstanding_restart_commands - 1;
+				end
+				3'b010 : begin
+					outstanding_restart_commands <= outstanding_restart_commands - 1;
+				end
+				3'b000 : begin
+					outstanding_restart_commands <= outstanding_restart_commands;
+				end
+				default : outstanding_restart_commands <= outstanding_restart_commands ;
+			endcase
 		end
 	end
 
@@ -218,7 +249,6 @@ module restart_control (
 	assign restart_command_flag = response.valid && (response.response == PAGED || response.response == AERROR || response.response == DERROR) && (response_tag_id_in.abt == STRICT || response_tag_id_in.abt == PAGE || response_tag_id_in.abt == SPEC || response_tag_id_in.abt == PREF);
 
 
-
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn)
 			current_state <= RESTART_RESET;
@@ -257,7 +287,7 @@ module restart_control (
 			RESTART_RESP_WAIT : begin
 				if(restart_command_flag)
 					next_state = RESTART_INIT;
-				else if(~restart_command_out.valid && ~(|outstanding_restart_commands))
+				else if(~restart_command_out.cmd.valid && ~(|outstanding_restart_commands))
 					next_state = RESTART_SEND_CMD_FLUSHED;
 				else
 					next_state = RESTART_RESP_WAIT;
@@ -289,18 +319,18 @@ module restart_control (
 	always_ff @(posedge clock) begin
 		case (current_state)
 			RESTART_RESET : begin
-				ready_restart_issue       <= 0;
-				restart_command_out.valid <= 0;
-				restart_pending           <= 0;
-				restart_command_send      <= 0;
-				restart_command_flushed   <= 0;
+				ready_restart_issue           <= 0;
+				restart_command_out.cmd.valid <= 0;
+				restart_pending               <= 0;
+				restart_command_send          <= 0;
+				restart_command_out.flushed   <= 0;
 			end
 			RESTART_IDLE : begin
-				ready_restart_issue       <= 0;
-				restart_command_out.valid <= 0;
-				restart_pending           <= 0;
-				restart_command_send      <= 0;
-				restart_command_flushed   <= 0;
+				ready_restart_issue           <= 0;
+				restart_command_out.cmd.valid <= 0;
+				restart_pending               <= 0;
+				restart_command_send          <= 0;
+				restart_command_out.flushed   <= 0;
 			end
 			RESTART_INIT : begin
 				ready_restart_issue  <= 1;
@@ -308,46 +338,46 @@ module restart_control (
 				restart_command_send <= 0;
 
 				if(restart_command_buffer_out.valid) begin
-					restart_command_out                 <= restart_command_buffer_out;
-					restart_command_out.payload.abt     <= STRICT;
-					restart_command_out.payload.cmd.abt <= STRICT;
-					restart_command_flushed             <= restart_command_buffer_out.valid;
+					restart_command_out.cmd                 <= restart_command_buffer_out;
+					restart_command_out.cmd.payload.abt     <= STRICT;
+					restart_command_out.cmd.payload.cmd.abt <= STRICT;
+					restart_command_out.flushed             <= restart_command_buffer_out.valid;
 				end else begin
-					restart_command_out     <= 0;
-					restart_command_flushed <= 0;
+					restart_command_out.cmd.valid <= 0;
+					restart_command_out.flushed   <= 0;
 				end
 
 			end
 			RESTART_SEND_CMD : begin
-				restart_command_out                      <= command_outstanding_data_out;
-				restart_command_out.payload.command      <= RESTART;
-				restart_command_out.payload.abt          <= STRICT;
-				restart_command_out.payload.cmd.abt      <= STRICT;
-				restart_command_out.payload.cmd.cmd_type <= CMD_RESTART;
-				restart_command_out.payload.cmd.cu_id_x  <= RESTART_ID;
-				restart_command_out.payload.cmd.cu_id_y  <= RESTART_ID;
-				restart_command_flushed                  <= 0;
-				restart_command_send                     <= 0;
+				restart_command_out.cmd                      <= command_outstanding_data_out;
+				restart_command_out.cmd.payload.command      <= RESTART;
+				restart_command_out.cmd.payload.abt          <= STRICT;
+				restart_command_out.cmd.payload.cmd.abt      <= STRICT;
+				restart_command_out.cmd.payload.cmd.cmd_type <= CMD_RESTART;
+				restart_command_out.cmd.payload.cmd.cu_id_x  <= RESTART_ID;
+				restart_command_out.cmd.payload.cmd.cu_id_y  <= RESTART_ID;
+				restart_command_out.flushed                  <= 0;
+				restart_command_send                         <= 0;
 			end
 			RESTART_RESP_WAIT : begin
-				restart_command_out.valid <= 0;
-				restart_command_flushed   <= 0;
+				restart_command_out.cmd.valid <= 0;
+				restart_command_out.flushed   <= 0;
 			end
 			RESTART_SEND_CMD_FLUSHED : begin
 				if(~restart_command_buffer_status_internal.empty) begin
-					restart_command_out             <= restart_command_buffer_out;
-					restart_command_out.payload.abt <= STRICT;
-					restart_command_flushed         <= restart_command_buffer_out.valid;
-					restart_command_send            <= 1;
+					restart_command_out.cmd             <= restart_command_buffer_out;
+					restart_command_out.cmd.payload.abt <= STRICT;
+					restart_command_out.flushed         <= restart_command_buffer_out.valid;
+					restart_command_send                <= 1;
 				end else begin
-					restart_command_out.valid <= 0;
-					restart_command_flushed   <= 0;
-					restart_command_send      <= 0;
+					restart_command_out.cmd.valid <= 0;
+					restart_command_out.flushed   <= 0;
+					restart_command_send          <= 0;
 				end
 			end
 			RESTART_DONE : begin
-				restart_command_out.valid <= 0;
-				restart_command_send      <= 0;
+				restart_command_out.cmd.valid <= 0;
+				restart_command_send          <= 0;
 			end
 		endcase
 	end
@@ -392,6 +422,26 @@ module restart_control (
 		.valid   (restart_command_buffer_status_internal.valid ),
 		.data_out(restart_command_buffer_out                   ),
 		.empty   (restart_command_buffer_status_internal.empty )
+	);
+
+	assign restart_command_issue_buffer_pop = ~restart_command_issue_buffer_status_internal.empty && restart_pending && (|total_credit_count);
+
+	fifo #(
+		.WIDTH($bits(CommandBufferLineRestart)),
+		.DEPTH(CREDITS_TOTAL                  )
+	) restart_command_issue_buffer_fifo_instant (
+		.clock   (clock                                              ),
+		.rstn    (rstn                                               ),
+		
+		.push    (restart_command_out.cmd.valid                      ),
+		.data_in (restart_command_out                                ),
+		.full    (restart_command_issue_buffer_status_internal.full  ),
+		.alFull  (restart_command_issue_buffer_status_internal.alfull),
+		
+		.pop     (restart_command_issue_buffer_pop                   ),
+		.valid   (restart_command_issue_buffer_status_internal.valid ),
+		.data_out(restart_command_issue_buffer_out                   ),
+		.empty   (restart_command_issue_buffer_status_internal.empty )
 	);
 
 endmodule
