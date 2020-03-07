@@ -29,7 +29,7 @@
 #define Fixed64ToDouble(num)	((double)(num) / (double)((uint64_t)(1)<<SCALED))
 
 #define Fixed32ToFloat(num)	((float)(num) / (float)((uint32_t)(1)<<SCALEF))
-#define Fixed64ToFloat(num)	((float)(num) / (float)((uint64_t)(1)<<SCALED))
+#define Fixed64ToFloat(num)	((float)(num) / (float)((uint64_t)(1)<<SCALEF))
 
 #define UInt32ToFixed32(num)	((uint32_t) (num)<<SCALEF)
 #define UInt64ToFixed32(num)	((uint64_t) (num)<<SCALEF)

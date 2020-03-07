@@ -97,7 +97,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 2
+export PULL_PUSH 		= 9
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -283,7 +283,8 @@ clean-obj:
 	$(MAKE) clean-obj $(MAKE_ARGS)
 
 .PHONY: clean-all
-clean-all: clean clean-sim clean-synth 
+clean-all: clean clean-sim clean-synth-all 
+	@rm -f $(APP_DIR)/nohup.out
 
 ##################################################
 ##################################################
