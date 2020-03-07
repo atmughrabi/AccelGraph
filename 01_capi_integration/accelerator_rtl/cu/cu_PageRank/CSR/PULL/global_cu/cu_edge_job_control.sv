@@ -209,10 +209,8 @@ module cu_edge_job_control #(
 		end
 	end
 
-	always_ff @(posedge clock ) begin
-		if(read_vertex)begin
-			vertex_job_latched.payload <= vertex_job.payload;
-		end
+	always_ff @(posedge clock) begin
+		vertex_job_latched.payload <= vertex_job.payload;
 	end
 
 	always_comb begin
@@ -606,7 +604,7 @@ module cu_edge_job_control #(
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
+	always_ff @(posedge clock) begin
 		edge_variable.payload.id   <= edge_id_counter;
 		edge_variable.payload.src  <= vertex_job_latched.payload.id;
 		edge_variable.payload.dest <= swap_endianness_edge_read(inverse_edge_array_dest_data);

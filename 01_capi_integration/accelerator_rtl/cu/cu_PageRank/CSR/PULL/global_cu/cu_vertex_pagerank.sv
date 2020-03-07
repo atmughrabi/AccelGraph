@@ -47,14 +47,10 @@ module cu_vertex_pagerank #(
 	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter         ,
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter
 );
-
-
-
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_in              ;
-	logic                          read_command_bus_grant_latched     ;
-	logic                          read_command_bus_request_latched   ;
-	logic                          edge_data_write_bus_grant_latched  ;
-	logic                          edge_data_write_bus_request_latched;
+	logic read_command_bus_grant_latched     ;
+	logic read_command_bus_request_latched   ;
+	logic edge_data_write_bus_grant_latched  ;
+	logic edge_data_write_bus_request_latched;
 
 	BufferStatus read_buffer_status_latched ;
 	BufferStatus write_buffer_status_latched;
@@ -568,20 +564,6 @@ module cu_vertex_pagerank #(
 			if(enabled_cmd) begin
 				edge_data_write_bus_grant_latched <= edge_data_write_bus_grant;
 				edge_data_write_bus_request       <= edge_data_write_bus_request_latched;
-			end
-		end
-	end
-
-	////////////////////////////////////////////////////////////////////////////
-	// Vretex job burst guard
-	////////////////////////////////////////////////////////////////////////////
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			vertex_num_counter_in <= 0;
-		end else begin
-			if(enabled)begin
-				vertex_num_counter_in <= vertex_num_counter_in + vertex_job_burst_in.valid;
 			end
 		end
 	end

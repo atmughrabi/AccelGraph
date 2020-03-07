@@ -32,13 +32,13 @@ module write_data_control (
   logic tag_parity     ;
   logic tag_parity_link;
 
-  logic       enable_errors   ;
-  logic       detected_errors ;
-  logic       tag_parity_error;
-  logic [0:3] read_latency    ;
-  ReadWriteDataLine write_data_0_in_latched    ;
-  ReadWriteDataLine write_data_1_in_latched    ;
-  logic [0:7]       command_tag_in_latched     ;
+  logic             enable_errors          ;
+  logic             detected_errors        ;
+  logic             tag_parity_error       ;
+  logic [0:3]       read_latency           ;
+  ReadWriteDataLine write_data_0_in_latched;
+  ReadWriteDataLine write_data_1_in_latched;
+  logic [0:7]       command_tag_in_latched ;
 
   logic [0:7] buffer_out_read_parity;
 
@@ -99,14 +99,10 @@ module write_data_control (
       read_tag     <= 0;
       read_address <= 0;
     end else begin
-      if(buffer_in.read_valid && enabled) begin
+      if(enabled) begin
         read_valid   <= buffer_in.read_valid;
         read_tag     <= buffer_in.read_tag;
         read_address <= buffer_in.read_address;
-      end else begin
-        read_valid   <= 0;
-        read_tag     <= 0;
-        read_address <= 0;
       end
     end
   end
@@ -135,10 +131,8 @@ module write_data_control (
     if(~rstn) begin
       tag_parity <= odd_parity;
     end else begin
-      if(enabled && buffer_in.read_valid) begin
+      if(enabled) begin
         tag_parity <= buffer_in.read_tag_parity;
-      end else begin
-        tag_parity <= odd_parity;
       end
     end
   end
@@ -152,38 +146,31 @@ module write_data_control (
 ////////////////////////////////////////////////////////////////////////////
 //Ram Data each hold half cache line
 ////////////////////////////////////////////////////////////////////////////
-// uncomment for latency 4 cycles
+// latency 4 cycles
   assign read_latency = 4'h3;
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn)
       write_data <= ~0;
     else begin
-      if(~(|read_address) && read_valid)
-        write_data <= write_data_0_out.payload.data;
-      else if((|read_address) && read_valid)
-        write_data <= write_data_1_out.payload.data;
-      else
-        write_data <= ~0;
+      if(read_valid) begin
+        case (read_address)
+          6'h00 : begin
+            write_data <= write_data_0_out.payload.data;
+          end
+          6'h01 : begin
+            write_data <= write_data_1_out.payload.data;
+          end
+        endcase
+      end
     end
   end
 
   always_ff @(posedge clock) begin
-    buffer_out.read_latency <= read_latency;
-    buffer_out.read_parity  <= buffer_out_read_parity;
-    buffer_out.read_data    <= write_data;
+      buffer_out.read_latency <= read_latency;
+      buffer_out.read_parity  <= buffer_out_read_parity;
+      buffer_out.read_data    <= write_data;
   end
-
-// uncomment for latency 1 cycles
-  // assign buffer_out.read_latency = 4'h1;
-  // always_comb begin
-  //   if(~(|read_address) && read_valid)
-  //     buffer_out.read_data = write_data_0_out.data;
-  //   else if((|read_address) && read_valid)
-  //     buffer_out.read_data = write_data_1_out.data;
-  //   else
-  //     buffer_out.read_data = ~0;
-  // end
 
   ram #(
     .WIDTH($bits(ReadWriteDataLine)),

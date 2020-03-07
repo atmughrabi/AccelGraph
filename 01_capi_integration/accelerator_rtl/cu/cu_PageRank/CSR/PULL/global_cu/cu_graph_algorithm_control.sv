@@ -142,7 +142,6 @@ module cu_graph_algorithm_control #(
 			vertex_job_request      <= 0;
 			vertex_job_counter_done <= 0;
 			edge_job_counter_done   <= 0;
-
 			read_command_bus_request  <= 0;
 			write_command_bus_request <= 0;
 		end else begin
@@ -153,7 +152,6 @@ module cu_graph_algorithm_control #(
 			vertex_job_request      <= vertex_job_request_latched;
 			vertex_job_counter_done <= vertex_job_counter_done_latched;
 			edge_job_counter_done   <= edge_job_counter_done_latched;
-
 			read_command_bus_request  <= read_command_bus_request_latched;
 			write_command_bus_request <= write_command_bus_request_latched;
 		end

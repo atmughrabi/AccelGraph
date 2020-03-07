@@ -457,9 +457,6 @@ module cu_control #(
 	assign submit[0] = read_command_buffer_arbiter_in[0].valid;
 	assign submit[1] = read_command_buffer_arbiter_in[1].valid;
 
-	assign read_command_buffer_arbiter_out_cu0 = read_command_buffer_arbiter_in[0];
-	assign read_command_buffer_arbiter_out_cu1 = read_command_buffer_arbiter_in[1];
-
 	round_robin_priority_arbiter_N_input_1_ouput #(
 		.NUM_REQUESTS(NUM_READ_REQUESTS       ),
 		.WIDTH       ($bits(CommandBufferLine))

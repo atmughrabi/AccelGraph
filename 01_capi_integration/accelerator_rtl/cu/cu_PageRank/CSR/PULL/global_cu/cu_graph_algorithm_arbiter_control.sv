@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-06 00:34:27
+// Revise : 2020-03-06 06:27:30
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
