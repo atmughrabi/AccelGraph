@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-06 06:27:30
+// Revise : 2020-03-07 06:12:53
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -210,13 +210,22 @@ module cu_graph_algorithm_arbiter_control #(
 
 	generate
 		for ( i = 0; i < (NUM_GRAPH_CU); i++) begin : generate_cu_graph_algorithm_output_logic
-			always_ff @(posedge clock) begin
-				cu_wed_request_out[i].payload <= cu_wed_request_out_latched[i].payload;
-				read_response_cu_out[i].payload <= read_response_cu_out_latched[i].payload;
-				write_response_cu_out[i].payload <= write_response_cu_out_latched[i].payload;
-				read_data_0_cu_out[i].payload <= read_data_0_cu_out_latched[i].payload;
-				read_data_1_cu_out[i].payload <= read_data_1_cu_out_latched[i].payload;
-				vertex_job_cu_out[i].payload <= vertex_job_cu_out_latched[i].payload;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					cu_wed_request_out[i].payload <=0;
+					read_response_cu_out[i].payload <= 0;
+					write_response_cu_out[i].payload <=0;
+					read_data_0_cu_out[i].payload <= 0;
+					read_data_1_cu_out[i].payload <= 0;
+					vertex_job_cu_out[i].payload <= 0;
+				end else begin
+					cu_wed_request_out[i].payload <= cu_wed_request_out_latched[i].payload;
+					read_response_cu_out[i].payload <= read_response_cu_out_latched[i].payload;
+					write_response_cu_out[i].payload <= write_response_cu_out_latched[i].payload;
+					read_data_0_cu_out[i].payload <= read_data_0_cu_out_latched[i].payload;
+					read_data_1_cu_out[i].payload <= read_data_1_cu_out_latched[i].payload;
+					vertex_job_cu_out[i].payload <= vertex_job_cu_out_latched[i].payload;
+				end
 			end
 		end
 	endgenerate
@@ -243,11 +252,18 @@ module cu_graph_algorithm_arbiter_control #(
 		end
 	end
 
-	always_ff @(posedge clock) begin
-		read_command_out.payload  <= read_command_out_latched.payload;
-		write_command_out.payload <= write_command_out_latched.payload;
-		write_data_0_out.payload  <= write_data_0_out_latched.payload;
-		write_data_1_out.payload  <= write_data_1_out_latched.payload;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_command_out.payload  <= 0;
+			write_command_out.payload <= 0;
+			write_data_0_out.payload  <= 0;
+			write_data_1_out.payload  <= 0;
+		end else begin
+			read_command_out.payload  <= read_command_out_latched.payload;
+			write_command_out.payload <= write_command_out_latched.payload;
+			write_data_0_out.payload  <= write_data_0_out_latched.payload;
+			write_data_1_out.payload  <= write_data_1_out_latched.payload;
+		end
 	end
 
 	////////////////////////////////////////////////////////////////////////////
@@ -284,11 +300,18 @@ module cu_graph_algorithm_arbiter_control #(
 
 	generate
 		for ( i = 0; i < (NUM_GRAPH_CU); i++) begin : generate_cu_graph_algorithm_input_logic
-			always_ff @(posedge clock) begin
-				read_command_out_cu_in_latched[i].payload <= 	read_command_out_cu_in[i].payload;
-				write_command_out_cu_in_latched[i].payload <= 	write_command_out_cu_in[i].payload;
-				write_data_0_out_cu_in_latched[i].payload <= 	write_data_0_out_cu_in[i].payload;
-				write_data_1_out_cu_in_latched[i].payload <= 	write_data_1_out_cu_in[i].payload;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					read_command_out_cu_in_latched[i].payload <= 	0;
+					write_command_out_cu_in_latched[i].payload <= 	0;
+					write_data_0_out_cu_in_latched[i].payload <= 	0;
+					write_data_1_out_cu_in_latched[i].payload <= 	0;
+				end else begin
+					read_command_out_cu_in_latched[i].payload <= 	read_command_out_cu_in[i].payload;
+					write_command_out_cu_in_latched[i].payload <= 	write_command_out_cu_in[i].payload;
+					write_data_0_out_cu_in_latched[i].payload <= 	write_data_0_out_cu_in[i].payload;
+					write_data_1_out_cu_in_latched[i].payload <= 	write_data_1_out_cu_in[i].payload;
+				end
 			end
 		end
 	endgenerate
@@ -320,13 +343,22 @@ module cu_graph_algorithm_arbiter_control #(
 		end
 	end
 
-	always_ff @(posedge clock) begin
-		vertex_job_latched.payload        <= vertex_job.payload;
-		wed_request_in_latched.payload    <= wed_request_in.payload;
-		read_response_in_latched.payload  <= read_response_in.payload;
-		write_response_in_latched.payload <= write_response_in.payload;
-		read_data_0_in_latched.payload    <= read_data_0_in.payload;
-		read_data_1_in_latched.payload    <= read_data_1_in.payload;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			vertex_job_latched.payload        <= 0;
+			wed_request_in_latched.payload    <= 0;
+			read_response_in_latched.payload  <= 0;
+			write_response_in_latched.payload <= 0;
+			read_data_0_in_latched.payload    <= 0;
+			read_data_1_in_latched.payload    <= 0;
+		end else begin
+			vertex_job_latched.payload        <= vertex_job.payload;
+			wed_request_in_latched.payload    <= wed_request_in.payload;
+			read_response_in_latched.payload  <= read_response_in.payload;
+			write_response_in_latched.payload <= write_response_in.payload;
+			read_data_0_in_latched.payload    <= read_data_0_in.payload;
+			read_data_1_in_latched.payload    <= read_data_1_in.payload;
+		end
 	end
 
 	////////////////////////////////////////////////////////////////////////////

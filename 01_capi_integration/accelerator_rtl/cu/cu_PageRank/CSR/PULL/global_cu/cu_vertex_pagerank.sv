@@ -570,7 +570,7 @@ module cu_vertex_pagerank #(
 
 	fifo #(
 		.WIDTH($bits(VertexInterface)),
-		.DEPTH(16                    )
+		.DEPTH(32                    )
 	) vertex_job_burst_in_buffer_fifo_instant (
 		.clock   (clock                               ),
 		.rstn    (rstn                                ),
