@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : demux_bus.sv
 // Create : 2020-02-21 19:20:47
-// Revise : 2020-03-02 06:47:08
+// Revise : 2020-03-08 18:16:21
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -61,18 +61,18 @@ module demux_bus #(
 		end
 	end
 
-	always_ff @(posedge clock) begin
-		data_in_internal <= data_in;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			data_in_internal <= 0;
+		end else begin
+			data_in_internal <= data_in;
+		end
 	end
 
 	always_ff @(posedge clock) begin
 		data_in_latched <= data_in_internal;
 	end
 
-	always_ff @(posedge clock) begin
-		data_out       <= data_out_latched;
-		data_out_valid <= data_out_valid_latched;
-	end
 
 	////////////////////////////////////////////////////////////////////////////
 	//demux logic
@@ -95,9 +95,19 @@ module demux_bus #(
 			always_ff @(posedge clock) begin
 				data_out_internal[i] <= data_in_latched;
 			end
+
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					data_out[i]       <= 0;
+					data_out_valid[i] <= 0;
+				end else begin
+					data_out[i]       <= data_out_latched[i];
+					data_out_valid[i] <= data_out_valid_latched[i];
+				end
+			end
 		end
 	endgenerate
-	
+
 	always_ff @(posedge clock) begin
 		data_out_valid_latched <= data_out_valid_internal;
 		data_out_latched       <= data_out_internal;

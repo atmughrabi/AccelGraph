@@ -58,8 +58,9 @@ module cu_vertex_pagerank #(
 	BufferStatus write_buffer_status_latched;
 
 // vertex control variables
-	logic           vertex_job_request_send;
-	VertexInterface vertex_job_latched     ;
+	logic           vertex_job_request_send    ;
+	VertexInterface vertex_job_latched         ;
+	VertexInterface vertex_job_internal_latched;
 
 	logic [0:63] cu_configure_latched ;
 	logic [0:63] cu_configure_internal;
@@ -68,7 +69,8 @@ module cu_vertex_pagerank #(
 	BufferStatus    vertex_buffer_status_internal;
 	VertexInterface vertex_job_burst_in          ;
 
-	VertexInterface vertex_job_burst_out;
+	VertexInterface vertex_job_burst_out        ;
+	VertexInterface vertex_job_burst_out_latched;
 
 	//output latched
 	CommandBufferLine read_command_out_latched;
@@ -330,8 +332,18 @@ module cu_vertex_pagerank #(
 	end
 
 
-	assign vertex_request_internal = (~vertex_buffer_status_internal.empty) && (~processing_vertex) && ~vertex_job_latched.valid;
+	assign vertex_request_internal = (~vertex_buffer_status_internal.empty) && (~processing_vertex) && ~vertex_job_latched.valid && ~vertex_job_burst_out.valid;
 	assign vertex_job_request_send = vertex_buffer_status_internal.empty;
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			vertex_job_burst_out        <= 0;
+			vertex_job_internal_latched <= 0;
+		end else begin
+			vertex_job_burst_out        <= vertex_job_burst_out_latched;
+			vertex_job_internal_latched <= vertex_job_latched;
+		end
+	end
 
 	////////////////////////////////////////////////////////////////////////////
 	// Edge job control
@@ -351,7 +363,7 @@ module cu_vertex_pagerank #(
 		.read_data_1_in          (read_data_1_in_edge_job     ),
 		.read_buffer_status      (read_buffer_status_latched  ),
 		.edge_request            (edge_request                ),
-		.vertex_job              (vertex_job_latched          ),
+		.vertex_job              (vertex_job_internal_latched ),
 		.read_command_bus_grant  (ready[0]                    ),
 		.read_command_bus_request(requests[0]                 ),
 		.read_command_out        (read_command_edge_job_buffer),
@@ -403,7 +415,7 @@ module cu_vertex_pagerank #(
 		.edge_data_write_bus_grant           (edge_data_write_bus_grant_latched  ),
 		.edge_data_write_bus_request         (edge_data_write_bus_request_latched),
 		.edge_data_write_out                 (edge_data_write_out_internal       ),
-		.vertex_job                          (vertex_job_latched                 ),
+		.vertex_job                          (vertex_job_internal_latched        ),
 		.vertex_num_counter_resp_out         (vertex_num_counter_resp            ),
 		.edge_data_counter_accum_out         (edge_data_counter_accum            ),
 		.edge_data_counter_accum_internal_out(edge_data_counter_accum_internal   )
@@ -588,9 +600,8 @@ module cu_vertex_pagerank #(
 		
 		.pop     (vertex_request_internal             ),
 		.valid   (vertex_buffer_status_internal.valid ),
-		.data_out(vertex_job_burst_out                ),
+		.data_out(vertex_job_burst_out_latched        ),
 		.empty   (vertex_buffer_status_internal.empty )
 	);
-
 
 endmodule

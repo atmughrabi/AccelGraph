@@ -92,7 +92,6 @@ module cu_edge_job_control #(
 	logic [0:(EDGE_SIZE_BITS-1)] edge_num_counter     ;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_id_counter      ;
 	logic                        generate_read_command;
-	logic                        setup_read_command   ;
 	EdgeInterface                edge_variable        ;
 	logic [                 0:7] remainder            ;
 	logic [                0:63] aligned              ;
@@ -313,7 +312,6 @@ module cu_edge_job_control #(
 				read_command_edge_job_latched.valid <= 0;
 				edge_next_offest                    <= 0;
 				generate_read_command               <= 0;
-				setup_read_command                  <= 0;
 				clear_data_ready                    <= 1;
 				shift_limit_clear                   <= 1;
 				start_shift_hf_0                    <= 0;
@@ -328,7 +326,6 @@ module cu_edge_job_control #(
 				read_command_edge_job_latched.valid <= 0;
 				clear_data_ready                    <= 0;
 				shift_limit_clear                   <= 0;
-				setup_read_command                  <= read_vertex_new_latched;
 				if(read_vertex_new_latched)begin
 					edge_next_offest <= (vertex_job_latched.payload.inverse_edges_idx << $clog2(EDGE_SIZE));
 				end
@@ -336,7 +333,6 @@ module cu_edge_job_control #(
 			SEND_EDGE_IDLE : begin
 				done_vertex_edge_processing         <= 0;
 				read_command_edge_job_latched.valid <= 0;
-				setup_read_command                  <= 0;
 				shift_limit_clear                   <= 0;
 				shift_counter                       <= 0;
 				remainder                           <= (edge_next_offest & ADDRESS_EDGE_MOD_MASK);
