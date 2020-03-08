@@ -25,7 +25,7 @@ module cu_vertex_pagerank #(
 	parameter NUM_REQUESTS = 2
 ) (
 	input  logic                          clock                      , // Clock
-	input  logic                          rstn                       ,
+	input  logic                          rstn_in                    ,
 	input  logic                          enabled_in                 ,
 	input  WEDInterface                   wed_request_in             ,
 	input  logic [                  0:63] cu_configure               ,
@@ -47,6 +47,8 @@ module cu_vertex_pagerank #(
 	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter         ,
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter
 );
+
+	logic rstn                               ;
 	logic read_command_bus_grant_latched     ;
 	logic read_command_bus_request_latched   ;
 	logic edge_data_write_bus_grant_latched  ;
@@ -126,6 +128,10 @@ module cu_vertex_pagerank #(
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock) begin
+		rstn <= rstn_in;
+	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin

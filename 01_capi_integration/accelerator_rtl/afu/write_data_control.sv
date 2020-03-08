@@ -72,9 +72,14 @@ module write_data_control (
     end
   end
 
-  always_ff @(posedge clock) begin
-    write_data_0_in_latched.payload <= write_data_0_in.payload;
-    write_data_1_in_latched.payload <= write_data_1_in.payload;
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      write_data_0_in_latched.payload <= ~0;
+      write_data_1_in_latched.payload <= ~0;
+    end else begin
+      write_data_0_in_latched.payload <= write_data_0_in.payload;
+      write_data_1_in_latched.payload <= write_data_1_in.payload;
+    end
   end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -166,10 +171,16 @@ module write_data_control (
     end
   end
 
-  always_ff @(posedge clock) begin
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      buffer_out.read_latency <= read_latency;
+      buffer_out.read_parity  <= odd_parity;
+      buffer_out.read_data    <= ~0;
+    end else begin
       buffer_out.read_latency <= read_latency;
       buffer_out.read_parity  <= buffer_out_read_parity;
       buffer_out.read_data    <= write_data;
+    end
   end
 
   ram #(

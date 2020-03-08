@@ -259,10 +259,17 @@ module cu_control #(
 
 
 	always_ff @(posedge clock) begin
-		write_command_out.payload <= write_command_out_graph_algorithm.payload ;
-		write_data_0_out.payload  <= write_data_0_out_graph_algorithm.payload ;
-		write_data_1_out.payload  <= write_data_1_out_graph_algorithm.payload ;
-		read_command_out.payload  <= read_command_buffer_arbiter_out.payload ;
+		if(~rstn) begin
+			write_command_out.payload <= 0 ;
+			write_data_0_out.payload  <= 0 ;
+			write_data_1_out.payload  <= 0 ;
+			read_command_out.payload  <= 0 ;
+		end else begin
+			write_command_out.payload <= write_command_out_graph_algorithm.payload ;
+			write_data_0_out.payload  <= write_data_0_out_graph_algorithm.payload ;
+			write_data_1_out.payload  <= write_data_1_out_graph_algorithm.payload ;
+			read_command_out.payload  <= read_command_buffer_arbiter_out.payload ;
+		end
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -288,11 +295,19 @@ module cu_control #(
 	end
 
 	always_ff @(posedge clock) begin
-		wed_request_in_latched.payload            <= wed_request_in.payload;
-		read_response_in_latched.payload          <= read_response_in.payload;
-		write_response_in_graph_algorithm.payload <= write_response_in.payload;
-		read_data_0_in_latched.payload            <= read_data_0_in.payload;
-		read_data_1_in_latched.payload            <= read_data_1_in.payload;
+		if(~rstn) begin
+			wed_request_in_latched.payload            <= 0;
+			read_response_in_latched.payload          <= 0;
+			write_response_in_graph_algorithm.payload <= 0;
+			read_data_0_in_latched.payload            <= 0;
+			read_data_1_in_latched.payload            <= 0;
+		end else begin
+			wed_request_in_latched.payload            <= wed_request_in.payload;
+			read_response_in_latched.payload          <= read_response_in.payload;
+			write_response_in_graph_algorithm.payload <= write_response_in.payload;
+			read_data_0_in_latched.payload            <= read_data_0_in.payload;
+			read_data_1_in_latched.payload            <= read_data_1_in.payload;
+		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
