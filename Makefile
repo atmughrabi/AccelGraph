@@ -97,7 +97,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 4
+export PULL_PUSH 		= 2
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -175,7 +175,7 @@ export CU_CONFIG_MODE=0x00000000
 # FIXED_ARB               [62]
 # ROUND_ROBIN_ARB         [63]
 
-export ROUND_ROBIN_ARB=0x1111000000000001
+export ROUND_ROBIN_ARB=0x5111000000000001
 export FIXED_ARB=0x1111000000000002
 
 ##############################################
