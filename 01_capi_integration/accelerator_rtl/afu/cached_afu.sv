@@ -55,7 +55,6 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   logic                           reset_afu_soft         ;
   logic                           cu_done                ;
 
-  logic combined_reset_afu;
   logic reset_done        ;
   logic cu_return_done_ack;
 
@@ -96,7 +95,6 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
   always_ff @(posedge clock) begin
     reset_afu_internal      <= reset_afu ;
     reset_afu_soft_internal <= reset_afu_soft;
-    combined_reset_afu      <= reset_afu_internal & reset_afu_soft_internal;
   end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -210,7 +208,8 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
 
   cu_control cu_control_instant (
     .clock                       (clock                                      ),
-    .rstn                        (combined_reset_afu                         ),
+    .hard_rstn                   (reset_afu_internal                         ),
+    .soft_rstn                   (reset_afu_soft_internal                    ),
     .enabled_in                  (enabled                                    ),
     .wed_request_in              (wed                                        ),
     .read_response_in            (read_response_out                          ),

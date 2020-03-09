@@ -20,12 +20,14 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_control #(
-	parameter NUM_READ_REQUESTS = 2                   ,
-	parameter NUM_GRAPH_CU      = NUM_GRAPH_CU_GLOBAL ,
-	parameter NUM_VERTEX_CU     = NUM_VERTEX_CU_GLOBAL
+	parameter NUM_READ_REQUESTS   = 2                   ,
+	parameter NUM_EXTERNAL_RESETS = 2                   ,
+	parameter NUM_GRAPH_CU        = NUM_GRAPH_CU_GLOBAL ,
+	parameter NUM_VERTEX_CU       = NUM_VERTEX_CU_GLOBAL
 ) (
 	input  logic              clock                       , // Clock
-	input  logic              rstn                        ,
+	input  logic              hard_rstn                   ,
+	input  logic              soft_rstn                   ,
 	input  logic              enabled_in                  ,
 	input  WEDInterface       wed_request_in              ,
 	input  ResponseBufferLine read_response_in            ,
@@ -50,12 +52,15 @@ module cu_control #(
 	output ReadWriteDataLine  write_data_1_out
 );
 
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered                           ;
-	logic [ NUM_READ_REQUESTS-1:0] submit                                                ;
-	logic [ NUM_READ_REQUESTS-1:0] requests                                              ;
-	logic [ NUM_READ_REQUESTS-1:0] ready                                                 ;
-	CommandBufferLine              read_command_buffer_arbiter_in [0:NUM_READ_REQUESTS-1];
-	CommandBufferLine              read_command_buffer_arbiter_out                       ;
+
+	logic [0:NUM_EXTERNAL_RESETS-1] external_rstn                                         ;
+	logic                           rstn                                                  ;
+	logic [ 0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered                           ;
+	logic [  NUM_READ_REQUESTS-1:0] submit                                                ;
+	logic [  NUM_READ_REQUESTS-1:0] requests                                              ;
+	logic [  NUM_READ_REQUESTS-1:0] ready                                                 ;
+	CommandBufferLine               read_command_buffer_arbiter_in [0:NUM_READ_REQUESTS-1];
+	CommandBufferLine               read_command_buffer_arbiter_out                       ;
 
 	CommandBufferLine read_command_buffer_arbiter_out_cu0;
 	CommandBufferLine read_command_buffer_arbiter_out_cu1;
@@ -618,5 +623,20 @@ module cu_control #(
 		.edge_job_counter_done_cu_in    (edge_job_counter_done_cu_in      )
 	);
 
+////////////////////////////////////////////////////////////////////////////
+//cu_reset control
+////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock) begin
+		external_rstn[0] <= hard_rstn;
+		external_rstn[1] <= soft_rstn;
+	end
+
+
+	reset_control #(.NUM_EXTERNAL_RESETS(NUM_EXTERNAL_RESETS)) cu_reset_instant (
+		.clock        (clock        ),
+		.external_rstn(external_rstn),
+		.rstn         (rstn         )
+	);
 
 endmodule

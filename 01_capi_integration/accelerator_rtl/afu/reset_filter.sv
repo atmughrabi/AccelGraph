@@ -38,7 +38,7 @@
 //  5) circuit can only leave the reset state if clock is
 //    operating, and enable = 1
 
-module reset_filter #(parameter PULSE_HOLD = 2) (
+module reset_filter #(parameter PULSE_HOLD = 3) (
 	input enable,
 	input rstn_raw,
 	input clock,

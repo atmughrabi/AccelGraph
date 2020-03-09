@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-07 07:33:23
+// Revise : 2020-03-09 02:16:02
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -68,8 +68,10 @@ module cu_vertex_pagerank_arbiter_control #(
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_out
 );
 
+
 	logic read_command_bus_grant_latched  ;
 	logic read_command_bus_request_latched;
+	logic rstn_out                        ;
 
 	logic write_command_bus_grant_latched  ;
 	logic write_command_bus_request_latched;
@@ -397,7 +399,7 @@ module cu_vertex_pagerank_arbiter_control #(
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_rstn
 			always_ff @(posedge clock) begin
-				cu_rstn_out_latched[i] <= rstn;
+				cu_rstn_out_latched[i] <= rstn_out;
 			end
 		end
 	endgenerate
@@ -865,6 +867,15 @@ module cu_vertex_pagerank_arbiter_control #(
 		.total_sum_out  (edge_job_counter_done)
 	);
 
+	////////////////////////////////////////////////////////////////////////////
+	//vertex_cu_reset control
+	////////////////////////////////////////////////////////////////////////////
+
+	reset_control #(.NUM_EXTERNAL_RESETS(1)) vertex_cu_reset_instant (
+		.clock        (clock   ),
+		.external_rstn(rstn    ),
+		.rstn         (rstn_out)
+	);
 
 
 endmodule

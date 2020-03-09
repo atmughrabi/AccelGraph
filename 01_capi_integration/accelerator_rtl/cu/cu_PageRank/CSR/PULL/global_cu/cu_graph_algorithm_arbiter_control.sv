@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-07 06:12:53
+// Revise : 2020-03-09 02:15:57
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -70,6 +70,7 @@ module cu_graph_algorithm_arbiter_control #(
 	input  logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_cu_in [0:NUM_GRAPH_CU-1]
 );
 
+	logic                    rstn_out                                              ;
 	logic                    enabled                                               ;
 	logic                    cu_rstn_out_latched                 [0:NUM_GRAPH_CU-1];
 	logic [NUM_GRAPH_CU-1:0] enable_cu_out_latched                                 ;
@@ -386,7 +387,7 @@ module cu_graph_algorithm_arbiter_control #(
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_rstn
 			always_ff @(posedge clock) begin
-				cu_rstn_out_latched[i] <= rstn;
+				cu_rstn_out_latched[i] <= rstn_out;
 			end
 		end
 	endgenerate
@@ -832,6 +833,15 @@ module cu_graph_algorithm_arbiter_control #(
 		.total_sum_out  (edge_job_counter_done_latched      )
 	);
 
+	////////////////////////////////////////////////////////////////////////////
+	//graph_cu_reset control
+	////////////////////////////////////////////////////////////////////////////
+
+	reset_control #(.NUM_EXTERNAL_RESETS(1)) graph_cu_reset_instant (
+		.clock        (clock   ),
+		.external_rstn(rstn    ),
+		.rstn         (rstn_out)
+	);
 
 
 endmodule

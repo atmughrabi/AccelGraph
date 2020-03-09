@@ -255,7 +255,7 @@ module cu_graph_algorithm_control #(
 				.CU_ID_Y(CU_ID_Y)
 			) cu_vertex_pagerank_instant (
 				.clock                      (clock                                       ),
-				.rstn_in                       (cu_rstn_out[i]                              ),
+				.rstn_in                    (cu_rstn_out[i]                              ),
 				.enabled_in                 (enable_cu[i]                                ),
 				.wed_request_in             (cu_wed_request_out[i]                       ),
 				.cu_configure               (cu_configure_out[i]                         ),
