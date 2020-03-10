@@ -163,6 +163,9 @@ module cu_edge_data_write_command_control #(
 			end else begin
 				write_command_out_latched.payload.command <= WRITE_NA;
 			end
+		end else begin 
+			write_data_0_out_latched.payload  <= 0;
+			write_data_1_out_latched.payload  <= 0;
 		end
 	end
 
