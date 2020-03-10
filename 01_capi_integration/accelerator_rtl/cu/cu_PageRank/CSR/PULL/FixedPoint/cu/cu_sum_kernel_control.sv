@@ -58,6 +58,7 @@ module cu_sum_kernel_control #(
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp            ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum            ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal   ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal_S2;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
@@ -149,9 +150,10 @@ module cu_sum_kernel_control #(
 ////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_data_accumulator            <= 0;
-			edge_data_counter_accum_internal <= 0;
-			edge_data_accumulator_latch      <= 0;
+			edge_data_accumulator               <= 0;
+			edge_data_counter_accum_internal    <= 0;
+			edge_data_accumulator_latch.valid   <= 0;
+			edge_data_counter_accum_internal_S2 <= 0;
 		end else begin
 			if (enabled && vertex_job_latched.valid) begin
 				if(edge_data_latched.valid)begin
@@ -163,15 +165,21 @@ module cu_sum_kernel_control #(
 					edge_data_counter_accum_internal      <= edge_data_counter_accum_internal + 1;
 				end
 
-				if(edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree)begin
-					edge_data_accumulator            <= 0;
-					edge_data_counter_accum_internal <= 0;
-					edge_data_accumulator_latch      <= edge_data_accumulator;
+				if(edge_data_counter_accum_internal_S2 == vertex_job_latched.payload.inverse_out_degree)begin
+					edge_data_accumulator               <= 0;
+					edge_data_counter_accum_internal    <= 0;
+					edge_data_counter_accum_internal_S2 <= 0;
+					edge_data_accumulator_latch.valid   <= edge_data_accumulator.valid;
 				end else begin
-					edge_data_accumulator_latch.valid <= 0;
+					edge_data_accumulator_latch.valid   <= 0;
+					edge_data_counter_accum_internal_S2 <= edge_data_counter_accum_internal;
 				end
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		edge_data_accumulator_latch.payload <= edge_data_accumulator.payload;
 	end
 ////////////////////////////////////////////////////////////////////////////
 //counter trackings

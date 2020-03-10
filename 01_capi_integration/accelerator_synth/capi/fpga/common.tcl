@@ -114,6 +114,7 @@ set_global_assignment -name OPTIMIZATION_TECHNIQUE SPEED
 # -------------------------------------------------------------------------- #
 # Global Settings                                                            #
 # -------------------------------------------------------------------------- #
+
 set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 0.9V
 set_global_assignment -name VCCT_GXBL_USER_VOLTAGE 1.0V
 set_global_assignment -name VCCT_GXBR_USER_VOLTAGE 1.0V
