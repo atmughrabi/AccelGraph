@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-09 14:13:20
+// Revise : 2020-03-10 03:18:45
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -544,7 +544,7 @@ module cu_vertex_pagerank_arbiter_control #(
 					burst_read_command_buffer_states_cu_out[i]         <= 0;
 					burst_read_command_buffer_states_cu_out[i].empty <= 1;
 				end else begin
-					burst_read_command_buffer_states_cu_out_latched[i] <= burst_read_command_buffer_states_cu[i];
+					burst_read_command_buffer_states_cu_out_latched[i] <= burst_read_command_buffer_states_cu;
 					burst_read_command_buffer_states_cu_out[i]         <= burst_read_command_buffer_states_cu_out_latched[i];
 				end
 			end
@@ -628,7 +628,7 @@ module cu_vertex_pagerank_arbiter_control #(
 					burst_edge_data_write_cu_buffer_states_cu_out[i]         <= 0;
 					burst_edge_data_write_cu_buffer_states_cu_out[i].empty <= 1;
 				end else begin
-					burst_edge_data_write_cu_buffer_states_cu_out_latched[i] <= burst_edge_data_write_cu_buffer_states_cu[i];
+					burst_edge_data_write_cu_buffer_states_cu_out_latched[i] <= burst_edge_data_write_cu_buffer_states_cu;
 					burst_edge_data_write_cu_buffer_states_cu_out[i]         <= burst_read_command_buffer_states_cu_out_latched[i];
 				end
 			end
