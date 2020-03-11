@@ -83,6 +83,10 @@ module afu_control #(
 	ReadDataControlInterface  read_buffer_in ;
 	WriteDataControlInterface write_buffer_in;
 
+	ReadWriteDataLine write_data_0_in_latched;
+	ReadWriteDataLine write_data_1_in_lateche;
+
+
 ////////////////////////////////////////////////////////////////////////////
 //Command
 ////////////////////////////////////////////////////////////////////////////
@@ -154,7 +158,8 @@ module afu_control #(
 	CommandBufferLine         burst_command_buffer_out       ;
 	CommandBufferLine         command_buffer_out             ;
 	CommandBufferLine         command_buffer_out_bypass      ;
-
+	CommandBufferLine         command_buffer_out_S2          ;
+	CommandBufferLine         command_buffer_out_bypass_S2   ;
 
 	logic command_write_valid;
 
@@ -493,22 +498,22 @@ module afu_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			command_buffer_out.valid        <= 0;
-			command_buffer_out_bypass.valid <= 0;
+			command_buffer_out_S2.valid        <= 0;
+			command_buffer_out_bypass_S2.valid <= 0;
 		end else begin
 			if(enabled) begin
 				if(ready_restart_issue && (restart_command_out.valid && restart_command_flushed)) begin
-					command_buffer_out_bypass.valid <= restart_command_out.valid ;
-					command_buffer_out.valid        <= 0;
+					command_buffer_out_S2.valid        <= 0;
+					command_buffer_out_bypass_S2.valid <= restart_command_out.valid ;
 				end else if(ready_restart_issue && (restart_command_out.valid && ~restart_command_flushed)) begin
-					command_buffer_out.valid        <= restart_command_out.valid ;
-					command_buffer_out_bypass.valid <= 0;
+					command_buffer_out_S2.valid        <= restart_command_out.valid ;
+					command_buffer_out_bypass_S2.valid <= 0;
 				end else if (burst_command_buffer_out.valid) begin
-					command_buffer_out.valid        <= burst_command_buffer_out.valid ;
-					command_buffer_out_bypass.valid <= 0;
+					command_buffer_out_S2.valid        <= burst_command_buffer_out.valid ;
+					command_buffer_out_bypass_S2.valid <= 0;
 				end else begin
-					command_buffer_out.valid        <= 0;
-					command_buffer_out_bypass.valid <= 0;
+					command_buffer_out_S2.valid        <= 0;
+					command_buffer_out_bypass_S2.valid <= 0;
 				end
 			end
 		end
@@ -516,11 +521,22 @@ module afu_control #(
 
 	always_ff @(posedge clock) begin
 		if(ready_restart_issue && (restart_command_out.valid && restart_command_flushed)) begin
-			command_buffer_out_bypass.payload <= restart_command_out.payload;
+			command_buffer_out_bypass_S2.payload <= restart_command_out.payload;
 		end else if(ready_restart_issue && (restart_command_out.valid && ~restart_command_flushed)) begin
-			command_buffer_out.payload <= restart_command_out.payload;
+			command_buffer_out_S2.payload <= restart_command_out.payload;
 		end else if (burst_command_buffer_out.valid) begin
-			command_buffer_out.payload <= burst_command_buffer_out.payload;
+			command_buffer_out_S2.payload <= burst_command_buffer_out.payload;
+		end
+	end
+
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			command_buffer_out        <= 0;
+			command_buffer_out_bypass <= 0;
+		end else begin
+			command_buffer_out        <= command_buffer_out_S2;
+			command_buffer_out_bypass <= command_buffer_out_bypass_S2;
 		end
 	end
 
@@ -666,7 +682,6 @@ module afu_control #(
 //read data control
 ////////////////////////////////////////////////////////////////////////////
 
-
 	read_data_control read_data_control_instant (
 		.clock                  (clock                        ),
 		.rstn                   (rstn                         ),
@@ -683,16 +698,29 @@ module afu_control #(
 //write data control
 ////////////////////////////////////////////////////////////////////////////
 
-	always_comb begin
-		command_write_valid = 0;
-		if(command_buffer_out.valid)begin
-			if(command_buffer_out.payload.cmd.cmd_type == CMD_WRITE)
-				command_write_valid = 1;
-			else
-				command_write_valid = 0;
+	// always_comb begin
+	// 	command_write_valid = 0;
+	// 	if(command_buffer_out.valid)begin
+	// 		if(command_buffer_out.payload.cmd.cmd_type == CMD_WRITE)
+	// 			command_write_valid = 1;
+	// 		else
+	// 			command_write_valid = 0;
+	// 	end
+	// end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			command_write_valid <= 0;
+		end else begin
+			if(command_buffer_out_S2.valid)begin
+				if(command_buffer_out_S2.payload.cmd.cmd_type == CMD_WRITE)
+					command_write_valid <= 1;
+				else
+					command_write_valid <= 0;
+			end else
+					command_write_valid <= 0;
 		end
 	end
-
 
 	write_data_control write_data_control_instant (
 		.clock           (clock           ),
@@ -712,7 +740,15 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 
-	assign command_tag_id = command_buffer_out.payload.cmd;
+	// assign command_tag_id = command_buffer_out.payload.cmd;
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			command_tag_id <= 0;
+		end else begin
+			command_tag_id <= command_buffer_out_S2.payload.cmd;
+		end
+	end
 
 	tag_control tag_control_instant (
 		.clock               (clock                        ),
@@ -1084,6 +1120,16 @@ module afu_control #(
 //Buffers CU Write DATA
 ////////////////////////////////////////////////////////////////////////////
 
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			write_data_0_in_latched <= 0;
+			write_data_1_in_lateche <= 0;
+		end else begin
+			write_data_0_in_latched <= write_data_0_in;
+			write_data_1_in_lateche <= write_data_1_in;
+		end
+	end
+
 	fifo #(
 		.WIDTH($bits(ReadWriteDataLine)),
 		.DEPTH(WRITE_DATA_BUFFER_SIZE  )
@@ -1091,8 +1137,8 @@ module afu_control #(
 		.clock   (clock                                   ),
 		.rstn    (rstn                                    ),
 		
-		.push    (write_data_0_in.valid                   ),
-		.data_in (write_data_0_in                         ),
+		.push    (write_data_0_in_latched.valid           ),
+		.data_in (write_data_0_in_latched                 ),
 		.full    (write_data_buffer_status.buffer_0.full  ),
 		.alFull  (write_data_buffer_status.buffer_0.alfull),
 		
@@ -1110,8 +1156,8 @@ module afu_control #(
 		.clock   (clock                                   ),
 		.rstn    (rstn                                    ),
 		
-		.push    (write_data_1_in.valid                   ),
-		.data_in (write_data_1_in                         ),
+		.push    (write_data_1_in_lateche.valid           ),
+		.data_in (write_data_1_in_lateche                 ),
 		.full    (write_data_buffer_status.buffer_1.full  ),
 		.alFull  (write_data_buffer_status.buffer_1.alfull),
 		

@@ -210,7 +210,7 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
 
   cu_control cu_control_instant (
     .clock                       (clock                                      ),
-    .rstn                        (combined_reset_afu                         ),
+    .rstn_in                     (combined_reset_afu                         ),
     .enabled_in                  (enabled                                    ),
     .wed_request_in              (wed                                        ),
     .read_response_in            (read_response_out                          ),

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-09 14:11:03
+// Revise : 2020-03-11 05:54:06
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -816,6 +816,8 @@ module cu_graph_algorithm_arbiter_control #(
 		.partial_sums_in(edge_job_counter_done_cu_in_latched),
 		.total_sum_out  (edge_job_counter_done_latched      )
 	);
+
+	
 
 
 endmodule

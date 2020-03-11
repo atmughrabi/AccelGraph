@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-10 03:18:45
+// Revise : 2020-03-10 23:56:17
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -97,7 +97,8 @@ module cu_vertex_pagerank_arbiter_control #(
 	VertexInterface vertex_job_arbiter_in        ;
 
 	//output latched
-	CommandBufferLine read_command_out_latched;
+	CommandBufferLine read_command_out_latched        ;
+	CommandBufferLine read_command_out_arbiter_latched;
 
 	//input lateched
 	ResponseBufferLine read_response_in_latched ;
@@ -477,14 +478,14 @@ module cu_vertex_pagerank_arbiter_control #(
 		.NUM_REQUESTS(NUM_VERTEX_CU           ),
 		.WIDTH       ($bits(CommandBufferLine))
 	) round_robin_priority_arbiter_N_input_1_ouput_read_command_cu (
-		.clock      (clock                         ),
-		.rstn       (rstn                          ),
-		.enabled    (enabled                       ),
-		.buffer_in  (read_command_cu               ),
-		.submit     (read_command_arbiter_cu_submit),
-		.requests   (request_read_command_cu       ),
-		.arbiter_out(read_command_out_latched      ),
-		.ready      (ready_read_command_cu         )
+		.clock      (clock                           ),
+		.rstn       (rstn                            ),
+		.enabled    (enabled                         ),
+		.buffer_in  (read_command_cu                 ),
+		.submit     (read_command_arbiter_cu_submit  ),
+		.requests   (request_read_command_cu         ),
+		.arbiter_out(read_command_out_arbiter_latched),
+		.ready      (ready_read_command_cu           )
 	);
 
 	////////////////////////////////////////////////////////////////////////////
@@ -506,12 +507,18 @@ module cu_vertex_pagerank_arbiter_control #(
 		if(~rstn) begin
 			read_command_bus_grant_latched <= 0;
 			read_command_bus_request       <= 0;
+			read_command_out_latched.valid <= 0;
 		end else begin
 			if(enabled) begin
 				read_command_bus_grant_latched <= read_command_bus_grant;
 				read_command_bus_request       <= read_command_bus_request_latched;
+				read_command_out_latched.valid <= read_command_out_arbiter_latched.valid;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		read_command_out_latched.payload <= read_command_out_arbiter_latched.payload;
 	end
 
 	assign read_command_bus_request_latched = ~burst_read_command_buffer_states_cu.empty && ~read_buffer_status_latched.alfull;
@@ -586,16 +593,20 @@ module cu_vertex_pagerank_arbiter_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			write_command_bus_grant_latched     <= 0;
-			write_command_bus_request           <= 0;
-			edge_data_write_arbiter_out_latched <= 0;
+			write_command_bus_grant_latched           <= 0;
+			write_command_bus_request                 <= 0;
+			edge_data_write_arbiter_out_latched.valid <= 0;
 		end else begin
 			if(enabled) begin
-				write_command_bus_grant_latched     <= write_command_bus_grant;
-				write_command_bus_request           <= write_command_bus_request_latched;
-				edge_data_write_arbiter_out_latched <= edge_data_write_arbiter_out;
+				write_command_bus_grant_latched           <= write_command_bus_grant;
+				write_command_bus_request                 <= write_command_bus_request_latched;
+				edge_data_write_arbiter_out_latched.valid <= edge_data_write_arbiter_out.valid;
 			end
 		end
+	end
+
+	always_ff @(posedge clock) begin
+		edge_data_write_arbiter_out_latched.payload <= edge_data_write_arbiter_out.payload;
 	end
 
 	assign write_command_bus_request_latched = ~burst_edge_data_write_cu_buffer_states_cu.empty && ~write_buffer_status_latched.alfull;

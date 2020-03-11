@@ -25,7 +25,7 @@ module cu_graph_algorithm_control #(
 	parameter CU_ID_Y       = 1
 ) (
 	input  logic                          clock                    , // Clock
-	input  logic                          rstn                     ,
+	input  logic                          rstn_in                  ,
 	input  logic                          enabled_in               ,
 	input  logic [                  0:63] cu_configure             ,
 	input  WEDInterface                   wed_request_in           ,
@@ -49,8 +49,11 @@ module cu_graph_algorithm_control #(
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done
 );
 
-	BufferStatus read_buffer_status_latched ;
-	BufferStatus write_buffer_status_latched;
+	logic                     rstn                       ;
+	logic                     reset_cu                   ;
+	logic [NUM_VERTEX_CU-1:0] reset_cu_in                ;
+	BufferStatus              read_buffer_status_latched ;
+	BufferStatus              write_buffer_status_latched;
 
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_latched;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_latched  ;
@@ -119,6 +122,13 @@ module cu_graph_algorithm_control #(
 	////////////////////////////////////////////////////////////////////////////
 	//enable logic
 	////////////////////////////////////////////////////////////////////////////
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -255,7 +265,7 @@ module cu_graph_algorithm_control #(
 				.CU_ID_Y(CU_ID_Y)
 			) cu_vertex_pagerank_instant (
 				.clock                      (clock                                       ),
-				.rstn                       (rstn                                        ),
+				.rstn_in                    (reset_cu_in[i]                              ),
 				.enabled_in                 (enable_cu[i]                                ),
 				.wed_request_in             (cu_wed_request_out[i]                       ),
 				.cu_configure               (cu_configure_out[i]                         ),
@@ -277,6 +287,14 @@ module cu_graph_algorithm_control #(
 				.vertex_num_counter         (vertex_num_counter_cu[i]                    ),
 				.edge_num_counter           (edge_num_counter_cu[i]                      )
 			);
+
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					reset_cu_in[i] <= 0;
+				end else begin
+					reset_cu_in[i] <= reset_cu;
+				end
+			end
 		end
 	endgenerate
 
@@ -333,6 +351,10 @@ module cu_graph_algorithm_control #(
 		.edge_job_counter_done_out                    (edge_job_counter_done_latched            )
 	);
 
-
+	reset_control #(.NUM_EXTERNAL_RESETS(1)) reset_instant (
+		.clock        (clock   ),
+		.external_rstn(rstn    ),
+		.rstn         (reset_cu)
+	);
 
 endmodule

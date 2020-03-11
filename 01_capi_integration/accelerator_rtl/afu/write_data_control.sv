@@ -47,9 +47,10 @@ module write_data_control (
   logic                                enabled         ;
   logic [0:(CACHELINE_SIZE_BITS_HF-1)] write_data      ;
 
-  logic       read_valid  ; // ha_brvalid,     // Buffer Read valid
-  logic [0:7] read_tag    ; // ha_brtag,       // Buffer Read tag
-  logic [0:5] read_address; // ha_brad,        // Buffer Read address
+  logic       read_valid_data ; // ha_brvalid,     // Buffer Read valid
+  logic       read_valid_error; // ha_brvalid,     // Buffer Read valid
+  logic [0:7] read_tag        ; // ha_brtag,       // Buffer Read tag
+  logic [0:5] read_address    ; // ha_brad,        // Buffer Read address
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input
@@ -100,14 +101,16 @@ module write_data_control (
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
-      read_valid   <= 0;
-      read_tag     <= 0;
-      read_address <= 0;
+      read_valid_data  <= 0;
+      read_valid_error <= 0;
+      read_tag         <= 0;
+      read_address     <= 0;
     end else begin
       if(enabled) begin
-        read_valid   <= buffer_in.read_valid;
-        read_tag     <= buffer_in.read_tag;
-        read_address <= buffer_in.read_address;
+        read_valid_data  <= buffer_in.read_valid;
+        read_valid_error <= buffer_in.read_valid;
+        read_tag         <= buffer_in.read_tag;
+        read_address     <= buffer_in.read_address;
       end
     end
   end
@@ -158,7 +161,7 @@ module write_data_control (
     if(~rstn)
       write_data <= ~0;
     else begin
-      if(read_valid) begin
+      if(read_valid_data) begin
         case (read_address)
           6'h00 : begin
             write_data <= write_data_0_out.payload.data;
@@ -219,7 +222,7 @@ module write_data_control (
       detected_errors  <= 1'b0;
     end else begin
 
-      if(read_valid)
+      if(read_valid_error)
         tag_parity_error <= tag_parity_link ^ tag_parity;
       else
         tag_parity_error <= 1'b0;

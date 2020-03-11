@@ -39,8 +39,8 @@ module cu_vertex_job_control (
 
 	logic        read_command_bus_grant_latched     ;
 	logic        read_command_bus_request_latched   ;
-	logic        read_command_bus_grant_latched_S2  ;
-	logic        read_command_bus_request_latched_S2;
+	// logic        read_command_bus_grant_latched_S2  ;
+	// logic        read_command_bus_request_latched_S2;
 	BufferStatus vertex_buffer_status               ;
 	BufferStatus read_buffer_status_latched         ;
 
@@ -64,7 +64,7 @@ module cu_vertex_job_control (
 	//output latched
 	VertexInterface   vertex_latched             ;
 	CommandBufferLine read_command_out_latched   ;
-	CommandBufferLine read_command_out_latched_S2;
+	// CommandBufferLine read_command_out_latched_S2;
 
 	//input lateched
 	WEDInterface       wed_request_in_latched  ;
@@ -129,16 +129,16 @@ module cu_vertex_job_control (
 		end else begin
 			if(enabled) begin
 				vertex.valid                      <= vertex_latched.valid;
-				read_command_out_latched_S2.valid <= read_command_out_latched.valid;
-				read_command_out.valid            <= read_command_out_latched_S2.valid;
+				read_command_out.valid <= read_command_out_latched.valid;
+				// read_command_out.valid            <= read_command_out_latched_S2.valid;
 			end
 		end
 	end
 
 	always_ff @(posedge clock) begin
 		vertex.payload                      <= vertex_latched.payload;
-		read_command_out_latched_S2.payload <= read_command_out_latched.payload;
-		read_command_out.payload            <= read_command_out_latched_S2.payload;
+		read_command_out.payload <= read_command_out_latched.payload;
+		// read_command_out.payload            <= read_command_out_latched_S2.payload;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -591,33 +591,33 @@ module cu_vertex_job_control (
 //Read Command Vertex double buffer
 ////////////////////////////////////////////////////////////////////////////
 
-	// always_ff @(posedge clock or negedge rstn) begin
-	// 	if(~rstn) begin
-	// 		read_command_bus_grant_latched <= 0;
-	// 		read_command_bus_request       <= 0;
-	// 	end else begin
-	// 		if(enabled_cmd) begin
-	// 			read_command_bus_grant_latched <= read_command_bus_grant;
-	// 			read_command_bus_request       <= read_command_bus_request_latched;
-	// 		end
-	// 	end
-	// end
-
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_command_bus_grant_latched      <= 0;
-			read_command_bus_request            <= 0;
-			read_command_bus_grant_latched_S2   <= 0;
-			read_command_bus_request_latched_S2 <= 0;
+			read_command_bus_grant_latched <= 0;
+			read_command_bus_request       <= 0;
 		end else begin
 			if(enabled_cmd) begin
-				read_command_bus_grant_latched      <= read_command_bus_grant_latched_S2;
-				read_command_bus_request            <= read_command_bus_request_latched_S2;
-				read_command_bus_grant_latched_S2   <= read_command_bus_grant;
-				read_command_bus_request_latched_S2 <= read_command_bus_request_latched;
+				read_command_bus_grant_latched <= read_command_bus_grant;
+				read_command_bus_request       <= read_command_bus_request_latched;
 			end
 		end
 	end
+
+	// always_ff @(posedge clock or negedge rstn) begin
+	// 	if(~rstn) begin
+	// 		read_command_bus_grant_latched      <= 0;
+	// 		read_command_bus_request            <= 0;
+	// 		read_command_bus_grant_latched_S2   <= 0;
+	// 		read_command_bus_request_latched_S2 <= 0;
+	// 	end else begin
+	// 		if(enabled_cmd) begin
+	// 			read_command_bus_grant_latched      <= read_command_bus_grant_latched_S2;
+	// 			read_command_bus_request            <= read_command_bus_request_latched_S2;
+	// 			read_command_bus_grant_latched_S2   <= read_command_bus_grant;
+	// 			read_command_bus_request_latched_S2 <= read_command_bus_request_latched;
+	// 		end
+	// 	end
+	// end
 
 	assign read_command_bus_request_latched = ~read_buffer_status_latched.alfull && ~read_buffer_status_internal.empty;
 	assign read_command_bus_request_pop     = ~read_buffer_status_latched.alfull && read_command_bus_grant_latched;
