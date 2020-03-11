@@ -22,53 +22,56 @@ import CU_PKG::*;
 module afu_control #(
 	parameter NUM_REQUESTS    = 5 ,
 	parameter RSP_DELAY       = 10,
-	parameter CREDIT_HEADROOM = 8
+	parameter CREDIT_HEADROOM = 2
 ) (
-	input  logic                         clock                      , // Clock
-	input  logic                         rstn                       ,
-	input  logic                         enabled_in                 ,
-	input  afu_configure_type            afu_configure              ,
-	input  CommandBufferLine             prefetch_read_command_in   ,
-	input  CommandBufferLine             prefetch_write_command_in  ,
-	input  CommandBufferLine             read_command_in            ,
-	input  CommandBufferLine             write_command_in           ,
-	input  CommandBufferLine             wed_command_in             ,
-	input  CommandInterfaceInput         command_in                 ,
-	input  ResponseInterface             response                   ,
-	input  BufferInterfaceInput          buffer_in                  ,
-	input  ReadWriteDataLine             write_data_0_in            ,
-	input  ReadWriteDataLine             write_data_1_in            ,
-	output logic [0:63]                  afu_status                 ,
-	output ReadWriteDataLine             wed_data_0_out             ,
-	output ReadWriteDataLine             wed_data_1_out             ,
-	output ReadWriteDataLine             read_data_0_out            ,
-	output ReadWriteDataLine             read_data_1_out            ,
-	output ResponseBufferLine            read_response_out          ,
-	output ResponseBufferLine            prefetch_read_response_out ,
-	output ResponseBufferLine            prefetch_write_response_out,
-	output ResponseBufferLine            write_response_out         ,
-	output ResponseBufferLine            wed_response_out           ,
-	output logic [ 0:6]                  command_response_error     ,
-	output logic [ 0:1]                  data_read_error            ,
-	output logic                         data_write_error           ,
-	output logic                         credit_overflow_error      ,
-	output BufferInterfaceOutput         buffer_out                 ,
-	output CommandInterfaceOutput        command_out                ,
-	output CommandBufferStatusInterface  command_buffer_status      ,
-	output ResponseStatistcsInterface    response_statistics        ,
-	output ResponseBufferStatusInterface response_buffer_status     ,
-	output DataBufferStatusInterface     read_data_buffer_status    ,
-	output DataBufferStatusInterface     wed_data_buffer_status     ,
-	output DataBufferStatusInterface     write_data_buffer_status
+	input  logic                        clock                      , // Clock
+	input  logic                        rstn_in                    ,
+	input  logic                        enabled_in                 ,
+	input  afu_configure_type           afu_configure              ,
+	input  CommandBufferLine            prefetch_read_command_in   ,
+	input  CommandBufferLine            prefetch_write_command_in  ,
+	input  CommandBufferLine            read_command_in            ,
+	input  CommandBufferLine            write_command_in           ,
+	input  CommandBufferLine            wed_command_in             ,
+	input  CommandInterfaceInput        command_in                 ,
+	input  ResponseInterface            response                   ,
+	input  BufferInterfaceInput         buffer_in                  ,
+	input  ReadWriteDataLine            write_data_0_in            ,
+	input  ReadWriteDataLine            write_data_1_in            ,
+	output logic [0:63]                 afu_status                 ,
+	output ReadWriteDataLine            wed_data_0_out             ,
+	output ReadWriteDataLine            wed_data_1_out             ,
+	output ReadWriteDataLine            read_data_0_out            ,
+	output ReadWriteDataLine            read_data_1_out            ,
+	output ResponseBufferLine           read_response_out          ,
+	output ResponseBufferLine           prefetch_read_response_out ,
+	output ResponseBufferLine           prefetch_write_response_out,
+	output ResponseBufferLine           write_response_out         ,
+	output ResponseBufferLine           wed_response_out           ,
+	output logic [ 0:6]                 command_response_error     ,
+	output logic [ 0:1]                 data_read_error            ,
+	output logic                        data_write_error           ,
+	output logic                        credit_overflow_error      ,
+	output BufferInterfaceOutput        buffer_out                 ,
+	output CommandInterfaceOutput       command_out                ,
+	output CommandBufferStatusInterface command_buffer_status      ,
+	output ResponseStatistcsInterface   response_statistics        ,
+	output DataBufferStatusInterface    write_data_buffer_status
 );
 
 
-
+	logic rstn;
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
 
-	CommandInterfaceInput command_in_latched;
+	CommandBufferLine     prefetch_read_command_in_latched ;
+	CommandBufferLine     prefetch_write_command_in_latched;
+	CommandBufferLine     read_command_in_latched          ;
+	CommandBufferLine     write_command_in_latched         ;
+	CommandBufferLine     wed_command_in_latched           ;
+	CommandInterfaceInput command_in_latched               ;
+
 
 	ResponseInterface response_tagged                  ;
 	ResponseInterface response_tagged_latched          ;
@@ -158,10 +161,8 @@ module afu_control #(
 	CommandBufferLine         burst_command_buffer_out       ;
 	CommandBufferLine         command_buffer_out             ;
 	CommandBufferLine         command_buffer_out_bypass      ;
-	CommandBufferLine         command_buffer_out_S2          ;
-	CommandBufferLine         command_buffer_out_bypass_S2   ;
-
-	logic command_write_valid;
+	logic command_write_valid_data0;
+	logic command_write_valid_data1;
 
 	ResponseStatistcsInterface response_statistics_out;
 	ResponseBufferLine         restart_response_out   ;
@@ -181,9 +182,20 @@ module afu_control #(
 	logic [0:63] afu_configure_latched  ;
 	logic [0:63] afu_configure_2_latched;
 
+	logic restart_command_flushed        ;
+
 	genvar i;
 
 	assign afu_config_ready = (|afu_configure_latched);
+
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
+
 ////////////////////////////////////////////////////////////////////////////
 //drive output response stats
 ////////////////////////////////////////////////////////////////////////////
@@ -285,6 +297,22 @@ module afu_control #(
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
 
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			prefetch_read_command_in_latched  <= 0;
+			prefetch_write_command_in_latched <= 0;
+			read_command_in_latched           <= 0;
+			write_command_in_latched          <= 0;
+			wed_command_in_latched            <= 0;
+		end else begin
+			prefetch_read_command_in_latched  <= prefetch_read_command_in;
+			prefetch_write_command_in_latched <= prefetch_write_command_in;
+			read_command_in_latched           <= read_command_in;
+			write_command_in_latched          <= write_command_in;
+			wed_command_in_latched            <= wed_command_in;
+		end
+	end
+
 	always_ff @(posedge clock) begin
 		command_in_latched <= command_in;
 
@@ -333,35 +361,6 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 //Buffer arbitration logic
 ////////////////////////////////////////////////////////////////////////////
-
-	// always_comb begin
-	// 	command_arbiter_out.valid    = command_arbiter_out_round_robin.valid;
-	// 	ready                        = ready_round_robin;
-	// 	round_robin_priority_enabled = 0;
-	// 	fixed_priority_enabled       = 0;
-	// 	if(enabled)begin
-	// 		if(afu_configure_latched[63]) begin
-	// 			command_arbiter_out.valid    = command_arbiter_out_round_robin.valid;
-	// 			ready                        = ready_round_robin;
-	// 			round_robin_priority_enabled = 1;
-	// 			fixed_priority_enabled       = 0;
-	// 		end else if(afu_configure_latched[62]) begin
-	// 			command_arbiter_out.valid    = command_arbiter_out_fixed.valid;
-	// 			ready                        = ready_fixed;
-	// 			round_robin_priority_enabled = 0;
-	// 			fixed_priority_enabled       = 1;
-	// 		end
-	// 	end
-	// end
-
-	// always_comb begin
-	// 	command_arbiter_out.payload = command_arbiter_out_round_robin.payload ;
-	// 	if(afu_configure_latched[63]) begin
-	// 		command_arbiter_out.payload = command_arbiter_out_round_robin.payload ;
-	// 	end else if(afu_configure_latched[62]) begin
-	// 		command_arbiter_out.payload = command_arbiter_out_fixed.payload ;
-	// 	end
-	// end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -498,22 +497,32 @@ module afu_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			command_buffer_out_S2.valid        <= 0;
-			command_buffer_out_bypass_S2.valid <= 0;
+			command_buffer_out.valid        <= 0;
+			command_buffer_out_bypass.valid <= 0;
+			command_write_valid_data0       <= 0;
+			command_write_valid_data1       <= 0;
 		end else begin
 			if(enabled) begin
 				if(ready_restart_issue && (restart_command_out.valid && restart_command_flushed)) begin
-					command_buffer_out_S2.valid        <= 0;
-					command_buffer_out_bypass_S2.valid <= restart_command_out.valid ;
+					command_buffer_out.valid        <= 0;
+					command_buffer_out_bypass.valid <= restart_command_out.valid ;
+					command_write_valid_data0       <= 0;
+					command_write_valid_data1       <= 0;
 				end else if(ready_restart_issue && (restart_command_out.valid && ~restart_command_flushed)) begin
-					command_buffer_out_S2.valid        <= restart_command_out.valid ;
-					command_buffer_out_bypass_S2.valid <= 0;
+					command_buffer_out.valid        <= restart_command_out.valid ;
+					command_buffer_out_bypass.valid <= 0;
+					command_write_valid_data0       <= 0;
+					command_write_valid_data1       <= 0;
 				end else if (burst_command_buffer_out.valid) begin
-					command_buffer_out_S2.valid        <= burst_command_buffer_out.valid ;
-					command_buffer_out_bypass_S2.valid <= 0;
+					command_buffer_out.valid        <= burst_command_buffer_out.valid ;
+					command_buffer_out_bypass.valid <= 0;
+					command_write_valid_data0       <= (burst_command_buffer_out.payload.cmd.cmd_type == CMD_WRITE);
+					command_write_valid_data1       <= (burst_command_buffer_out.payload.cmd.cmd_type == CMD_WRITE);
 				end else begin
-					command_buffer_out_S2.valid        <= 0;
-					command_buffer_out_bypass_S2.valid <= 0;
+					command_buffer_out.valid        <= 0;
+					command_buffer_out_bypass.valid <= 0;
+					command_write_valid_data0       <= 0;
+					command_write_valid_data1       <= 0;
 				end
 			end
 		end
@@ -521,25 +530,16 @@ module afu_control #(
 
 	always_ff @(posedge clock) begin
 		if(ready_restart_issue && (restart_command_out.valid && restart_command_flushed)) begin
-			command_buffer_out_bypass_S2.payload <= restart_command_out.payload;
+			command_buffer_out_bypass.payload <= restart_command_out.payload;
+			command_tag_id                    <= restart_command_out.payload.cmd;
 		end else if(ready_restart_issue && (restart_command_out.valid && ~restart_command_flushed)) begin
-			command_buffer_out_S2.payload <= restart_command_out.payload;
+			command_buffer_out.payload <= restart_command_out.payload;
+			command_tag_id             <= restart_command_out.payload.cmd;
 		end else if (burst_command_buffer_out.valid) begin
-			command_buffer_out_S2.payload <= burst_command_buffer_out.payload;
+			command_buffer_out.payload <= burst_command_buffer_out.payload;
+			command_tag_id             <= burst_command_buffer_out.payload.cmd;
 		end
 	end
-
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			command_buffer_out        <= 0;
-			command_buffer_out_bypass <= 0;
-		end else begin
-			command_buffer_out        <= command_buffer_out_S2;
-			command_buffer_out_bypass <= command_buffer_out_bypass_S2;
-		end
-	end
-
 
 ////////////////////////////////////////////////////////////////////////////
 //Credit Tracking Logic
@@ -552,18 +552,13 @@ module afu_control #(
 			write_credits          <= 0;
 			prefetch_read_credits  <= 0;
 			prefetch_write_credits <= 0;
-			credit_overflow_error  <= 0;
 		end else begin
 			if(afu_config_ready) begin
-				total_credits          <= (command_in_latched.room-CREDIT_HEADROOM);
+				total_credits          <= (command_in_latched.room);
 				read_credits           <= (total_credits >> afu_configure_latched[0:3]);
 				write_credits          <= (total_credits >> afu_configure_latched[4:7]);
 				prefetch_read_credits  <= (total_credits >> afu_configure_latched[8:11]);
 				prefetch_write_credits <= (total_credits >> afu_configure_latched[12:15]);
-			end
-			if(enabled) begin
-				if((credits.credits <= 255) && (credits.credits > 64))
-					credit_overflow_error <= 1;
 			end
 		end
 	end
@@ -698,30 +693,6 @@ module afu_control #(
 //write data control
 ////////////////////////////////////////////////////////////////////////////
 
-	// always_comb begin
-	// 	command_write_valid = 0;
-	// 	if(command_buffer_out.valid)begin
-	// 		if(command_buffer_out.payload.cmd.cmd_type == CMD_WRITE)
-	// 			command_write_valid = 1;
-	// 		else
-	// 			command_write_valid = 0;
-	// 	end
-	// end
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			command_write_valid <= 0;
-		end else begin
-			if(command_buffer_out_S2.valid)begin
-				if(command_buffer_out_S2.payload.cmd.cmd_type == CMD_WRITE)
-					command_write_valid <= 1;
-				else
-					command_write_valid <= 0;
-			end else
-					command_write_valid <= 0;
-		end
-	end
-
 	write_data_control write_data_control_instant (
 		.clock           (clock           ),
 		.rstn            (rstn            ),
@@ -738,17 +709,6 @@ module afu_control #(
 ////////////////////////////////////////////////////////////////////////////
 //tag control
 ////////////////////////////////////////////////////////////////////////////
-
-
-	// assign command_tag_id = command_buffer_out.payload.cmd;
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			command_tag_id <= 0;
-		end else begin
-			command_tag_id <= command_buffer_out_S2.payload.cmd;
-		end
-	end
 
 	tag_control tag_control_instant (
 		.clock               (clock                        ),
@@ -769,15 +729,19 @@ module afu_control #(
 //Burst Buffer Read Commands
 ////////////////////////////////////////////////////////////////////////////
 
-	// CommandBufferLine burst_command_buffer_touch   ;
-	// CommandBufferLine burst_command_buffer_touch_S2;
-	// CommandBufferLine burst_command_buffer_exec    ;
-	// CommandBufferLine burst_command_buffer_exec_S2 ;
-	// CommandBufferLine burst_command_buffer_exec_S3 ;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			credit_overflow_error <= 0;
+		end else begin
+			if(enabled) begin
+				if((credits.credits <= 255) && (credits.credits > 64))
+					credit_overflow_error <= 1;
+			end
+		end
+	end
 
-	// logic request_pulse                            ;
-	// assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (|credits.credits) && ~(|request_pulse);
-	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (credits.credits>CREDIT_HEADROOM) && ~restart_pending;
+	assign burst_command_buffer_pop = ~burst_command_buffer_states_afu.empty && tag_buffer_ready && (credits.credits > CREDIT_HEADROOM) && ~restart_pending;
+
 	fifo #(
 		.WIDTH($bits(CommandBufferLine)),
 		.DEPTH(BURST_CMD_BUFFER_SIZE   )
@@ -808,8 +772,8 @@ module afu_control #(
 		.clock   (clock                                            ),
 		.rstn    (rstn                                             ),
 		
-		.push    (prefetch_read_command_in.valid                   ),
-		.data_in (prefetch_read_command_in                         ),
+		.push    (prefetch_read_command_in_latched.valid           ),
+		.data_in (prefetch_read_command_in_latched                 ),
 		.full    (command_buffer_status.prefetch_read_buffer.full  ),
 		.alFull  (command_buffer_status.prefetch_read_buffer.alfull),
 		
@@ -830,8 +794,8 @@ module afu_control #(
 		.clock   (clock                                             ),
 		.rstn    (rstn                                              ),
 		
-		.push    (prefetch_write_command_in.valid                   ),
-		.data_in (prefetch_write_command_in                         ),
+		.push    (prefetch_write_command_in_latched.valid           ),
+		.data_in (prefetch_write_command_in_latched                 ),
 		.full    (command_buffer_status.prefetch_write_buffer.full  ),
 		.alFull  (command_buffer_status.prefetch_write_buffer.alfull),
 		
@@ -852,8 +816,8 @@ module afu_control #(
 		.clock   (clock                                   ),
 		.rstn    (rstn                                    ),
 		
-		.push    (read_command_in.valid                   ),
-		.data_in (read_command_in                         ),
+		.push    (read_command_in_latched.valid           ),
+		.data_in (read_command_in_latched                 ),
 		.full    (command_buffer_status.read_buffer.full  ),
 		.alFull  (command_buffer_status.read_buffer.alfull),
 		
@@ -873,8 +837,8 @@ module afu_control #(
 		.clock   (clock                                    ),
 		.rstn    (rstn                                     ),
 		
-		.push    (write_command_in.valid                   ),
-		.data_in (write_command_in                         ),
+		.push    (write_command_in_latched.valid           ),
+		.data_in (write_command_in_latched                 ),
 		.full    (command_buffer_status.write_buffer.full  ),
 		.alFull  (command_buffer_status.write_buffer.alfull),
 		
@@ -895,8 +859,8 @@ module afu_control #(
 		.clock   (clock                                  ),
 		.rstn    (rstn                                   ),
 		
-		.push    (wed_command_in.valid                   ),
-		.data_in (wed_command_in                         ),
+		.push    (wed_command_in_latched.valid           ),
+		.data_in (wed_command_in_latched                 ),
 		.full    (command_buffer_status.wed_buffer.full  ),
 		.alFull  (command_buffer_status.wed_buffer.alfull),
 		
@@ -1183,7 +1147,7 @@ module afu_control #(
 		.full    (burst_write_data_buffer_status.buffer_0.full  ),
 		.alFull  (burst_write_data_buffer_status.buffer_0.alfull),
 		
-		.pop     (command_write_valid                           ),
+		.pop     (command_write_valid_data0                     ),
 		.valid   (burst_write_data_buffer_status.buffer_0.valid ),
 		.data_out(write_data_0                                  ),
 		.empty   (burst_write_data_buffer_status.buffer_0.empty )
@@ -1202,7 +1166,7 @@ module afu_control #(
 		.full    (burst_write_data_buffer_status.buffer_1.full  ),
 		.alFull  (burst_write_data_buffer_status.buffer_1.alfull),
 		
-		.pop     (command_write_valid                           ),
+		.pop     (command_write_valid_data1                     ),
 		.valid   (burst_write_data_buffer_status.buffer_1.valid ),
 		.data_out(write_data_1                                  ),
 		.empty   (burst_write_data_buffer_status.buffer_1.empty )

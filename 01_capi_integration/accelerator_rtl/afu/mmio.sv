@@ -18,7 +18,7 @@ import AFU_PKG::*;
 
 module mmio (
   input  logic                      clock                 ,
-  input  logic                      rstn                  ,
+  input  logic                      rstn_in               ,
   input  logic [0:63]               report_errors         ,
   input  cu_return_type             cu_return             ,
   input  logic [0:63]               cu_return_done        ,
@@ -35,6 +35,8 @@ module mmio (
   output logic                      reset_mmio_out
 );
 
+
+  logic               rstn              ;
   MMIOInterfaceOutput mmio_out          ;
   logic [0:1]         mmio_errors       ;
   logic               report_errors_ack ; // each register has an ack
@@ -114,6 +116,14 @@ module mmio (
 
 
   assign reset_mmio = 1;
+
+  always_ff @(posedge clock or negedge rstn_in) begin
+    if(~rstn_in) begin
+      rstn <= 0;
+    end else begin
+      rstn <= rstn_in;
+    end
+  end
 
 ////////////////////////////////////////////////////////////////////////////
 //latch the input/output from the PSL

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-10 23:56:17
+// Revise : 2020-03-11 18:35:31
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ module cu_vertex_pagerank_arbiter_control #(
 	parameter CU_ID_Y       = 1
 ) (
 	input  logic                          clock                                                            , // Clock
-	input  logic                          rstn                                                             ,
+	input  logic                          rstn_in                                                          ,
 	input  logic                          enabled_in                                                       ,
 	input  WEDInterface                   wed_request_in                                                   ,
 	output WEDInterface                   cu_wed_request_out  [0:NUM_VERTEX_CU-1]                          ,
@@ -67,7 +67,7 @@ module cu_vertex_pagerank_arbiter_control #(
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_out
 );
 
-
+	logic rstn                            ;
 	logic read_command_bus_grant_latched  ;
 	logic read_command_bus_request_latched;
 
@@ -182,6 +182,14 @@ module cu_vertex_pagerank_arbiter_control #(
 	//enable logic
 	////////////////////////////////////////////////////////////////////////////
 
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			enabled <= 0;
@@ -206,7 +214,7 @@ module cu_vertex_pagerank_arbiter_control #(
 					vertex_job_cu_out[i].valid <= 0;
 					ready_edge_data_write_cu_out[i] <= 0;
 					ready_read_command_cu_out[i]    <= 0;
-					cu_wed_request_out[i] <= 0;
+					cu_wed_request_out[i].valid <= 0;
 					cu_configure_out[i] <= 0;
 				end else begin
 					read_response_cu_out[i].valid <= read_response_cu[i].valid ;
@@ -217,7 +225,7 @@ module cu_vertex_pagerank_arbiter_control #(
 					vertex_job_cu_out[i].valid <= vertex_job_cu[i].valid ;
 					ready_edge_data_write_cu_out[i] <= ready_edge_data_write_cu[i] && ~burst_read_command_buffer_states_cu_out_latched[i].alfull;
 					ready_read_command_cu_out[i]    <= ready_read_command_cu[i] && ~burst_edge_data_write_cu_buffer_states_cu_out_latched[i].alfull;
-					cu_wed_request_out[i] <= cu_wed_request_out_latched[i];
+					cu_wed_request_out[i].valid <= cu_wed_request_out_latched[i].valid;
 					cu_configure_out[i] <= cu_configure_out_latched[i];
 				end
 			end
@@ -241,6 +249,7 @@ module cu_vertex_pagerank_arbiter_control #(
 					read_data_1_cu_out[i].payload <= read_data_1_cu[i].payload ;
 					edge_data_read_cu_out[i].payload <= edge_data_read_cu[i].payload ;
 					vertex_job_cu_out[i].payload <= vertex_job_cu[i].payload ;
+					cu_wed_request_out[i].payload <= cu_wed_request_out_latched[i].payload;
 				end
 			end
 		end

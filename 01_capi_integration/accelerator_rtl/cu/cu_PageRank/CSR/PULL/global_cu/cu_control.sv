@@ -584,7 +584,7 @@ module cu_control #(
 		.NUM_VERTEX_CU(NUM_VERTEX_CU)
 	) cu_graph_algorithm_arbiter_control_instant (
 		.clock                          (clock                            ),
-		.rstn                           (rstn                             ),
+		.rstn_in                        (rstn                             ),
 		.enabled_in                     (enabled_in                       ),
 		.enable_cu_out                  (enable_cu_out                    ),
 		.cu_configure                   (cu_configure_latched             ),

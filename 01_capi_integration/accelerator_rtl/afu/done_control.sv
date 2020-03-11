@@ -17,7 +17,7 @@ import AFU_PKG::*;
 
 module done_control (
 	input  logic                      clock                     , // Clock
-	input  logic                      rstn                      ,
+	input  logic                      rstn_in                   ,
 	input  logic                      soft_rstn                 ,
 	input  logic                      enabled_in                ,
 	input  cu_return_type             cu_return                 ,
@@ -29,7 +29,7 @@ module done_control (
 	output ResponseStatistcsInterface report_response_statistics
 );
 
-
+	logic                      rstn                              ;
 	done_state                 current_state, next_state;
 	logic                      done_flag                         ;
 	logic                      enabled                           ;
@@ -41,7 +41,13 @@ module done_control (
 
 	assign done_flag = cu_done;
 
-
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
 	////////////////////////////////////////////////////////////////////////////
 	//soft reset done logic
 	////////////////////////////////////////////////////////////////////////////
@@ -127,7 +133,7 @@ module done_control (
 			DONE_IDLE : begin
 				cu_return_done                     <= 0;
 				cu_return_done_latched             <= cu_return.var1;
-				report_response_statistics 		   <= response_statistics;
+				report_response_statistics         <= response_statistics;
 				report_response_statistics_latched <= response_statistics;
 				reset_done                         <= 1'b1;
 			end

@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-11 05:54:06
+// Revise : 2020-03-11 18:37:39
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -24,7 +24,7 @@ module cu_graph_algorithm_arbiter_control #(
 	parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL
 ) (
 	input  logic                          clock                                           , // Clock
-	input  logic                          rstn                                            ,
+	input  logic                          rstn_in                                         ,
 	input  logic                          enabled_in                                      ,
 	output logic [      NUM_GRAPH_CU-1:0] enable_cu_out                                   ,
 	input  logic [                  0:63] cu_configure                                    ,
@@ -68,6 +68,8 @@ module cu_graph_algorithm_arbiter_control #(
 	input  logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_cu_in [0:NUM_GRAPH_CU-1],
 	input  logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_cu_in [0:NUM_GRAPH_CU-1]
 );
+
+	logic                    rstn                                                  ;
 	logic                    enabled                                               ;
 	logic [NUM_GRAPH_CU-1:0] enable_cu_out_latched                                 ;
 	logic [            0:63] cu_configure_latched                                  ;
@@ -158,6 +160,14 @@ module cu_graph_algorithm_arbiter_control #(
 	////////////////////////////////////////////////////////////////////////////
 	//enable logic
 	////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -817,7 +827,7 @@ module cu_graph_algorithm_arbiter_control #(
 		.total_sum_out  (edge_job_counter_done_latched      )
 	);
 
-	
+
 
 
 endmodule

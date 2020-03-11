@@ -309,7 +309,7 @@ module cu_graph_algorithm_control #(
 		.CU_ID_Y      (CU_ID_Y      )
 	) cu_vertex_pagerank_arbiter_control_instant (
 		.clock                                        (clock                                    ),
-		.rstn                                         (rstn                                     ),
+		.rstn_in                                      (rstn                                     ),
 		.enabled_in                                   (enabled                                  ),
 		.wed_request_in                               (wed_request_in_latched                   ),
 		.cu_wed_request_out                           (cu_wed_request_out                       ),

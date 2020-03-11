@@ -15,37 +15,39 @@
 import CAPI_PKG::*;
 
 module job (
-  input logic clock,    // Clock
-  input logic rstn,
-  input JobInterfaceInput job_in,
-  input logic [0:63]  report_errors,
-  output logic [0:1]  job_errors,
-  output JobInterfaceOutput job_out,
-  output logic timebase_request,
-  output logic parity_enabled,
-  output logic reset_job
+  input  logic              clock           , // Clock
+  input  logic              rstn_in         ,
+  input  JobInterfaceInput  job_in          ,
+  input  logic [0:63]       report_errors   ,
+  output logic [ 0:1]       job_errors      ,
+  output JobInterfaceOutput job_out         ,
+  output logic              timebase_request,
+  output logic              parity_enabled  ,
+  output logic              reset_job
 );
 
-  logic prev_rstn;
-  logic next_rstn;
-  logic start_job;
-  logic done_job;
+  logic prev_rstn ;
+  logic next_rstn ;
+  logic start_job ;
+  logic done_job  ;
   logic odd_parity;
 
-  logic command_parity_link;
-  logic address_parity_link;
-  logic command_parity;
-  logic address_parity;
-  logic [0:7]  command;
-  logic [0:63] address;
+  logic        command_parity_link;
+  logic        address_parity_link;
+  logic        command_parity     ;
+  logic        address_parity     ;
+  logic [ 0:7] command            ;
+  logic [0:63] address            ;
 
-  logic job_command_error;
-  logic job_address_error;
-  logic enable_errors;
-  logic [0:1] detected_errors;
-  logic [0:63]  reported_errors;
+  logic        job_command_error;
+  logic        job_address_error;
+  logic        enable_errors    ;
+  logic [ 0:1] detected_errors  ;
+  logic [0:63] reported_errors  ;
 
   JobInterfaceInput job_in_latched;
+
+  logic rstn;
 
   assign odd_parity       = 1'b1; // Odd parity
   assign parity_enabled   = 1'b1;
@@ -61,33 +63,41 @@ module job (
 ////////////////////////////////////////////////////////////////////////////
 
   always_ff @(posedge clock) begin
-    job_in_latched  <= job_in;
+    job_in_latched <= job_in;
   end
 
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
 
+  always_ff @(posedge clock or negedge rstn_in) begin
+    if(~rstn_in) begin
+      rstn <= 0;
+    end else begin
+      rstn <= rstn_in;
+    end
+  end
+
 
   always_ff @(posedge clock) begin
     if(job_in_latched.valid) begin
       case(job_in_latched.command)
-        RESET: begin
+        RESET : begin
           start_job <= 1'b0;
           reset_job <= 1'b0;
           prev_rstn <= 1'b0;
           next_rstn <= 1'b0;
           done_job  <= 1'b0;
         end
-        START: begin
+        START : begin
           start_job <= 1'b1;
           reset_job <= 1'b1;
         end
-        default: begin
-          start_job  <= 1'b0;
-          reset_job  <= 1'b1;
-          prev_rstn  <= 1'b0;
-          next_rstn  <= 1'b0;
+        default : begin
+          start_job <= 1'b0;
+          reset_job <= 1'b1;
+          prev_rstn <= 1'b0;
+          next_rstn <= 1'b0;
         end
       endcase
     end else begin
@@ -138,20 +148,16 @@ module job (
   end
 
 
-  parity #(
-    .BITS(8)
-  ) job_command_parity_instant (
-    .data            (command),
-    .odd             (odd_parity),
-    .par             (command_parity_link)
+  parity #(.BITS(8)) job_command_parity_instant (
+    .data(command            ),
+    .odd (odd_parity         ),
+    .par (command_parity_link)
   );
 
-  parity #(
-    .BITS(64)
-  ) job_address_parity_instant (
-    .data            (address),
-    .odd             (odd_parity),
-    .par             (address_parity_link)
+  parity #(.BITS(64)) job_address_parity_instant (
+    .data(address            ),
+    .odd (odd_parity         ),
+    .par (address_parity_link)
   );
 
 
@@ -167,10 +173,10 @@ module job (
   always_ff @(posedge clock) begin
     if(job_in_latched.valid) begin
       case(job_in_latched.command)
-        RESET: begin
+        RESET : begin
           reported_errors <= 64'b0;
         end
-        default: begin
+        default : begin
           if(~(|reported_errors))
             reported_errors <= report_errors;
         end
@@ -183,9 +189,9 @@ module job (
 
   always_ff @(posedge clock) begin
     if(~rstn) begin
-      job_command_error    <= 1'b0;
-      job_address_error    <= 1'b0;
-      detected_errors      <= 2'b00;
+      job_command_error <= 1'b0;
+      job_address_error <= 1'b0;
+      detected_errors   <= 2'b00;
     end else begin
       job_command_error <= command_parity_link ^ command_parity;
       job_address_error <= address_parity_link ^ address_parity;
@@ -203,9 +209,9 @@ module job (
 
   always_ff @(posedge clock) begin
     if(done_job) begin
-      job_out.error     <= reported_errors;
+      job_out.error <= reported_errors;
     end else  begin
-      job_out.error     <= 64'h0000_0000_0000_0000;
+      job_out.error <= 64'h0000_0000_0000_0000;
     end
   end
 

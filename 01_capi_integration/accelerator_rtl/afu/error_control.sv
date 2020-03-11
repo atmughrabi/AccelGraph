@@ -17,7 +17,7 @@ import AFU_PKG::*;
 
 module error_control (
 	input  logic        clock            , // Clock
-	input  logic        rstn             ,
+	input  logic        rstn_in          ,
 	input  logic        enabled_in       ,
 	input  logic [0:63] external_errors  ,
 	input  logic        report_errors_ack,
@@ -31,7 +31,15 @@ module error_control (
 	logic       enabled      ;
 
 	assign error_flag = |external_errors;
+	logic rstn;
 
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
 	////////////////////////////////////////////////////////////////////////////
 	//enable logic
 	////////////////////////////////////////////////////////////////////////////

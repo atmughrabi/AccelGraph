@@ -21,7 +21,7 @@ import CU_PKG::*;
 module wed_control (
   input  logic              clock                ,
   input  logic              enabled_in           ,
-  input  logic              rstn                 ,
+  input  logic              rstn_in              ,
   input  logic [0:63]       wed_address          ,
   input  ReadWriteDataLine  wed_data_0_in        ,
   input  ReadWriteDataLine  wed_data_1_in        ,
@@ -34,9 +34,18 @@ module wed_control (
   wed_state                         current_state, next_state;
   logic [0:(CACHELINE_SIZE_BITS-1)] wed_cacheline128;
   logic                             enabled         ;
+  logic                             rstn            ;
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
+
+  always_ff @(posedge clock or negedge rstn_in) begin
+    if(~rstn_in) begin
+      rstn <= 0;
+    end else begin
+      rstn <= rstn_in;
+    end
+  end
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin

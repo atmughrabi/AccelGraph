@@ -74,21 +74,22 @@ module cu_edge_data_write_command_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			wed_request_in_latched.valid <= 0;
-			cu_configure_latched         <= 0;
-			edge_data_write_latched      <= 0;
+			wed_request_in_latched.valid  <= 0;
+			cu_configure_latched          <= 0;
+			edge_data_write_latched.valid <= 0;
 		end else begin
 			if(enabled) begin
 				wed_request_in_latched.valid <= wed_request_in.valid;
 				if((|cu_configure))
 					cu_configure_latched <= cu_configure;
-				edge_data_write_latched <= edge_data_write;
+				edge_data_write_latched.valid <= edge_data_write.valid ;
 			end
 		end
 	end
 
 	always_ff @(posedge clock) begin
-		wed_request_in_latched.payload <= wed_request_in.payload;
+		wed_request_in_latched.payload  <= wed_request_in.payload;
+		edge_data_write_latched.payload <= edge_data_write.payload ;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -163,9 +164,9 @@ module cu_edge_data_write_command_control #(
 			end else begin
 				write_command_out_latched.payload.command <= WRITE_NA;
 			end
-		end else begin 
-			write_data_0_out_latched.payload  <= 0;
-			write_data_1_out_latched.payload  <= 0;
+		end else begin
+			write_data_0_out_latched.payload <= 0;
+			write_data_1_out_latched.payload <= 0;
 		end
 	end
 

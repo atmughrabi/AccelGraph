@@ -19,7 +19,9 @@ import CREDIT_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module restart_control (
+module restart_control #(
+	parameter CREDIT_HEADROOM = 4
+) (
 	input                     clock                    , // Clock
 	input                     enabled_in               ,
 	input                     rstn                     , // Asynchronous reset active low
@@ -424,7 +426,7 @@ module restart_control (
 		.empty   (restart_command_buffer_status_internal.empty )
 	);
 
-	assign restart_command_issue_buffer_pop = ~restart_command_issue_buffer_status_internal.empty && restart_pending && (|total_credit_count);
+	assign restart_command_issue_buffer_pop = ~restart_command_issue_buffer_status_internal.empty && restart_pending && (total_credit_count > CREDIT_HEADROOM);
 
 	fifo #(
 		.WIDTH($bits(CommandBufferLineRestart)),

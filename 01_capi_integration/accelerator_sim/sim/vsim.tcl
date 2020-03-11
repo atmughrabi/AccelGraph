@@ -62,8 +62,6 @@ proc r  {} {
   vlog -quiet ../../accelerator_rtl/afu/reset_control.sv
   vlog -quiet ../../accelerator_rtl/afu/error_control.sv
   vlog -quiet ../../accelerator_rtl/afu/done_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/sum_reduce.sv
-  vlog -quiet ../../accelerator_rtl/afu/demux_bus.sv
   vlog -quiet ../../accelerator_rtl/afu/ram.sv
   vlog -quiet ../../accelerator_rtl/afu/fifo.sv
   vlog -quiet ../../accelerator_rtl/afu/priority_arbiters.sv
@@ -99,6 +97,8 @@ proc r  {} {
   if {$graph_algorithm eq "cu_PageRank"} {
     if {$data_structure eq "CSR"} {
 
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/sum_reduce.sv
+        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/demux_bus.sv
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/array_struct_type_demux_bus.sv
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/$cu_precision/cu/cu_sum_kernel_control.sv
         vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_write_command_control.sv
