@@ -262,7 +262,7 @@ module cu_control #(
 	end
 
 
-	always_ff @(posedge clock) begin
+	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			write_command_out.payload <= 0 ;
 			write_data_0_out.payload  <= 0 ;
@@ -298,7 +298,7 @@ module cu_control #(
 		end
 	end
 
-	always_ff @(posedge clock) begin
+	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			wed_request_in_latched.payload            <= 0;
 			read_response_in_latched.payload          <= 0;

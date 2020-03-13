@@ -133,9 +133,9 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn_in) begin
 		if(~rstn_in) begin
-			rstn <= 0;
+			rstn        <= 0;
 		end else begin
-			rstn <= rstn_in;
+			rstn        <= rstn_in;
 		end
 	end
 

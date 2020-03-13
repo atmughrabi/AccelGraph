@@ -49,7 +49,10 @@ module cu_graph_algorithm_control #(
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done
 );
 
-	logic                     rstn                       ;
+	logic rstn       ;
+	logic rstn_input ;
+	logic rstn_output;
+
 	logic                     reset_cu                   ;
 	logic [NUM_VERTEX_CU-1:0] reset_cu_in                ;
 	BufferStatus              read_buffer_status_latched ;
@@ -117,21 +120,24 @@ module cu_graph_algorithm_control #(
 	logic        cu_rstn_out       [0:NUM_VERTEX_CU-1];
 	WEDInterface cu_wed_request_out[0:NUM_VERTEX_CU-1];
 
-
 	genvar i;
 	////////////////////////////////////////////////////////////////////////////
 	//enable logic
 	////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn_in) begin
 		if(~rstn_in) begin
-			rstn <= 0;
+			rstn        <= 0;
+			rstn_input  <= 0;
+			rstn_output <= 0;
 		end else begin
-			rstn <= rstn_in;
+			rstn        <= rstn_in;
+			rstn_input  <= rstn_in;
+			rstn_output <= rstn_in;
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
 			enabled <= 0;
 		end else begin
 			enabled <= enabled_in;
@@ -143,8 +149,8 @@ module cu_graph_algorithm_control #(
 	////////////////////////////////////////////////////////////////////////////
 
 	// drive outputs
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			write_command_out.valid   <= 0;
 			write_data_0_out.valid    <= 0;
 			write_data_1_out.valid    <= 0;
@@ -168,8 +174,8 @@ module cu_graph_algorithm_control #(
 	end
 
 	// drive outputs
-	always_ff @(posedge clock) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			write_command_out.payload <= 0;
 			write_data_0_out.payload  <= 0;
 			write_data_1_out.payload  <= 0;
@@ -186,8 +192,8 @@ module cu_graph_algorithm_control #(
 	//Drive input
 	////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
 			wed_request_in_latched.valid      <= 0;
 			read_response_in_latched.valid    <= 0;
 			write_response_in_latched.valid   <= 0;
@@ -219,8 +225,8 @@ module cu_graph_algorithm_control #(
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
 			wed_request_in_latched.payload    <= 0;
 			read_response_in_latched.payload  <= 0;
 			write_response_in_latched.payload <= 0;

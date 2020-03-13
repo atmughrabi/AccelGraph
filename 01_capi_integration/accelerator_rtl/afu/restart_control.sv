@@ -19,9 +19,7 @@ import CREDIT_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module restart_control #(
-	parameter CREDIT_HEADROOM = 4
-) (
+module restart_control #(parameter CREDIT_HEADROOM = 4) (
 	input                     clock                    , // Clock
 	input                     enabled_in               ,
 	input                     rstn                     , // Asynchronous reset active low
@@ -110,8 +108,11 @@ module restart_control #(
 		end
 	end
 
-	always_ff @(posedge clock) begin
-		restart_command_issue_out.payload <= restart_command_issue_buffer_out.cmd.payload;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn)
+			restart_command_issue_out.payload <= 0;
+		else
+			restart_command_issue_out.payload <= restart_command_issue_buffer_out.cmd.payload;
 	end
 
 	////////////////////////////////////////////////////////////////////////////

@@ -74,12 +74,20 @@ module command_control (
     end
   end // always_ff @(posedge clock)
 
-  always_ff @(posedge clock) begin
-    command_out_latch.command <= command_arbiter_in.payload.command;
-    command_out_latch.address <= command_arbiter_in.payload.address;
-    command_out_latch.tag     <= command_tag_in;
-    command_out_latch.size    <= command_arbiter_in.payload.size;
-    command_out_latch.abt     <= command_arbiter_in.payload.abt;
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      command_out_latch.command <= TOUCH_I;
+      command_out_latch.address <= 0;
+      command_out_latch.tag     <= 0;
+      command_out_latch.size    <= 0;
+      command_out_latch.abt     <= STRICT;
+    end else begin
+      command_out_latch.command <= command_arbiter_in.payload.command;
+      command_out_latch.address <= command_arbiter_in.payload.address;
+      command_out_latch.tag     <= command_tag_in;
+      command_out_latch.size    <= command_arbiter_in.payload.size;
+      command_out_latch.abt     <= command_arbiter_in.payload.abt;
+    end
   end // always_ff @(posedge clock)
 
 

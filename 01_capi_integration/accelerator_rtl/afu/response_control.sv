@@ -100,8 +100,11 @@ module response_control (
     end
   end
 
-  always_ff @(posedge clock) begin
-    response_control_out.response.payload <= response_control_out_latched.response.payload;
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn)
+      response_control_out.response.payload <= 0;
+    else
+      response_control_out.response.payload <= response_control_out_latched.response.payload;
   end
 
 ////////////////////////////////////////////////////////////////////////////
