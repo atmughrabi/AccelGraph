@@ -213,8 +213,8 @@ module cu_vertex_pagerank_arbiter_control #(
 
 	always_ff @(posedge clock or negedge rstn_input) begin
 		if(~rstn_input) begin
-			rstn_input_valid   <= 0;
-			rstn_input_payload <= 0;
+			rstn_output_valid   <= 0;
+			rstn_output_payload <= 0;
 		end else begin
 			rstn_input_valid   <= rstn_input;
 			rstn_input_payload <= rstn_input;
