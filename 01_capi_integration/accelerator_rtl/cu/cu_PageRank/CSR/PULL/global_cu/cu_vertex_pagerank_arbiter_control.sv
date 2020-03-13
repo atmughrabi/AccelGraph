@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-12 21:58:43
+// Revise : 2020-03-13 06:57:10
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -67,9 +67,13 @@ module cu_vertex_pagerank_arbiter_control #(
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_out
 );
 
-	logic rstn       ;
-	logic rstn_input ;
-	logic rstn_output;
+	logic rstn               ;
+	logic rstn_input         ;
+	logic rstn_input_valid   ;
+	logic rstn_input_payload ;
+	logic rstn_output        ;
+	logic rstn_output_valid  ;
+	logic rstn_output_payload;
 
 	logic read_command_bus_grant_latched  ;
 	logic read_command_bus_request_latched;
@@ -197,8 +201,28 @@ module cu_vertex_pagerank_arbiter_control #(
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
+			rstn_output_valid   <= 0;
+			rstn_output_payload <= 0;
+		end else begin
+			rstn_output_valid   <= rstn_output;
+			rstn_output_payload <= rstn_output;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
+			rstn_output_valid   <= 0;
+			rstn_output_payload <= 0;
+		end else begin
+			rstn_input_valid   <= rstn_input;
+			rstn_input_payload <= rstn_input;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
 			enabled <= 0;
 		end else begin
 			enabled <= enabled_in;
@@ -211,8 +235,8 @@ module cu_vertex_pagerank_arbiter_control #(
 
 	generate
 		for ( i = 0; i < (NUM_VERTEX_CU); i++) begin : generate_cu_vertex_pagerank_output_reset_logic
-			always_ff @(posedge clock or negedge rstn_output) begin
-				if(~rstn_output) begin
+			always_ff @(posedge clock or negedge rstn_output_valid) begin
+				if(~rstn_output_valid) begin
 					read_response_cu_out[i].valid <= 0;
 					write_response_cu_out[i].valid <= 0;
 					read_data_0_cu_out[i].valid <= 0;
@@ -241,8 +265,8 @@ module cu_vertex_pagerank_arbiter_control #(
 
 	generate
 		for ( i = 0; i < (NUM_VERTEX_CU); i++) begin : generate_cu_vertex_pagerank_output_logic
-			always_ff @(posedge clock or negedge rstn_output) begin
-				if(~rstn_output) begin
+			always_ff @(posedge clock or negedge rstn_output_payload) begin
+				if(~rstn_output_payload) begin
 					read_response_cu_out[i].payload <= 0;
 					write_response_cu_out[i].payload <= 0;
 					read_data_0_cu_out[i].payload <= 0;
@@ -263,8 +287,8 @@ module cu_vertex_pagerank_arbiter_control #(
 	endgenerate
 
 	// drive outputs
-	always_ff @(posedge clock or negedge rstn_output) begin
-		if(~rstn_output) begin
+	always_ff @(posedge clock or negedge rstn_output_valid) begin
+		if(~rstn_output_valid) begin
 			read_command_out.valid      <= 0;
 			burst_edge_data_out.valid   <= 0;
 			enable_cu_out               <= 0;
@@ -282,8 +306,8 @@ module cu_vertex_pagerank_arbiter_control #(
 	end
 
 	// drive outputs
-	always_ff @(posedge clock or negedge rstn_output) begin
-		if(~rstn_output) begin
+	always_ff @(posedge clock or negedge rstn_output_payload) begin
+		if(~rstn_output_payload) begin
 			read_command_out.payload    <= 0;
 			burst_edge_data_out.payload <= 0;
 		end else begin
@@ -298,8 +322,8 @@ module cu_vertex_pagerank_arbiter_control #(
 
 	generate
 		for ( i = 0; i < (NUM_VERTEX_CU); i++) begin : generate_cu_vertex_pagerank_input_reset_logic
-			always_ff @(posedge clock or negedge rstn_input) begin
-				if(~rstn_input) begin
+			always_ff @(posedge clock or negedge rstn_input_valid) begin
+				if(~rstn_input_valid) begin
 					read_command_cu[i].valid <= 0;
 					edge_data_write_cu[i].valid <= 0;
 				end else begin
@@ -312,8 +336,8 @@ module cu_vertex_pagerank_arbiter_control #(
 
 	generate
 		for ( i = 0; i < (NUM_VERTEX_CU); i++) begin : generate_cu_vertex_pagerank_input_logic
-			always_ff @(posedge clock or negedge rstn_input) begin
-				if(~rstn_input) begin
+			always_ff @(posedge clock or negedge rstn_input_payload) begin
+				if(~rstn_input_payload) begin
 					read_command_cu[i].payload <= 0;
 					edge_data_write_cu[i].payload <= 0;
 					vertex_num_counter_cu[i] <= 0;
@@ -329,8 +353,8 @@ module cu_vertex_pagerank_arbiter_control #(
 	endgenerate
 
 
-	always_ff @(posedge clock or negedge rstn_input) begin
-		if(~rstn_input) begin
+	always_ff @(posedge clock or negedge rstn_input_valid) begin
+		if(~rstn_input_valid) begin
 			request_read_command_cu    <= 0;
 			request_edge_data_write_cu <= 0;
 			request_vertex_job_cu      <= 0;
@@ -343,8 +367,8 @@ module cu_vertex_pagerank_arbiter_control #(
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn_input) begin
-		if(~rstn_input) begin
+	always_ff @(posedge clock or negedge rstn_input_valid) begin
+		if(~rstn_input_valid) begin
 			read_response_in_latched.valid    <= 0;
 			write_response_in_latched.valid   <= 0;
 			read_data_0_in_latched.valid      <= 0;
@@ -370,8 +394,8 @@ module cu_vertex_pagerank_arbiter_control #(
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn_input) begin
-		if(~rstn_input) begin
+	always_ff @(posedge clock or negedge rstn_input_payload) begin
+		if(~rstn_input_payload) begin
 			read_response_in_latched.payload  <= 0;
 			write_response_in_latched.payload <= 0;
 			read_data_0_in_latched.payload    <= 0;

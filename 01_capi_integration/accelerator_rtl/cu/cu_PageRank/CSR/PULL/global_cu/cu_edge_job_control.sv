@@ -75,6 +75,9 @@ module cu_edge_job_control #(
 	ReadWriteDataLine  read_data_0_in_latched  ;
 	ReadWriteDataLine  read_data_1_in_latched  ;
 
+	array_struct_type read_data_0_in_array_struct_type;
+	array_struct_type read_data_1_in_array_struct_type;
+
 	logic edge_request_latched;
 
 	CommandBufferLine read_command_edge_job_latched   ;
@@ -176,10 +179,20 @@ module cu_edge_job_control #(
 	end
 
 	always_ff @(posedge clock) begin
-		wed_request_in_latched.payload   <= wed_request_in.payload;
-		read_response_in_latched.payload <= read_response_in.payload;
-		read_data_0_in_latched.payload   <= read_data_0_in.payload;
-		read_data_1_in_latched.payload   <= read_data_1_in.payload;
+		wed_request_in_latched.payload      <= wed_request_in.payload;
+		read_response_in_latched.payload    <= read_response_in.payload;
+		read_data_0_in_latched.payload.data <= read_data_0_in.payload.data;
+		read_data_1_in_latched.payload.data <= read_data_1_in.payload.data;
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_data_0_in_array_struct_type <= STRUCT_INVALID;
+			read_data_1_in_array_struct_type <= STRUCT_INVALID;
+		end else begin
+			read_data_0_in_array_struct_type <= read_data_0_in.payload.cmd.array_struct;
+			read_data_1_in_array_struct_type <= read_data_1_in.payload.cmd.array_struct ;
+		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -488,7 +501,7 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock) begin
 		if(read_data_0_in_latched.valid) begin
-			case (read_data_0_in_latched.payload.cmd.array_struct)
+			case (read_data_0_in_array_struct_type)
 				INV_EDGE_ARRAY_DEST : begin
 					reg_INV_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched.payload.data;
 				end
@@ -502,7 +515,7 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock) begin
 		if( read_data_1_in_latched.valid) begin
-			case (read_data_1_in_latched.payload.cmd.array_struct)
+			case (read_data_1_in_array_struct_type)
 				INV_EDGE_ARRAY_DEST : begin
 					reg_INV_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched.payload.data;
 				end
