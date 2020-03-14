@@ -207,11 +207,15 @@ module response_control (
     end
   end
 
-  always_ff @(posedge clock) begin
-    response_control_out_latched.response.payload.cmd              <= response_tag_id_in;
-    response_control_out_latched.response.payload.cmd.tag          <= response_in.tag;
-    response_control_out_latched.response.payload.response         <= response_in.response;
-    response_control_out_latched.response.payload.response_credits <= response_in.credits;
+  always_ff @(posedge clock or negedge rstn) begin
+    if(~rstn) begin
+      response_control_out_latched.response.payload <= 0;
+    end else begin
+      response_control_out_latched.response.payload.cmd              <= response_tag_id_in;
+      response_control_out_latched.response.payload.cmd.tag          <= response_in.tag;
+      response_control_out_latched.response.payload.response         <= response_in.response;
+      response_control_out_latched.response.payload.response_credits <= response_in.credits;
+    end
   end
 
 ////////////////////////////////////////////////////////////////////////////

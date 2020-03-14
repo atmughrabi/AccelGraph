@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-11 18:37:39
+// Revise : 2020-03-14 01:41:28
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -375,8 +375,12 @@ module cu_graph_algorithm_arbiter_control #(
 
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_enable_cu
-			always_ff @(posedge clock) begin
-				enable_cu_out_latched[i] <= ((i*NUM_VERTEX_CU) < cu_configure_latched[32:63]);
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					enable_cu_out_latched[i] <= 0;
+				end else begin
+					enable_cu_out_latched[i] <= ((i*NUM_VERTEX_CU) < cu_configure_latched[32:63]);
+				end
 			end
 		end
 	endgenerate
@@ -384,16 +388,24 @@ module cu_graph_algorithm_arbiter_control #(
 
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_cu_configure
-			always_ff @(posedge clock) begin
-				cu_configure_out_latched[i] <= cu_configure_latched;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					cu_configure_out_latched[i] <= 0;
+				end else begin
+					cu_configure_out_latched[i] <= cu_configure_latched;
+				end
 			end
 		end
 	endgenerate
 
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_cu_wed_request_out
-			always_ff @(posedge clock) begin
-				cu_wed_request_out_latched[i] = wed_request_in_latched;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					cu_wed_request_out_latched[i] <= 0;
+				end else begin
+					cu_wed_request_out_latched[i] <= wed_request_in_latched;
+				end
 			end
 		end
 	endgenerate
@@ -418,9 +430,14 @@ module cu_graph_algorithm_arbiter_control #(
 
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_read_response_demux
-			always_ff @(posedge clock) begin
-				read_response_cu_out_latched[i].valid    <= read_response_cu_out_internal_valid[i];
-				read_response_cu_out_latched[i].payload <= read_response_cu_out_internal[i].payload;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					read_response_cu_out_latched[i].valid    <= 0;
+					read_response_cu_out_latched[i].payload <= 0;
+				end else begin
+					read_response_cu_out_latched[i].valid    <= read_response_cu_out_internal_valid[i];
+					read_response_cu_out_latched[i].payload <= read_response_cu_out_internal[i].payload;
+				end
 			end
 		end
 	endgenerate
@@ -441,9 +458,14 @@ module cu_graph_algorithm_arbiter_control #(
 
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_write_response_demux
-			always_ff @(posedge clock) begin
-				write_response_cu_out_latched[i].valid   <= write_response_cu_out_internal_valid[i];
-				write_response_cu_out_latched[i].payload <= write_response_cu_out_internal[i].payload;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					write_response_cu_out_latched[i].valid   <= 0;
+					write_response_cu_out_latched[i].payload <= 0;
+				end else begin
+					write_response_cu_out_latched[i].valid   <= write_response_cu_out_internal_valid[i];
+					write_response_cu_out_latched[i].payload <= write_response_cu_out_internal[i].payload;
+				end
 			end
 		end
 	endgenerate
@@ -467,9 +489,14 @@ module cu_graph_algorithm_arbiter_control #(
 
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_read_data_0_demux
-			always_ff @(posedge clock) begin
-				read_data_0_cu_out_latched[i].valid    <= read_data_0_cu_out_internal_valid[i];
-				read_data_0_cu_out_latched[i].payload <= read_data_0_cu_out_internal[i].payload;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					read_data_0_cu_out_latched[i].valid    <= 0;
+					read_data_0_cu_out_latched[i].payload <= 0;
+				end else begin
+					read_data_0_cu_out_latched[i].valid    <= read_data_0_cu_out_internal_valid[i];
+					read_data_0_cu_out_latched[i].payload <= read_data_0_cu_out_internal[i].payload;
+				end
 			end
 		end
 	endgenerate
@@ -489,9 +516,14 @@ module cu_graph_algorithm_arbiter_control #(
 
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_read_data_1_demux
-			always_ff @(posedge clock) begin
-				read_data_1_cu_out_latched[i].valid    <= read_data_1_cu_out_internal_valid[i];
-				read_data_1_cu_out_latched[i].payload <= read_data_1_cu_out_internal[i].payload;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					read_data_1_cu_out_latched[i].valid    <= 0;
+					read_data_1_cu_out_latched[i].payload <= 0;
+				end else begin
+					read_data_1_cu_out_latched[i].valid    <= read_data_1_cu_out_internal_valid[i];
+					read_data_1_cu_out_latched[i].payload <= read_data_1_cu_out_internal[i].payload;
+				end
 			end
 		end
 	endgenerate
@@ -571,8 +603,11 @@ module cu_graph_algorithm_arbiter_control #(
 
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_burst_read_command_buffer_states_cu
-			always_ff @(posedge clock) begin
-				read_buffer_status_cu_out_latched[i] <= read_buffer_status_cu_out_internal;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn)
+					read_buffer_status_cu_out_latched[i] <= 0;
+				else
+					read_buffer_status_cu_out_latched[i] <= read_buffer_status_cu_out_internal;
 			end
 		end
 	endgenerate
@@ -754,8 +789,11 @@ module cu_graph_algorithm_arbiter_control #(
 		end
 	end
 
-	always_ff @(posedge clock) begin
-		vertex_job_arbiter_in.payload <= vertex_job_buffer_out.payload;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn)
+			vertex_job_arbiter_in.payload <= 0;
+		else
+			vertex_job_arbiter_in.payload <= vertex_job_buffer_out.payload;
 	end
 
 	fifo #(

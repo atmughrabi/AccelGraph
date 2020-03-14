@@ -75,9 +75,6 @@ module cu_edge_job_control #(
 	ReadWriteDataLine  read_data_0_in_latched  ;
 	ReadWriteDataLine  read_data_1_in_latched  ;
 
-	array_struct_type read_data_0_in_array_struct_type;
-	array_struct_type read_data_1_in_array_struct_type;
-
 	logic edge_request_latched;
 
 	CommandBufferLine read_command_edge_job_latched   ;
@@ -178,20 +175,20 @@ module cu_edge_job_control #(
 		end
 	end
 
-	always_ff @(posedge clock) begin
-		wed_request_in_latched.payload      <= wed_request_in.payload;
-		read_response_in_latched.payload    <= read_response_in.payload;
-		read_data_0_in_latched.payload.data <= read_data_0_in.payload.data;
-		read_data_1_in_latched.payload.data <= read_data_1_in.payload.data;
-	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_in_array_struct_type <= STRUCT_INVALID;
-			read_data_1_in_array_struct_type <= STRUCT_INVALID;
+			read_data_0_in_latched.payload   <= 0;
+			read_data_1_in_latched.payload   <= 0;
+			wed_request_in_latched.payload   <= 0;
+			read_response_in_latched.payload <= 0;
+			vertex_job_latched.payload       <= 0;
 		end else begin
-			read_data_0_in_array_struct_type <= read_data_0_in.payload.cmd.array_struct;
-			read_data_1_in_array_struct_type <= read_data_1_in.payload.cmd.array_struct ;
+			read_data_0_in_latched.payload   <= read_data_0_in.payload;
+			read_data_1_in_latched.payload   <= read_data_1_in.payload;
+			wed_request_in_latched.payload   <= wed_request_in.payload;
+			read_response_in_latched.payload <= read_response_in.payload;
+			vertex_job_latched.payload       <= vertex_job.payload;
 		end
 	end
 
@@ -219,10 +216,6 @@ module cu_edge_job_control #(
 				read_vertex_new_latched <= read_vertex_new;
 			end
 		end
-	end
-
-	always_ff @(posedge clock) begin
-		vertex_job_latched.payload <= vertex_job.payload;
 	end
 
 	always_comb begin
@@ -501,7 +494,7 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock) begin
 		if(read_data_0_in_latched.valid) begin
-			case (read_data_0_in_array_struct_type)
+			case (read_data_0_in_latched.payload.cmd.array_struct)
 				INV_EDGE_ARRAY_DEST : begin
 					reg_INV_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched.payload.data;
 				end
@@ -514,8 +507,8 @@ module cu_edge_job_control #(
 	end
 
 	always_ff @(posedge clock) begin
-		if( read_data_1_in_latched.valid) begin
-			case (read_data_1_in_array_struct_type)
+		if(read_data_1_in_latched.valid) begin
+			case (read_data_1_in_latched.payload.cmd.array_struct)
 				INV_EDGE_ARRAY_DEST : begin
 					reg_INV_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched.payload.data;
 				end
