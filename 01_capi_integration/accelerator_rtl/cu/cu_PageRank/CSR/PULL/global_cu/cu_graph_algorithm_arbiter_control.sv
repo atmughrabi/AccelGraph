@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-14 01:41:28
+// Revise : 2020-03-14 14:49:38
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -53,12 +53,8 @@ module cu_graph_algorithm_arbiter_control #(
 	output logic [      NUM_GRAPH_CU-1:0] write_command_bus_grant_cu_out                  ,
 	output logic                          write_command_bus_request                       ,
 	input  logic [      NUM_GRAPH_CU-1:0] write_command_bus_request_cu_in                 ,
-	output CommandBufferLine              write_command_out                               ,
-	input  CommandBufferLine              write_command_out_cu_in [0:NUM_GRAPH_CU-1]      ,
-	output ReadWriteDataLine              write_data_0_out                                ,
-	output ReadWriteDataLine              write_data_1_out                                ,
-	input  ReadWriteDataLine              write_data_0_out_cu_in [0:NUM_GRAPH_CU-1]       ,
-	input  ReadWriteDataLine              write_data_1_out_cu_in [0:NUM_GRAPH_CU-1]       ,
+	input  EdgeDataWrite                  edge_data_write_cu_in [0:NUM_GRAPH_CU-1]        ,
+	output EdgeDataWrite                  edge_data_write_out                             ,
 	input  VertexInterface                vertex_job                                      ,
 	output VertexInterface                vertex_job_cu_out [0:NUM_GRAPH_CU-1]            ,
 	output logic                          vertex_job_request                              ,
@@ -117,27 +113,18 @@ module cu_graph_algorithm_arbiter_control #(
 
 	BufferStatus             write_buffer_status_latched                              ;
 	BufferStatus             write_buffer_status_cu_out_latched     [0:NUM_GRAPH_CU-1];
-	BufferStatus             write_buffer_status_cu_out_internal                      ;
 	logic                    write_command_bus_grant_latched                          ;
 	logic [NUM_GRAPH_CU-1:0] write_command_bus_grant_cu_out_latched                   ;
 	logic                    write_command_bus_request_latched                        ;
 	logic [NUM_GRAPH_CU-1:0] write_command_bus_request_cu_in_latched                  ;
-	CommandBufferLine        write_command_out_latched                                ;
-	CommandBufferLine        write_command_out_internal                               ;
-	CommandBufferLine        write_command_out_cu_in_latched        [0:NUM_GRAPH_CU-1];
-	logic [NUM_GRAPH_CU-1:0] write_command_out_cu_in_latched_submit                   ;
-	ReadWriteDataLine        write_data_0_out_latched                                 ;
-	ReadWriteDataLine        write_data_1_out_latched                                 ;
-	ReadWriteDataLine        write_data_0_out_cu_in_latched         [0:NUM_GRAPH_CU-1];
-	ReadWriteDataLine        write_data_1_out_cu_in_latched         [0:NUM_GRAPH_CU-1];
-	logic [NUM_GRAPH_CU-1:0] write_data_0_bus_grant_cu_out_latched                    ;
-	logic [NUM_GRAPH_CU-1:0] write_data_1_bus_grant_cu_out_latched                    ;
-	BufferStatus             write_data_0_status_cu_out_internal                      ;
-	BufferStatus             write_data_1_status_cu_out_internal                      ;
-	ReadWriteDataLine        write_data_0_out_internal                                ;
-	ReadWriteDataLine        write_data_1_out_internal                                ;
-	logic [NUM_GRAPH_CU-1:0] write_data_0_out_cu_in_latched_submit                    ;
-	logic [NUM_GRAPH_CU-1:0] write_data_1_out_cu_in_latched_submit                    ;
+
+
+	BufferStatus             burst_edge_data_write_cu_buffer_states_cu                  ;
+	EdgeDataWrite            burst_edge_data_buffer_out                                 ;
+	EdgeDataWrite            edge_data_write_arbiter_out                                ;
+	EdgeDataWrite            edge_data_write_arbiter_out_latched                        ;
+	EdgeDataWrite            edge_data_write_cu_in_latched            [0:NUM_GRAPH_CU-1];
+	logic [NUM_GRAPH_CU-1:0] edge_data_write_arbiter_cu_submit                          ;
 
 
 	BufferStatus             vertex_buffer_status_internal                     ;
@@ -210,6 +197,7 @@ module cu_graph_algorithm_arbiter_control #(
 					write_command_bus_grant_cu_out[i] <= write_command_bus_grant_cu_out_latched[i] && ~write_buffer_status_cu_out_latched[i].alfull;
 					read_buffer_status_cu_out[i] <= read_buffer_status_cu_out_latched[i];
 					write_buffer_status_cu_out[i] <= write_buffer_status_cu_out_latched[i];
+
 				end
 			end
 		end
@@ -239,37 +227,29 @@ module cu_graph_algorithm_arbiter_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_job_request      <= 0;
-			enable_cu_out           <= 0;
-			vertex_job_counter_done <= 0;
-			edge_job_counter_done   <= 0;
-			read_command_out.valid  <= 0;
-			write_command_out.valid <= 0;
-			write_data_0_out.valid  <= 0;
-			write_data_1_out.valid  <= 0;
+			vertex_job_request        <= 0;
+			enable_cu_out             <= 0;
+			vertex_job_counter_done   <= 0;
+			edge_job_counter_done     <= 0;
+			read_command_out.valid    <= 0;
+			edge_data_write_out.valid <= 0;
 		end else begin
-			vertex_job_request      <= vertex_job_request_latched;
-			enable_cu_out           <= enable_cu_out_latched;
-			vertex_job_counter_done <= vertex_job_counter_done_latched;
-			edge_job_counter_done   <= edge_job_counter_done_latched;
-			read_command_out.valid  <= read_command_out_latched.valid;
-			write_command_out.valid <= write_command_out_latched.valid;
-			write_data_0_out.valid  <= write_data_0_out_latched.valid;
-			write_data_1_out.valid  <= write_data_1_out_latched.valid;
+			vertex_job_request        <= vertex_job_request_latched;
+			enable_cu_out             <= enable_cu_out_latched;
+			vertex_job_counter_done   <= vertex_job_counter_done_latched;
+			edge_job_counter_done     <= edge_job_counter_done_latched;
+			read_command_out.valid    <= read_command_out_latched.valid;
+			edge_data_write_out.valid <= burst_edge_data_buffer_out.valid;
 		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_command_out.payload  <= 0;
-			write_command_out.payload <= 0;
-			write_data_0_out.payload  <= 0;
-			write_data_1_out.payload  <= 0;
+			read_command_out.payload    <= 0;
+			edge_data_write_out.payload <= 0;
 		end else begin
-			read_command_out.payload  <= read_command_out_latched.payload;
-			write_command_out.payload <= write_command_out_latched.payload;
-			write_data_0_out.payload  <= write_data_0_out_latched.payload;
-			write_data_1_out.payload  <= write_data_1_out_latched.payload;
+			read_command_out.payload    <= read_command_out_latched.payload;
+			edge_data_write_out.payload <= burst_edge_data_buffer_out.payload;
 		end
 	end
 
@@ -287,9 +267,8 @@ module cu_graph_algorithm_arbiter_control #(
 					vertex_job_counter_done_cu_in_latched[i]   <= 0;
 					edge_job_counter_done_cu_in_latched[i]     <= 0;
 					read_command_out_cu_in_latched[i].valid <= 0;
-					write_command_out_cu_in_latched[i].valid <= 0;
-					write_data_0_out_cu_in_latched[i].valid <= 0;
-					write_data_1_out_cu_in_latched[i].valid <= 0;
+					edge_data_write_cu_in_latched[i].valid	<=  0;
+
 				end else begin
 					read_command_bus_request_cu_in_latched[i]  <= read_command_bus_request_cu_in[i];
 					write_command_bus_request_cu_in_latched[i] <= write_command_bus_request_cu_in[i];
@@ -297,9 +276,7 @@ module cu_graph_algorithm_arbiter_control #(
 					vertex_job_counter_done_cu_in_latched[i]   <= vertex_job_counter_done_cu_in[i];
 					edge_job_counter_done_cu_in_latched[i]     <= edge_job_counter_done_cu_in[i];
 					read_command_out_cu_in_latched[i].valid <= 	read_command_out_cu_in[i].valid;
-					write_command_out_cu_in_latched[i].valid <= 	write_command_out_cu_in[i].valid;
-					write_data_0_out_cu_in_latched[i].valid <= 	write_data_0_out_cu_in[i].valid;
-					write_data_1_out_cu_in_latched[i].valid <= 	write_data_1_out_cu_in[i].valid;
+					edge_data_write_cu_in_latched[i].valid	<=  edge_data_write_cu_in[i].valid;
 				end
 			end
 		end
@@ -310,14 +287,10 @@ module cu_graph_algorithm_arbiter_control #(
 			always_ff @(posedge clock or negedge rstn) begin
 				if(~rstn) begin
 					read_command_out_cu_in_latched[i].payload <= 	0;
-					write_command_out_cu_in_latched[i].payload <= 	0;
-					write_data_0_out_cu_in_latched[i].payload <= 	0;
-					write_data_1_out_cu_in_latched[i].payload <= 	0;
+					edge_data_write_cu_in_latched[i].payload	<=  0;
 				end else begin
 					read_command_out_cu_in_latched[i].payload <= 	read_command_out_cu_in[i].payload;
-					write_command_out_cu_in_latched[i].payload <= 	write_command_out_cu_in[i].payload;
-					write_data_0_out_cu_in_latched[i].payload <= 	write_data_0_out_cu_in[i].payload;
-					write_data_1_out_cu_in_latched[i].payload <= 	write_data_1_out_cu_in[i].payload;
+					edge_data_write_cu_in_latched[i].payload	<=  edge_data_write_cu_in[i].payload;
 				end
 			end
 		end
@@ -604,31 +577,32 @@ module cu_graph_algorithm_arbiter_control #(
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_burst_read_command_buffer_states_cu
 			always_ff @(posedge clock or negedge rstn) begin
-				if(~rstn)
+				if(~rstn) begin
 					read_buffer_status_cu_out_latched[i] <= 0;
-				else
+					read_buffer_status_cu_out_latched[i].empty <= 1;
+				end else begin
 					read_buffer_status_cu_out_latched[i] <= read_buffer_status_cu_out_internal;
+				end
 			end
 		end
 	endgenerate
 
 	////////////////////////////////////////////////////////////////////////////
-	// Write Command Arbitration
+	// Vertex CU Write Command/Data Arbitration
 	////////////////////////////////////////////////////////////////////////////
 
-
 	round_robin_priority_arbiter_N_input_1_ouput #(
-		.NUM_REQUESTS(NUM_GRAPH_CU            ),
-		.WIDTH       ($bits(CommandBufferLine))
-	) round_robin_priority_arbiter_N_input_1_ouput_write_command_cu (
-		.clock      (clock                                 ),
-		.rstn       (rstn                                  ),
-		.enabled    (enabled                               ),
-		.buffer_in  (write_command_out_cu_in_latched        ),
-		.submit     (write_command_out_cu_in_latched_submit ),
-		.requests   (write_command_bus_request_cu_in_latched),
-		.arbiter_out(write_command_out_internal             ),
-		.ready      (write_command_bus_grant_cu_out_latched)
+		.NUM_REQUESTS(NUM_GRAPH_CU       ),
+		.WIDTH       ($bits(EdgeDataWrite))
+	) round_robin_priority_arbiter_N_input_1_ouput_edge_data_write_cu (
+		.clock      (clock                            ),
+		.rstn       (rstn                             ),
+		.enabled    (enabled                          ),
+		.buffer_in  (edge_data_write_cu_in_latched    ),
+		.submit     (edge_data_write_arbiter_cu_submit),
+		.requests   (write_command_bus_request_cu_in_latched       ),
+		.arbiter_out(edge_data_write_arbiter_out      ),
+		.ready      (write_command_bus_grant_cu_out_latched         )
 	);
 
 	////////////////////////////////////////////////////////////////////////////
@@ -636,15 +610,15 @@ module cu_graph_algorithm_arbiter_control #(
 	////////////////////////////////////////////////////////////////////////////
 
 	generate
-		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_write_command_arbiter_cu_submit
-			assign write_command_out_cu_in_latched_submit[i] = write_command_out_cu_in_latched[i].valid;
+		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_edge_data_write_arbiter_cu
+			assign edge_data_write_arbiter_cu_submit[i] = edge_data_write_cu_in_latched[i].valid;
 		end
 	endgenerate
 
-	////////////////////////////////////////////////////////////////////////////
-	// Burst Buffer write Commands
-	////////////////////////////////////////////////////////////////////////////
 
+	////////////////////////////////////////////////////////////////////////////
+	// Burst Buffer Write Commands
+	////////////////////////////////////////////////////////////////////////////
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -658,116 +632,57 @@ module cu_graph_algorithm_arbiter_control #(
 		end
 	end
 
-	assign write_command_bus_request_latched = ~write_buffer_status_cu_out_internal.empty && ~write_buffer_status_latched.alfull;
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_write_arbiter_out_latched.valid <= 0;
+		end else begin
+			if(enabled) begin
+				edge_data_write_arbiter_out_latched.valid <= edge_data_write_arbiter_out.valid;
+			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_write_arbiter_out_latched.payload <= 0;
+		end else begin
+			edge_data_write_arbiter_out_latched.payload <= edge_data_write_arbiter_out.payload;
+		end
+	end
+
+	assign write_command_bus_request_latched = ~burst_edge_data_write_cu_buffer_states_cu.empty && ~write_buffer_status_latched.alfull;
 	assign write_command_bus_request_pop     = write_command_bus_grant_latched && ~write_buffer_status_latched.alfull;
 
 	fifo #(
-		.WIDTH($bits(CommandBufferLine)),
-		.DEPTH(READ_CMD_BUFFER_SIZE    )
-	) burst_write_command_buffer_fifo_instant (
-		.clock   (clock                                     ),
-		.rstn    (rstn                                      ),
+		.WIDTH($bits(EdgeDataWrite) ),
+		.DEPTH(WRITE_CMD_BUFFER_SIZE)
+	) burst_edge_data_write_buffer_fifo_instant (
+		.clock   (clock                                           ),
+		.rstn    (rstn                                            ),
 		
-		.push    (write_command_out_internal.valid          ),
-		.data_in (write_command_out_internal                ),
-		.full    (write_buffer_status_cu_out_internal.full  ),
-		.alFull  (write_buffer_status_cu_out_internal.alfull),
+		.push    (edge_data_write_arbiter_out_latched.valid       ),
+		.data_in (edge_data_write_arbiter_out_latched             ),
+		.full    (burst_edge_data_write_cu_buffer_states_cu.full  ),
+		.alFull  (burst_edge_data_write_cu_buffer_states_cu.alfull),
 		
-		.pop     (write_command_bus_request_pop             ),
-		.valid   (write_buffer_status_cu_out_internal.valid ),
-		.data_out(write_command_out_latched                 ),
-		.empty   (write_buffer_status_cu_out_internal.empty )
+		.pop     (write_command_bus_grant_latched                 ),
+		.valid   (burst_edge_data_write_cu_buffer_states_cu.valid ),
+		.data_out(burst_edge_data_buffer_out                      ),
+		.empty   (burst_edge_data_write_cu_buffer_states_cu.empty )
 	);
 
 	generate
-		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_burst_write_command_buffer_states_cu
-			always_ff @(posedge clock) begin
-				write_buffer_status_cu_out_latched[i] <= write_buffer_status_cu_out_internal;
+		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_burst_edge_data_write_cu_buffer_states_cu
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					write_buffer_status_cu_out_latched[i] <= 0;
+					write_buffer_status_cu_out_latched[i].empty   <= 1;
+				end else begin
+					write_buffer_status_cu_out_latched[i] <= burst_edge_data_write_cu_buffer_states_cu;
+				end
 			end
 		end
 	endgenerate
-
-	////////////////////////////////////////////////////////////////////////////
-	// Burst Buffer data write Commands
-	////////////////////////////////////////////////////////////////////////////
-
-	round_robin_priority_arbiter_N_input_1_ouput #(
-		.NUM_REQUESTS(NUM_GRAPH_CU            ),
-		.WIDTH       ($bits(ReadWriteDataLine))
-	) round_robin_priority_arbiter_N_input_1_ouput_write_data_0_cu (
-		.clock      (clock                                  ),
-		.rstn       (rstn                                   ),
-		.enabled    (enabled                                ),
-		.buffer_in  (write_data_0_out_cu_in_latched         ),
-		.submit     (write_data_0_out_cu_in_latched_submit       ),
-		.requests   (write_command_bus_request_cu_in_latched),
-		.arbiter_out(write_data_0_out_internal              ),
-		.ready      (write_data_0_bus_grant_cu_out_latched  )
-	);
-
-
-	generate
-		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_write_data_0_arbiter_cu_submit
-			assign write_data_0_out_cu_in_latched_submit[i] = write_data_0_out_cu_in_latched[i].valid;
-		end
-	endgenerate
-
-	fifo #(
-		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(BURST_CMD_BUFFER_SIZE   )
-	) burst_write_data_0_buffer_fifo_instant (
-		.clock   (clock                                     ),
-		.rstn    (rstn                                      ),
-
-		.push    (write_data_0_out_internal.valid           ),
-		.data_in (write_data_0_out_internal                 ),
-		.full    (write_data_0_status_cu_out_internal.full  ),
-		.alFull  (write_data_0_status_cu_out_internal.alfull),
-
-		.pop     (write_command_bus_grant_latched           ),
-		.valid   (write_data_0_status_cu_out_internal.valid ),
-		.data_out(write_data_0_out_latched                  ),
-		.empty   (write_data_0_status_cu_out_internal.empty )
-	);
-
-	round_robin_priority_arbiter_N_input_1_ouput #(
-		.NUM_REQUESTS(NUM_GRAPH_CU            ),
-		.WIDTH       ($bits(ReadWriteDataLine))
-	) round_robin_priority_arbiter_N_input_1_ouput_write_data_1_cu (
-		.clock      (clock                                  ),
-		.rstn       (rstn                                   ),
-		.enabled    (enabled                                ),
-		.buffer_in  (write_data_1_out_cu_in_latched         ),
-		.submit     (write_data_1_out_cu_in_latched_submit  ),
-		.requests   (write_command_bus_request_cu_in_latched),
-		.arbiter_out(write_data_1_out_internal              ),
-		.ready      (write_data_1_bus_grant_cu_out_latched  )
-	);
-
-
-	generate
-		for (i = 0; i < NUM_GRAPH_CU; i++) begin : generate_write_data_1_arbiter_cu_submit
-			assign write_data_1_out_cu_in_latched_submit[i] = write_data_1_out_cu_in_latched[i].valid;
-		end
-	endgenerate
-
-	fifo #(
-		.WIDTH($bits(ReadWriteDataLine)),
-		.DEPTH(BURST_CMD_BUFFER_SIZE   )
-	) burst_write_data_1_buffer_fifo_instant (
-		.clock   (clock                                     ),
-		.rstn    (rstn                                      ),
-
-		.push    (write_data_1_out_internal.valid           ),
-		.data_in (write_data_1_out_internal                 ),
-		.full    (write_data_1_status_cu_out_internal.full  ),
-		.alFull  (write_data_1_status_cu_out_internal.alfull),
-
-		.pop     (write_command_bus_grant_latched           ),
-		.valid   (write_data_1_status_cu_out_internal.valid ),
-		.data_out(write_data_1_out_latched                  ),
-		.empty   (write_data_1_status_cu_out_internal.empty )
-	);
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex Job Buffer

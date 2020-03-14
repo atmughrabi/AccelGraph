@@ -20,7 +20,7 @@ import CU_PKG::*;
 
 module response_control (
   input  logic                       clock               , // Clock
-  input  logic                       rstn                ,
+  input  logic                       rstn_in             ,
   input  logic                       enabled_in          ,
   input  ResponseInterface           response            ,
   input  CommandTagLine              response_tag_id_in  ,
@@ -39,14 +39,24 @@ module response_control (
   logic [0:6] detected_errors   ;
   logic [0:5] cmd_response_error;
   logic       tag_parity_error  ;
+  logic       rstn              ;
+  logic       enabled           ;
 
   assign odd_parity    = 1'b1; // Odd parity
   assign enable_errors = 1'b1; // enable errors
-  logic enabled;
+
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
+
+  always_ff @(posedge clock or negedge rstn_in) begin
+    if(~rstn_in) begin
+      rstn <= 0;
+    end else begin
+      rstn <= rstn_in;
+    end
+  end
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin

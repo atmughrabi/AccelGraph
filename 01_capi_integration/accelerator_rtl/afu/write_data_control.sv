@@ -18,7 +18,7 @@ import AFU_PKG::*;
 
 module write_data_control (
   input  logic                     clock           , // Clock
-  input  logic                     rstn            ,
+  input  logic                     rstn_in         ,
   input  logic                     enabled_in      ,
   input  WriteDataControlInterface buffer_in       ,
   input  logic [0:7]               command_tag_in  ,
@@ -52,6 +52,7 @@ module write_data_control (
   logic       read_valid_error; // ha_brvalid,     // Buffer Read valid
   logic [0:7] read_tag        ; // ha_brtag,       // Buffer Read tag
   logic [0:5] read_address    ; // ha_brad,        // Buffer Read address
+  logic       rstn            ;
 
 ////////////////////////////////////////////////////////////////////////////
 //Drive input
@@ -59,6 +60,15 @@ module write_data_control (
 
   assign odd_parity    = 1'b1; // Odd parity
   assign enable_errors = 1'b1; // enable errors
+
+  
+  always_ff @(posedge clock or negedge rstn_in) begin
+    if(~rstn_in) begin
+      rstn <= 0;
+    end else begin
+      rstn <= rstn_in;
+    end
+  end
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin

@@ -22,7 +22,7 @@ import CU_PKG::*;
 module restart_control #(parameter CREDIT_HEADROOM = 4) (
 	input                     clock                    , // Clock
 	input                     enabled_in               ,
-	input                     rstn                     , // Asynchronous reset active low
+	input                     rstn_in                  , // Asynchronous reset active low
 	input  CommandBufferLine  command_outstanding_in   ,
 	input  logic [0:7]        command_tag_in           ,
 	input  ResponseBufferLine restart_response_in      ,
@@ -69,11 +69,21 @@ module restart_control #(parameter CREDIT_HEADROOM = 4) (
 	logic       is_restart_rsp_done ;
 	logic       is_restart_rsp_flush;
 	logic [0:2] counter_state       ;
+	logic       rstn                ;
 
 
 	////////////////////////////////////////////////////////////////////////////
 	//enable logic
 	////////////////////////////////////////////////////////////////////////////
+
+
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin

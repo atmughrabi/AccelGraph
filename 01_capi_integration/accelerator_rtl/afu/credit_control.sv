@@ -17,7 +17,7 @@ import CREDIT_PKG::*;
 
 module credit_control (
   input  logic                 clock     , // Clock
-  input  logic                 rstn      ,
+  input  logic                 rstn_in   ,
   input  logic                 enabled_in,
   input  CreditInterfaceInput  credit_in ,
   output CreditInterfaceOutput credit_out
@@ -33,14 +33,24 @@ module credit_control (
 //1 returned credit. Issuing a command and getting a return in the same cycle
 //normally nullfies to no change in credit.
 
-  logic [0:7] credits     ;
+  logic [0:7] credits;
 
-  logic       init_credits;
-  logic       enabled     ;
+  logic init_credits;
+  logic enabled     ;
+  logic rstn        ;
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
+
+
+  always_ff @(posedge clock or negedge rstn_in) begin
+    if(~rstn_in) begin
+      rstn <= 0;
+    end else begin
+      rstn <= rstn_in;
+    end
+  end
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin

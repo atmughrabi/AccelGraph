@@ -19,7 +19,7 @@ import AFU_PKG::*;
 
 module command_control (
   input  logic                  clock             , // Clock
-  input  logic                  rstn              ,
+  input  logic                  rstn_in           ,
   input  logic                  enabled_in        ,
   input  CommandBufferLine      command_arbiter_in,
   input  logic [0:7]            command_tag_in    ,
@@ -30,6 +30,7 @@ module command_control (
   logic                  odd_parity       ;
   logic                  enabled          ;
   CommandInterfaceOutput command_out_latch;
+  logic                  rstn             ;
 
   assign odd_parity = 1'b1; // Odd parity
   // command_out_latch.abt                  = STRICT;
@@ -42,6 +43,14 @@ module command_control (
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
+
+  always_ff @(posedge clock or negedge rstn_in) begin
+    if(~rstn_in) begin
+      rstn <= 0;
+    end else begin
+      rstn <= rstn_in;
+    end
+  end
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin

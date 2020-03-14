@@ -65,6 +65,9 @@ module cu_control #(
 	ReadWriteDataLine write_data_0_out_graph_algorithm ;
 	ReadWriteDataLine write_data_1_out_graph_algorithm ;
 
+	EdgeDataWrite edge_data_write_out_cu_in [0:NUM_GRAPH_CU-1];
+	EdgeDataWrite edge_data_write_out;
+
 	//input lateched
 	WEDInterface       wed_request_in_latched          ;
 	ResponseBufferLine read_response_in_latched        ;
@@ -124,9 +127,6 @@ module cu_control #(
 	BufferStatus                   read_buffer_status_cu_out      [0:NUM_GRAPH_CU-1];
 	BufferStatus                   write_buffer_status_cu_out     [0:NUM_GRAPH_CU-1];
 	CommandBufferLine              read_command_out_cu_in         [0:NUM_GRAPH_CU-1];
-	CommandBufferLine              write_command_out_cu_in        [0:NUM_GRAPH_CU-1];
-	ReadWriteDataLine              write_data_0_out_cu_in         [0:NUM_GRAPH_CU-1];
-	ReadWriteDataLine              write_data_1_out_cu_in         [0:NUM_GRAPH_CU-1];
 	VertexInterface                vertex_job_cu_out              [0:NUM_GRAPH_CU-1];
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done_cu_in  [0:NUM_GRAPH_CU-1];
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_job_counter_done_cu_in    [0:NUM_GRAPH_CU-1];
@@ -557,9 +557,7 @@ module cu_control #(
 				.read_command_out         (read_command_out_cu_in[i]         ),
 				.write_command_bus_grant  (write_command_bus_grant_cu_out[i] ),
 				.write_command_bus_request(write_command_bus_request_cu_in[i]),
-				.write_command_out        (write_command_out_cu_in[i]        ),
-				.write_data_0_out         (write_data_0_out_cu_in[i]         ),
-				.write_data_1_out         (write_data_1_out_cu_in[i]         ),
+				.edge_data_write_out      (edge_data_write_out_cu_in[i]      ),
 				.vertex_job_request       (vertex_job_request_cu_in[i]       ),
 				.vertex_job_counter_done  (vertex_job_counter_done_cu_in[i]  ),
 				.edge_job_counter_done    (edge_job_counter_done_cu_in[i]    )
@@ -613,12 +611,8 @@ module cu_control #(
 		.write_command_bus_grant_cu_out (write_command_bus_grant_cu_out   ),
 		.write_command_bus_request      (write_command_bus_request        ),
 		.write_command_bus_request_cu_in(write_command_bus_request_cu_in  ),
-		.write_command_out              (write_command_out_graph_algorithm),
-		.write_command_out_cu_in        (write_command_out_cu_in          ),
-		.write_data_0_out               (write_data_0_out_graph_algorithm ),
-		.write_data_1_out               (write_data_1_out_graph_algorithm ),
-		.write_data_0_out_cu_in         (write_data_0_out_cu_in           ),
-		.write_data_1_out_cu_in         (write_data_1_out_cu_in           ),
+		.edge_data_write_cu_in          (edge_data_write_out_cu_in        ),
+		.edge_data_write_out            (edge_data_write_out              ),
 		.vertex_job                     (vertex_filtered                  ),
 		.vertex_job_cu_out              (vertex_job_cu_out                ),
 		.vertex_job_request             (vertex_request_filtered          ),
@@ -627,6 +621,22 @@ module cu_control #(
 		.edge_job_counter_done          (edge_job_counter_done            ),
 		.vertex_job_counter_done_cu_in  (vertex_job_counter_done_cu_in    ),
 		.edge_job_counter_done_cu_in    (edge_job_counter_done_cu_in      )
+	);
+
+	////////////////////////////////////////////////////////////////////////////
+	// Write command CU Generatrion add data to be written to a cacheline
+	////////////////////////////////////////////////////////////////////////////
+
+	cu_edge_data_write_command_control cu_edge_data_write_command_control_instant (
+		.clock            (clock                            ),
+		.rstn             (rstn                             ),
+		.enabled_in       (enabled                          ),
+		.cu_configure     (cu_configure_latched             ),
+		.wed_request_in   (wed_request_in_latched           ),
+		.edge_data_write  (edge_data_write_out              ),
+		.write_data_0_out (write_data_0_out_graph_algorithm ),
+		.write_data_1_out (write_data_1_out_graph_algorithm ),
+		.write_command_out(write_command_out_graph_algorithm)
 	);
 
 	////////////////////////////////////////////////////////////////////////////

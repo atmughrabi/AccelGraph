@@ -18,7 +18,7 @@ import CU_PKG::*;
 
 module response_statistics_control (
   input  logic                      clock                  , // Clock
-  input  logic                      rstn                   ,
+  input  logic                      rstn_in                ,
   input  logic                      enabled_in             ,
   input  ResponseInterface          response               ,
   input  CommandTagLine             response_tag_id_in     ,
@@ -35,10 +35,19 @@ module response_statistics_control (
 
 
   logic enabled;
+  logic rstn   ;
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
+
+  always_ff @(posedge clock or negedge rstn_in) begin
+    if(~rstn_in) begin
+      rstn <= 0;
+    end else begin
+      rstn <= rstn_in;
+    end
+  end
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin

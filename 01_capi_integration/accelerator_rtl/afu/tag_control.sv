@@ -18,7 +18,7 @@ import AFU_PKG::*;
 
 module tag_control (
 	input  logic          clock               , // Clock
-	input  logic          rstn                ,
+	input  logic          rstn_in             ,
 	input  logic          enabled_in          ,
 	input  logic          tag_response_valid  ,
 	input  logic [0:7]    response_tag        ,
@@ -41,10 +41,18 @@ module tag_control (
 	CommandTagLine data_read_tag_id;
 	logic [0:7]    command_tag     ;
 	logic          enabled         ;
+	logic          rstn            ;
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin

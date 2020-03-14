@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-13 06:57:10
+// Revise : 2020-03-14 14:20:08
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -48,9 +48,9 @@ module cu_vertex_pagerank_arbiter_control #(
 	input  logic [     NUM_VERTEX_CU-1:0] request_read_command_cu_in                                       ,
 	output logic [     NUM_VERTEX_CU-1:0] ready_read_command_cu_out                                        ,
 	output CommandBufferLine              read_command_out                                                 ,
-	input  EdgeDataWrite                  edge_data_write_cu_in [0:NUM_VERTEX_CU-1]                        ,
 	input  logic [     NUM_VERTEX_CU-1:0] request_edge_data_write_cu_in                                    ,
 	output logic [     NUM_VERTEX_CU-1:0] ready_edge_data_write_cu_out                                     ,
+	input  EdgeDataWrite                  edge_data_write_cu_in [0:NUM_VERTEX_CU-1]                        ,
 	output EdgeDataWrite                  burst_edge_data_out                                              ,
 	output ReadWriteDataLine              read_data_0_cu_out [0:NUM_VERTEX_CU-1]                           ,
 	output ReadWriteDataLine              read_data_1_cu_out [0:NUM_VERTEX_CU-1]                           ,
@@ -121,13 +121,13 @@ module cu_vertex_pagerank_arbiter_control #(
 	logic [NUM_VERTEX_CU-1:0] request_read_command_cu                          ;
 	logic [NUM_VERTEX_CU-1:0] read_command_arbiter_cu_submit                   ;
 
-	EdgeDataWrite edge_data_write_cu[0:NUM_VERTEX_CU-1];
 
-	logic [NUM_VERTEX_CU-1:0] ready_edge_data_write_cu         ;
-	logic [NUM_VERTEX_CU-1:0] request_edge_data_write_cu       ;
-	logic [NUM_VERTEX_CU-1:0] enable_cu                        ;
-	logic [NUM_VERTEX_CU-1:0] enable_cu_latched                ;
-	logic [NUM_VERTEX_CU-1:0] edge_data_write_arbiter_cu_submit;
+
+
+	logic [NUM_VERTEX_CU-1:0] request_edge_data_write_cu;
+	logic [NUM_VERTEX_CU-1:0] enable_cu                 ;
+	logic [NUM_VERTEX_CU-1:0] enable_cu_latched         ;
+
 
 
 	ResponseBufferLine read_response_cu [0:NUM_VERTEX_CU-1];
@@ -158,11 +158,14 @@ module cu_vertex_pagerank_arbiter_control #(
 	BufferStatus      burst_read_command_buffer_states_cu_out_latched[0:NUM_VERTEX_CU-1];
 	CommandBufferLine burst_read_command_buffer_out                                     ;
 
-	BufferStatus  burst_edge_data_write_cu_buffer_states_cu                               ;
-	BufferStatus  burst_edge_data_write_cu_buffer_states_cu_out_latched[0:NUM_VERTEX_CU-1];
-	EdgeDataWrite burst_edge_data_buffer_out                                              ;
-	EdgeDataWrite edge_data_write_arbiter_out                                             ;
-	EdgeDataWrite edge_data_write_arbiter_out_latched                                     ;
+	BufferStatus              burst_edge_data_write_cu_buffer_states_cu                               ;
+	BufferStatus              burst_edge_data_write_cu_buffer_states_cu_out_latched[0:NUM_VERTEX_CU-1];
+	EdgeDataWrite             burst_edge_data_buffer_out                                              ;
+	EdgeDataWrite             edge_data_write_arbiter_out                                             ;
+	EdgeDataWrite             edge_data_write_arbiter_out_latched                                     ;
+	EdgeDataWrite             edge_data_write_cu                                   [0:NUM_VERTEX_CU-1];
+	logic [NUM_VERTEX_CU-1:0] ready_edge_data_write_cu                                                ;
+	logic [NUM_VERTEX_CU-1:0] edge_data_write_arbiter_cu_submit                                       ;
 
 	ReadWriteDataLine read_data_0_in_edge_job ;
 	ReadWriteDataLine read_data_1_in_edge_job ;

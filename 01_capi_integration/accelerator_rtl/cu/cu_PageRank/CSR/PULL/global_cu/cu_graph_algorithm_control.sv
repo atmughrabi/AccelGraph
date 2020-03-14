@@ -40,9 +40,7 @@ module cu_graph_algorithm_control #(
 	input  BufferStatus                   write_buffer_status      ,
 	input  logic                          write_command_bus_grant  ,
 	output logic                          write_command_bus_request,
-	output CommandBufferLine              write_command_out        ,
-	output ReadWriteDataLine              write_data_0_out         ,
-	output ReadWriteDataLine              write_data_1_out         ,
+	output EdgeDataWrite                  edge_data_write_out      ,
 	input  VertexInterface                vertex_job               ,
 	output logic                          vertex_job_request       ,
 	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done  ,
@@ -71,9 +69,6 @@ module cu_graph_algorithm_control #(
 	VertexInterface vertex_job_latched        ;
 
 	//output latched
-	ReadWriteDataLine write_data_0_out_latched ;
-	ReadWriteDataLine write_data_1_out_latched ;
-	CommandBufferLine write_command_out_latched;
 
 	//input lateched
 	WEDInterface       wed_request_in_latched   ;
@@ -117,7 +112,6 @@ module cu_graph_algorithm_control #(
 
 
 	logic [0:63] cu_configure_out  [0:NUM_VERTEX_CU-1];
-	logic        cu_rstn_out       [0:NUM_VERTEX_CU-1];
 	WEDInterface cu_wed_request_out[0:NUM_VERTEX_CU-1];
 
 	genvar i;
@@ -151,9 +145,7 @@ module cu_graph_algorithm_control #(
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn_output) begin
 		if(~rstn_output) begin
-			write_command_out.valid   <= 0;
-			write_data_0_out.valid    <= 0;
-			write_data_1_out.valid    <= 0;
+			edge_data_write_out.valid <= 0;
 			read_command_out.valid    <= 0;
 			vertex_job_request        <= 0;
 			vertex_job_counter_done   <= 0;
@@ -161,9 +153,7 @@ module cu_graph_algorithm_control #(
 			read_command_bus_request  <= 0;
 			write_command_bus_request <= 0;
 		end else begin
-			write_command_out.valid   <= write_command_out_latched.valid;
-			write_data_0_out.valid    <= write_data_0_out_latched.valid;
-			write_data_1_out.valid    <= write_data_1_out_latched.valid;
+			edge_data_write_out.valid <= burst_edge_data_buffer_out.valid;
 			read_command_out.valid    <= burst_read_command_buffer_out.valid;
 			vertex_job_request        <= vertex_job_request_latched;
 			vertex_job_counter_done   <= vertex_job_counter_done_latched;
@@ -176,15 +166,11 @@ module cu_graph_algorithm_control #(
 	// drive outputs
 	always_ff @(posedge clock or negedge rstn_output) begin
 		if(~rstn_output) begin
-			write_command_out.payload <= 0;
-			write_data_0_out.payload  <= 0;
-			write_data_1_out.payload  <= 0;
-			read_command_out.payload  <= 0;
+			edge_data_write_out.payload <= 0;
+			read_command_out.payload    <= 0;
 		end else begin
-			write_command_out.payload <= write_command_out_latched.payload;
-			write_data_0_out.payload  <= write_data_0_out_latched.payload;
-			write_data_1_out.payload  <= write_data_1_out_latched.payload;
-			read_command_out.payload  <= burst_read_command_buffer_out.payload;
+			edge_data_write_out.payload <= burst_edge_data_buffer_out.payload;
+			read_command_out.payload    <= burst_read_command_buffer_out.payload;
 		end
 	end
 
@@ -242,23 +228,6 @@ module cu_graph_algorithm_control #(
 			vertex_job_latched.payload        <= vertex_job.payload;
 		end
 	end
-
-	////////////////////////////////////////////////////////////////////////////
-	// Write command CU Generatrion add data to be written to a cacheline
-	////////////////////////////////////////////////////////////////////////////
-
-	cu_edge_data_write_command_control cu_edge_data_write_command_control_instant (
-		.clock            (clock                     ),
-		.rstn             (rstn                      ),
-		.enabled_in       (enabled                   ),
-		.cu_configure     (cu_configure_latched      ),
-		.wed_request_in   (wed_request_in_latched    ),
-		.edge_data_write  (burst_edge_data_buffer_out),
-		.write_data_0_out (write_data_0_out_latched  ),
-		.write_data_1_out (write_data_1_out_latched  ),
-		.write_command_out(write_command_out_latched )
-	);
-
 
 	////////////////////////////////////////////////////////////////////////////
 	// Vertex-centric Algorithm Module Generate

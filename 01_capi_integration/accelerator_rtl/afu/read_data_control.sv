@@ -19,7 +19,7 @@ import AFU_PKG::*;
 
 module read_data_control (
   input  logic                       clock                  , // Clock
-  input  logic                       rstn                   ,
+  input  logic                       rstn_in                ,
   input  logic                       enabled_in             ,
   input  ReadDataControlInterface    buffer_in              ,
   input  CommandTagLine              data_read_tag_id_in    ,
@@ -61,14 +61,24 @@ module read_data_control (
   logic          response_latched_read_response            ;
   logic          response_latched_wed_response             ;
   psl_response_t response_latched_response_payload_response;
+  logic          enabled                                   ;
+  logic          rstn                                      ;
 
   assign odd_parity    = 1'b1; // Odd parity
   assign enable_errors = 1'b1; // enable errors
-  logic enabled;
+
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
+
+  always_ff @(posedge clock or negedge rstn_in) begin
+    if(~rstn_in) begin
+      rstn <= 0;
+    end else begin
+      rstn <= rstn_in;
+    end
+  end
 
   always_ff @(posedge clock or negedge rstn) begin
     if(~rstn) begin
@@ -295,22 +305,11 @@ module read_data_control (
     end
   end
 
-
   always_ff @(posedge clock or negedge rstn) begin
-    if(~rstn) begin
-      read_data_control_out_1.read_data  <= 0;
-      read_data_control_out_1.wed_data   <= 0;
-      read_data_control_out_1.line.valid <= 0;
-
-    end else begin
-      if(enabled) begin
-        read_data_control_out_1 <= read_data_control_out_1_latched_S2;
-      end else begin
-        read_data_control_out_1.read_data  <= 0;
-        read_data_control_out_1.wed_data   <= 0;
-        read_data_control_out_1.line.valid <= 0;
-      end
-    end
+    if(~rstn)
+      read_data_control_out_1 <= 0;
+    else
+      read_data_control_out_1 <= read_data_control_out_1_latched_S2;
   end
 
 ////////////////////////////////////////////////////////////////////////////

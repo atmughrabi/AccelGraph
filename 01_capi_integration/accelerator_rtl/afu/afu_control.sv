@@ -27,7 +27,7 @@ module afu_control #(
 	input  logic                        clock                      , // Clock
 	input  logic                        rstn_in                    ,
 	input  logic                        enabled_in                 ,
-	input  afu_configure_type           afu_configure              ,
+	input  afu_configure_type           afu_configure_in           ,
 	input  CommandBufferLine            prefetch_read_command_in   ,
 	input  CommandBufferLine            prefetch_write_command_in  ,
 	input  CommandBufferLine            read_command_in            ,
@@ -60,9 +60,10 @@ module afu_control #(
 );
 
 
-	logic rstn      ;
-	logic rstn_input;
-	logic rstn_ouput;
+	logic              rstn         ;
+	logic              rstn_input   ;
+	logic              rstn_ouput   ;
+	afu_configure_type afu_configure;
 ////////////////////////////////////////////////////////////////////////////
 //latch the inputs from the PSL
 ////////////////////////////////////////////////////////////////////////////
@@ -176,19 +177,23 @@ module afu_control #(
 
 	ResponseControlInterfaceOut response_control_out_latched_S[0:RSP_DELAY-1];
 
-	logic [ 0:7] total_credits          ;
-	logic [ 0:7] read_credits           ;
-	logic [ 0:7] write_credits          ;
-	logic [ 0:7] prefetch_read_credits  ;
-	logic [ 0:7] prefetch_write_credits ;
-	logic [0:63] afu_configure_latched  ;
-	logic [0:63] afu_configure_2_latched;
+	logic [ 0:7] total_credits                   ;
+	logic [ 0:7] read_credits                    ;
+	logic [ 0:7] write_credits                   ;
+	logic [ 0:7] prefetch_read_credits           ;
+	logic [ 0:7] prefetch_write_credits          ;
+	logic [ 0:3] read_credits_configure          ;
+	logic [ 0:3] write_credits_configure         ;
+	logic [ 0:3] prefetch_read_credits_configure ;
+	logic [ 0:3] prefetch_write_credits_configure;
+	logic        afu_config_ready                ;
+	logic [0:63] afu_configure_latched           ;
+	logic [0:63] afu_configure_2_latched         ;
 
 	logic restart_command_flushed;
 
 	genvar i;
 
-	assign afu_config_ready = (|afu_configure_latched);
 
 	always_ff @(posedge clock or negedge rstn_in) begin
 		if(~rstn_in) begin
@@ -233,6 +238,22 @@ module afu_control #(
 					afu_configure_2_latched <= afu_configure.var2;
 				end
 			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			afu_config_ready                 <= 0;
+			read_credits_configure           <= 0;
+			write_credits_configure          <= 0;
+			prefetch_read_credits_configure  <= 0;
+			prefetch_write_credits_configure <= 0;
+		end else begin
+			afu_config_ready                 <= (|afu_configure_latched);
+			read_credits_configure           <= afu_configure_latched[0:3];
+			write_credits_configure          <= afu_configure_latched[4:7];
+			prefetch_read_credits_configure  <= afu_configure_latched[8:11];
+			prefetch_write_credits_configure <= afu_configure_latched[12:15];
 		end
 	end
 
@@ -292,7 +313,7 @@ module afu_control #(
 
 	response_statistics_control response_statistics_control_instant (
 		.clock                  (clock                          ),
-		.rstn                   (rstn                           ),
+		.rstn_in                (rstn                           ),
 		.enabled_in             (enabled                        ),
 		.response               (response_filtered_stats_latched),
 		.response_tag_id_in     (response_tag_id                ),
@@ -329,7 +350,9 @@ module afu_control #(
 			write_tag                         <= 0;
 			read_buffer_in                    <= 0;
 			write_buffer_in                   <= 0;
+			afu_configure                     <= 0;
 		end else begin
+			afu_configure      <= afu_configure_in;
 			command_in_latched <= command_in;
 
 			response_filtered_stats_latched   <= response_filtered_stats;
@@ -452,7 +475,7 @@ module afu_control #(
 
 	command_control command_control_instant (
 		.clock             (clock                 ),
-		.rstn              (rstn                  ),
+		.rstn_in           (rstn                  ),
 		.enabled_in        (enabled               ),
 		.command_arbiter_in(command_issue_register),
 		.command_tag_in    (command_tag_latched   ),
@@ -467,7 +490,7 @@ module afu_control #(
 	restart_control restart_command_control_instant (
 		.clock                    (clock                            ),
 		.enabled_in               (enabled                          ),
-		.rstn                     (rstn                             ),
+		.rstn_in                  (rstn                             ),
 		.command_outstanding_in   (command_issue_register           ),
 		.command_tag_in           (command_tag_latched              ),
 		.restart_response_in      (restart_response_out             ),
@@ -572,10 +595,10 @@ module afu_control #(
 		end else begin
 			if(afu_config_ready) begin
 				total_credits          <= (command_in_latched.room);
-				read_credits           <= (total_credits >> afu_configure_latched[0:3]);
-				write_credits          <= (total_credits >> afu_configure_latched[4:7]);
-				prefetch_read_credits  <= (total_credits >> afu_configure_latched[8:11]);
-				prefetch_write_credits <= (total_credits >> afu_configure_latched[12:15]);
+				read_credits           <= (total_credits >> read_credits_configure);
+				write_credits          <= (total_credits >> write_credits_configure);
+				prefetch_read_credits  <= (total_credits >> prefetch_read_credits_configure);
+				prefetch_write_credits <= (total_credits >> prefetch_write_credits_configure);
 			end
 		end
 	end
@@ -601,7 +624,7 @@ module afu_control #(
 
 	credit_control credits_total_control_instant (
 		.clock     (clock                                                                                                                              ),
-		.rstn      (rstn                                                                                                                               ),
+		.rstn_in   (rstn                                                                                                                               ),
 		.enabled_in(enabled_credit_total                                                                                                               ),
 		.credit_in ({command_buffer_out.valid,response_control_out.response.valid,response_control_out.response.payload.response_credits,total_credits}),
 		.credit_out(credits                                                                                                                            )
@@ -609,7 +632,7 @@ module afu_control #(
 
 	credit_control credits_read_control_instant (
 		.clock     (clock                                                                                                                                 ),
-		.rstn      (rstn                                                                                                                                  ),
+		.rstn_in   (rstn                                                                                                                                  ),
 		.enabled_in(enabled_credit_read                                                                                                                   ),
 		.credit_in ({read_command_buffer_out.valid,response_control_out.read_response,response_control_out.response.payload.response_credits,read_credits}),
 		.credit_out(credits_read                                                                                                                          )
@@ -618,7 +641,7 @@ module afu_control #(
 
 	credit_control credits_write_control_instant (
 		.clock     (clock                                                                                                                                    ),
-		.rstn      (rstn                                                                                                                                     ),
+		.rstn_in   (rstn                                                                                                                                     ),
 		.enabled_in(enabled_credit_write                                                                                                                     ),
 		.credit_in ({write_command_buffer_out.valid,response_control_out.write_response,response_control_out.response.payload.response_credits,write_credits}),
 		.credit_out(credits_write                                                                                                                            )
@@ -626,7 +649,7 @@ module afu_control #(
 
 	credit_control credits_prefetch_read_control_instant (
 		.clock     (clock                                                                                                                                                            ),
-		.rstn      (rstn                                                                                                                                                             ),
+		.rstn_in   (rstn                                                                                                                                                             ),
 		.enabled_in(enabled_credit_prefetch_read                                                                                                                                     ),
 		.credit_in ({prefetch_read_command_buffer_out.valid,response_control_out.prefetch_read_response,response_control_out.response.payload.response_credits,prefetch_read_credits}),
 		.credit_out(credits_prefetch_read                                                                                                                                            )
@@ -634,7 +657,7 @@ module afu_control #(
 
 	credit_control credits_prefetch_write_control_instant (
 		.clock     (clock                                                                                                                                                               ),
-		.rstn      (rstn                                                                                                                                                                ),
+		.rstn_in   (rstn                                                                                                                                                                ),
 		.enabled_in(enabled_credit_prefetch_write                                                                                                                                       ),
 		.credit_in ({prefetch_write_command_buffer_out.valid,response_control_out.prefetch_write_response,response_control_out.response.payload.response_credits,prefetch_write_credits}),
 		.credit_out(credits_prefetch_write                                                                                                                                              )
@@ -648,7 +671,7 @@ module afu_control #(
 
 	response_control response_control_instant (
 		.clock               (clock                         ),
-		.rstn                (rstn                          ),
+		.rstn_in             (rstn                          ),
 		.enabled_in          (enabled                       ),
 		.response            (response_filtered_done_latched),
 		.response_tag_id_in  (response_tag_id               ),
@@ -696,7 +719,7 @@ module afu_control #(
 
 	read_data_control read_data_control_instant (
 		.clock                  (clock                        ),
-		.rstn                   (rstn                         ),
+		.rstn_in                (rstn                         ),
 		.enabled_in             (enabled                      ),
 		.buffer_in              (read_buffer_in               ),
 		.data_read_tag_id_in    (read_tag_id                  ),
@@ -712,7 +735,7 @@ module afu_control #(
 
 	write_data_control write_data_control_instant (
 		.clock           (clock           ),
-		.rstn            (rstn            ),
+		.rstn_in         (rstn            ),
 		.enabled_in      (enabled         ),
 		.buffer_in       (write_buffer_in ),
 		.command_tag_in  (command_tag     ),
@@ -729,7 +752,7 @@ module afu_control #(
 
 	tag_control tag_control_instant (
 		.clock               (clock                        ),
-		.rstn                (rstn                         ),
+		.rstn_in             (rstn                         ),
 		.enabled_in          (enabled                      ),
 		.tag_response_valid  (response_tagged_latched.valid),
 		.response_tag        (response_tagged_latched.tag  ),

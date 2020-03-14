@@ -168,7 +168,7 @@ module cached_afu #(parameter NUM_EXTERNAL_RESETS = 3) (
     .clock                      (clock                      ),
     .rstn_in                    (reset_afu_internal         ),
     .enabled_in                 (enabled                    ),
-    .afu_configure              (afu_configure              ),
+    .afu_configure_in           (afu_configure              ),
     .prefetch_read_command_in   (prefetch_read_command_out  ),
     .prefetch_write_command_in  (prefetch_write_command_out ),
     .read_command_in            (read_command_out           ),
