@@ -99,7 +99,7 @@ export MAIN_DIR		  	= main
 # export GRAPH_NAME = uk-2005
 # export GRAPH_NAME = webbase-2001
 
-# LAW = 
+export LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001 
 
 # TEXT formant
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph
@@ -399,6 +399,10 @@ build-pslse:
 .PHONY: clean-sim
 clean-sim:
 	 $(MAKE) clean-sim $(MAKE_ARGS)
+
+.PHONY: law-capi
+law-capi:
+	$(MAKE) law-capi $(MAKE_ARGS)
 ##################################################
 ##################################################
 

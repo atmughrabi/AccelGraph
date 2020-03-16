@@ -83,26 +83,23 @@ GRAPH_NAME ?= test
 # GRAPH_NAME ?= arabic-2005
 
 # real world large graphs binary LAW
-# export GRAPH_NAME = amazon-2008
-# export GRAPH_NAME = arabic-2005
-# export GRAPH_NAME = cnr-2000
-# export GRAPH_NAME = dblp-2010
-# export GRAPH_NAME = enron
-# export GRAPH_NAME = eu-2005
-# export GRAPH_NAME = hollywood-2009
-# export GRAPH_NAME = in-2004
-# export GRAPH_NAME = indochina-2004
-# export GRAPH_NAME = it-2004
-# export GRAPH_NAME = ljournal-2008
-# export GRAPH_NAME = sk-2005
-# export GRAPH_NAME = uk-2002
-# export GRAPH_NAME = uk-2005
-# export GRAPH_NAME = webbase-2001
+# GRAPH_NAME ?= amazon-2008
+# GRAPH_NAME ?= arabic-2005
+# GRAPH_NAME ?= cnr-2000
+# GRAPH_NAME ?= dblp-2010
+# GRAPH_NAME ?= enron
+# GRAPH_NAME ?= eu-2005
+# GRAPH_NAME ?= hollywood-2009
+# GRAPH_NAME ?= in-2004
+# GRAPH_NAME ?= indochina-2004
+# GRAPH_NAME ?= it-2004
+# GRAPH_NAME ?= ljournal-2008
+# GRAPH_NAME ?= sk-2005
+# GRAPH_NAME ?= uk-2002
+# GRAPH_NAME ?= uk-2005
+# GRAPH_NAME ?= webbase-2001
 
-LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001
-
-# LAW = amazon-2008 cnr-2000 dblp-2010 enron ljournal-2008
-
+LAW ?= amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001
 
 # TEXT formant
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph
@@ -488,10 +485,6 @@ cachegrind-perf-openmp: app-openmp
 .PHONY: cache-perf
 cache-perf-openmp: app-openmp
 	sudo perf record -d ./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp -f $(FILE_BIN) $(ARGS)
-
-
-# FILE_BIN ?= $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
-
 
 .PHONY: law
 law: app-openmp
