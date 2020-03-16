@@ -494,7 +494,7 @@ cache-perf-openmp: app-openmp
 
 
 .PHONY: law
-law:
+law: app-openmp
 	for graph in $(LAW); do \
 	    for num in `seq 1 $(NUM_THREADS)`; do \
 	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
@@ -583,6 +583,17 @@ run-vsim: build-libdpi
 .PHONY: run-pslse
 run-pslse: build-pslse
 	cd $(CAPI_SIM) && ./../../pslse/pslse/pslse
+
+.PHONY: law-capi
+law-capi: CAPI_FLAGS = 
+law-capi: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
+law-capi: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
+law-capi: app-capi
+	for graph in $(LAW); do \
+	    for num in `seq 1 $(NUM_THREADS)`; do \
+	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
+	    done ; \
+	done
 	  
 ##################################################
 ##################################################
