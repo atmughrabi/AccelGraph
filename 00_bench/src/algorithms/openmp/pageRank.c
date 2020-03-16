@@ -1717,7 +1717,7 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterat
     uint32_t degree;
     uint32_t edge_idx;
     uint32_t activeVertices = 0;
-    double error_total = 0;
+    double error_total = 0.0;
 
     struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
     struct Vertex* vertices = NULL;
@@ -1830,11 +1830,12 @@ struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterat
     }
 
     Stop(timer);
+    stats->time_total = Seconds(timer);
 
     printf(" -----------------------------------------------------\n");
     printf("| %-10s | %-8s | %-15s | %-9s | \n", "Iterations","PR Sum", "Error", "Time (S)");
     printf(" -----------------------------------------------------\n");
-    printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",stats->iterations, sum, error_total, Seconds(timer));
+    printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n",stats->iterations, sum, error_total, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
     free(timer);
@@ -1854,7 +1855,7 @@ struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  uint32_t iterat
   uint32_t i;
   uint32_t v;
   uint32_t activeVertices = 0;
-  double error_total = 0;
+  double error_total = 0.0;
 
   struct PageRankStats *stats = newPageRankStatsGraphCSR(graph);
   struct Timer* timer = (struct Timer*) malloc(sizeof(struct Timer));

@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "mt19937.h"
 #include "graphConfig.h"
@@ -45,7 +46,7 @@ void generateGraphPrintMessageWithtime(const char *msg, double time)
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", msg);
     printf(" -----------------------------------------------------\n");
-    printf("| %-51f | \n", time);
+    printf("| %-51lf | \n", time);
     printf(" -----------------------------------------------------\n");
 
 }
@@ -241,15 +242,19 @@ void *generateGraphDataStructure(struct Arguments *arguments)
 
 void runGraphAlgorithms(void *graph, struct Arguments *arguments)
 {
-    // struct BellmanFordStats
-    // struct PageRankStats
-    // struct BFSStats
-    // struct DFSStats
-    // struct IncrementalAggregationStats
-    // struct SSSPStats
+   
+   // print total average stats to an external file fnameb.stats numthreads avg trial time
 
     double time_total = 0.0f;
     uint32_t  trials = arguments->trials;
+    char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+    // char *fname_stats_out = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+    fname_txt = strcpy (fname_txt, arguments->fnameb);
+    fname_txt = strcat (fname_txt, ".perf");
+
+    FILE *fptr;
+    fptr = fopen(fname_txt, "a+");
+   
 
     while(trials)
     {
@@ -332,6 +337,13 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
     }
 
     generateGraphPrintMessageWithtime("*     -----> Trials Avg Time (Seconds) <-----", (time_total / (double)arguments->trials));
+
+// %-51f | \n", time
+
+    fprintf(fptr, "%u %lf \n", arguments->numThreads, (time_total / (double)arguments->trials));
+    fclose(fptr);
+    free(fname_txt);
+    // free(fname_stats_out);
 
 }
 

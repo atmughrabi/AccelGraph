@@ -15,8 +15,8 @@ export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
 # export BENCHMARKS_DIR    	= ../04_test_graphs
-# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
-export BENCHMARKS_DIR    	= ../../01_GraphDatasets/LAW
+export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+# export BENCHMARKS_DIR    	= ../../01_GraphDatasets/LAW
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -57,7 +57,7 @@ export MAIN_DIR		  	= main
 # export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
-# export GRAPH_NAME = Gnutella
+export GRAPH_NAME = Gnutella
 # export GRAPH_NAME = dblp
 # export GRAPH_NAME = amazon
 # export GRAPH_NAME = euall
@@ -73,7 +73,7 @@ export MAIN_DIR		  	= main
 # export GRAPH_NAME = RMAT22
 
 # real world large graphs binary GAP
-# export GRAPH_NAME = orkut
+export GRAPH_NAME = orkut
 # export GRAPH_NAME = gplus
 # export GRAPH_NAME = sk-2005
 # export GRAPH_NAME = twitter
@@ -83,7 +83,7 @@ export MAIN_DIR		  	= main
 # export GRAPH_NAME = arabic-2005
 
 # real world large graphs binary LAW
-export GRAPH_NAME = amazon-2008
+# export GRAPH_NAME = amazon-2008
 # export GRAPH_NAME = arabic-2005
 # export GRAPH_NAME = cnr-2000
 # export GRAPH_NAME = dblp-2010
@@ -98,6 +98,8 @@ export GRAPH_NAME = amazon-2008
 # export GRAPH_NAME = uk-2002
 # export GRAPH_NAME = uk-2005
 # export GRAPH_NAME = webbase-2001
+
+# LAW= 
 
 # TEXT formant
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph
@@ -121,12 +123,12 @@ export PULL_PUSH 		= 4
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
-export NUM_THREADS  	= 24
+export NUM_THREADS  	= 20
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 1
+export NUM_ITERATIONS 	= 100
 export NUM_TRIALS 		= 1
 
-export FILE_FORMAT 		= 0
+export FILE_FORMAT 		= 1
 export CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
@@ -163,26 +165,27 @@ export CU_CONFIG_MODE=0x00000000
 # // 0b 00000 00000 00010 00001 00000 00000 00
 # export CU_CONFIG_MODE=0x00041000  
 
-# // cu_vertex_job_control        5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [27:31] [4] [3] [0:2]
-# // cu_edge_job_control          5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [22:26] [9] [8] [5:7]
-# // cu_edge_data_control         5-bits ABORT | READ_CL_S  | WRITE_NA 10010 [22:26] [14] [13] [10:12]
-# // cu_edge_data_write_control   5-bits ABORT | READ_CL_NA | WRITE_MS 10001 [22:26] [19] [18] [15:17]
-#  // 0b 10000 10000 10010 10001 00000 00000 00
-# export CU_CONFIG_MODE=0x84251000 
+# // cu_vertex_job_control        5-bits STRICT | READ_CL_NA  | WRITE_NA 00010 [27:31] [4] [3] [0:2]
+# // cu_edge_job_control          5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [9] [8] [5:7]
+# // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
+# // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
+# // 0b 00010 00010 00010 00001 00000 00000 00
+# export CU_CONFIG_MODE=0x00841000  
 
-# // cu_vertex_job_control        5-bits PREF | READ_CL_NA | WRITE_NA 11000 [27:31] [4] [3] [0:2]
-# // cu_edge_job_control          5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [9] [8] [5:7]
-# // cu_edge_data_control         5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [14] [13] [10:12]
-# // cu_edge_data_write_control   5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [19] [18] [15:17]
-# // 0b 11000 11000 11000 11000 00000 00000 00
-# export CU_CONFIG_MODE=0xC6318000  
+# // cu_vertex_job_control        5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [27:31] [4] [3] [0:2]
+# // cu_edge_job_control          5-bits STRICT | READ_CL_NA  | WRITE_NA 00010 [22:26] [9] [8] [5:7]
+# // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
+# // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
+# // 0b 00010 00010 00010 00001 00000 00000 00
+# export CU_CONFIG_MODE=0x10041000  
 
-# // cu_vertex_job_control        5-bits PREF | READ_CL_NA | WRITE_NA 11000 [27:31] [4] [3] [0:2]
-# // cu_edge_job_control          5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [9] [8] [5:7]
-# // cu_edge_data_control         5-bits PREF | READ_CL_S  | WRITE_NA 11010 [22:26] [14] [13] [10:12]
-# // cu_edge_data_write_control   5-bits PREF | READ_CL_NA | WRITE_MS 11001 [22:26] [19] [18] [15:17]
-# // 0b 11000 11000 11010 11001 00000 00000 00
-# export CU_CONFIG_MODE=0xC6359000 
+# // cu_vertex_job_control        5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [27:31] [4] [3] [0:2]
+# // cu_edge_job_control          5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [9] [8] [5:7]
+# // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
+# // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
+# // 0b 00010 00010 00010 00001 00000 00000 00
+# export CU_CONFIG_MODE=0x10841000  
+
  
 ##############################################
 # CAPI FPGA AFU ARBITER CONFIG               #
