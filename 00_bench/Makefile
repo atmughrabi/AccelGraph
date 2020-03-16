@@ -82,6 +82,22 @@ GRAPH_NAME ?= test
 # GRAPH_NAME ?= enwiki-2013
 # GRAPH_NAME ?= arabic-2005
 
+# real world large graphs binary LAW
+# GRAPH_NAME ?= amazon-2008
+# GRAPH_NAME ?= arabic-2005
+# GRAPH_NAME ?= cnr-2000
+# GRAPH_NAME ?= dblp-2010
+# GRAPH_NAME ?= enron
+# GRAPH_NAME ?= eu-2005
+# GRAPH_NAME ?= hollywood-2009
+# GRAPH_NAME ?= in-2004
+# GRAPH_NAME ?= indochina-2004
+# GRAPH_NAME ?= it-2004
+# GRAPH_NAME ?= ljournal-2008
+# GRAPH_NAME ?= sk-2005
+# GRAPH_NAME ?= uk-2002
+# GRAPH_NAME ?= uk-2005
+# GRAPH_NAME ?= webbase-2001
 
 #UNWEIGHTED
 # FILE_BIN ?= $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin

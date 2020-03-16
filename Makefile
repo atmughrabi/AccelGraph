@@ -13,9 +13,10 @@ export APP_TEST          = test_afu
 export APP_DIR              = .
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
-export BENCHMARKS_DIR    	= ../04_test_graphs
 
+# export BENCHMARKS_DIR    	= ../04_test_graphs
 # export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+export BENCHMARKS_DIR    	= ../../01_GraphDatasets/LAW
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -51,9 +52,9 @@ export MAIN_DIR		  	= main
 #########################################################
 
 # small test graphs
-export GRAPH_NAME = test
-export GRAPH_NAME = v51_e1021
-export GRAPH_NAME = v300_e2730
+# export GRAPH_NAME = test
+# export GRAPH_NAME = v51_e1021
+# export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
 # export GRAPH_NAME = Gnutella
@@ -71,7 +72,7 @@ export GRAPH_NAME = v300_e2730
 # export GRAPH_NAME = RMAT20
 # export GRAPH_NAME = RMAT22
 
-# real world large graphs binary format
+# real world large graphs binary GAP
 # export GRAPH_NAME = orkut
 # export GRAPH_NAME = gplus
 # export GRAPH_NAME = sk-2005
@@ -81,6 +82,25 @@ export GRAPH_NAME = v300_e2730
 # export GRAPH_NAME = enwiki-2013
 # export GRAPH_NAME = arabic-2005
 
+# real world large graphs binary LAW
+export GRAPH_NAME = amazon-2008
+# export GRAPH_NAME = arabic-2005
+# export GRAPH_NAME = cnr-2000
+# export GRAPH_NAME = dblp-2010
+# export GRAPH_NAME = enron
+# export GRAPH_NAME = eu-2005
+# export GRAPH_NAME = hollywood-2009
+# export GRAPH_NAME = in-2004
+# export GRAPH_NAME = indochina-2004
+# export GRAPH_NAME = it-2004
+# export GRAPH_NAME = ljournal-2008
+# export GRAPH_NAME = sk-2005
+# export GRAPH_NAME = uk-2002
+# export GRAPH_NAME = uk-2005
+# export GRAPH_NAME = webbase-2001
+
+# TEXT formant
+# export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph
 
 #UNWEIGHTED
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
@@ -106,7 +126,7 @@ export NUM_THREADS  	= 24
 export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
 
-export FILE_FORMAT 		= 1
+export FILE_FORMAT 		= 0
 export CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
