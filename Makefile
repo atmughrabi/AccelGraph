@@ -57,7 +57,7 @@ export MAIN_DIR		  	= main
 # export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
-export GRAPH_NAME = Gnutella
+# export GRAPH_NAME = Gnutella
 # export GRAPH_NAME = dblp
 # export GRAPH_NAME = amazon
 # export GRAPH_NAME = euall
@@ -73,7 +73,7 @@ export GRAPH_NAME = Gnutella
 # export GRAPH_NAME = RMAT22
 
 # real world large graphs binary GAP
-export GRAPH_NAME = orkut
+# export GRAPH_NAME = orkut
 # export GRAPH_NAME = gplus
 # export GRAPH_NAME = sk-2005
 # export GRAPH_NAME = twitter
@@ -99,7 +99,7 @@ export GRAPH_NAME = orkut
 # export GRAPH_NAME = uk-2005
 # export GRAPH_NAME = webbase-2001
 
-# LAW= 
+# LAW = 
 
 # TEXT formant
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph
@@ -123,9 +123,9 @@ export PULL_PUSH 		= 4
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
-export NUM_THREADS  	= 20
+export NUM_THREADS  	= 4
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 100
+export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1
@@ -308,6 +308,10 @@ clean-obj:
 .PHONY: clean-all
 clean-all: clean clean-sim clean-synth-all 
 	@rm -f $(APP_DIR)/nohup.out
+
+.PHONY: law
+law:
+	$(MAKE) law $(MAKE_ARGS)
 
 ##################################################
 ##################################################
