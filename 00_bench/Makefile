@@ -100,6 +100,7 @@ GRAPH_NAME ?= test
 # GRAPH_NAME ?= webbase-2001
 
 LAW ?= amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001
+GAP ?= GAP-kron GAP-road GAP-twitter GAP-urand GAP-web
 CU_CONFIG_MODES ?= 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
 
 # TEXT formant
@@ -590,6 +591,7 @@ law-capi: app-capi
 	for config in $(CU_CONFIG_MODES); do \
 		for graph in $(LAW); do \
 		    for num in `seq 1 $(NUM_THREADS)`; do \
+		    	echo $$config $$graph $$num ; \
 		    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
 		    done ; \
 	    done ; \

@@ -14,9 +14,8 @@ export APP_DIR              = .
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-# export BENCHMARKS_DIR    	= ../04_test_graphs
-export BENCHMARKS_DIR    	= ../../01_GraphDatasets
-# export BENCHMARKS_DIR    	= ../../01_GraphDatasets/LAW
+export BENCHMARKS_DIR    	= ../04_test_graphs
+# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -54,35 +53,16 @@ export MAIN_DIR		  	= main
 # small test graphs
 # export GRAPH_NAME = test
 # export GRAPH_NAME = v51_e1021
-# export GRAPH_NAME = v300_e2730
+export GRAPH_NAME = v300_e2730
 
-#gem5-Aladdin small dynamic traces
-# export GRAPH_NAME = Gnutella
-# export GRAPH_NAME = dblp
-# export GRAPH_NAME = amazon
-# export GRAPH_NAME = euall
+# GAP https://sparse.tamu.edu/MM/GAP/
+# export GRAPH_NAME = GAP-kron
+# export GRAPH_NAME = GAP-road
+# export GRAPH_NAME = GAP-twitter
+# export GRAPH_NAME = GAP-urand
+# export GRAPH_NAME = GAP-web
 
-# generates large dynamic traces for gem5-Aladdin
-# export GRAPH_NAME = com-youtube
-# export GRAPH_NAME = web-BerkStan
-# export GRAPH_NAME = web-Google
-# export GRAPH_NAME = wiki-Talk
-
-# synthetic graphs
-# export GRAPH_NAME = RMAT20
-# export GRAPH_NAME = RMAT22
-
-# real world large graphs binary GAP
-# export GRAPH_NAME = orkut
-# export GRAPH_NAME = gplus
-# export GRAPH_NAME = sk-2005
-# export GRAPH_NAME = twitter
-# export GRAPH_NAME = livejournal
-# export GRAPH_NAME = USA-Road
-# export GRAPH_NAME = enwiki-2013
-# export GRAPH_NAME = arabic-2005
-
-# real world large graphs binary LAW
+# LAW https://sparse.tamu.edu/MM/LAW/
 # export GRAPH_NAME = amazon-2008
 # export GRAPH_NAME = arabic-2005
 # export GRAPH_NAME = cnr-2000
@@ -100,6 +80,7 @@ export MAIN_DIR		  	= main
 # export GRAPH_NAME = webbase-2001
 
 export LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001 
+export GAP = GAP-kron GAP-road GAP-twitter GAP-urand GAP-web
 export CU_CONFIG_MODES = 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
 
 # TEXT formant
