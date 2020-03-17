@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_graph_algorithm_arbiter_control.sv
 // Create : 2020-03-03 19:58:21
-// Revise : 2020-03-14 14:49:38
+// Revise : 2020-03-17 01:27:33
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ import CU_PKG::*;
 
 module cu_graph_algorithm_arbiter_control #(
 	parameter NUM_GRAPH_CU  = NUM_GRAPH_CU_GLOBAL ,
-	parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL
+	parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL 
 ) (
 	input  logic                          clock                                           , // Clock
 	input  logic                          rstn_in                                         ,

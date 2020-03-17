@@ -297,7 +297,7 @@ main (int argc, char **argv)
 
 
     printf("*-----------------------------------------------------*\n");
-    printf("| %-23s %-27d | \n", "Number of Threads Pre :", numThreads);
+    printf("| %-25s %-25d | \n", "Number of Threads Pre :", numThreads);
     printf(" -----------------------------------------------------\n");
 
     if(arguments.xflag) // if stats flag is on collect stats or serialize your graph
@@ -318,7 +318,7 @@ main (int argc, char **argv)
         omp_set_num_threads(numThreads);
 
         printf("*-----------------------------------------------------*\n");
-        printf("| %-23s %-27d | \n", "Number of Threads Algo :", numThreads);
+        printf("| %-25s %-25d | \n", "Number of Threads Algo :", numThreads);
         printf(" -----------------------------------------------------\n");
 
 

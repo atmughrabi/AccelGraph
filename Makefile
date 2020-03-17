@@ -14,8 +14,8 @@ export APP_DIR              = .
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-export BENCHMARKS_DIR    	= ../04_test_graphs
-# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+# export BENCHMARKS_DIR    	= ../04_test_graphs
+export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 # export BENCHMARKS_DIR    	= ../../01_GraphDatasets/LAW
 
 #dir root/managed_folders
@@ -54,7 +54,7 @@ export MAIN_DIR		  	= main
 # small test graphs
 # export GRAPH_NAME = test
 # export GRAPH_NAME = v51_e1021
-export GRAPH_NAME = v300_e2730
+# export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
 # export GRAPH_NAME = Gnutella
@@ -124,7 +124,7 @@ export PULL_PUSH 		= 4
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
-export NUM_THREADS  	= 4
+export NUM_THREADS  	= 20
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1

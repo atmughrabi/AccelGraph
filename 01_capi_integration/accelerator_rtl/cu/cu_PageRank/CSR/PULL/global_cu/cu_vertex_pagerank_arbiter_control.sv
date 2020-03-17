@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-14 14:20:08
+// Revise : 2020-03-17 01:28:36
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ import CU_PKG::*;
 module cu_vertex_pagerank_arbiter_control #(
 	parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL,
 	parameter NUM_GRAPH_CU  = NUM_GRAPH_CU_GLOBAL ,
-	parameter CU_ID_Y       = 1
+	parameter CU_ID_Y       = 0
 ) (
 	input  logic                          clock                                                            , // Clock
 	input  logic                          rstn_in                                                          ,
@@ -421,7 +421,7 @@ module cu_vertex_pagerank_arbiter_control #(
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_enable_cu
 			always_ff @(posedge clock) begin
-				enable_cu_latched[i] <= (i < cu_configure_latched[32:63]);
+				enable_cu_latched[i] <= (((CU_ID_Y * NUM_VERTEX_CU) + i) < cu_configure_latched[32:63]);
 			end
 		end
 	endgenerate
