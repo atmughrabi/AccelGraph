@@ -14,8 +14,8 @@ export APP_DIR              = .
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-# export BENCHMARKS_DIR    	= ../04_test_graphs
-export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+export BENCHMARKS_DIR    	= ../04_test_graphs
+# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 # export BENCHMARKS_DIR    	= ../../01_GraphDatasets/LAW
 
 #dir root/managed_folders
@@ -54,7 +54,7 @@ export MAIN_DIR		  	= main
 # small test graphs
 # export GRAPH_NAME = test
 # export GRAPH_NAME = v51_e1021
-# export GRAPH_NAME = v300_e2730
+export GRAPH_NAME = v300_e2730
 
 #gem5-Aladdin small dynamic traces
 # export GRAPH_NAME = Gnutella
@@ -100,6 +100,7 @@ export MAIN_DIR		  	= main
 # export GRAPH_NAME = webbase-2001
 
 export LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001 
+export CU_CONFIG_MODES = 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
 
 # TEXT formant
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph

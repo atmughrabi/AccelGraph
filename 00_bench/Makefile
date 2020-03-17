@@ -100,6 +100,7 @@ GRAPH_NAME ?= test
 # GRAPH_NAME ?= webbase-2001
 
 LAW ?= amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001
+CU_CONFIG_MODES ?= 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
 
 # TEXT formant
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph
@@ -338,6 +339,7 @@ $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.
 clean: 
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
+	@rm -f $(BENCHMARKS_DIR)/*/*.perf
 
 ##################################################
 ##################################################
@@ -413,7 +415,7 @@ clean-sim:
 	@rm -rf $(CAPI_SIM)/work
 	@rm -rf $(CAPI_SIM)/libraries
 	@rm -f $(CAPI_SERVER)/debug.log
-	@rm -f $(CAPI_SIM)/gmon.out  
+	@rm -f $(CAPI_SIM)/gmon.out
 	@cd $(PSLSE_DIR)/afu_driver/src && make clean
 	@cd $(PSLSE_DIR)/libcxl && make clean
 	@cd $(PSLSE_DIR)/pslse && make  clean

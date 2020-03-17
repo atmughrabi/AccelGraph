@@ -280,7 +280,7 @@ main (int argc, char **argv)
 
     argp_parse (&argp, argc, argv, 0, 0, &arguments);
 
-    numThreads =  arguments.numThreads;
+    numThreads =  omp_get_max_threads();
     afu_config =  arguments.afu_config;
     cu_config  =  arguments.cu_config;
     afu_config_2  =  arguments.afu_config_2;
@@ -296,9 +296,8 @@ main (int argc, char **argv)
 
 
 
-
     printf("*-----------------------------------------------------*\n");
-    printf("| %-20s %-30u | \n", "Number of Threads :", numThreads);
+    printf("| %-23s %-27d | \n", "Number of Threads Pre :", numThreads);
     printf(" -----------------------------------------------------\n");
 
     if(arguments.xflag) // if stats flag is on collect stats or serialize your graph
@@ -313,6 +312,16 @@ main (int argc, char **argv)
     {
 
         graph = generateGraphDataStructure(&arguments);
+
+
+        numThreads =  arguments.numThreads;
+        omp_set_num_threads(numThreads);
+
+        printf("*-----------------------------------------------------*\n");
+        printf("| %-23s %-27d | \n", "Number of Threads Algo :", numThreads);
+        printf(" -----------------------------------------------------\n");
+
+
         runGraphAlgorithms(graph, &arguments);
         freeGraphDataStructure(graph, arguments.datastructure);
     }
