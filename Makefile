@@ -295,6 +295,10 @@ clean-all: clean clean-sim clean-synth-all
 law:
 	$(MAKE) law $(MAKE_ARGS)
 
+.PHONY: gap
+gap:
+	$(MAKE) gap $(MAKE_ARGS)
+
 ##################################################
 ##################################################
 
@@ -385,6 +389,10 @@ clean-sim:
 .PHONY: law-capi
 law-capi:
 	$(MAKE) law-capi $(MAKE_ARGS)
+
+.PHONY: gap-capi
+gap-capi:
+	$(MAKE) gap-capi $(MAKE_ARGS)
 ##################################################
 ##################################################
 
