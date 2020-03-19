@@ -15,7 +15,7 @@ set project_revision accel-graph
 set INPUT_SOF ${PROJECT}.sof
 
 # Set seeds
-set seedList { 1 2 3 5 7 11 12 13 14 17 18 19 21 23 25 29 31 34 37 39 41 43 45 47 49 51 53 55 }
+set seedList { 12 13 14 15 16 17 18 19 20 21 23 25 29 31 34 37 39 41 43 45 47 49 51 53 55 1 2 3 5 7 11 }
 # set seedList {23 25 29 31 34 37 39 41 43 45 47 49 51 53 55}
 # set seedList { 2 }
 
