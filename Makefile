@@ -110,6 +110,7 @@ export PULL_PUSH 		= 4
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
+export INC_THREADS      = 4
 export NUM_THREADS  	= 20
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 export NUM_ITERATIONS 	= 1
