@@ -14,14 +14,15 @@ export APP_DIR              = .
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-export BENCHMARKS_DIR    	= ../04_test_graphs
-# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+# export BENCHMARKS_DIR    	= ../04_test_graphs
+export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
 export OBJ_DIR			  	= obj
 export INC_DIR			  	= include
 export BIN_DIR			  	= bin
+export RES_DIR			  	= results
 
 
 #if you want to compile from cmake you need this directory
@@ -89,8 +90,12 @@ export CU_CONFIG_MODES = 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
 #UNWEIGHTED
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
 
+# export FILE_BIN_TYPE = graph
+# export FILE_BIN_TYPE = graph.bin
+export FILE_BIN_TYPE = graph.wbin
+
 #WEIGHTED
-export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
+export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
 
 
 
@@ -298,6 +303,18 @@ law:
 .PHONY: gap
 gap:
 	$(MAKE) gap $(MAKE_ARGS)
+
+.PHONY: results
+results:
+	$(MAKE) results $(MAKE_ARGS)
+
+.PHONY: results-law
+results-law:
+	$(MAKE) results-law $(MAKE_ARGS)
+
+.PHONY: results-gap
+results-gap:
+	$(MAKE) results-gap $(MAKE_ARGS)
 
 ##################################################
 ##################################################

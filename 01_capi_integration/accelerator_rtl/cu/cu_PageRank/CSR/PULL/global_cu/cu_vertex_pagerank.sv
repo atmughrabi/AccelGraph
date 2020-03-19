@@ -62,8 +62,9 @@ module cu_vertex_pagerank #(
 	VertexInterface vertex_job_latched         ;
 	VertexInterface vertex_job_internal_latched;
 
-	logic [0:63] cu_configure_latched ;
-	logic [0:63] cu_configure_internal;
+	logic [0:63] cu_configure_latched         ;
+	logic [0:63] cu_configure_internal        ;
+	logic [0:63] cu_configure_internal_latched;
 
 	logic           vertex_request_internal      ;
 	BufferStatus    vertex_buffer_status_internal;
@@ -133,9 +134,9 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn_in) begin
 		if(~rstn_in) begin
-			rstn        <= 0;
+			rstn <= 0;
 		end else begin
-			rstn        <= rstn_in;
+			rstn <= rstn_in;
 		end
 	end
 
@@ -243,18 +244,26 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			cu_configure_latched              <= 0;
+			cu_configure_internal_latched     <= 0;
 			write_buffer_status_latched       <= 0;
 			write_buffer_status_latched.empty <= 1;
 			read_buffer_status_latched        <= 0;
 			read_buffer_status_latched.empty  <= 1;
 		end else begin
 			if(enabled)begin
-				write_buffer_status_latched <= write_buffer_status;
-				read_buffer_status_latched  <= read_buffer_status;
-				if((|cu_configure_internal))
-					cu_configure_latched <= cu_configure_internal;
+				write_buffer_status_latched   <= write_buffer_status;
+				read_buffer_status_latched    <= read_buffer_status;
+				cu_configure_internal_latched <= cu_configure_internal;
 			end
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			cu_configure_latched <= 0;
+		end else begin
+			if((|cu_configure_internal_latched))
+				cu_configure_latched <= cu_configure_internal_latched;
 		end
 	end
 
@@ -358,7 +367,7 @@ module cu_vertex_pagerank #(
 		.CU_ID_Y(CU_ID_Y)
 	) cu_edge_job_control_instant (
 		.clock                   (clock                       ),
-		.rstn                    (rstn                        ),
+		.rstn_in                 (rstn                        ),
 		.enabled_in              (enabled_cmd                 ),
 		.cu_configure            (cu_configure_latched        ),
 		.wed_request_in          (wed_request_in_latched      ),
@@ -383,7 +392,7 @@ module cu_vertex_pagerank #(
 		.CU_ID_Y(CU_ID_Y)
 	) cu_edge_data_read_command_control_instant (
 		.clock                   (clock                        ),
-		.rstn                    (rstn                         ),
+		.rstn_in                 (rstn                         ),
 		.enabled_in              (enabled_cmd                  ),
 		.cu_configure            (cu_configure_latched         ),
 		.wed_request_in          (wed_request_in_latched       ),
@@ -409,7 +418,7 @@ module cu_vertex_pagerank #(
 		.CU_ID_Y(CU_ID_Y)
 	) cu_sum_kernel_control_instant (
 		.clock                               (clock                              ),
-		.rstn                                (rstn                               ),
+		.rstn_in                             (rstn                               ),
 		.enabled_in                          (enabled_cmd                        ),
 		.write_response_in                   (write_response_in_edge_data        ),
 		.write_buffer_status                 (write_buffer_status_latched        ),

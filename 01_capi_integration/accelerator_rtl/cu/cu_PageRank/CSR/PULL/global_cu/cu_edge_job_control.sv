@@ -25,7 +25,7 @@ module cu_edge_job_control #(
 	parameter CU_ID_Y = 1
 ) (
 	input  logic              clock                   , // Clock
-	input  logic              rstn                    ,
+	input  logic              rstn_in                 ,
 	input  logic              enabled_in              ,
 	input  logic [0:63]       cu_configure            ,
 	input  WEDInterface       wed_request_in          ,
@@ -41,6 +41,7 @@ module cu_edge_job_control #(
 	output EdgeInterface      edge_job
 );
 
+	logic           rstn                            ;
 	VertexInterface vertex_job_latched              ;
 	logic           read_command_bus_grant_latched  ;
 	logic           read_command_bus_request_latched;
@@ -115,6 +116,14 @@ module cu_edge_job_control #(
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin

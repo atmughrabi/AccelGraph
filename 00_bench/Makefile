@@ -14,14 +14,15 @@ APP_TEST          ?= test_accel-graph
 APP_DIR           	?= .
 CAPI_INTEG_DIR      ?= 01_capi_integration
 SCRIPT_DIR          ?= 03_scripts
-# BENCHMARKS_DIR    	= ../../01_GraphDatasets
-BENCHMARKS_DIR    	?= ../04_test_graphs
+BENCHMARKS_DIR    	?= ../../01_GraphDatasets
+# BENCHMARKS_DIR    	?= ../04_test_graphs
 
 #dir root/managed_folders
 SRC_DIR           	?= src
 OBJ_DIR			  	?= obj
 INC_DIR			  	?= include
 BIN_DIR			  	?= bin
+RES_DIR			  	?= results
 
 #if you want to compile from cmake you need this directory
 #cd build
@@ -109,8 +110,12 @@ CU_CONFIG_MODES ?= 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
 #UNWEIGHTED
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
 
+# FILE_BIN_TYPE ?= graph
+# FILE_BIN_TYPE ?= graph.bin
+FILE_BIN_TYPE ?= graph.wbin
+
 #WEIGHTED
-FILE_BIN ?= $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.wbin
+FILE_BIN ?= $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
 
 
 
@@ -342,6 +347,29 @@ clean:
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
 	@rm -f $(BENCHMARKS_DIR)/*/*.perf
 
+
+.PHONY: results-law
+results-law:
+	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-law
+	@for graph in $(LAW); do \
+			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf ]; then \
+				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf $(APP_DIR)/$(RES_DIR)/results-law/$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_$$graph; \
+			fi ; \
+	done
+
+.PHONY: results-gap
+results-gap:
+	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-law
+	@for graph in $(GAP); do \
+			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf ]; then \
+				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf $(APP_DIR)/$(RES_DIR)/results-law/$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)_$$graph; \
+			fi ; \
+	done
+
+
+.PHONY: results
+results: results-law results-gap
+
 ##################################################
 ##################################################
 
@@ -491,7 +519,7 @@ cache-perf-openmp: app-openmp
 
 .PHONY: law
 law: app-openmp
-	for config in $(CU_CONFIG_MODES); do \
+	@for config in $(CU_CONFIG_MODES); do \
 		for graph in $(LAW); do \
 		    for num in `seq 1 $(NUM_THREADS)`; do \
 		    	echo $$config $$graph $$num ; \
@@ -502,7 +530,7 @@ law: app-openmp
 
 .PHONY: gap
 gap: app-openmp
-	for config in $(CU_CONFIG_MODES); do \
+	@for config in $(CU_CONFIG_MODES); do \
 		for graph in $(GAP); do \
 		    for num in `seq 1 $(NUM_THREADS)`; do \
 		    	echo $$config $$graph $$num ; \
@@ -599,7 +627,7 @@ law-capi: CAPI_FLAGS = -DVERBOSE
 law-capi: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 law-capi: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 law-capi: app-capi
-	for config in $(CU_CONFIG_MODES); do \
+	@for config in $(CU_CONFIG_MODES); do \
 		for graph in $(LAW); do \
 		    for num in `seq 1 $(NUM_THREADS)`; do \
 		    	echo $$config $$graph $$num ; \
@@ -613,7 +641,7 @@ gap-capi: CAPI_FLAGS = -DVERBOSE
 gap-capi: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 gap-capi: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 gap-capi: app-capi
-	for config in $(CU_CONFIG_MODES); do \
+	@for config in $(CU_CONFIG_MODES); do \
 		for graph in $(LAW); do \
 		    for num in `seq 1 $(NUM_THREADS)`; do \
 		    	echo $$config $$graph $$num ; \

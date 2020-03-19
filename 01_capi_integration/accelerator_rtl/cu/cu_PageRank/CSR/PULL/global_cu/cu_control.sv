@@ -51,6 +51,9 @@ module cu_control #(
 );
 
 	logic                          rstn                                                  ;
+	logic                          rstn_internal                                         ;
+	logic                          rstn_output                                           ;
+	logic                          rstn_input                                            ;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_filtered                           ;
 	logic [ NUM_READ_REQUESTS-1:0] submit                                                ;
 	logic [ NUM_READ_REQUESTS-1:0] requests                                              ;
@@ -65,8 +68,8 @@ module cu_control #(
 	ReadWriteDataLine write_data_0_out_graph_algorithm ;
 	ReadWriteDataLine write_data_1_out_graph_algorithm ;
 
-	EdgeDataWrite edge_data_write_out_cu_in [0:NUM_GRAPH_CU-1];
-	EdgeDataWrite edge_data_write_out;
+	EdgeDataWrite edge_data_write_out_cu_in[0:NUM_GRAPH_CU-1];
+	EdgeDataWrite edge_data_write_out                        ;
 
 	//input lateched
 	WEDInterface       wed_request_in_latched          ;
@@ -147,14 +150,26 @@ module cu_control #(
 
 	always_ff @(posedge clock or negedge rstn_in) begin
 		if(~rstn_in) begin
-			rstn <= 0;
+			rstn_internal <= 0;
 		end else begin
-			rstn <= rstn_in;
+			rstn_internal <= rstn_in;
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_internal) begin
+		if(~rstn_internal) begin
+			rstn        <= 0;
+			rstn_output <= 0;
+			rstn_input  <= 0;
+		end else begin
+			rstn        <= rstn_internal;
+			rstn_output <= rstn_internal;
+			rstn_input  <= rstn_internal;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			prefetch_read_command_out_latched  <= 0;
 			prefetch_write_command_out_latched <= 0;
 		end else begin
@@ -175,8 +190,8 @@ module cu_control #(
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
 			enabled                <= 0;
 			enabled_vertex_job     <= 0;
 			enabled_prefetch_read  <= 0;
@@ -239,8 +254,8 @@ module cu_control #(
 //Drive input output
 ////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			write_command_out.valid           <= 0;
 			write_data_0_out.valid            <= 0;
 			write_data_1_out.valid            <= 0;
@@ -262,8 +277,8 @@ module cu_control #(
 	end
 
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			write_command_out.payload <= 0 ;
 			write_data_0_out.payload  <= 0 ;
 			write_data_1_out.payload  <= 0 ;
@@ -280,8 +295,8 @@ module cu_control #(
 //Drive input
 ////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
 			wed_request_in_latched.valid            <= 0;
 			read_response_in_latched.valid          <= 0;
 			write_response_in_graph_algorithm.valid <= 0;
@@ -298,8 +313,8 @@ module cu_control #(
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
 			wed_request_in_latched.payload            <= 0;
 			read_response_in_latched.payload          <= 0;
 			write_response_in_graph_algorithm.payload <= 0;
@@ -314,8 +329,8 @@ module cu_control #(
 		end
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
 			cu_configure_latched   <= 0;
 			cu_configure_2_latched <= 0;
 		end else begin
@@ -333,8 +348,8 @@ module cu_control #(
 //Drive Read Prefetch
 ////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			prefetch_read_response_in_latched.valid <= 0;
 			prefetch_read_command_out.valid         <= 0;
 		end else begin
@@ -354,8 +369,8 @@ module cu_control #(
 //Drive Write Prefetch
 ////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			prefetch_write_response_in_latched.valid <= 0;
 			prefetch_write_command_out.valid         <= 0;
 		end else begin

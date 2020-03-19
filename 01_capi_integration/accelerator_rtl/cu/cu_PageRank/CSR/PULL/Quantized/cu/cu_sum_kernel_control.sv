@@ -24,7 +24,7 @@ module cu_sum_kernel_control #(
 	parameter CU_ID_Y = 1
 ) (
 	input  logic                          clock                               , // Clock
-	input  logic                          rstn                                ,
+	input  logic                          rstn_in                             ,
 	input  logic                          enabled_in                          ,
 	input  ResponseBufferLine             write_response_in                   ,
 	input  BufferStatus                   write_buffer_status                 ,
@@ -40,7 +40,7 @@ module cu_sum_kernel_control #(
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal_out
 );
 
-
+	logic              rstn                               ;
 	EdgeDataRead       edge_data_latched                  ;
 	EdgeDataWrite      edge_data_accumulator              ;
 	EdgeDataWrite      edge_data_accumulator_latch        ;
@@ -63,6 +63,14 @@ module cu_sum_kernel_control #(
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
 ////////////////////////////////////////////////////////////////////////////
+
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin

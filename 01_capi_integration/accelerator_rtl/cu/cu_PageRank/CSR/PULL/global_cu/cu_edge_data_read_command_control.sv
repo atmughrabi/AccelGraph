@@ -25,7 +25,7 @@ module cu_edge_data_read_command_control #(
 	parameter CU_ID_Y = 1
 ) (
 	input  logic              clock                   , // Clock
-	input  logic              rstn                    ,
+	input  logic              rstn_in                    ,
 	input  logic              enabled_in              ,
 	input  logic [0:63]       cu_configure            ,
 	input  WEDInterface       wed_request_in          ,
@@ -42,7 +42,7 @@ module cu_edge_data_read_command_control #(
 	output EdgeDataRead       edge_data
 );
 
-
+	logic rstn                              ;
 	//output latched
 	EdgeInterface edge_job_latched          ;
 	EdgeInterface edge_job_variable         ;
@@ -73,6 +73,14 @@ module cu_edge_data_read_command_control #(
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
 ////////////////////////////////////////////////////////////////////////////
+	
+	always_ff @(posedge clock or negedge rstn_in) begin
+		if(~rstn_in) begin
+			rstn <= 0;
+		end else begin
+			rstn <= rstn_in;
+		end
+	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
