@@ -144,12 +144,10 @@ module cu_edge_data_read_extract_control #(
 		if(~rstn) begin
 			edge_data_variable.valid <= 0;
 		end else begin
-			if(enabled) begin
-				if(edge_data_variable_reg.valid)begin
-					edge_data_variable.valid <= edge_data_variable_reg.valid;
-				end else begin
-					edge_data_variable.valid <= 0;
-				end
+			if(edge_data_variable_reg.valid)begin
+				edge_data_variable.valid <= edge_data_variable_reg.valid;
+			end else begin
+				edge_data_variable.valid <= 0;
 			end
 		end
 	end
@@ -175,29 +173,27 @@ module cu_edge_data_read_extract_control #(
 			reg_DATA_VARIABLE_1_ready    <= 0;
 			edge_data_variable_reg.valid <= 0;
 		end else begin
-			if(enabled)begin
-				if(read_data_0_in_latched.valid) begin
-					reg_DATA_VARIABLE_0       <= read_data_0_in_latched.payload.data;
-					reg_DATA_VARIABLE_0_ready <= 1;
-				end
+			if(read_data_0_in_latched.valid) begin
+				reg_DATA_VARIABLE_0       <= read_data_0_in_latched.payload.data;
+				reg_DATA_VARIABLE_0_ready <= 1;
+			end
 
-				if(read_data_1_in_latched.valid) begin
-					reg_DATA_VARIABLE_1       <= read_data_1_in_latched.payload.data;
-					reg_DATA_VARIABLE_1_ready <= 1;
-				end
+			if(read_data_1_in_latched.valid) begin
+				reg_DATA_VARIABLE_1       <= read_data_1_in_latched.payload.data;
+				reg_DATA_VARIABLE_1_ready <= 1;
+			end
 
-				if(reg_DATA_VARIABLE_ready)begin
-					edge_data_variable_reg.valid <= reg_DATA_VARIABLE_ready;
+			if(reg_DATA_VARIABLE_ready)begin
+				edge_data_variable_reg.valid <= reg_DATA_VARIABLE_ready;
 
-					if(~read_data_0_in_latched.valid)
-						reg_DATA_VARIABLE_0_ready <= 0;
+				if(~read_data_0_in_latched.valid)
+					reg_DATA_VARIABLE_0_ready <= 0;
 
-					if(~read_data_1_in_latched.valid)
-						reg_DATA_VARIABLE_1_ready <= 0;
+				if(~read_data_1_in_latched.valid)
+					reg_DATA_VARIABLE_1_ready <= 0;
 
-				end else begin
-					edge_data_variable_reg.valid <= 0;
-				end
+			end else begin
+				edge_data_variable_reg.valid <= 0;
 			end
 		end
 	end

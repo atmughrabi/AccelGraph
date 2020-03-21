@@ -48,7 +48,11 @@ module cu_vertex_pagerank #(
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter
 );
 
-	logic rstn                               ;
+	logic rstn_internal;
+	logic rstn         ;
+	logic rstn_input   ;
+	logic rstn_output  ;
+
 	logic read_command_bus_grant_latched     ;
 	logic read_command_bus_request_latched   ;
 	logic edge_data_write_bus_grant_latched  ;
@@ -98,9 +102,12 @@ module cu_vertex_pagerank #(
 	BufferStatus  data_buffer_status;
 	logic         processing_vertex ;
 
-	EdgeDataRead edge_data  ;
-	logic        enabled    ;
-	logic        enabled_cmd;
+	EdgeDataRead edge_data        ;
+	logic        enabled          ;
+	logic        enabled_cmd      ;
+	logic        enabled_edge_job ;
+	logic        enabled_edge_data;
+	logic        enabled_sum_data ;
 
 	CommandBufferLine              command_arbiter_out                               ;
 	logic [      NUM_REQUESTS-1:0] requests                                          ;
@@ -134,19 +141,49 @@ module cu_vertex_pagerank #(
 
 	always_ff @(posedge clock or negedge rstn_in) begin
 		if(~rstn_in) begin
-			rstn <= 0;
+			rstn_internal <= 0;
 		end else begin
-			rstn <= rstn_in;
+			rstn_internal <= rstn_in;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn_internal) begin
+		if(~rstn_internal) begin
+			rstn        <= 0;
+			rstn_input  <= 0;
+			rstn_output <= 0;
+		end else begin
+			rstn        <= rstn_internal;
+			rstn_input  <= rstn_internal;
+			rstn_output <= rstn_internal;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
+			enabled <= 0;
+		end else begin
+			enabled <= enabled_in;
 		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			enabled     <= 0;
 			enabled_cmd <= 0;
 		end else begin
-			enabled     <= enabled_in;
-			enabled_cmd <= (|cu_configure_latched) && wed_request_in_latched.valid;
+			enabled_cmd <= ((|cu_configure_latched) && wed_request_in_latched.valid);
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			enabled_edge_job  <= 0;
+			enabled_edge_data <= 0;
+			enabled_sum_data  <= 0;
+		end else begin
+			enabled_edge_job  <= enabled_cmd;
+			enabled_edge_data <= enabled_cmd;
+			enabled_sum_data  <= enabled_cmd;
 		end
 	end
 
@@ -187,17 +224,15 @@ module cu_vertex_pagerank #(
 ////////////////////////////////////////////////////////////////////////////
 
 	// drive outputs
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			vertex_job_request        <= 0;
 			edge_data_write_out.valid <= 0;
 			read_command_out.valid    <= 0;
 		end else begin
-			if(enabled_cmd)begin
-				vertex_job_request        <= vertex_job_request_send;
-				edge_data_write_out.valid <= edge_data_write_out_internal.valid;
-				read_command_out.valid    <= read_command_out_latched.valid;
-			end
+			vertex_job_request        <= vertex_job_request_send;
+			edge_data_write_out.valid <= edge_data_write_out_internal.valid;
+			read_command_out.valid    <= read_command_out_latched.valid;
 		end
 	end
 
@@ -210,8 +245,8 @@ module cu_vertex_pagerank #(
 	// drive inputs
 	////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
 			read_data_0_in_latched.valid    <= 0;
 			read_data_1_in_latched.valid    <= 0;
 			wed_request_in_latched.valid    <= 0;
@@ -242,19 +277,17 @@ module cu_vertex_pagerank #(
 		edge_data_read.payload            <= edge_data_read_in.payload;
 	end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
 			cu_configure_internal_latched     <= 0;
 			write_buffer_status_latched       <= 0;
 			write_buffer_status_latched.empty <= 1;
 			read_buffer_status_latched        <= 0;
 			read_buffer_status_latched.empty  <= 1;
 		end else begin
-			if(enabled)begin
-				write_buffer_status_latched   <= write_buffer_status;
-				read_buffer_status_latched    <= read_buffer_status;
-				cu_configure_internal_latched <= cu_configure_internal;
-			end
+			write_buffer_status_latched   <= write_buffer_status;
+			read_buffer_status_latched    <= read_buffer_status;
+			cu_configure_internal_latched <= cu_configure_internal;
 		end
 	end
 
@@ -275,13 +308,11 @@ module cu_vertex_pagerank #(
 		if(~rstn) begin
 			vertex_job_latched.valid <= 0;
 		end else begin
-			if(enabled)begin
-				if(vertex_job_burst_out.valid && ~processing_vertex) begin
-					vertex_job_latched.valid <= vertex_job_burst_out.valid;
-				end
-				if ((edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree) && vertex_job_latched.valid) begin
-					vertex_job_latched.valid <= 0;
-				end
+			if(vertex_job_burst_out.valid && ~processing_vertex) begin
+				vertex_job_latched.valid <= vertex_job_burst_out.valid;
+			end
+			if ((edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree) && vertex_job_latched.valid) begin
+				vertex_job_latched.valid <= 0;
 			end
 		end
 	end
@@ -299,13 +330,11 @@ module cu_vertex_pagerank #(
 	// count complete vertex request
 	////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			vertex_num_counter <= 0;
 		end else begin
-			if(enabled)begin
-				vertex_num_counter <= vertex_num_counter_resp;
-			end
+			vertex_num_counter <= vertex_num_counter_resp;
 		end
 	end
 
@@ -313,13 +342,11 @@ module cu_vertex_pagerank #(
 	// count complete edge request
 	////////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			edge_num_counter <= 0;
 		end else begin
-			if(enabled)begin
-				edge_num_counter <= edge_data_counter_accum;
-			end
+			edge_num_counter <= edge_data_counter_accum;
 		end
 	end
 
@@ -331,14 +358,12 @@ module cu_vertex_pagerank #(
 		if(~rstn) begin
 			processing_vertex <= 0;
 		end else begin
-			if(enabled)begin
-				if(vertex_job_latched.valid) begin
-					if(~processing_vertex) begin
-						processing_vertex <= 1;
-					end
-					if (edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree) begin
-						processing_vertex <= 0;
-					end
+			if(vertex_job_latched.valid) begin
+				if(~processing_vertex) begin
+					processing_vertex <= 1;
+				end
+				if (edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree) begin
+					processing_vertex <= 0;
 				end
 			end
 		end
@@ -368,7 +393,7 @@ module cu_vertex_pagerank #(
 	) cu_edge_job_control_instant (
 		.clock                   (clock                       ),
 		.rstn_in                 (rstn                        ),
-		.enabled_in              (enabled_cmd                 ),
+		.enabled_in              (enabled_edge_job            ),
 		.cu_configure            (cu_configure_latched        ),
 		.wed_request_in          (wed_request_in_latched      ),
 		.read_response_in        (read_response_in_edge_job   ),
@@ -393,7 +418,7 @@ module cu_vertex_pagerank #(
 	) cu_edge_data_read_command_control_instant (
 		.clock                   (clock                        ),
 		.rstn_in                 (rstn                         ),
-		.enabled_in              (enabled_cmd                  ),
+		.enabled_in              (enabled_edge_data            ),
 		.cu_configure            (cu_configure_latched         ),
 		.wed_request_in          (wed_request_in_latched       ),
 		.read_response_in        (read_response_in_edge_data   ),
@@ -419,7 +444,7 @@ module cu_vertex_pagerank #(
 	) cu_sum_kernel_control_instant (
 		.clock                               (clock                              ),
 		.rstn_in                             (rstn                               ),
-		.enabled_in                          (enabled_cmd                        ),
+		.enabled_in                          (enabled_sum_data                   ),
 		.write_response_in                   (write_response_in_edge_data        ),
 		.write_buffer_status                 (write_buffer_status_latched        ),
 		.edge_data                           (edge_data                          ),
@@ -469,7 +494,7 @@ module cu_vertex_pagerank #(
 		if(~rstn) begin
 			write_response_in_edge_data.valid <= 0;
 		end else begin
-			if(enabled && write_response_in_latched.valid) begin
+			if(write_response_in_latched.valid) begin
 				case (write_response_in_latched.payload.cmd.array_struct)
 					WRITE_GRAPH_DATA : begin
 						write_response_in_edge_data.valid <= write_response_in_latched.valid;
@@ -547,15 +572,19 @@ module cu_vertex_pagerank #(
 	// Bus requests Grants
 	///////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_command_bus_grant_latched <= 0;
-			read_command_bus_request       <= 0;
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
+			read_command_bus_request <= 0;
 		end else begin
-			if(enabled_cmd) begin
-				read_command_bus_grant_latched <= read_command_bus_grant && ~read_buffer_status_latched.alfull;
-				read_command_bus_request       <= read_command_bus_request_latched;
-			end
+			read_command_bus_request <= read_command_bus_request_latched;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
+			read_command_bus_grant_latched <= 0;
+		end else begin
+			read_command_bus_grant_latched <= read_command_bus_grant && ~read_buffer_status_latched.alfull;
 		end
 	end
 
@@ -587,17 +616,22 @@ module cu_vertex_pagerank #(
 	// Bus requests Grants PageRank write data
 	///////////////////////////////////////////////////////////////////////////
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_output) begin
+		if(~rstn_output) begin
 			edge_data_write_bus_grant_latched <= 0;
-			edge_data_write_bus_request       <= 0;
 		end else begin
-			if(enabled_cmd) begin
-				edge_data_write_bus_grant_latched <= edge_data_write_bus_grant;
-				edge_data_write_bus_request       <= edge_data_write_bus_request_latched;
-			end
+			edge_data_write_bus_grant_latched <= edge_data_write_bus_grant;
 		end
 	end
+
+	always_ff @(posedge clock or negedge rstn_input) begin
+		if(~rstn_input) begin
+			edge_data_write_bus_request <= 0;
+		end else begin
+			edge_data_write_bus_request <= edge_data_write_bus_request_latched;
+		end
+	end
+
 
 	fifo #(
 		.WIDTH($bits(VertexInterface)),

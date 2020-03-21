@@ -694,10 +694,8 @@ module cu_edge_job_control #(
 			read_command_bus_grant_latched <= 0;
 			read_command_bus_request       <= 0;
 		end else begin
-			if(enabled_cmd) begin
-				read_command_bus_grant_latched <= read_command_bus_grant;
-				read_command_bus_request       <= read_command_bus_request_latched;
-			end
+			read_command_bus_grant_latched <= read_command_bus_grant;
+			read_command_bus_request       <= read_command_bus_request_latched;
 		end
 	end
 
