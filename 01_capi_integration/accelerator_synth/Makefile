@@ -30,6 +30,7 @@ PROJECT ?= accel-graph
 DATA_STRUCTURES ?= 0
 ALGORITHMS 		?= 1
 PULL_PUSH 		?= 2
+NUM_THREADS  	?= 20
 SCRIPT_DIR   	?= ../../03_scripts
 CU_SET_SYNTH 	?= $(shell python ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 
@@ -38,7 +39,7 @@ CU_DATA_STRUCTURE ?=  $(word 2, $(CU_SET_SYNTH))
 CU_DIRECTION ?=       $(word 3, $(CU_SET_SYNTH))
 CU_PRECISION ?= 	  $(word 4, $(CU_SET_SYNTH))
 
-SYNTH_DIR ?= synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)
+SYNTH_DIR ?= synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_CU$(NUM_THREADS)
 
 VERSION_GIT ?= $(shell python ./capi/scripts/version.py)
 TIME_STAMP ?= $(shell date +%Y_%m_%d_%H_%M_%S)
@@ -135,7 +136,7 @@ $(PROJECT).qxp: $(PROJECT).map.rpt
 ###################################################################
 
 $(ASSIGNMENT_FILES): $(PROJECT).tcl ./capi/fpga/*.tcl
-	quartus_sh -t  $(PROJECT).tcl $(CU_SET_SYNTH)
+	quartus_sh -t  $(PROJECT).tcl $(CU_SET_SYNTH) $(NUM_THREADS)
 	quartus_sh --prepare $(PROJECT)
 	#quartus_stp $(PROJECT) --enable --logic_analyzer_interface --lai_file=probes.lai
 
@@ -175,4 +176,4 @@ gui: $(ASSIGNMENT_FILES)
 
 .PHONY:sweep 
 sweep: sweep.chg $(PROJECT).merge.rpt
-	quartus_sh --64bit -t sweep.tcl 
+	quartus_sh --64bit -t sweep.tcl $(CU_SET_SYNTH) $(NUM_THREADS)

@@ -6,24 +6,27 @@ set VERSION   [binary format A24 [exec $LIBCAPI/scripts/version.py]]
 set project_revision accel-graph
 
 
-if { $argc != 4 } {
+if { $argc != 5 } {
 	puts "SET Project to DEFAULT"
 	set graph_algorithm "cu_PageRank"
 	set data_structure 	"CSR"
 	set direction 		"PULL"
 	set cu_precision 	"Float"
+	set cu_count  	 	"20"
 } else {
 	puts "SET Project to ARGV"
 	set graph_algorithm "[lindex $argv 0]"
 	set data_structure 	"[lindex $argv 1]"
 	set direction 		"[lindex $argv 2]"
 	set cu_precision 	"[lindex $argv 3]"
+	set cu_count 		"[lindex $argv 4]"
 }
 
 puts "Algorithm $graph_algorithm"
 puts "Datastructure $data_structure"
 puts "Direction $direction"
 puts "Precision $cu_precision"
+puts "CU Count  $cu_count"
 
 project_new $project_name -overwrite -revision $project_revision
 

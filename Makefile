@@ -112,7 +112,7 @@ export DELTA 			= 800
 
 export START_THREADS    = 1
 export INC_THREADS      = 4
-export NUM_THREADS  	= 20
+export NUM_THREADS  	= 25
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
@@ -340,7 +340,7 @@ export CU_PRECISION 		= 	$(word 4, $(CU_SET_SYNTH))
 export VERSION_GIT = $(shell python ./$(SCRIPT_DIR)/version.py)
 export TIME_STAMP = $(shell date +%Y_%m_%d_%H_%M_%S)
 
-export SYNTH_DIR = synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)
+export SYNTH_DIR = synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_CU$(NUM_THREADS)
 
 # export CU = cu_PageRank_pull
 
