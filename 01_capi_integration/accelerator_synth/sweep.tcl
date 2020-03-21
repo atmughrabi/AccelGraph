@@ -15,9 +15,10 @@ set project_revision accel-graph
 set INPUT_SOF ${PROJECT}.sof
 
 # Set seeds
-set seedList { 12 13 14 15 16 17 18 19 20 21 23 25 29 31 34 37 39 41 43 45 47 49 51 53 55 1 2 3 5 7 11 }
-# set seedList {23 25 29 31 34 37 39 41 43 45 47 49 51 53 55}
-# set seedList { 2 }
+set seedList { 12 13 14 15 16 30 1 7 17 18 19 20 21 23 25 29 31 32 33 34 37 39 41 43 45 47 49 51 53 55 2 3 5 11 6 9}
+# set seedList { 12 13 14 15 16 30 1 7 17 18 19 20 21 23 25 29 6 9 }
+# set seedList { 31 32 33 34 37 39 41 43 45 47 49 51 53 55 2 3 5 11 }
+
 
 set timetrynum [llength $seedList]
 puts "Total compiles: $timetrynum"
