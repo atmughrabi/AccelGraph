@@ -21,7 +21,7 @@ import CU_PKG::*;
 
 module afu_control #(
 	parameter NUM_REQUESTS    = 5 ,
-	parameter RSP_DELAY       = 10,
+	parameter RSP_DELAY       = 11,
 	parameter CREDIT_HEADROOM = 2
 ) (
 	input  logic                        clock                      , // Clock

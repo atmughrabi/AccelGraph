@@ -76,6 +76,10 @@ module cu_edge_job_control #(
 	ReadWriteDataLine  read_data_0_in_latched  ;
 	ReadWriteDataLine  read_data_1_in_latched  ;
 
+	ResponseBufferLine read_response_in_latched_S2;
+	ReadWriteDataLine  read_data_0_in_latched_S2  ;
+	ReadWriteDataLine  read_data_1_in_latched_S2  ;
+
 	logic edge_request_latched;
 
 	CommandBufferLine read_command_edge_job_latched   ;
@@ -165,21 +169,21 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			read_data_0_in_latched.valid     <= 0;
-			read_data_1_in_latched.valid     <= 0;
-			read_response_in_latched.valid   <= 0;
-			edge_request_latched             <= 0;
-			wed_request_in_latched.valid     <= 0;
-			read_buffer_status_latched       <= 0;
-			read_buffer_status_latched.empty <= 1;
+			read_data_0_in_latched_S2.valid   <= 0;
+			read_data_1_in_latched_S2.valid   <= 0;
+			read_response_in_latched_S2.valid <= 0;
+			edge_request_latched              <= 0;
+			wed_request_in_latched.valid      <= 0;
+			read_buffer_status_latched        <= 0;
+			read_buffer_status_latched.empty  <= 1;
 		end else begin
 			if(enabled_cmd) begin
-				read_buffer_status_latched     <= read_buffer_status;
-				read_response_in_latched.valid <= read_response_in.valid ;
-				read_data_0_in_latched.valid   <= read_data_0_in.valid ;
-				read_data_1_in_latched.valid   <= read_data_1_in.valid ;
-				wed_request_in_latched.valid   <= wed_request_in.valid;
-				edge_request_latched           <= edge_request && ~edge_buffer_status.empty;
+				read_buffer_status_latched        <= read_buffer_status;
+				read_response_in_latched_S2.valid <= read_response_in.valid ;
+				read_data_0_in_latched_S2.valid   <= read_data_0_in.valid ;
+				read_data_1_in_latched_S2.valid   <= read_data_1_in.valid ;
+				wed_request_in_latched.valid      <= wed_request_in.valid;
+				edge_request_latched              <= edge_request && ~edge_buffer_status.empty;
 			end
 		end
 	end
@@ -187,17 +191,41 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
+			read_data_0_in_latched_S2.payload   <= 0;
+			read_data_1_in_latched_S2.payload   <= 0;
+			wed_request_in_latched.payload      <= 0;
+			read_response_in_latched_S2.payload <= 0;
+			vertex_job_latched.payload          <= 0;
+		end else begin
+			read_data_0_in_latched_S2.payload   <= read_data_0_in.payload;
+			read_data_1_in_latched_S2.payload   <= read_data_1_in.payload;
+			wed_request_in_latched.payload      <= wed_request_in.payload;
+			read_response_in_latched_S2.payload <= read_response_in.payload;
+			vertex_job_latched.payload          <= vertex_job.payload;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_data_0_in_latched.valid   <= 0;
+			read_data_1_in_latched.valid   <= 0;
+			read_response_in_latched.valid <= 0;
+		end else begin
+			read_response_in_latched.valid <= read_response_in_latched_S2.valid ;
+			read_data_0_in_latched.valid   <= read_data_0_in_latched_S2.valid ;
+			read_data_1_in_latched.valid   <= read_data_1_in_latched_S2.valid ;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
 			read_data_0_in_latched.payload   <= 0;
 			read_data_1_in_latched.payload   <= 0;
-			wed_request_in_latched.payload   <= 0;
 			read_response_in_latched.payload <= 0;
-			vertex_job_latched.payload       <= 0;
 		end else begin
-			read_data_0_in_latched.payload   <= read_data_0_in.payload;
-			read_data_1_in_latched.payload   <= read_data_1_in.payload;
-			wed_request_in_latched.payload   <= wed_request_in.payload;
-			read_response_in_latched.payload <= read_response_in.payload;
-			vertex_job_latched.payload       <= vertex_job.payload;
+			read_data_0_in_latched.payload   <= read_data_0_in_latched_S2.payload;
+			read_data_1_in_latched.payload   <= read_data_1_in_latched_S2.payload;
+			read_response_in_latched.payload <= read_response_in_latched_S2.payload;
 		end
 	end
 
@@ -503,11 +531,11 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock) begin
 		if(read_data_0_in_latched.valid) begin
-			case (read_data_0_in_latched.payload.cmd.array_struct)
-				INV_EDGE_ARRAY_DEST : begin
-					reg_INV_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched.payload.data;
-				end
-			endcase
+			// case (read_data_0_in_latched.payload.cmd.array_struct)
+			// 	INV_EDGE_ARRAY_DEST : begin
+			reg_INV_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched.payload.data;
+			// 	end
+			// endcase
 		end
 
 		if(~switch_shift_hf && start_shift_hf_0) begin
@@ -517,11 +545,11 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock) begin
 		if(read_data_1_in_latched.valid) begin
-			case (read_data_1_in_latched.payload.cmd.array_struct)
-				INV_EDGE_ARRAY_DEST : begin
-					reg_INV_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched.payload.data;
-				end
-			endcase
+			// case (read_data_1_in_latched.payload.cmd.array_struct)
+			// 	INV_EDGE_ARRAY_DEST : begin
+			reg_INV_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched.payload.data;
+			// 	end
+			// endcase
 		end
 
 		if(switch_shift_hf && start_shift_hf_1) begin
@@ -534,11 +562,11 @@ module cu_edge_job_control #(
 			inverse_edge_array_dest_data_ready <= 0;
 		end else begin
 			if(read_response_in_latched.valid) begin
-				case (read_response_in_latched.payload.cmd.array_struct)
-					INV_EDGE_ARRAY_DEST : begin
-						inverse_edge_array_dest_data_ready <= 1;
-					end
-				endcase
+				// case (read_response_in_latched.payload.cmd.array_struct)
+				// 	INV_EDGE_ARRAY_DEST : begin
+				inverse_edge_array_dest_data_ready <= 1;
+				// 	end
+				// endcase
 			end
 
 			if(clear_data_ready) begin

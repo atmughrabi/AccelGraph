@@ -30,7 +30,7 @@ PROJECT ?= accel-graph
 DATA_STRUCTURES ?= 0
 ALGORITHMS 		?= 1
 PULL_PUSH 		?= 2
-NUM_THREADS  	?= 20
+NUM_THREADS  	?= 25
 SCRIPT_DIR   	?= ../../03_scripts
 CU_SET_SYNTH 	?= $(shell python ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 

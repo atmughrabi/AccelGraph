@@ -4,6 +4,7 @@ import sys
 datastructure = int(sys.argv[1])
 algorithm = int(sys.argv[2])
 direction = int(sys.argv[3])
+cu_count = sys.argv[4]
 
 
 graph_algorithm_arr = ["cu_BFS","cu_PageRank","",""]
@@ -15,18 +16,18 @@ direction_arr = [["PULL","PUSH"],["PULL", "PUSH",
 				 "PULL","PUSH",
 				 "PULLPUSH","PULL"]]
 
-precision_arr = [["NONE","NONE"],["Float", "Float",
+precision_arr = [["NONE","NONE"],["FloatPoint", "FloatPoint",
 				 "FixedPoint","FixedPoint",
 				 "Quantized","Quantized",
-				 "Float","Float",
-				 "Float","Quantized"]]
+				 "FloatPoint","FloatPoint",
+				 "FloatPoint","Quantized"]]
 
 # workloads_grid = [[],["PageRank_pull_row", "PageRank_push_col",
 # 				 "PageRank_pull_row_FixedPoint","PageRank_push_col_FixedPoint"]]
 
 # accel_graph = [workloads_csr,workloads_grid]
 
-set_variables = "set graph_algorithm " + graph_algorithm_arr[algorithm] + " ;" + "set data_structure " + data_structure_arr[datastructure] + " ;" + "set direction " + direction_arr[algorithm][direction] + " ;" + "set cu_precision " + precision_arr[algorithm][direction] + " ;"
+set_variables = "set graph_algorithm " + graph_algorithm_arr[algorithm] + " ;" + "set data_structure " + data_structure_arr[datastructure] + " ;" + "set direction " + direction_arr[algorithm][direction] + " ;" + "set cu_precision " + precision_arr[algorithm][direction] + " ;" + "set cu_count " + cu_count + " ;"
 
 try:
 	print(set_variables)

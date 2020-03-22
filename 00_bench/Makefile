@@ -546,7 +546,7 @@ gap: app-openmp
 
  PART?=5SGXMA7H2F35C2
  PROJECT?= accel-graph
- CU_SET_SIM?=$(shell python ../$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
+ CU_SET_SIM?=$(shell python ../$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH) $(NUM_THREADS))
 
 ##############################################
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #

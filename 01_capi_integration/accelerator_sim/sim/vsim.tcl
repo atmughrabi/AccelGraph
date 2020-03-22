@@ -14,6 +14,7 @@ proc r  {} {
   global data_structure
   global direction
   global cu_precision
+  global cu_count
   # compile SystemVerilog files
 
   # compile libs
@@ -32,6 +33,7 @@ proc r  {} {
   echo "Datastructure $data_structure"
   echo "Direction $direction"
   echo "Precision $cu_precision"
+  echo "CU Count  $cu_count"
 
   if {$graph_algorithm eq "cu_PageRank"} {
     if {$data_structure eq "CSR"} {

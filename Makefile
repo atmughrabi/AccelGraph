@@ -145,7 +145,7 @@ ENABLE_RD_WR_PREFETCH=0
 # // cu_edge_data_control         5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00000 00000 00000 00000 00
-# export CU_CONFIG_MODE=0x00000000
+export CU_CONFIG_MODE=0x00000000
 
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [9] [8] [5:7]
@@ -159,7 +159,7 @@ ENABLE_RD_WR_PREFETCH=0
 # // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
 # // 0b 00010 00010 00010 00001 00000 00000 00
-export CU_CONFIG_MODE=0x00841000  
+# export CU_CONFIG_MODE=0x00841000  
 
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits STRICT | READ_CL_NA  | WRITE_NA 00010 [22:26] [9] [8] [5:7]
@@ -216,7 +216,6 @@ MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH) -j$(MAKE_NUM_THREAD
 #########################################################
 
 export ARGS = -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
-
 
 ##################################################
 ##################################################
@@ -295,7 +294,10 @@ clean-obj:
 	$(MAKE) clean-obj $(MAKE_ARGS)
 
 .PHONY: clean-all
-clean-all: clean clean-sim clean-synth-all 
+clean-all: clean clean-sim clean-synth-all clean-nohup
+
+.PHONY: clean-nohup
+clean-nohup: 
 	@rm -f $(APP_DIR)/nohup.out
 
 .PHONY: law
@@ -329,7 +331,7 @@ results-gap:
 
 export PART=5SGXMA7H2F35C2
 export PROJECT = accel-graph
-export CU_SET_SIM=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
+export CU_SET_SIM=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH) $(NUM_THREADS))
 export CU_SET_SYNTH=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 
 export CU_GRAPH_ALGORITHM 	= 	$(word 1, $(CU_SET_SYNTH))

@@ -11,7 +11,7 @@ if { $argc != 5 } {
 	set graph_algorithm "cu_PageRank"
 	set data_structure 	"CSR"
 	set direction 		"PULL"
-	set cu_precision 	"Float"
+	set cu_precision 	"FloatPoint"
 	set cu_count  	 	"20"
 } else {
 	puts "SET Project to ARGV"
