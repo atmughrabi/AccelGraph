@@ -112,7 +112,7 @@ export DELTA 			= 800
 
 export START_THREADS    = 1
 export INC_THREADS      = 4
-export NUM_THREADS  	= 25
+export NUM_THREADS  	= 21
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
