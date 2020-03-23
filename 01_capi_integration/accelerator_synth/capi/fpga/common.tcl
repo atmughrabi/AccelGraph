@@ -159,6 +159,7 @@ set_global_assignment -name LL_STATE LOCKED -section_id "psl_flash:f"
 set_global_assignment -name LL_AUTO_SIZE OFF -section_id "psl_flash:f"
 set_global_assignment -name SMART_RECOMPILE ON
 
+set_global_assignment -name PRE_MAPPING_RESYNTHESIS ON
 set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
 set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
 set_global_assignment -name ADV_NETLIST_OPT_SYNTH_WYSIWYG_REMAP ON

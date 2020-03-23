@@ -6,7 +6,7 @@ export APP               = accel-graph
 
 # test name needs to match the file name test/test_accel-graph.c
 #   GAPP_TEST          = test_accel-graph
-export APP_TEST          = test_afu
+export APP_TEST          = test_accel-graph
 
 
 # dirs Root app 

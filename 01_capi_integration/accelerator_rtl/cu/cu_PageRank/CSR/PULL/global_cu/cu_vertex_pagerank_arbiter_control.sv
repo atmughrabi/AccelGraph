@@ -8,7 +8,7 @@
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
 // File   : cu_vertex_pagerank_arbiter_control.sv
 // Create : 2020-02-21 19:15:46
-// Revise : 2020-03-17 01:28:36
+// Revise : 2020-03-23 05:38:04
 // Editor : sublime text3, tab size (4)
 // -----------------------------------------------------------------------------
 
@@ -68,6 +68,7 @@ module cu_vertex_pagerank_arbiter_control #(
 );
 
 	logic rstn               ;
+	logic rstn_internal      ;
 	logic rstn_input         ;
 	logic rstn_input_valid   ;
 	logic rstn_input_payload ;
@@ -194,13 +195,21 @@ module cu_vertex_pagerank_arbiter_control #(
 
 	always_ff @(posedge clock or negedge rstn_in) begin
 		if(~rstn_in) begin
+			rstn_internal <= 0;
+		end else begin
+			rstn_internal <= rstn_in;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn_internal) begin
+		if(~rstn_internal) begin
 			rstn        <= 0;
 			rstn_input  <= 0;
 			rstn_output <= 0;
 		end else begin
-			rstn        <= rstn_in;
-			rstn_input  <= rstn_in;
-			rstn_output <= rstn_in;
+			rstn        <= rstn_internal;
+			rstn_input  <= rstn_internal;
+			rstn_output <= rstn_internal;
 		end
 	end
 
@@ -419,29 +428,49 @@ module cu_vertex_pagerank_arbiter_control #(
 	////////////////////////////////////////////////////////////////////////////
 
 	generate
-		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_enable_cu
-			always_ff @(posedge clock) begin
-				enable_cu_latched[i] <= (((CU_ID_Y * NUM_VERTEX_CU) + i) < cu_configure_latched[32:63]);
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_enable_cu_latched
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					enable_cu_latched[i] <= 0;
+				end else begin
+					enable_cu_latched[i] <= (((CU_ID_Y * NUM_VERTEX_CU) + i) < cu_configure_latched[32:63]);
+				end
 			end
 		end
 	endgenerate
 
-	always_ff @(posedge clock) begin
-		enable_cu <= enable_cu_latched;
-	end
+	generate
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_enable_cu
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					enable_cu[i] <= 0;
+				end else begin
+					enable_cu[i] <= enable_cu_latched[i];
+				end
+			end
+		end
+	endgenerate
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_cu_configure
-			always_ff @(posedge clock) begin
-				cu_configure_out_latched[i] <= cu_configure_latched;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					cu_configure_out_latched[i] <= 0;
+				end else begin
+					cu_configure_out_latched[i] <= cu_configure_latched;
+				end
 			end
 		end
 	endgenerate
 
 	generate
 		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_cu_wed_request_out
-			always_ff @(posedge clock) begin
-				cu_wed_request_out_latched[i] <= wed_request_in_latched;
+			always_ff @(posedge clock or negedge rstn) begin
+				if(~rstn) begin
+					cu_wed_request_out_latched[i] <= 0;
+				end else begin
+					cu_wed_request_out_latched[i] <= wed_request_in_latched;
+				end
 			end
 		end
 	endgenerate
