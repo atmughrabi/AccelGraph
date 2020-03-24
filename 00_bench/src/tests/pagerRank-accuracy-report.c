@@ -248,7 +248,7 @@ int main (int argc, char **argv)
                 printf("avg_error_float: %lf,\t", avg_error_float);
 
                 fprintf(fp, "missmatch_floatRanks: %d,\t", missmatch_floatRanks);
-                printf("missmatch_floatRanks: %d,\t", missmatch_floatRanks);
+                printf("missmatch_floatRanks: %d\n", missmatch_floatRanks);
 
             }
 
