@@ -5,8 +5,8 @@
 export APP               = accel-graph
 
 # test name needs to match the file name test/test_accel-graph.c
-#   GAPP_TEST          = test_accel-graph
-export APP_TEST          = test_accel-graph
+# export APP_TEST          =  test_accel-graph
+export APP_TEST          =  pagerRank-accuracy-report
 
 
 # dirs Root app 
@@ -14,8 +14,8 @@ export APP_DIR              = .
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-export BENCHMARKS_DIR    	= ../04_test_graphs
-# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+# export BENCHMARKS_DIR    	= ../04_test_graphs
+export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src

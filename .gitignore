@@ -2,6 +2,7 @@
 00_bench/bin
 00_bench/build
 00_bench/results
+00_bench/*.report
 
 03_Reading/
 
