@@ -238,16 +238,16 @@ int main (int argc, char **argv)
                 double avg_error_float = get_avg_error_float(cmp_data, ref_data);
                 uint32_t missmatch_floatRanks = compareFloatArrays(ref_stats_tmp->pageRanks, cmp_stats_tmp->pageRanks, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
                 
-                fprintf(fp, "avg_error_relative: %lf,\t", avg_error_relative);
-                printf("avg_error_relative: %lf,\t", avg_error_relative);
+                fprintf(fp, "avg_error_relative: %lf\t", avg_error_relative);
+                printf("avg_error_relative: %lf\t", avg_error_relative);
 
-                fprintf(fp, "missmatch_relativeRanks: %d,\t", missmatch_relativeRanks);
-                printf("missmatch_relativeRanks: %d,\t", missmatch_relativeRanks);
+                fprintf(fp, "missmatch_relativeRanks: %d\t", missmatch_relativeRanks);
+                printf("missmatch_relativeRanks: %d\t", missmatch_relativeRanks);
 
-                fprintf(fp, "avg_error_float: %lf,\t", avg_error_float);
-                printf("avg_error_float: %lf,\t", avg_error_float);
+                fprintf(fp, "avg_error_float: %lf\t", avg_error_float);
+                printf("avg_error_float: %lf\t", avg_error_float);
 
-                fprintf(fp, "missmatch_floatRanks: %d,\t", missmatch_floatRanks);
+                fprintf(fp, "missmatch_floatRanks: %d\n", missmatch_floatRanks);
                 printf("missmatch_floatRanks: %d\n", missmatch_floatRanks);
 
             }
