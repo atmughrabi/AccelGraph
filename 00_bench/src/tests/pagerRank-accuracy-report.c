@@ -62,7 +62,7 @@ mt19937state *mt19937var;
 
 double get_avg_error(void *cmp, void *ref)
 {
-    double error = 0;
+    double error = 0.0;
     uint32_t counter = 0;
     struct PageRankStats *ref_stats = (struct PageRankStats * )ref;
     struct PageRankStats *cmp_stats = (struct PageRankStats * )cmp;
@@ -71,19 +71,20 @@ double get_avg_error(void *cmp, void *ref)
     uint32_t cmp_size = cmp_stats->num_vertices;
     float *ref_arr = ref_stats->pageRanks;
     uint32_t ref_size = cmp_stats->num_vertices;
+    uint32_t i;
 
     if(cmp_size != ref_size)
         return 0;
 
-    for(uint32_t i = 0 ; i < cmp_size; i++)
+    for( i = 0 ; i < cmp_size; i++ )
     {
-        if (ref_arr[i] != 0)
-        {
-            error += fabs(cmp_arr[i] - ref_arr[i]) / ref_arr[i];
-            counter++;
-        }
+        // if (ref_arr[i] != 0)
+        // {
+            error += fabs(cmp_arr[i] - ref_arr[i]);
+            // counter++;/
+        // }
     }
-    return error / (double)counter;
+    return error / (double)(cmp_stats->num_vertices);
 }
 
 int main (int argc, char **argv)
