@@ -60,31 +60,69 @@ mt19937state *mt19937var;
 // " #    # "#mm"  "#mm"  "#mm"    "mm          "mmm"  #     "mm"#  ##m#"  #   # \n"
 // "                                                                #            \n"
 
-double get_avg_error(void *cmp, void *ref)
+double get_avg_error_float(void *cmp, void *ref)
 {
     double error = 0.0;
-    uint32_t counter = 0;
+    double zero    = 1e-11f;
+    double epsilon = 1e-8f;
+
     struct PageRankStats *ref_stats = (struct PageRankStats * )ref;
     struct PageRankStats *cmp_stats = (struct PageRankStats * )cmp;
 
     float *cmp_arr = cmp_stats->pageRanks;
     uint32_t cmp_size = cmp_stats->num_vertices;
     float *ref_arr = ref_stats->pageRanks;
-    uint32_t ref_size = cmp_stats->num_vertices;
+    uint32_t ref_size = ref_stats->num_vertices;
     uint32_t i;
-
+    
     if(cmp_size != ref_size)
         return 0;
 
     for( i = 0 ; i < cmp_size; i++ )
     {
-        // if (ref_arr[i] != 0)
-        // {
-            error += fabs(cmp_arr[i] - ref_arr[i]);
-            // counter++;/
-        // }
+        if (!equalFloat(ref_arr[i], zero, epsilon))
+        {
+            error += fabs(cmp_arr[i] - ref_arr[i])/(double)ref_arr[i];
+        }
     }
-    return error / (double)(cmp_stats->num_vertices);
+    return error / (double)ref_size;
+}
+
+double get_avg_error_relative(void *cmp, void *ref)
+{
+    double error = 0.0;
+    struct PageRankStats *ref_stats = (struct PageRankStats * )ref;
+    struct PageRankStats *cmp_stats = (struct PageRankStats * )cmp;
+
+    uint32_t cmp_size = cmp_stats->num_vertices;
+    uint32_t *arr1 = cmp_stats->realRanks;
+    
+    uint32_t ref_size = ref_stats->num_vertices;
+    uint32_t *arr2 = ref_stats->realRanks;
+
+    uint32_t i;
+
+    if(cmp_size != ref_size)
+        return 1;
+
+    uint32_t *labels1 = (uint32_t *) my_malloc(ref_size * sizeof(uint32_t));
+    uint32_t *labels2 = (uint32_t *) my_malloc(cmp_size * sizeof(uint32_t));
+
+    for(i = 0; i < ref_size; i++)
+    {
+        labels1[arr1[i]] = i+1;
+        labels2[arr2[i]] = i+1;
+    }
+
+
+    for(i = 0 ; i < ref_size; i++)
+    {
+        error += fabs(labels1[i] - labels2[i])/(double)labels2[i];
+    }
+
+    free(labels1);
+    free(labels2);
+    return error / (double)ref_size;
 }
 
 int main (int argc, char **argv)
@@ -152,6 +190,7 @@ int main (int argc, char **argv)
 
     void *ref_data;
     void *cmp_data;
+
     FILE *fp = fopen("pr_error.report", "w+");
 
     if (fp == NULL)
@@ -159,6 +198,7 @@ int main (int argc, char **argv)
 
     //for every benchmark
     uint32_t i;
+  
     for(i = 0; i < 15; i++)
     {
         arguments.fnameb = (char *) malloc((strlen(benchmarks_dir) + 40) * sizeof(char));
@@ -188,15 +228,28 @@ int main (int argc, char **argv)
 
             if(ref_data != NULL && cmp_data != NULL)
             {
-                struct PageRankStats *temp = (struct PageRankStats * )cmp_data;
-                double avg_error = get_avg_error(cmp_data, ref_data);
-                uint32_t error_count = cmpGraphAlgorithmsTestStats(ref_data, cmp_data, arguments.algorithm);
-                fprintf(fp, "Avg Error Val: %f,\t", avg_error);
-                printf("Avg Error Val: %lf,\t", avg_error);
-                fprintf(fp, "Error(%%): %lf,\t", (double)error_count * (double)100 / (double)temp->num_vertices);
-                fprintf(fp, "Mismatches: %d\n", error_count);
-                printf("Error(%%): %lf,\t", (double)error_count * (double)100 / (double)temp->num_vertices);
-                printf("Mismatches: %d\n", error_count);
+
+                struct PageRankStats *ref_stats_tmp = (struct PageRankStats * )ref_data;
+                struct PageRankStats *cmp_stats_tmp = (struct PageRankStats * )cmp_data;
+
+                double avg_error_relative = get_avg_error_relative(cmp_data, ref_data);
+                uint32_t missmatch_relativeRanks = compareRealRanks(ref_stats_tmp->realRanks, cmp_stats_tmp->realRanks, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
+                
+                double avg_error_float = get_avg_error_float(cmp_data, ref_data);
+                uint32_t missmatch_floatRanks = compareFloatArrays(ref_stats_tmp->pageRanks, cmp_stats_tmp->pageRanks, ref_stats_tmp->num_vertices, cmp_stats_tmp->num_vertices);
+                
+                fprintf(fp, "avg_error_relative: %lf,\t", avg_error_relative);
+                printf("avg_error_relative: %lf,\t", avg_error_relative);
+
+                fprintf(fp, "missmatch_relativeRanks: %d,\t", missmatch_relativeRanks);
+                printf("missmatch_relativeRanks: %d,\t", missmatch_relativeRanks);
+
+                fprintf(fp, "avg_error_float: %lf,\t", avg_error_float);
+                printf("avg_error_float: %lf,\t", avg_error_float);
+
+                fprintf(fp, "missmatch_floatRanks: %d,\t", missmatch_floatRanks);
+                printf("missmatch_floatRanks: %d,\t", missmatch_floatRanks);
+
             }
 
             freeGraphStatsGeneral(cmp_data, arguments.algorithm);
