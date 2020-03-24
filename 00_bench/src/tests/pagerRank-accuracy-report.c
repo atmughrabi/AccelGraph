@@ -192,9 +192,9 @@ int main (int argc, char **argv)
                 uint32_t error_count = cmpGraphAlgorithmsTestStats(ref_data, cmp_data, arguments.algorithm);
                 fprintf(fp, "Avg Error Val: %f,\t", avg_error);
                 printf("Avg Error Val: %lf,\t", avg_error);
-                fprintf(fp, "Error(%%): %lf,\t", (double)error_count * 100 / (double)temp->num_vertices);
+                fprintf(fp, "Error(%%): %lf,\t", (double)error_count * (double)100 / (double)temp->num_vertices);
                 fprintf(fp, "Mismatches: %d\n", error_count);
-                printf("Error(%%): %lf,\t", (double)error_count * 100 / (double)temp->num_vertices);
+                printf("Error(%%): %lf,\t", (double)error_count * (double)100 / (double)temp->num_vertices);
                 printf("Mismatches: %d\n", error_count);
             }
 
