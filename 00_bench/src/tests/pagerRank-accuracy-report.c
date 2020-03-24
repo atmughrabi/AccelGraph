@@ -158,7 +158,7 @@ int main (int argc, char **argv)
 
     //for every benchmark
     uint32_t i;
-    for(i = 0; i < 1; i++)
+    for(i = 0; i < 15; i++)
     {
         arguments.fnameb = (char *) malloc((strlen(benchmarks_dir) + 40) * sizeof(char));
         strcpy(arguments.fnameb, benchmarks_dir);
