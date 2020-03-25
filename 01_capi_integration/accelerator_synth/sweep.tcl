@@ -37,7 +37,7 @@ puts "Precision $cu_precision"
 puts "CU Count  $cu_count"
 
 # Set seeds
-set seedList { 11 12 13 14 15 16 1 2 5 7 3 17 41 30 18 19 20 21 23 25 29 31 32 33 34 37 39 43 45 47 49 51 53 55 6 9 }
+set seedList { 16 1 2 5 7 3 11 12 13 14 15 17 41 30 18 19 20 21 23 25 29 31 32 33 34 37 39 43 45 47 49 51 53 55 6 9 }
 # set seedList { 12 13 14 15 16 30 1 7 17 18 19 20 21 23 25 29 6 9 }
 # set seedList { 31 32 33 34 37 39 41 43 45 47 49 51 53 55 2 3 5 11 }
 # set seedList { 30 }
