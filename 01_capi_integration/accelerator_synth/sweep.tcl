@@ -109,7 +109,7 @@ file copy -force ./${project_revision}.fit.rpt $outdir/${PROJECT}.fit.rpt
 file copy -force ./${project_revision}.fit.summary $outdir/${PROJECT}.fit.summary
 file copy -force ./${project_revision}.sta.rpt $outdir/${PROJECT}.sta.rpt
 file copy -force ./${project_revision}.sta.summary $outdir/${PROJECT}.sta.summary
-file copy -force ./${project_revision}.sta.summary $outdir/${PROJECT}.pow.summary
+file copy -force ./${project_revision}.pow.summary $outdir/${PROJECT}.pow.summary
 
 	incr trynum
 }

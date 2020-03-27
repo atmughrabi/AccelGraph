@@ -117,7 +117,7 @@ $(PROJECT).asm.rpt $(PROJECT).sof: asm.chg $(PROJECT).fit.rpt
 $(PROJECT).sta.rpt: sta.chg $(PROJECT).fit.rpt
 	quartus_sta --64bit $(STA_ARGS) $(PROJECT)
 
-$(PROJECT).pow.rpt: pow.chg $(PROJECT).fit.rpt
+$(PROJECT).pow.rpt: pow.chg $(PROJECT).asm.rpt
 	quartus_pow --64bit $(POW_ARGS) $(PROJECT)
 
 $(PROJECT).rbf: $(PROJECT).asm.rpt
@@ -152,12 +152,12 @@ sta.chg:
 	$(STAMP) sta.chg
 asm.chg:
 	$(STAMP) asm.chg
+pow.chg:
+	$(STAMP) pow.chg
 merge.chg:
 	$(STAMP) merge.chg
 sweep.chg:
 	$(STAMP) sweep.chg
-pow.chg:
-	$(STAMP) pow.chg
 
 .PHONY:program
 program: $(PROJECT).sof
