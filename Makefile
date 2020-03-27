@@ -106,13 +106,13 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 0
+export PULL_PUSH 		= 2
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
 export START_THREADS    = 1
-export INC_THREADS      = 4
-export NUM_THREADS  	= 21
+export INC_THREADS      = 1
+export NUM_THREADS  	= 25
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
