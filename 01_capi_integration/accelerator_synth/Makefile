@@ -70,7 +70,7 @@ ASSIGNMENT_FILES = $(PROJECT).qpf $(PROJECT).qsf
 ###################################################################
 
 default:rbf
-all: rbf smart.log $(PROJECT).asm.rpt $(PROJECT).sta.rpt
+all: rbf smart.log $(PROJECT).asm.rpt $(PROJECT).sta.rpt $(PROJECT).pow.rpt
 
 clean:
 	rm -rf *~ ./tcl/*~ *.rpt *.chg smart.log *.htm *.eqn *.pin *.sof *.pof db dse seed_rpt *.summary *.qpf *.qsf incremental_db *.smsg *.done *~ *.txt *.qxp *.bsf *.qarlog *.cmp *.v *.rbf nohup.out *.log hc_output reconfig_mif *.jdi *.qdf *.sld *.qws .qsys_edit *.xml
@@ -79,6 +79,7 @@ map: smart.log $(PROJECT).map.rpt
 fit: smart.log $(PROJECT).fit.rpt
 asm: smart.log $(PROJECT).asm.rpt
 sta: smart.log $(PROJECT).sta.rpt
+pow: smart.log $(PROJECT).pow.rpt
 qxp: smart.log $(PROJECT).qxp
 rbf: smart.log $(PROJECT).rbf
 
@@ -90,6 +91,7 @@ smart: smart.log
 MAP_ARGS = --family=StratixV --part=$(ALTERA_PART)
 FIT_ARGS = --part=$(ALTERA_PART)
 ASM_ARGS =
+POW_ARGS =
 STA_ARGS = --do_report_timing
 
 ###################################################################
@@ -115,10 +117,12 @@ $(PROJECT).asm.rpt $(PROJECT).sof: asm.chg $(PROJECT).fit.rpt
 $(PROJECT).sta.rpt: sta.chg $(PROJECT).fit.rpt
 	quartus_sta --64bit $(STA_ARGS) $(PROJECT)
 
-$(PROJECT).rbf: $(PROJECT).asm.rpt $(PROJECT).sta.rpt
+$(PROJECT).pow.rpt: pow.chg $(PROJECT).fit.rpt
+	quartus_pow--64bit $(POW_ARGS) $(PROJECT)
+
+$(PROJECT).rbf: $(PROJECT).asm.rpt
 	quartus_cpf --64bit -c $(PROJECT).sof $(PROJECT).rbf &&\
 	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_$(VERSION_GIT)_$(TIME_STAMP).rbf 
-
 
 smart.log: $(ASSIGNMENT_FILES)
 	quartus_sh --64bit --determine_smart_action $(PROJECT) > smart.log
@@ -152,6 +156,8 @@ merge.chg:
 	$(STAMP) merge.chg
 sweep.chg:
 	$(STAMP) sweep.chg
+pow.chg:
+	$(STAMP) pow.chg
 
 .PHONY:program
 program: $(PROJECT).sof

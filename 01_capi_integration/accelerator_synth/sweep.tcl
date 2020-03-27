@@ -82,6 +82,15 @@ if {[catch {execute_module -tool asm -args "--64bit"} result]} {
 	} else {
 		puts "\nInfo: Assembler was successful.\n"
 	}
+# # Power Analyzer
+if {[catch {execute_module -tool pow -args "--64bit"} result]} {
+	puts "\nResult: $result\n"
+	puts "ERROR: Power Analyzer failed. See the report file.\n"
+	qexit -error
+	} else {
+		puts "\nInfo: Power Analyzer was successful.\n"
+	}
+
 # rbf generation
 if {[catch {execute_module -tool cpf -args "--64bit -c ${INPUT_SOF} ${OUTPUT_RBF}"} result]} {
 	puts "\nResult: $result\n"
@@ -99,6 +108,7 @@ if {[catch {execute_module -tool cpf -args "--64bit -c ${INPUT_SOF} ${OUTPUT_RBF
 file copy -force ./${project_revision}.fit.summary $outdir/${PROJECT}.fit.summary
 file copy -force ./${project_revision}.sta.rpt $outdir/${PROJECT}.sta.rpt
 file copy -force ./${project_revision}.sta.summary $outdir/${PROJECT}.sta.summary
+file copy -force ./${project_revision}.sta.summary $outdir/${PROJECT}.pow.summary
 
 	incr trynum
 }
