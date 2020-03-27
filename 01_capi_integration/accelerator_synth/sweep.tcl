@@ -105,6 +105,7 @@ if {[catch {execute_module -tool cpf -args "--64bit -c ${INPUT_SOF} ${OUTPUT_RBF
 		puts "\nInfo: rbf gen was successful.\n"
 	}
 # Store compile results
+file copy -force ./${project_revision}.fit.rpt $outdir/${PROJECT}.fit.rpt
 file copy -force ./${project_revision}.fit.summary $outdir/${PROJECT}.fit.summary
 file copy -force ./${project_revision}.sta.rpt $outdir/${PROJECT}.sta.rpt
 file copy -force ./${project_revision}.sta.summary $outdir/${PROJECT}.sta.summary
