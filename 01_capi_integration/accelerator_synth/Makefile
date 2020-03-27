@@ -118,7 +118,7 @@ $(PROJECT).sta.rpt: sta.chg $(PROJECT).fit.rpt
 	quartus_sta --64bit $(STA_ARGS) $(PROJECT)
 
 $(PROJECT).pow.rpt: pow.chg $(PROJECT).fit.rpt
-	quartus_pow--64bit $(POW_ARGS) $(PROJECT)
+	quartus_pow --64bit $(POW_ARGS) $(PROJECT)
 
 $(PROJECT).rbf: $(PROJECT).asm.rpt
 	quartus_cpf --64bit -c $(PROJECT).sof $(PROJECT).rbf &&\
