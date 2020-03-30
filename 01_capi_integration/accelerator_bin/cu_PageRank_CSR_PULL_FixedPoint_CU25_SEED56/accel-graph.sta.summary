@@ -1,0 +1,1557 @@
+------------------------------------------------------------
+Timing Analyzer Summary
+------------------------------------------------------------
+
+Type  : Slow 900mV 85C Model Setup 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.035
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Setup 'n/a'
+Slack : 1.569
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Setup 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 1.646
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Setup 'pci_pi_refclk0'
+Slack : 1.677
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Setup 'sv_reconfig_pma_testbus_clk_0'
+Slack : 7.639
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Setup 'sv_reconfig_pma_testbus_clk_1'
+Slack : 8.065
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Setup 'altera_reserved_tck'
+Slack : 12.305
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Hold 'altera_reserved_tck'
+Slack : 0.050
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Hold 'pci_pi_refclk0'
+Slack : 0.070
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Hold 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.119
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Hold 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 0.259
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Hold 'sv_reconfig_pma_testbus_clk_1'
+Slack : 0.715
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Hold 'sv_reconfig_pma_testbus_clk_0'
+Slack : 0.933
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Hold 'n/a'
+Slack : 13.569
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Recovery 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.173
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Recovery 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 4.703
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Recovery 'pci_pi_refclk0'
+Slack : 4.817
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Recovery 'sv_reconfig_pma_testbus_clk_0'
+Slack : 8.263
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Recovery 'altera_reserved_tck'
+Slack : 31.425
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Removal 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.185
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Removal 'pci_pi_refclk0'
+Slack : 0.199
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Removal 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 0.365
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Removal 'altera_reserved_tck'
+Slack : 0.400
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Removal 'sv_reconfig_pma_testbus_clk_0'
+Slack : 0.550
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_tx_plls.gen_tx_plls.tx_plls|pll[0].pll.atx_pll.tx_pll|clk010g'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|sv_xcvr_tx_plls_inst|pll[0].pll.cmu_pll.tx_pll|clkcdr'
+Slack : 0.178
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[1].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[2].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[3].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[5].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[6].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[7].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[8].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.871
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[1].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.871
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[2].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.871
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[3].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.871
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[5].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.871
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[6].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.871
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[7].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.871
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[8].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.871
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'i_refclk_sfp'
+Slack : 0.940
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.954
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[1].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.954
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[2].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.954
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[3].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.954
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.954
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[5].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.954
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[6].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.954
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[7].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.954
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[8].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.954
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|cpulseout'
+Slack : 0.978
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkpout'
+Slack : 1.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 1.046
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 1.046
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 1.091
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclk[0]'
+Slack : 1.130
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclk[0]'
+Slack : 1.130
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[0]'
+Slack : 2.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|observablecoreclkdiv'
+Slack : 2.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|clocktopld'
+Slack : 2.256
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|clocktopld'
+Slack : 2.262
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 2.312
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 2.312
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 2.352
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 2.352
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sv_reconfig_pma_testbus_clk_1'
+Slack : 3.725
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 3.730
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.962
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[1].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.962
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[2].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.962
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[3].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.962
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[5].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.962
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[6].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.962
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[7].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.962
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[8].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.962
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[1].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[2].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[3].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[4].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[5].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[6].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[7].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[8].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[1]'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'sv_reconfig_pma_testbus_clk_0'
+Slack : 4.260
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pci_pi_refclk0'
+Slack : 4.322
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[3].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[6].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|sv_xcvr_tx_plls_inst|pll[0].pll.cmu_pll.pll_mux.pll_refclk_select_mux|clkout'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[2]'
+Slack : 8.000
+TNS   : 0.000
+
+Type  : Slow 900mV 85C Model Minimum Pulse Width 'altera_reserved_tck'
+Slack : 16.002
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Setup 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.091
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Setup 'n/a'
+Slack : 1.924
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Setup 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 2.259
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Setup 'pci_pi_refclk0'
+Slack : 2.303
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Setup 'sv_reconfig_pma_testbus_clk_0'
+Slack : 7.790
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Setup 'sv_reconfig_pma_testbus_clk_1'
+Slack : 8.148
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Setup 'altera_reserved_tck'
+Slack : 12.417
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Hold 'altera_reserved_tck'
+Slack : 0.057
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Hold 'pci_pi_refclk0'
+Slack : 0.160
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Hold 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.173
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Hold 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 0.262
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Hold 'sv_reconfig_pma_testbus_clk_1'
+Slack : 0.701
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Hold 'sv_reconfig_pma_testbus_clk_0'
+Slack : 0.905
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Hold 'n/a'
+Slack : 13.473
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Recovery 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.536
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Recovery 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.077
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Recovery 'pci_pi_refclk0'
+Slack : 5.261
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Recovery 'sv_reconfig_pma_testbus_clk_0'
+Slack : 8.366
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Recovery 'altera_reserved_tck'
+Slack : 31.554
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Removal 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.242
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Removal 'pci_pi_refclk0'
+Slack : 0.258
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Removal 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 0.362
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Removal 'altera_reserved_tck'
+Slack : 0.419
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Removal 'sv_reconfig_pma_testbus_clk_0'
+Slack : 0.535
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_tx_plls.gen_tx_plls.tx_plls|pll[0].pll.atx_pll.tx_pll|clk010g'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|sv_xcvr_tx_plls_inst|pll[0].pll.cmu_pll.tx_pll|clkcdr'
+Slack : 0.179
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[1].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[2].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[3].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[5].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[6].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[7].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[8].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.846
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[1].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.846
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[2].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.846
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[3].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.846
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[5].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.846
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[6].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.846
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[7].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.846
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[8].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.846
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'i_refclk_sfp'
+Slack : 0.940
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[1].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[2].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[3].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[5].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[6].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[7].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[8].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|cpulseout'
+Slack : 0.979
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkpout'
+Slack : 1.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 1.021
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 1.021
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclk[0]'
+Slack : 1.125
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclk[0]'
+Slack : 1.125
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 1.189
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[0]'
+Slack : 2.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|observablecoreclkdiv'
+Slack : 2.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|clocktopld'
+Slack : 2.231
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|clocktopld'
+Slack : 2.235
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 2.309
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 2.309
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 2.352
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 2.352
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 3.757
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sv_reconfig_pma_testbus_clk_1'
+Slack : 3.827
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.959
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[1].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.959
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[2].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.959
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[3].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.959
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[5].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.959
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[6].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.959
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[7].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.959
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[8].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.959
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[1].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[2].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[3].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[4].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[5].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[6].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[7].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[8].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[1]'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'sv_reconfig_pma_testbus_clk_0'
+Slack : 4.300
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pci_pi_refclk0'
+Slack : 4.311
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[3].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[6].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|sv_xcvr_tx_plls_inst|pll[0].pll.cmu_pll.pll_mux.pll_refclk_select_mux|clkout'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[2]'
+Slack : 8.000
+TNS   : 0.000
+
+Type  : Slow 900mV 0C Model Minimum Pulse Width 'altera_reserved_tck'
+Slack : 16.109
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Setup 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 1.288
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Setup 'pci_pi_refclk0'
+Slack : 3.052
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Setup 'n/a'
+Slack : 4.107
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Setup 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 4.145
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Setup 'sv_reconfig_pma_testbus_clk_0'
+Slack : 8.347
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Setup 'sv_reconfig_pma_testbus_clk_1'
+Slack : 8.668
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Setup 'altera_reserved_tck'
+Slack : 14.049
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Hold 'altera_reserved_tck'
+Slack : 0.013
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Hold 'pci_pi_refclk0'
+Slack : 0.102
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Hold 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.108
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Hold 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 0.147
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Hold 'sv_reconfig_pma_testbus_clk_1'
+Slack : 0.473
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Hold 'sv_reconfig_pma_testbus_clk_0'
+Slack : 0.666
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Hold 'n/a'
+Slack : 12.666
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Recovery 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 1.256
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Recovery 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 6.015
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Recovery 'pci_pi_refclk0'
+Slack : 6.484
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Recovery 'sv_reconfig_pma_testbus_clk_0'
+Slack : 8.797
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Recovery 'altera_reserved_tck'
+Slack : 31.989
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Removal 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.129
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Removal 'pci_pi_refclk0'
+Slack : 0.145
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Removal 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 0.209
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Removal 'altera_reserved_tck'
+Slack : 0.298
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Removal 'sv_reconfig_pma_testbus_clk_0'
+Slack : 0.371
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_tx_plls.gen_tx_plls.tx_plls|pll[0].pll.atx_pll.tx_pll|clk010g'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|sv_xcvr_tx_plls_inst|pll[0].pll.cmu_pll.tx_pll|clkcdr'
+Slack : 0.192
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[1].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[2].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[3].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[5].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[6].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[7].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[8].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'i_refclk_sfp'
+Slack : 0.938
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.950
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[1].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.950
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[2].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.950
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[3].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.950
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[5].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.950
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[6].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.950
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[7].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.950
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[8].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.950
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[1].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[2].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[3].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[5].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[6].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[7].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[8].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|cpulseout'
+Slack : 0.992
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkpout'
+Slack : 1.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 1.125
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 1.125
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclk[0]'
+Slack : 1.162
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclk[0]'
+Slack : 1.162
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 1.189
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[0]'
+Slack : 2.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|observablecoreclkdiv'
+Slack : 2.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|clocktopld'
+Slack : 2.295
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|clocktopld'
+Slack : 2.299
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 2.319
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 2.319
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 2.352
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 2.352
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[1].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[2].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[3].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[5].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[6].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[7].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[8].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 3.974
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[1].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[2].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[3].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[4].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[5].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[6].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[7].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[8].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[1]'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sv_reconfig_pma_testbus_clk_1'
+Slack : 4.194
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'sv_reconfig_pma_testbus_clk_0'
+Slack : 4.366
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pci_pi_refclk0'
+Slack : 4.387
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[3].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[6].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|sv_xcvr_tx_plls_inst|pll[0].pll.cmu_pll.pll_mux.pll_refclk_select_mux|clkout'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[2]'
+Slack : 8.000
+TNS   : 0.000
+
+Type  : Fast 900mV 85C Model Minimum Pulse Width 'altera_reserved_tck'
+Slack : 15.911
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Setup 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 1.503
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Setup 'pci_pi_refclk0'
+Slack : 3.104
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Setup 'n/a'
+Slack : 4.516
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Setup 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 4.531
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Setup 'sv_reconfig_pma_testbus_clk_0'
+Slack : 8.444
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Setup 'sv_reconfig_pma_testbus_clk_1'
+Slack : 8.783
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Setup 'altera_reserved_tck'
+Slack : 14.226
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Hold 'altera_reserved_tck'
+Slack : 0.016
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Hold 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.140
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Hold 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 0.143
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Hold 'pci_pi_refclk0'
+Slack : 0.149
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Hold 'sv_reconfig_pma_testbus_clk_1'
+Slack : 0.438
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Hold 'sv_reconfig_pma_testbus_clk_0'
+Slack : 0.601
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Hold 'n/a'
+Slack : 12.539
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Recovery 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 1.449
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Recovery 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 6.386
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Recovery 'pci_pi_refclk0'
+Slack : 6.710
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Recovery 'sv_reconfig_pma_testbus_clk_0'
+Slack : 8.884
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Recovery 'altera_reserved_tck'
+Slack : 32.069
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Removal 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 0.168
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Removal 'pci_pi_refclk0'
+Slack : 0.183
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Removal 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 0.183
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Removal 'altera_reserved_tck'
+Slack : 0.281
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Removal 'sv_reconfig_pma_testbus_clk_0'
+Slack : 0.340
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_tx_plls.gen_tx_plls.tx_plls|pll[0].pll.atx_pll.tx_pll|clk010g'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.117
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|sv_xcvr_tx_plls_inst|pll[0].pll.cmu_pll.tx_pll|clkcdr'
+Slack : 0.192
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[1].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[2].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[3].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[5].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[6].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[7].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[8].rx_pma.rx_cdr|clk90bdes'
+Slack : 0.200
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'i_refclk_sfp'
+Slack : 0.938
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[1].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[2].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[3].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[5].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[6].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[7].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[8].rx_pma.rx_pma_deser|clk90b'
+Slack : 0.949
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[1].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[2].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[3].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[5].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[6].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[7].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[8].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkp'
+Slack : 0.986
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|cpulseout'
+Slack : 0.992
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|lfclkpout'
+Slack : 1.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 1.124
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|rx_pma.sv_rx_pma_inst|rx_pmas[0].rx_pma.rx_pma_deser|clk90b'
+Slack : 1.124
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclk[0]'
+Slack : 1.161
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[0].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclk[0]'
+Slack : 1.161
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|coreclkout'
+Slack : 1.188
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[0]'
+Slack : 2.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|stratixv_hssi_gen3_pcie_hip|observablecoreclkdiv'
+Slack : 2.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|clocktopld'
+Slack : 2.288
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|clocktopld'
+Slack : 2.291
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 2.319
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 2.319
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 2.352
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp1|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 2.352
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sfp0|sfpp_phy_inst|S5|transceiver_core|gen.sv_xcvr_native_insts[0].gen_bonded_group.sv_xcvr_native_inst|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 3.958
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[1].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[2].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[3].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[5].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[6].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[7].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[8].inst_sv_pcs_ch|inst_sv_hssi_8g_rx_pcs|wys|observablebyteserdesclock'
+Slack : 3.970
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[0].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[1].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[2].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[3].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[4].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[5].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[6].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[7].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pcs|ch[8].inst_sv_pcs_ch|inst_sv_hssi_8g_tx_pcs|wys|observablebyteserdesclock'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[1]'
+Slack : 4.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sv_reconfig_pma_testbus_clk_1'
+Slack : 4.188
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'sv_reconfig_pma_testbus_clk_0'
+Slack : 4.360
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pci_pi_refclk0'
+Slack : 4.408
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[0].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[3].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_xcvr_avmm|avmm_interface_insts[6].stratixv_hssi_avmm_interface_inst|pmatestbussel[0]'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|sv_xcvr_tx_plls_inst|pll[0].pll.cmu_pll.pll_mux.pll_refclk_select_mux|clkout'
+Slack : 5.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'pcihip0|p|hip|altpcie_hip_256_pipen1b|g_xcvr.sv_xcvr_pipe_native|inst_sv_xcvr_native|inst_sv_pma|tx_pma.sv_tx_pma_inst|tx_pma_insts[4].sv_tx_pma_ch_inst|tx_pma_ch.tx_cgb|pclkout[2]'
+Slack : 8.000
+TNS   : 0.000
+
+Type  : Fast 900mV 0C Model Minimum Pulse Width 'altera_reserved_tck'
+Slack : 15.915
+TNS   : 0.000
+
+------------------------------------------------------------
