@@ -53,6 +53,101 @@ void getMinMax(struct quant_params *x, float *ranks, uint32_t size)
     return;
 }
 
+void getMinMax_32(struct quant_params_32 *x, float *ranks, uint32_t size)
+{
+    int i ;
+
+    if (size == 1)
+    {
+        x->max = ranks[0];
+        x->min = ranks[0];
+        return;
+    }
+
+    if (ranks[0] > ranks[1])
+    {
+        x->max = ranks[0];
+        x->min = ranks[1];
+    }
+    else
+    {
+        x->max = ranks[1];
+        x->min = ranks[0];
+    }
+
+    for (i = 2; i < size; i++)
+    {
+        if (ranks[i] > x->max)
+            x->max = ranks[i];
+        else if (ranks[i] < x->min)
+            x->min = ranks[i];
+    }
+    return;
+}
+
+void getMinMax_16(struct quant_params_16 *x, float *ranks, uint32_t size)
+{
+    int i ;
+
+    if (size == 1)
+    {
+        x->max = ranks[0];
+        x->min = ranks[0];
+        return;
+    }
+
+    if (ranks[0] > ranks[1])
+    {
+        x->max = ranks[0];
+        x->min = ranks[1];
+    }
+    else
+    {
+        x->max = ranks[1];
+        x->min = ranks[0];
+    }
+
+    for (i = 2; i < size; i++)
+    {
+        if (ranks[i] > x->max)
+            x->max = ranks[i];
+        else if (ranks[i] < x->min)
+            x->min = ranks[i];
+    }
+    return;
+}
+
+void getMinMax_8(struct quant_params_8 *x, float *ranks, uint32_t size)
+{
+    int i ;
+
+    if (size == 1)
+    {
+        x->max = ranks[0];
+        x->min = ranks[0];
+        return;
+    }
+
+    if (ranks[0] > ranks[1])
+    {
+        x->max = ranks[0];
+        x->min = ranks[1];
+    }
+    else
+    {
+        x->max = ranks[1];
+        x->min = ranks[0];
+    }
+
+    for (i = 2; i < size; i++)
+    {
+        if (ranks[i] > x->max)
+            x->max = ranks[i];
+        else if (ranks[i] < x->min)
+            x->min = ranks[i];
+    }
+    return;
+}
 
 /* In a form of a function: It receives an array of values (ranks) and extract
 the appropraite quantization parameters (scale and zero-offset)
