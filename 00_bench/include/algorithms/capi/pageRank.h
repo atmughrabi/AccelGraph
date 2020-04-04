@@ -69,11 +69,15 @@ struct PageRankStats *pageRankGraphCSR(double epsilon,  uint32_t iterations, uin
 struct PageRankStats *pageRankPullGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
 struct PageRankStats *pageRankPushGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
 
-struct PageRankStats *pageRankPullFixedPointGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
-struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
+struct PageRankStats *pageRankPullFixedPoint64BitGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
 struct PageRankStats *pageRankPullFixedPoint32BitGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
+struct PageRankStats *pageRankPullFixedPoint16BitGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
+struct PageRankStats *pageRankPullFixedPoint8BitGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
+struct PageRankStats *pageRankPushFixedPointGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
 
-struct PageRankStats *pageRankPullQuantGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
+struct PageRankStats *pageRankPullQuant32BitGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
+struct PageRankStats *pageRankPullQuant16BitGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
+struct PageRankStats *pageRankPullQuant8BitGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
 struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);
 
 struct PageRankStats *pageRankDataDrivenPullGraphCSR(double epsilon,  uint32_t iterations, struct GraphCSR *graph);

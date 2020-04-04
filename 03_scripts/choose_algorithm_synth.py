@@ -13,13 +13,13 @@ direction_arr = [["PULL","PUSH"],["PULL", "PUSH",
 				 "PULL","PUSH",
 				 "PULL","PUSH",
 				 "PULL","PUSH",
-				 "PULLPUSH","PULL"]]
+				 "PULLPUSH","PULL","PULL","PULL","PULL","PULL"]]
 
 precision_arr = [["NONE","NONE"],["FloatPoint", "FloatPoint",
 				 "FixedPoint","FixedPoint",
 				 "Quantized","Quantized",
 				 "FloatPoint","FloatPoint",
-				 "FloatPoint","Quantized"]]
+				 "FloatPoint","FixedPoint","FixedPoint","FixedPoint","Quantized","Quantized"]]
 
 # workloads_grid = [[],["PageRank_pull_row", "PageRank_push_col",
 # 				 "PageRank_pull_row_FixedPoint","PageRank_push_col_FixedPoint"]]

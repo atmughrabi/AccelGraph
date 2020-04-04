@@ -6,7 +6,8 @@ export APP               = accel-graph
 
 # test name needs to match the file name test/test_accel-graph.c
 # export APP_TEST          =  test_accel-graph
-export APP_TEST          =  pagerRank-accuracy-report
+# export APP_TEST          =  pagerRank-accuracy-report
+export APP_TEST          =  levenshtein
 
 
 # dirs Root app 
@@ -14,8 +15,8 @@ export APP_DIR              = .
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-# export BENCHMARKS_DIR    	= ../04_test_graphs
-export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+export BENCHMARKS_DIR    	= ../04_test_graphs
+# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -106,7 +107,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 0
+export PULL_PUSH 		= 11
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -114,7 +115,7 @@ export START_THREADS    = 1
 export INC_THREADS      = 1
 export NUM_THREADS  	= 25
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 1
+export NUM_ITERATIONS 	= 10
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1
