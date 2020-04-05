@@ -297,8 +297,8 @@ clean-obj:
 .PHONY: clean-all
 clean-all: clean clean-sim
 
-.PHONY: purge
-purge: clean clean-sim clean-synth-all clean-nohup clean-stats
+.PHONY: scrub
+scrub: clean clean-sim clean-synth-all clean-nohup clean-stats
 
 .PHONY: clean-stats
 clean-stats:
