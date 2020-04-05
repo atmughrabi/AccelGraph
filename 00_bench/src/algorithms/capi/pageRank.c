@@ -59,8 +59,8 @@ struct PageRankStats *newPageRankStatsGraphCSR(struct GraphCSR *graph)
     stats->time_total = 0.0;
     stats->error_total = 0.0;
 
-    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));;
-    stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));;
+    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));
+    stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));
 
 
     #pragma omp parallel for default(none) private(v) shared(stats)
@@ -88,8 +88,8 @@ struct PageRankStats *newPageRankStatsGraphGrid(struct GraphGrid *graph)
     stats->time_total = 0.0;
     stats->error_total = 0.0;
 
-    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));;
-    stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));;
+    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));
+    stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));
 
 
     #pragma omp parallel for default(none) private(v) shared(stats)
@@ -118,8 +118,8 @@ struct PageRankStats *newPageRankStatsGraphAdjArrayList(struct GraphAdjArrayList
     stats->time_total = 0.0;
     stats->error_total = 0.0;
 
-    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));;
-    stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));;
+    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));
+    stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));
 
 
     #pragma omp parallel for default(none) private(v) shared(stats)
@@ -148,8 +148,8 @@ struct PageRankStats *newPageRankStatsGraphAdjLinkedList(struct GraphAdjLinkedLi
     stats->time_total = 0.0;
     stats->error_total = 0.0;
 
-    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));;
-    stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));;
+    stats->realRanks = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));
+    stats->pageRanks = (float *) my_malloc(graph->num_vertices * sizeof(float));
 
 
     #pragma omp parallel for default(none) private(v) shared(stats)

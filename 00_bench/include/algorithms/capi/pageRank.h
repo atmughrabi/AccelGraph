@@ -22,6 +22,7 @@ struct PageRankStats
 	float base_pr;
     uint32_t iterations;
     uint32_t num_vertices;
+    uint32_t activeVertices;
     uint32_t *realRanks;
     float *pageRanks;
     double time_total;

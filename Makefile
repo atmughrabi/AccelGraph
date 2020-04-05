@@ -53,9 +53,9 @@ export MAIN_DIR		  	= main
 #########################################################
 
 # small test graphs
-# export GRAPH_NAME = test
-export GRAPH_NAME = v51_e1021
-export GRAPH_NAME = v300_e2730
+export GRAPH_NAME = test
+# export GRAPH_NAME = v51_e1021
+# export GRAPH_NAME = v300_e2730
 
 # GAP https://sparse.tamu.edu/MM/GAP/
 # export GRAPH_NAME = GAP-kron
@@ -65,7 +65,7 @@ export GRAPH_NAME = v300_e2730
 # export GRAPH_NAME = GAP-web
 
 # LAW https://sparse.tamu.edu/MM/LAW/
-# export GRAPH_NAME = amazon-2008
+export GRAPH_NAME = amazon-2008
 # export GRAPH_NAME = arabic-2005
 # export GRAPH_NAME = cnr-2000
 # export GRAPH_NAME = dblp-2010
@@ -107,7 +107,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 2
+export PULL_PUSH 		= 11
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -115,7 +115,7 @@ export START_THREADS    = 1
 export INC_THREADS      = 1
 export NUM_THREADS  	= 25
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 1
+export NUM_ITERATIONS 	= 200
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1
@@ -216,7 +216,7 @@ MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH) -j$(MAKE_NUM_THREAD
 #                RUN  ARGUMENTS                         #
 #########################################################
 
-export ARGS = -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+export ARGS = --stats -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################

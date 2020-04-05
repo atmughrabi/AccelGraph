@@ -22,6 +22,7 @@ struct Arguments
     int wflag;
     int xflag;
     int sflag;
+    int Sflag;
     int dflag;
     uint32_t binSize;
     uint32_t inout_degree;

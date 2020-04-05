@@ -27,6 +27,7 @@
 #include "edgeList.h"
 #include "fixedPoint.h"
 #include "sortRun.h"
+#include "quantization.h"
 
 #include "graphCSR.h"
 #include "reorder.h"

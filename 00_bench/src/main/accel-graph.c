@@ -116,19 +116,23 @@ static struct argp_option options[] =
     },
     {
         "convert-format",    'c', "[TEXT|BIN|CSR:1]",      0,
-        "\n[stats flag must be on --stats to write]Serialize graph text format (edge list format) to binary graph file on load example:-f <graph file> -c this is specifically useful if you have Graph CSR/Grid structure and want to save in a binary file format to skip the preprocessing step for future runs. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
+        "\n[serialize flag must be on --serialize to write] Serialize graph text format (edge list format) to binary graph file on load example:-f <graph file> -c this is specifically useful if you have Graph CSR/Grid structure and want to save in a binary file format to skip the preprocessing step for future runs. [0]-text edgeList [1]-binary edgeList [2]-graphCSR binary"
     },
     {
         "generate-weights",  'w', 0,      0,
         "\nGenerate random weights don't load from graph file. Check ->graphConfig.h #define WEIGHTED 1 beforehand then recompile using this option"
     },
     {
-        "symmetries",        's', 0,      0,
+        "symmetrize",        's', 0,      0,
         "\nSymmetric graph, create a set of incoming edges"
     },
     {
-        "stats",             'x', 0,      0,
-        "\nDump a histogram to file based on in-out degree count bins / sorted according to in/out-degree or page-ranks\n--bin-size/--in-out-degree are related bin verticies in  terms of in or out degrees "
+        "serialize",         'x', 0,      0,
+        "\nEnable file conversion/serialization use with --convert-format"
+    },
+    {
+        "stats",             'S', 0,      0,
+        "\nWrite algorithm stats to file. same directory as the graph"
     },
     {
         "bin-size",         'g', "SIZE:512",      0,
@@ -208,6 +212,9 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 's':
         arguments->symmetric = 1;
         break;
+    case 'S':
+        arguments->Sflag = 1;
+        break;
     case 'w':
         arguments->weighted = 1;
         break;
@@ -252,6 +259,7 @@ main (int argc, char **argv)
     arguments.wflag = 0;
     arguments.xflag = 0;
     arguments.sflag = 0;
+    arguments.Sflag = 0;
     arguments.dflag = 0;
     arguments.binSize = 512;
     arguments.inout_degree = 0;

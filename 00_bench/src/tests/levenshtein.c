@@ -22,7 +22,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdint.h>
-
+#include <assert.h>
 
 #include "graphStats.h"
 #include "edgeList.h"
@@ -47,7 +47,7 @@
 #include "connectedComponents.h"
 #include "triangleCount.h"
 
-#include <assert.h>
+
 #include "graphTest.h"
 
 int numThreads;

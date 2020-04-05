@@ -37,6 +37,7 @@
 #include "triangleCount.h"
 
 #include "reorder.h"
+#include "graphStats.h"
 #include "graphRun.h"
 
 
@@ -158,13 +159,15 @@ void *generateGraphDataStructure(struct Arguments *arguments)
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     void *graph = NULL;
 
-    if(arguments->algorithm == 7){ // Triangle counting depends on order
+    if(arguments->algorithm == 7)  // Triangle counting depends on order
+    {
 
         arguments->sort = 1;
         arguments->lmode = 3;
     }
 
-    if(arguments->algorithm == 8){ // Triangle counting depends on order
+    if(arguments->algorithm == 8)  // Triangle counting depends on order
+    {
 
         arguments->sort = 1;
         arguments->lmode = 8;
@@ -242,8 +245,8 @@ void *generateGraphDataStructure(struct Arguments *arguments)
 
 void runGraphAlgorithms(void *graph, struct Arguments *arguments)
 {
-   
-   // print total average stats to an external file fnameb.stats numthreads avg trial time
+
+    // print total average stats to an external file fnameb.stats numthreads avg trial time
 
     double time_total = 0.0f;
     uint32_t  trials = arguments->trials;
@@ -254,7 +257,7 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
 
     FILE *fptr;
     fptr = fopen(fname_txt, "a+");
-   
+
 
     while(trials)
     {
@@ -271,6 +274,14 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
         {
             struct PageRankStats *stats = runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->pushpull);
             time_total += stats->time_total;
+
+            if(arguments->Sflag) // output page rank error statistics 
+            {
+                struct PageRankStats *ref_stats = runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  0);
+                collectStatsPageRank(arguments, stats, ref_stats, trials);
+                freePageRankStats(ref_stats);
+            }
+
             freePageRankStats(stats);
         }
         break;
@@ -338,7 +349,7 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
 
     generateGraphPrintMessageWithtime("*     -----> Trials Avg Time (Seconds) <-----", (time_total / (double)arguments->trials));
 
-// %-51f | \n", time
+    // %-51f | \n", time
 
     fprintf(fptr, "%u %lf \n", arguments->numThreads, (time_total / (double)arguments->trials));
     fclose(fptr);
