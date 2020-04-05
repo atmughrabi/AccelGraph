@@ -65,7 +65,7 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT NORMAL
-set_global_assignment -name SEED 41
+set_global_assignment -name SEED 4
 
 set_global_assignment -name PARTITION_NETLIST_TYPE POST_FIT -section_id "psl_accel:a0"
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id "psl_accel:a0"
