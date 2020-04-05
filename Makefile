@@ -65,7 +65,7 @@ export GRAPH_NAME = test
 # export GRAPH_NAME = GAP-web
 
 # LAW https://sparse.tamu.edu/MM/LAW/
-export GRAPH_NAME = amazon-2008
+# export GRAPH_NAME = amazon-2008
 # export GRAPH_NAME = arabic-2005
 # export GRAPH_NAME = cnr-2000
 # export GRAPH_NAME = dblp-2010
@@ -122,7 +122,7 @@ export FILE_FORMAT 		= 1
 export CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
-export BIN_SIZE 		= 512
+export BIN_SIZE 		= 10
 export INOUT_STATS 		= 2
 
 ##############################################
@@ -216,7 +216,7 @@ MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH) -j$(MAKE_NUM_THREAD
 #                RUN  ARGUMENTS                         #
 #########################################################
 
-export ARGS = --stats -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+export ARGS = --stats -g $(BIN_SIZE) -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################
@@ -295,7 +295,14 @@ clean-obj:
 	$(MAKE) clean-obj $(MAKE_ARGS)
 
 .PHONY: clean-all
-clean-all: clean clean-sim clean-synth-all clean-nohup
+clean-all: clean clean-sim
+
+.PHONY: purge
+purge: clean clean-sim clean-synth-all clean-nohup clean-stats
+
+.PHONY: clean-stats
+clean-stats:
+	$(MAKE) clean-stats $(MAKE_ARGS)
 
 .PHONY: clean-nohup
 clean-nohup: 

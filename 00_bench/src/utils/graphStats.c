@@ -218,16 +218,21 @@ void print(const edit *e)
 
 static int insertionSort(float *arr, int len)
 {
-    int maxJ, i,j , swapCount = 0;
+    int maxJ, i, j, swapCount = 0;
 
-/* printf("enter insertionSort len=%d\n",len) ; */
+    /* printf("enter insertionSort len=%d\n",len) ; */
 
-    if(len < 2) { return 0; }
+    if(len < 2)
+    {
+        return 0;
+    }
 
     maxJ = len - 1;
-    for(i = len - 2; i >= 0; --i) {
+    for(i = len - 2; i >= 0; --i)
+    {
         float  val = arr[i];
-        for(j=i; j < maxJ && arr[j + 1] < val; ++j) {
+        for(j = i; j < maxJ && arr[j + 1] < val; ++j)
+        {
             arr[j] = arr[j + 1];
         }
 
@@ -242,10 +247,10 @@ static int insertionSort(float *arr, int len)
 
 static int merge(float *from, float *to, int middle, int len)
 {
-    int bufIndex, leftLen, rightLen , swaps ;
-    float *left , *right;
+    int bufIndex, leftLen, rightLen, swaps ;
+    float *left, *right;
 
-/* printf("enter merge\n") ; */
+    /* printf("enter merge\n") ; */
 
     bufIndex = 0;
     swaps = 0;
@@ -255,13 +260,17 @@ static int merge(float *from, float *to, int middle, int len)
     rightLen = len - middle;
     leftLen = middle;
 
-    while(leftLen && rightLen) {
-        if(right[0] < left[0]) {
+    while(leftLen && rightLen)
+    {
+        if(right[0] < left[0])
+        {
             to[bufIndex] = right[0];
             swaps += leftLen;
             rightLen--;
             right++;
-        } else {
+        }
+        else
+        {
             to[bufIndex] = left[0];
             leftLen--;
             left++;
@@ -269,11 +278,14 @@ static int merge(float *from, float *to, int middle, int len)
         bufIndex++;
     }
 
-    if(leftLen) {
-#pragma omp critical (MEMCPY)
+    if(leftLen)
+    {
+        #pragma omp critical (MEMCPY)
         memcpy(to + bufIndex, left, leftLen * sizeof(float));
-    } else if(rightLen) {
-#pragma omp critical (MEMCPY)
+    }
+    else if(rightLen)
+    {
+        #pragma omp critical (MEMCPY)
         memcpy(to + bufIndex, right, rightLen * sizeof(float));
     }
 
@@ -287,24 +299,28 @@ static int merge(float *from, float *to, int middle, int len)
 
 static int mergeSort(float *x, float *buf, int len)
 {
-    int swaps , half ;
+    int swaps, half ;
 
-/* printf("enter mergeSort\n") ; */
+    /* printf("enter mergeSort\n") ; */
 
-    if(len < 10) {
+    if(len < 10)
+    {
         return insertionSort(x, len);
     }
 
     swaps = 0;
 
-    if(len < 2) { return 0; }
+    if(len < 2)
+    {
+        return 0;
+    }
 
     half = len / 2;
     swaps += mergeSort(x, buf, half);
     swaps += mergeSort(x + half, buf + half, len - half);
     swaps += merge(x, buf, half, len);
 
-#pragma omp critical (MEMCPY)
+    #pragma omp critical (MEMCPY)
     memcpy(x, buf, len * sizeof(float));
     return swaps;
 }
@@ -313,19 +329,24 @@ static int mergeSort(float *x, float *buf, int len)
 
 static int getMs(float *data, int len)  /* Assumes data is sorted */
 {
-    int Ms = 0, tieCount = 0 , i ;
+    int Ms = 0, tieCount = 0, i ;
 
-/* printf("enter getMs\n") ; */
+    /* printf("enter getMs\n") ; */
 
-    for(i = 1; i < len; i++) {
-        if(data[i] == data[i-1]) {
+    for(i = 1; i < len; i++)
+    {
+        if(data[i] == data[i - 1])
+        {
             tieCount++;
-        } else if(tieCount) {
+        }
+        else if(tieCount)
+        {
             Ms += (tieCount * (tieCount + 1)) / 2;
             tieCount = 0;
         }
     }
-    if(tieCount) {
+    if(tieCount)
+    {
         Ms += (tieCount * (tieCount + 1)) / 2;
     }
     return Ms;
@@ -343,10 +364,10 @@ static int getMs(float *data, int len)  /* Assumes data is sorted */
 
 float kendallNlogN( float *arr1, float *arr2, int len )
 {
-    int m1 = 0, m2 = 0, tieCount, swapCount, nPair, s,i ;
+    int m1 = 0, m2 = 0, tieCount, swapCount, nPair, s, i ;
     float cor ;
 
-/* printf("enter kendallNlogN\n") ; */
+    /* printf("enter kendallNlogN\n") ; */
 
     if( len < 2 ) return (float)0 ;
 
@@ -354,17 +375,22 @@ float kendallNlogN( float *arr1, float *arr2, int len )
     s = nPair;
 
     tieCount = 0;
-    for(i = 1; i < len; i++) {
-        if(arr1[i - 1] == arr1[i]) {
+    for(i = 1; i < len; i++)
+    {
+        if(arr1[i - 1] == arr1[i])
+        {
             tieCount++;
-        } else if(tieCount > 0) {
+        }
+        else if(tieCount > 0)
+        {
             insertionSort(arr2 + i - tieCount - 1, tieCount + 1);
             m1 += tieCount * (tieCount + 1) / 2;
             s += getMs(arr2 + i - tieCount - 1, tieCount + 1);
             tieCount = 0;
         }
     }
-    if(tieCount > 0) {
+    if(tieCount > 0)
+    {
         insertionSort(arr2 + i - tieCount - 1, tieCount + 1);
         m1 += tieCount * (tieCount + 1) / 2;
         s += getMs(arr2 + i - tieCount - 1, tieCount + 1);
@@ -376,9 +402,9 @@ float kendallNlogN( float *arr1, float *arr2, int len )
     s -= (m1 + m2) + 2 * swapCount;
 
     if( m1 < nPair && m2 < nPair )
-      cor = s / ( sqrtf((float)(nPair-m1)) * sqrtf((float)(nPair-m2)) ) ;
+        cor = s / ( sqrtf((float)(nPair - m1)) * sqrtf((float)(nPair - m2)) ) ;
     else
-      cor = 0.0f ;
+        cor = 0.0f ;
 
     return cor ;
 }
@@ -391,33 +417,51 @@ float kendallNlogN( float *arr1, float *arr2, int len )
 
 float kendallSmallN( float *arr1, float *arr2, int len )
 {
-    int m1 = 0, m2 = 0, s = 0, nPair , i,j ;
+    int m1 = 0, m2 = 0, s = 0, nPair, i, j ;
     float cor ;
 
-/* printf("enter kendallSmallN\n") ; */
+    /* printf("enter kendallSmallN\n") ; */
 
-    for(i = 0; i < len; i++) {
-        for(j = i + 1; j < len; j++) {
-            if(arr2[i] > arr2[j]) {
-                if (arr1[i] > arr1[j]) {
+    for(i = 0; i < len; i++)
+    {
+        for(j = i + 1; j < len; j++)
+        {
+            if(arr2[i] > arr2[j])
+            {
+                if (arr1[i] > arr1[j])
+                {
                     s++;
-                } else if(arr1[i] < arr1[j]) {
+                }
+                else if(arr1[i] < arr1[j])
+                {
                     s--;
-                } else {
+                }
+                else
+                {
                     m1++;
                 }
-            } else if(arr2[i] < arr2[j]) {
-                if (arr1[i] > arr1[j]) {
+            }
+            else if(arr2[i] < arr2[j])
+            {
+                if (arr1[i] > arr1[j])
+                {
                     s--;
-                } else if(arr1[i] < arr1[j]) {
+                }
+                else if(arr1[i] < arr1[j])
+                {
                     s++;
-                } else {
+                }
+                else
+                {
                     m1++;
                 }
-            } else {
+            }
+            else
+            {
                 m2++;
 
-                if(arr1[i] == arr1[j]) {
+                if(arr1[i] == arr1[j])
+                {
                     m1++;
                 }
             }
@@ -427,14 +471,14 @@ float kendallSmallN( float *arr1, float *arr2, int len )
     nPair = len * (len - 1) / 2;
 
     if( m1 < nPair && m2 < nPair )
-      cor = s / ( sqrtf((float)(nPair-m1)) * sqrtf((float)(nPair-m2)) ) ;
+        cor = s / ( sqrtf((float)(nPair - m1)) * sqrtf((float)(nPair - m2)) ) ;
     else
-      cor = 0.0f ;
+        cor = 0.0f ;
 
     return cor ;
 }
 
- void rvereseArray(uint32_t *arr, uint32_t start, uint32_t end)
+void rvereseArray(uint32_t *arr, uint32_t start, uint32_t end)
 {
     while (start < end)
     {
@@ -467,10 +511,10 @@ uint32_t intersection_topK(uint32_t *array1, uint32_t *array2, uint32_t size_k, 
     if(topk > size_k)
         topk = size_k;
 
-    for(v = size_k-topk; v < size_k; v++)
+    for(v = size_k - topk; v < size_k; v++)
     {
         // printf("%d %d %d %d\n",v,array1[v], array2[array1[v]], size_k-topk);
-        if(array2[array1[v]] >= size_k-topk)
+        if(array2[array1[v]] >= size_k - topk)
             intersection++;
     }
 
@@ -486,7 +530,7 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     uint32_t u;
     uint32_t topk;
 
-    topk = 100;
+    topk = arguments->binSize;
 
     if(topk > ref_stats->num_vertices)
         topk = ref_stats->num_vertices;
@@ -510,7 +554,7 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
 
 
     // invert the array now the rank -> vetrex
-    for(u = 0, v = (stats->num_vertices-topk); v < stats->num_vertices; v++, u++)
+    for(u = 0, v = (stats->num_vertices - topk); v < stats->num_vertices; v++, u++)
     {
         rankedVertices[u] =  stats->realRanks[v];
 
@@ -523,10 +567,10 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     {
         rankedVertices_inverse[stats->realRanks[v]] = v;
         ref_rankedVertices_total[v] = ref_stats->realRanks[v];
-        
+
     }
 
-    for(u = 0, v = (ref_stats->num_vertices-topk); v < ref_stats->num_vertices; v++, u++)
+    for(u = 0, v = (ref_stats->num_vertices - topk); v < ref_stats->num_vertices; v++, u++)
     {
         ref_rankedVertices[u] = ref_stats->realRanks[v];
         ref_rankedVerticesfloat[u] =  ref_stats->pageRanks[stats->realRanks[v]];
@@ -545,13 +589,46 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
 
 
     levenshtein_distance = levenshtein_distance_topK(ref_rankedVertices, rankedVertices, topk);
-    Kendall = kendallNlogN(ref_rankedVerticesfloat , rankedVerticesfloat, topk);
+    Kendall = kendallNlogN(ref_rankedVerticesfloat, rankedVerticesfloat, topk);
     intersection = intersection_topK(ref_rankedVertices_total, rankedVertices_inverse, ref_stats->num_vertices, topk);
 
-    printf("levenshtein_distance: %d \n", levenshtein_distance);
-    printf("Kendall:      %lf \n", Kendall);
-    printf("intersection: %d \n", intersection);
+    char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 50) * sizeof(char));
+    // char *fname_stats_out = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+    // fname_txt = strcpy (fname_txt, arguments->fnameb);
+    // fname_txt = strcat (fname_txt, ".stats");
+    sprintf(fname_txt, "%s_%d_%d_%d_%d.%s", arguments->fnameb, arguments->algorithm, arguments->datastructure, arguments->pushpull, arguments->numThreads, "stats");
+    FILE *fptr;
+    fptr = fopen(fname_txt, "a+");
 
+    fprintf(fptr, "\n-----------------------------------------------------\n");
+    fprintf(fptr, "topk:         %d \n", topk);
+    fprintf(fptr, "-----------------------------------------------------\n");
+    fprintf(fptr, "levenshtein_distance: %d \n", levenshtein_distance);
+    fprintf(fptr, "Kendall_cor:      %lf\n", Kendall);
+    fprintf(fptr, "intersection: %d \n", intersection);
+
+    fprintf(fptr, "numThreads:   %d \n", arguments->numThreads);
+    fprintf(fptr, "Time (S):     %lf\n", stats->time_total);
+    fprintf(fptr, "Iterations:   %d \n", stats->iterations);
+
+    fprintf(fptr, " -----------------------------------------------------\n");
+    fprintf(fptr, "| %-14s | %-14s | %-17s | \n", "Rank", "Vertex", "PageRank");
+    fprintf(fptr, " -----------------------------------------------------\n");
+
+    for(v = (ref_stats->num_vertices - topk); v < ref_stats->num_vertices; v++)
+    {
+        // fprintf(fptr,"rank %u vertex %u pr %.22f \n", v,  ref_stats->realRanks[v], ref_stats->pageRanks[ref_stats->realRanks[v]]);
+        fprintf(fptr, "| %-14u | %-14u | %-10.15lf | \n", v, ref_stats->realRanks[v], ref_stats->pageRanks[ref_stats->realRanks[v]]);
+    }
+
+    fprintf(fptr, " -----------------------------------------------------\n");
+    // printf("levenshtein_distance: %d \n", levenshtein_distance);
+    // printf("Kendall:      %lf \n", Kendall);
+    // printf("intersection: %d \n", intersection);
+
+    fclose(fptr);
+
+    free(fname_txt);
     free(rankedVertices);
     free(ref_rankedVertices_total);
     free(rankedVertices_inverse);

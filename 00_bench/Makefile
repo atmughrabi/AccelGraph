@@ -347,7 +347,12 @@ $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.
 clean: 
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
+
+
+.PHONY: clean-stats
+clean-stats:
 	@rm -f $(BENCHMARKS_DIR)/*/*.perf
+	@rm -f $(BENCHMARKS_DIR)/*/*.stats
 
 
 .PHONY: results-law
