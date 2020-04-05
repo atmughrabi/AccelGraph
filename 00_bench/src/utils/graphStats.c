@@ -524,8 +524,6 @@ uint32_t intersection_topK(uint32_t *array1, uint32_t *array2, uint32_t size_k, 
 void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *stats, struct PageRankStats *ref_stats, uint32_t trial)
 {
 
-    printf("collectStats %d\n", trial);
-
     uint32_t v;
     uint32_t u;
     uint32_t topk;
