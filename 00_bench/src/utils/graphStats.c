@@ -5,7 +5,7 @@
 // -----------------------------------------------------------------------------
 // Copyright (c) 2014-2019 All rights reserved
 // -----------------------------------------------------------------------------
-// Author : Abdullah Mughrabi
+// Author : Abdullah Mughrabi/http://www.martinbroadhurst.com/levenshtein-distance-in-c.html
 // Email  : atmughra@ncsu.edu||atmughrabi@gmail.com
 // File   : graphStats.c
 // Create : 2019-06-21 17:15:17
