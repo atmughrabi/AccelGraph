@@ -1342,7 +1342,7 @@ struct PageRankStats *pageRankPullFixedPoint64BitGraphCSR(double epsilon,  uint3
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "               ---->>> CAPI <<<----");
     printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Starting Page Rank Pull FP (tolerance/epsilon)");
+    printf("| %-51s | \n", "Starting Page Rank Pull FP_64 (tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51.13lf | \n", epsilon);
     printf(" -----------------------------------------------------\n");
@@ -2711,7 +2711,7 @@ struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  uint32_t iterat
         }
 
         //1. Extract the quantization parameters from riDividedOnDiClause[]
-        struct quant_params_32 rDivD_params;
+        struct quant_params rDivD_params;
         getMinMax(&rDivD_params, riDividedOnDiClause, graph->num_vertices);
         rDivD_params.scale = GetScale(rDivD_params.min, rDivD_params.max);
         rDivD_params.zero = GetZeroPoint(rDivD_params.max, rDivD_params.scale);
