@@ -54,7 +54,7 @@ export MAIN_DIR		  	= main
 
 # small test graphs
 # export GRAPH_NAME = test
-# export GRAPH_NAME = v51_e1021
+export GRAPH_NAME = v51_e1021
 export GRAPH_NAME = v300_e2730
 
 # GAP https://sparse.tamu.edu/MM/GAP/
@@ -107,7 +107,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 13
+export PULL_PUSH 		= 4
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -115,7 +115,7 @@ export START_THREADS    = 1
 export INC_THREADS      = 1
 export NUM_THREADS  	= 25
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 10
+export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1

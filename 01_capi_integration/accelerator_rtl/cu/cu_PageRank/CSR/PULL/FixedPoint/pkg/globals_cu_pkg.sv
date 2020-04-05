@@ -78,7 +78,7 @@ package GLOBALS_CU_PKG;
 	parameter [0:63] ADDRESS_EDGE_ALIGN_MASK = {{57{1'b1}},{7{1'b0}}};
 	parameter [0:63] ADDRESS_EDGE_MOD_MASK   = {{57{1'b0}},{7{1'b1}}};
 
-	parameter CACHELINE_INT_COUNTER_BITS = $clog2((VERTEX_SIZE_BITS < CACHELINE_SIZE_BITS_HF) ? (2 * CACHELINE_SIZE_BITS_HF)/VERTEX_SIZE_BITS : 2);
+	parameter CACHELINE_INT_COUNTER_BITS = $clog2(CACHELINE_SIZE);
 
 ////////////////////////////////////////////////////////////////////////////
 //  AFU/CU-Control CU IDs any compute unit that generate command must have an ID

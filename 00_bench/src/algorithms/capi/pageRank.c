@@ -2678,14 +2678,10 @@ struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  uint32_t iterat
 
     float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
-#if QUANT_SCALE == 16
-    uint16_t *riDividedOnDiClause_quant = (uint16_t *)my_malloc(graph->num_vertices * sizeof(uint16_t));
-#else /* QUANT_SCALE == 32 */
     uint32_t *riDividedOnDiClause_quant = (uint32_t *)my_malloc(graph->num_vertices * sizeof(uint32_t));
-#endif
 
     printf(" -----------------------------------------------------\n");
-    printf("| %-30s%d %-19s| \n", "Starting Page Rank Push Quant_", QUANT_SCALE, "(tolerance/epsilon)");
+    printf("| %-30s %-19s| \n", "Starting Page Rank Push Quant_32", "(tolerance/epsilon)");
     printf(" -----------------------------------------------------\n");
     printf("| %-51.13lf | \n", epsilon);
     printf(" -----------------------------------------------------\n");
@@ -2715,7 +2711,7 @@ struct PageRankStats *pageRankPushQuantGraphCSR(double epsilon,  uint32_t iterat
         }
 
         //1. Extract the quantization parameters from riDividedOnDiClause[]
-        struct quant_params rDivD_params;
+        struct quant_params_32 rDivD_params;
         getMinMax(&rDivD_params, riDividedOnDiClause, graph->num_vertices);
         rDivD_params.scale = GetScale(rDivD_params.min, rDivD_params.max);
         rDivD_params.zero = GetZeroPoint(rDivD_params.max, rDivD_params.scale);
