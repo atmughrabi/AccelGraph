@@ -530,6 +530,7 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
 
     topk = arguments->binSize;
 
+
     if(topk > ref_stats->num_vertices)
         topk = ref_stats->num_vertices;
 
@@ -590,43 +591,56 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     Kendall = kendallNlogN(ref_rankedVerticesfloat, rankedVerticesfloat, topk);
     intersection = intersection_topK(ref_rankedVertices_total, rankedVertices_inverse, ref_stats->num_vertices, topk);
 
-    char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 50) * sizeof(char));
-    // char *fname_stats_out = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
-    // fname_txt = strcpy (fname_txt, arguments->fnameb);
-    // fname_txt = strcat (fname_txt, ".stats");
-    sprintf(fname_txt, "%s_%d_%d_%d_%d.%s", arguments->fnameb, arguments->algorithm, arguments->datastructure, arguments->pushpull, arguments->numThreads, "stats");
-    FILE *fptr;
-    fptr = fopen(fname_txt, "a+");
-
-    fprintf(fptr, "\n-----------------------------------------------------\n");
-    fprintf(fptr, "topk:         %d \n", topk);
-    fprintf(fptr, "-----------------------------------------------------\n");
-    fprintf(fptr, "levenshtein_distance: %d \n", levenshtein_distance);
-    fprintf(fptr, "Kendall_cor:      %lf\n", Kendall);
-    fprintf(fptr, "intersection: %d \n", intersection);
-
-    fprintf(fptr, "numThreads:   %d \n", arguments->numThreads);
-    fprintf(fptr, "Time (S):     %lf\n", stats->time_total);
-    fprintf(fptr, "Iterations:   %d \n", stats->iterations);
-
-    fprintf(fptr, " -----------------------------------------------------\n");
-    fprintf(fptr, "| %-14s | %-14s | %-17s | \n", "Rank", "Vertex", "PageRank");
-    fprintf(fptr, " -----------------------------------------------------\n");
-
-    for(v = (ref_stats->num_vertices - topk); v < ref_stats->num_vertices; v++)
+    if(arguments->verbosity > 0)
     {
-        // fprintf(fptr,"rank %u vertex %u pr %.22f \n", v,  ref_stats->realRanks[v], ref_stats->pageRanks[ref_stats->realRanks[v]]);
-        fprintf(fptr, "| %-14u | %-14u | %-10.15lf | \n", v, ref_stats->realRanks[v], ref_stats->pageRanks[ref_stats->realRanks[v]]);
+
+        char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 50) * sizeof(char));
+        // char *fname_stats_out = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+        // fname_txt = strcpy (fname_txt, arguments->fnameb);
+        // fname_txt = strcat (fname_txt, ".stats");
+        sprintf(fname_txt, "%s_%d_%d_%d_%d.%s", arguments->fnameb, arguments->algorithm, arguments->datastructure, arguments->pushpull, arguments->numThreads, "stats");
+        FILE *fptr;
+        fptr = fopen(fname_txt, "a+");
+
+        fprintf(fptr, "\n-----------------------------------------------------\n");
+        fprintf(fptr, "topk:         %d \n", topk);
+        fprintf(fptr, "-----------------------------------------------------\n");
+        fprintf(fptr, "levenshtein_distance: %d \n", levenshtein_distance);
+        fprintf(fptr, "Kendall_cor:      %lf\n", Kendall);
+        fprintf(fptr, "intersection: %d \n", intersection);
+
+        fprintf(fptr, "numThreads:   %d \n", arguments->numThreads);
+        fprintf(fptr, "Time (S):     %lf\n", stats->time_total);
+        fprintf(fptr, "Iterations:   %d \n", stats->iterations);
+
+        if(arguments->verbosity > 1)
+        {
+            fprintf(fptr, " ----------------------------------------------------- ");
+            fprintf(fptr, " -----------------------------------------------------\n");
+            fprintf(fptr, "| %-14s | %-14s | %-17s | ", "Ref Rank", "Vertex", "PageRank");
+            fprintf(fptr, "| %-14s | %-14s | %-17s | \n", "Rank", "Vertex", "PageRank");
+            fprintf(fptr, " ----------------------------------------------------- ");
+            fprintf(fptr, " -----------------------------------------------------\n");
+
+            for(v = (ref_stats->num_vertices - topk); v < ref_stats->num_vertices; v++)
+            {
+                // fprintf(fptr,"rank %u vertex %u pr %.22f \n", v,  ref_stats->realRanks[v], ref_stats->pageRanks[ref_stats->realRanks[v]]);
+                fprintf(fptr, "| %-14u | %-14u | %-10.15lf | ", v, ref_stats->realRanks[v], ref_stats->pageRanks[ref_stats->realRanks[v]]);
+                fprintf(fptr, "| %-14u | %-14u | %-10.15lf | \n", v, stats->realRanks[v], stats->pageRanks[stats->realRanks[v]]);
+            }
+
+            fprintf(fptr, " ----------------------------------------------------- ");
+        }
+
+        fprintf(fptr, " -----------------------------------------------------\n");
+        // printf("levenshtein_distance: %d \n", levenshtein_distance);
+        // printf("Kendall:      %lf \n", Kendall);
+        // printf("intersection: %d \n", intersection);
+
+        fclose(fptr);
+        free(fname_txt);
     }
 
-    fprintf(fptr, " -----------------------------------------------------\n");
-    // printf("levenshtein_distance: %d \n", levenshtein_distance);
-    // printf("Kendall:      %lf \n", Kendall);
-    // printf("intersection: %d \n", intersection);
-
-    fclose(fptr);
-
-    free(fname_txt);
     free(rankedVertices);
     free(ref_rankedVertices_total);
     free(rankedVertices_inverse);
@@ -635,171 +649,171 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     free(ref_rankedVerticesfloat);
 }
 
-void collectStats(struct Arguments *arguments)
-{
+// void collectStats(struct Arguments *arguments)
+// {
 
-    struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
-    // printf("Filename : %s \n",fnameb);
+//     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
+//     // printf("Filename : %s \n",fnameb);
 
-    printf(" *****************************************************\n");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Collect Stats Process");
-    printf(" -----------------------------------------------------\n");
-    Start(timer);
+//     printf(" *****************************************************\n");
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-51s | \n", "Collect Stats Process");
+//     printf(" -----------------------------------------------------\n");
+//     Start(timer);
 
-    struct GraphCSR *graphStats = graphCSRPreProcessingStep (arguments);
-
-
-    uint32_t *histogram_in = (uint32_t *) my_malloc(sizeof(uint32_t) * arguments->binSize);
-    uint32_t *histogram_out = (uint32_t *) my_malloc(sizeof(uint32_t) * arguments->binSize);
+//     struct GraphCSR *graphStats = graphCSRPreProcessingStep (arguments);
 
 
-    uint32_t i = 0;
-    #pragma omp parallel for
-    for(i = 0 ; i < arguments->binSize; i++)
-    {
-        histogram_in[i] = 0;
-        histogram_out[i] = 0;
-    }
-
-    char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
-    char *fname_stats_out = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
-    char *fname_stats_in = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
-    char *fname_adjMat = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+//     uint32_t *histogram_in = (uint32_t *) my_malloc(sizeof(uint32_t) * arguments->binSize);
+//     uint32_t *histogram_out = (uint32_t *) my_malloc(sizeof(uint32_t) * arguments->binSize);
 
 
-    fname_txt = strcpy (fname_txt, arguments->fnameb);
-    fname_adjMat = strcpy (fname_adjMat, arguments->fnameb);
+//     uint32_t i = 0;
+//     #pragma omp parallel for
+//     for(i = 0 ; i < arguments->binSize; i++)
+//     {
+//         histogram_in[i] = 0;
+//         histogram_out[i] = 0;
+//     }
+
+//     char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+//     char *fname_stats_out = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+//     char *fname_stats_in = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
+//     char *fname_adjMat = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
 
 
-    fname_adjMat  = strcat (fname_adjMat, ".bin-adj-SM.dat");// out-degree
-
-    if(arguments->lmode == 1)
-    {
-        fname_stats_in = strcat (fname_txt, ".in-degree.dat");// in-degree
-        countHistogram(graphStats, histogram_in, arguments->binSize, arguments->inout_degree);
-        printHistogram(fname_stats_in, histogram_in, arguments->binSize);
-    }
-    else if(arguments->lmode == 2)
-    {
-        fname_stats_out = strcat (fname_txt, ".out-degree.dat");// out-degree
-        countHistogram(graphStats, histogram_out, arguments->binSize, arguments->inout_degree);
-        printHistogram(fname_stats_out, histogram_out, arguments->binSize);
-    }
+//     fname_txt = strcpy (fname_txt, arguments->fnameb);
+//     fname_adjMat = strcpy (fname_adjMat, arguments->fnameb);
 
 
-    printSparseMatrixList(fname_adjMat,  graphStats, arguments->binSize);
+//     fname_adjMat  = strcat (fname_adjMat, ".bin-adj-SM.dat");// out-degree
+
+//     if(arguments->lmode == 1)
+//     {
+//         fname_stats_in = strcat (fname_txt, ".in-degree.dat");// in-degree
+//         countHistogram(graphStats, histogram_in, arguments->binSize, arguments->inout_degree);
+//         printHistogram(fname_stats_in, histogram_in, arguments->binSize);
+//     }
+//     else if(arguments->lmode == 2)
+//     {
+//         fname_stats_out = strcat (fname_txt, ".out-degree.dat");// out-degree
+//         countHistogram(graphStats, histogram_out, arguments->binSize, arguments->inout_degree);
+//         printHistogram(fname_stats_out, histogram_out, arguments->binSize);
+//     }
 
 
-    Stop(timer);
+//     printSparseMatrixList(fname_adjMat,  graphStats, arguments->binSize);
 
 
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51s | \n", "Collect Stats Complete");
-    printf(" -----------------------------------------------------\n");
-    printf("| %-51f | \n", Seconds(timer));
-    printf(" -----------------------------------------------------\n");
-    printf(" *****************************************************\n");
-
-    free(timer);
-    graphCSRFree(graphStats);
-    free(histogram_in);
-    free(histogram_out);
-    free(fname_txt);
-    free(fname_stats_out);
-    free(fname_stats_in);
-    free(fname_adjMat);
-
-}
+//     Stop(timer);
 
 
-void countHistogram(struct GraphCSR *graphStats, uint32_t *histogram, uint32_t binSize, uint32_t inout_degree)
-{
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-51s | \n", "Collect Stats Complete");
+//     printf(" -----------------------------------------------------\n");
+//     printf("| %-51f | \n", Seconds(timer));
+//     printf(" -----------------------------------------------------\n");
+//     printf(" *****************************************************\n");
 
-    uint32_t v;
-    uint32_t index;
+//     free(timer);
+//     graphCSRFree(graphStats);
+//     free(histogram_in);
+//     free(histogram_out);
+//     free(fname_txt);
+//     free(fname_stats_out);
+//     free(fname_stats_in);
+//     free(fname_adjMat);
 
-    #pragma omp parallel for
-    for(v = 0; v < graphStats->num_vertices; v++)
-    {
-
-        index = v / ((graphStats->num_vertices / binSize) + 1);
-
-        if(inout_degree == 1)
-        {
-            #pragma omp atomic update
-            histogram[index] += graphStats->vertices->in_degree[v];
-        }
-        else if(inout_degree == 2)
-        {
-            #pragma omp atomic update
-            histogram[index] += graphStats->vertices->out_degree[v];
-        }
-    }
-
-}
+// }
 
 
-void printHistogram(const char *fname_stats, uint32_t *histogram, uint32_t binSize)
-{
+// void countHistogram(struct GraphCSR *graphStats, uint32_t *histogram, uint32_t binSize, uint32_t inout_degree)
+// {
 
-    uint32_t index;
-    FILE *fptr;
-    fptr = fopen(fname_stats, "w");
-    for(index = 0; index < binSize; index++)
-    {
-        fprintf(fptr, "%u %u \n", index, histogram[index]);
-    }
-    fclose(fptr);
-}
+//     uint32_t v;
+//     uint32_t index;
 
+//     #pragma omp parallel for
+//     for(v = 0; v < graphStats->num_vertices; v++)
+//     {
 
-void printSparseMatrixList(const char *fname_stats, struct GraphCSR *graphStats, uint32_t binSize)
-{
+//         index = v / ((graphStats->num_vertices / binSize) + 1);
 
+//         if(inout_degree == 1)
+//         {
+//             #pragma omp atomic update
+//             histogram[index] += graphStats->vertices->in_degree[v];
+//         }
+//         else if(inout_degree == 2)
+//         {
+//             #pragma omp atomic update
+//             histogram[index] += graphStats->vertices->out_degree[v];
+//         }
+//     }
 
-    uint32_t *SparseMatrix = (uint32_t *) my_malloc(sizeof(uint32_t) * binSize * binSize);
-
-
-    uint32_t x;
-    uint32_t y;
-    #pragma omp parallel for private(y) shared(SparseMatrix)
-    for(x = 0; x < binSize; x++)
-    {
-        for(y = 0; y < binSize; y++)
-        {
-            SparseMatrix[(binSize * y) + x] = 0;
-        }
-    }
+// }
 
 
-    uint32_t i;
+// void printHistogram(const char *fname_stats, uint32_t *histogram, uint32_t binSize)
+// {
 
-    #pragma omp parallel for
-    for(i = 0; i < graphStats->num_edges; i++)
-    {
-        uint32_t src;
-        uint32_t dest;
-        src = graphStats->sorted_edges_array->edges_array_src[i] / ((graphStats->num_vertices / binSize) + 1);
-        dest = graphStats->sorted_edges_array->edges_array_dest[i] / ((graphStats->num_vertices / binSize) + 1);
+//     uint32_t index;
+//     FILE *fptr;
+//     fptr = fopen(fname_stats, "w");
+//     for(index = 0; index < binSize; index++)
+//     {
+//         fprintf(fptr, "%u %u \n", index, histogram[index]);
+//     }
+//     fclose(fptr);
+// }
 
-        #pragma omp atomic update
-        SparseMatrix[(binSize * dest) + src]++;
 
-    }
+// void printSparseMatrixList(const char *fname_stats, struct GraphCSR *graphStats, uint32_t binSize)
+// {
 
-    FILE *fptr;
-    fptr = fopen(fname_stats, "w");
-    for(x = 0; x < binSize; x++)
-    {
-        for(y = 0; y < binSize; y++)
-        {
-            fprintf(fptr, "%u %u %u\n", x, y, SparseMatrix[(binSize * y) + x]);
-        }
-    }
 
-    fclose(fptr);
-    free(SparseMatrix);
+//     uint32_t *SparseMatrix = (uint32_t *) my_malloc(sizeof(uint32_t) * binSize * binSize);
 
-}
+
+//     uint32_t x;
+//     uint32_t y;
+//     #pragma omp parallel for private(y) shared(SparseMatrix)
+//     for(x = 0; x < binSize; x++)
+//     {
+//         for(y = 0; y < binSize; y++)
+//         {
+//             SparseMatrix[(binSize * y) + x] = 0;
+//         }
+//     }
+
+
+//     uint32_t i;
+
+//     #pragma omp parallel for
+//     for(i = 0; i < graphStats->num_edges; i++)
+//     {
+//         uint32_t src;
+//         uint32_t dest;
+//         src = graphStats->sorted_edges_array->edges_array_src[i] / ((graphStats->num_vertices / binSize) + 1);
+//         dest = graphStats->sorted_edges_array->edges_array_dest[i] / ((graphStats->num_vertices / binSize) + 1);
+
+//         #pragma omp atomic update
+//         SparseMatrix[(binSize * dest) + src]++;
+
+//     }
+
+//     FILE *fptr;
+//     fptr = fopen(fname_stats, "w");
+//     for(x = 0; x < binSize; x++)
+//     {
+//         for(y = 0; y < binSize; y++)
+//         {
+//             fprintf(fptr, "%u %u %u\n", x, y, SparseMatrix[(binSize * y) + x]);
+//         }
+//     }
+
+//     fclose(fptr);
+//     free(SparseMatrix);
+
+// }
 

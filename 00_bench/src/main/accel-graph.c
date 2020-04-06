@@ -139,8 +139,8 @@ static struct argp_option options[] =
         "\nYou bin vertices's histogram according to this parameter, if you have a large graph you want to illustrate "
     },
     {
-        "in-out-degree",    'j', "[DEFAULT:2]",      0,
-        "\n[1]-in-degree, [2]-out-degree, bin histogram with out/in-degree binned. [DEFAULT:2]  "
+        "verbosity",    'j', "[DEFAULT:0]",      0,
+        "\nFor now it controls the output of .per file and pagerank .stats files"
     },
     {
         "remove-duplicate", 'k', 0,      0,
@@ -228,7 +228,7 @@ parse_opt (int key, char *arg, struct argp_state *state)
         arguments->binSize = atoi(arg);
         break;
     case 'j':
-        arguments->inout_degree = atoi(arg);
+        arguments->verbosity = atoi(arg);
         break;
     case 'k':
         arguments->dflag = 1;
@@ -262,7 +262,7 @@ main (int argc, char **argv)
     arguments.Sflag = 0;
     arguments.dflag = 0;
     arguments.binSize = 512;
-    arguments.inout_degree = 0;
+    arguments.verbosity = 0;
     arguments.iterations = 20;
     arguments.trials = 1;
     arguments.epsilon = 0.0001;
@@ -310,10 +310,6 @@ main (int argc, char **argv)
 
     if(arguments.xflag) // if stats flag is on collect stats or serialize your graph
     {
-        // uint32_t binSize = arguments.iterations;
-        // uint32_t inout_degree = arguments.pushpull;
-        // uint32_t inout_lmode = arguments.lmode;
-        // collectStats(binSize, arguments.fnameb, arguments.sort, inout_lmode, arguments.symmetric, arguments.weighted, inout_degree);
         writeSerializedGraphDataStructure(&arguments);
     }
     else

@@ -32,10 +32,10 @@ void print(const edit *e);
 float kendallNlogN( float *arr1, float *arr2, int len );
 
 void collectStatsPageRank( struct Arguments *arguments, struct PageRankStats *stats, struct PageRankStats *ref_stats, uint32_t trial);
-void collectStats( struct Arguments *arguments);
-void countHistogram(struct GraphCSR *graphStats, uint32_t *histogram, uint32_t binSize, uint32_t inout_degree);
-void printHistogram(const char *fname_stats, uint32_t *histogram, uint32_t binSize);
-void printSparseMatrixList(const char *fname_stats, struct GraphCSR *graphStats, uint32_t binSize);
+// void collectStats( struct Arguments *arguments);
+// void countHistogram(struct GraphCSR *graphStats, uint32_t *histogram, uint32_t binSize, uint32_t inout_degree);
+// void printHistogram(const char *fname_stats, uint32_t *histogram, uint32_t binSize);
+// void printSparseMatrixList(const char *fname_stats, struct GraphCSR *graphStats, uint32_t binSize);
 
 #endif
 

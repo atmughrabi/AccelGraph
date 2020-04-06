@@ -25,7 +25,7 @@ struct Arguments
     int Sflag;
     int dflag;
     uint32_t binSize;
-    uint32_t inout_degree;
+    uint32_t verbosity;
     uint32_t iterations;
     uint32_t trials;
     double epsilon;

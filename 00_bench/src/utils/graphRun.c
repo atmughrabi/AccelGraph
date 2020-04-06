@@ -250,13 +250,6 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
 
     double time_total = 0.0f;
     uint32_t  trials = arguments->trials;
-    char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
-    // char *fname_stats_out = (char *) malloc((strlen(arguments->fnameb) + 20) * sizeof(char));
-    fname_txt = strcpy (fname_txt, arguments->fnameb);
-    fname_txt = strcat (fname_txt, ".perf");
-
-    FILE *fptr;
-    fptr = fopen(fname_txt, "a+");
 
 
     while(trials)
@@ -275,7 +268,7 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
             struct PageRankStats *stats = runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  arguments->pushpull);
             time_total += stats->time_total;
 
-            if(arguments->Sflag) // output page rank error statistics 
+            if(arguments->Sflag) // output page rank error statistics
             {
                 struct PageRankStats *ref_stats = runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  0);
                 collectStatsPageRank(arguments, stats, ref_stats, trials);
@@ -349,13 +342,17 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
 
     generateGraphPrintMessageWithtime("*     -----> Trials Avg Time (Seconds) <-----", (time_total / (double)arguments->trials));
 
-    // %-51f | \n", time
-
-    fprintf(fptr, "%u %lf \n", arguments->numThreads, (time_total / (double)arguments->trials));
-    fclose(fptr);
-    free(fname_txt);
-    // free(fname_stats_out);
-
+    if(arguments->verbosity > 0)
+    {
+        char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 50) * sizeof(char));
+        fname_txt = strcpy (fname_txt, arguments->fnameb);
+        fname_txt = strcat (fname_txt, ".perf");
+        FILE *fptr;
+        fptr = fopen(fname_txt, "a+");
+        fprintf(fptr, "%u %lf \n", arguments->numThreads, (time_total / (double)arguments->trials));
+        fclose(fptr);
+        free(fname_txt);
+    }
 }
 
 uint32_t generateRandomRootGraphCSR(struct GraphCSR *graph)
