@@ -529,7 +529,7 @@ law: app-openmp
 	for graph in $(LAW); do \
 	    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
 	    	echo $$config $$graph $$num ; \
-	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
+	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
 	    done ; \
     done
 
@@ -538,7 +538,7 @@ gap: app-openmp
 	for graph in $(GAP); do \
 	    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
 	    	echo $$config $$graph $$num ; \
-	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
+	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
 	    done ; \
     done
 
@@ -634,7 +634,7 @@ law-capi: app-capi
 		for graph in $(LAW); do \
 		    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
 		    	echo $$config $$graph $$num ; \
-		    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
+		    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
 		    done ; \
 	    done ; \
 	done
@@ -648,7 +648,7 @@ gap-capi: app-capi
 		for graph in $(LAW); do \
 		    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
 		    	echo $$config $$graph $$num ; \
-		    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
+		    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
 		    done ; \
 	    done ; \
 	done

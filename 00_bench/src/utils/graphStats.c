@@ -561,7 +561,6 @@ double avg_error_ranks_float_topK(float *array1, float *array2, uint32_t *array3
         error += fabs((double)array2[array3[v]] - (double)array1[array3[v]]);
         // printf("rank%d v%d rv_ref%lf rv_cmp%lf diff%lf err%.22lf \n", v, array3[v], array1[array3[v]], array2[array3[v]], fabs(array2[array3[v]] - array1[array3[v]]), error);
 
-        // printf("%d %lf %lf %lf \n",v, array1[v], array2[v], error);
     }
 
     return error / topk;

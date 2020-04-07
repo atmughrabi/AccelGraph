@@ -83,8 +83,8 @@ export GRAPH_NAME = v51_e1021
 
 export LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001 
 export GAP = GAP-kron GAP-road GAP-twitter GAP-urand GAP-web
-export CU_CONFIG_MODES = 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
-# export CU_CONFIG_MODES = 0x10000000 0x00800000 0x00040000 0x00001000
+# export CU_CONFIG_MODES = 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
+export CU_CONFIG_MODES = 0x10000000 0x00800000 0x00040000 0x00001000
 # export PUSHPULL_MODES = 0 2 4 9 10 11 12 13
 
 # TEXT formant
@@ -109,7 +109,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 4
+export PULL_PUSH 		= 0
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -125,7 +125,7 @@ export CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
 export BIN_SIZE 		= 1000
-export INOUT_STATS 		= 0
+export INOUT_STATS 		= 1
 
 ##############################################
 # CAPI FPGA AFU PREFETCH CONFIG              #
