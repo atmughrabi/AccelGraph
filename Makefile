@@ -6,8 +6,8 @@ export APP               = accel-graph
 
 # test name needs to match the file name test/test_accel-graph.c
 # export APP_TEST          =  test_accel-graph
-# export APP_TEST          =  pagerRank-accuracy-report
-export APP_TEST          =  levenshtein
+export APP_TEST          =  pagerRank-accuracy-report
+# export APP_TEST          =  levenshtein
 
 
 # dirs Root app 
@@ -16,7 +16,7 @@ export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
 export BENCHMARKS_DIR    	= ../04_test_graphs
-export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -107,7 +107,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 4
+export PULL_PUSH 		= 12
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -123,7 +123,7 @@ export CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
 export BIN_SIZE 		= 1000
-export INOUT_STATS 		= 1
+export INOUT_STATS 		= 2
 
 ##############################################
 # CAPI FPGA AFU PREFETCH CONFIG              #

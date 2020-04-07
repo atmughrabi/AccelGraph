@@ -492,6 +492,8 @@ void rvereseArray(uint32_t *arr, uint32_t start, uint32_t end)
 }
 
 
+
+
 uint32_t levenshtein_distance_topK(uint32_t *array1, uint32_t *array2, uint32_t size_k)
 {
 
@@ -501,6 +503,68 @@ uint32_t levenshtein_distance_topK(uint32_t *array1, uint32_t *array2, uint32_t 
     distance = levenshtein_distance(array1, size_k, array2, size_k, &script);
 
     return distance;
+}
+
+uint32_t avg_mismatch_ranks_real_topK(uint32_t *array1, uint32_t *array2, uint32_t *array3, uint32_t size_k, uint32_t topk)
+{
+
+    uint32_t v;
+    uint32_t mismatch = 0;
+
+    if(topk > size_k)
+        topk = size_k;
+
+    for(v = size_k - topk; v < size_k; v++)
+    {
+
+        if(array2[array3[v]] != array1[array3[v]])
+            mismatch++;
+    }
+
+    return mismatch ;
+}
+
+
+double avg_error_ranks_real_topK(uint32_t *array1, uint32_t *array2, uint32_t *array3, uint32_t size_k, uint32_t topk)
+{
+
+    uint32_t v;
+    double error = 0.0f;
+
+    if(topk > size_k)
+        topk = size_k;
+
+    for(v = size_k - topk; v < size_k; v++)
+    {
+
+
+        error += abs(array2[array3[v]] - array1[array3[v]]);
+        // printf("rank%d v%d rv_ref%d rv_cmp%d diff%d err%lf \n", v, array/3[v], array1[array3[v]], array2[array3[v]], abs(array2[array3[v]] - array1[array3[v]]), error);
+    }
+
+    return error / topk;
+}
+
+double avg_error_ranks_float_topK(float *array1, float *array2, uint32_t *array3, uint32_t size_k, uint32_t topk)
+{
+
+    uint32_t v;
+    double error = 0.0f;
+
+    if(topk > size_k)
+        topk = size_k;
+
+    for(v = size_k - topk; v < size_k; v++)
+    {
+
+        // if(array1[v] > 0.0f)
+        error += fabs((double)array2[array3[v]] - (double)array1[array3[v]]);
+        // printf("rank%d v%d rv_ref%lf rv_cmp%lf diff%lf err%.22lf \n", v, array3[v], array1[array3[v]], array2[array3[v]], fabs(array2[array3[v]] - array1[array3[v]]), error);
+
+        // printf("%d %lf %lf %lf \n",v, array1[v], array2[v], error);
+    }
+
+    return error / topk;
 }
 
 uint32_t intersection_topK(uint32_t *array1, uint32_t *array2, uint32_t size_k, uint32_t topk)
@@ -522,7 +586,7 @@ uint32_t intersection_topK(uint32_t *array1, uint32_t *array2, uint32_t size_k, 
     return intersection;
 }
 
-struct PageRankCorrelationStats collectStatsPageRank_topK(struct PageRankStats *ref_stats, struct PageRankStats *stats, uint32_t *ref_rankedVertices_total, uint32_t *rankedVertices_inverse,  uint32_t topk, uint32_t num_vertices, FILE *fptr, uint32_t verbose)
+struct PageRankCorrelationStats collectStatsPageRank_topK(struct PageRankStats *ref_stats, struct PageRankStats *stats, uint32_t *ref_rankedVertices_total, uint32_t *ref_rankedVertices_inverse, uint32_t *rankedVertices_inverse,  uint32_t topk, uint32_t num_vertices, FILE *fptr, uint32_t verbose)
 {
 
 
@@ -546,6 +610,9 @@ struct PageRankCorrelationStats collectStatsPageRank_topK(struct PageRankStats *
     float float_Kendall   = 0.0f;
     float real_Kendall    = 0.0f;
     uint32_t intersection = 0;
+    uint32_t mismatch = 0;
+    double avg_error_float = 0.0f;
+    double avg_error_relative = 0.0f;
 
     for(u = 0, v = (num_vertices - topk); v < num_vertices; v++, u++)
     {
@@ -567,28 +634,36 @@ struct PageRankCorrelationStats collectStatsPageRank_topK(struct PageRankStats *
     float_Kendall = kendallSmallN(ref_rankedVerticesfloat, rankedVerticesfloat, topk);
     real_Kendall = kendallSmallN(ref_rankedVerticesReal, rankedVerticesReal, topk);
     intersection = intersection_topK(ref_rankedVertices_total, rankedVertices_inverse, num_vertices, topk);
-
+    avg_error_float = avg_error_ranks_float_topK(ref_stats->pageRanks, stats->pageRanks, ref_stats->realRanks, num_vertices, topk);
+    avg_error_relative = avg_error_ranks_real_topK(ref_rankedVertices_inverse, rankedVertices_inverse, ref_stats->realRanks, num_vertices, topk);
+    mismatch = avg_mismatch_ranks_real_topK(ref_rankedVertices_inverse, rankedVertices_inverse, ref_stats->realRanks, num_vertices, topk);
 
     if(verbose > 0)
     {
         fprintf(stdout, "\n-----------------------------------------------------\n");
-        fprintf(stdout, "topk:         %d \n", topk);
+        fprintf(stdout, "topk:         %u \n", topk);
         fprintf(stdout, "-----------------------------------------------------\n");
-        fprintf(stdout, "levenshtein_distance: %d \n", levenshtein_distance);
+        fprintf(stdout, "levenshtein_distance: %u \n", levenshtein_distance);
         fprintf(stdout, "Rank float Kendall:   %lf\n", float_Kendall);
         fprintf(stdout, "Rank real  Kendall:   %lf\n", real_Kendall);
-        fprintf(stdout, "intersection:         %d \n", intersection);
+        fprintf(stdout, "intersection:         %u \n", intersection);
+        fprintf(stdout, "mismatch:             %u \n", mismatch);
+        fprintf(stdout, "avg_error_float:      %.22lf\n", avg_error_float);
+        fprintf(stdout, "avg_error_relative:   %.22lf\n", avg_error_relative);
         fprintf(stdout, "-----------------------------------------------------\n");
 
         if(fptr)
         {
             fprintf(fptr, "\n-----------------------------------------------------\n");
-            fprintf(fptr, "topk:         %d \n", topk);
+            fprintf(fptr, "topk:         %u \n", topk);
             fprintf(fptr, "-----------------------------------------------------\n");
-            fprintf(fptr, "levenshtein_distance: %d \n", levenshtein_distance);
+            fprintf(fptr, "levenshtein_distance: %u \n", levenshtein_distance);
             fprintf(fptr, "Rank float Kendall:   %lf\n", float_Kendall);
             fprintf(fptr, "Rank real  Kendall:   %lf\n", real_Kendall);
-            fprintf(fptr, "intersection:         %d \n", intersection);
+            fprintf(fptr, "intersection:         %u \n", intersection);
+            fprintf(fptr, "mismatch:             %u \n", mismatch);
+            fprintf(fptr, "avg_error_float:      %lf\n", avg_error_float);
+            fprintf(fptr, "avg_error_relative:   %lf\n", avg_error_relative);
             fprintf(fptr, "-----------------------------------------------------\n");
         }
     }
@@ -597,6 +672,9 @@ struct PageRankCorrelationStats collectStatsPageRank_topK(struct PageRankStats *
     pageRankCorrelationStats.float_Kendall = float_Kendall;
     pageRankCorrelationStats.real_Kendall = real_Kendall;
     pageRankCorrelationStats.intersection = intersection;
+    pageRankCorrelationStats.mismatch = mismatch;
+    pageRankCorrelationStats.avg_error_float = avg_error_float;
+    pageRankCorrelationStats.avg_error_relative = avg_error_relative;
 
     free(rankedVertices);
     free(ref_rankedVertices);
@@ -610,7 +688,7 @@ struct PageRankCorrelationStats collectStatsPageRank_topK(struct PageRankStats *
 
 }
 
-void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *stats, struct PageRankStats *ref_stats, uint32_t trial)
+void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *ref_stats, struct PageRankStats *stats, uint32_t trial)
 {
 
     uint32_t v;
@@ -621,7 +699,10 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     uint32_t chunk_num;
 
     uint32_t *rankedVertices_inverse = (uint32_t *) my_malloc(ref_stats->num_vertices * sizeof(uint32_t));
+    uint32_t *ref_rankedVertices_inverse = (uint32_t *) my_malloc(ref_stats->num_vertices * sizeof(uint32_t));
     uint32_t *ref_rankedVertices_total = (uint32_t *) my_malloc(ref_stats->num_vertices * sizeof(uint32_t));
+
+
 
     uint32_t topK_array_size = 6;
     uint32_t topK_array[] = {30, 100, 300, 1000, 5000, 10000} ;
@@ -634,16 +715,25 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     pageRankCorrelationStats.float_Kendall = 0.0f;
     pageRankCorrelationStats.real_Kendall = 0.0f;
     pageRankCorrelationStats.intersection = 0;
+    pageRankCorrelationStats.mismatch = 0;
+    pageRankCorrelationStats.avg_error_float = 0.0f;
+    pageRankCorrelationStats.avg_error_relative = 0.0f;
 
     pageRankCorrelationStatsSum.levenshtein_distance = 0;
     pageRankCorrelationStatsSum.float_Kendall = 0.0f;
     pageRankCorrelationStatsSum.real_Kendall = 0.0f;
     pageRankCorrelationStatsSum.intersection = 0;
+    pageRankCorrelationStatsSum.mismatch = 0;
+    pageRankCorrelationStatsSum.avg_error_float = 0.0f;
+    pageRankCorrelationStatsSum.avg_error_relative = 0.0f;
 
     pageRankCorrelationStatsAvg.levenshtein_distance = 0;
     pageRankCorrelationStatsAvg.float_Kendall = 0.0f;
     pageRankCorrelationStatsAvg.real_Kendall = 0.0f;
     pageRankCorrelationStatsAvg.intersection = 0;
+    pageRankCorrelationStatsAvg.mismatch = 0;
+    pageRankCorrelationStatsAvg.avg_error_float = 0.0f;
+    pageRankCorrelationStatsAvg.avg_error_relative = 0.0f;
 
     char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 50) * sizeof(char));
     sprintf(fname_txt, "%s_%d_%d_%d_%d.%s", arguments->fnameb, arguments->algorithm, arguments->datastructure, arguments->pushpull, arguments->numThreads, "stats");
@@ -658,8 +748,8 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     for(v = 0; v < stats->num_vertices; v++)
     {
         rankedVertices_inverse[stats->realRanks[v]] = v;
+        ref_rankedVertices_inverse[ref_stats->realRanks[v]] = v;
         ref_rankedVertices_total[v] = ref_stats->realRanks[v];
-
     }
 
     for (x = 0; x < topK_array_size; ++x)
@@ -667,7 +757,7 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
         if(ref_stats->num_vertices < topK_array[x])
             break;
 
-        pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, rankedVertices_inverse, topK_array[x], ref_stats->num_vertices, fptr, 1);
+        pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, ref_rankedVertices_inverse, rankedVertices_inverse, topK_array[x], ref_stats->num_vertices, fptr, 1);
     }
 
 
@@ -679,21 +769,27 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     {
         chunk_num = 1;
         chunk_x = ref_stats->num_vertices;
-        pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, rankedVertices_inverse, chunk_x, ref_stats->num_vertices, fptr, 1);
+        pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, ref_rankedVertices_inverse, rankedVertices_inverse, chunk_x, ref_stats->num_vertices, fptr, 1);
         pageRankCorrelationStatsSum.levenshtein_distance += pageRankCorrelationStats.levenshtein_distance;
         pageRankCorrelationStatsSum.float_Kendall += pageRankCorrelationStats.float_Kendall;
         pageRankCorrelationStatsSum.real_Kendall += pageRankCorrelationStats.real_Kendall;
         pageRankCorrelationStatsSum.intersection += pageRankCorrelationStats.intersection;
+        pageRankCorrelationStatsSum.mismatch += pageRankCorrelationStats.mismatch;
+        pageRankCorrelationStatsSum.avg_error_float += pageRankCorrelationStats.avg_error_float;
+        pageRankCorrelationStatsSum.avg_error_relative += pageRankCorrelationStats.avg_error_relative;
     }
     else
     {
         for(x = 0; x < chunk_num; x++)
         {
-            pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, rankedVertices_inverse, chunk_x, (ref_stats->num_vertices - (chunk_x * x)), fptr, 0);
+            pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, ref_rankedVertices_inverse, rankedVertices_inverse, chunk_x, (ref_stats->num_vertices - (chunk_x * x)), fptr, 0);
             pageRankCorrelationStatsSum.levenshtein_distance += pageRankCorrelationStats.levenshtein_distance;
             pageRankCorrelationStatsSum.float_Kendall += pageRankCorrelationStats.float_Kendall;
             pageRankCorrelationStatsSum.real_Kendall += pageRankCorrelationStats.real_Kendall;
             pageRankCorrelationStatsSum.intersection += pageRankCorrelationStats.intersection;
+            pageRankCorrelationStatsSum.mismatch += pageRankCorrelationStats.mismatch;
+            pageRankCorrelationStatsSum.avg_error_float += pageRankCorrelationStats.avg_error_float;
+            pageRankCorrelationStatsSum.avg_error_relative += pageRankCorrelationStats.avg_error_relative;
         }
     }
 
@@ -702,23 +798,29 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     pageRankCorrelationStatsAvg.float_Kendall = pageRankCorrelationStatsSum.float_Kendall / chunk_num;
     pageRankCorrelationStatsAvg.real_Kendall = pageRankCorrelationStatsSum.real_Kendall / chunk_num;
     pageRankCorrelationStatsAvg.intersection = pageRankCorrelationStatsSum.intersection / chunk_num;
+    pageRankCorrelationStatsAvg.mismatch = pageRankCorrelationStatsSum.mismatch / chunk_num;
+    pageRankCorrelationStatsAvg.avg_error_float = pageRankCorrelationStatsSum.avg_error_float / chunk_num;
+    pageRankCorrelationStatsAvg.avg_error_relative = pageRankCorrelationStatsSum.avg_error_relative / chunk_num;
 
-    pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, rankedVertices_inverse, topk, ref_stats->num_vertices, fptr, 1);
+    pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, ref_rankedVertices_inverse, rankedVertices_inverse, topk, ref_stats->num_vertices, fptr, 1);
 
     fprintf(stdout, "-----------------------------------------------------\n");
-    fprintf(stdout, "Avg (Sum(bin)*n)/n:    (Sum(%d)*%d)/%d \n", chunk_x, chunk_num, chunk_num);
+    fprintf(stdout, "Avg (Sum(bin)*n)/n:    (Sum(%u)*%u)/%u \n", chunk_x, chunk_num, chunk_num);
     fprintf(stdout, "-----------------------------------------------------\n");
-    fprintf(stdout, "levenshtein_distance: %d \n", pageRankCorrelationStatsAvg.levenshtein_distance);
+    fprintf(stdout, "levenshtein_distance: %u \n", pageRankCorrelationStatsAvg.levenshtein_distance);
     fprintf(stdout, "Rank float Kendall:   %lf\n", pageRankCorrelationStatsAvg.float_Kendall);
     fprintf(stdout, "Rank real  Kendall:   %lf\n", pageRankCorrelationStatsAvg.real_Kendall);
-    fprintf(stdout, "intersection:         %d \n", pageRankCorrelationStatsAvg.intersection);
+    fprintf(stdout, "intersection:         %u \n", pageRankCorrelationStatsAvg.intersection);
+    fprintf(stdout, "mismatch:             %u \n", pageRankCorrelationStatsAvg.mismatch);
+    fprintf(stdout, "avg_error_float:      %lf\n", pageRankCorrelationStatsAvg.avg_error_float);
+    fprintf(stdout, "avg_error_relative:   %lf\n", pageRankCorrelationStatsAvg.avg_error_relative);
     fprintf(stdout, "-----------------------------------------------------\n");
 
 
     fprintf(stdout, "-----------------------------------------------------\n");
-    fprintf(stdout, "numThreads:           %d \n", arguments->numThreads);
+    fprintf(stdout, "numThreads:           %u \n", arguments->numThreads);
     fprintf(stdout, "Time (S):             %lf\n", stats->time_total);
-    fprintf(stdout, "Iterations:           %d \n", stats->iterations);
+    fprintf(stdout, "Iterations:           %u \n", stats->iterations);
     fprintf(stdout, "-----------------------------------------------------\n");
 
 
@@ -726,18 +828,21 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     {
 
         fprintf(fptr, "-----------------------------------------------------\n");
-        fprintf(fptr, "Avg (Sum_n(bins))/n:    (Sum_%d(%d)/%d \n", chunk_num, chunk_x, chunk_num);
+        fprintf(fptr, "Avg (Sum_n(bins))/n:    (Sum_%u(%u)/%u \n", chunk_num, chunk_x, chunk_num);
         fprintf(fptr, "-----------------------------------------------------\n");
-        fprintf(fptr, "levenshtein_distance: %d \n", pageRankCorrelationStatsAvg.levenshtein_distance);
+        fprintf(fptr, "levenshtein_distance: %u \n", pageRankCorrelationStatsAvg.levenshtein_distance);
         fprintf(fptr, "Rank float Kendall:   %lf\n", pageRankCorrelationStatsAvg.float_Kendall);
         fprintf(fptr, "Rank real  Kendall:   %lf\n", pageRankCorrelationStatsAvg.real_Kendall);
-        fprintf(fptr, "intersection:         %d \n", pageRankCorrelationStatsAvg.intersection);
+        fprintf(fptr, "intersection:         %u \n", pageRankCorrelationStatsAvg.intersection);
+        fprintf(fptr, "mismatch:             %u \n", pageRankCorrelationStatsAvg.mismatch);
+        fprintf(fptr, "avg_error_float:      %lf\n", pageRankCorrelationStatsAvg.avg_error_float);
+        fprintf(fptr, "avg_error_relative:   %lf\n", pageRankCorrelationStatsAvg.avg_error_relative);
         fprintf(fptr, "-----------------------------------------------------\n");
 
         fprintf(fptr, "-----------------------------------------------------\n");
-        fprintf(fptr, "numThreads:           %d \n", arguments->numThreads);
+        fprintf(fptr, "numThreads:           %u \n", arguments->numThreads);
         fprintf(fptr, "Time (S):             %lf\n", stats->time_total);
-        fprintf(fptr, "Iterations:           %d \n", stats->iterations);
+        fprintf(fptr, "Iterations:           %u \n", stats->iterations);
         fprintf(fptr, "-----------------------------------------------------\n");
 
         if(arguments->verbosity > 1)
@@ -768,9 +873,7 @@ void collectStatsPageRank( struct Arguments *arguments,  struct PageRankStats *s
     free(fname_txt);
     free(ref_rankedVertices_total);
     free(rankedVertices_inverse);
-
-
-
+    free(ref_rankedVertices_inverse);
 }
 
 // void collectStats(struct Arguments *arguments)

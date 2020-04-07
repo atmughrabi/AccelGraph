@@ -31,6 +31,9 @@ struct PageRankCorrelationStats
     float float_Kendall;
     float real_Kendall;
     uint32_t intersection;
+    uint32_t mismatch;
+    double avg_error_float;
+    double avg_error_relative;
 };
 
 typedef struct edit edit;
@@ -41,8 +44,8 @@ void print(const edit *e);
 float kendallNlogN( float *arr1, float *arr2, int len );
 // double kendallNlogN(double* arr1, double* arr2, size_t len);
 
-void collectStatsPageRank( struct Arguments *arguments, struct PageRankStats *stats, struct PageRankStats *ref_stats, uint32_t trial);
-struct PageRankCorrelationStats collectStatsPageRank_topK(struct PageRankStats *ref_stats, struct PageRankStats *stats,uint32_t *ref_rankedVertices_total,uint32_t *rankedVertices_inverse,  uint32_t topk, uint32_t num_vertices, FILE *fptr, uint32_t verbose);
+void collectStatsPageRank( struct Arguments *arguments, struct PageRankStats *ref_stats, struct PageRankStats *stats, uint32_t trial);
+struct PageRankCorrelationStats collectStatsPageRank_topK(struct PageRankStats *ref_stats, struct PageRankStats *stats, uint32_t *ref_rankedVertices_total, uint32_t *ref_rankedVertices_inverse, uint32_t *rankedVertices_inverse,  uint32_t topk, uint32_t num_vertices, FILE *fptr, uint32_t verbose);
 // void collectStats( struct Arguments *arguments);
 // void countHistogram(struct GraphCSR *graphStats, uint32_t *histogram, uint32_t binSize, uint32_t inout_degree);
 // void printHistogram(const char *fname_stats, uint32_t *histogram, uint32_t binSize);

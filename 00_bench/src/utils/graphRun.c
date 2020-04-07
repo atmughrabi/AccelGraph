@@ -271,7 +271,7 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
             if(arguments->Sflag) // output page rank error statistics
             {
                 struct PageRankStats *ref_stats = runPageRankAlgorithm(graph,  arguments->datastructure,  arguments->epsilon,  arguments->iterations,  0);
-                collectStatsPageRank(arguments, stats, ref_stats, trials);
+                collectStatsPageRank(arguments, ref_stats, stats, trials);
                 freePageRankStats(ref_stats);
             }
 
