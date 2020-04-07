@@ -64,32 +64,36 @@ mt19937state *mt19937var;
 int main (int argc, char **argv)
 {
 
-    uint32_t benchmark_count = 3;
-    // char *benchmarks_law[benchmark_count] =
-    // {
-    //     "../../01_GraphDatasets/amazon-2008/graph.wbin",
-    //     "../../01_GraphDatasets/arabic-2005/graph.wbin",
-    //     "../../01_GraphDatasets/cnr-2000/graph.wbin",
-    //     "../../01_GraphDatasets/dblp-2010/graph.wbin",
-    //     "../../01_GraphDatasets/enron/graph.wbin",
-    //     "../../01_GraphDatasets/eu-2005/graph.wbin",
-    //     "../../01_GraphDatasets/hollywood-2009/graph.wbin",
-    //     "../../01_GraphDatasets/in-2004/graph.wbin",
-    //     "../../01_GraphDatasets/indochina-2004/graph.wbin",
-    //     "../../01_GraphDatasets/it-2004/graph.wbin",
-    //     "../../01_GraphDatasets/ljournal-2008/graph.wbin",
-    //     "../../01_GraphDatasets/sk-2005/graph.wbin",
-    //     "../../01_GraphDatasets/uk-2002/graph.wbin",
-    //     "../../01_GraphDatasets/uk-2005/graph.wbin",
-    //     "../../01_GraphDatasets/webbase-2001/graph.wbin"
-    // };
-
-    char *benchmarks_test[3] =
+    uint32_t benchmark_count = 1;
+    char *benchmarks_law[1] =
     {
-        "../04_test_graphs/test/graph.wbin",
-        "../04_test_graphs/v51_e1021/graph.wbin",
-        "../04_test_graphs/v300_e2730/graph.wbin"
+        "../../01_GraphDatasets/amazon-2008/graph.wbin"
+        // "../../01_GraphDatasets/arabic-2005/graph.wbin",
+        // "../../01_GraphDatasets/cnr-2000/graph.wbin",
+        // "../../01_GraphDatasets/dblp-2010/graph.wbin",
+        // "../../01_GraphDatasets/enron/graph.wbin",
+        // "../../01_GraphDatasets/eu-2005/graph.wbin",
+        // "../../01_GraphDatasets/hollywood-2009/graph.wbin",
+        // "../../01_GraphDatasets/in-2004/graph.wbin",
+        // "../../01_GraphDatasets/indochina-2004/graph.wbin",
+        // "../../01_GraphDatasets/it-2004/graph.wbin",
+        // "../../01_GraphDatasets/ljournal-2008/graph.wbin",
+        // "../../01_GraphDatasets/sk-2005/graph.wbin",
+        // "../../01_GraphDatasets/uk-2002/graph.wbin",
+        // "../../01_GraphDatasets/uk-2005/graph.wbin",
+        // "../../01_GraphDatasets/webbase-2001/graph.wbin"
     };
+
+    // char *benchmarks_test[7] =
+    // {
+    //     "../04_test_graphs/test/graph.wbin",
+    //     "../04_test_graphs/v51_e1021/graph.wbin",
+    //     "../04_test_graphs/v300_e2730/graph.wbin",
+    //     "../04_test_graphs/amazon/graph.wbin",
+    //     "../04_test_graphs/dblp/graph.wbin",
+    //     "../04_test_graphs/euall/graph.wbin",
+    //     "../04_test_graphs/Gnutella/graph.wbin"
+    // };
 
     uint32_t pushpull_size = 8;
     uint32_t pushpull[] = {0, 2, 4, 9, 10, 11, 12, 13} ;
@@ -98,6 +102,7 @@ int main (int argc, char **argv)
     arguments.wflag = 0;
     arguments.xflag = 0;
     arguments.sflag = 0;
+    arguments.Sflag = 0;
 
     arguments.iterations = 100;
     arguments.trials = 1;
@@ -142,8 +147,8 @@ int main (int argc, char **argv)
 
     for(i = 0; i < benchmark_count; i++)
     {
-        // arguments.fnameb = benchmarks_law[i];
-        arguments.fnameb = benchmarks_test[i];
+        arguments.fnameb = benchmarks_law[i];
+        // arguments.fnameb = benchmarks_test[i];
 
         //appropriate filename
         printf("Begin tests for %s\n", arguments.fnameb);
@@ -162,7 +167,9 @@ int main (int argc, char **argv)
             struct PageRankStats *ref_stats_tmp = (struct PageRankStats * )ref_data;
             struct PageRankStats *cmp_stats_tmp = (struct PageRankStats * )cmp_data;
 
-            arguments.verbosity = 1;
+            // arguments.verbosity = 3; // will calculate avg for whole graph a bit slower/ and dump the topK ranks in file ref vs calc
+            arguments.verbosity = 2; // will calculate avg for whole graph a bit slower
+            // arguments.verbosity = 1; 
             collectStatsPageRank(&arguments, ref_stats_tmp, cmp_stats_tmp, 1);
             arguments.verbosity = 0;
 

@@ -3,16 +3,20 @@
 #define QUANTIZATION_H
 
 #include <stdint.h>
+#include <limits.h>
 
 //ranges for unisigned 8_bit quantization
-#define RANGE_MAX_8 (uint8_t)255
+#define RANGE_MAX_8 UCHAR_MAX
 #define RANGE_MIN_8 (uint8_t)0
 //ranges for unisigned 16-bit quantization
-#define RANGE_MAX_16 (uint16_t)65535
+#define RANGE_MAX_16 USHRT_MAX
 #define RANGE_MIN_16 (uint16_t)0
 //ranges for unisigned 32-bit quantization
-#define RANGE_MAX_32 (uint32_t)4294967295
+#define RANGE_MAX_32 UINT_MAX
 #define RANGE_MIN_32 (uint32_t)0
+//ranges for unisigned 32-bit quantization
+#define RANGE_MAX UINT_MAX
+#define RANGE_MIN (uint32_t)0
 
 struct quant_params
 {
@@ -55,9 +59,6 @@ void getMinMax_16(struct quant_params_16 *q_params, float *ranks, uint32_t size)
     it has an O(N) complexity*/
 void getMinMax_32(struct quant_params_32 *q_params, float *ranks, uint32_t size);
 
-//ranges for unisigned 32-bit quantization
-#define RANGE_MAX (uint32_t)4294967295
-#define RANGE_MIN (uint32_t)0
 
 #define ABS(num) ((num<0)?(-num):(num))
 #define ROUND(num) (uint32_t)((num)>=0?((num)+0.5):((num)-0.5))
@@ -75,9 +76,8 @@ void getMinMax_32(struct quant_params_32 *q_params, float *ranks, uint32_t size)
 #define dequantize_d(num,scale,zero) (double)(scale*(CLAMP(num, RANGE_MIN, RANGE_MAX)))
 
 
-
 #define ABS_8(num) ((num<0)?(-num):(num))
-#define ROUND_8(num) (uint32_t)((num)>=0?((num)+0.5):((num)-0.5))
+#define ROUND_8(num) (float)((num)>=0?((num)+0.5):((num)-0.5))
 
 //to keep the number in the range 0 - 255
 #define CLAMP_8(num,min,max) (num < min ? min : (num > max ? max : num))
@@ -92,16 +92,14 @@ void getMinMax_32(struct quant_params_32 *q_params, float *ranks, uint32_t size)
 #define dequantize_8_d(num,scale,zero) (double)(scale*(CLAMP_8(num, RANGE_MIN_8, RANGE_MAX_8)))
 
 
-
-
 #define ABS_16(num) ((num<0)?(-num):(num))
-#define ROUND_16(num) (uint32_t)((num)>=0?((num)+0.5):((num)-0.5))
+#define ROUND_16(num) (float)((num)>=0?((num)+0.5):((num)-0.5))
 
 //to keep the number in the range 0 - 255
 #define CLAMP_16(num,min,max) (num < min ? min : (num > max ? max : num))
 
 //quantization parameters
-#define GetScale_16(min,max) (float)(min == max ? 1.0 : ABS_16((max - min))/65535)
+#define GetScale_16(min,max) (float)(min == max ? 1.0 : ABS_16((max - min))/RANGE_MAX_16)
 #define GetZeroPoint_16(max,scale) (uint16_t)CLAMP_16(RANGE_MAX_16 - ROUND_16(max/scale), RANGE_MIN_16, RANGE_MAX_16)
 
 //quantize_16
@@ -110,10 +108,8 @@ void getMinMax_32(struct quant_params_32 *q_params, float *ranks, uint32_t size)
 #define dequantize_16_d(num,scale,zero) (double)(scale*(CLAMP_16(num, RANGE_MIN_16, RANGE_MAX_16)))
 
 
-
-
 #define ABS_32(num) ((num<0)?(-num):(num))
-#define ROUND_32(num) (uint32_t)((num)>=0?((num)+0.5):((num)-0.5))
+#define ROUND_32(num) (float)((num)>=0?((num)+0.5):((num)-0.5))
 
 //to keep the number in the range 0 - 255
 #define CLAMP_32(num,min,max) (num < min ? min : (num > max ? max : num))

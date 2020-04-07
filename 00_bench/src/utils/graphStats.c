@@ -737,7 +737,7 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
     pageRankCorrelationStatsAvg.avg_error_relative = 0.0f;
 
     char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 50) * sizeof(char));
-    sprintf(fname_txt, "%s_%d_%d_%d_%d.%s", arguments->fnameb, arguments->algorithm, arguments->datastructure, arguments->pushpull, arguments->numThreads, "stats");
+    sprintf(fname_txt, "%s_%d_%d_%d_%d_%d.%s", arguments->fnameb, arguments->algorithm, arguments->datastructure, arguments->numThreads, trial, arguments->pushpull, "stats");
     FILE *fptr;
     fptr = fopen(fname_txt, "a+");
 
@@ -774,6 +774,7 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
 
         }
         fprintf(stdout, "\n");
+        fprintf(stdout, "----------------------------------------------------------------------------------------------------------\n");
         fprintf(stdout, "levenshtein_distance  ");
         for (x = 0; x < topK_array_size; ++x)
         {
@@ -849,6 +850,7 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
 
         }
         fprintf(fptr, "\n");
+        fprintf(fptr, "----------------------------------------------------------------------------------------------------------\n");
         fprintf(fptr, "levenshtein_distance  ");
         for (x = 0; x < topK_array_size; ++x)
         {
@@ -917,26 +919,13 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
     chunk_x   = 1000;
     chunk_num = (ref_stats->num_vertices + chunk_x - 1) / chunk_x;
 
-
-    if(chunk_num == 1)
+    if(arguments->verbosity > 1)
     {
-        chunk_num = 1;
-        chunk_x = ref_stats->num_vertices;
-        pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, ref_rankedVertices_inverse, rankedVertices_inverse, chunk_x, ref_stats->num_vertices, fptr, 1);
-        pageRankCorrelationStatsSum.levenshtein_distance += pageRankCorrelationStats.levenshtein_distance;
-        pageRankCorrelationStatsSum.float_Kendall += pageRankCorrelationStats.float_Kendall;
-        pageRankCorrelationStatsSum.real_Kendall += pageRankCorrelationStats.real_Kendall;
-        pageRankCorrelationStatsSum.intersection += pageRankCorrelationStats.intersection;
-        pageRankCorrelationStatsSum.mismatch += pageRankCorrelationStats.mismatch;
-        pageRankCorrelationStatsSum.avg_error_float += pageRankCorrelationStats.avg_error_float;
-        pageRankCorrelationStatsSum.avg_error_relative += pageRankCorrelationStats.avg_error_relative;
-
-    }
-    else
-    {
-        for(x = 0; x < chunk_num; x++)
+        if(chunk_num == 1)
         {
-            pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, ref_rankedVertices_inverse, rankedVertices_inverse, chunk_x, (ref_stats->num_vertices - (chunk_x * x)), fptr, 0);
+            chunk_num = 1;
+            chunk_x = ref_stats->num_vertices;
+            pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, ref_rankedVertices_inverse, rankedVertices_inverse, chunk_x, ref_stats->num_vertices, fptr, 1);
             pageRankCorrelationStatsSum.levenshtein_distance += pageRankCorrelationStats.levenshtein_distance;
             pageRankCorrelationStatsSum.float_Kendall += pageRankCorrelationStats.float_Kendall;
             pageRankCorrelationStatsSum.real_Kendall += pageRankCorrelationStats.real_Kendall;
@@ -946,9 +935,22 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
             pageRankCorrelationStatsSum.avg_error_relative += pageRankCorrelationStats.avg_error_relative;
 
         }
+        else
+        {
+            for(x = 0; x < chunk_num; x++)
+            {
+                pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, ref_rankedVertices_inverse, rankedVertices_inverse, chunk_x, (ref_stats->num_vertices - (chunk_x * x)), fptr, 0);
+                pageRankCorrelationStatsSum.levenshtein_distance += pageRankCorrelationStats.levenshtein_distance;
+                pageRankCorrelationStatsSum.float_Kendall += pageRankCorrelationStats.float_Kendall;
+                pageRankCorrelationStatsSum.real_Kendall += pageRankCorrelationStats.real_Kendall;
+                pageRankCorrelationStatsSum.intersection += pageRankCorrelationStats.intersection;
+                pageRankCorrelationStatsSum.mismatch += pageRankCorrelationStats.mismatch;
+                pageRankCorrelationStatsSum.avg_error_float += pageRankCorrelationStats.avg_error_float;
+                pageRankCorrelationStatsSum.avg_error_relative += pageRankCorrelationStats.avg_error_relative;
+
+            }
+        }
     }
-
-
     pageRankCorrelationStatsAvg.levenshtein_distance = pageRankCorrelationStatsSum.levenshtein_distance / chunk_num;
     pageRankCorrelationStatsAvg.float_Kendall = pageRankCorrelationStatsSum.float_Kendall / chunk_num;
     pageRankCorrelationStatsAvg.real_Kendall = pageRankCorrelationStatsSum.real_Kendall / chunk_num;
@@ -1000,7 +1002,7 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
         fprintf(fptr, "Iterations:           %u \n", stats->iterations);
         fprintf(fptr, "-----------------------------------------------------\n");
 
-        if(arguments->verbosity > 1)
+        if(arguments->verbosity > 2)
         {
             fprintf(fptr, " ----------------------------------------------------- ");
             fprintf(fptr, " -----------------------------------------------------\n");

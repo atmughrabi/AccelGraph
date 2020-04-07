@@ -345,7 +345,7 @@ void runGraphAlgorithms(void *graph, struct Arguments *arguments)
     if(arguments->verbosity > 0)
     {
         char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 50) * sizeof(char));
-        sprintf(fname_txt, "%s_%d_%d_%d_%d.%s", arguments->fnameb, arguments->algorithm, arguments->datastructure, arguments->pushpull, arguments->numThreads, "perf");
+        sprintf(fname_txt, "%s_%d_%d_%d_%d_%d.%s", arguments->fnameb, arguments->algorithm, arguments->datastructure, arguments->numThreads, arguments->trials, arguments->pushpull, "perf");
         FILE *fptr;
         fptr = fopen(fname_txt, "a+");
         fprintf(fptr, "%u %lf \n", arguments->numThreads, (time_total / (double)arguments->trials));
