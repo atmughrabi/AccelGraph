@@ -706,6 +706,7 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
 
     uint32_t topK_array_size = 6;
     uint32_t topK_array[] = {30, 100, 300, 1000, 5000, 10000} ;
+    struct PageRankCorrelationStats pageRankCorrelationStats_array[6];
 
     struct PageRankCorrelationStats pageRankCorrelationStats;
     struct PageRankCorrelationStats pageRankCorrelationStatsAvg;
@@ -757,10 +758,162 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
         if(ref_stats->num_vertices < topK_array[x])
             break;
 
-        pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, ref_rankedVertices_inverse, rankedVertices_inverse, topK_array[x], ref_stats->num_vertices, fptr, 1);
+        pageRankCorrelationStats = collectStatsPageRank_topK(ref_stats, stats, ref_rankedVertices_total, ref_rankedVertices_inverse, rankedVertices_inverse, topK_array[x], ref_stats->num_vertices, fptr, 0);
+
+        pageRankCorrelationStats_array[x] = pageRankCorrelationStats;
     }
+    if(arguments->verbosity > 0)
+    {
+        fprintf(stdout, "----------------------------------------------------------------------------------------------------------\n");
+        fprintf(stdout, "Top K                 ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(stdout, "%-14u ",  topK_array[x]);
 
+        }
+        fprintf(stdout, "\n");
+        fprintf(stdout, "levenshtein_distance  ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(stdout, "%-14u ",  pageRankCorrelationStats_array[x].levenshtein_distance);
 
+        }
+        fprintf(stdout, "\n");
+        fprintf(stdout, "Rank float Kendall    ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(stdout, "%-14lf ",  pageRankCorrelationStats_array[x].float_Kendall);
+
+        }
+        fprintf(stdout, "\n");
+        fprintf(stdout, "Rank real  Kendall    ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(stdout, "%-14lf ",  pageRankCorrelationStats_array[x].real_Kendall);
+
+        }
+        fprintf(stdout, "\n");
+        fprintf(stdout, "intersection          ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(stdout, "%-14u ",  pageRankCorrelationStats_array[x].intersection);
+
+        }
+        fprintf(stdout, "\n");
+        fprintf(stdout, "mismatch              ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(stdout, "%-14u ",  pageRankCorrelationStats_array[x].mismatch);
+
+        }
+        fprintf(stdout, "\n");
+        fprintf(stdout, "avg_error_float       ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(stdout, "%-14lf ",  pageRankCorrelationStats_array[x].avg_error_float);
+
+        }
+        fprintf(stdout, "\n");
+        fprintf(stdout, "avg_error_relative    ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(stdout, "%-14lf ",  pageRankCorrelationStats_array[x].avg_error_relative);
+
+        }
+        fprintf(stdout, "\n");
+        fprintf(stdout, "----------------------------------------------------------------------------------------------------------\n");
+
+        fprintf(fptr, "----------------------------------------------------------------------------------------------------------\n");
+        fprintf(fptr, "Top K                 ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(fptr, "%-14u ",  topK_array[x]);
+
+        }
+        fprintf(fptr, "\n");
+        fprintf(fptr, "levenshtein_distance  ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(fptr, "%-14u ",  pageRankCorrelationStats_array[x].levenshtein_distance);
+
+        }
+        fprintf(fptr, "\n");
+        fprintf(fptr, "Rank float Kendall    ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(fptr, "%-14lf ",  pageRankCorrelationStats_array[x].float_Kendall);
+
+        }
+        fprintf(fptr, "\n");
+        fprintf(fptr, "Rank real  Kendall    ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(fptr, "%-14lf ",  pageRankCorrelationStats_array[x].real_Kendall);
+
+        }
+        fprintf(fptr, "\n");
+        fprintf(fptr, "intersection          ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(fptr, "%-14u ",  pageRankCorrelationStats_array[x].intersection);
+
+        }
+        fprintf(fptr, "\n");
+        fprintf(fptr, "mismatch              ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(fptr, "%-14u ",  pageRankCorrelationStats_array[x].mismatch);
+
+        }
+        fprintf(fptr, "\n");
+        fprintf(fptr, "avg_error_float       ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(fptr, "%-14lf ",  pageRankCorrelationStats_array[x].avg_error_float);
+
+        }
+        fprintf(fptr, "\n");
+        fprintf(fptr, "avg_error_relative    ");
+        for (x = 0; x < topK_array_size; ++x)
+        {
+            if(ref_stats->num_vertices < topK_array[x])
+                break;
+            fprintf(fptr, "%-14lf ",  pageRankCorrelationStats_array[x].avg_error_relative);
+
+        }
+        fprintf(fptr, "\n");
+        fprintf(fptr, "----------------------------------------------------------------------------------------------------------\n");
+    }
     chunk_x   = 1000;
     chunk_num = (ref_stats->num_vertices + chunk_x - 1) / chunk_x;
 
@@ -777,6 +930,7 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
         pageRankCorrelationStatsSum.mismatch += pageRankCorrelationStats.mismatch;
         pageRankCorrelationStatsSum.avg_error_float += pageRankCorrelationStats.avg_error_float;
         pageRankCorrelationStatsSum.avg_error_relative += pageRankCorrelationStats.avg_error_relative;
+
     }
     else
     {
@@ -790,6 +944,7 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
             pageRankCorrelationStatsSum.mismatch += pageRankCorrelationStats.mismatch;
             pageRankCorrelationStatsSum.avg_error_float += pageRankCorrelationStats.avg_error_float;
             pageRankCorrelationStatsSum.avg_error_relative += pageRankCorrelationStats.avg_error_relative;
+
         }
     }
 
