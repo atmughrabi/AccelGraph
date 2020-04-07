@@ -16,7 +16,7 @@ export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
 export BENCHMARKS_DIR    	= ../04_test_graphs
-# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -65,7 +65,7 @@ export GRAPH_NAME = test
 # export GRAPH_NAME = GAP-web
 
 # LAW https://sparse.tamu.edu/MM/LAW/
-# export GRAPH_NAME = amazon-2008
+export GRAPH_NAME = amazon-2008
 # export GRAPH_NAME = arabic-2005
 # export GRAPH_NAME = cnr-2000
 # export GRAPH_NAME = dblp-2010
@@ -107,7 +107,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 12
+export PULL_PUSH 		= 4
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -122,8 +122,8 @@ export FILE_FORMAT 		= 1
 export CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
-export BIN_SIZE 		= 10
-export INOUT_STATS 		= 2
+export BIN_SIZE 		= 1000
+export INOUT_STATS 		= 1
 
 ##############################################
 # CAPI FPGA AFU PREFETCH CONFIG              #
@@ -216,7 +216,7 @@ MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH) -j$(MAKE_NUM_THREAD
 #                RUN  ARGUMENTS                         #
 #########################################################
 
-export ARGS = --stats -j 2 -g $(BIN_SIZE) -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+export ARGS = --stats -j $(INOUT_STATS) -g $(BIN_SIZE) -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################
