@@ -64,7 +64,9 @@ export MAIN_DIR		  	= main
 # export GRAPH_NAME = GAP-road
 # export GRAPH_NAME = SNAP-soc-pokec
 # export GRAPH_NAME = SNAP-cit-Patents
-export GRAPH_NAME = KONECT-wikipedia_link_en
+# export GRAPH_NAME = SNAP-com-orkut
+# export GRAPH_NAME = SNAP-soc-LiveJournal1
+# export GRAPH_NAME = KONECT-wikipedia_link_en
 
 # LAW https://sparse.tamu.edu/MM/LAW/
 # export GRAPH_NAME = amazon-2008
@@ -84,7 +86,7 @@ export GRAPH_NAME = KONECT-wikipedia_link_en
 # export GRAPH_NAME = webbase-2001
 
 export LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001 
-export GAP = Gong-gplus GAP-road SNAP-soc-pokec SNAP-cit-Patents KONECT-wikipedia_link_en
+export GAP = Gong-gplus GAP-road SNAP-soc-pokec SNAP-cit-Patents SNAP-com-orkut SNAP-soc-LiveJournal1 KONECT-wikipedia_link_en 
 
 # export GAP = GAP-kron GAP-road GAP-twitter GAP-urand GAP-web
 # export CU_CONFIG_MODES = 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
@@ -118,7 +120,7 @@ export PULL_PUSH 		= 0
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
-export START_THREADS    = 25
+export START_THREADS    = 1
 export INC_THREADS      = 1
 export NUM_THREADS  	= 25
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
