@@ -364,18 +364,18 @@ results-law:
 			fi ; \
 	done
 
-.PHONY: results-gap
-results-gap:
-	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-gap_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)
+.PHONY: results-mix
+results-mix:
+	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-mix_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)
 	@for graph in $(GAP); do \
 			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf ]; then \
-				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf $(APP_DIR)/$(RES_DIR)/results-gap_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)/$$graph; \
+				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf $(APP_DIR)/$(RES_DIR)/results-mix_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)/$$graph; \
 			fi ; \
 	done
 
 
 .PHONY: results
-results: results-law results-gap
+results: results-law results-mix
 
 ##################################################
 ##################################################
@@ -526,19 +526,19 @@ cache-perf-openmp: app-openmp
 
 .PHONY: law
 law: app-openmp
-	for graph in $(LAW); do \
+	@for graph in $(LAW); do \
 	    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
 	    	echo $$config $$graph $$num ; \
-	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
+	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
 	    done ; \
     done
 
-.PHONY: gap
-gap: app-openmp
-	for graph in $(GAP); do \
+.PHONY: mix
+mix: app-openmp
+	@for graph in $(GAP); do \
 	    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
 	    	echo $$config $$graph $$num ; \
-	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
+	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
 	    done ; \
     done
 
@@ -639,11 +639,11 @@ law-capi: app-capi
 	    done ; \
 	done
 
-.PHONY: gap-capi
-gap-capi: CAPI_FLAGS = -DVERBOSE
-gap-capi: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
-gap-capi: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
-gap-capi: app-capi
+.PHONY: mix-capi
+mix-capi: CAPI_FLAGS = -DVERBOSE
+mix-capi: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
+mix-capi: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
+mix-capi: app-capi
 	@for config in $(CU_CONFIG_MODES); do \
 		for graph in $(LAW); do \
 		    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
