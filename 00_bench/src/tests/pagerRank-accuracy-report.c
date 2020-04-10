@@ -52,6 +52,7 @@
 
 int numThreads;
 mt19937state *mt19937var;
+#define GRAPH_NUM 27
 
 // "   mm                        ""#             mmm                       #     \n"
 // "   ##    mmm    mmm    mmm     #           m"   "  m mm   mmm   mmmm   # mm  \n"
@@ -64,8 +65,8 @@ mt19937state *mt19937var;
 int main (int argc, char **argv)
 {
 
-    uint32_t benchmark_count = 27;
-    char *benchmarks_law[27] =
+    uint32_t benchmark_count = GRAPH_NUM;
+    char *benchmarks_law[GRAPH_NUM] =
     {
         "../../01_GraphDatasets/amazon-2008/graph.wbin",
         "../../01_GraphDatasets/arabic-2005/graph.wbin",
@@ -119,7 +120,7 @@ int main (int argc, char **argv)
     arguments.sflag = 0;
     arguments.Sflag = 0;
 
-    arguments.iterations = 100;
+    arguments.iterations = 300;
     arguments.trials = 1;
     arguments.epsilon = 1e-8;
     arguments.root = 5319;
@@ -164,6 +165,8 @@ int main (int argc, char **argv)
     for(i = 0; i < benchmark_count; i++)
     {
         arguments.fnameb = benchmarks_law[i];
+        arguments.pushpull = 0;
+
         // arguments.fnameb = benchmarks_test[i];
 
         //appropriate filename
@@ -197,10 +200,9 @@ int main (int argc, char **argv)
         }
 
         freeGraphStatsGeneral(ref_data, arguments.algorithm);
-
         freeGraphDataStructure(graph, arguments.datastructure);
 
-        printf("Finished tests for %s\n", arguments.fnameb);
+        printf("Finished tests for %s\n Time\n", arguments.fnameb);
     }
 
     Stop(timer);

@@ -502,6 +502,8 @@ uint32_t levenshtein_distance_topK(uint32_t *array1, uint32_t *array2, uint32_t 
 
     distance = levenshtein_distance(array1, size_k, array2, size_k, &script);
 
+    free(script);
+
     return distance;
 }
 
@@ -536,9 +538,7 @@ double avg_error_ranks_real_topK(uint32_t *array1, uint32_t *array2, uint32_t *a
 
     for(v = size_k - topk; v < size_k; v++)
     {
-
-
-        error += abs(array2[array3[v]] - array1[array3[v]]);
+        error += abs(array2[array3[v]] - array1[array3[v]])/((double)array1[array3[v]]+1);
         // printf("rank%d v%d rv_ref%d rv_cmp%d diff%d err%lf \n", v, array/3[v], array1[array3[v]], array2[array3[v]], abs(array2[array3[v]] - array1[array3[v]]), error);
     }
 
@@ -558,7 +558,8 @@ double avg_error_ranks_float_topK(float *array1, float *array2, uint32_t *array3
     {
 
         // if(array1[v] > 0.0f)
-        error += fabs((double)array2[array3[v]] - (double)array1[array3[v]]);
+        if((double)array1[array3[v]] > 0.0f)
+            error += fabs((double)array2[array3[v]] - (double)array1[array3[v]])/(double)array1[array3[v]];
         // printf("rank%d v%d rv_ref%lf rv_cmp%lf diff%lf err%.22lf \n", v, array3[v], array1[array3[v]], array2[array3[v]], fabs(array2[array3[v]] - array1[array3[v]]), error);
 
     }
