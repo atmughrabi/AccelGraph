@@ -101,7 +101,7 @@ GRAPH_NAME ?= test
 # GRAPH_NAME ?= webbase-2001
 
 LAW ?= amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001
-GAP ?= GAP-kron GAP-road GAP-twitter GAP-urand GAP-web
+MIX ?= GAP-kron GAP-road GAP-twitter GAP-urand GAP-web
 CU_CONFIG_MODES ?= 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
 
 # TEXT formant
@@ -357,25 +357,46 @@ clean-stats:
 
 .PHONY: results-law
 results-law:
-	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-law_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)
-	@for graph in $(GAP); do \
+	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-law_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)
+	@for graph in $(LAW); do \
 			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf ]; then \
-				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf $(APP_DIR)/$(RES_DIR)/results-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
+				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf $(APP_DIR)/$(RES_DIR)/results-law_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
 			fi ; \
 	done
 
 .PHONY: results-mix
 results-mix: 
 	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)
-	@for graph in $(GAP); do \
+	@for graph in $(MIX); do \
 			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf ]; then \
 				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf $(APP_DIR)/$(RES_DIR)/results-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
+			fi ; \
+	done
+
+.PHONY: stats-law
+stats-law:
+	@mkdir -p $(APP_DIR)/$(RES_DIR)/stats-law_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)
+	@for graph in $(LAW); do \
+			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).stats ]; then \
+				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).stats $(APP_DIR)/$(RES_DIR)/stats-law_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
+			fi ; \
+	done
+
+.PHONY: stats-mix
+stats-mix: 
+	@mkdir -p $(APP_DIR)/$(RES_DIR)/stats-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)
+	@for graph in $(MIX); do \
+			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).stats ]; then \
+				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).stats $(APP_DIR)/$(RES_DIR)/stats-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
 			fi ; \
 	done
 
 
 .PHONY: results
 results: results-law results-mix
+
+.PHONY: stats
+stats: stats-law stats-mix
 
 ##################################################
 ##################################################
@@ -535,7 +556,7 @@ law: app-openmp
 
 .PHONY: mix
 mix: app-openmp
-	@for graph in $(GAP); do \
+	@for graph in $(MIX); do \
 	    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
 	    	echo $$config $$graph $$num ; \
 	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\

@@ -172,10 +172,6 @@ gen-rbf:
 copy-rbf:
 	cp $(PROJECT).rbf ../$(ACCEL_BIN_DIR)/$(PROJECT)_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_$(VERSION_GIT)_$(TIME_STAMP).rbf 
 
-.PHONY:stats
-stats:
-	altera_stats.py $(PROJECT)
-
 .PHONY:gui
 gui: $(ASSIGNMENT_FILES)
 	quartus $(PROJECT).qpf 

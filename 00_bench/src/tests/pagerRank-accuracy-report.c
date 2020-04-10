@@ -145,6 +145,7 @@ int main (int argc, char **argv)
     uint32_t i;
     uint32_t j;
 
+    Start(timer);
     for(i = 0; i < benchmark_count; i++)
     {
         arguments.fnameb = benchmarks_law[i];
@@ -154,7 +155,7 @@ int main (int argc, char **argv)
         printf("Begin tests for %s\n", arguments.fnameb);
 
         graph = generateGraphDataStructure(&arguments);
-    
+
         ref_data = runGraphAlgorithmsTest(graph, &arguments); // ref stats should mach oother algo
 
         for(j = 0 ;  j < pushpull_size; j++)
@@ -169,7 +170,7 @@ int main (int argc, char **argv)
 
             // arguments.verbosity = 3; // will calculate avg for whole graph a bit slower/ and dump the topK ranks in file ref vs calc
             arguments.verbosity = 2; // will calculate avg for whole graph a bit slower
-            // arguments.verbosity = 1; 
+            // arguments.verbosity = 1;
             collectStatsPageRank(&arguments, ref_stats_tmp, cmp_stats_tmp, 1);
             arguments.verbosity = 0;
 
@@ -183,8 +184,10 @@ int main (int argc, char **argv)
         printf("Finished tests for %s\n", arguments.fnameb);
     }
 
+    Stop(timer);
+    printf("Page Rank Error Test Done ....... Time (%-9f)", Seconds(timer));
     free(timer);
-    printf("Page Rank Error Test Done .......");
+
     return 0;
 }
 

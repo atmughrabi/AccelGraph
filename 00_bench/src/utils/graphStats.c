@@ -736,7 +736,7 @@ void collectStatsPageRank( struct Arguments *arguments,   struct PageRankStats *
     pageRankCorrelationStatsAvg.avg_error_relative = 0.0f;
 
     char *fname_txt = (char *) malloc((strlen(arguments->fnameb) + 50) * sizeof(char));
-    sprintf(fname_txt, "%s_%d_%d_%d_%d_%d.%s", arguments->fnameb, arguments->algorithm, arguments->datastructure, arguments->numThreads, trial, arguments->pushpull, "stats");
+    sprintf(fname_txt, "%s_%d_%d_%d_%d.%s", arguments->fnameb, arguments->algorithm, arguments->datastructure, trial, arguments->pushpull, "stats");
     FILE *fptr;
     fptr = fopen(fname_txt, "a+");
 
