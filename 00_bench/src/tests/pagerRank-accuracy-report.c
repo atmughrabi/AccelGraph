@@ -64,24 +64,39 @@ mt19937state *mt19937var;
 int main (int argc, char **argv)
 {
 
-    uint32_t benchmark_count = 1;
-    char *benchmarks_law[1] =
+    uint32_t benchmark_count = 27;
+    char *benchmarks_law[27] =
     {
-        "../../01_GraphDatasets/amazon-2008/graph.wbin"
-        // "../../01_GraphDatasets/arabic-2005/graph.wbin",
-        // "../../01_GraphDatasets/cnr-2000/graph.wbin",
-        // "../../01_GraphDatasets/dblp-2010/graph.wbin",
-        // "../../01_GraphDatasets/enron/graph.wbin",
-        // "../../01_GraphDatasets/eu-2005/graph.wbin",
-        // "../../01_GraphDatasets/hollywood-2009/graph.wbin",
-        // "../../01_GraphDatasets/in-2004/graph.wbin",
-        // "../../01_GraphDatasets/indochina-2004/graph.wbin",
-        // "../../01_GraphDatasets/it-2004/graph.wbin",
-        // "../../01_GraphDatasets/ljournal-2008/graph.wbin",
-        // "../../01_GraphDatasets/sk-2005/graph.wbin",
-        // "../../01_GraphDatasets/uk-2002/graph.wbin",
-        // "../../01_GraphDatasets/uk-2005/graph.wbin",
-        // "../../01_GraphDatasets/webbase-2001/graph.wbin"
+        "../../01_GraphDatasets/amazon-2008/graph.wbin",
+        "../../01_GraphDatasets/arabic-2005/graph.wbin",
+        "../../01_GraphDatasets/cnr-2000/graph.wbin",
+        "../../01_GraphDatasets/dblp-2010/graph.wbin",
+        "../../01_GraphDatasets/enron/graph.wbin",
+        "../../01_GraphDatasets/eu-2005/graph.wbin",
+        "../../01_GraphDatasets/hollywood-2009/graph.wbin",
+        "../../01_GraphDatasets/in-2004/graph.wbin",
+        "../../01_GraphDatasets/indochina-2004/graph.wbin",
+        "../../01_GraphDatasets/it-2004/graph.wbin",
+        "../../01_GraphDatasets/ljournal-2008/graph.wbin",
+        "../../01_GraphDatasets/sk-2005/graph.wbin",
+        "../../01_GraphDatasets/uk-2002/graph.wbin",
+        "../../01_GraphDatasets/uk-2005/graph.wbin",
+        "../../01_GraphDatasets/webbase-2001/graph.wbin",
+
+        "../../01_GraphDatasets/Gong-gplus/graph.wbin",
+        "../../01_GraphDatasets/GAP-road/graph.wbin",
+        "../../01_GraphDatasets/SNAP-soc-pokec/graph.wbin",
+        "../../01_GraphDatasets/SNAP-cit-Patents/graph.wbin",
+        "../../01_GraphDatasets/SNAP-com-orkut/graph.wbin",
+        "../../01_GraphDatasets/SNAP-soc-LiveJournal1/graph.wbin",
+        "../../01_GraphDatasets/KONECT-wikipedia_link_en/graph.wbin",
+
+        "../../01_GraphDatasets/gplus/graph.wbin",
+        "../../01_GraphDatasets/USA-road/graph.wbin",
+        "../../01_GraphDatasets/enwiki-2013/graph.wbin",
+        "../../01_GraphDatasets/KONECT-wikipedia_link_en/graph.wbin",
+        "../../01_GraphDatasets/twitter/graph.wbin"
+
     };
 
     // char *benchmarks_test[7] =
@@ -156,7 +171,11 @@ int main (int argc, char **argv)
 
         graph = generateGraphDataStructure(&arguments);
 
+        if(graph == NULL) continue;
+
         ref_data = runGraphAlgorithmsTest(graph, &arguments); // ref stats should mach oother algo
+
+        if(ref_data == NULL) continue;
 
         for(j = 0 ;  j < pushpull_size; j++)
         {
@@ -185,7 +204,7 @@ int main (int argc, char **argv)
     }
 
     Stop(timer);
-    printf("Page Rank Error Test Done ....... Time (%-9f)", Seconds(timer));
+    printf("Page Rank Error Test Done ....... Time (%-9f)\n", Seconds(timer));
     free(timer);
 
     return 0;
