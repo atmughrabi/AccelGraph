@@ -358,18 +358,18 @@ clean-stats:
 .PHONY: results-law
 results-law:
 	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-law_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)
-	@for graph in $(LAW); do \
-			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf ]; then \
-				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf $(APP_DIR)/$(RES_DIR)/results-law_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)/$$graph; \
+	@for graph in $(GAP); do \
+			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf ]; then \
+				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf $(APP_DIR)/$(RES_DIR)/results-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
 			fi ; \
 	done
 
 .PHONY: results-mix
-results-mix:
-	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-mix_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)
+results-mix: 
+	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)
 	@for graph in $(GAP); do \
-			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf ]; then \
-				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE).perf $(APP_DIR)/$(RES_DIR)/results-mix_$(DATA_STRUCTURES)_$(ALGORITHMS)_$(PULL_PUSH)/$$graph; \
+			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf ]; then \
+				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf $(APP_DIR)/$(RES_DIR)/results-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
 			fi ; \
 	done
 
