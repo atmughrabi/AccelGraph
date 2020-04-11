@@ -6,8 +6,8 @@ export APP               = accel-graph
 
 # test name needs to match the file name test/test_accel-graph.c
 # export APP_TEST          =  test_accel-graph
-export APP_TEST          =  pagerRank-accuracy-report
-# export APP_TEST          =  pagerRank-capi-report
+# export APP_TEST          =  pagerRank-accuracy-report
+export APP_TEST          =  pagerRank-capi-report
 # export APP_TEST          =  levenshtein
 
 

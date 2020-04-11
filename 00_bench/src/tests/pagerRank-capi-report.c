@@ -62,6 +62,7 @@ mt19937state *mt19937var;
 #define GRAPH_NUM 27
 #define CONFIG_NUM 2
 #define THREAD_NUM 26
+#define DIRECTION 4
 
 // "   mm                        ""#             mmm                       #     \n"
 // "   ##    mmm    mmm    mmm     #           m"   "  m mm   mmm   mmmm   # mm  \n"
@@ -76,7 +77,6 @@ int main (int argc, char **argv)
 
     char *benchmarks_law[GRAPH_NUM] =
     {
-        "../04_test_graphs/test/graph.wbin"
         "../../01_GraphDatasets/amazon-2008/graph.wbin",
         "../../01_GraphDatasets/arabic-2005/graph.wbin",
         "../../01_GraphDatasets/cnr-2000/graph.wbin",
@@ -106,7 +106,6 @@ int main (int argc, char **argv)
         "../../01_GraphDatasets/enwiki-2013/graph.wbin",
         "../../01_GraphDatasets/KONECT-wikipedia_link_en/graph.wbin",
         "../../01_GraphDatasets/twitter/graph.wbin"
-
     };
 
     uint64_t configs[CONFIG_NUM] =
@@ -156,7 +155,9 @@ int main (int argc, char **argv)
     arguments.cu_config  = 0x01;
     arguments.afu_config_2 = 0x01;
     arguments.cu_config_2  = 0x01;
-    arguments.pushpull = 4;
+
+    
+    arguments.pushpull = DIRECTION;
 
     void *graph = NULL;
 
