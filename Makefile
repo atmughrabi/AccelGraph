@@ -7,6 +7,7 @@ export APP               = accel-graph
 # test name needs to match the file name test/test_accel-graph.c
 # export APP_TEST          =  test_accel-graph
 export APP_TEST          =  pagerRank-accuracy-report
+# export APP_TEST          =  pagerRank-capi-report
 # export APP_TEST          =  levenshtein
 
 
@@ -15,8 +16,8 @@ export APP_DIR              = .
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-# export BENCHMARKS_DIR    	= ../04_test_graphs
-export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+export BENCHMARKS_DIR    	= ../04_test_graphs
+# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -53,7 +54,7 @@ export MAIN_DIR		  	= main
 #########################################################
 
 # # small test graphs
-# export GRAPH_NAME = test
+export GRAPH_NAME = test
 # export GRAPH_NAME = v51_e1021
 # export GRAPH_NAME = v300_e2730
 
@@ -69,7 +70,7 @@ export MAIN_DIR		  	= main
 # export GRAPH_NAME = KONECT-wikipedia_link_en
 
 # LAW https://sparse.tamu.edu/MM/LAW/
-export GRAPH_NAME = amazon-2008
+# export GRAPH_NAME = amazon-2008
 # export GRAPH_NAME = arabic-2005
 # export GRAPH_NAME = cnr-2000
 # export GRAPH_NAME = dblp-2010
@@ -117,7 +118,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
 export ROOT 			= 164
-export PULL_PUSH 		= 0
+export PULL_PUSH 		= 4
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
@@ -436,6 +437,10 @@ capi:
 .PHONY: run-test-capi
 run-test-capi:
 	$(MAKE) run-test-capi $(MAKE_ARGS)
+
+.PHONY: run-test-capi-sim
+run-test-capi-sim:
+	$(MAKE) run-test-capi-sim $(MAKE_ARGS)
 
 .PHONY: run-vsim
 run-vsim:

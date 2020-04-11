@@ -2306,6 +2306,11 @@ struct PageRankStats *pageRankPullQuant32BitGraphCSR(double epsilon,  uint32_t i
     printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n", stats->iterations, sum, error_total, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
     free(timer);
     free(timer_inner);
     free(pageRanksNext_quant);
@@ -2475,6 +2480,11 @@ struct PageRankStats *pageRankPullQuant16BitGraphCSR(double epsilon,  uint32_t i
     printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n", stats->iterations, sum, error_total, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
     free(timer);
     free(timer_inner);
     free(pageRanksNext_quant);
@@ -2643,6 +2653,11 @@ struct PageRankStats *pageRankPullQuant8BitGraphCSR(double epsilon,  uint32_t it
     printf(" -----------------------------------------------------\n");
     printf("| %-10u | %-8lf | %-15.13lf | %-9f | \n", stats->iterations, sum, error_total, stats->time_total);
     printf(" -----------------------------------------------------\n");
+
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
 
     free(timer);
     free(timer_inner);
