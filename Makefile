@@ -16,8 +16,8 @@ export APP_DIR              = .
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-export BENCHMARKS_DIR    	= ../04_test_graphs
-# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+# export BENCHMARKS_DIR    	= ../04_test_graphs
+export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -61,7 +61,7 @@ export MAIN_DIR		  	= main
 # GAP https://sparse.tamu.edu/MM/GAP/
 # https://gonglab.pratt.duke.edu/google-dataset
 
-export GRAPH_NAME = Gong-gplus
+# export GRAPH_NAME = Gong-gplus
 # export GRAPH_NAME = GAP-road
 # export GRAPH_NAME = SNAP-soc-pokec
 # export GRAPH_NAME = SNAP-cit-Patents
@@ -70,7 +70,7 @@ export GRAPH_NAME = Gong-gplus
 # export GRAPH_NAME = KONECT-wikipedia_link_en
 
 # LAW https://sparse.tamu.edu/MM/LAW/
-# export GRAPH_NAME = amazon-2008
+export GRAPH_NAME = amazon-2008
 # export GRAPH_NAME = arabic-2005
 # export GRAPH_NAME = cnr-2000
 # export GRAPH_NAME = dblp-2010
