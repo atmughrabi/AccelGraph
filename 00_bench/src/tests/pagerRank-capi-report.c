@@ -50,12 +50,14 @@
 #include <assert.h>
 #include "graphTest.h"
 
-int numThreads;
+
 uint64_t afu_config;
 uint64_t cu_config;
 uint64_t afu_config_2;
 uint64_t cu_config_2;
 
+
+int numThreads;
 mt19937state *mt19937var;
 
 
@@ -179,6 +181,7 @@ int main (int argc, char **argv)
     int global_numThreads;
 
     global_numThreads =  omp_get_max_threads();
+    numThreads =  omp_get_max_threads();
 
     afu_config =  arguments.afu_config;
     afu_config_2  =  arguments.afu_config_2;
@@ -205,17 +208,20 @@ int main (int argc, char **argv)
 
     Start(timer);
 
-    FILE *fptr;
+
 
     for(i = 0; i < GRAPH_NUM; i++)
     {
         arguments.fnameb = benchmarks[i];
-        char *fname_txt = (char *) malloc((strlen(arguments.fnameb) + 50) * sizeof(char));
-        sprintf(fname_txt, "%s_%d_%d_%d_%d.%s", arguments.fnameb, arguments.algorithm, arguments.datastructure, arguments.trials, arguments.pushpull, "perf");
+
+        FILE *fptr1;
+        char *fname_perf = (char *) my_malloc((strlen(arguments.fnameb) + 50) * sizeof(char));
+        sprintf(fname_perf, "%s_%d_%d_%d_%d.%s", arguments.fnameb, arguments.algorithm, arguments.datastructure, arguments.trials, arguments.pushpull, "perf");
 
         //appropriate filename
         printf("Begin tests for %s\n", arguments.fnameb);
 
+        numThreads =  omp_get_max_threads();
         graph = generateGraphDataStructure(&arguments);
 
         if(graph == NULL) continue;
@@ -237,43 +243,47 @@ int main (int argc, char **argv)
 
                 time_total_runs[j][i][k - 1] = cmp_stats_tmp->time_total;
 
-                fptr = fopen(fname_txt, "a+");
-                fprintf(fptr, "%u %lf \n", arguments.numThreads, (cmp_stats_tmp->time_total));
-                fclose(fptr);
+                fptr1 = fopen(fname_perf, "a+");
+                fprintf(fptr1, "%u %lf \n", k, (cmp_stats_tmp->time_total));
+                fclose(fptr1);
 
                 freeGraphStatsGeneral(cmp_data, arguments.algorithm);
             }
         }
+
+        numThreads =  omp_get_max_threads();
         freeGraphDataStructure(graph, arguments.datastructure);
         printf("Finished tests for %s \n", arguments.fnameb);
-        free(fname_txt);
+
+        free(fname_perf);
     }
 
-    char *fname_txt = (char *) malloc((strlen(benchmarks_perf_table[GRAPH_DIR]) + 50) * sizeof(char));
-    sprintf(fname_txt, "%s%s_%u.%s", benchmarks_perf_table[GRAPH_DIR], "time_table", ALGO_DIRECTION, "perf");
-    fptr = fopen(fname_txt, "a+");
+    FILE *fptr2;
+    char *fname_time_table = (char *) my_malloc((strlen(benchmarks_perf_table[GRAPH_DIR]) + 50) * sizeof(char));
+    sprintf(fname_time_table, "%s%s_%u.%s", benchmarks_perf_table[GRAPH_DIR], "time_table", ALGO_DIRECTION, "perf");
+    fptr2 = fopen(fname_time_table, "a+");
 
     for (j = 0; j < CONFIG_NUM; ++j)
     {
-        fprintf(fptr, "%lx \n", configs[j]);
+        fprintf(fptr2, "%lx \n", configs[j]);
 
         for(i = 0; i < GRAPH_NUM; i++)
         {
             for(k = 1 ;  k < (CU_NUM + 1); k++)
             {
-                fprintf(fptr, "%-14lf ", time_total_runs[j][i][k - 1]);
+                fprintf(fptr2, "%-14lf ", time_total_runs[j][i][k - 1]);
             }
-            fprintf(fptr, "\n");
+            fprintf(fptr2, "\n");
         }
-        fprintf(fptr, "\n\n");
+        fprintf(fptr2, "\n\n");
     }
 
-    fclose(fptr);
+    fclose(fptr2);
 
     Stop(timer);
     printf("Page Rank Error Test Done ....... Time (%-9f)\n", Seconds(timer));
     free(timer);
-    free(fname_txt);
+    free(fname_time_table);
 
     return 0;
 }

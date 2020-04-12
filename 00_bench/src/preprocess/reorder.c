@@ -257,19 +257,20 @@ struct EdgeList *reorderGraphListEpochRabbit(struct GraphCSR *graph)
 void radixSortCountSortEdgesByRanks (uint32_t **pageRanksFP, uint32_t **pageRanksFPTemp, uint32_t **labels, uint32_t **labelsTemp, uint32_t radix, uint32_t buckets, uint32_t *buckets_count, uint32_t num_vertices)
 {
 
-    uint32_t *tempPointer = NULL;
+    uint32_t *tempPointer1 = NULL;
+    uint32_t *tempPointer2 = NULL;
     uint32_t t = 0;
     uint32_t o = 0;
     uint32_t u = 0;
     uint32_t i = 0;
     uint32_t j = 0;
-    uint32_t P = numThreads;  // 32/8 8 bit radix needs 4 iterations
+    uint32_t P = omp_get_max_threads();  // 32/8 8 bit radix needs 4 iterations
     uint32_t t_id = 0;
     uint32_t offset_start = 0;
     uint32_t offset_end = 0;
     uint32_t base = 0;
 
-    #pragma omp parallel default(none) shared(pageRanksFP, pageRanksFPTemp,radix,labels,labelsTemp,buckets,buckets_count, num_vertices) firstprivate(t_id, P, offset_end,offset_start,base,i,j,t,u,o)
+    #pragma omp parallel default(none) num_threads(P) shared(pageRanksFP, pageRanksFPTemp,radix,labels,labelsTemp,buckets,buckets_count, num_vertices) firstprivate(t_id, P, offset_end,offset_start,base,i,j,t,u,o) 
     {
         P = omp_get_num_threads();
         t_id = omp_get_thread_num();
@@ -335,14 +336,14 @@ void radixSortCountSortEdgesByRanks (uint32_t **pageRanksFP, uint32_t **pageRank
 
     }
 
-    tempPointer = *labels;
+    tempPointer1 = *labels;
     *labels = *labelsTemp;
-    *labelsTemp = tempPointer;
+    *labelsTemp = tempPointer1;
 
 
-    tempPointer = *pageRanksFP;
+    tempPointer2 = *pageRanksFP;
     *pageRanksFP = *pageRanksFPTemp;
-    *pageRanksFPTemp = tempPointer;
+    *pageRanksFPTemp = tempPointer2;
 
 }
 
@@ -359,7 +360,7 @@ uint32_t *radixSortEdgesByPageRank (float *pageRanks, uint32_t *labels, uint32_t
     // where i is current digit number
     uint32_t v;
     uint32_t radix = 4;  // 32/8 8 bit radix needs 4 iterations
-    uint32_t P = numThreads;  // 32/8 8 bit radix needs 4 iterations
+    uint32_t P = omp_get_max_threads();  // 32/8 8 bit radix needs 4 iterations
     uint32_t buckets = 256; // 2^radix = 256 buckets
     uint32_t *buckets_count = NULL;
 
@@ -371,12 +372,10 @@ uint32_t *radixSortEdgesByPageRank (float *pageRanks, uint32_t *labels, uint32_t
     uint32_t *pageRanksFPTemp = NULL;
     uint32_t *labelsTemp = NULL;
 
-
     buckets_count = (uint32_t *) my_malloc(P * buckets * sizeof(uint32_t));
     pageRanksFP = (uint32_t *) my_malloc(num_vertices * sizeof(uint32_t));
     pageRanksFPTemp = (uint32_t *) my_malloc(num_vertices * sizeof(uint32_t));
     labelsTemp = (uint32_t *) my_malloc(num_vertices * sizeof(uint32_t));
-
 
     #pragma omp parallel for
     for(v = 0; v < num_vertices; v++)
@@ -397,7 +396,7 @@ uint32_t *radixSortEdgesByPageRank (float *pageRanks, uint32_t *labels, uint32_t
 
     //  for(v = 0; v < num_vertices; v++)
     // {
-    //     printf("rank %u label %u pr %.22f \n",v, labels[v], pageRanks[labels[v]]);
+    //     printf("rank %u label %u pr %.22f \n",v, labelsInternal[v], pageRanks[labelsInternal[v]]);
     // }
 
     return labels;
@@ -416,7 +415,7 @@ uint32_t *radixSortEdgesByDegree (uint32_t *degrees, uint32_t *labels, uint32_t 
     // of passing digit number, exp is passed. exp is 10^i
     // where i is current digit number
     uint32_t radix = 4;  // 32/8 8 bit radix needs 4 iterations
-    uint32_t P = numThreads;  // 32/8 8 bit radix needs 4 iterations
+    uint32_t P = omp_get_max_threads();  // 32/8 8 bit radix needs 4 iterations
     uint32_t buckets = 256; // 2^radix = 256 buckets
     uint32_t *buckets_count = NULL;
 

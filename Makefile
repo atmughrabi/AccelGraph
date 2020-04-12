@@ -16,8 +16,8 @@ export APP_DIR              = .
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-# export BENCHMARKS_DIR    	= ../04_test_graphs
-export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+export BENCHMARKS_DIR    	= ../04_test_graphs
+# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -110,7 +110,7 @@ export FILE_BIN_TYPE = graph.wbin
 export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
 
 #QPR VARS
-export PULL_PUSH 		= 2
+export PULL_PUSH 		= 4
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
