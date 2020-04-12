@@ -97,7 +97,7 @@ int main (int argc, char **argv)
         "../../01_GraphDatasets/enwiki-2013/graph.wbin",
         "../../01_GraphDatasets/KONECT-wikipedia_link_en/graph.wbin",
         "../../01_GraphDatasets/twitter/graph.wbin"
-
+        
     };
 
     // char *benchmarks_test[7] =
@@ -112,7 +112,7 @@ int main (int argc, char **argv)
     // };
 
     uint32_t pushpull_size = 8;
-    uint32_t pushpull[] = {0, 2, 4, 9, 10, 11, 12, 13} ;
+    uint32_t pushpull[] = {4, 2, 4, 9, 10, 11, 12, 13} ;
 
     struct Arguments arguments;
     arguments.wflag = 0;

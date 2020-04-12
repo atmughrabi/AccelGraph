@@ -61,6 +61,7 @@ void getMinMax_32(struct quant_params_32 *x, float *ranks, uint32_t size)
     {
         x->max = ranks[0];
         x->min = ranks[0];
+        x->non_zero_min = ranks[0];
         return;
     }
 
@@ -68,19 +69,24 @@ void getMinMax_32(struct quant_params_32 *x, float *ranks, uint32_t size)
     {
         x->max = ranks[0];
         x->min = ranks[1];
+        x->non_zero_min = ranks[1];
     }
     else
     {
         x->max = ranks[1];
         x->min = ranks[0];
+        x->non_zero_min = ranks[0];
     }
 
     for (i = 2; i < size; i++)
     {
         if (ranks[i] > x->max)
             x->max = ranks[i];
-        else if (ranks[i] < x->min)
+        else if (ranks[i] < x->min){
             x->min = ranks[i];
+            if(ranks[i] != 0.0f)
+                x->non_zero_min = ranks[i];
+        }
     }
     return;
 }

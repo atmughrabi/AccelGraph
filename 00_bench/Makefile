@@ -351,6 +351,7 @@ clean:
 
 .PHONY: clean-stats
 clean-stats:
+	@rm -f $(BENCHMARKS_DIR)/*.perf
 	@rm -f $(BENCHMARKS_DIR)/*/*.perf
 	@rm -f $(BENCHMARKS_DIR)/*/*.stats
 
@@ -449,7 +450,7 @@ build-pslse: $(PSLSE_DIR)/pslse/pslse
 $(APP_DIR)/$(BIN_DIR)/$(APP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CAPI_LINKFLAGS) 
 
-$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) 
+$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST)-capi.o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) 
 	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CAPI_LINKFLAGS)
 
 $(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c build-libcxl
@@ -632,14 +633,14 @@ run-capi-fpga-verbose3: app-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-test-capi
-run-test-capi: CAPI_FLAGS = -DVERBOSE 
+run-test-capi: CAPI_FLAGS = -DVERBOSE -DALGO_DIRECTION=$(PULL_PUSH)
 run-test-capi: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-test-capi: CAPI_INC   = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-test-capi: test-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi
 
 .PHONY: run-test-capi-sim
-run-test-capi-sim: CAPI_FLAGS = -DSIM -DVERBOSE
+run-test-capi-sim: CAPI_FLAGS = -DSIM -DVERBOSE -DALGO_DIRECTION=$(PULL_PUSH)
 run-test-capi-sim: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-test-capi-sim: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-test-capi-sim: test-capi

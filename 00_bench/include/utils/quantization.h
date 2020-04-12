@@ -44,7 +44,7 @@ struct quant_params_32
 {
     double scale;
     uint32_t zero;  //zero point or  zero-offset
-    float min, max; //range
+    float min, max, non_zero_min; //range
 };
 
 /* function to find min and max values simultanuously amongst the ranks (array)

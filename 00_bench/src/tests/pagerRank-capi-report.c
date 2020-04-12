@@ -59,10 +59,16 @@ uint64_t cu_config_2;
 mt19937state *mt19937var;
 
 
-#define GRAPH_NUM 27
+#define GRAPH_NUM 26
+#define GRAPH_DIR 1
+
 #define CONFIG_NUM 2
-#define THREAD_NUM 26
-#define DIRECTION 4
+#define CU_NUM 25
+
+#ifndef  ALGO_DIRECTION
+#define ALGO_DIRECTION 0
+#endif
+
 
 // "   mm                        ""#             mmm                       #     \n"
 // "   ##    mmm    mmm    mmm     #           m"   "  m mm   mmm   mmmm   # mm  \n"
@@ -75,7 +81,10 @@ mt19937state *mt19937var;
 int main (int argc, char **argv)
 {
 
-    char *benchmarks_law[GRAPH_NUM] =
+
+    double time_total_runs[CONFIG_NUM][GRAPH_NUM][CU_NUM] = {0};
+
+    char *benchmarks[GRAPH_NUM] =
     {
         "../../01_GraphDatasets/amazon-2008/graph.wbin",
         "../../01_GraphDatasets/arabic-2005/graph.wbin",
@@ -102,10 +111,10 @@ int main (int argc, char **argv)
         "../../01_GraphDatasets/KONECT-wikipedia_link_en/graph.wbin",
 
         "../../01_GraphDatasets/gplus/graph.wbin",
-        "../../01_GraphDatasets/USA-road/graph.wbin",
+        "../../01_GraphDatasets/USA-Road/graph.wbin",
         "../../01_GraphDatasets/enwiki-2013/graph.wbin",
-        "../../01_GraphDatasets/KONECT-wikipedia_link_en/graph.wbin",
-        "../../01_GraphDatasets/twitter/graph.wbin"
+        "../../01_GraphDatasets/KONECT-wikipedia_link_en/graph.wbin"
+        // "../../01_GraphDatasets/twitter/graph.wbin"
     };
 
     uint64_t configs[CONFIG_NUM] =
@@ -114,15 +123,21 @@ int main (int argc, char **argv)
         0x00841000
     };
 
-    // char *benchmarks_test[7] =
+    char *benchmarks_perf_table[2] =
+    {
+        "../04_test_graphs/",
+        "../../01_GraphDatasets/"
+    };
+
+    // char *benchmarks[GRAPH_NUM] =
     // {
     //     "../04_test_graphs/test/graph.wbin",
-    //     "../04_test_graphs/v51_e1021/graph.wbin",
-    //     "../04_test_graphs/v300_e2730/graph.wbin",
-    //     "../04_test_graphs/amazon/graph.wbin",
-    //     "../04_test_graphs/dblp/graph.wbin",
-    //     "../04_test_graphs/euall/graph.wbin",
-    //     "../04_test_graphs/Gnutella/graph.wbin"
+    //     "../04_test_graphs/v51_e1021/graph.wbin"
+    //     // "../04_test_graphs/v300_e2730/graph.wbin",
+    //     // "../04_test_graphs/amazon/graph.wbin",
+    //     // "../04_test_graphs/dblp/graph.wbin",
+    //     // "../04_test_graphs/euall/graph.wbin",
+    //     // "../04_test_graphs/Gnutella/graph.wbin"
     // };
 
     //config
@@ -156,8 +171,8 @@ int main (int argc, char **argv)
     arguments.afu_config_2 = 0x01;
     arguments.cu_config_2  = 0x01;
 
-    
-    arguments.pushpull = DIRECTION;
+
+    arguments.pushpull = ALGO_DIRECTION;
 
     void *graph = NULL;
 
@@ -191,7 +206,7 @@ int main (int argc, char **argv)
 
     for(i = 0; i < GRAPH_NUM; i++)
     {
-        arguments.fnameb = benchmarks_law[i];
+        arguments.fnameb = benchmarks[i];
         char *fname_txt = (char *) malloc((strlen(arguments.fnameb) + 50) * sizeof(char));
         sprintf(fname_txt, "%s_%d_%d_%d_%d.%s", arguments.fnameb, arguments.algorithm, arguments.datastructure, arguments.trials, arguments.pushpull, "perf");
 
@@ -207,20 +222,22 @@ int main (int argc, char **argv)
             arguments.cu_config = configs[j];
             cu_config  =  arguments.cu_config;
 
-            for(k = 1 ;  k < THREAD_NUM; k++)
+            for(k = 1 ;  k < (CU_NUM + 1); k++)
             {
                 arguments.verbosity = 0;
                 arguments.numThreads = k;
-                printf("CU COUNT (%u) \nCU_CONFIG (%lx) \nAFU_CONFIG (%lx) \n", k, arguments.cu_config, arguments.afu_config);
+                printf("CU COUNT (%u) \nCU_CONFIG (%lx) \nAFU_CONFIG (%lx) \n", arguments.numThreads, arguments.cu_config, arguments.afu_config);
                 cmp_data = runGraphAlgorithmsTest(graph, &arguments);
 
                 struct PageRankStats *cmp_stats_tmp = (struct PageRankStats * )cmp_data;
 
-                freeGraphStatsGeneral(cmp_data, arguments.algorithm);
+                time_total_runs[j][i][k - 1] = cmp_stats_tmp->time_total;
 
                 fptr = fopen(fname_txt, "a+");
                 fprintf(fptr, "%u %lf \n", arguments.numThreads, (cmp_stats_tmp->time_total));
                 fclose(fptr);
+
+                freeGraphStatsGeneral(cmp_data, arguments.algorithm);
             }
         }
         freeGraphDataStructure(graph, arguments.datastructure);
@@ -228,9 +245,31 @@ int main (int argc, char **argv)
         free(fname_txt);
     }
 
+    char *fname_txt = (char *) malloc((strlen(benchmarks_perf_table[GRAPH_DIR]) + 50) * sizeof(char));
+    sprintf(fname_txt, "%s%s_%u.%s", benchmarks_perf_table[GRAPH_DIR], "time_table", ALGO_DIRECTION, "perf");
+    fptr = fopen(fname_txt, "a+");
+
+    for (j = 0; j < CONFIG_NUM; ++j)
+    {
+        fprintf(fptr, "%lx \n", configs[j]);
+
+        for(i = 0; i < GRAPH_NUM; i++)
+        {
+            for(k = 1 ;  k < (CU_NUM + 1); k++)
+            {
+                fprintf(fptr, "%-14lf ", time_total_runs[j][i][k - 1]);
+            }
+            fprintf(fptr, "\n");
+        }
+        fprintf(fptr, "\n\n");
+    }
+
+    fclose(fptr);
+
     Stop(timer);
     printf("Page Rank Error Test Done ....... Time (%-9f)\n", Seconds(timer));
     free(timer);
+    free(fname_txt);
 
     return 0;
 }

@@ -26,5 +26,6 @@ nohup.out
 01_capi_integration/accelerator_sim/server/debug.log
 01_capi_integration/accelerator_sim/server/gmon.out
 
+04_test_graphs/*.perf
 04_test_graphs/*/*.perf
 04_test_graphs/*/*.stats
