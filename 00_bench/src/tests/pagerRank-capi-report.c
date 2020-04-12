@@ -176,7 +176,10 @@ int main (int argc, char **argv)
 
     void *graph = NULL;
 
-    numThreads =  omp_get_max_threads();
+    int global_numThreads;
+
+    global_numThreads =  omp_get_max_threads();
+
     afu_config =  arguments.afu_config;
     afu_config_2  =  arguments.afu_config_2;
     cu_config_2   =  arguments.cu_config_2;
@@ -187,10 +190,10 @@ int main (int argc, char **argv)
     initializeMersenneState (mt19937var, 27491095);
 
     omp_set_nested(1);
-    omp_set_num_threads(numThreads);
+    omp_set_num_threads(global_numThreads);
 
     printf("*-----------------------------------------------------*\n");
-    printf("| %-20s %-30u | \n", "Number of Threads :", numThreads);
+    printf("| %-20s %-30u | \n", "Number of Threads :", global_numThreads);
     printf(" -----------------------------------------------------\n");
 
     void *cmp_data;
@@ -226,6 +229,7 @@ int main (int argc, char **argv)
             {
                 arguments.verbosity = 0;
                 arguments.numThreads = k;
+                numThreads =  k;
                 printf("CU COUNT (%u) \nCU_CONFIG (%lx) \nAFU_CONFIG (%lx) \n", arguments.numThreads, arguments.cu_config, arguments.afu_config);
                 cmp_data = runGraphAlgorithmsTest(graph, &arguments);
 
