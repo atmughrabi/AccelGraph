@@ -115,8 +115,7 @@ int main (int argc, char **argv)
         "../../01_GraphDatasets/gplus/graph.wbin",
         "../../01_GraphDatasets/USA-Road/graph.wbin",
         "../../01_GraphDatasets/enwiki-2013/graph.wbin",
-        "../../01_GraphDatasets/KONECT-wikipedia_link_en/graph.wbin"
-        // "../../01_GraphDatasets/twitter/graph.wbin"
+        "../../01_GraphDatasets/twitter/graph.wbin"
     };
 
     uint64_t configs[CONFIG_NUM] =
