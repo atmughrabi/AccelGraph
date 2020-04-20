@@ -52,7 +52,7 @@
 
 int numThreads;
 mt19937state *mt19937var;
-#define GRAPH_NUM 27
+#define GRAPH_NUM 26
 
 // "   mm                        ""#             mmm                       #     \n"
 // "   ##    mmm    mmm    mmm     #           m"   "  m mm   mmm   mmmm   # mm  \n"
@@ -95,7 +95,6 @@ int main (int argc, char **argv)
         "../../01_GraphDatasets/gplus/graph.wbin",
         "../../01_GraphDatasets/USA-road/graph.wbin",
         "../../01_GraphDatasets/enwiki-2013/graph.wbin",
-        "../../01_GraphDatasets/KONECT-wikipedia_link_en/graph.wbin",
         "../../01_GraphDatasets/twitter/graph.wbin"
         
     };
