@@ -1404,6 +1404,7 @@ struct PageRankStats *pageRankPullFixedPoint64BitGraphCSR(double epsilon,  uint3
     free(timer);
     free(timer_inner);
     free(riDividedOnDiClause);
+    free(pageRanksNext);
 
     stats->error_total = error_total;
     return stats;
@@ -1550,6 +1551,7 @@ struct PageRankStats *pageRankPullFixedPoint32BitGraphCSR(double epsilon,  uint3
     free(timer);
     free(timer_inner);
     free(riDividedOnDiClause);
+    free(pageRanksNext);
 
     stats->error_total = error_total;
     return stats;
@@ -1696,6 +1698,7 @@ struct PageRankStats *pageRankPullFixedPoint16BitGraphCSR(double epsilon,  uint3
     free(timer);
     free(timer_inner);
     free(riDividedOnDiClause);
+    free(pageRanksNext);
 
     stats->error_total = error_total;
     return stats;
@@ -1842,6 +1845,7 @@ struct PageRankStats *pageRankPullFixedPoint8BitGraphCSR(double epsilon,  uint32
     free(timer);
     free(timer_inner);
     free(riDividedOnDiClause);
+    free(pageRanksNext);
 
     stats->error_total = error_total;
     return stats;
