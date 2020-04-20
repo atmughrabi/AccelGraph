@@ -379,114 +379,148 @@ AccelGraph-CAPI can handle multiple representations of the graph structure in me
 # AccelGraph-CAPI Options 
 
 ```
-Usage: accel-graph [OPTION...]
+././bin/accel-graph-openmp  --help
+Usage: accel-graph-openmp [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
-AccelGraph_CAPI is an open source graph processing framework, it is designed to be a
-portable benchmarking suite for various graph processing algorithms.
 
-  -a, --algorithm=[DEFAULT:0]   
+AccelGraph is an open source graph processing framework, it is designed to be a
+benchmarking suite for various graph processing algorithms on FPGAs.
+
+  -a, --algorithm=[DEFAULT:0]
+                                                          
                              [0]-BFS, [1]-Page-rank, [2]-SSSP-DeltaStepping,
                              [3]-SSSP-BellmanFord, [4]-DFS,[5]-SPMV,
                              [6]-Connected-Components, [7]-Triangle Counting,
-                             [8]-IncrementalAggregation
+                             [8]-IncrementalAggregation.
 
-  -b, --delta=[DELTA:1]      
-                             SSSP Delta value [Default:1]
+  -b, --delta=[DELTA:1]
+                                                          
+                             SSSP Delta value [Default:1].
 
   -c, --convert-format=[TEXT|BIN|CSR:1]
-                             [stats flag must be on --stats to write]Serialize
-                             graph text format (edge list format) to binary
-                             graph file on load example:-f <graph file> -c this
-                             is specifically useful if you have Graph CSR/Grid
-                             structure and want to save in a binary file format
-                             to skip the preprocessing step for future runs.
-                             [0]-text edgeList [1]-binary edgeList [2]-graphCSR
-                             binary
+                                                          
+                             [serialize flag must be on --serialize to write]
+                             Serialize graph text format (edge list format) to
+                             binary graph file on load example:-f <graph file>
+                             -c this is specifically useful if you have Graph
+                             CSR/Grid structure and want to save in a binary
+                             file format to skip the preprocessing step for
+                             future runs. [0]-text edgeList [1]-binary edgeList
+                             [2]-graphCSR binary.
 
   -d, --data-structure=[DEFAULT:0]
+                                                          
                              [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj
-                             ArrayList
+                             ArrayList [4-5] same order bitmap frontiers.
 
-  -e, --tolerance=[EPSILON:0.0001], --epsilon=[EPSILON:0.0001]
-                             Tolerance value of for page rank [default:0.0001]
-                            
-  -f, --graph-file=<FILE>    
+  -e, --tolerance=[EPSILON:0.0001]
+                                                          
+                             Tolerance value of for page rank
+                             [default:0.0001].
+
+  -f, --graph-file=<FILE>
+                                                          
                              Edge list represents the graph binary format to
                              run the algorithm textual format change
-                             graph-file-format
+                             graph-file-format.
 
-  -g, --bin-size=SIZE:512    
+  -g, --bin-size=[SIZE:512]
+                                                          
                              You bin vertices's histogram according to this
                              parameter, if you have a large graph you want to
-                             illustrate 
+                             illustrate.
 
   -i, --num-iterations=[DEFAULT:20]
-                             
+                                                          
                              Number of iterations for page rank to converge
-                             [default:20] SSSP-BellmanFord [default:V-1] 
+                             [default:20] SSSP-BellmanFord [default:V-1].
 
-  -j, --in-out-degree=[DEFAULT:2]
-                             
-                             [1]-in-degree, [2]-out-degree, bin histogram with
-                             out/in-degree binned. [DEFAULT:2]  
+  -j, --verbosity=[DEFAULT:0]
+                                                          
+                             For now it controls the output of .perf file and
+                             PageRank .stats (needs --stats enabled) files
+                             PageRank .stat [1:top-k results] [2:top-k results
+                             and top-k ranked vertices listed.
 
   -k, --remove-duplicate     
                              Removers duplicate edges and self loops from the
-                             graph
+                             graph.
 
-  -l, --light-reorder=[ORDER:0]   
+  -l, --light-reorder=[ORDER:0]
+                                                          
                              Relabels the graph for better cache performance.
                              [default:0]-no-reordering [1]-page-rank-order
                              [2]-in-degree [3]-out-degree [4]-in/out degree
                              [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS
-                             [8]-LoadFromFile 
+                             [8]-LoadFromFile
+
+  -m, --afu-config=[DEFAULT:0x1]
+                                                          
+                             AFU-Control buffers(read/write/prefetcher)
+                             arbitration 0x01 round robin 0x10 fixed priority.
 
   -n, --num-threads=[DEFAULT:MAX]
+                                                          
                              Default:max number of threads the system has
-
-  -o, --sort=[DEFAULT:0]     
+  -o, --sort=[DEFAULT:0]
+                                                          
                              [0]-radix-src [1]-radix-src-dest [2]-count-src
-                             [3]-count-src-dst
+                             [3]-count-src-dst.
 
-  -p, --direction=[DEFAULT:0]   
+  -p, --direction=[DEFAULT:0]
+                                                          
                              [0]-PULL, [1]-PUSH,[2]-HYBRID. NOTE: Please
                              consult the function switch table for each
-                             algorithm
+                             algorithm.
 
-  -r, --root=[DEFAULT:0]     
+  -q, --cu-config=[DEFAULT:0x01]
+                                                          
+                             CU configurations for requests cached/non
+                             cached/prefetcher active or not check README for
+                             more explanation.
+
+  -r, --root=[DEFAULT:0]
+                                                          
                              BFS, DFS, SSSP root
+  -s, --symmetrize           
+                             Symmetric graph, create a set of incoming edges.
 
-  -s, --symmetries           
-                             Symmetric graph, create a set of incoming edges
+  -S, --stats                
+                             Write algorithm stats to file. same directory as
+                             the graph.
+                             PageRank: Dumps top-k ranks matching using QPR
+                             similarity metrics.
 
-  -t, --num-trials=[DEFAULT:1]   
-                             Number of random trials for each whole run (graph
-                             algorithm run) [default:0] 
+  -t, --num-trials=[DEFAULT:1]
+                                                          
+                             Number of trials for whole run (graph algorithm
+                             run) [default:0].
 
   -w, --generate-weights     
                              Generate random weights don't load from graph
                              file. Check ->graphConfig.h #define WEIGHTED 1
-                             beforehand then recompile using this option
+                             beforehand then recompile using this option.
 
-  -x, --stats                
-                             Dump a histogram to file based on in-out degree
-                             count bins / sorted according to in/out-degree or
-                             page-ranks
-                             --bin-size/--in-out-degree are related bin
-                             verticies in  terms of in or out degrees 
+  -x, --serialize            
+                             Enable file conversion/serialization use with
+                             --convert-format.
 
   -z, --graph-file-format=[TEXT|BIN|CSR:1]
-                             
+                                                          
                              Specify file format to be read, is it textual edge
                              list, or a binary file edge list. This is
                              specifically useful if you have Graph CSR/Grid
                              structure already saved in a binary file format to
                              skip the preprocessing step. [0]-text edgeList
-                             [1]-binary edgeList [2]-graphCSR binary
+                             [1]-binary edgeList [2]-graphCSR binary.
+
   -?, --help                 Give this help list
       --usage                Give a short usage message
   -V, --version              Print program version
+
+Mandatory or optional arguments to long options are also mandatory or optional
+for any corresponding short options.
 
 ```
 
