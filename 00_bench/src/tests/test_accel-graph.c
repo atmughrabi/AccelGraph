@@ -158,7 +158,7 @@ main (int argc, char **argv)
                 arguments.root = generateRandomRootGeneral(graph, &arguments); // random root each trial
                 ref_data = runGraphAlgorithmsTest(graph, &arguments); // ref stats should mach oother algo
 
-                for(arguments.pushpull = 0 ; arguments.pushpull < 10; arguments.pushpull++)
+                for(arguments.pushpull = 0 ; arguments.pushpull < 13; arguments.pushpull++)
                 {
 
                     cmp_data = runGraphAlgorithmsTest(graph, &arguments);

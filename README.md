@@ -379,7 +379,7 @@ AccelGraph-CAPI can handle multiple representations of the graph structure in me
 # AccelGraph-CAPI Options 
 
 ```
-././bin/accel-graph-openmp  --help
+./bin/accel-graph-openmp  --help
 Usage: accel-graph-openmp [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
@@ -538,7 +538,6 @@ for any corresponding short options.
         * `incrementalAgreggation.h` - Incremental Aggregation for clustering
         * `pageRank.h` - Page Rank Algorithm
         * `SPMV.h` - Sparse Matrix Vector Multiplication
-      * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
     * `preprocessing` - preprocessing graph structure
       * `countsort.h` - sort edge list using count sort
@@ -560,7 +559,6 @@ for any corresponding short options.
         * `incrementalAgreggation.c` - Incremental Aggregation for clustering
         * `pageRank.c` - Page Rank Algorithm
         * `SPMV.c` - Sparse Matrix Vector Multiplication
-      * `gem5aladdin`- gem5-aladdin integration
       * `capi` - CAPI integration
     * `preprocessing` - preprocessing graph structure
       * `countsort.c` - sort edge list using count sort
@@ -614,7 +612,7 @@ for any corresponding short options.
   - [ ] SPMV  (Sparse Matrix-vector Multiplication)
 - [ ] Research Ideas
   - [ ] Graph algorithms performance exploration with gem5-Aladdin
-  - [ ] Page-Rank quantization
+  - [x] Page-Rank quantization (MICRO2020)
   - [ ] FPGA Frontier prefetcher
 - [x] Support testing
 
