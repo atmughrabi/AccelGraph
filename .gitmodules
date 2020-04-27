@@ -1,1 +1,7 @@
 
+[submodule "00_graph_bench"]
+	path = 00_graph_bench
+	url = https://github.com/atmughrabi/OpenGraph.git
+[submodule "01_capi_precis"]
+	path = 01_capi_precis
+	url = https://github.com/atmughrabi/CAPIPrecis.git
