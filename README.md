@@ -66,6 +66,7 @@ export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
 ```
 
 2. AFU Communication with PSL
+  * please check [(OpenGraph)](https://github.com/atmughrabi/OpenGraph).
   * please check [(CAPIPrecis)](https://github.com/atmughrabi/CAPIPrecis).
   * please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf).
 
