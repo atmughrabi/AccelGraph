@@ -1,8 +1,0 @@
-*.d
-*.o
-*.so
-*.a
-*~
-*.orig
-.*.swp
-include/misc/cxl.h
