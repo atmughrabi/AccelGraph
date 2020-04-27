@@ -5,31 +5,14 @@
 
 ## Graph Processing Framework that supports | OpenMP || CAPI
 
-## Overview 
+## Overview
 
 ![End-to-End Acceleration](./02_slides/fig/theme.png "AccelGraph-CAPI")
 
-AccelGraph-CAPI is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of AccelGraph-CAPI has been developed on Ubuntu 18.04, with PowerPC/Intel architecture taken into account. 
+AccelGraph-CAPI is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of AccelGraph-CAPI has been developed on Ubuntu 18.04, with PowerPC/Intel architecture taken into account.
 AccelGraph-CAPI is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore, this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between Shared Memory Accelerators and Parallel Processors.
 
-* Presentations that explains end-to-end graph processing
-  * Preprocessing two steps (third one is optional) :
-    1. [[Sorting the edge-list](./02_slides/02_preprocessing_countsort.pdf)], using count-sort or radix-sort.
-    2. [[Building the graph structure](./02_slides/03_preprocessing_DataStructures.pdf)]. CSR, Gird, Adjacency-Linked-List, and Adjacency-Array-List. 
-        * [Ref](https://github.com/thu-pacman/GridGraph): Xiaowei Zhu, Wentao Han and Wenguang Chen. [GridGraph: Large-Scale Graph Processing on a Single Machine Using 2-Level Hierarchical Partitioning](https://www.usenix.org/system/files/conference/atc15/atc15-paper-zhu.pdf). Proceedings of the 2015 USENIX Annual Technical Conference, pages 375-386.
-        * [Ref](https://github.com/epfl-labos/EverythingGraph): Malicevic, Jasmina, Baptiste Lepers, and Willy Zwaenepoel. "Everything you always wanted to know about multicore graph processing but were afraid to ask." 2017 USENIX Annual Technical Conference. Proceedings of the 2015 USENIX Annual Technical Conference, pages 375-386.
-    3. [[Relabeling the graph](./02_slides/01_algorithm_PR_cache.pdf)], this step achieves better cache locality (better performance) with preprocessing overhead.
-        * [Ref](https://github.com/araij/rabbit_order): J. Arai, H. Shiokawa, T. Yamamuro, M. Onizuka, and S. Iwamura. Rabbit Order: Just-in-time Parallel Reordering for Fast Graph Analysis. IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2016.
-  * Graph Algorithm step depends on the direction of the data (Push/Pull):
-    1. [[BFS example](./02_slides/00_algorithm_BFS.pdf)], although it doesn't show direction optimized. But we discusses the Push and Pull approach separately.
-        * [[Ref](https://github.com/sbeamer/gapbs)]: Scott Beamer, Krste Asanović, David Patterson. [The GAP Benchmark Suite](http://arxiv.org/abs/1508.03619). arXiv:1508.03619 [cs.DC], 2015.
-    2. [[Page-Rank (PR) example](./02_slides/01_algorithm_PR_cache.pdf)]: Discussing PR cache behavior.
-       * [Ref](https://github.com/araij/rabbit_order): J. Arai, H. Shiokawa, T. Yamamuro, M. Onizuka, and S. Iwamura. Rabbit Order: Just-in-time Parallel Reordering for Fast Graph Analysis. IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2016.
-
-<!-- ## Details -->
-<!-- ### AccelGraph-CAPI Supported Algorithms -->
-
-# Installation 
+# Installation
 
 ## Dependencies
 
@@ -86,7 +69,7 @@ export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
   * please check [(CAPIPrecis)](https://github.com/atmughrabi/CAPIPrecis).
   * please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf).
 
-## Setting up the source code 
+## Setting up the source code
 
 1. Clone AccelGraph-CAPI.
 ```console
@@ -101,11 +84,11 @@ AccelGraph@CAPI:~$ cd AccelGraph_CAPI/
 AccelGraph@CAPI:~AccelGraph_CAPI$ git submodule update --init --recursive
 ```
 
-# Running AccelGraph-CAPI 
+# Running AccelGraph-CAPI
 
 [<img src="./02_slides/fig/openmp_logo.png" height="45" align="right" >](https://www.openmp.org/)
 
-## Initial compilation for the Graph framework with OpenMP 
+## Initial compilation for the Graph framework with OpenMP
 
 1. (Optional) From the root directory go to the graph benchmark directory:
 ```console
@@ -113,7 +96,7 @@ AccelGraph@CAPI:~AccelGraph_CAPI$ cd 00_graph_bench/
 ```
 2. The default compilation is `openmp` mode:
 ```console
-AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make 
+AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make
 ```
 3. From the root directory you can modify the Makefile with the [(parameters)](#accel-graph-options) you need for OpenMP:
 ```console
@@ -126,7 +109,7 @@ AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make run-openmp
 
 [<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
 
-## Initial compilation for the Graph framework with Coherent Accelerator Processor Interface (CAPI)  
+## Initial compilation for the Graph framework with Coherent Accelerator Processor Interface (CAPI)
 
 * NOTE: You need CAPI environment setup on your machine (tested on Power8 8247-22L).
 * [CAPI Education Videos](https://developer.ibm.com/linuxonpower/capi/education/)
@@ -147,8 +130,8 @@ AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make run-vsim
 ```
 3. The previous step will execute vsim.tcl script to compile the design, to start the running the simulation just execute the following command at the transcript terminal of ModelSim : `r #recompile design`,`c #run simulation`
 ```console
-ModelSim> r 
-ModelSim> c 
+ModelSim> r
+ModelSim> c
 ```
 4. On Terminal 2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
 ```console
@@ -171,11 +154,11 @@ AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make run-capi-sim-verbose
 6. Example output: please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf), for each response explanation. The stats are labeled `RESPONSE_COMMANADTYPE_count`.
 ```
 *-----------------------------------------------------*
-|                 AFU Stats                          | 
+|                 AFU Stats                          |
  -----------------------------------------------------
 | CYCLE_count        : #Cycles                       |
 *-----------------------------------------------------*
-|                 Responses Stats                    | 
+|                 Responses Stats                    |
  -----------------------------------------------------
 | DONE_count               : (#) Commands successful |
  -----------------------------------------------------
@@ -272,265 +255,17 @@ This run outputs different AFU-Control stats based on the responses received fro
 AccelGraph@CAPI:~AccelGraph_CAPI/00_bench$ make run-capi-fpga-verbose
 ```
 
-3. Example output: please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf), for each response explanation. The stats are labeled `RESPONSE_COMMANADTYPE_count`.
-```
-*-----------------------------------------------------*
-|                 AFU Stats                          | 
- -----------------------------------------------------
-| CYCLE_count        : 106804                        |
-*-----------------------------------------------------*
-|                 Responses Stats                    | 
- -----------------------------------------------------
-| DONE_count               : 16764                   |
- -----------------------------------------------------
-| DONE_READ_count          : 8192                    |
-| DONE_WRITE_count         : 8192                    |
- -----------------------------------------------------
-| DONE_RESTART_count       : 355                     |
- -----------------------------------------------------
-| DONE_PREFETCH_READ_count : 12                      |
-| DONE_PREFETCH_WRITE_count: 12                      |
- -----------------------------------------------------
-| PAGED_count        : 355                           |
-| FLUSHED_count      : 0                             |
-| AERROR_count       : 0                             |
-| DERROR_count       : 0                             |
-| FAILED_count       : 0                             |
-| NRES_count         : 0                             |
-| NLOCK_count        : 0                             |
-*-----------------------------------------------------*
-
-```
-
-## Graph structure Input (Edge list) 
-
-* If you open the Makefile you will see the convention for graph directories : `BENCHMARKS_DIR/GRAPH_NAME/graph.wbin`.
-* `.bin` stands to unweighted edge list, `.wbin` stands for wighted, `In binary format`. (This is only a convention you don't have to use it)
-* The reason behind converting the edge-list from text to binary, it is simply takes less space on the drive for large graphs, and easier to use with the `mmap` function.
-
-| Source  | Dest | Weight (Optional) |
-| :---: | :---: | :---: |
-| 30  | 3  |  1 |
-| 3  | 4  |  1 |
-
-* Example: 
-* INPUT: (unweighted textual edge-list)
-* ../BENCHMARKS_DIR/GRAPH_NAME/graph
- ```
-  30    3
-  3     4
-  25    5
-  25    7
-  6     3
-  4     2
-  6     12
-  6     8
-  6     11
-  8     22
-  9     27
-
- ```
-* convert to binary format and add random weights, for this example all the weights are `1`.
-* `--graph-file-format` is the type of graph you are reading, `--convert-format` is the type of format you are converting to. 
-* NOTE: you can read the file from text format without the convert step. By adding `--graph-file-format 0` to the argument list. The default is `1` assuming it is binary. please check `--help` for better explanation.
-* `--stats` is a flag that enables conversion. It used also for collecting stats about the graph (but this feature is on hold for now).
-```console
-AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ make convert
-```
-* OR
-```console
-AccelGraph@CAPI:~AccelGraph_CAPI/00_graph_bench$ ./bin/accel-graph-openmp  --generate-weights --stats --graph-file-format=0 --convert-format=1 --graph-file=../BENCHMARKS_DIR/GRAPH_NAME/graph 
-```
-
-* OUTPUT: (weighted binary edge-list)
-*  ../BENCHMARKS_DIR/GRAPH_NAME/graph.wbin
-```
-1e00 0000 0300 0000 0100 0000 0300 0000
-0400 0000 0100 0000 1900 0000 0500 0000
-0100 0000 1900 0000 0700 0000 0100 0000
-0600 0000 0300 0000 0100 0000 0400 0000
-0200 0000 0100 0000 0600 0000 0c00 0000
-0100 0000 0600 0000 0800 0000 0100 0000
-0600 0000 0b00 0000 0100 0000 0800 0000
-1600 0000 0100 0000 0900 0000 1b00 0000
-0100 0000 
-```
 
 # Graph Structure Preprocessing:
 AccelGraph-CAPI can handle multiple representations of the graph structure in memory, each has their own theoretical benefits and shortcomings.
 
-## Regular unsorted Edge-list as input.
 
-<p align="center"><img src="./02_slides/fig/datastructures/edgelist-file.png" width ="500" ></p>
-
-##  CSR (Compressed Sparse Row)
-<p align="center"><img src="./02_slides/fig/datastructures/csr.png" width ="450" ></p>
-
-##  Grid
-<p align="center"><img src="./02_slides/fig/datastructures/grid.png" width ="700" ></p>
-
-##  Array-List
-<p align="center"><img src="./02_slides/fig/datastructures/arraylist.png" width="550" ></p>
-
-##  Linked-List
-<p align="center"><img src="./02_slides/fig/datastructures/linkedlist.png" width="600" ></p>
-
-
-# AccelGraph-CAPI Options 
-
-```
-./bin/accel-graph-openmp  --help
-Usage: accel-graph-openmp [OPTION...]
-            -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
-            [num threads] [-h -c -s -w]
-
-AccelGraph is an open source graph processing framework, it is designed to be a
-benchmarking suite for various graph processing algorithms on FPGAs.
-
-  -a, --algorithm=[DEFAULT:0]
-                                                          
-                             [0]-BFS, [1]-Page-rank, [2]-SSSP-DeltaStepping,
-                             [3]-SSSP-BellmanFord, [4]-DFS,[5]-SPMV,
-                             [6]-Connected-Components, [7]-Triangle Counting,
-                             [8]-IncrementalAggregation.
-
-  -b, --delta=[DELTA:1]
-                                                          
-                             SSSP Delta value [Default:1].
-
-  -c, --convert-format=[TEXT|BIN|CSR:1]
-                                                          
-                             [serialize flag must be on --serialize to write]
-                             Serialize graph text format (edge list format) to
-                             binary graph file on load example:-f <graph file>
-                             -c this is specifically useful if you have Graph
-                             CSR/Grid structure and want to save in a binary
-                             file format to skip the preprocessing step for
-                             future runs. [0]-text edgeList [1]-binary edgeList
-                             [2]-graphCSR binary.
-
-  -d, --data-structure=[DEFAULT:0]
-                                                          
-                             [0]-CSR, [1]-Grid, [2]-Adj LinkedList, [3]-Adj
-                             ArrayList [4-5] same order bitmap frontiers.
-
-  -e, --tolerance=[EPSILON:0.0001]
-                                                          
-                             Tolerance value of for page rank
-                             [default:0.0001].
-
-  -f, --graph-file=<FILE>
-                                                          
-                             Edge list represents the graph binary format to
-                             run the algorithm textual format change
-                             graph-file-format.
-
-  -g, --bin-size=[SIZE:512]
-                                                          
-                             You bin vertices's histogram according to this
-                             parameter, if you have a large graph you want to
-                             illustrate.
-
-  -i, --num-iterations=[DEFAULT:20]
-                                                          
-                             Number of iterations for page rank to converge
-                             [default:20] SSSP-BellmanFord [default:V-1].
-
-  -j, --verbosity=[DEFAULT:0]
-                                                          
-                             For now it controls the output of .perf file and
-                             PageRank .stats (needs --stats enabled) files
-                             PageRank .stat [1:top-k results] [2:top-k results
-                             and top-k ranked vertices listed.
-
-  -k, --remove-duplicate     
-                             Removers duplicate edges and self loops from the
-                             graph.
-
-  -l, --light-reorder=[ORDER:0]
-                                                          
-                             Relabels the graph for better cache performance.
-                             [default:0]-no-reordering [1]-page-rank-order
-                             [2]-in-degree [3]-out-degree [4]-in/out degree
-                             [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS
-                             [8]-LoadFromFile
-
-  -m, --afu-config=[DEFAULT:0x1]
-                                                          
-                             AFU-Control buffers(read/write/prefetcher)
-                             arbitration 0x01 round robin 0x10 fixed priority.
-
-  -n, --num-threads=[DEFAULT:MAX]
-                                                          
-                             Default:max number of threads the system has
-  -o, --sort=[DEFAULT:0]
-                                                          
-                             [0]-radix-src [1]-radix-src-dest [2]-count-src
-                             [3]-count-src-dst.
-
-  -p, --direction=[DEFAULT:0]
-                                                          
-                             [0]-PULL, [1]-PUSH,[2]-HYBRID. NOTE: Please
-                             consult the function switch table for each
-                             algorithm.
-
-  -q, --cu-config=[DEFAULT:0x01]
-                                                          
-                             CU configurations for requests cached/non
-                             cached/prefetcher active or not check README for
-                             more explanation.
-
-  -r, --root=[DEFAULT:0]
-                                                          
-                             BFS, DFS, SSSP root
-  -s, --symmetrize           
-                             Symmetric graph, create a set of incoming edges.
-
-  -S, --stats                
-                             Write algorithm stats to file. same directory as
-                             the graph.
-                             PageRank: Dumps top-k ranks matching using QPR
-                             similarity metrics.
-
-  -t, --num-trials=[DEFAULT:1]
-                                                          
-                             Number of trials for whole run (graph algorithm
-                             run) [default:0].
-
-  -w, --generate-weights     
-                             Generate random weights don't load from graph
-                             file. Check ->graphConfig.h #define WEIGHTED 1
-                             beforehand then recompile using this option.
-
-  -x, --serialize            
-                             Enable file conversion/serialization use with
-                             --convert-format.
-
-  -z, --graph-file-format=[TEXT|BIN|CSR:1]
-                                                          
-                             Specify file format to be read, is it textual edge
-                             list, or a binary file edge list. This is
-                             specifically useful if you have Graph CSR/Grid
-                             structure already saved in a binary file format to
-                             skip the preprocessing step. [0]-text edgeList
-                             [1]-binary edgeList [2]-graphCSR binary.
-
-  -?, --help                 Give this help list
-      --usage                Give a short usage message
-  -V, --version              Print program version
-
-Mandatory or optional arguments to long options are also mandatory or optional
-for any corresponding short options.
-
-```
-
-
-# Organization 
+# Organization
 
 * `00_graph_bench`
-  * `include` - Major function headers 
-    * `graphalgorithms` - supported Graph algorithms
-      * `openmp`  - OpenMP integration
+  * `include` - Major function headers
+    * `algorithms` - supported Graph algorithms
+      * `capi`  - capi integration
         * `BFS.h`   - Breadth First Search
         * `DFS.h`   - Depth First Search
         * `SSSP.h`  - Single Source Shortest Path
@@ -538,20 +273,9 @@ for any corresponding short options.
         * `incrementalAgreggation.h` - Incremental Aggregation for clustering
         * `pageRank.h` - Page Rank Algorithm
         * `SPMV.h` - Sparse Matrix Vector Multiplication
-      * `capi` - CAPI integration
-    * `preprocessing` - preprocessing graph structure
-      * `countsort.h` - sort edge list using count sort
-      * `radixsort.h` - sort edge list using radix sort
-      * `reorder.h` - cluster reorder the graph for better cache locality
-      * `sortRun.h` - chose which sorting algorithm to use
-    * `structures` - structures that hold the graph in memory
-      * `graphAdjArrayList.h` - graph using adjacency list array with arrays
-      * `graphAdjLinkeList.h` - graph using adjacency list array with linked lists
-      * `graphCSR.h` - graph using compressed sparse matrix
-      * `graphGrid.h` - graph using Grid
   * `src` - Major function Source files
-    * `graphalgorithms` - supported Graph algorithms
-      * `openmp`  - OpenMP integration
+    * `algorithms` - supported Graph algorithms
+      * `capi`  - CAPI integration
         * `BFS.c`   - Breadth First Search
         * `DFS.c`   - Depth First Search
         * `SSSP.c`  - Single Source Shortest Path
@@ -559,17 +283,6 @@ for any corresponding short options.
         * `incrementalAgreggation.c` - Incremental Aggregation for clustering
         * `pageRank.c` - Page Rank Algorithm
         * `SPMV.c` - Sparse Matrix Vector Multiplication
-      * `capi` - CAPI integration
-    * `preprocessing` - preprocessing graph structure
-      * `countsort.c` - sort edge list using count sort
-      * `radixsort.c` - sort edge list using radix sort
-      * `reorder.c` - cluster reorder the graph for better cache locality
-      * `sortRun.c` - chose which sorting algorithm to use
-    * `structures` - structures that hold the graph in memory
-      * `graphAdjArrayList.c` - graph using adjacency list array with arrays
-      * `graphAdjLinkeList.c` - graph using adjacency list array with linked lists
-      * `graphCSR.c` - graph using compressed sparse matrix
-      * `graphGrid.c` - graph using Grid
 
 * *`Makefile`* - Global makefile
 
@@ -577,14 +290,14 @@ for any corresponding short options.
 
 - [x] Finish preprocessing sort
   - [x] Radix sort
-  - [x] Count sort 
-  - [ ] Bitonic sort 
+  - [x] Count sort
+  - [ ] Bitonic sort
 - [x] Finish preprocessing Graph Data-structures
   - [x] CSR   (Compressed Sparse Row)
-  - [x] Grid   
+  - [x] Grid
   - [x] Adjacency Linked List
   - [x] Adjacency Array List
-- [x] Add Light weight reordering  
+- [x] Add Light weight reordering
 - [ ] Finish graph algorithms suite OpenMP
   - [x] BFS   (Breadth First Search)
   - [x] PR    (Page-Rank)
