@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!-- This test suite contains test and intentionally cause bad command
+     scenarios bad do not stop pslse. -->
+<pslse_regress>
+	<afu name="0.0">
+		<num_of_processes>1</num_of_processes>
+		<reg_prog_model>0x8010</reg_prog_model>
+		<PerProcessPSA_control>0x01</PerProcessPSA_control>
+		<PerProcessPSA_length>0x01</PerProcessPSA_length>
+		<PerProcessPSA_offset>0x1000</PerProcessPSA_offset>
+		<num_of_afu_CRs>1</num_of_afu_CRs>
+		<AFU_CR_len>0x100</AFU_CR_len>
+		<AFU_CR_offset>0x100</AFU_CR_offset>
+	</afu>
+	<pslse>
+		<RESPONSE_PERCENT>25,50</RESPONSE_PERCENT>
+		<REORDER_PERCENT>10,20</REORDER_PERCENT>
+		<BUFFER_PERCENT>10,20</BUFFER_PERCENT>
+		<PAGED_PERCENT>0</PAGED_PERCENT>
+		<fail>ERROR</fail>
+	</pslse>
+	<test name="read_write_disconnect" timeout="120"/>
+	<test name="bad_addr"/>
+	<test name="bad_align"/>
+	<test name="bad_size"/>
+</pslse_regress>

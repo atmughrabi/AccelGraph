@@ -1,0 +1,64 @@
+.\" Copyright 2015-2017 IBM Corp.
+.\"
+.TH CXL_MMIO_READ64 3 2017-05-24 "LIBCXL 1.5" "CXL Programmer's Manual"
+.SH NAME
+cxl_mmio_read64 \- read a 64-bit word from the mapped AFU Problem State Area
+.SH SYNOPSIS
+.B #include <libcxl.h>
+.PP
+.B "int cxl_mmio_read64(struct cxl_afu_h "
+.BI * afu ", uint64_t " offset ,
+.BI "uint64_t *" data );
+.SH DESCRIPTION
+.BR cxl_mmio_read64 ()
+reads the 64-bit word at
+.I offset
+from the address of the mapped Problem State Area of
+.IR afu ,
+and copies its value to the word pointed to by
+.IR data .
+The copy will include byte swapping if the AFU endianness declared by
+.BR cxl_mmio_map ()
+differs from the host endianness.
+.PP
+.I offset
+is a byte address, aligned on a double word (8-byte) boundary.
+It must be lower than the MMIO size returned by
+.BR cxl_get_mmio_size ().
+The address of the mapped MMIO space is returned by
+.BR cxl_mmio_ptr ().
+.PP
+If the MMIO access fails due to an IO error, a SIGBUS may be sent to the
+application, which would ordinarily result in the process being terminated.
+libcxl provides an optional SIGBUS handler, which can be installed with
+.BR cxl_mmio_install_sigbus_handler ().
+Installing this signal handler prior to using the MMIO accessor functions will
+cause them to return -1 and set
+.I errno
+to EIO in the event of an IO error.  Additionally, if this handler has NOT been
+installed, the cxl_mmio_read* functions will raise a SIGBUS in the event that
+they detect an IO error due to a read of all F's for consistency.
+.SH RETURN VALUE
+On success, 0 is returned.
+On error, \-1 is returned and
+.I errno
+is set appropriately.
+.SH ERRORS
+.TP
+.B EINVAL
+Invalid argument value, or unmapped MMIO space.
+.TP
+.B EIO
+An unrecoverable error
+.RB ( cxl_mmio_install_sigbus_handler ()
+must have been previously called)
+.SH SEE ALSO
+.BR cxl (3),
+.BR cxl_get_mmio_size (3),
+.BR cxl_mmio_install_sigbus_handler (3),
+.BR cxl_mmio_map (3),
+.BR cxl_mmio_ptr (3),
+.BR cxl_mmio_read32 (3),
+.BR cxl_mmio_unmap (3),
+.BR cxl_mmio_write32 (3),
+.BR cxl_mmio_write64 (3)
