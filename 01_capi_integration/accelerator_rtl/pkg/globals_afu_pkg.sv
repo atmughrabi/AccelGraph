@@ -123,7 +123,7 @@ package GLOBALS_AFU_PKG;
 // CU-Control CU Globals
 ////////////////////////////////////////////////////////////////////////////
 
-// aligenment to page 64K-BYTES
+// alignment to page 64K-BYTES
 	parameter [0:63] ADDRESS_PAGE_MOD_MASK   = {{48{1'b0}},{16{1'b1}}};
 	parameter [0:63] ADDRESS_PAGE_ALIGN_MASK = {{48{1'b1}},{16{1'b0}}};
 
