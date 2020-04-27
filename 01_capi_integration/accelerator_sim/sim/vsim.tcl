@@ -8,6 +8,9 @@
 #   set project_algorithm "[lindex $argv 0]"
 # }
 
+set afu_control_dir "../../../01_capi_precis/01_capi_integration"
+set cu_control_dir "../.."
+
 # recompile
 proc r  {} {
   global graph_algorithm
@@ -15,17 +18,19 @@ proc r  {} {
   global direction
   global cu_precision
   global cu_count
+  global afu_control_dir
+  global cu_control_dir
   # compile SystemVerilog files
 
   # compile libs
   echo "Compiling libs"
-  
+
   # compile packages
   echo "Compiling Packages AFU-1"
-  vlog -quiet ../../accelerator_rtl/pkg/globals_afu_pkg.sv
-  vlog -quiet ../../accelerator_rtl/pkg/capi_pkg.sv
-  vlog -quiet ../../accelerator_rtl/pkg/wed_pkg.sv
-  vlog -quiet ../../accelerator_rtl/pkg/credit_pkg.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_pkgs/globals_afu_pkg.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_pkgs/capi_pkg.sv
+
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_pkgs/credit_pkg.sv
 
 
   echo "Compiling CU Packages"
@@ -37,58 +42,60 @@ proc r  {} {
 
   if {$graph_algorithm eq "cu_PageRank"} {
     if {$data_structure eq "CSR"} {
-     vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/$cu_precision/pkg/globals_cu_pkg.sv
-     vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_pkg/cu_pkg.sv
-  
+
+     vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_pkg/wed_pkg.sv
+     vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/$cu_precision/pkg/globals_cu_pkg.sv
+     vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_pkg/cu_pkg.sv
+
    } elseif {$data_structure eq "GRID"} {
-    
-  
+
+
    } else {
     echo "UNKNOWN Datastructure"
   }
    } elseif {$graph_algorithm eq "cu_BFS"} {
-  
-  
+
+
    } else {
     echo "UNKNOWN Algorithm"
   }
 
 
   echo "Compiling Packages AFU-2"
-  vlog -quiet ../../accelerator_rtl/pkg/afu_pkg.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_pkgs/afu_pkg.sv
 
   # compile afu
   echo "Compiling RTL General"
-  vlog -quiet ../../accelerator_rtl/afu/parity.sv
-  vlog -quiet ../../accelerator_rtl/afu/reset_filter.sv
-  vlog -quiet ../../accelerator_rtl/afu/reset_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/error_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/done_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/ram.sv
-  vlog -quiet ../../accelerator_rtl/afu/fifo.sv
-  vlog -quiet ../../accelerator_rtl/afu/priority_arbiters.sv
-  vlog -quiet ../../accelerator_rtl/afu/round_robin_priority_arbiter.sv
-  vlog -quiet ../../accelerator_rtl/afu/fixed_priority_arbiter.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/parity.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/reset_filter.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/reset_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/error_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/done_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/ram.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/fifo.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/priority_arbiters.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/round_robin_priority_arbiter.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/fixed_priority_arbiter.sv
 
   echo "Compiling RTL AFU Control"
-  vlog -quiet ../../accelerator_rtl/afu/credit_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/response_statistics_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/response_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/restart_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/command_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/tag_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/read_data_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/write_data_control.sv
-  vlog -quiet ../../accelerator_rtl/afu/afu_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/credit_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/response_statistics_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/response_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/restart_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/command_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/tag_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/read_data_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/write_data_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/afu_control.sv
 
   echo "Compiling RTL JOB"
-  vlog -quiet ../../accelerator_rtl/afu/job.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/job.sv
 
   echo "Compiling RTL MMIO"
-  vlog -quiet ../../accelerator_rtl/afu/mmio.sv
-  
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/mmio.sv
+
   echo "Compiling RTL WED_control"
-  vlog -quiet ../../accelerator_rtl/afu/wed_control.sv
+  vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/wed_control.sv
 
   echo "Compiling RTL CU control "
   echo "Algorithm $graph_algorithm"
@@ -99,42 +106,42 @@ proc r  {} {
   if {$graph_algorithm eq "cu_PageRank"} {
     if {$data_structure eq "CSR"} {
 
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/sum_reduce.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/demux_bus.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/array_struct_type_demux_bus.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/$cu_precision/cu/cu_sum_kernel_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_write_command_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_read_extract_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_read_command_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_job_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_job_filter.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_job_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_graph_algorithm_arbiter_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_pagerank_arbiter_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_pagerank.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_graph_algorithm_control.sv
-        vlog -quiet ../../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/cu_control.sv
-  
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/sum_reduce.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/demux_bus.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/array_struct_type_demux_bus.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/$cu_precision/cu/cu_sum_kernel_control.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_write_command_control.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_read_extract_control.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_read_command_control.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_job_control.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_job_filter.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_job_control.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_graph_algorithm_arbiter_control.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_pagerank_arbiter_control.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_pagerank.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_graph_algorithm_control.sv
+        vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_control.sv
+
    } elseif {$data_structure eq "GRID"} {
-  
+
    } else {
     echo "UNKNOWN Datastructure"
     }
    } elseif {$graph_algorithm eq "cu_BFS"} {
-  
+
    } else {
     echo "UNKNOWN Algorithm"
   }
 
     echo "Compiling RTL AFU"
-    vlog -quiet ../../accelerator_rtl/afu/afu.sv
-    vlog -quiet ../../accelerator_rtl/afu/cached_afu.sv
+    vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/afu.sv
+    vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/cached_afu.sv
 
 
   # compile top level
   echo "Compiling top level"
   # vlog -quiet       pslse/afu_driver/verilog/top.v
-  vlog -quiet -sv +define+PSL8=PSL8 ../../pslse/afu_driver/verilog/top.v
+  vlog -quiet -sv +define+PSL8=PSL8 $afu_control_dir/pslse/afu_driver/verilog/top.v
 
 }
 
@@ -144,9 +151,11 @@ proc c {} {
   global data_structure
   global direction
   global cu_precision
+  global afu_control_dir
+  global cu_control_dir
   # vsim -t ns -novopt -c -pli pslse/afu_driver/src/veriuser.sl +nowarnTSCALE work.top
   # vsim -t ns -L work -L work_lib -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L stratixv_ver -L stratixv_hssi_ver -L stratixv_pcie_hip_ver -novopt  -voptargs=+acc=npr -c -sv_lib ../../pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
-  vsim -t ns -novopt -voptargs=+acc=npr -c -sv_lib ../../pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
+  vsim -t ns -novopt -voptargs=+acc=npr -c -sv_lib $afu_control_dir/pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
   view wave
   radix h
   log * -r
@@ -167,8 +176,11 @@ proc c {} {
 }
 
 proc c_fp {} {
+
+  global afu_control_dir
+  global cu_control_dir
   # vsim -t ns -novopt -c -pli pslse/afu_driver/src/veriuser.sl +nowarnTSCALE work.top
-  vsim -novopt -t ns -L work -L work_lib -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L stratixv_ver -L stratixv_hssi_ver -L stratixv_pcie_hip_ver   -voptargs=+acc=npr -c -sv_lib ../../pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
+  vsim -novopt -t ns -L work -L work_lib -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L stratixv_ver -L stratixv_hssi_ver -L stratixv_pcie_hip_ver   -voptargs=+acc=npr -c -sv_lib $afu_control_dir/pslse/afu_driver/src/libdpi +nowarnTSCALE work.top
   view wave
   radix h
   log * -r
@@ -178,7 +190,7 @@ proc c_fp {} {
   # do watch_command_interface.do
   # do watch_buffer_interface.do
   # do watch_response_interface.do
-  
+
   # view structure
   # view signals
   # view wave

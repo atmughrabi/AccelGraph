@@ -10,11 +10,13 @@ APP               ?= accel-graph
 APP_TEST          ?= test_accel-graph
 
 
-# dirs Root app 
-APP_DIR           	?= .
-CAPI_INTEG_DIR      ?= 01_capi_integration
-SCRIPT_DIR          ?= 03_scripts
-BENCHMARKS_DIR    	?= ../../01_GraphDatasets
+# dirs Root app
+APP_DIR           		?= .
+APP_DIR_OPEN_GRAPH      ?= ../00_graph_bench/00_graph_bench
+CAPI_PRECIS_INTEG_DIR   ?= 01_capi_precis/01_capi_integration
+CAPI_INTEG_DIR      	?= 01_capi_integration
+SCRIPT_DIR          	?= 03_scripts
+BENCHMARKS_DIR    		?= ../../01_GraphDatasets
 # BENCHMARKS_DIR    	?= ../04_test_graphs
 
 #dir root/managed_folders
@@ -154,40 +156,40 @@ ARGS ?= -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(
 # // cu_edge_data_control         5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00000 00000 00000 00000 00
-CU_CONFIG_MODE?=0x00000000  
+CU_CONFIG_MODE?=0x00000000
 
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits STRICT | READ_CL_NA | WRITE_NA 00000 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00010 00001 00000 00000 00
-# export CU_CONFIG_MODE=0x00041000  
+# export CU_CONFIG_MODE=0x00041000
 
 # // cu_vertex_job_control        5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits ABORT | READ_CL_NA | WRITE_NA 10000 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits ABORT | READ_CL_S  | WRITE_NA 10010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits ABORT | READ_CL_NA | WRITE_MS 10001 [22:26] [19] [18] [15:17]
 #  // 0b 10000 10000 10010 10001 00000 00000 00
-# export CU_CONFIG_MODE=0x84251000 
+# export CU_CONFIG_MODE=0x84251000
 
 # // cu_vertex_job_control        5-bits PREF | READ_CL_NA | WRITE_NA 11000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [19] [18] [15:17]
 # // 0b 11000 11000 11000 11000 00000 00000 00
-# export CU_CONFIG_MODE=0xC6318000  
+# export CU_CONFIG_MODE=0xC6318000
 
 # // cu_vertex_job_control        5-bits PREF | READ_CL_NA | WRITE_NA 11000 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits PREF | READ_CL_NA | WRITE_NA 11000 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits PREF | READ_CL_S  | WRITE_NA 11010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits PREF | READ_CL_NA | WRITE_MS 11001 [22:26] [19] [18] [15:17]
 # // 0b 11000 11000 11010 11001 00000 00000 00
-# export CU_CONFIG_MODE=0xC6359000 
- 
+# export CU_CONFIG_MODE=0xC6359000
+
 ##############################################
 # CAPI FPGA AFU ARBITER CONFIG               #
 ##############################################
-# shift credits >> 
+# shift credits >>
 # read_credits            [0:3]
 # write_credits           [4:7]
 # prefetch_read_credits   [8:11]
@@ -216,34 +218,28 @@ AFU_CONFIG_GENERIC?=$(AFU_CONFIG_MODE)
 ##############################################
 
 
-#each implementation is contained in a separate folder. when you compile for openmp for example the files in openmp folder gets included
-SRC_FILES_ALGO_OPENMP		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/openmp/*.c)
-
-SRC_FILES_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/*.c) 
-SRC_FILES_PREPRO	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/*.c) 
-SRC_FILES_STRUCT	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/*.c)
+SRC_FILES_UTIL		=	$(wildcard $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(UTIL_DIR)/*.c)
+SRC_FILES_PREPRO	=	$(wildcard $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(PREPRO_DIR)/*.c)
+SRC_FILES_STRUCT	=	$(wildcard $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(STRUCT_DIR)/*.c)
 SRC_FILES_MAIN		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/*.c)
 SRC_FILES_TEST		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/*.c)
 
-#create object file rules for the final binary target
-OBJ_FILES_ALGO_OPENMP 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/openmp/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/openmp/%.o,$(SRC_FILES_ALGO_OPENMP)) 
 
-OBJ_FILES_UTIL 		= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o,$(SRC_FILES_UTIL)) 
-OBJ_FILES_PREPRO 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o,$(SRC_FILES_PREPRO)) 
-OBJ_FILES_STRUCT 	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o,$(SRC_FILES_STRUCT)) 
-OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%.o,$(SRC_FILES_MAIN)) 
-OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%.o,$(SRC_FILES_TEST)) 
+OBJ_FILES_UTIL 		= $(patsubst $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o,$(SRC_FILES_UTIL))
+OBJ_FILES_PREPRO 	= $(patsubst $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(PREPRO_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o,$(SRC_FILES_PREPRO))
+OBJ_FILES_STRUCT 	= $(patsubst $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(STRUCT_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o,$(SRC_FILES_STRUCT))
+OBJ_FILES_MAIN  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/%.o,$(SRC_FILES_MAIN))
+OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/%.o,$(SRC_FILES_TEST))
 
-CC				  = gcc 
+CC				  = gcc
 
-OPENMP_INC = 	-I$(APP_DIR)/$(INC_DIR)/$(STRUCT_DIR)   \
-				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/openmp 	\
-				-I$(APP_DIR)/$(INC_DIR)/$(PREPRO_DIR)   \
-				-I$(APP_DIR)/$(INC_DIR)/$(UTIL_DIR) 
+OPENMP_INC = 	-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(STRUCT_DIR)   \
+				-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(PREPRO_DIR)   \
+				-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(UTIL_DIR)
 
 
 # flags
-CFLAGS   =  -O3 -Wall -m64 -fopenmp -g 
+CFLAGS   =  -O3 -Wall -m64 -fopenmp -g
 LFLAGS = -lm -lJudy
 
 
@@ -260,53 +256,39 @@ FAIL = \033[91mFAIL\033[0m
 
 ARCHITECTURE = $(shell uname -p) # store the output of the command in a variable if on intel run simulation if power8 run fpga
 
-PSLSE_DIR         = ../$(CAPI_INTEG_DIR)/pslse
-LIBCXL_DIR        = ../$(CAPI_INTEG_DIR)/libcxl
-CAPI_UTILS_DIR    = ../$(CAPI_INTEG_DIR)/capi-utils
-CAPI_ACCEL		  = ../$(CAPI_INTEG_DIR)/accelerator_rtl
-CAPI_COMMON		  = ../$(CAPI_INTEG_DIR)/accelerator_sim
+PSLSE_DIR         = ../$(CAPI_PRECIS_INTEG_DIR)/pslse
+LIBCXL_DIR        = ../$(CAPI_PRECIS_INTEG_DIR)/libcxl
+CAPI_UTILS_DIR    = ../$(CAPI_PRECIS_INTEG_DIR)/capi-utils
+CAPI_SERVER		  = ../$(CAPI_INTEG_DIR)/accelerator_sim/server
+CAPI_SIM		  = ../$(CAPI_INTEG_DIR)/accelerator_sim/sim
 
-CAPI_SIM		  = $(CAPI_COMMON)/sim
-CAPI_SERVER		  = $(CAPI_COMMON)/server
 
 
 PSLSE_COMMON_DIR  = $(PSLSE_DIR)/common
 # PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 
 
-SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c) 
+SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c)
 OBJ_FILES_ALGO_CAPI 		=  $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
 
 SRC_FILES_CAPI_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/*.c)
-OBJ_FILES_CAPI_UTIL 	=   $(patsubst $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o,$(SRC_FILES_CAPI_UTIL)) 
+OBJ_FILES_CAPI_UTIL 	=   $(patsubst $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o,$(SRC_FILES_CAPI_UTIL))
 
 
 CAPI_LINKFLAGS = -lrt -lpthread
 
 # CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
-# CAPI_FLAGS = -DSIM -DVERBOSE 
+# CAPI_FLAGS = -DSIM -DVERBOSE
 
 ##################################################
 ##################################################
 
 #########################################################
-#       		 ACCEL GRAPH GENERATION    				#
+#       		 OPEN GRAPH LIBRARY     				#
 #########################################################
-
-.PHONY: app-openmp
-app-openmp : directories directories-openmp $(APP_DIR)/$(BIN_DIR)/$(APP)-openmp
-	@echo "\n ******************************************************************************  "
-	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: ./$(word 3,$^)"
-	@echo " ******************************************************************************  \n"
-
-.PHONY: test-openmp
-test-openmp : directories directories-openmp $(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-openmp
-	@echo "\n ******************************************************************************  "
-	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> TEST: ./$(word 3,$^)"
-	@echo " ****************************************************************************** \n"
 
 .PHONY: directories
-directories : 
+directories :
 	@mkdir -p $(APP_DIR)/$(BIN_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)
@@ -315,26 +297,13 @@ directories :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)
 
-.PHONY: directories-openmp
-directories-openmp :
-	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/openmp
-
-$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_OPENMP) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
-	
-$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-openmp : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_OPENMP) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^  $(LFLAGS)
-
 $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST).o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(APP_TEST).c 
+$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST).o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(APP_TEST).c
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c
-	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
-
-$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/openmp/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/openmp/%.c
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
@@ -343,61 +312,6 @@ $(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.
 $(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
-.PHONY: clean
-clean: 
-	@rm -fr $(APP_DIR)/$(OBJ_DIR)
-	@rm -fr $(APP_DIR)/$(BIN_DIR)
-
-
-.PHONY: clean-stats
-clean-stats:
-	@rm -f $(BENCHMARKS_DIR)/*.perf
-	@rm -f $(BENCHMARKS_DIR)/*/*.perf
-	@rm -f $(BENCHMARKS_DIR)/*/*.stats
-
-
-.PHONY: results-law
-results-law:
-	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-law_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)
-	@for graph in $(LAW); do \
-			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf ]; then \
-				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf $(APP_DIR)/$(RES_DIR)/results-law_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
-			fi ; \
-	done
-
-.PHONY: results-mix
-results-mix: 
-	@mkdir -p $(APP_DIR)/$(RES_DIR)/results-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)
-	@for graph in $(MIX); do \
-			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf ]; then \
-				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).perf $(APP_DIR)/$(RES_DIR)/results-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
-			fi ; \
-	done
-
-.PHONY: stats-law
-stats-law:
-	@mkdir -p $(APP_DIR)/$(RES_DIR)/stats-law_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)
-	@for graph in $(LAW); do \
-			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).stats ]; then \
-				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).stats $(APP_DIR)/$(RES_DIR)/stats-law_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
-			fi ; \
-	done
-
-.PHONY: stats-mix
-stats-mix: 
-	@mkdir -p $(APP_DIR)/$(RES_DIR)/stats-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)
-	@for graph in $(MIX); do \
-			if [ -e $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).stats ]; then \
-				cp $(BENCHMARKS_DIR)/$$graph/$(FILE_BIN_TYPE)_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH).stats $(APP_DIR)/$(RES_DIR)/stats-mix_$(ALGORITHMS)_$(DATA_STRUCTURES)_$(NUM_TRIALS)_$(PULL_PUSH)/$$graph; \
-			fi ; \
-	done
-
-
-.PHONY: results
-results: results-law results-mix
-
-.PHONY: stats
-stats: stats-law stats-mix
 
 ##################################################
 ##################################################
@@ -446,11 +360,11 @@ build-libcxl: $(PSLSE_LIBCXL_DIR)/libcxl.a
 
 .PHONY: build-pslse
 build-pslse: $(PSLSE_DIR)/pslse/pslse
-	
-$(APP_DIR)/$(BIN_DIR)/$(APP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
-	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CAPI_LINKFLAGS) 
 
-$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST)-capi.o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT) 
+$(APP_DIR)/$(BIN_DIR)/$(APP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
+	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CAPI_LINKFLAGS)
+
+$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST)-capi.o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CAPI_LINKFLAGS)
 
 $(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c build-libcxl
@@ -459,7 +373,7 @@ $(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_D
 $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c
 	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< $(CAPI_FLAGS)
 
-$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST)-capi.o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(APP_TEST).c 
+$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST)-capi.o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(APP_TEST).c
 	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< $(CAPI_FLAGS)
 
 .PHONY: clean-sim
@@ -480,91 +394,6 @@ clean-sim:
 
 ##################################################
 ##################################################
-
-##############################################
-#         ACCEL GRAPH TOP LEVEL RULES        #
-##############################################
-
-.PHONY: help
-help: app-openmp
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  --help
-
-.PHONY: run
-run: run-openmp
-
-.PHONY: run-openmp
-run-openmp: app-openmp
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -f $(FILE_BIN) $(ARGS)
-
-.PHONY: convert
-convert: app-openmp
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -w -x -c $(CONVERT_FORMAT) -f $(FILE_BIN) -z $(FILE_FORMAT)
-
-.PHONY: stats-openmp
-stats-openmp: app-openmp
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp -x -f $(FILE_BIN) -n $(NUM_THREADS) -i $(BIN_SIZE) -o $(SORT_TYPE) -l $(REORDER) -p $(INOUT_STATS)
-
-.PHONY: debug-openmp
-debug-openmp: app-openmp	
-	gdb -ex=r --args ./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp -f $(FILE_BIN) $(ARGS)
-
-.PHONY: debug-memory-openmp
-debug-memory-openmp: app-openmp	
-	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp -f $(FILE_BIN) $(ARGS)
-
-.PHONY: test-verbose
-test-verbose:
-	$(MAKE) run-test -C $(APP_DIR) | grep -E 'PASS|FAIL'
-
-# test files
-.PHONY: test
-test:
-	@if $(MAKE) run-test -C $(APP_DIR) | grep FAIL > /dev/null; \
-		then exit 1; \
-	fi
-	
-.PHONY: run-test
-run-test: run-test-openmp
-
-.PHONY: run-test-openmp
-run-test-openmp: test-openmp
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-openmp
-
-.PHONY: debug-test-openmp
-debug-test-openmp: test-openmp	
-	gdb ./$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-openmp
-
-.PHONY: debug-memory-test-openmp
-debug-memory-test-openmp: test-openmp	
-	valgrind --leak-check=full --show-leak-kinds=all ./$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-openmp
-# cache performance
-.PHONY: cachegrind-perf-openmp
-cachegrind-perf-openmp: app-openmp
-	valgrind --tool=cachegrind ./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp -f $(FILE_BIN) $(ARGS)
-
-.PHONY: cache-perf
-cache-perf-openmp: app-openmp
-	sudo perf record -d ./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp -f $(FILE_BIN) $(ARGS)
-
-.PHONY: law
-law: app-openmp
-	@for graph in $(LAW); do \
-	    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
-	    	echo $$config $$graph $$num ; \
-	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
-	    done ; \
-    done
-
-.PHONY: mix
-mix: app-openmp
-	@for graph in $(MIX); do \
-	    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
-	    	echo $$config $$graph $$num ; \
-	    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-openmp  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
-	    done ; \
-    done
-
-##################################################
 ##################################################
 
  PART?=5SGXMA7H2F35C2
@@ -584,49 +413,49 @@ run-capi-sim: app-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-sim-verbose
-run-capi-sim-verbose: CAPI_FLAGS = -DSIM -DVERBOSE 
+run-capi-sim-verbose: CAPI_FLAGS = -DSIM -DVERBOSE
 run-capi-sim-verbose: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose: app-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-sim-verbose2
-run-capi-sim-verbose2: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_2 
+run-capi-sim-verbose2: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_2
 run-capi-sim-verbose2: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose2: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose2: app-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-sim-verbose3
-run-capi-sim-verbose3: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_3 
+run-capi-sim-verbose3: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_3
 run-capi-sim-verbose3: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose3: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose3: app-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga
-run-capi-fpga: CAPI_FLAGS = 
+run-capi-fpga: CAPI_FLAGS =
 run-capi-fpga: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga: app-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga-verbose
-run-capi-fpga-verbose: CAPI_FLAGS = -DVERBOSE 
+run-capi-fpga-verbose: CAPI_FLAGS = -DVERBOSE
 run-capi-fpga-verbose: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose: app-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga-verbose2
-run-capi-fpga-verbose2: CAPI_FLAGS = -DVERBOSE -DVERBOSE_2 
+run-capi-fpga-verbose2: CAPI_FLAGS = -DVERBOSE -DVERBOSE_2
 run-capi-fpga-verbose2: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose2: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose2: app-capi
 	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga-verbose3
-run-capi-fpga-verbose3: CAPI_FLAGS = -DVERBOSE -DVERBOSE_3 
+run-capi-fpga-verbose3: CAPI_FLAGS = -DVERBOSE -DVERBOSE_3
 run-capi-fpga-verbose3: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose3: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose3: app-capi
@@ -644,7 +473,7 @@ run-test-capi-sim: CAPI_FLAGS = -DSIM -DVERBOSE -DALGO_DIRECTION=$(PULL_PUSH)
 run-test-capi-sim: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-test-capi-sim: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-test-capi-sim: test-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi 
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi
 
 .PHONY: run-vsim
 run-vsim: build-libdpi
@@ -681,6 +510,6 @@ mix-capi: app-capi
 		    done ; \
 	    done ; \
 	done
-	  
+
 ##################################################
 ##################################################

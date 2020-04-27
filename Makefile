@@ -10,8 +10,10 @@ export APP_TEST          =  test_accel-graph
 # export APP_TEST          =  pagerRank-capi-report
 
 
-# dirs Root app 
+# dirs Root app
 export APP_DIR              = .
+export APP_DIR_OPEN_GRAPH   = ./00_graph_bench/00_graph_bench
+export APP_DIR_CAPI_PRECIS  = ./01_capi_precis/
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
@@ -85,8 +87,8 @@ export GRAPH_NAME = amazon-2008
 # export GRAPH_NAME = uk-2005
 # export GRAPH_NAME = webbase-2001
 
-# export LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001 
-# export MIX = Gong-gplus GAP-road SNAP-soc-pokec SNAP-cit-Patents SNAP-com-orkut SNAP-soc-LiveJournal1 KONECT-wikipedia_link_en 
+# export LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001
+# export MIX = Gong-gplus GAP-road SNAP-soc-pokec SNAP-cit-Patents SNAP-com-orkut SNAP-soc-LiveJournal1 KONECT-wikipedia_link_en
 export LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001 Gong-gplus GAP-road SNAP-soc-pokec SNAP-cit-Patents SNAP-com-orkut SNAP-soc-LiveJournal1 KONECT-wikipedia_link_en gplus USA-Road enwiki-2013 KONECT-wikipedia_link_en twitter
 
 # export GAP = GAP-kron GAP-road GAP-twitter GAP-urand GAP-web
@@ -179,34 +181,34 @@ export CU_CONFIG_MODE=0x00000000
 # // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
 # // 0b 00000 00000 00010 00001 00000 00000 00
-# export CU_CONFIG_MODE=0x00041000  
+# export CU_CONFIG_MODE=0x00041000
 
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_NA  | WRITE_NA 00010 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
 # // 0b 00000 00010 00010 00001 00000 00000 00
-# export CU_CONFIG_MODE=0x00841000  
+# export CU_CONFIG_MODE=0x00841000
 
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits STRICT | READ_CL_NA  | WRITE_NA 00010 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
 # // 0b 00010 00010 00010 00001 00000 00000 00
-# export CU_CONFIG_MODE=0x10041000  
+# export CU_CONFIG_MODE=0x10041000
 
 # // cu_vertex_job_control        5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [27:31] [4] [3] [0:2]
 # // cu_edge_job_control          5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [9] [8] [5:7]
 # // cu_edge_data_control         5-bits STRICT | READ_CL_S  | WRITE_NA 00010 [22:26] [14] [13] [10:12]
 # // cu_edge_data_write_control   5-bits STRICT | READ_CL_NA | WRITE_MS 00001 [22:26] [19] [18] [15:17]
 # // 0b 00010 00010 00010 00001 00000 00000 00
-# export CU_CONFIG_MODE=0x10841000  
+# export CU_CONFIG_MODE=0x10841000
 
- 
+
 ##############################################
 # CAPI FPGA AFU ARBITER CONFIG               #
 ##############################################
-# shift credits >> 
+# shift credits >>
 # read_credits            [0:3]
 # write_credits           [4:7]
 # prefetch_read_credits   [8:11]
@@ -230,13 +232,14 @@ export AFU_CONFIG_GENERIC=$(AFU_CONFIG_MODE)
 ##################################################
 
 APP_DIR                 = .
-MAKE_DIR                = 00_bench
-# MAKE_DIR_SYNTH          = 01_capi_integration/accelerator_synth
+MAKE_DIR_ACCELGRAPH     = 00_capi_bench
+MAKE_DIR_OPENGRAPH      = 00_graph_bench
 MAKE_DIR_SYNTH          = $(CAPI_INTEG_DIR)/$(SYNTH_DIR)
 
 MAKE_NUM_THREADS        = $(shell grep -c ^processor /proc/cpuinfo)
-MAKE_ARGS               = -w -C $(APP_DIR)/$(MAKE_DIR) -j$(MAKE_NUM_THREADS)
-MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH) -j$(MAKE_NUM_THREADS)
+MAKE_ARGS_OPENGRAPH     = -w -C $(APP_DIR)/$(MAKE_DIR_OPENGRAPH)  -j$(MAKE_NUM_THREADS)
+MAKE_ARGS_ACCELGRAPH    = -w -C $(APP_DIR)/$(MAKE_DIR_ACCELGRAPH) -j$(MAKE_NUM_THREADS)
+MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH)      -j$(MAKE_NUM_THREADS)
 
 #########################################################
 #                RUN  ARGUMENTS                         #
@@ -253,72 +256,72 @@ export ARGS = -j $(INOUT_STATS) -g $(BIN_SIZE) -q $(CU_CONFIG_GENERIC) -m $(AFU_
 
 .PHONY: help
 help:
-	$(MAKE) help $(MAKE_ARGS)
+	$(MAKE) help $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: run
 run:
-	$(MAKE) run $(MAKE_ARGS)
+	$(MAKE) run $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: run-openmp
 run-openmp:
-	$(MAKE) run-openmp $(MAKE_ARGS)
+	$(MAKE) run-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: convert
 convert:
-	$(MAKE) convert $(MAKE_ARGS)
+	$(MAKE) convert $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: stats-openmp
 stats-openmp: graph-openmp
-	$(MAKE) stats-openmp $(MAKE_ARGS)
+	$(MAKE) stats-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: debug-openmp
-debug-openmp: 
-	$(MAKE) debug-openmp $(MAKE_ARGS)
+debug-openmp:
+	$(MAKE) debug-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: debug-memory-openmp
-debug-memory-openmp: 
-	$(MAKE) debug-memory-openmp $(MAKE_ARGS)
+debug-memory-openmp:
+	$(MAKE) debug-memory-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: test-verbose
 test-verbose:
-	$(MAKE) test-verbose $(MAKE_ARGS)
-	
+	$(MAKE) test-verbose $(MAKE_ARGS_OPENGRAPH)
+
 # test files
 .PHONY: test
 test:
-	$(MAKE) test $(MAKE_ARGS)
-	
+	$(MAKE) test $(MAKE_ARGS_OPENGRAPH)
+
 .PHONY: run-test
-run-test: 
-	$(MAKE) run-test $(MAKE_ARGS)
+run-test:
+	$(MAKE) run-test $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: run-test-openmp
 run-test-openmp:
-	$(MAKE) run-test-openmp $(MAKE_ARGS)
+	$(MAKE) run-test-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: debug-test-openmp
-debug-test-openmp: 
-	$(MAKE) debug-test-openmp $(MAKE_ARGS)
+debug-test-openmp:
+	$(MAKE) debug-test-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: debug-memory-test-openmp
-debug-memory-test-openmp:	
-	$(MAKE) debug-memory-test-openmp $(MAKE_ARGS)
+debug-memory-test-openmp:
+	$(MAKE) debug-memory-test-openmp $(MAKE_ARGS_OPENGRAPH)
 # cache performance
 .PHONY: cachegrind-perf-openmp
 cachegrind-perf-openmp:
-	$(MAKE) cachegrind-perf-openmp $(MAKE_ARGS)
+	$(MAKE) cachegrind-perf-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: cache-perf
-cache-perf-openmp: 
-	$(MAKE) cache-perf-openmp $(MAKE_ARGS)
+cache-perf-openmp:
+	$(MAKE) cache-perf-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: clean
-clean: 
-	$(MAKE) clean $(MAKE_ARGS)
+clean:
+	$(MAKE) clean $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: clean-obj
-clean-obj: 
-	$(MAKE) clean-obj $(MAKE_ARGS)
+clean-obj:
+	$(MAKE) clean-obj $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: clean-all
 clean-all: clean clean-sim
@@ -328,43 +331,43 @@ scrub: clean clean-sim clean-synth-all clean-nohup clean-stats
 
 .PHONY: clean-stats
 clean-stats:
-	$(MAKE) clean-stats $(MAKE_ARGS)
+	$(MAKE) clean-stats $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: clean-nohup
-clean-nohup: 
+clean-nohup:
 	@rm -f $(APP_DIR)/nohup.out
 
 .PHONY: law
 law:
-	$(MAKE) law $(MAKE_ARGS)
+	$(MAKE) law $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: mix
 mix:
-	$(MAKE) mix $(MAKE_ARGS)
+	$(MAKE) mix $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: results
 results:
-	$(MAKE) results $(MAKE_ARGS)
+	$(MAKE) results $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: results-law
 results-law:
-	$(MAKE) results-law $(MAKE_ARGS)
+	$(MAKE) results-law $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: results-mix
 results-mix:
-	$(MAKE) results-mix $(MAKE_ARGS)
+	$(MAKE) results-mix $(MAKE_ARGS_OPENGRAPH)
 
 PHONY: stats
 stats:
-	$(MAKE) stats $(MAKE_ARGS)
+	$(MAKE) stats $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: stats-law
 stats-law:
-	$(MAKE) stats-law $(MAKE_ARGS)
+	$(MAKE) stats-law $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: stats-mix
 stats-mix:
-	$(MAKE) stats-mix $(MAKE_ARGS)
+	$(MAKE) stats-mix $(MAKE_ARGS_OPENGRAPH)
 
 ##################################################
 ##################################################
@@ -373,7 +376,7 @@ stats-mix:
 # Simulation/Synthesis CONFIG 						     #
 ##############################################
 # put your design in 01_capi_integration/accelerator_rtl/cu/$CU(algorithm name)
-# 
+#
 
 export PART=5SGXMA7H2F35C2
 export PROJECT = accel-graph
@@ -398,72 +401,72 @@ export SYNTH_DIR = synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DI
 
 .PHONY: run-capi-sim
 run-capi-sim:
-	$(MAKE) run-capi-sim $(MAKE_ARGS)
+	$(MAKE) run-capi-sim $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: run-capi-fpga
 run-capi-fpga:
-	$(MAKE) run-capi-fpga $(MAKE_ARGS)
+	$(MAKE) run-capi-fpga $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: run-capi-sim-verbose
 run-capi-sim-verbose:
-	$(MAKE) run-capi-sim-verbose $(MAKE_ARGS)
+	$(MAKE) run-capi-sim-verbose $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: run-capi-sim-verbose2
 run-capi-sim-verbose2:
-	$(MAKE) run-capi-sim-verbose2 $(MAKE_ARGS)
+	$(MAKE) run-capi-sim-verbose2 $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: run-capi-sim-verbose3
 run-capi-sim-verbose3:
-	$(MAKE) run-capi-sim-verbose3 $(MAKE_ARGS)
+	$(MAKE) run-capi-sim-verbose3 $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: run-capi-fpga-verbose
 run-capi-fpga-verbose:
-	$(MAKE) run-capi-fpga-verbose $(MAKE_ARGS)
+	$(MAKE) run-capi-fpga-verbose $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: run-capi-fpga-verbose2
 run-capi-fpga-verbose2:
-	$(MAKE) run-capi-fpga-verbose2 $(MAKE_ARGS)
+	$(MAKE) run-capi-fpga-verbose2 $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: run-capi-fpga-verbose3
 run-capi-fpga-verbose3:
-	$(MAKE) run-capi-fpga-verbose3 $(MAKE_ARGS)
+	$(MAKE) run-capi-fpga-verbose3 $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: capi
 capi:
-	$(MAKE) run-capi-fpga-verbose2 $(MAKE_ARGS) &&\
+	$(MAKE) run-capi-fpga-verbose2 $(MAKE_ARGS_ACCELGRAPH) &&\
 	sudo ./$(SCRIPT_DIR)/clear_cache.sh
 
 .PHONY: run-test-capi
 run-test-capi:
-	$(MAKE) run-test-capi $(MAKE_ARGS)
+	$(MAKE) run-test-capi $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: run-test-capi-sim
 run-test-capi-sim:
-	$(MAKE) run-test-capi-sim $(MAKE_ARGS)
+	$(MAKE) run-test-capi-sim $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: run-vsim
 run-vsim:
-	$(MAKE) run-vsim $(MAKE_ARGS)
+	$(MAKE) run-vsim $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: run-pslse
 run-pslse:
-	$(MAKE) run-pslse $(MAKE_ARGS)
+	$(MAKE) run-pslse $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: build-pslse
 build-pslse:
-	  $(MAKE) build-pslse $(MAKE_ARGS)
+	  $(MAKE) build-pslse $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: clean-sim
 clean-sim:
-	 $(MAKE) clean-sim $(MAKE_ARGS)
+	 $(MAKE) clean-sim $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: law-capi
 law-capi:
-	$(MAKE) law-capi $(MAKE_ARGS)
+	$(MAKE) law-capi $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: mix-capi
 mix-capi:
-	$(MAKE) mix-capi $(MAKE_ARGS)
+	$(MAKE) mix-capi $(MAKE_ARGS_ACCELGRAPH)
 ##################################################
 ##################################################
 
@@ -528,18 +531,18 @@ copy-rbf: synth-directories
 	$(MAKE) copy-rbf $(MAKE_ARGS_SYNTH)
 
 .PHONY: clean-synth
-clean-synth: 
+clean-synth:
 	$(MAKE) clean $(MAKE_ARGS_SYNTH)
 
 .PHONY: clean-synth-all
-clean-synth-all: 
+clean-synth-all:
 	@rm -rf $(APP_DIR)/$(CAPI_INTEG_DIR)/synthesize_*
 
 .PHONY: synth-directories
 synth-directories : $(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR)
 
 .PHONY: $(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR)
-$(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR) :	
+$(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR) :
 	@mkdir -p $(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR)
 	@cp  -a $(APP_DIR)/$(CAPI_INTEG_DIR)/accelerator_synth/* $(APP_DIR)/$(CAPI_INTEG_DIR)/$(SYNTH_DIR)
 
