@@ -48,7 +48,7 @@ source $LIBCAPI/fpga/build_version.tcl
 #     set_global_assignment -name SYSTEMVERILOG_FILE $filename
 # }
 
-foreach filename [glob ../accelerator_rtl/afu/*.sv] {
+foreach filename [glob ../accelerator_rtl/afu_control/*.sv] {
 	set_global_assignment -name SYSTEMVERILOG_FILE $filename
 }
 
@@ -60,7 +60,7 @@ foreach filename [glob ../accelerator_rtl/afu/*.sv] {
 #     set_global_assignment -name SYSTEMVERILOG_FILE $filename
 # }
 
-foreach filename [glob ../accelerator_rtl/pkg/*.sv] {
+foreach filename [glob ../accelerator_rtl/afu_pkgs/*.sv] {
 	set_global_assignment -name SYSTEMVERILOG_FILE $filename
 }
 
@@ -72,18 +72,18 @@ foreach filename [glob ../accelerator_rtl/pkg/*.sv] {
 #     set_global_assignment -name SYSTEMVERILOG_FILE $filename
 # }
 
-foreach filename [glob ../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_cu/*.sv] {
+foreach filename [glob ../accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/*.sv] {
 	set_global_assignment -name SYSTEMVERILOG_FILE $filename
 }
 
-foreach filename [glob ../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/global_pkg/*.sv] {
+foreach filename [glob ../accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_pkg/*.sv] {
 	set_global_assignment -name SYSTEMVERILOG_FILE $filename
 }
 
-foreach filename [glob ../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/$cu_precision/cu/*.sv] {
+foreach filename [glob ../accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/$cu_precision/cu/*.sv] {
 	set_global_assignment -name SYSTEMVERILOG_FILE $filename
 }
 
-foreach filename [glob ../accelerator_rtl/cu/$graph_algorithm/$data_structure/$direction/$cu_precision/pkg/*.sv] {
+foreach filename [glob ../accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/$cu_precision/pkg/*.sv] {
 	set_global_assignment -name SYSTEMVERILOG_FILE $filename
 }
