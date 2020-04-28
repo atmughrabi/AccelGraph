@@ -12,13 +12,13 @@ export APP_TEST          =  test_accel-graph
 
 # dirs Root app
 export APP_DIR              = .
-export APP_DIR_OPEN_GRAPH   = ./00_graph_bench/00_graph_bench
-export APP_DIR_CAPI_PRECIS  = ./01_capi_precis/
+export APP_DIR_OPEN_GRAPH   = ../00_open_graph/00_graph_bench
+export APP_DIR_CAPI_PRECIS  = ./01_capi_precis
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-export BENCHMARKS_DIR    	= ../04_test_graphs
-# export BENCHMARKS_DIR    	= ../../01_GraphDatasets
+export BENCHMARKS_DIR    	= $(APP_DIR_OPEN_GRAPH)/04_test_graphs
+# export BENCHMARKS_DIR    	= $(APP_DIR_OPEN_GRAPH)/01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -56,7 +56,7 @@ export MAIN_DIR		  	= main
 
 # # small test graphs
 # export GRAPH_NAME = test
-# export GRAPH_NAME = v51_e1021
+export GRAPH_NAME = v51_e1021
 # export GRAPH_NAME = v300_e2730
 
 # GAP https://sparse.tamu.edu/MM/GAP/
@@ -71,7 +71,7 @@ export MAIN_DIR		  	= main
 # export GRAPH_NAME = KONECT-wikipedia_link_en
 
 # LAW https://sparse.tamu.edu/MM/LAW/
-export GRAPH_NAME = amazon-2008
+# export GRAPH_NAME = amazon-2008
 # export GRAPH_NAME = arabic-2005
 # export GRAPH_NAME = cnr-2000
 # export GRAPH_NAME = dblp-2010

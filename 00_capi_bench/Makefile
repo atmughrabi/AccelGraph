@@ -12,7 +12,7 @@ APP_TEST          ?= test_accel-graph
 
 # dirs Root app
 APP_DIR           		?= .
-APP_DIR_OPEN_GRAPH      ?= ../00_graph_bench/00_graph_bench
+APP_DIR_OPEN_GRAPH      ?= ../00_open_graph/00_graph_bench
 CAPI_PRECIS_INTEG_DIR   ?= 01_capi_precis/01_capi_integration
 CAPI_INTEG_DIR      	?= 01_capi_integration
 SCRIPT_DIR          	?= 03_scripts
@@ -303,13 +303,13 @@ $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/a
 $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST).o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(APP_TEST).c
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(UTIL_DIR)/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(UTIL_DIR)/%.c
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(STRUCT_DIR)/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(STRUCT_DIR)/%.c
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 
@@ -481,7 +481,7 @@ run-vsim: build-libdpi
 
 .PHONY: run-pslse
 run-pslse: build-pslse
-	cd $(CAPI_SIM) && ./../../pslse/pslse/pslse
+	cd $(CAPI_SIM) && ./../../../$(CAPI_PRECIS_INTEG_DIR)/pslse/pslse/pslse
 
 .PHONY: law-capi
 law-capi: CAPI_FLAGS = -DVERBOSE
