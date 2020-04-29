@@ -17,7 +17,7 @@ export APP_DIR_CAPI_PRECIS  = ./01_capi_precis
 export CAPI_INTEG_DIR      	= 01_capi_integration
 export SCRIPT_DIR          	= 03_scripts
 
-export BENCHMARKS_DIR    	= $(APP_DIR_OPEN_GRAPH)/04_test_graphs
+export BENCHMARKS_DIR    	= ../00_open_graph//01_test_graphs
 # export BENCHMARKS_DIR    	= $(APP_DIR_OPEN_GRAPH)/01_GraphDatasets
 
 #dir root/managed_folders
@@ -233,7 +233,7 @@ export AFU_CONFIG_GENERIC=$(AFU_CONFIG_MODE)
 
 APP_DIR                 = .
 MAKE_DIR_ACCELGRAPH     = 00_capi_bench
-MAKE_DIR_OPENGRAPH      = 00_graph_bench
+MAKE_DIR_OPENGRAPH      = 00_open_graph
 MAKE_DIR_SYNTH          = $(CAPI_INTEG_DIR)/$(SYNTH_DIR)
 
 MAKE_NUM_THREADS        = $(shell grep -c ^processor /proc/cpuinfo)
@@ -316,7 +316,7 @@ cache-perf-openmp:
 	$(MAKE) cache-perf-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: clean
-clean:
+clean: clean-accel
 	$(MAKE) clean $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: clean-obj
@@ -459,6 +459,10 @@ build-pslse:
 .PHONY: clean-sim
 clean-sim:
 	 $(MAKE) clean-sim $(MAKE_ARGS_ACCELGRAPH)
+
+.PHONY: clean-accel
+clean-accel:
+	 $(MAKE) clean $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: law-capi
 law-capi:

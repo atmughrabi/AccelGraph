@@ -233,14 +233,15 @@ OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$
 
 CC				  = gcc
 
-OPENMP_INC = 	-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(STRUCT_DIR)   \
-				-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(PREPRO_DIR)   \
+OPENMP_INC = 	-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(STRUCT_DIR)    \
+				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/capi 			\
+				-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(PREPRO_DIR)    \
 				-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(UTIL_DIR)
 
 
 # flags
 CFLAGS   =  -O3 -Wall -m64 -fopenmp -g
-LFLAGS = -lm -lJudy
+LFLAGS 	 = -lm -lJudy
 
 
 # TEST PASS OR FAIL
@@ -298,9 +299,6 @@ directories :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)
 
 $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
-	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
-
-$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST).o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(APP_TEST).c
 	$(CC) $(CFLAGS) $(OPENMP_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(UTIL_DIR)/%.c
@@ -391,6 +389,11 @@ clean-sim:
 	@cd $(PSLSE_DIR)/afu_driver/src && make clean
 	@cd $(PSLSE_DIR)/libcxl && make clean
 	@cd $(PSLSE_DIR)/pslse && make  clean
+
+.PHONY: clean
+clean:
+	@rm -fr $(APP_DIR)/$(OBJ_DIR)
+	@rm -fr $(APP_DIR)/$(BIN_DIR)
 
 ##################################################
 ##################################################
