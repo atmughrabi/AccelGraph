@@ -16,8 +16,11 @@ APP_DIR_OPEN_GRAPH      ?= ../00_open_graph/00_graph_bench
 CAPI_PRECIS_INTEG_DIR   ?= 01_capi_precis/01_capi_integration
 CAPI_INTEG_DIR      	?= 01_capi_integration
 SCRIPT_DIR          	?= 03_scripts
-BENCHMARKS_DIR    		?= ../../01_GraphDatasets
-# BENCHMARKS_DIR    	?= ../04_test_graphs
+
+BENCHMARKS_DIR_LOCAL    ?= 01_test_graphs
+
+BENCHMARKS_DIR 			=  ../00_open_graph/$(BENCHMARKS_DIR_LOCAL)
+# BENCHMARKS_DIR    		= ../../$(BENCHMARKS_DIR_LOCAL)
 
 #dir root/managed_folders
 SRC_DIR           	?= src
@@ -117,7 +120,7 @@ CU_CONFIG_MODES ?= 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
 FILE_BIN_TYPE ?= graph.wbin
 
 #WEIGHTED
-FILE_BIN ?= $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
+FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
 
 
 
