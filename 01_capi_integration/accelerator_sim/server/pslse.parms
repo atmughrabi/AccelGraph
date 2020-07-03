@@ -22,7 +22,7 @@ TIMEOUT:10
 
 # NOTE - Pagesize parm is valid ONLY for PSL9 models
 # Pagesize: By default, the pslse will always send back encoding for a 4K page
-# size on ha_pagesize on the response interface. Valid values are 0 (4K), 2 (64K), 
+# size on ha_pagesize on the response interface. Valid values are 0 (4K), 2 (64K),
 # 3 (2M) 4 (16M), 5 (1G), and 7 (16G).
 # NOTE: Must be a single value, not a min, max range
 PAGESIZE:2
@@ -47,9 +47,9 @@ RESPONSE_PERCENT:1,100
 
 # Percentage chance of PSL responding with PAGED for any command response.
 #PAGED_PERCENT:40,90
-PAGED_PERCENT:1,100
+#PAGED_PERCENT:1,100
 #PAGED_PERCENT:29,98
-#PAGED_PERCENT:0,0
+PAGED_PERCENT:0,0
 
 # Percentage chance of PSL reordering the execution of commands.
 REORDER_PERCENT:1,100
@@ -60,7 +60,7 @@ REORDER_PERCENT:1,100
 #BUFFER_PERCENT:1,100
 BUFFER_PERCENT:1,1
 
-# VSEC data lines 
+# VSEC data lines
 #CAIA_VERSION:0100
 #PSL_REV_LEVEL:0
 #IMAGE_LOADED:1
