@@ -9,11 +9,14 @@ direction = int(sys.argv[3])
 graph_algorithm_arr = ["cu_BFS","cu_PageRank","",""]
 data_structure_arr = ["CSR","Grid","AdjLinkedList","AdjArrayList"]
  
-direction_arr = [["PULL","PUSH"],["PULL", "PUSH",
+direction_arr = [
+				["PULL","PUSH","PULLPUSH","PUSH","PULLPUSH"],
+				["PULL", "PUSH",
 				 "PULL","PUSH",
 				 "PULL","PUSH",
 				 "PULL","PUSH",
-				 "PULLPUSH","PULL","PULL","PULL","PULL","PULL"]]
+				 "PULLPUSH","PULL","PULL","PULL","PULL","PULL"]
+				 ]
 
 precision_arr = [["NONE","NONE"],["FloatPoint", "FloatPoint",
 				 "FixedPoint","FixedPoint",

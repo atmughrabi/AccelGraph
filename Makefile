@@ -56,8 +56,8 @@ export MAIN_DIR		  	= main
 
 # # small test graphs
 # export GRAPH_NAME = test
-export GRAPH_NAME = v51_e1021
-# export GRAPH_NAME = v300_e2730
+# export GRAPH_NAME = v51_e1021
+export GRAPH_NAME = v300_e2730
 
 # GAP https://sparse.tamu.edu/MM/GAP/
 # https://gonglab.pratt.duke.edu/google-dataset
@@ -110,14 +110,14 @@ export FILE_BIN_TYPE = graph.wbin
 #WEIGHTED
 export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
 
-#QPR VARS
-export PULL_PUSH 		= 4
+#GRAPH Algorithm Direction
+export PULL_PUSH 		= 0
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
 export REORDER 		    = 0
 export DATA_STRUCTURES  = 0
-export ALGORITHMS 		= 1
+export ALGORITHMS 		= 0
 
 export ROOT 			= 164
 export TOLERANCE 		= 1e-8
