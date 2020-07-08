@@ -314,20 +314,16 @@ AccelGraph-CAPI can handle multiple representations of the graph structure in me
 - [x] Finish integration with CAPI Cache
 - [x] Finish Synthesis with CAPI (Meets time requirements)
 - [ ] Finish graph algorithms suite CAPI
-  - [ ] BFS   (Breadth First Search)
+  - [x] BFS   (Breadth First Search)
   - [x] PR    (Page-Rank)
-  - [ ] DFS   (Depth First Search)
+  - [x] DFS   (Depth First Search)
   - [ ] IA    (Incremental Aggregation)
   - [ ] SSSP  (BellmanFord)
   - [ ] SSSP  (Dijkstra)
   - [ ] CC    (Connected Components)
   - [ ] BC    (Betweenness Centrality)
-  - [ ] TC    (Triangle Counting)
-  - [ ] SPMV  (Sparse Matrix-vector Multiplication)
-- [ ] Research Ideas
-  - [ ] Graph algorithms performance exploration with gem5-Aladdin
-  - [x] Page-Rank quantization (MICRO2020)
-  - [ ] FPGA Frontier prefetcher
+  - [x] TC    (Triangle Counting)
+  - [x] SPMV  (Sparse Matrix-vector Multiplication)
 - [x] Support testing
 
 Report bugs to <atmughra@ncsu.edu>
