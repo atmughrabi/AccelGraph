@@ -550,11 +550,11 @@ module cu_control #(
 
 	generate
 		for (i = 0; i < NUM_GRAPH_CU; i++) begin : graph_algorithm_cu
-			cu_graph_algorithm_control #(
+			cu_vertex_cluster_control #(
 				.NUM_VERTEX_CU(NUM_VERTEX_CU),
 				.NUM_GRAPH_CU (NUM_GRAPH_CU ),
 				.CU_ID_Y      (i                   )
-			) cu_graph_algorithm_control_instant (
+			) cu_vertex_cluster_control_instant (
 				.clock                    (clock                             ),
 				.rstn_in                  (reset_cu_in[i]                    ),
 				.enabled_in               (enable_cu_out[i]                  ),
@@ -592,10 +592,10 @@ module cu_control #(
 //graph algorithm arbitration units
 ////////////////////////////////////////////////////////////////////////////
 
-	cu_graph_algorithm_arbiter_control #(
+	cu_vertex_cluster_arbiter_control #(
 		.NUM_GRAPH_CU (NUM_GRAPH_CU ),
 		.NUM_VERTEX_CU(NUM_VERTEX_CU)
-	) cu_graph_algorithm_arbiter_control_instant (
+	) cu_vertex_cluster_arbiter_control_instant (
 		.clock                          (clock                            ),
 		.rstn_in                        (rstn                             ),
 		.enabled_in                     (enabled_in                       ),

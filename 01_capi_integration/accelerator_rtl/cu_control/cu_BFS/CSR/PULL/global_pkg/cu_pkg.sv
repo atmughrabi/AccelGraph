@@ -22,6 +22,8 @@ package CU_PKG;
 		STRUCT_INVALID,
 		INV_OUT_DEGREE,
 		INV_EDGES_IDX,
+		VERTEX_PARENTS_READ,
+		VERTEX_PARENTS_WRITE,
 		INV_EDGE_ARRAY_DEST,
 		READ_GRAPH_DATA,
 		WRITE_GRAPH_DATA
@@ -36,6 +38,7 @@ package CU_PKG;
 		SEND_VERTEX_START,
 		SEND_VERTEX_INV_OUT_DEGREE,
 		SEND_VERTEX_INV_EDGES_IDX,
+		SEND_VERTEX_PARENTS,
 		WAIT_VERTEX_DATA,
 		SHIFT_VERTEX_DATA_START,
 		SHIFT_VERTEX_DATA_0,
@@ -80,6 +83,7 @@ package CU_PKG;
 		logic [0:(VERTEX_SIZE_BITS-1)] id                ;
 		logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree;
 		logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx ;
+		logic [0:(VERTEX_SIZE_BITS-1)] parent;
 	} VertexInterfacePayload;
 
 	typedef struct packed {

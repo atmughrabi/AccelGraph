@@ -13,7 +13,8 @@ APP_TEST          ?= test_accel-graph
 # dirs Root app
 APP_DIR           		?= .
 APP_DIR_OPEN_GRAPH      ?= ../00_open_graph/00_graph_bench
-CAPI_PRECIS_INTEG_DIR   ?= 01_capi_precis/01_capi_integration
+APP_DIR_CAPI_PRECIS  	?= ./01_capi_precis
+CAPI_PRECIS_INTEG_DIR   ?= $(APP_DIR_CAPI_PRECIS)/01_capi_integration
 CAPI_INTEG_DIR      	?= 01_capi_integration
 SCRIPT_DIR          	?= 03_scripts
 
@@ -260,11 +261,11 @@ FAIL = \033[91mFAIL\033[0m
 
 ARCHITECTURE = $(shell uname -p) # store the output of the command in a variable if on intel run simulation if power8 run fpga
 
-PSLSE_DIR         = ../$(CAPI_PRECIS_INTEG_DIR)/pslse
-LIBCXL_DIR        = ../$(CAPI_PRECIS_INTEG_DIR)/libcxl
-CAPI_UTILS_DIR    = ../$(CAPI_PRECIS_INTEG_DIR)/capi-utils
-CAPI_SERVER		  = ../$(CAPI_INTEG_DIR)/accelerator_sim/server
-CAPI_SIM		  = ../$(CAPI_INTEG_DIR)/accelerator_sim/sim
+PSLSE_DIR         		 = ../$(CAPI_PRECIS_INTEG_DIR)/pslse
+LIBCXL_DIR        		 = ../$(CAPI_PRECIS_INTEG_DIR)/libcxl
+IBM_CAPI_UTILS_DIR       = ../$(CAPI_PRECIS_INTEG_DIR)/capi-utils
+CAPI_SERVER		  		 = ../$(CAPI_INTEG_DIR)/accelerator_sim/server
+CAPI_SIM		  		 = ../$(CAPI_INTEG_DIR)/accelerator_sim/sim
 
 
 
@@ -275,8 +276,8 @@ PSLSE_COMMON_DIR  = $(PSLSE_DIR)/common
 SRC_FILES_ALGO_CAPI			=  $(wildcard $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/*.c)
 OBJ_FILES_ALGO_CAPI 		=  $(patsubst $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c,$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o,$(SRC_FILES_ALGO_CAPI))
 
-SRC_FILES_CAPI_UTIL		=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/*.c)
-OBJ_FILES_CAPI_UTIL 	=   $(patsubst $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o,$(SRC_FILES_CAPI_UTIL))
+SRC_FILES_CAPI_UTIL			=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/*.c)
+OBJ_FILES_CAPI_UTIL 		=   $(patsubst $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c,$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o,$(SRC_FILES_CAPI_UTIL))
 
 
 CAPI_LINKFLAGS = -lrt -lpthread

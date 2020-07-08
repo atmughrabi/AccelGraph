@@ -37,10 +37,14 @@
 // " #    # "#mm"  "#mm"  "#mm"    "mm          "mmm"  #     "mm"#  ##m#"  #   # \n"
 // "                                                                #            \n"
 
+//MMIO extern variables
 uint64_t afu_config;
-uint64_t cu_config;
 uint64_t afu_config_2;
+uint64_t cu_config;
 uint64_t cu_config_2;
+uint64_t cu_config_3;
+uint64_t cu_config_4;
+
 
 int numThreads;
 mt19937state *mt19937var;

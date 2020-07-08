@@ -6,7 +6,7 @@
 // Copyright (c) 2014-2019 All rights reserved
 // -----------------------------------------------------------------------------
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
-// File   : cu_graph_algorithm_control.sv
+// File   : cu_vertex_cluster_control.sv
 // Create : 2019-09-26 15:19:08
 // Revise : 2019-11-07 18:11:05
 // Editor : sublime text3, tab size (4)
@@ -19,7 +19,7 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_graph_algorithm_control #(
+module cu_vertex_cluster_control #(
 	parameter NUM_VERTEX_CU = NUM_VERTEX_CU_GLOBAL,
 	parameter NUM_GRAPH_CU  = NUM_GRAPH_CU_GLOBAL ,
 	parameter CU_ID_Y       = 1
@@ -234,11 +234,11 @@ module cu_graph_algorithm_control #(
 	////////////////////////////////////////////////////////////////////////////
 
 	generate
-		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_pagerank_cu
-			cu_vertex_pagerank #(
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_bfs_cu
+			cu_vertex_bfs #(
 				.CU_ID_X(i),
 				.CU_ID_Y(CU_ID_Y)
-			) cu_vertex_pagerank_instant (
+			) cu_vertex_bfs_instant (
 				.clock                      (clock                                       ),
 				.rstn_in                    (reset_cu_in[i]                              ),
 				.enabled_in                 (enable_cu[i]                                ),
@@ -278,11 +278,11 @@ module cu_graph_algorithm_control #(
 //Graph algorithm compute units arbitration
 ////////////////////////////////////////////////////////////////////////////
 
-	cu_vertex_pagerank_arbiter_control #(
+	cu_vertex_bfs_arbiter_control #(
 		.NUM_VERTEX_CU(NUM_VERTEX_CU),
 		.NUM_GRAPH_CU (NUM_GRAPH_CU ),
 		.CU_ID_Y      (CU_ID_Y      )
-	) cu_vertex_pagerank_arbiter_control_instant (
+	) cu_vertex_bfs_arbiter_control_instant (
 		.clock                                        (clock                                    ),
 		.rstn_in                                      (rstn                                     ),
 		.enabled_in                                   (enabled                                  ),

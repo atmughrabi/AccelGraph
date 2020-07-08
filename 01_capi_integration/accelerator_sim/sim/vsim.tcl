@@ -54,7 +54,16 @@ proc r  {} {
     echo "UNKNOWN Datastructure"
   }
    } elseif {$graph_algorithm eq "cu_BFS"} {
+    if {$data_structure eq "CSR"} {
 
+     vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_pkg/wed_pkg.sv
+     vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/$cu_precision/pkg/globals_cu_pkg.sv
+     vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_pkg/cu_pkg.sv
+
+   } elseif {$data_structure eq "GRID"} {
+   } else {
+    echo "UNKNOWN Datastructure"
+  }
 
    } else {
     echo "UNKNOWN Algorithm"
@@ -128,7 +137,29 @@ proc r  {} {
     echo "UNKNOWN Datastructure"
     }
    } elseif {$graph_algorithm eq "cu_BFS"} {
+      if {$data_structure eq "CSR"} {
 
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/sum_reduce.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/demux_bus.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/array_struct_type_demux_bus.sv
+          # vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/$cu_precision/cu/cu_sum_kernel_control.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_write_command_control.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_read_extract_control.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_data_read_command_control.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_edge_job_control.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_job_filter.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_job_control.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_cluster_arbiter_control.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_bfs_arbiter_control.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_bfs.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_vertex_cluster_control.sv
+          vlog -quiet $cu_control_dir/accelerator_rtl/cu_control/$graph_algorithm/$data_structure/$direction/global_cu/cu_control.sv
+
+     } elseif {$data_structure eq "GRID"} {
+
+     } else {
+      echo "UNKNOWN Datastructure"
+    }
    } else {
     echo "UNKNOWN Algorithm"
   }

@@ -31,6 +31,9 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
+#include "libcxl.h"
+#include "capienv.h"
+
 #include "BFS.h"
 
 // ********************************************************************************************
@@ -627,42 +630,79 @@ uint32_t bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr,
     struct Vertex *vertices = NULL;
     uint32_t *sorted_edges_array = NULL;
 
+      //CAPI variables
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
+
     // uint32_t processed_nodes = bitmapCurr->numSetBits;
     uint32_t nf = 0; // number of vertices in sharedFrontierQueue
     // stats->processed_nodes += processed_nodes;
 
-#if DIRECTED
-    vertices = graph->inverse_vertices;
-    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
-#else
-    vertices = graph->vertices;
-    sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
-#endif
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+    wedGraphCSR->auxiliary1 = stats->parents;
+    wedGraphCSR->auxiliary2 = stats->distances;
 
-    #pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(stats,bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
-    for(v = 0 ; v < graph->num_vertices ; v++)
-    {
-        out_degree = vertices->out_degree[v];
-        if(stats->parents[v] < 0)  // optmization
-        {
-            edge_idx = vertices->edges_idx[v];
+    // ********************************************************************************************
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
 
-            for(j = edge_idx ; j < (edge_idx + out_degree) ; j++)
-            {
-                u = sorted_edges_array[j];
-                if(getBit(bitmapCurr, u))
-                {
-                    stats->parents[v] = u;
-                    stats->distances[v] = stats->distances[u] + 1;
-                    setBitAtomic(bitmapNext, v);
-                    nf++;
-                    break;
-                }
-            }
+    setupAFUGraphCSR(&afu, wedGraphCSR);
 
-        }
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config = afu_config;
+    afu_status.afu_config_2 = afu_config_2;
+    afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config = ((cu_config << 32) | (numThreads));
+    afu_status.cu_config_2 = cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_config_3 = bitmapNext->bitarray; // non zero CU triggers the AFU to work
+    afu_status.cu_config_4 = bitmapCurr->bitarray; // non zero CU triggers the AFU to work
+    afu_status.cu_stop     = wedGraphCSR->num_vertices; // stop condition once all vertices processed
 
-    }
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
+
+    // #pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(stats,bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
+    // for(v = 0 ; v < graph->num_vertices ; v++)
+    // {
+    //     out_degree = vertices->out_degree[v];
+    //     if(stats->parents[v] < 0)  // optmization
+    //     {
+    //         edge_idx = vertices->edges_idx[v];
+
+    //         for(j = edge_idx ; j < (edge_idx + out_degree) ; j++)
+    //         {
+    //             u = sorted_edges_array[j];
+    //             if(getBit(bitmapCurr, u))
+    //             {
+    //                 stats->parents[v] = u;
+    //                 stats->distances[v] = stats->distances[u] + 1;
+    //                 setBitAtomic(bitmapNext, v);
+    //                 nf++;
+    //                 break;
+    //             }
+    //         }
+
+    //     }
+
+    // }
+
+    // ********************************************************************************************
+    // ***************                 START CU                                      **************
+    startCU(&afu, &afu_status);
+    // ********************************************************************************************
+
+    // ********************************************************************************************
+    // ***************                 WAIT AFU                                     **************
+    waitAFU(&afu, &afu_status);
+    // ********************************************************************************************
+
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
+    nf = afu_status.cu_return;
     return nf;
 }
 

@@ -54,6 +54,7 @@ int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR)
 
 }
 
+
 void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 {
 #ifdef  VERBOSE
@@ -80,6 +81,7 @@ void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 #endif
 }
 
+
 void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 {
 #ifdef  VERBOSE
@@ -92,6 +94,8 @@ void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     {
         cxl_mmio_write64((*afu), CU_CONFIGURE, (uint64_t)afu_status->cu_config);
         cxl_mmio_write64((*afu), CU_CONFIGURE_2, (uint64_t)afu_status->cu_config_2);
+        cxl_mmio_write64((*afu), CU_CONFIGURE_3, (uint64_t)afu_status->cu_config_3);
+        cxl_mmio_write64((*afu), CU_CONFIGURE_4, (uint64_t)afu_status->cu_config_4);
         cxl_mmio_read64((*afu), CU_STATUS, (uint64_t *) & (afu_status->cu_status));
     }
     while(!((afu_status->cu_status)));
@@ -110,7 +114,7 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     struct CmdResponseStats cmdResponseStats = {0};
 #ifdef  VERBOSE_2
     printf("*-----------------------------------------------------*\n");
-    printf("| (#) Vertex: %-12lu | %-24s |\n", afu_status->cu_stop, "(#) Edges Processed");
+    printf("| (#) Data: %-14lu | %-24s |\n", afu_status->cu_stop, "(#) Data Processed");
     printf(" -----------------------------------------------------\n");
 #endif
     do
@@ -126,16 +130,11 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
         cxl_mmio_read64((*afu), CU_RETURN, (uint64_t *) & (afu_status->cu_return));
         cxl_mmio_read64((*afu), CU_RETURN_2, (uint64_t *) & (afu_status->cu_return_2));
         if(afu_status->cu_return && afu_status->cu_return_2)
-            printf("\r| V: %-21lu | E: %-22lu|", afu_status->cu_return, afu_status->cu_return_2);
+            printf("\r| R: %-21lu | W: %-22lu|", afu_status->cu_return, afu_status->cu_return_2);
         fflush(stdout);
 #endif
         // if((((afu_status->cu_return_done) << 32) >> 32) >= (afu_status->cu_stop))
         //     break;
-
-#ifdef  VERBOSE_3
-        readCmdResponseStats(afu, &cmdResponseStats);
-        printCmdResponseStats(&cmdResponseStats);
-#endif
 
         if((afu_status->cu_return_done) >= (afu_status->cu_stop))
         {
@@ -219,7 +218,7 @@ void printCmdResponseStats(struct CmdResponseStats *cmdResponseStats)
 {
 
     uint64_t size_read  = (cmdResponseStats->DONE_READ_count);
-    uint64_t size_write = (cmdResponseStats->DONE_WRITE_count) / 16;
+    uint64_t size_write = (cmdResponseStats->DONE_WRITE_count);
     uint64_t size       = size_read + (size_write);
 
     uint64_t size_read_byte  = (cmdResponseStats->READ_BYTE_count);
@@ -385,7 +384,7 @@ void printMMIO_error( uint64_t error )
 }
 
 // ********************************************************************************************
-// ***************                   DataStructure                            **************
+// ***************                   DataStructure                               **************
 // ********************************************************************************************
 
 

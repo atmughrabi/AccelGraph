@@ -18,7 +18,7 @@ direction_arr = [
 				 "PULLPUSH","PULL","PULL","PULL","PULL","PULL"]
 				 ]
 
-precision_arr = [["NONE","NONE"],["FloatPoint", "FloatPoint",
+precision_arr = [["BottomUp","NONE"],["FloatPoint", "FloatPoint",
 				 "FixedPoint","FixedPoint",
 				 "Quantized","Quantized",
 				 "FloatPoint","FloatPoint",
