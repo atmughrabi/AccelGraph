@@ -317,13 +317,13 @@ AccelGraph-CAPI can handle multiple representations of the graph structure in me
   - [x] BFS   (Breadth First Search)
   - [x] PR    (Page-Rank)
   - [x] DFS   (Depth First Search)
-  - [ ] IA    (Incremental Aggregation)
-  - [ ] SSSP  (BellmanFord)
-  - [ ] SSSP  (Dijkstra)
-  - [ ] CC    (Connected Components)
-  - [ ] BC    (Betweenness Centrality)
+  - [ ] IA    (Incremental Aggregation) (Needs Atomic Operation -> CAPI v2.0)
+  - [ ] SSSP  (BellmanFord) (Needs Atomic Operation -> CAPI v2.0)
+  - [ ] SSSP  (Dijkstra) (Needs Atomic Operation -> CAPI v2.0)
+  - [x] CC    (Connected Components)
   - [x] TC    (Triangle Counting)
   - [x] SPMV  (Sparse Matrix-vector Multiplication)
+  - [ ] BC    (Betweenness Centrality) 
 - [x] Support testing
 
 Report bugs to <atmughra@ncsu.edu>
