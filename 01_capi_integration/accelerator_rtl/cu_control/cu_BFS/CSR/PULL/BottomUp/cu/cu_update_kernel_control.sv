@@ -6,7 +6,7 @@
 // Copyright (c) 2014-2019 All rights reserved
 // -----------------------------------------------------------------------------
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
-// File   : cu_sum_kernel_control.sv
+// File   : cu_update_kernel_control.sv
 // Create : 2019-09-26 15:19:17
 // Revise : 2019-11-03 12:38:39
 // Editor : sublime text3, tab size (4)
@@ -19,7 +19,7 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_sum_kernel_control #(
+module cu_update_kernel_control #(
 	parameter CU_ID_X = 1,
 	parameter CU_ID_Y = 1
 ) (
@@ -164,7 +164,7 @@ module cu_sum_kernel_control #(
 			edge_data_counter_accum_internal_S2 <= 0;
 		end else begin
 			if (enabled && vertex_job_latched.valid) begin
-				if(edge_data_latched.valid)begin
+				if(edge_data_latched.valid && (|edge_data_latched.payload.data))begin
 					edge_data_accumulator.valid           <= 1;
 					edge_data_accumulator.payload.index   <= vertex_job_latched.payload.id;
 					edge_data_accumulator.payload.cu_id_x <= CU_ID_X;

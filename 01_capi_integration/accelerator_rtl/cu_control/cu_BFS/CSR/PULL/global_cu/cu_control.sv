@@ -92,6 +92,9 @@ module cu_control #(
 	cu_return_type cu_return_latched     ;
 	logic [0:63]   cu_configure_latched  ;
 	logic [0:63]   cu_configure_2_latched;
+	logic [0:63]   cu_configure_3_latched;
+	logic [0:63]   cu_configure_4_latched;
+
 
 	logic                          done_algorithm                  ;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_job_counter_done         ;
@@ -209,7 +212,7 @@ module cu_control #(
 		end
 	end
 
-	assign cu_ready = (|cu_configure_latched) && wed_request_in_latched.valid;
+	assign cu_ready = (|cu_configure_latched) && (|cu_configure_3_latched) && (|cu_configure_4_latched) && wed_request_in_latched.valid;
 
 ////////////////////////////////////////////////////////////////////////////
 //Done signal
@@ -321,11 +324,13 @@ module cu_control #(
 			read_data_0_in_latched.payload            <= 0;
 			read_data_1_in_latched.payload            <= 0;
 		end else begin
-			wed_request_in_latched.payload            <= wed_request_in.payload;
-			read_response_in_latched.payload          <= read_response_in.payload;
-			write_response_in_graph_algorithm.payload <= write_response_in.payload;
-			read_data_0_in_latched.payload            <= read_data_0_in.payload;
-			read_data_1_in_latched.payload            <= read_data_1_in.payload;
+			wed_request_in_latched.payload                <= wed_request_in.payload;
+			wed_request_in_latched.payload.wed.auxiliary3 <= cu_configure_3_latched;
+			wed_request_in_latched.payload.wed.auxiliary4 <= cu_configure_4_latched;
+			read_response_in_latched.payload              <= read_response_in.payload;
+			write_response_in_graph_algorithm.payload     <= write_response_in.payload;
+			read_data_0_in_latched.payload                <= read_data_0_in.payload;
+			read_data_1_in_latched.payload                <= read_data_1_in.payload;
 		end
 	end
 
@@ -340,6 +345,12 @@ module cu_control #(
 
 				if((|cu_configure.var2))
 					cu_configure_2_latched <= cu_configure.var2;
+
+				if((|cu_configure.var3))
+					cu_configure_3_latched <= cu_configure.var3;
+
+				if((|cu_configure.var4))
+					cu_configure_4_latched <= cu_configure.var4;
 			end
 		end
 	end

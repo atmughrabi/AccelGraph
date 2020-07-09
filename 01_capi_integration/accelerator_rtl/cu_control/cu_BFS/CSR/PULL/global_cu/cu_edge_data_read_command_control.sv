@@ -176,7 +176,7 @@ module cu_edge_data_read_command_control #(
 	end
 
 	always_ff @(posedge clock) begin
-		read_command_out_latched.payload.address              <= wed_request_in_latched.payload.wed.auxiliary1 + ((edge_job_variable.payload.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_ALIGN_MASK);
+		read_command_out_latched.payload.address              <= wed_request_in_latched.payload.wed.auxiliary3 + ((edge_job_variable.payload.dest<< $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_ALIGN_MASK);
 		read_command_out_latched.payload.size                 <= 12'h080;
 		read_command_out_latched.payload.cmd.real_size        <= 1'b1;
 		read_command_out_latched.payload.cmd.real_size_bytes  <= DATA_SIZE_READ;

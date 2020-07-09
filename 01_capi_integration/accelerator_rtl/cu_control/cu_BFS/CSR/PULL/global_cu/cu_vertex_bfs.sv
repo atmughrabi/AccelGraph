@@ -438,29 +438,29 @@ module cu_vertex_bfs #(
 	);
 
 	////////////////////////////////////////////////////////////////////////////
-	// Data SUM control Float/Fixed Point
+	// Data update parent and next frontier control
 	////////////////////////////////////////////////////////////////////////////
 
-	// cu_sum_kernel_control #(
-	// 	.CU_ID_X(CU_ID_X),
-	// 	.CU_ID_Y(CU_ID_Y)
-	// ) cu_sum_kernel_control_instant (
-	// 	.clock                               (clock                              ),
-	// 	.rstn_in                             (rstn                               ),
-	// 	.enabled_in                          (enabled_sum_data                   ),
-	// 	.write_response_in                   (write_response_in_edge_data        ),
-	// 	.write_buffer_status                 (write_buffer_status_latched        ),
-	// 	.edge_data                           (edge_data                          ),
-	// 	.edge_data_request                   (edge_data_request                  ),
-	// 	.data_buffer_status                  (data_buffer_status                 ),
-	// 	.edge_data_write_bus_grant           (edge_data_write_bus_grant_latched  ),
-	// 	.edge_data_write_bus_request         (edge_data_write_bus_request_latched),
-	// 	.edge_data_write_out                 (edge_data_write_out_internal       ),
-	// 	.vertex_job                          (vertex_job_internal_latched        ),
-	// 	.vertex_num_counter_resp_out         (vertex_num_counter_resp            ),
-	// 	.edge_data_counter_accum_out         (edge_data_counter_accum            ),
-	// 	.edge_data_counter_accum_internal_out(edge_data_counter_accum_internal   )
-	// );
+	cu_update_kernel_control #(
+		.CU_ID_X(CU_ID_X),
+		.CU_ID_Y(CU_ID_Y)
+	) cu_update_kernel_control_instant (
+		.clock                               (clock                              ),
+		.rstn_in                             (rstn                               ),
+		.enabled_in                          (enabled_sum_data                   ),
+		.write_response_in                   (write_response_in_edge_data        ),
+		.write_buffer_status                 (write_buffer_status_latched        ),
+		.edge_data                           (edge_data                          ),
+		.edge_data_request                   (edge_data_request                  ),
+		.data_buffer_status                  (data_buffer_status                 ),
+		.edge_data_write_bus_grant           (edge_data_write_bus_grant_latched  ),
+		.edge_data_write_bus_request         (edge_data_write_bus_request_latched),
+		.edge_data_write_out                 (edge_data_write_out_internal       ),
+		.vertex_job                          (vertex_job_internal_latched        ),
+		.vertex_num_counter_resp_out         (vertex_num_counter_resp            ),
+		.edge_data_counter_accum_out         (edge_data_counter_accum            ),
+		.edge_data_counter_accum_internal_out(edge_data_counter_accum_internal   )
+	);
 
 ////////////////////////////////////////////////////////////////////////////
 //read response arbitration logic - input

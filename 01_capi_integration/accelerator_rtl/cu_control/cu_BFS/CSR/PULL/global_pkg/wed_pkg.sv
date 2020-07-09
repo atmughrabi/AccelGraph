@@ -45,6 +45,9 @@ package WED_PKG;
         logic [0:63] inverse_edges_array_dest  ; // 8-Bytes
         logic [0:63] auxiliary1                ; // 8-Bytes
         logic [0:63] auxiliary2                ; // 8-Bytes
+        // extra 16 Bytes if you need to pass more data related to WED but doesn't fit 128Bytes
+        logic [0:63] auxiliary3                ; // 8-Bytes 
+        logic [0:63] auxiliary4                ; // 8-Bytes
     } WED_request;// 108-bytes used from 128-Bytes WED
 
 
@@ -83,6 +86,9 @@ package WED_PKG;
         wed.inverse_edges_array_dest   = swap_endianness_double_word(in[832:895]);     // 8-Bytes
         wed.auxiliary1                 = swap_endianness_double_word(in[896:959]);     // 8-Bytes // parent array
         wed.auxiliary2                 = swap_endianness_double_word(in[960:1023]);    // 8-Bytes // current Bitmap
+        // extra 16 Bytes if you need to pass more data related to WED but doesn't fit 128Bytes
+        wed.auxiliary3                 = 0;
+        wed.auxiliary4                 = 0;
 
         return wed;
 

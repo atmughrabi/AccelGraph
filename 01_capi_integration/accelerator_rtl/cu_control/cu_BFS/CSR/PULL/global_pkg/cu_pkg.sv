@@ -63,27 +63,12 @@ package CU_PKG;
 		SHIFT_EDGE_DATA_DONE_1
 	} edge_struct_state;
 
-	// typedef enum int unsigned {
-	// 	SEND_EDGE_RESET,
-	// 	SEND_EDGE_INIT,
-	// 	SEND_EDGE_IDLE,
-	// 	SEND_EDGE_WAIT,
-	// 	START_EDGE_REQ,
-	// 	CALC_EDGE_REQ_SIZE,
-	// 	SEND_EDGE_SRC,
-	// 	SEND_EDGE_DEST,
-	// 	SEND_EDGE_WEIGHT,
-	// 	SEND_EDGE_INV_SRC,
-	// 	SEND_EDGE_INV_DEST,
-	// 	SEND_EDGE_INV_WEIGHT
-	// } edge_struct_state;
-
 // Vertex data to travers neighbors
 	typedef struct packed {
 		logic [0:(VERTEX_SIZE_BITS-1)] id                ;
 		logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree;
 		logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx ;
-		logic [0:(VERTEX_SIZE_BITS-1)] parent;
+		logic [0:(VERTEX_SIZE_BITS-1)] parent            ;
 	} VertexInterfacePayload;
 
 	typedef struct packed {
@@ -106,6 +91,7 @@ package CU_PKG;
 		cu_id_t                           cu_id_x;
 		cu_id_t                           cu_id_y;
 		logic [0:(DATA_SIZE_READ_BITS-1)] data   ;
+		logic [     0:(EDGE_SIZE_BITS-1)] dest   ;
 	} EdgeDataReadPayload;
 
 	typedef struct packed {
@@ -114,10 +100,11 @@ package CU_PKG;
 	} EdgeDataRead;
 
 	typedef struct packed {
-		cu_id_t                            cu_id_x;
-		cu_id_t                            cu_id_y;
-		logic [      0:(EDGE_SIZE_BITS-1)] index  ;
-		logic [0:(DATA_SIZE_WRITE_BITS-1)] data   ;
+		cu_id_t                                   cu_id_x;
+		cu_id_t                                   cu_id_y;
+		logic [             0:(EDGE_SIZE_BITS-1)] index  ;
+		logic [       0:(DATA_SIZE_WRITE_BITS-1)] data_1 ; //update frontier
+		logic [0:(DATA_SIZE_WRITE_PARENT_BITS-1)] data_2 ; //update parent
 	} EdgeDataWritePayload;
 
 	typedef struct packed {

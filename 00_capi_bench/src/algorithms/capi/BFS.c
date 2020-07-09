@@ -24,6 +24,7 @@
 #include "boolean.h"
 #include "arrayQueue.h"
 #include "bitmap.h"
+#include "worklist.h"
 #include "graphConfig.h"
 
 #include "graphCSR.h"
@@ -241,15 +242,29 @@ struct BFSStats *breadthFirstSearchPullGraphCSR(uint32_t source, struct GraphCSR
 
     struct ArrayQueue *sharedFrontierQueue = newArrayQueue(graph->num_vertices);
 
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+
+    resetWorkList(workListNext, graph->num_vertices);
+    resetWorkList(workListCurr, graph->num_vertices);
+
     uint32_t nf = 0; // number of vertices in sharedFrontierQueue
 
     Start(timer_inner);
     setBit(sharedFrontierQueue->q_bitmap_next, source);
+    workListNext[source] = 1;
+
     sharedFrontierQueue->q_bitmap_next->numSetBits = 1;
     stats->parents[source] = source;
 
     swapBitmaps(&sharedFrontierQueue->q_bitmap, &sharedFrontierQueue->q_bitmap_next);
+    swapWorkLists(&workListCurr, &workListNext);
+
     clearBitmap(sharedFrontierQueue->q_bitmap_next);
+    resetWorkList(workListNext, graph->num_vertices);
+
     Stop(timer_inner);
     stats->time_total +=  Seconds(timer_inner);
 
@@ -260,10 +275,15 @@ struct BFSStats *breadthFirstSearchPullGraphCSR(uint32_t source, struct GraphCSR
     {
 
         Start(timer_inner);
-        nf = bottomUpStepGraphCSR(graph, sharedFrontierQueue->q_bitmap, sharedFrontierQueue->q_bitmap_next, stats);
+        nf = bottomUpStepGraphCSRCAPI(graph, workListCurr, workListNext, stats);
         sharedFrontierQueue->q_bitmap_next->numSetBits = nf;
+
         swapBitmaps(&sharedFrontierQueue->q_bitmap, &sharedFrontierQueue->q_bitmap_next);
+        swapWorkLists(&workListCurr, &workListNext);
+
         clearBitmap(sharedFrontierQueue->q_bitmap_next);
+        resetWorkList(workListNext, graph->num_vertices);
+
         Stop(timer_inner);
 
         //stats
@@ -284,6 +304,9 @@ struct BFSStats *breadthFirstSearchPullGraphCSR(uint32_t source, struct GraphCSR
 
 
     freeArrayQueue(sharedFrontierQueue);
+
+    free(workListCurr);
+    free(workListNext);
     free(timer);
     free(timer_inner);
 
@@ -630,13 +653,53 @@ uint32_t bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr,
     struct Vertex *vertices = NULL;
     uint32_t *sorted_edges_array = NULL;
 
-      //CAPI variables
-    struct cxl_afu_h *afu;
-    struct WEDGraphCSR *wedGraphCSR;
-
     // uint32_t processed_nodes = bitmapCurr->numSetBits;
     uint32_t nf = 0; // number of vertices in sharedFrontierQueue
     // stats->processed_nodes += processed_nodes;
+
+#if DIRECTED
+    vertices = graph->inverse_vertices;
+    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
+#else
+    vertices = graph->vertices;
+    sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
+#endif
+
+    #pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(stats,bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
+    for(v = 0 ; v < graph->num_vertices ; v++)
+    {
+        out_degree = vertices->out_degree[v];
+        if(stats->parents[v] < 0)  // optmization
+        {
+            edge_idx = vertices->edges_idx[v];
+
+            for(j = edge_idx ; j < (edge_idx + out_degree) ; j++)
+            {
+                u = sorted_edges_array[j];
+                if(getBit(bitmapCurr, u))
+                {
+                    stats->parents[v] = u;
+                    stats->distances[v] = stats->distances[u] + 1;
+                    setBitAtomic(bitmapNext, v);
+                    nf++;
+                    break;
+                }
+            }
+
+        }
+
+    }
+    return nf;
+}
+
+uint32_t bottomUpStepGraphCSRCAPI(struct GraphCSR *graph, uint8_t *workListCurr, uint8_t *workListNext, struct BFSStats *stats)
+{
+
+
+    uint32_t nf = 0; // number of vertices in sharedFrontierQueue
+       //CAPI variables
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
 
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
     wedGraphCSR->auxiliary1 = stats->parents;
@@ -655,37 +718,13 @@ uint32_t bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr,
     afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
     afu_status.cu_config = ((cu_config << 32) | (numThreads));
     afu_status.cu_config_2 = cu_config_2; // non zero CU triggers the AFU to work
-    afu_status.cu_config_3 = bitmapNext->bitarray; // non zero CU triggers the AFU to work
-    afu_status.cu_config_4 = bitmapCurr->bitarray; // non zero CU triggers the AFU to work
+    afu_status.cu_config_3 = (uint64_t)workListCurr; // non zero CU triggers the AFU to work
+    afu_status.cu_config_4 = (uint64_t)workListNext; // non zero CU triggers the AFU to work
     afu_status.cu_stop     = wedGraphCSR->num_vertices; // stop condition once all vertices processed
 
+    // ********************************************************************************************
     startAFU(&afu, &afu_status);
     // ********************************************************************************************
-
-    // #pragma omp parallel for default(none) private(j,u,v,out_degree,edge_idx) shared(stats,bitmapCurr,bitmapNext,graph,vertices,sorted_edges_array) reduction(+:nf) schedule(dynamic, 1024)
-    // for(v = 0 ; v < graph->num_vertices ; v++)
-    // {
-    //     out_degree = vertices->out_degree[v];
-    //     if(stats->parents[v] < 0)  // optmization
-    //     {
-    //         edge_idx = vertices->edges_idx[v];
-
-    //         for(j = edge_idx ; j < (edge_idx + out_degree) ; j++)
-    //         {
-    //             u = sorted_edges_array[j];
-    //             if(getBit(bitmapCurr, u))
-    //             {
-    //                 stats->parents[v] = u;
-    //                 stats->distances[v] = stats->distances[u] + 1;
-    //                 setBitAtomic(bitmapNext, v);
-    //                 nf++;
-    //                 break;
-    //             }
-    //         }
-
-    //     }
-
-    // }
 
     // ********************************************************************************************
     // ***************                 START CU                                      **************
@@ -703,6 +742,7 @@ uint32_t bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr,
     // ********************************************************************************************
 
     nf = afu_status.cu_return;
+
     return nf;
 }
 
