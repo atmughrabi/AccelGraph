@@ -135,14 +135,14 @@ module cu_cacheline_stream #(parameter SIZE_BITS = VERTEX_SIZE_BITS) (
 			we                  = 1;
 			address_wr          = 0;
 			read_data_in        = read_data_in_latched.data;
-			shift_seek_latched  = read_data_in_latched.cmd.cacheline_offest;
+			shift_seek_latched  = read_data_in_latched.cmd.cacheline_offset;
 			shift_limit_latched = read_data_in_latched.cmd.real_size;
 			pending_latched     = 1;
 		end else if((read_data_in_latched.cmd.array_struct == vertex_struct_latched) && read_data_part && (read_data_in_latched.valid))begin
 			we                  = 1;
 			address_wr          = 1;
 			read_data_in        = read_data_in_latched.data;
-			shift_seek_latched  = read_data_in_latched.cmd.cacheline_offest;
+			shift_seek_latched  = read_data_in_latched.cmd.cacheline_offset;
 			shift_limit_latched = read_data_in_latched.cmd.real_size;
 			pending_latched     = 1;
 		end

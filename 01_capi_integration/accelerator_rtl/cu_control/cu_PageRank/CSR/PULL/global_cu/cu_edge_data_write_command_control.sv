@@ -115,12 +115,12 @@ module cu_edge_data_write_command_control #(
 		cmd.array_struct     = WRITE_GRAPH_DATA;
 		cmd.real_size        = 1;
 		cmd.real_size_bytes  = DATA_SIZE_WRITE;
-		cmd.cacheline_offest = (((edge_data_write_latched.payload.index << $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_MOD_MASK) >> $clog2(DATA_SIZE_WRITE));
+		cmd.cacheline_offset = (((edge_data_write_latched.payload.index << $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_MOD_MASK) >> $clog2(DATA_SIZE_WRITE));
 		cmd.cu_id_x          = edge_data_write_latched.payload.cu_id_x;
 		cmd.cu_id_y          = edge_data_write_latched.payload.cu_id_y;
 		cmd.cmd_type         = CMD_WRITE;
 		cmd.abt              = STRICT;
-		cmd.address_offest   = edge_data_write_latched.payload.index;
+		cmd.address_offset   = edge_data_write_latched.payload.index;
 		cmd.aux_data         = edge_data_write_latched.payload.data;
 	end
 

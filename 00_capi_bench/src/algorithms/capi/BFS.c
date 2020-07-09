@@ -741,7 +741,7 @@ uint32_t bottomUpStepGraphCSRCAPI(struct GraphCSR *graph, uint8_t *workListCurr,
     releaseAFU(&afu);
     // ********************************************************************************************
 
-    nf = afu_status.cu_return;
+    nf = afu_status.cu_return_2;
 
     return nf;
 }

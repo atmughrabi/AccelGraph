@@ -147,10 +147,10 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 					read_command_out_latched.cmd.real_size        <= 1'b1;
 					read_command_out_latched.cmd.real_size_bytes  <= DATA_SIZE_WRITE;
 					read_command_out_latched.cmd.array_struct     <= READ_GRAPH_DATA;
-					read_command_out_latched.cmd.cacheline_offest <= (((edge_job_variable.dest<< $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_ALIGN_MASK) >> $clog2(DATA_SIZE_WRITE));
+					read_command_out_latched.cmd.cacheline_offset <= (((edge_job_variable.dest<< $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_ALIGN_MASK) >> $clog2(DATA_SIZE_WRITE));
 					read_command_out_latched.cmd.cu_id            <= CU_ID;
 					read_command_out_latched.cmd.cmd_type         <= CMD_READ;
-					read_command_out_latched.cmd.address_offest   <= edge_job_variable.dest;
+					read_command_out_latched.cmd.address_offset   <= edge_job_variable.dest;
 
 					read_command_out_latched.cmd.abt <= map_CABT(cu_configure_latched[10:12]);
 					read_command_out_latched.abt     <= map_CABT(cu_configure_latched[10:12]);
@@ -177,7 +177,7 @@ module cu_edge_data_control #(parameter CU_ID = 1) (
 
 				read_command_out_latched_NLOCK.cmd     <= read_response_in_latched.cmd;
 				read_command_out_latched_NLOCK.size    <= 12'h080;
-				read_command_out_latched_NLOCK.address <= wed_request_in_latched.wed.auxiliary1 + (read_response_in_latched.cmd.cacheline_offest << $clog2(DATA_SIZE_WRITE));
+				read_command_out_latched_NLOCK.address <= wed_request_in_latched.wed.auxiliary1 + (read_response_in_latched.cmd.cacheline_offset << $clog2(DATA_SIZE_WRITE));
 				read_command_out_latched_NLOCK.abt     <= read_response_in_latched.cmd.abt;
 				read_command_out_latched_NLOCK.command <= READ_CL_LCK;
 			end else begin

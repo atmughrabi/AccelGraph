@@ -295,7 +295,7 @@ module cu_sum_kernel_control #(
 		end else begin
 			if(write_response_in_latched.valid && write_response_in_latched.response == NLOCK) begin
 				edge_data_accumulator_latch_NLOCK.valid <= 1;
-				edge_data_accumulator_latch_NLOCK.index <= write_response_in_latched.cmd.address_offest[(64-EDGE_SIZE_BITS):63];
+				edge_data_accumulator_latch_NLOCK.index <= write_response_in_latched.cmd.address_offset[(64-EDGE_SIZE_BITS):63];
 				edge_data_accumulator_latch_NLOCK.cu_id <= CU_ID;
 				edge_data_accumulator_latch_NLOCK.data  <= write_response_in_latched.cmd.aux_data[(64-DATA_SIZE_WRITE_BITS):63];
 			end else begin

@@ -90,7 +90,7 @@ module cu_vertex_job_control (
 	// internal registers to track logic
 	// Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
 	logic                             send_request_ready         ;
-	logic [                     0:63] vertex_next_offest         ;
+	logic [                     0:63] vertex_next_offset         ;
 	logic [   0:(VERTEX_SIZE_BITS-1)] vertex_num_counter         ;
 	logic [   0:(VERTEX_SIZE_BITS-1)] vertex_id_counter          ;
 	logic                             generate_read_command      ;
@@ -264,7 +264,7 @@ module cu_vertex_job_control (
 		case (current_state)
 			SEND_VERTEX_RESET : begin
 				read_command_vertex_job_latched <= 0;
-				vertex_next_offest              <= 0;
+				vertex_next_offset              <= 0;
 				generate_read_command           <= 0;
 				setup_read_command              <= 0;
 				clear_data_ready                <= 1;
@@ -299,20 +299,20 @@ module cu_vertex_job_control (
 			end
 			SEND_VERTEX_OUT_DEGREE : begin
 				read_command_vertex_job_latched.valid              <= 1'b1;
-				read_command_vertex_job_latched.address            <= wed_request_in_latched.wed.vertex_out_degree + vertex_next_offest;
-				read_command_vertex_job_latched.cmd.address_offest <= wed_request_in_latched.wed.vertex_out_degree + vertex_next_offest;
+				read_command_vertex_job_latched.address            <= wed_request_in_latched.wed.vertex_out_degree + vertex_next_offset;
+				read_command_vertex_job_latched.cmd.address_offset <= wed_request_in_latched.wed.vertex_out_degree + vertex_next_offset;
 				read_command_vertex_job_latched.cmd.array_struct   <= OUT_DEGREE;
 			end
 			SEND_VERTEX_READ_DATA : begin
-				read_command_vertex_job_latched.address            <= wed_request_in_latched.wed.auxiliary1 + vertex_next_offest;
-				read_command_vertex_job_latched.cmd.address_offest <= wed_request_in_latched.wed.auxiliary1 + vertex_next_offest;
+				read_command_vertex_job_latched.address            <= wed_request_in_latched.wed.auxiliary1 + vertex_next_offset;
+				read_command_vertex_job_latched.cmd.address_offset <= wed_request_in_latched.wed.auxiliary1 + vertex_next_offset;
 				read_command_vertex_job_latched.cmd.array_struct   <= READ_GRAPH_DATA;
 			end
 			SEND_VERTEX_EDGES_IDX : begin
-				read_command_vertex_job_latched.address            <= wed_request_in_latched.wed.vertex_edges_idx + vertex_next_offest;
-				read_command_vertex_job_latched.cmd.address_offest <= wed_request_in_latched.wed.vertex_edges_idx + vertex_next_offest;
+				read_command_vertex_job_latched.address            <= wed_request_in_latched.wed.vertex_edges_idx + vertex_next_offset;
+				read_command_vertex_job_latched.cmd.address_offset <= wed_request_in_latched.wed.vertex_edges_idx + vertex_next_offset;
 				read_command_vertex_job_latched.cmd.array_struct   <= EDGES_IDX;
-				vertex_next_offest                                 <= vertex_next_offest + CACHELINE_SIZE;
+				vertex_next_offset                                 <= vertex_next_offset + CACHELINE_SIZE;
 			end
 			WAIT_VERTEX_DATA : begin
 				read_command_vertex_job_latched <= 0;
@@ -399,7 +399,7 @@ module cu_vertex_job_control (
 
 				read_command_vertex_job_latched_S2.cmd.cu_id            <= VERTEX_CONTROL_ID;
 				read_command_vertex_job_latched_S2.cmd.cmd_type         <= CMD_READ;
-				read_command_vertex_job_latched_S2.cmd.cacheline_offest <= 0;
+				read_command_vertex_job_latched_S2.cmd.cacheline_offset <= 0;
 
 				read_command_vertex_job_latched_S2.cmd.abt <= map_CABT(cu_configure_latched[0:2]);
 				read_command_vertex_job_latched_S2.abt     <= map_CABT(cu_configure_latched[0:2]);
@@ -687,7 +687,7 @@ module cu_vertex_job_control (
 
 				read_command_out_latched_NLOCK.cmd     <= read_response_in_latched.cmd;
 				read_command_out_latched_NLOCK.size    <= read_response_in_latched.cmd.size;
-				read_command_out_latched_NLOCK.address <= read_response_in_latched.cmd.address_offest;
+				read_command_out_latched_NLOCK.address <= read_response_in_latched.cmd.address_offset;
 				read_command_out_latched_NLOCK.abt     <= read_response_in_latched.cmd.abt;
 				read_command_out_latched_NLOCK.command <= READ_CL_LCK;
 			end else begin

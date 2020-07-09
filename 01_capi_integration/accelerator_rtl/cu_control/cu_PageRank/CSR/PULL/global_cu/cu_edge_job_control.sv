@@ -93,7 +93,7 @@ module cu_edge_job_control #(
 	// internal registers to track logic
 	// Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
 	logic                        send_request_ready   ;
-	logic [                0:63] edge_next_offest     ;
+	logic [                0:63] edge_next_offset     ;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_num_counter     ;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_id_counter      ;
 	logic                        generate_read_command;
@@ -353,7 +353,7 @@ module cu_edge_job_control #(
 		case (current_state)
 			SEND_EDGE_RESET : begin
 				read_command_edge_job_latched.valid <= 0;
-				edge_next_offest                    <= 0;
+				edge_next_offset                    <= 0;
 				generate_read_command               <= 0;
 				clear_data_ready                    <= 1;
 				shift_limit_clear                   <= 1;
@@ -370,7 +370,7 @@ module cu_edge_job_control #(
 				clear_data_ready                    <= 0;
 				shift_limit_clear                   <= 0;
 				if(read_vertex_new_latched)begin
-					edge_next_offest <= (vertex_job_latched.payload.inverse_edges_idx << $clog2(EDGE_SIZE));
+					edge_next_offset <= (vertex_job_latched.payload.inverse_edges_idx << $clog2(EDGE_SIZE));
 				end
 			end
 			SEND_EDGE_IDLE : begin
@@ -378,8 +378,8 @@ module cu_edge_job_control #(
 				read_command_edge_job_latched.valid <= 0;
 				shift_limit_clear                   <= 0;
 				shift_counter                       <= 0;
-				remainder                           <= (edge_next_offest & ADDRESS_EDGE_MOD_MASK);
-				aligned                             <= (edge_next_offest & ADDRESS_EDGE_ALIGN_MASK);
+				remainder                           <= (edge_next_offset & ADDRESS_EDGE_MOD_MASK);
+				aligned                             <= (edge_next_offset & ADDRESS_EDGE_ALIGN_MASK);
 			end
 			START_EDGE_REQ : begin
 				read_command_edge_job_latched.valid <= 0;
@@ -398,9 +398,9 @@ module cu_edge_job_control #(
 				read_command_edge_job_latched.payload.cmd.array_struct <= INV_EDGE_ARRAY_DEST;
 
 				if(|remainder)
-					edge_next_offest <= edge_next_offest + (CACHELINE_SIZE-remainder);
+					edge_next_offset <= edge_next_offset + (CACHELINE_SIZE-remainder);
 				else
-					edge_next_offest <= edge_next_offest + CACHELINE_SIZE;
+					edge_next_offset <= edge_next_offset + CACHELINE_SIZE;
 			end
 			WAIT_EDGE_DATA : begin
 				read_command_edge_job_latched.valid <= 0;
@@ -514,7 +514,7 @@ module cu_edge_job_control #(
 					end
 				end
 			end
-			read_command_edge_job_latched_S2.payload.cmd.cacheline_offest <= (remainder >> $clog2(EDGE_SIZE));
+			read_command_edge_job_latched_S2.payload.cmd.cacheline_offset <= (remainder >> $clog2(EDGE_SIZE));
 			read_command_edge_job_latched_S2.payload.cmd.cu_id_x          <= CU_ID_X;
 			read_command_edge_job_latched_S2.payload.cmd.cu_id_y          <= CU_ID_Y;
 			read_command_edge_job_latched_S2.payload.cmd.cmd_type         <= CMD_READ;
@@ -584,17 +584,17 @@ module cu_edge_job_control #(
 		end else begin
 			if(read_response_in_latched.valid) begin
 				if(~(|shift_limit_0) && ~shift_limit_clear) begin
-					if((read_response_in_latched.payload.cmd.real_size+read_response_in_latched.payload.cmd.cacheline_offest) > CACHELINE_EDGE_NUM_HF) begin
+					if((read_response_in_latched.payload.cmd.real_size+read_response_in_latched.payload.cmd.cacheline_offset) > CACHELINE_EDGE_NUM_HF) begin
 						shift_limit_0 <= CACHELINE_EDGE_NUM_HF-1;
-						shift_limit_1 <= (read_response_in_latched.payload.cmd.real_size+read_response_in_latched.payload.cmd.cacheline_offest) - CACHELINE_EDGE_NUM_HF-1;
-						zero_pass     <= (((read_response_in_latched.payload.cmd.real_size+read_response_in_latched.payload.cmd.cacheline_offest) - CACHELINE_EDGE_NUM_HF) == 1);
+						shift_limit_1 <= (read_response_in_latched.payload.cmd.real_size+read_response_in_latched.payload.cmd.cacheline_offset) - CACHELINE_EDGE_NUM_HF-1;
+						zero_pass     <= (((read_response_in_latched.payload.cmd.real_size+read_response_in_latched.payload.cmd.cacheline_offset) - CACHELINE_EDGE_NUM_HF) == 1);
 					end else begin
-						shift_limit_0 <= (read_response_in_latched.payload.cmd.real_size+read_response_in_latched.payload.cmd.cacheline_offest)-1;
+						shift_limit_0 <= (read_response_in_latched.payload.cmd.real_size+read_response_in_latched.payload.cmd.cacheline_offset)-1;
 						shift_limit_1 <= 0;
 						zero_pass     <= 0;
 					end
 
-					shift_seek <= read_response_in_latched.payload.cmd.cacheline_offest;
+					shift_seek <= read_response_in_latched.payload.cmd.cacheline_offset;
 				end
 			end
 

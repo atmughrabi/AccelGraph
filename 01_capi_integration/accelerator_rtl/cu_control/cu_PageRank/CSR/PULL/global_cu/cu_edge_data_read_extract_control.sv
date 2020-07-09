@@ -113,7 +113,7 @@ module cu_edge_data_read_extract_control #(
 //data request read logic
 ////////////////////////////////////////////////////////////////////////////
 
-	assign offset_data_0 = read_data_0_in_latched.payload.cmd.cacheline_offest;
+	assign offset_data_0 = read_data_0_in_latched.payload.cmd.cacheline_offset;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin

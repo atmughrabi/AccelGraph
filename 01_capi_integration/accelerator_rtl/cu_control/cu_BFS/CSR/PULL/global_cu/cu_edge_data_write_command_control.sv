@@ -115,13 +115,13 @@ module cu_edge_data_write_command_control #(
 		cmd.array_struct     = WRITE_GRAPH_DATA;
 		cmd.real_size        = 1;
 		cmd.real_size_bytes  = DATA_SIZE_WRITE;
-		cmd.cacheline_offest = (((edge_data_write_latched.payload.index << $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_MOD_MASK) >> $clog2(DATA_SIZE_WRITE));
+		cmd.cacheline_offset = (((edge_data_write_latched.payload.index << $clog2(DATA_SIZE_WRITE)) & ADDRESS_DATA_WRITE_MOD_MASK) >> $clog2(DATA_SIZE_WRITE));
 		cmd.cu_id_x          = edge_data_write_latched.payload.cu_id_x;
 		cmd.cu_id_y          = edge_data_write_latched.payload.cu_id_y;
 		cmd.cmd_type         = CMD_WRITE;
 		cmd.abt              = STRICT;
-		cmd.address_offest   = edge_data_write_latched.payload.index;
-		cmd.aux_data         = edge_data_write_latched.payload.data;
+		cmd.address_offset   = edge_data_write_latched.payload.index;
+		cmd.aux_data         = edge_data_write_latched.payload.data_1;
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -144,15 +144,15 @@ module cu_edge_data_write_command_control #(
 
 	always_ff @(posedge clock) begin
 		if (edge_data_write_latched.valid) begin
-			write_command_out_latched.payload.address <= wed_request_in_latched.payload.wed.auxiliary2 + (edge_data_write_latched.payload.index << $clog2(DATA_SIZE_WRITE));
+			write_command_out_latched.payload.address <= wed_request_in_latched.payload.wed.auxiliary4 + (edge_data_write_latched.payload.index << $clog2(DATA_SIZE_WRITE));
 			write_command_out_latched.payload.size    <= DATA_SIZE_WRITE;
 			write_command_out_latched.payload.cmd     <= cmd;
 
 			write_data_0_out_latched.payload.cmd                                                          <= cmd;
-			write_data_0_out_latched.payload.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] <= swap_endianness_data_write(edge_data_write_latched.payload.data) ;
+			write_data_0_out_latched.payload.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] <= swap_endianness_data_write(edge_data_write_latched.payload.data_1) ;
 
 			write_data_1_out_latched.payload.cmd                                                          <= cmd;
-			write_data_1_out_latched.payload.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] <= swap_endianness_data_write(edge_data_write_latched.payload.data) ;
+			write_data_1_out_latched.payload.data[offset_data*DATA_SIZE_WRITE_BITS+:DATA_SIZE_WRITE_BITS] <= swap_endianness_data_write(edge_data_write_latched.payload.data_1) ;
 
 			write_data_1_out_latched.payload.cmd.abt  <= map_CABT(cu_configure_latched[15:17]);
 			write_data_0_out_latched.payload.cmd.abt  <= map_CABT(cu_configure_latched[15:17]);

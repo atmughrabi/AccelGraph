@@ -101,7 +101,7 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 //data request read logic
 ////////////////////////////////////////////////////////////////////////////
 
-	assign offset_data_0 = read_data_0_in_latched.cmd.cacheline_offest;
+	assign offset_data_0 = read_data_0_in_latched.cmd.cacheline_offset;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -114,7 +114,7 @@ module cu_edge_data_read_control #(parameter CU_ID = 1) (
 				if(read_data_0_in_latched.valid && read_data_1_in_latched.valid)begin
 					read_data_in[0:CACHELINE_SIZE_BITS_HF-1]                   <= read_data_0_in_latched.data;
 					read_data_in[CACHELINE_SIZE_BITS_HF:CACHELINE_SIZE_BITS-1] <= read_data_1_in_latched.data;
-					dest_id                                                    <= read_data_0_in_latched.cmd.address_offest[(64-EDGE_SIZE_BITS):63];
+					dest_id                                                    <= read_data_0_in_latched.cmd.address_offset[(64-EDGE_SIZE_BITS):63];
 					cu_id                                                      <= read_data_0_in_latched.cmd.cu_id;
 					address_rd                                                 <= offset_data_0;
 				end else begin
