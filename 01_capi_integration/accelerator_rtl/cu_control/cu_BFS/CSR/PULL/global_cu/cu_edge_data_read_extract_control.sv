@@ -44,6 +44,7 @@ module cu_edge_data_read_extract_control #(
 	cu_id_t           cu_id_y                  ;
 	logic             enabled                  ;
 	logic [0:63]      address_offset           ;
+	logic [0:63]      aux_data                 ;
 
 	logic [           0:CACHELINE_SIZE_BITS-1] read_data_in;
 	logic [0:(CACHELINE_DATA_READ_NUM_BITS-1)] address_rd  ;
@@ -123,6 +124,7 @@ module cu_edge_data_read_extract_control #(
 			cu_id_x        <= 0;
 			cu_id_y        <= 0;
 			address_offset <= 0;
+			aux_data       <= 0;
 		end else begin
 			if(enabled) begin
 				if(read_data_0_in_latched.valid && read_data_1_in_latched.valid)begin
@@ -132,12 +134,14 @@ module cu_edge_data_read_extract_control #(
 					cu_id_y                                                    <= read_data_0_in_latched.payload.cmd.cu_id_y;
 					address_rd                                                 <= offset_data_0;
 					address_offset                                             <= read_data_0_in_latched.payload.cmd.address_offset;
+					aux_data                                                   <= read_data_0_in_latched.payload.cmd.aux_data;
 				end else begin
 					read_data_in   <= 0;
 					address_rd     <= 0;
 					cu_id_x        <= 0;
 					cu_id_y        <= 0;
 					address_offset <= 0;
+					aux_data       <= 0;
 				end
 			end
 		end
@@ -160,6 +164,7 @@ module cu_edge_data_read_extract_control #(
 		edge_data_variable.payload.cu_id_x <= edge_data_variable_reg.payload.cu_id_x;
 		edge_data_variable.payload.cu_id_y <= edge_data_variable_reg.payload.cu_id_y;
 		edge_data_variable.payload.data    <= swap_endianness_data_read(edge_data_variable_reg.payload.data);
+		edge_data_variable.payload.src     <= edge_data_variable_reg.payload.src;
 		edge_data_variable.payload.dest    <= edge_data_variable_reg.payload.dest;
 	end
 
@@ -217,6 +222,7 @@ module cu_edge_data_read_extract_control #(
 		edge_data_variable_reg.payload.cu_id_x <= cu_id_x;
 		edge_data_variable_reg.payload.cu_id_y <= cu_id_y;
 		edge_data_variable_reg.payload.dest    <= address_offset;
+		edge_data_variable_reg.payload.src     <= aux_data;
 	end
 
 endmodule

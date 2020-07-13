@@ -23,27 +23,27 @@ module cu_update_kernel_control #(
 	parameter CU_ID_X = 1,
 	parameter CU_ID_Y = 1
 ) (
-	input  logic                          clock                               , // Clock
-	input  logic                          rstn_in                             ,
-	input  logic                          enabled_in                          ,
-	input  ResponseBufferLine             write_response_in                   ,
-	input  BufferStatus                   write_buffer_status                 ,
-	input  EdgeDataRead                   edge_data                           ,
-	input  BufferStatus                   data_buffer_status                  ,
-	input  logic                          edge_data_write_bus_grant           ,
-	output logic                          edge_data_write_bus_request         ,
-	output logic                          edge_data_request                   ,
-	output EdgeDataWrite                  edge_data_write_out                 ,
-	input  VertexInterface                vertex_job                          ,
-	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp_out         ,
-	output logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_out         ,
-	output logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal_out
+	input  logic                          clock                      , // Clock
+	input  logic                          rstn_in                    ,
+	input  logic                          enabled_in                 ,
+	input  ResponseBufferLine             write_response_in          ,
+	input  BufferStatus                   write_buffer_status        ,
+	input  EdgeDataRead                   edge_data                  ,
+	input  BufferStatus                   data_buffer_status         ,
+	input  logic                          edge_data_write_bus_grant  ,
+	output logic                          edge_data_write_bus_request,
+	output logic                          edge_data_request          ,
+	output EdgeDataWrite                  edge_data_write_out        ,
+	input  VertexInterface                vertex_job                 ,
+	output logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp_out,
+	output logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_out,
+	output logic                          break_S_out
 );
 
 	logic              rstn                               ;
 	EdgeDataRead       edge_data_latched                  ;
-	EdgeDataWrite      edge_data_update              ;
-	EdgeDataWrite      edge_data_update_latch        ;
+	EdgeDataWrite      edge_data_update                   ;
+	EdgeDataWrite      edge_data_update_latch             ;
 	logic              enabled                            ;
 	VertexInterface    vertex_job_latched                 ;
 	BufferStatus       edge_data_write_buffer_status      ;
@@ -55,10 +55,10 @@ module cu_update_kernel_control #(
 	ResponseBufferLine write_response_in_latched          ;
 	BufferStatus       write_buffer_status_latched        ;
 
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp            ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum            ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal   ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal_S2;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ;
+	logic                          break_S1                        ;
+	logic                          break_S2                        ;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
@@ -74,18 +74,18 @@ module cu_update_kernel_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_data_write_out.valid            <= 0;
-			edge_data_request                    <= 0;
-			vertex_num_counter_resp_out          <= 0;
-			edge_data_counter_accum_out          <= 0;
-			edge_data_counter_accum_internal_out <= 0;
+			edge_data_write_out.valid   <= 0;
+			edge_data_request           <= 0;
+			vertex_num_counter_resp_out <= 0;
+			edge_data_counter_accum_out <= 0;
+			break_S_out                 <= 0;
 		end else begin
 			if(enabled) begin
-				edge_data_write_out.valid            <= edge_data_write_buffer.valid;
-				edge_data_request                    <= ~data_buffer_status_latch.empty && ~edge_data_write_buffer_status.alfull;
-				vertex_num_counter_resp_out          <= vertex_num_counter_resp;
-				edge_data_counter_accum_out          <= edge_data_counter_accum;
-				edge_data_counter_accum_internal_out <= edge_data_counter_accum_internal;
+				edge_data_write_out.valid   <= edge_data_write_buffer.valid;
+				edge_data_request           <= ~data_buffer_status_latch.empty && ~edge_data_write_buffer_status.alfull;
+				vertex_num_counter_resp_out <= vertex_num_counter_resp;
+				edge_data_counter_accum_out <= edge_data_counter_accum;
+				break_S_out                 <= break_S1;
 			end
 		end
 	end
@@ -158,30 +158,34 @@ module cu_update_kernel_control #(
 ////////////////////////////////////////////////////////////////////////////
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_data_update               <= 0;
-			edge_data_counter_accum_internal    <= 0;
-			edge_data_update_latch.valid   <= 0;
-			edge_data_counter_accum_internal_S2 <= 0;
+			edge_data_update             <= 0;
+			edge_data_update_latch.valid <= 0;
+			break_S1                     <= 0;
+			break_S2                     <= 0;
 		end else begin
 			if (enabled && vertex_job_latched.valid) begin
-				if(edge_data_latched.valid && (|edge_data_latched.payload.data))begin
+				if(edge_data_latched.valid && (|edge_data_latched.payload.data) && (edge_data_latched.payload.src == vertex_job_latched.payload.id) && ~break_S1 && ~break_S2 )begin
 					edge_data_update.valid           <= 1;
 					edge_data_update.payload.index   <= vertex_job_latched.payload.id;
 					edge_data_update.payload.cu_id_x <= CU_ID_X;
 					edge_data_update.payload.cu_id_y <= CU_ID_Y;
-					edge_data_update.payload.data_1    <= 1;
-					edge_data_update.payload.data_2    <= edge_data_latched.payload.dest;
-					edge_data_counter_accum_internal   <= vertex_job_latched.payload.inverse_out_degree;
+					edge_data_update.payload.data_1  <= 1;
+					edge_data_update.payload.data_2  <= edge_data_latched.payload.dest;
+					break_S1                         <= 1;
+				end 
+
+				if(edge_data_counter_accum == vertex_job_latched.payload.inverse_out_degree) begin
+					break_S1 <= 1;
 				end
 
-				if(edge_data_counter_accum_internal_S2 == vertex_job_latched.payload.inverse_out_degree)begin
-					edge_data_update               		<= 0;
-					edge_data_counter_accum_internal    <= 0;
-					edge_data_counter_accum_internal_S2 <= 0;
-					edge_data_update_latch.valid   <= edge_data_update.valid;
+				if(break_S2)begin
+					edge_data_update             <= 0;
+					break_S1                     <= 0;
+					break_S2                     <= 0;
+					edge_data_update_latch.valid <= edge_data_update.valid;
 				end else begin
-					edge_data_update_latch.valid   <= 0;
-					edge_data_counter_accum_internal_S2 <= edge_data_counter_accum_internal;
+					edge_data_update_latch.valid <= 0;
+					break_S2                     <= break_S1;
 				end
 			end
 		end
@@ -198,7 +202,7 @@ module cu_update_kernel_control #(
 		if(~rstn) begin
 			edge_data_counter_accum <= 0;
 		end else begin
-			if(edge_data_latched.valid) begin
+			if(edge_data_latched.valid && vertex_job_latched.valid && (edge_data_latched.payload.src == vertex_job_latched.payload.id)) begin
 				edge_data_counter_accum <= edge_data_counter_accum + 1;
 			end
 		end
@@ -240,8 +244,8 @@ module cu_update_kernel_control #(
 		.clock   (clock                               ),
 		.rstn    (rstn                                ),
 		
-		.push    (edge_data_update_latch.valid   ),
-		.data_in (edge_data_update_latch         ),
+		.push    (edge_data_update_latch.valid        ),
+		.data_in (edge_data_update_latch              ),
 		.full    (edge_data_write_buffer_status.full  ),
 		.alFull  (edge_data_write_buffer_status.alfull),
 		

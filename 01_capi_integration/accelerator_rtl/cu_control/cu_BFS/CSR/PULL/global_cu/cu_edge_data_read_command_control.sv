@@ -183,7 +183,7 @@ module cu_edge_data_read_command_control #(
 		read_command_out_latched.payload.cmd.array_struct     <= READ_GRAPH_DATA;
 		read_command_out_latched.payload.cmd.cacheline_offset <= (((edge_job_variable.payload.dest << $clog2(DATA_SIZE_READ)) & ADDRESS_DATA_READ_MOD_MASK) >> $clog2(DATA_SIZE_READ));
 		read_command_out_latched.payload.cmd.address_offset   <= edge_job_variable.payload.dest;
-		read_command_out_latched.payload.cmd.aux_data         <= 0;
+		read_command_out_latched.payload.cmd.aux_data         <= edge_job_variable.payload.src;
 		read_command_out_latched.payload.cmd.cu_id_x          <= CU_ID_X;
 		read_command_out_latched.payload.cmd.cu_id_y          <= CU_ID_Y;
 		read_command_out_latched.payload.cmd.cmd_type         <= CMD_READ;

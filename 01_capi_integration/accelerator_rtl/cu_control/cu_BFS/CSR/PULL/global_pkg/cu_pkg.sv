@@ -91,6 +91,7 @@ package CU_PKG;
 		cu_id_t                           cu_id_x;
 		cu_id_t                           cu_id_y;
 		logic [0:(DATA_SIZE_READ_BITS-1)] data   ;
+		logic [     0:(EDGE_SIZE_BITS-1)] src    ;
 		logic [     0:(EDGE_SIZE_BITS-1)] dest   ;
 	} EdgeDataReadPayload;
 

@@ -48,10 +48,13 @@ module cu_vertex_bfs #(
 	output logic [  0:(EDGE_SIZE_BITS-1)] edge_num_counter
 );
 
-	logic rstn_internal;
-	logic rstn         ;
-	logic rstn_input   ;
-	logic rstn_output  ;
+	logic rstn_internal   ;
+	logic rstn            ;
+	logic rstn_input      ;
+	logic rstn_output     ;
+	logic rstn_edge_job   ;
+	logic rstn_edge_data  ;
+	logic rstn_edge_kernel;
 
 	logic read_command_bus_grant_latched     ;
 	logic read_command_bus_request_latched   ;
@@ -102,24 +105,24 @@ module cu_vertex_bfs #(
 	BufferStatus  data_buffer_status;
 	logic         processing_vertex ;
 
-	EdgeDataRead edge_data        ;
-	logic        enabled          ;
-	logic        enabled_cmd      ;
-	logic        enabled_internal ;
-	logic        enabled_edge_job ;
-	logic        enabled_edge_data;
-	logic        enabled_sum_data ;
+	EdgeDataRead edge_data          ;
+	logic        enabled            ;
+	logic        enabled_cmd        ;
+	logic        enabled_internal   ;
+	logic        enabled_edge_job   ;
+	logic        enabled_edge_data  ;
+	logic        enabled_edge_kernel;
 
-	CommandBufferLine              command_arbiter_out                               ;
-	logic [      NUM_REQUESTS-1:0] requests                                          ;
-	logic [      NUM_REQUESTS-1:0] ready                                             ;
-	logic [      NUM_REQUESTS-1:0] submit                                            ;
-	CommandBufferLine              command_buffer_in               [0:NUM_REQUESTS-1];
-	CommandBufferLine              read_command_edge_job_buffer                      ;
-	CommandBufferLine              read_command_edge_data_buffer                     ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum                           ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal                  ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp                           ;
+	CommandBufferLine              command_arbiter_out                            ;
+	logic [      NUM_REQUESTS-1:0] requests                                       ;
+	logic [      NUM_REQUESTS-1:0] ready                                          ;
+	logic [      NUM_REQUESTS-1:0] submit                                         ;
+	CommandBufferLine              command_buffer_in            [0:NUM_REQUESTS-1];
+	CommandBufferLine              read_command_edge_job_buffer                   ;
+	CommandBufferLine              read_command_edge_data_buffer                  ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum                        ;
+	logic                          break_S_out                                    ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp                        ;
 
 	BufferStatus      burst_read_command_buffer_states_cu;
 	CommandBufferLine burst_read_command_buffer_out      ;
@@ -150,13 +153,19 @@ module cu_vertex_bfs #(
 
 	always_ff @(posedge clock or negedge rstn_internal) begin
 		if(~rstn_internal) begin
-			rstn        <= 0;
-			rstn_input  <= 0;
-			rstn_output <= 0;
+			rstn             <= 0;
+			rstn_input       <= 0;
+			rstn_output      <= 0;
+			rstn_edge_job    <= 0;
+			rstn_edge_data   <= 0;
+			rstn_edge_kernel <= 0;
 		end else begin
-			rstn        <= rstn_internal;
-			rstn_input  <= rstn_internal;
-			rstn_output <= rstn_internal;
+			rstn             <= rstn_internal;
+			rstn_input       <= rstn_internal;
+			rstn_output      <= rstn_internal;
+			rstn_edge_job    <= rstn_internal & (~break_S_out);
+			rstn_edge_data   <= rstn_internal & (~break_S_out);
+			rstn_edge_kernel <= rstn_internal & (~break_S_out);
 		end
 	end
 
@@ -178,15 +187,15 @@ module cu_vertex_bfs #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			enabled_internal  <= 0;
-			enabled_edge_job  <= 0;
-			enabled_edge_data <= 0;
-			enabled_sum_data  <= 0;
+			enabled_internal    <= 0;
+			enabled_edge_job    <= 0;
+			enabled_edge_data   <= 0;
+			enabled_edge_kernel <= 0;
 		end else begin
-			enabled_internal  <= enabled_cmd;
-			enabled_edge_job  <= enabled_cmd;
-			enabled_edge_data <= enabled_cmd;
-			enabled_sum_data  <= enabled_cmd;
+			enabled_internal    <= enabled_cmd;
+			enabled_edge_job    <= enabled_cmd;
+			enabled_edge_data   <= enabled_cmd;
+			enabled_edge_kernel <= enabled_cmd;
 		end
 	end
 
@@ -314,7 +323,7 @@ module cu_vertex_bfs #(
 			if(vertex_job_burst_out.valid && ~processing_vertex) begin
 				vertex_job_latched.valid <= vertex_job_burst_out.valid;
 			end
-			if ((edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree) && vertex_job_latched.valid) begin
+			if ((break_S_out) && vertex_job_latched.valid) begin
 				vertex_job_latched.valid <= 0;
 			end
 		end
@@ -324,7 +333,7 @@ module cu_vertex_bfs #(
 		if(vertex_job_burst_out.valid && ~processing_vertex) begin
 			vertex_job_latched.payload <= vertex_job_burst_out.payload;
 		end
-		if ((edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree) && vertex_job_latched.valid) begin
+		if ((break_S_out) && vertex_job_latched.valid) begin
 			vertex_job_latched.payload <= 0;
 		end
 	end
@@ -365,7 +374,7 @@ module cu_vertex_bfs #(
 				if(~processing_vertex) begin
 					processing_vertex <= 1;
 				end
-				if (edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree) begin
+				if (break_S_out) begin
 					processing_vertex <= 0;
 				end
 			end
@@ -395,7 +404,7 @@ module cu_vertex_bfs #(
 		.CU_ID_Y(CU_ID_Y)
 	) cu_edge_job_control_instant (
 		.clock                   (clock                       ),
-		.rstn_in                 (rstn                        ),
+		.rstn_in                 (rstn_edge_job               ),
 		.enabled_in              (enabled_edge_job            ),
 		.cu_configure            (cu_configure_latched        ),
 		.wed_request_in          (wed_request_in_latched      ),
@@ -420,7 +429,7 @@ module cu_vertex_bfs #(
 		.CU_ID_Y(CU_ID_Y)
 	) cu_edge_data_read_command_control_instant (
 		.clock                   (clock                        ),
-		.rstn_in                 (rstn                         ),
+		.rstn_in                 (rstn_edge_data               ),
 		.enabled_in              (enabled_edge_data            ),
 		.cu_configure            (cu_configure_latched         ),
 		.wed_request_in          (wed_request_in_latched       ),
@@ -445,21 +454,21 @@ module cu_vertex_bfs #(
 		.CU_ID_X(CU_ID_X),
 		.CU_ID_Y(CU_ID_Y)
 	) cu_update_kernel_control_instant (
-		.clock                               (clock                              ),
-		.rstn_in                             (rstn                               ),
-		.enabled_in                          (enabled_sum_data                   ),
-		.write_response_in                   (write_response_in_edge_data        ),
-		.write_buffer_status                 (write_buffer_status_latched        ),
-		.edge_data                           (edge_data                          ),
-		.edge_data_request                   (edge_data_request                  ),
-		.data_buffer_status                  (data_buffer_status                 ),
-		.edge_data_write_bus_grant           (edge_data_write_bus_grant_latched  ),
-		.edge_data_write_bus_request         (edge_data_write_bus_request_latched),
-		.edge_data_write_out                 (edge_data_write_out_internal       ),
-		.vertex_job                          (vertex_job_internal_latched        ),
-		.vertex_num_counter_resp_out         (vertex_num_counter_resp            ),
-		.edge_data_counter_accum_out         (edge_data_counter_accum            ),
-		.edge_data_counter_accum_internal_out(edge_data_counter_accum_internal   )
+		.clock                      (clock                              ),
+		.rstn_in                    (rstn                               ),
+		.enabled_in                 (enabled_edge_kernel                ),
+		.write_response_in          (write_response_in_edge_data        ),
+		.write_buffer_status        (write_buffer_status_latched        ),
+		.edge_data                  (edge_data                          ),
+		.edge_data_request          (edge_data_request                  ),
+		.data_buffer_status         (data_buffer_status                 ),
+		.edge_data_write_bus_grant  (edge_data_write_bus_grant_latched  ),
+		.edge_data_write_bus_request(edge_data_write_bus_request_latched),
+		.edge_data_write_out        (edge_data_write_out_internal       ),
+		.vertex_job                 (vertex_job_internal_latched        ),
+		.vertex_num_counter_resp_out(vertex_num_counter_resp            ),
+		.edge_data_counter_accum_out(edge_data_counter_accum            ),
+		.break_S_out                (break_S_out                        )
 	);
 
 ////////////////////////////////////////////////////////////////////////////

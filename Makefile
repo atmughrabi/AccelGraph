@@ -56,9 +56,9 @@ export MAIN_DIR		  	= main
 #########################################################
 
 # # small test graphs
-# export GRAPH_NAME = test
+export GRAPH_NAME = test
 # export GRAPH_NAME = v51_e1021
-export GRAPH_NAME = v300_e2730
+# export GRAPH_NAME = v300_e2730
 
 # GAP https://sparse.tamu.edu/MM/GAP/
 # https://gonglab.pratt.duke.edu/google-dataset
@@ -120,13 +120,13 @@ export REORDER 		    = 0
 export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 0
 
-export ROOT 			= 164
+export ROOT 			= 8
 export TOLERANCE 		= 1e-8
 export DELTA 			= 800
 
 export START_THREADS    = 1
 export INC_THREADS      = 1
-export NUM_THREADS  	= 25
+export NUM_THREADS  	= 1
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
@@ -266,6 +266,10 @@ run:
 .PHONY: run-openmp
 run-openmp:
 	$(MAKE) run-openmp $(MAKE_ARGS_OPENGRAPH)
+
+.PHONY: run-cache
+run-cache:
+	$(MAKE) run-cache $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: convert
 convert:

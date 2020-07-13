@@ -228,7 +228,7 @@ module cu_control #(
 			if(enabled_vertex_job)begin
 				cu_return_latched.var1 <= vertex_job_counter_total_latched;
 				cu_return_latched.var2 <= edge_job_counter_done_latched;
-				done_algorithm         <= (wed_request_in_latched.payload.wed.num_vertices == vertex_job_counter_total_latched) && (wed_request_in_latched.payload.wed.num_edges == edge_job_counter_done_latched);
+				done_algorithm         <= (wed_request_in_latched.payload.wed.num_vertices == vertex_job_counter_total_latched);
 			end
 		end
 	end
