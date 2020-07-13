@@ -116,6 +116,7 @@ module cu_update_kernel_control #(
 			end
 		end
 	end
+	
 
 	always_ff @(posedge clock) begin
 		vertex_job_latched.payload        <= vertex_job.payload;
