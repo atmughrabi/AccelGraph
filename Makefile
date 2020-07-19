@@ -19,7 +19,7 @@ export CAPI_INTEG_DIR      		= 01_capi_integration
 export SCRIPT_DIR          		= 03_scripts
 
 export BENCHMARKS_DIR_LOCAL    	= 01_test_graphs
-# export BENCHMARKS_DIR    		= $(APP_DIR_OPEN_GRAPH)/01_GraphDatasets
+# export BENCHMARKS_DIR    		= ../../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -55,16 +55,17 @@ export MAIN_DIR		  	= main
 #       		 ACCEL RUN GRAPH ARGUMENTS    			#
 #########################################################
 
-# # small test graphs
+# # small test graphs BENCHMARKS_DIR_LOCAL    	= 01_test_graphs
 export GRAPH_NAME = test
 # export GRAPH_NAME = v51_e1021
 # export GRAPH_NAME = v300_e2730
 
 # GAP https://sparse.tamu.edu/MM/GAP/
 # https://gonglab.pratt.duke.edu/google-dataset
-
+# = ../../../01_GraphDatasets
 # export GRAPH_NAME = Gong-gplus
 # export GRAPH_NAME = GAP-road
+# export GRAPH_NAME = SNAP-web-Google
 # export GRAPH_NAME = SNAP-soc-pokec
 # export GRAPH_NAME = SNAP-cit-Patents
 # export GRAPH_NAME = SNAP-com-orkut
@@ -121,7 +122,7 @@ export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 0
 
 export ROOT 			= 8
-export TOLERANCE 		= 1e-8
+export TOLERANCE 		= 1e-7
 export DELTA 			= 800
 
 export START_THREADS    = 1

@@ -20,8 +20,9 @@ import AFU_PKG::*;
 import CU_PKG::*;
 
 module cu_update_kernel_control #(
-	parameter CU_ID_X = 1,
-	parameter CU_ID_Y = 1
+	parameter CU_ID_X    = 1,
+	parameter CU_ID_Y    = 1,
+	parameter BREAK_HOLD = 5
 ) (
 	input  logic                          clock                      , // Clock
 	input  logic                          rstn_in                    ,
@@ -55,10 +56,11 @@ module cu_update_kernel_control #(
 	ResponseBufferLine write_response_in_latched          ;
 	BufferStatus       write_buffer_status_latched        ;
 
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ;
-	logic                          break_S1                        ;
-	logic                          break_S2                        ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp   ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum   ;
+	logic [  0:(EDGE_SIZE_BITS-1)] inverse_out_degree_counter;
+	logic [        0:BREAK_HOLD-1] break_S1                  ;
+
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
@@ -85,7 +87,7 @@ module cu_update_kernel_control #(
 				edge_data_request           <= ~data_buffer_status_latch.empty && ~edge_data_write_buffer_status.alfull;
 				vertex_num_counter_resp_out <= vertex_num_counter_resp;
 				edge_data_counter_accum_out <= edge_data_counter_accum;
-				break_S_out                 <= break_S1;
+				break_S_out                 <= break_S1[0];
 			end
 		end
 	end
@@ -116,7 +118,7 @@ module cu_update_kernel_control #(
 			end
 		end
 	end
-	
+
 
 	always_ff @(posedge clock) begin
 		vertex_job_latched.payload        <= vertex_job.payload;
@@ -162,33 +164,45 @@ module cu_update_kernel_control #(
 			edge_data_update             <= 0;
 			edge_data_update_latch.valid <= 0;
 			break_S1                     <= 0;
-			break_S2                     <= 0;
+			inverse_out_degree_counter   <= 0;
 		end else begin
 			if (enabled && vertex_job_latched.valid) begin
-				if(edge_data_latched.valid && (|edge_data_latched.payload.data) && (edge_data_latched.payload.src == vertex_job_latched.payload.id) && ~break_S1 && ~break_S2 )begin
+				if(edge_data_latched.valid && (|edge_data_latched.payload.data) && (edge_data_latched.payload.src == vertex_job_latched.payload.id) && ~(|break_S1) )begin
 					edge_data_update.valid           <= 1;
 					edge_data_update.payload.index   <= vertex_job_latched.payload.id;
 					edge_data_update.payload.cu_id_x <= CU_ID_X;
 					edge_data_update.payload.cu_id_y <= CU_ID_Y;
 					edge_data_update.payload.data_1  <= 1;
 					edge_data_update.payload.data_2  <= edge_data_latched.payload.dest;
-					break_S1                         <= 1;
-				end 
-
-				if(edge_data_counter_accum == vertex_job_latched.payload.inverse_out_degree) begin
-					break_S1 <= 1;
-				end
-
-				if(break_S2)begin
-					edge_data_update             <= 0;
-					break_S1                     <= 0;
-					break_S2                     <= 0;
-					edge_data_update_latch.valid <= edge_data_update.valid;
+					break_S1[0]                      <= 1;
+					inverse_out_degree_counter       <= 0;
+				end else if (edge_data_latched.valid && ~(|edge_data_latched.payload.data) && (edge_data_latched.payload.src == vertex_job_latched.payload.id) && ~(|break_S1) ) begin
+					inverse_out_degree_counter <= inverse_out_degree_counter -1;
+					edge_data_update.valid     <= 0;
 				end else begin
-					edge_data_update_latch.valid <= 0;
-					break_S2                     <= break_S1;
+					edge_data_update.valid <= 0;
 				end
+			end else begin
+				edge_data_update.valid <= 0;
 			end
+
+			if(~(|inverse_out_degree_counter) && vertex_job_latched.valid && ~(|break_S1)) begin
+				break_S1[0] <= 1;
+			end
+
+			if(~(|inverse_out_degree_counter) && vertex_job.valid && ~vertex_job_latched.valid && ~(|break_S1)) begin
+				inverse_out_degree_counter <= vertex_job.payload.inverse_out_degree;
+			end
+
+			if(break_S1[0])
+				break_S1[0] <= 0;
+
+			break_S1[1]                  <= break_S1[0];
+			break_S1[2]                  <= break_S1[1];
+			break_S1[3]                  <= break_S1[2];
+			break_S1[4]                  <= break_S1[3];
+
+			edge_data_update_latch.valid <= edge_data_update.valid;
 		end
 	end
 
@@ -203,7 +217,7 @@ module cu_update_kernel_control #(
 		if(~rstn) begin
 			edge_data_counter_accum <= 0;
 		end else begin
-			if(edge_data_latched.valid && vertex_job_latched.valid && (edge_data_latched.payload.src == vertex_job_latched.payload.id)) begin
+			if(write_response_in_latched.valid) begin
 				edge_data_counter_accum <= edge_data_counter_accum + 1;
 			end
 		end
@@ -213,7 +227,7 @@ module cu_update_kernel_control #(
 		if(~rstn) begin
 			vertex_num_counter_resp <= 0;
 		end else begin
-			if(write_response_in_latched.valid) begin
+			if(write_response_in_latched.valid || (break_S1[1] && ~edge_data_update_latch.valid)) begin
 				vertex_num_counter_resp <= vertex_num_counter_resp + 1;
 			end
 		end

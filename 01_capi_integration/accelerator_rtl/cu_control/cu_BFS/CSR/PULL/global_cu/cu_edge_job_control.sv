@@ -116,6 +116,8 @@ module cu_edge_job_control #(
 	logic read_vertex                ;
 	logic read_vertex_new            ;
 	logic read_vertex_new_latched    ;
+	logic read_vertex_new_latched_S2 ;
+	logic read_vertex_new_latched_S3 ;
 
 ////////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -211,9 +213,20 @@ module cu_edge_job_control #(
 			read_data_1_in_latched.valid   <= 0;
 			read_response_in_latched.valid <= 0;
 		end else begin
-			read_response_in_latched.valid <= read_response_in_latched_S2.valid ;
-			read_data_0_in_latched.valid   <= read_data_0_in_latched_S2.valid ;
-			read_data_1_in_latched.valid   <= read_data_1_in_latched_S2.valid ;
+			if((vertex_job_latched.valid) && (vertex_job_latched.payload.id == read_response_in_latched_S2.payload.cmd.aux_data))
+				read_response_in_latched.valid <= read_response_in_latched_S2.valid;
+			else
+				read_response_in_latched.valid <= 0;
+
+			if((vertex_job_latched.valid) && (vertex_job_latched.payload.id == read_data_0_in_latched_S2.payload.cmd.aux_data))
+				read_data_0_in_latched.valid <= read_data_0_in_latched_S2.valid;
+			else
+				read_data_0_in_latched.valid <= 0;
+
+			if((vertex_job_latched.valid) && (vertex_job_latched.payload.id == read_data_1_in_latched_S2.payload.cmd.aux_data))
+				read_data_1_in_latched.valid <= read_data_1_in_latched_S2.valid;
+			else
+				read_data_1_in_latched.valid <= 0;
 		end
 	end
 
@@ -231,10 +244,12 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			cu_configure_latched     <= 0;
-			read_vertex_new          <= 0;
-			read_vertex_new_latched  <= 0;
-			vertex_job_latched.valid <= 0;
+			cu_configure_latched       <= 0;
+			read_vertex_new            <= 0;
+			read_vertex_new_latched    <= 0;
+			read_vertex_new_latched_S2 <= 0;
+			read_vertex_new_latched_S3 <= 0;
+			vertex_job_latched.valid   <= 0;
 		end else begin
 			if(enabled) begin
 
@@ -250,7 +265,9 @@ module cu_edge_job_control #(
 					read_vertex_new <= 0;
 				end
 
-				read_vertex_new_latched <= read_vertex_new;
+				read_vertex_new_latched    <= read_vertex_new;
+				read_vertex_new_latched_S2 <= read_vertex_new_latched;
+				read_vertex_new_latched_S3 <= read_vertex_new_latched_S2;
 			end
 		end
 	end
@@ -369,7 +386,7 @@ module cu_edge_job_control #(
 				read_command_edge_job_latched.valid <= 0;
 				clear_data_ready                    <= 0;
 				shift_limit_clear                   <= 0;
-				if(read_vertex_new_latched)begin
+				if(read_vertex_new_latched_S3)begin
 					edge_next_offset <= (vertex_job_latched.payload.inverse_edges_idx << $clog2(EDGE_SIZE));
 				end
 			end
@@ -445,7 +462,7 @@ module cu_edge_job_control #(
 			edge_num_counter <= 0;
 		end
 		else begin
-			if(read_vertex_new_latched && (vertex_job_latched.valid && wed_request_in_latched.valid))begin
+			if(read_vertex_new_latched_S3 && (vertex_job_latched.valid && wed_request_in_latched.valid))begin
 				edge_num_counter <= vertex_job_latched.payload.inverse_out_degree;
 			end
 			if (generate_read_command) begin
@@ -518,6 +535,7 @@ module cu_edge_job_control #(
 			read_command_edge_job_latched_S2.payload.cmd.cu_id_x          <= CU_ID_X;
 			read_command_edge_job_latched_S2.payload.cmd.cu_id_y          <= CU_ID_Y;
 			read_command_edge_job_latched_S2.payload.cmd.cmd_type         <= CMD_READ;
+			read_command_edge_job_latched_S2.payload.cmd.aux_data         <= vertex_job_latched.payload.id;
 			read_command_edge_job_latched_S2.payload.cmd.abt              <= map_CABT(cu_configure_latched[5:7]);
 			read_command_edge_job_latched_S2.payload.abt                  <= map_CABT(cu_configure_latched[5:7]);
 		end
