@@ -26,10 +26,11 @@
 #define CU_RETURN_ACK           0x3FFFFA8
 
 #define  CU_RETURN_DONE         0x3FFFFA0
-#define  CU_RETURN_DONE_ACK     0x3FFFF98
+#define  CU_RETURN_DONE_2       0x3FFFF98
+#define  CU_RETURN_DONE_ACK     0x3FFFF90
 
-#define ERROR_REG               0x3FFFF90
-#define ERROR_REG_ACK           0x3FFFF88
+#define ERROR_REG               0x3FFFF88
+#define ERROR_REG_ACK           0x3FFFF80
 
 // ********************************************************************************************
 // ***************                  AFU  Stats                                   **************
@@ -82,6 +83,7 @@ struct AFUStatus
     uint64_t cu_return; // running return
     uint64_t cu_return_2; // running return
     uint64_t cu_return_done; // final return when cu send done
+    uint64_t cu_return_done_2; // final return when cu send done
 };
 
 
