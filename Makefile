@@ -57,8 +57,8 @@ export MAIN_DIR		  	= main
 
 # # small test graphs BENCHMARKS_DIR_LOCAL    	= 01_test_graphs
 export GRAPH_NAME = test
-export GRAPH_NAME = v51_e1021
-export GRAPH_NAME = v300_e2730
+# export GRAPH_NAME = v51_e1021
+# export GRAPH_NAME = v300_e2730
 
 # GAP https://sparse.tamu.edu/MM/GAP/
 # https://gonglab.pratt.duke.edu/google-dataset
@@ -121,7 +121,7 @@ export REORDER 		    = 0
 export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 0
 
-export ROOT 			= 0
+export ROOT 			= 8
 export TOLERANCE 		= 1e-7
 export DELTA 			= 800
 
