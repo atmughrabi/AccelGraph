@@ -95,7 +95,7 @@ module cu_vertex_job_control (
 	VertexInterface                vertex_variable                    ;
 	logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree_data            ;
 	logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx_degree_data      ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_parent_data                 ;
+	logic [0:(DATA_SIZE_READ_PARENT_BITS-1)] vertex_parent_data                 ;
 	logic                          inverse_out_degree_data_ready      ;
 	logic                          inverse_edges_idx_degree_data_ready;
 	logic                          vertex_parent_data_ready           ;
@@ -432,7 +432,7 @@ module cu_vertex_job_control (
 		if(~switch_shift_hf && start_shift_hf_0) begin
 			reg_INV_OUT_DEGREE_0 <= {reg_INV_OUT_DEGREE_0[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
 			reg_INV_EDGES_IDX_0  <= {reg_INV_EDGES_IDX_0[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
-			reg_VERTEX_PARENT_0  <= {reg_VERTEX_PARENT_0[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
+			reg_VERTEX_PARENT_0  <= {reg_VERTEX_PARENT_0[DATA_SIZE_READ_PARENT_BITS:(CACHELINE_SIZE_BITS_HF-1)],DATA_SIZE_READ_PARENT_NULL_BITS};
 		end
 	end
 
@@ -454,7 +454,7 @@ module cu_vertex_job_control (
 		if(switch_shift_hf && start_shift_hf_1) begin
 			reg_INV_OUT_DEGREE_1 <= {reg_INV_OUT_DEGREE_1[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
 			reg_INV_EDGES_IDX_1  <= {reg_INV_EDGES_IDX_1[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
-			reg_VERTEX_PARENT_1  <= {reg_VERTEX_PARENT_1[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
+			reg_VERTEX_PARENT_1  <= {reg_VERTEX_PARENT_1[DATA_SIZE_READ_PARENT_BITS:(CACHELINE_SIZE_BITS_HF-1)],DATA_SIZE_READ_PARENT_NULL_BITS};
 		end
 	end
 
@@ -544,7 +544,7 @@ module cu_vertex_job_control (
 		vertex_variable.payload.id                 <= vertex_id_counter + wed_request_in_latched.payload.wed.auxiliary0;
 		vertex_variable.payload.inverse_out_degree <= swap_endianness_vertex_read(inverse_out_degree_data);
 		vertex_variable.payload.inverse_edges_idx  <= swap_endianness_vertex_read(inverse_edges_idx_degree_data);
-		vertex_variable.payload.parent             <= swap_endianness_vertex_read(vertex_parent_data);
+		vertex_variable.payload.parent             <= swap_endianness_parent_data_read(vertex_parent_data);
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -565,11 +565,11 @@ module cu_vertex_job_control (
 		if(~switch_shift_hf && start_shift_hf_0) begin
 			inverse_out_degree_data       <= reg_INV_OUT_DEGREE_0[0:VERTEX_SIZE_BITS-1];
 			inverse_edges_idx_degree_data <= reg_INV_EDGES_IDX_0[0:VERTEX_SIZE_BITS-1];
-			vertex_parent_data            <= reg_VERTEX_PARENT_0[0:VERTEX_SIZE_BITS-1];
+			vertex_parent_data            <= reg_VERTEX_PARENT_0[0:DATA_SIZE_READ_PARENT_BITS-1];
 		end else if(switch_shift_hf && start_shift_hf_1) begin
 			inverse_out_degree_data       <= reg_INV_OUT_DEGREE_1[0:VERTEX_SIZE_BITS-1];
 			inverse_edges_idx_degree_data <= reg_INV_EDGES_IDX_1[0:VERTEX_SIZE_BITS-1];
-			vertex_parent_data            <= reg_VERTEX_PARENT_1[0:VERTEX_SIZE_BITS-1];
+			vertex_parent_data            <= reg_VERTEX_PARENT_1[0:DATA_SIZE_READ_PARENT_BITS-1];
 		end
 	end
 

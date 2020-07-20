@@ -11,6 +11,8 @@
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
+#include "libcxl.h"
+#include "capienv.h"
 
 // ********************************************************************************************
 // ***************					Stats DataStructure							 **************
@@ -37,7 +39,7 @@ void freeBFSStats(struct BFSStats *stats);
 // ***************					CSR DataStructure							 **************
 // ********************************************************************************************
 
-struct BFSStats *breadthFirstSearchGraphCSR(uint32_t source,uint32_t pushpull, struct GraphCSR *graph);
+struct BFSStats *breadthFirstSearchGraphCSR(uint32_t source, uint32_t pushpull, struct GraphCSR *graph);
 
 struct BFSStats *breadthFirstSearchPullGraphCSR(uint32_t source, struct GraphCSR *graph);
 struct BFSStats *breadthFirstSearchPushGraphCSR(uint32_t source, struct GraphCSR *graph);
@@ -45,7 +47,7 @@ struct BFSStats *breadthFirstSearchDirectionOptimizedGraphCSR(uint32_t source, s
 
 uint32_t topDownStepGraphCSR(struct GraphCSR *graph, struct ArrayQueue *sharedFrontierQueue,  struct ArrayQueue **localFrontierQueues, struct BFSStats *stats);
 uint32_t bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, struct Bitmap *bitmapNext, struct BFSStats *stats);
-uint32_t bottomUpStepGraphCSRCAPI(struct GraphCSR *graph,  uint8_t *workListCurr, uint8_t *workListNext, struct BFSStats *stats);
+uint32_t bottomUpStepGraphCSRCAPI(struct GraphCSR *graph,  uint8_t *workListCurr, uint8_t *workListNext, struct BFSStats *stats, struct AFUStatus *afu_status, struct cxl_afu_h *afu);
 
 
 // ********************************************************************************************

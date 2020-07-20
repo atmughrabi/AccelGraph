@@ -26,7 +26,8 @@ package CU_PKG;
 		VERTEX_PARENTS_WRITE,
 		INV_EDGE_ARRAY_DEST,
 		READ_GRAPH_DATA,
-		WRITE_GRAPH_DATA
+		WRITE_GRAPH_DATA,
+		WRITE_GRAPH_DATA_PARENT
 	} array_struct_type;
 
 	typedef enum int unsigned {
@@ -65,10 +66,10 @@ package CU_PKG;
 
 // Vertex data to travers neighbors
 	typedef struct packed {
-		logic [0:(VERTEX_SIZE_BITS-1)] id                ;
-		logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree;
-		logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx ;
-		logic [0:(VERTEX_SIZE_BITS-1)] parent            ;
+		logic [          0:(VERTEX_SIZE_BITS-1)] id                ;
+		logic [          0:(VERTEX_SIZE_BITS-1)] inverse_out_degree;
+		logic [          0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx ;
+		logic [0:(DATA_SIZE_READ_PARENT_BITS-1)] parent            ;
 	} VertexInterfacePayload;
 
 	typedef struct packed {
@@ -114,8 +115,6 @@ package CU_PKG;
 	} EdgeDataWrite;
 
 
-
-
 	function logic [0:DATA_SIZE_WRITE_BITS-1] swap_endianness_data_write(logic [0:DATA_SIZE_WRITE_BITS-1] in);
 
 		logic [0:DATA_SIZE_WRITE_BITS-1] out;
@@ -128,6 +127,19 @@ package CU_PKG;
 		return out;
 	endfunction : swap_endianness_data_write
 
+	function logic [0:DATA_SIZE_WRITE_PARENT_BITS-1] swap_endianness_parent_data_write(logic [0:DATA_SIZE_WRITE_PARENT_BITS-1] in);
+
+		logic [0:DATA_SIZE_WRITE_PARENT_BITS-1] out;
+
+		integer i;
+		for ( i = 0; i < DATA_SIZE_WRITE_PARENT; i++) begin
+			out[i*8 +: 8] = in[((DATA_SIZE_WRITE_PARENT_BITS-1)-(i*8)) -:8];
+		end
+
+		return out;
+	endfunction : swap_endianness_parent_data_write
+
+
 	function logic [0:DATA_SIZE_READ_BITS-1] swap_endianness_data_read(logic [0:DATA_SIZE_READ_BITS-1] in);
 
 		logic [0:DATA_SIZE_READ_BITS-1] out;
@@ -139,6 +151,18 @@ package CU_PKG;
 
 		return out;
 	endfunction : swap_endianness_data_read
+
+	function logic [0:DATA_SIZE_READ_PARENT_BITS-1] swap_endianness_parent_data_read(logic [0:DATA_SIZE_READ_PARENT_BITS-1] in);
+
+		logic [0:DATA_SIZE_READ_PARENT_BITS-1] out;
+
+		integer i;
+		for ( i = 0; i < DATA_SIZE_READ_PARENT; i++) begin
+			out[i*8 +: 8] = in[((DATA_SIZE_READ_PARENT_BITS-1)-(i*8)) -:8];
+		end
+
+		return out;
+	endfunction : swap_endianness_parent_data_read
 
 
 	function logic [0:VERTEX_SIZE_BITS-1] swap_endianness_vertex_read(logic [0:VERTEX_SIZE_BITS-1] in);

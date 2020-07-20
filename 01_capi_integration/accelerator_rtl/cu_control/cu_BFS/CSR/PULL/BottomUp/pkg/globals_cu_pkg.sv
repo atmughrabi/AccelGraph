@@ -28,8 +28,8 @@ package GLOBALS_CU_PKG;
 // TOTAL CUS = NUM_GRAPH_CU_GLOBAL X NUM_VERTEX_CU_GLOBAL
 ////////////////////////////////////////////////////////////////////////////
 
-	parameter NUM_GRAPH_CU_GLOBAL  = 2;
-	parameter NUM_VERTEX_CU_GLOBAL = 2;
+	parameter NUM_GRAPH_CU_GLOBAL  = 5;
+	parameter NUM_VERTEX_CU_GLOBAL = 5;
 
 	parameter CU_VERTEX_JOB_BUFFER_SIZE = 64;
 	parameter CU_EDGE_JOB_BUFFER_SIZE   = 64;
@@ -65,7 +65,13 @@ package GLOBALS_CU_PKG;
 	parameter CACHELINE_DATA_WRITE_NUM    = (CACHELINE_SIZE >> $clog2(DATA_SIZE_WRITE))     ;
 	parameter CACHELINE_DATA_WRITE_NUM_HF = (CACHELINE_SIZE >> $clog2(DATA_SIZE_WRITE)) >> 1; // number of edges in one cacheline
 
-	parameter DATA_SIZE_WRITE_PARENT             = EDGE_SIZE                                              ; // edge data size is n bytes Auxiliary2
+	parameter DATA_SIZE_READ_PARENT             = 4                                         		    ; // edge data size is n bytes Auxiliary2
+	parameter DATA_SIZE_READ_PARENT_BITS        = DATA_SIZE_READ_PARENT * 8                             ; // edge data size is n*8 Bits
+	parameter CACHELINE_DATA_READ_PARENT_NUM    = (CACHELINE_SIZE >> $clog2(DATA_SIZE_READ_PARENT))     ;
+	parameter CACHELINE_DATA_READ_PARENT_NUM_HF = (CACHELINE_SIZE >> $clog2(DATA_SIZE_READ_PARENT)) >> 1; // number of edges in one cacheline
+	parameter DATA_SIZE_READ_PARENT_NULL_BITS   = {DATA_SIZE_READ_PARENT_BITS{1'b0}}                    ;
+
+	parameter DATA_SIZE_WRITE_PARENT             = 4                                             		  ; // edge data size is n bytes Auxiliary2
 	parameter DATA_SIZE_WRITE_PARENT_BITS        = DATA_SIZE_WRITE_PARENT * 8                             ; // edge data size is n*8 Bits
 	parameter CACHELINE_DATA_WRITE_PARENT_NUM    = (CACHELINE_SIZE >> $clog2(DATA_SIZE_WRITE_PARENT))     ;
 	parameter CACHELINE_DATA_WRITE_PARENT_NUM_HF = (CACHELINE_SIZE >> $clog2(DATA_SIZE_WRITE_PARENT)) >> 1; // number of edges in one cacheline

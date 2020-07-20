@@ -141,7 +141,6 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
         {
             readCmdResponseStats(afu, &cmdResponseStats);
             cxl_mmio_write64((*afu), CU_RETURN_DONE_ACK, (uint64_t)afu_status->cu_return_done);
-            printf("\r| R: %-21lu | W: %-22lu|", afu_status->cu_return, afu_status->cu_return_2);
             break;
         }
 

@@ -142,6 +142,8 @@ module cu_control #(
 	logic [      NUM_GRAPH_CU-1:0] write_command_bus_request_cu_in                  ;
 	logic [      NUM_GRAPH_CU-1:0] vertex_job_request_cu_in                         ;
 	logic [      NUM_GRAPH_CU-1:0] enable_cu_out                                    ;
+	logic                          edge_data_write_bus_grant                        ;
+	logic                          edge_data_write_bus_request                      ;
 	logic                          write_command_bus_grant                          ;
 	logic                          write_command_bus_request                        ;
 
@@ -633,9 +635,9 @@ module cu_control #(
 		.read_command_bus_request_cu_in (read_command_bus_request_cu_in   ),
 		.read_command_out               (read_command_buffer_arbiter_in[1]),
 		.read_command_out_cu_in         (read_command_out_cu_in           ),
-		.write_command_bus_grant        (write_command_bus_grant          ),
+		.write_command_bus_grant        (edge_data_write_bus_grant          ),
 		.write_command_bus_grant_cu_out (write_command_bus_grant_cu_out   ),
-		.write_command_bus_request      (write_command_bus_request        ),
+		.write_command_bus_request      (edge_data_write_bus_request        ),
 		.write_command_bus_request_cu_in(write_command_bus_request_cu_in  ),
 		.edge_data_write_cu_in          (edge_data_write_out_cu_in        ),
 		.edge_data_write_out            (edge_data_write_out              ),
@@ -654,15 +656,19 @@ module cu_control #(
 	////////////////////////////////////////////////////////////////////////////
 
 	cu_edge_data_write_command_control cu_edge_data_write_command_control_instant (
-		.clock            (clock                            ),
-		.rstn             (rstn                             ),
-		.enabled_in       (enabled                          ),
-		.cu_configure     (cu_configure_latched             ),
-		.wed_request_in   (wed_request_in_latched           ),
-		.edge_data_write  (edge_data_write_out              ),
-		.write_data_0_out (write_data_0_out_graph_algorithm ),
-		.write_data_1_out (write_data_1_out_graph_algorithm ),
-		.write_command_out(write_command_out_graph_algorithm)
+		.clock                         (clock                            ),
+		.rstn                          (rstn                             ),
+		.enabled_in                    (enabled                          ),
+		.edge_data_write_bus_grant_out (edge_data_write_bus_grant        ),
+		.edge_data_write_bus_request_in(edge_data_write_bus_request      ),
+		.write_command_bus_grant_in    (write_command_bus_grant          ),
+		.write_command_bus_request_out (write_command_bus_request        ),
+		.cu_configure                  (cu_configure_latched             ),
+		.wed_request_in                (wed_request_in_latched           ),
+		.edge_data_write               (edge_data_write_out              ),
+		.write_data_0_out              (write_data_0_out_graph_algorithm ),
+		.write_data_1_out              (write_data_1_out_graph_algorithm ),
+		.write_command_out             (write_command_out_graph_algorithm)
 	);
 
 	////////////////////////////////////////////////////////////////////////////
