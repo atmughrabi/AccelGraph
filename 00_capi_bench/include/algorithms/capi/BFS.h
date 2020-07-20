@@ -11,9 +11,9 @@
 #include "graphGrid.h"
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
-#include "libcxl.h"
-#include "capienv.h"
 
+#include "capienv.h"
+#include "libcxl.h"
 // ********************************************************************************************
 // ***************					Stats DataStructure							 **************
 // ********************************************************************************************
