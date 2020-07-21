@@ -562,7 +562,7 @@ module cu_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 	generate
-		for (i = 0; i < NUM_GRAPH_CU; i++) begin : graph_algorithm_cu
+		for (i = 0; i < NUM_GRAPH_CU; i++) begin : cu_vertex_clusters
 			cu_vertex_cluster_control #(
 				.NUM_VERTEX_CU(NUM_VERTEX_CU),
 				.NUM_GRAPH_CU (NUM_GRAPH_CU ),
