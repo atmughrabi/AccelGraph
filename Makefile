@@ -119,7 +119,7 @@ export PULL_PUSH 		= 0
 export SORT_TYPE 		= 0
 export REORDER 		    = 0
 export DATA_STRUCTURES  = 0
-export ALGORITHMS 		= 0
+export ALGORITHMS 		= 5
 
 export ROOT 			= 42
 export TOLERANCE 		= 1e-7
@@ -129,8 +129,8 @@ export START_THREADS    = 1
 export INC_THREADS      = 1
 export NUM_THREADS  	= 16
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 1
-export NUM_TRIALS 		= 10
+export NUM_ITERATIONS 	= 10
+export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1
 export CONVERT_FORMAT 	= 1
