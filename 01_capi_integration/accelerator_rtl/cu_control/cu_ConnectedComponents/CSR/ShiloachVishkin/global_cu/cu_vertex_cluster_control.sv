@@ -234,11 +234,11 @@ module cu_vertex_cluster_control #(
 	////////////////////////////////////////////////////////////////////////////
 
 	generate
-		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_spmv_cu
-			cu_vertex_spmv #(
+		for (i = 0; i < NUM_VERTEX_CU; i++) begin : generate_connectedComponents_cu
+			cu_vertex_connectedComponents #(
 				.CU_ID_X(i),
 				.CU_ID_Y(CU_ID_Y)
-			) cu_vertex_spmv_instant (
+			) cu_vertex_connectedComponents_instant (
 				.clock                      (clock                                       ),
 				.rstn_in                    (reset_cu_in[i]                              ),
 				.enabled_in                 (enable_cu[i]                                ),
@@ -278,11 +278,11 @@ module cu_vertex_cluster_control #(
 //Graph algorithm compute units arbitration
 ////////////////////////////////////////////////////////////////////////////
 
-	cu_vertex_spmv_arbiter_control #(
+	cu_vertex_connectedComponents_arbiter_control #(
 		.NUM_VERTEX_CU(NUM_VERTEX_CU),
 		.NUM_GRAPH_CU (NUM_GRAPH_CU ),
 		.CU_ID_Y      (CU_ID_Y      )
-	) cu_vertex_spmv_arbiter_control_instant (
+	) cu_vertex_connectedComponents_arbiter_control_instant (
 		.clock                                        (clock                                    ),
 		.rstn_in                                      (rstn                                     ),
 		.enabled_in                                   (enabled                                  ),
