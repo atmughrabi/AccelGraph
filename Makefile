@@ -113,13 +113,13 @@ export FILE_BIN_TYPE = graph.wbin
 export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
 
 #GRAPH Algorithm Direction
-export PULL_PUSH 		= 0
+export PULL_PUSH 		= 2
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
 export REORDER 		    = 0
 export DATA_STRUCTURES  = 0
-export ALGORITHMS 		= 5
+export ALGORITHMS 		= 1
 
 export ROOT 			= 42
 export TOLERANCE 		= 1e-7
@@ -129,7 +129,7 @@ export START_THREADS    = 1
 export INC_THREADS      = 1
 export NUM_THREADS  	= 16
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 10
+export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1
