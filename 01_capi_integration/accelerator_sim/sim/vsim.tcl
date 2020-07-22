@@ -315,16 +315,30 @@ proc rc {} {
 }
 
 proc rcf {} {
-  global direction
+  
+  fp_single_add_acc_c
+  fp_single_mul_c
+  r
+  c_fp
+}
 
-  if {$direction eq "PULL"} {
+proc fp_single_add_acc_c {} {
+
   set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_acc/fp_single_add_acc_sim"
-  } elseif {$direction eq "PUSH"} {
-  set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_add/fp_single_add_sim"
-  } else {
-  echo "UNKNOWN Packages CU"
-  }
+  set USER_DEFINED_COMPILE_OPTIONS ""
+  set USER_DEFINED_VHDL_COMPILE_OPTIONS ""
+  set USER_DEFINED_VERILOG_COMPILE_OPTIONS ""
 
+  source $QSYS_SIMDIR/mentor/msim_setup.tcl
+
+
+  dev_com
+  com
+}
+
+proc fp_single_mul_c {} {
+
+  set QSYS_SIMDIR "../../accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_mul/fp_single_mul_sim"
   set USER_DEFINED_COMPILE_OPTIONS ""
   set USER_DEFINED_VHDL_COMPILE_OPTIONS ""
   set USER_DEFINED_VERILOG_COMPILE_OPTIONS ""
@@ -333,9 +347,6 @@ proc rcf {} {
 
   dev_com
   com
-
-  r
-  c_fp
 }
 
 proc rcd {} {

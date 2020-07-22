@@ -42,6 +42,12 @@ module cu_sum_kernel_control #(
 
 	logic                        rstn                               ;
 	EdgeDataRead                 edge_data_latched                  ;
+	EdgeDataRead                 edge_data_latched_S1               ;
+	EdgeDataRead                 edge_data_latched_S2               ;
+	EdgeDataRead                 edge_data_latched_S3               ;
+	EdgeDataRead                 edge_data_latched_S4               ;
+	EdgeDataRead                 edge_data_latched_S5               ;
+	EdgeDataRead                 edge_data_latched_S6               ;
 	EdgeDataWrite                edge_data_accumulator              ;
 	EdgeDataWrite                edge_data_accumulator_latch        ;
 	logic                        enabled                            ;
@@ -67,10 +73,12 @@ module cu_sum_kernel_control #(
 	logic                              valid_value    ;
 	logic                              valid_stream   ;
 	logic [0:(DATA_SIZE_WRITE_BITS-1)] running_value  ;
+	logic [0:(DATA_SIZE_WRITE_BITS-1)] mul_value      ;
 	logic                              overflow_x     ;
 	logic                              underflow_x    ;
 	logic                              overflow_accume;
 	logic                              rstp           ;
+
 
 	// assign input_value = 32'h 3f800000;
 	// assign valid_value = vertex_job_latched.valid;
@@ -158,16 +166,47 @@ module cu_sum_kernel_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_data_latched.valid <= 0;
+			edge_data_latched_S1.valid <= 0;
+			edge_data_latched_S2.valid <= 0;
+			edge_data_latched_S3.valid <= 0;
+			edge_data_latched_S4.valid <= 0;
+			edge_data_latched_S5.valid <= 0;
+			edge_data_latched_S6.valid <= 0;
 		end else begin
 			if (enabled) begin
-				edge_data_latched.valid <= edge_data.valid;
+				edge_data_latched_S1.valid <= edge_data.valid;
+				edge_data_latched_S2.valid <= edge_data_latched_S1.valid;
+				edge_data_latched_S3.valid <= edge_data_latched_S2.valid;
+				edge_data_latched_S4.valid <= edge_data_latched_S3.valid;
+				edge_data_latched_S5.valid <= edge_data_latched_S4.valid;
+				edge_data_latched_S6.valid <= edge_data_latched_S5.valid;
 			end
 		end
 	end
 
 	always_ff @(posedge clock) begin
-		edge_data_latched.payload <= edge_data.payload;
+		edge_data_latched_S1.payload      <= edge_data.payload;
+		edge_data_latched_S2.payload      <= edge_data_latched_S1.payload;
+		edge_data_latched_S3.payload      <= edge_data_latched_S2.payload;
+		edge_data_latched_S4.payload      <= edge_data_latched_S3.payload;
+		edge_data_latched_S5.payload      <= edge_data_latched_S4.payload;
+		edge_data_latched_S6.payload      <= edge_data_latched_S5.payload;
+		edge_data_latched_S6.payload.data <= mul_value;
+	end
+
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_latched.valid <= 0;
+		end else begin
+			if (enabled) begin
+				edge_data_latched.valid <= edge_data_latched_S6.valid;
+			end
+		end
+	end
+
+	always_ff @(posedge clock) begin
+		edge_data_latched.payload <= edge_data_latched_S6.payload;
 	end
 
 
@@ -291,6 +330,18 @@ module cu_sum_kernel_control #(
 		.en    (enabled        )
 	);
 
+	////////////////////////////////////////////////////////////////////////////
+	// single percision floating point multiply module
+	////////////////////////////////////////////////////////////////////////////
+
+	fp_single_mul fp_single_mul_instant (
+		.clk   (clock                              ), //    clk.clk
+		.areset(rstp                               ), // areset.reset
+		.en    (enabled                            ), //     en.en
+		.a     (edge_data_latched_S1.payload.data  ), //      a.a
+		.b     (edge_data_latched_S1.payload.weight), //      b.b
+		.q     (mul_value                          )  //      q.q
+	);
 
 	fifo #(
 		.WIDTH($bits(EdgeDataWrite) ),

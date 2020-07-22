@@ -16,6 +16,7 @@ set_global_assignment -name QIP_FILE  $PSL_FPGA/quartus_ip/fp/fp_single_precisio
 set_global_assignment -name QIP_FILE  $PSL_FPGA/quartus_ip/fp/fp_double_precision_acc/fp_double_add_acc.qip
 set_global_assignment -name QIP_FILE  $PSL_FPGA/quartus_ip/fp/fp_single_precision_add/fp_single_add.qip
 set_global_assignment -name QIP_FILE  $PSL_FPGA/quartus_ip/fp/fp_double_precision_add/fp_double_add.qip
+set_global_assignment -name QIP_FILE  $PSL_FPGA/quartus_ip/fp/fp_double_precision_mul/fp_single_mul.qip
 
 
 set_global_assignment -name SDC_FILE $PSL_FPGA/psl/psl.sdc

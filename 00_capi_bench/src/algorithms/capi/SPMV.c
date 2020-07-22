@@ -628,6 +628,17 @@ struct SPMVStats *SPMVPullGraphCSR( uint32_t iterations, struct GraphCSR *graph)
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
+
+    float *edges_array_weight_fixedPoint = (float *) my_malloc(graph->num_edges * sizeof(float));
+
+    #pragma omp parallel for
+    for (v = 0; v < graph->num_edges ; ++v)
+    {
+        edges_array_weight_fixedPoint[v] = 0.0001f;
+    }
+ 
+
+
     // ********************************************************************************************
     // ***************                  MAP CSR DataStructure                        **************
     // ********************************************************************************************
@@ -635,6 +646,7 @@ struct SPMVStats *SPMVPullGraphCSR( uint32_t iterations, struct GraphCSR *graph)
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
     wedGraphCSR->auxiliary1 = stats->vector_input;
     wedGraphCSR->auxiliary2 = stats->vector_output;
+    wedGraphCSR->inverse_edges_array_weight = edges_array_weight_fixedPoint;
 
     // ********************************************************************************************
     // ********************************************************************************************
@@ -695,7 +707,7 @@ struct SPMVStats *SPMVPullGraphCSR( uint32_t iterations, struct GraphCSR *graph)
     for(v = 0; v < graph->num_vertices; v++)
     {
 
-        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
+        sum += stats->vector_output[v] ;
     }
 
     Stop(timer);
