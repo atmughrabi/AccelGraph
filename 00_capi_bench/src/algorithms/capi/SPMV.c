@@ -37,6 +37,9 @@
 
 #include "SPMV.h"
 
+#include "libcxl.h"
+#include "capienv.h"
+
 
 // ********************************************************************************************
 // ***************                  Stats DataStructure                          **************
@@ -613,31 +616,41 @@ struct SPMVStats *SPMVPullGraphCSR( uint32_t iterations, struct GraphCSR *graph)
 {
 
     uint32_t v;
-    uint32_t degree;
-    uint32_t edge_idx;
     double sum = 0.0;
+
+    //CAPI variables
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
 
     struct SPMVStats *stats = newSPMVStatsGraphCSR(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
-    struct Vertex *vertices = NULL;
-    uint32_t *sorted_edges_array = NULL;
-    uint32_t *edges_array_weight = NULL;
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
 
-#if DIRECTED
-    vertices = graph->inverse_vertices;
-    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
-#if WEIGHTED
-    edges_array_weight = graph->inverse_sorted_edges_array->edges_array_weight;
-#endif
-#else
-    vertices = graph->vertices;
-    sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
-#if WEIGHTED
-    edges_array_weight = graph->sorted_edges_array->edges_array_weight;
-#endif
-#endif
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+    wedGraphCSR->auxiliary1 = stats->vector_input;
+    wedGraphCSR->auxiliary2 = stats->vector_output;
+
+    // ********************************************************************************************
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config = afu_config;
+    afu_status.afu_config_2 = afu_config_2;
+    afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config = ((cu_config << 32) | (numThreads));
+    afu_status.cu_config_2 = cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_stop = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
 
 
     printf(" -----------------------------------------------------\n");
@@ -661,28 +674,15 @@ struct SPMVStats *SPMVPullGraphCSR( uint32_t iterations, struct GraphCSR *graph)
     {
         Start(timer_inner);
 
-        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            uint32_t j;
-            uint32_t src ;
-            uint32_t dest = v;
-            float weight = 0.0001f;
-            degree = vertices->out_degree[dest];
-            edge_idx = vertices->edges_idx[dest];
+        // ********************************************************************************************
+        // ***************                 START CU                                      **************
+        startCU(&afu, &afu_status);
+        // ********************************************************************************************
 
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                src = sorted_edges_array[j];
-#if WEIGHTED
-                weight = edges_array_weight[j];
-#endif
-                stats->vector_output[dest] +=  (weight * stats->vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
-            }
-
-
-        }
-
+        // ********************************************************************************************
+        // ***************                 WAIT AFU                                     **************
+        waitAFU(&afu, &afu_status);
+        // ********************************************************************************************
 
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
@@ -706,8 +706,15 @@ struct SPMVStats *SPMVPullGraphCSR( uint32_t iterations, struct GraphCSR *graph)
     printf(" -----------------------------------------------------\n");
 
 
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
+
     free(timer);
     free(timer_inner);
+    free(wedGraphCSR);
     return stats;
 
 }
@@ -812,36 +819,74 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( uint32_t iterations, struct GraphC
 {
 
     uint32_t v;
-    uint32_t degree;
-    uint32_t edge_idx;
+    uint32_t w;
     double sum = 0.0;
+
+    //CAPI variables
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
 
     struct SPMVStats *stats = newSPMVStatsGraphCSR(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
+
     uint64_t *vector_input = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
     uint64_t *vector_output = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
 
+    uint64_t *edges_array_weight_fixedPoint = (uint64_t *) my_malloc(graph->num_edges * sizeof(uint64_t));
 
-    struct Vertex *vertices = NULL;
-    uint32_t *sorted_edges_array = NULL;
+#if WEIGHTED
     uint32_t *edges_array_weight = NULL;
+#endif
 
 #if DIRECTED
-    vertices = graph->inverse_vertices;
-    sorted_edges_array = graph->inverse_sorted_edges_array->edges_array_dest;
 #if WEIGHTED
     edges_array_weight = graph->inverse_sorted_edges_array->edges_array_weight;
 #endif
 #else
-    vertices = graph->vertices;
-    sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #if WEIGHTED
     edges_array_weight = graph->sorted_edges_array->edges_array_weight;
 #endif
 #endif
 
+    // #pragma omp parallel for
+    for (w = 0; w < graph->num_edges ; ++w)
+    {
+#if WEIGHTED
+        edges_array_weight_fixedPoint[w] = FloatToFixed64(edges_array_weight[w]);
+#else
+        edges_array_weight_fixedPoint[w] = FloatToFixed64(0.0001f);
+#endif
+    }
+
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
+
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+
+    wedGraphCSR->auxiliary1 = vector_input;
+    wedGraphCSR->auxiliary2 = vector_output;
+    wedGraphCSR->inverse_edges_array_weight = edges_array_weight_fixedPoint;
+
+    // ********************************************************************************************
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config = afu_config;
+    afu_status.afu_config_2 = afu_config_2;
+    afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config = ((cu_config << 32) | (numThreads));
+    afu_status.cu_config_2 = cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_stop = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting SPMV-PULL Fixed-Point");
@@ -862,7 +907,7 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( uint32_t iterations, struct GraphC
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
-        vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
+        vector_input[v] = FloatToFixed64(stats->vector_input[v]);
     }
 
     Start(timer);
@@ -870,41 +915,29 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( uint32_t iterations, struct GraphC
     {
         Start(timer_inner);
 
-        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            uint32_t j;
-            uint32_t src;
-            uint32_t dest = v;
-            uint64_t weight = DoubleToFixed64(0.0001f);
-            degree = vertices->out_degree[dest];
-            edge_idx = vertices->edges_idx[dest];
+        // ********************************************************************************************
+        // ***************                 START CU                                      **************
+        startCU(&afu, &afu_status);
+        // ********************************************************************************************
 
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                src = sorted_edges_array[j];
-#if WEIGHTED
-                weight = DoubleToFixed64(edges_array_weight[j]);
-#endif
-                vector_output[dest] +=   MULFixed64V1(weight, vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
-            }
-
-        }
-
+        // ********************************************************************************************
+        // ***************                 WAIT AFU                                     **************
+        waitAFU(&afu, &afu_status);
+        // ********************************************************************************************
 
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
 
     }// end iteration loop
 
-    #pragma omp parallel for
+    #pragma omp parallel for shared(stats)
     for(v = 0; v < graph->num_vertices; v++)
     {
-        stats->vector_output[v] = Fixed64ToDouble(vector_output[v]);
+        stats->vector_output[v] = Fixed64ToFloat(vector_output[v]);
     }
 
 
-    #pragma omp parallel for reduction(+:sum)
+    #pragma omp parallel for shared(stats) reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
 
@@ -921,10 +954,17 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( uint32_t iterations, struct GraphC
     printf(" -----------------------------------------------------\n");
 
 
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
     free(timer);
+    free(edges_array_weight_fixedPoint);
     free(timer_inner);
     free(vector_output);
     free(vector_input);
+    free(wedGraphCSR);
 
     return stats;
 
@@ -1294,7 +1334,7 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList( uint32_t iterations, stru
     {
         Start(timer_inner);
 
-         #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
+        #pragma omp parallel for private(v,degree,Nodes) schedule(dynamic, 1024)
         for(v = 0; v < graph->num_vertices; v++)
         {
             uint32_t j;
@@ -1313,7 +1353,7 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList( uint32_t iterations, stru
             for(j = 0 ; j < (degree) ; j++)
             {
                 src = Nodes->edges_array_dest[j];
-               
+
 
 #if WEIGHTED
                 weight = DoubleToFixed64(Nodes->edges_array_weight[j]);
@@ -1322,10 +1362,10 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList( uint32_t iterations, stru
                 vector_output[dest] +=  MULFixed64V1(weight, vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
 
             }
-          
+
         }
 
-       
+
 
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
@@ -1734,7 +1774,7 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjLinkedList( uint32_t iterations, str
             for(j = 0 ; j < (degree) ; j++)
             {
                 src =  Nodes->dest;
-               
+
 #if WEIGHTED
                 weight = DoubleToFixed64(Nodes->weight);
 #endif
@@ -1743,7 +1783,7 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjLinkedList( uint32_t iterations, str
                 vector_output[dest] +=  MULFixed64V1(weight, vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
 
             }
-          
+
         }
 
 

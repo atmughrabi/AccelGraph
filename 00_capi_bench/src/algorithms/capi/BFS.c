@@ -332,6 +332,7 @@ struct BFSStats *breadthFirstSearchPullGraphCSR(uint32_t source, struct GraphCSR
     free(workListNext);
     free(timer);
     free(timer_inner);
+    free(wedGraphCSR);
 
     return stats;
 }
@@ -722,7 +723,7 @@ uint32_t bottomUpStepGraphCSRCAPI(struct GraphCSR *graph, uint8_t *workListCurr,
 
 
     uint32_t nf = 0; // number of vertices in sharedFrontierQueue
-   
+
     // ********************************************************************************************
     // ***************                 START CU                                      **************
     startCU(&afu, afu_status);

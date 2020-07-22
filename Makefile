@@ -57,7 +57,7 @@ export MAIN_DIR		  	= main
 
 # # small test graphs BENCHMARKS_DIR_LOCAL    	= 01_test_graphs
 export GRAPH_NAME = test
-export GRAPH_NAME = v51_e1021
+# export GRAPH_NAME = v51_e1021
 export GRAPH_NAME = v300_e2730
 
 # GAP https://sparse.tamu.edu/MM/GAP/
