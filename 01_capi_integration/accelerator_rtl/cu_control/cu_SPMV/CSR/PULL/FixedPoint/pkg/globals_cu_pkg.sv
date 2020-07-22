@@ -28,8 +28,8 @@ package GLOBALS_CU_PKG;
 // TOTAL CUS = NUM_GRAPH_CU_GLOBAL X NUM_VERTEX_CU_GLOBAL
 ////////////////////////////////////////////////////////////////////////////
 
-	parameter NUM_GRAPH_CU_GLOBAL  = 5;
-	parameter NUM_VERTEX_CU_GLOBAL = 5;
+	parameter NUM_GRAPH_CU_GLOBAL  = 2;
+	parameter NUM_VERTEX_CU_GLOBAL = 2;
 
 	parameter CU_VERTEX_JOB_BUFFER_SIZE = 64;
 	parameter CU_EDGE_JOB_BUFFER_SIZE   = 64;
@@ -53,6 +53,12 @@ package GLOBALS_CU_PKG;
 	parameter CACHELINE_EDGE_NUM    = (CACHELINE_SIZE >> $clog2(EDGE_SIZE))     ;
 	parameter CACHELINE_EDGE_NUM_HF = (CACHELINE_SIZE >> $clog2(EDGE_SIZE)) >> 1; // number of edges in one cacheline
 	parameter EDGE_NULL_BITS        = {EDGE_SIZE_BITS{1'b0}}                    ;
+
+	parameter EDGE_WEIGHT_SIZE             = 4                                         ; // edge size is n bytes
+	parameter EDGE_WEIGHT_SIZE_BITS        = EDGE_WEIGHT_SIZE * 8                             ; // edge size is n*8 Bits
+	parameter CACHELINE_EDGE_WEIGHT_NUM    = (CACHELINE_SIZE >> $clog2(EDGE_WEIGHT_SIZE))     ;
+	parameter CACHELINE_EDGE_WEIGHT_NUM_HF = (CACHELINE_SIZE >> $clog2(EDGE_WEIGHT_SIZE)) >> 1; // number of edges in one cacheline
+	parameter EDGE_WEIGHT_NULL_BITS        = {EDGE_WEIGHT_SIZE_BITS{1'b0}}                    ;
 
 	parameter DATA_SIZE_READ               = 8                                              ; // edge data size is n bytes Auxiliary1
 	parameter DATA_SIZE_READ_BITS          = DATA_SIZE_READ * 8                             ; // edge data size is n*8 Bits

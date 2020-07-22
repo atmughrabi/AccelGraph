@@ -22,6 +22,7 @@ package CU_PKG;
 		STRUCT_INVALID,
 		INV_OUT_DEGREE,
 		INV_EDGES_IDX,
+		INV_EDGE_ARRAY_WEIGHT,
 		INV_EDGE_ARRAY_DEST,
 		READ_GRAPH_DATA,
 		WRITE_GRAPH_DATA
@@ -51,6 +52,7 @@ package CU_PKG;
 		START_EDGE_REQ,
 		CALC_EDGE_REQ_SIZE,
 		SEND_EDGE_START,
+		SEND_EDGE_INV_EDGE_ARRAY_WEIGHT,
 		SEND_EDGE_INV_EDGE_ARRAY_DEST,
 		WAIT_EDGE_DATA,
 		SHIFT_EDGE_DATA_START,
@@ -88,9 +90,10 @@ package CU_PKG;
 	} VertexInterface;
 
 	typedef struct packed {
-		logic [0:(EDGE_SIZE_BITS-1)] id  ;
-		logic [0:(EDGE_SIZE_BITS-1)] src ;
-		logic [0:(EDGE_SIZE_BITS-1)] dest;
+		logic [       0:(EDGE_SIZE_BITS-1)] id    ;
+		logic [       0:(EDGE_SIZE_BITS-1)] src   ;
+		logic [       0:(EDGE_SIZE_BITS-1)] dest  ;
+		logic [0:(EDGE_WEIGHT_SIZE_BITS-1)] weight;
 	} EdgeInterfacePayload;
 
 	typedef struct packed {
@@ -99,9 +102,10 @@ package CU_PKG;
 	} EdgeInterface;
 
 	typedef struct packed {
-		cu_id_t                           cu_id_x;
-		cu_id_t                           cu_id_y;
-		logic [0:(DATA_SIZE_READ_BITS-1)] data   ;
+		cu_id_t                             cu_id_x;
+		cu_id_t                             cu_id_y;
+		logic [  0:(DATA_SIZE_READ_BITS-1)] data   ;
+		logic [0:(EDGE_WEIGHT_SIZE_BITS-1)] weight ;
 	} EdgeDataReadPayload;
 
 	typedef struct packed {
@@ -173,6 +177,18 @@ package CU_PKG;
 
 		return out;
 	endfunction : swap_endianness_edge_read
+
+	function logic [0:EDGE_WEIGHT_SIZE_BITS-1] swap_endianness_edge_weight_read(logic [0:EDGE_WEIGHT_SIZE_BITS-1] in);
+
+		logic [0:EDGE_WEIGHT_SIZE_BITS-1] out;
+
+		integer i;
+		for ( i = 0; i < EDGE_WEIGHT_SIZE; i++) begin
+			out[i*8 +: 8] = in[((EDGE_WEIGHT_SIZE_BITS-1)-(i*8)) -:8];
+		end
+
+		return out;
+	endfunction : swap_endianness_edge_weight_read
 
 
 // Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).

@@ -49,19 +49,21 @@ module cu_edge_job_control #(
 	logic [0:63]    cu_configure_internal           ;
 	BufferStatus    read_buffer_status_latched      ;
 
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0               ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1               ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_seek                  ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] global_shift_counter        ;
-	logic                                shift_limit_clear           ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter               ;
-	logic                                start_shift_hf_0            ;
-	logic                                start_shift_hf_1            ;
-	logic                                switch_shift_hf             ;
-	logic                                push_shift                  ;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_DEST_0   ;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_DEST_1   ;
-	logic                                read_command_bus_request_pop;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0                   ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1                   ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_seek                      ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] global_shift_counter            ;
+	logic                                shift_limit_clear               ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter                   ;
+	logic                                start_shift_hf_0                ;
+	logic                                start_shift_hf_1                ;
+	logic                                switch_shift_hf                 ;
+	logic                                push_shift                      ;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_DEST_0       ;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_ARRAY_DEST_1       ;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_WEIGHT_ARRAY_DEST_0;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGE_WEIGHT_ARRAY_DEST_1;
+	logic                                read_command_bus_request_pop    ;
 
 	logic clear_data_ready    ;
 	logic fill_edge_job_buffer;
@@ -101,9 +103,11 @@ module cu_edge_job_control #(
 	logic [                 0:7] remainder            ;
 	logic [                0:63] aligned              ;
 
-	logic [0:(EDGE_SIZE_BITS-1)] inverse_edge_array_dest_data      ;
-	logic                        inverse_edge_array_dest_data_ready;
-	logic                        zero_pass                         ; // a signal when edges are 17 you get this extra edge at the othe have
+	logic [       0:(EDGE_SIZE_BITS-1)] inverse_edge_array_dest_data             ;
+	logic                               inverse_edge_array_dest_data_ready       ;
+	logic [0:(EDGE_WEIGHT_SIZE_BITS-1)] inverse_edge_weight_array_dest_data      ;
+	logic                               inverse_edge_weight_array_dest_data_ready;
+	logic                               zero_pass                                ; // a signal when edges are 17 you get this extra edge at the othe have
 
 	edge_struct_state current_state       ;
 	edge_struct_state next_state          ;
@@ -308,6 +312,9 @@ module cu_edge_job_control #(
 				next_state = SEND_EDGE_START;
 			end
 			SEND_EDGE_START : begin
+				next_state = SEND_EDGE_INV_EDGE_ARRAY_WEIGHT;
+			end
+			SEND_EDGE_INV_EDGE_ARRAY_WEIGHT : begin
 				next_state = SEND_EDGE_INV_EDGE_ARRAY_DEST;
 			end
 			SEND_EDGE_INV_EDGE_ARRAY_DEST : begin
@@ -391,6 +398,11 @@ module cu_edge_job_control #(
 			end
 			SEND_EDGE_START : begin
 				read_command_edge_job_latched.payload <= read_command_edge_job_latched_S2.payload;
+			end
+			SEND_EDGE_INV_EDGE_ARRAY_WEIGHT : begin
+				read_command_edge_job_latched.valid                    <= 1'b1;
+				read_command_edge_job_latched.payload.address          <= wed_request_in_latched.payload.wed.inverse_edges_array_weight + aligned;
+				read_command_edge_job_latched.payload.cmd.array_struct <= INV_EDGE_ARRAY_WEIGHT;
 			end
 			SEND_EDGE_INV_EDGE_ARRAY_DEST : begin
 				read_command_edge_job_latched.valid                    <= 1'b1;
@@ -531,29 +543,37 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock) begin
 		if(read_data_0_in_latched.valid) begin
-			// case (read_data_0_in_latched.payload.cmd.array_struct)
-			// 	INV_EDGE_ARRAY_DEST : begin
-			reg_INV_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched.payload.data;
-			// 	end
-			// endcase
+			case (read_data_0_in_latched.payload.cmd.array_struct)
+				INV_EDGE_ARRAY_WEIGHT : begin
+					reg_INV_EDGE_WEIGHT_ARRAY_DEST_0 <= read_data_0_in_latched.payload.data;
+				end
+				INV_EDGE_ARRAY_DEST : begin
+					reg_INV_EDGE_ARRAY_DEST_0 <= read_data_0_in_latched.payload.data;
+				end
+			endcase
 		end
 
 		if(~switch_shift_hf && start_shift_hf_0) begin
-			reg_INV_EDGE_ARRAY_DEST_0 <= {reg_INV_EDGE_ARRAY_DEST_0[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
+			reg_INV_EDGE_WEIGHT_ARRAY_DEST_0 <= {reg_INV_EDGE_WEIGHT_ARRAY_DEST_0[EDGE_WEIGHT_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_WEIGHT_NULL_BITS};
+			reg_INV_EDGE_ARRAY_DEST_0        <= {reg_INV_EDGE_ARRAY_DEST_0[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
 		end
 	end
 
 	always_ff @(posedge clock) begin
 		if(read_data_1_in_latched.valid) begin
-			// case (read_data_1_in_latched.payload.cmd.array_struct)
-			// 	INV_EDGE_ARRAY_DEST : begin
-			reg_INV_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched.payload.data;
-			// 	end
-			// endcase
+			case (read_data_1_in_latched.payload.cmd.array_struct)
+				INV_EDGE_ARRAY_WEIGHT : begin
+					reg_INV_EDGE_WEIGHT_ARRAY_DEST_1 <= read_data_1_in_latched.payload.data;
+				end
+				INV_EDGE_ARRAY_DEST : begin
+					reg_INV_EDGE_ARRAY_DEST_1 <= read_data_1_in_latched.payload.data;
+				end
+			endcase
 		end
 
 		if(switch_shift_hf && start_shift_hf_1) begin
-			reg_INV_EDGE_ARRAY_DEST_1 <= {reg_INV_EDGE_ARRAY_DEST_1[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
+			reg_INV_EDGE_WEIGHT_ARRAY_DEST_1 <= {reg_INV_EDGE_WEIGHT_ARRAY_DEST_1[EDGE_WEIGHT_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_WEIGHT_NULL_BITS};
+			reg_INV_EDGE_ARRAY_DEST_1        <= {reg_INV_EDGE_ARRAY_DEST_1[EDGE_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],EDGE_NULL_BITS};
 		end
 	end
 
@@ -562,11 +582,14 @@ module cu_edge_job_control #(
 			inverse_edge_array_dest_data_ready <= 0;
 		end else begin
 			if(read_response_in_latched.valid) begin
-				// case (read_response_in_latched.payload.cmd.array_struct)
-				// 	INV_EDGE_ARRAY_DEST : begin
-				inverse_edge_array_dest_data_ready <= 1;
-				// 	end
-				// endcase
+				case (read_response_in_latched.payload.cmd.array_struct)
+					INV_EDGE_ARRAY_WEIGHT : begin
+						inverse_edge_weight_array_dest_data_ready <= 1;
+					end
+					INV_EDGE_ARRAY_DEST : begin
+						inverse_edge_array_dest_data_ready <= 1;
+					end
+				endcase
 			end
 
 			if(clear_data_ready) begin
@@ -616,7 +639,7 @@ module cu_edge_job_control #(
 ////////////////////////////////////////////////////////////////////////////
 
 	assign send_request_ready   = read_buffer_status_internal.empty && edge_buffer_burst_status.empty  && (|edge_num_counter) && wed_request_in_latched.valid;
-	assign fill_edge_job_buffer = inverse_edge_array_dest_data_ready;
+	assign fill_edge_job_buffer = inverse_edge_array_dest_data_ready && inverse_edge_weight_array_dest_data_ready;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -638,9 +661,10 @@ module cu_edge_job_control #(
 	end
 
 	always_ff @(posedge clock) begin
-		edge_variable.payload.id   <= edge_id_counter;
-		edge_variable.payload.src  <= vertex_job_latched.payload.id;
-		edge_variable.payload.dest <= swap_endianness_edge_read(inverse_edge_array_dest_data);
+		edge_variable.payload.id     <= edge_id_counter;
+		edge_variable.payload.src    <= vertex_job_latched.payload.id;
+		edge_variable.payload.dest   <= swap_endianness_edge_read(inverse_edge_array_dest_data);
+		edge_variable.payload.weight <= swap_endianness_edge_weight_read(inverse_edge_weight_array_dest_data);
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -666,9 +690,11 @@ module cu_edge_job_control #(
 
 	always_ff @(posedge clock) begin
 		if(~switch_shift_hf && start_shift_hf_0) begin
-			inverse_edge_array_dest_data <= reg_INV_EDGE_ARRAY_DEST_0[0:EDGE_SIZE_BITS-1];
+			inverse_edge_array_dest_data        <= reg_INV_EDGE_ARRAY_DEST_0[0:EDGE_SIZE_BITS-1];
+			inverse_edge_weight_array_dest_data <= reg_INV_EDGE_WEIGHT_ARRAY_DEST_0[0:EDGE_WEIGHT_SIZE_BITS-1];
 		end else if(switch_shift_hf && start_shift_hf_1) begin
-			inverse_edge_array_dest_data <= reg_INV_EDGE_ARRAY_DEST_1[0:EDGE_SIZE_BITS-1];
+			inverse_edge_array_dest_data        <= reg_INV_EDGE_ARRAY_DEST_1[0:EDGE_SIZE_BITS-1];
+			inverse_edge_weight_array_dest_data <= reg_INV_EDGE_WEIGHT_ARRAY_DEST_1[0:EDGE_WEIGHT_SIZE_BITS-1];
 		end
 	end
 

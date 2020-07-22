@@ -169,7 +169,7 @@ module cu_sum_kernel_control #(
 					edge_data_accumulator.payload.index   <= vertex_job_latched.payload.id;
 					edge_data_accumulator.payload.cu_id_x <= CU_ID_X;
 					edge_data_accumulator.payload.cu_id_y <= CU_ID_Y;
-					edge_data_accumulator.payload.data    <= edge_data_accumulator.payload.data + edge_data_latched.payload.data;
+					edge_data_accumulator.payload.data    <= edge_data_accumulator.payload.data + (edge_data_latched.payload.data * edge_data_latched.payload.weight);
 					edge_data_counter_accum_internal      <= edge_data_counter_accum_internal + 1;
 				end
 
