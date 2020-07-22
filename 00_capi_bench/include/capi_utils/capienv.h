@@ -119,7 +119,7 @@ struct __attribute__((__packed__)) WEDGraphCSR
 {
     uint32_t num_edges;                    // 4-Bytes
     uint32_t num_vertices;                 // 4-Bytes
-    uint32_t max_weight;                   // 4-Bytes
+    float max_weight;                   // 4-Bytes
     uint32_t auxiliary0;                   // 4-Bytes
     void *vertex_out_degree;            // 8-Bytes
     void *vertex_in_degree;             // 8-Bytes

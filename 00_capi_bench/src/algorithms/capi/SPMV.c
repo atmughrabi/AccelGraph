@@ -629,16 +629,6 @@ struct SPMVStats *SPMVPullGraphCSR( uint32_t iterations, struct GraphCSR *graph)
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
 
-    float *edges_array_weight_fixedPoint = (float *) my_malloc(graph->num_edges * sizeof(float));
-
-    #pragma omp parallel for
-    for (v = 0; v < graph->num_edges ; ++v)
-    {
-        edges_array_weight_fixedPoint[v] = 0.0001f;
-    }
- 
-
-
     // ********************************************************************************************
     // ***************                  MAP CSR DataStructure                        **************
     // ********************************************************************************************
@@ -646,7 +636,6 @@ struct SPMVStats *SPMVPullGraphCSR( uint32_t iterations, struct GraphCSR *graph)
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
     wedGraphCSR->auxiliary1 = stats->vector_input;
     wedGraphCSR->auxiliary2 = stats->vector_output;
-    wedGraphCSR->inverse_edges_array_weight = edges_array_weight_fixedPoint;
 
     // ********************************************************************************************
     // ********************************************************************************************
@@ -706,8 +695,7 @@ struct SPMVStats *SPMVPullGraphCSR( uint32_t iterations, struct GraphCSR *graph)
     #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
-
-        sum += stats->vector_output[v] ;
+        ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
     Stop(timer);
@@ -746,7 +734,7 @@ struct SPMVStats *SPMVPushGraphCSR( uint32_t iterations, struct GraphCSR *graph)
 
     struct Vertex *vertices = NULL;
     uint32_t *sorted_edges_array = NULL;
-    uint32_t *edges_array_weight = NULL;
+    float *edges_array_weight = NULL;
 
 
     vertices = graph->vertices;
@@ -851,7 +839,7 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( uint32_t iterations, struct GraphC
     uint32_t *edges_array_weight_fixedPoint = (uint32_t *) my_malloc(graph->num_edges * sizeof(uint32_t));
 
 #if WEIGHTED
-    uint32_t *edges_array_weight = NULL;
+    float *edges_array_weight = NULL;
 #endif
 
 #if DIRECTED
@@ -1002,7 +990,7 @@ struct SPMVStats *SPMVPushFixedPointGraphCSR( uint32_t iterations, struct GraphC
 
     struct Vertex *vertices = NULL;
     uint32_t *sorted_edges_array = NULL;
-    uint32_t *edges_array_weight = NULL;
+    float *edges_array_weight = NULL;
 
     vertices = graph->vertices;
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;

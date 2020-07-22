@@ -145,6 +145,8 @@ module cu_sum_kernel_control #(
 		if(~rstn) begin
 			edge_data_latched.valid <= 0;
 			edge_data_multi <= 0;
+			edge_data_latched_S1.valid <= 0;
+			edge_data_latched_S2.valid <= 0;
 		end else begin
 			if (enabled) begin
 				edge_data_latched_S1.valid <= edge_data.valid;

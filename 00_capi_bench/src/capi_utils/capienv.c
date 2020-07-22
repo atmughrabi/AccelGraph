@@ -444,7 +444,7 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
     printf("| %-25s | %-24u| \n", "num_edges", wed->num_edges);
     printf("| %-25s | %-24u| \n", "num_vertices", wed->num_vertices);
 #if WEIGHTED
-    printf("| %-25s | %-24u| \n", "max_weight", wed->max_weight);
+    printf("| %-25s | %-24f| \n", "max_weight", wed->max_weight);
 #endif
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24p| \n", "vertex_in_degree", wed->vertex_in_degree);
