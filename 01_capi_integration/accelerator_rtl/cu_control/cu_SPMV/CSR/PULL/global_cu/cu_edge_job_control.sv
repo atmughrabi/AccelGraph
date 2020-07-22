@@ -594,6 +594,7 @@ module cu_edge_job_control #(
 
 			if(clear_data_ready) begin
 				inverse_edge_array_dest_data_ready <= 0;
+				inverse_edge_weight_array_dest_data_ready <= 0;
 			end
 		end
 	end

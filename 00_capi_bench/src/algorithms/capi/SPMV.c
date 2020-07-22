@@ -397,6 +397,7 @@ struct SPMVStats *SPMVPullRowFixedPointGraphGrid( uint32_t iterations, struct Gr
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
+        vector_output[v] = 0;
         vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
     }
 
@@ -505,6 +506,7 @@ struct SPMVStats *SPMVPushColumnFixedPointGraphGrid( uint32_t iterations, struct
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
+        vector_output[v] = 0;
         vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
     }
 
@@ -831,10 +833,10 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( uint32_t iterations, struct GraphC
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
 
-    uint64_t *vector_input = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
+    uint32_t *vector_input = (uint32_t *) my_malloc(graph->num_vertices * sizeof(uint32_t));
     uint64_t *vector_output = (uint64_t *) my_malloc(graph->num_vertices * sizeof(uint64_t));
 
-    uint64_t *edges_array_weight_fixedPoint = (uint64_t *) my_malloc(graph->num_edges * sizeof(uint64_t));
+    uint32_t *edges_array_weight_fixedPoint = (uint32_t *) my_malloc(graph->num_edges * sizeof(uint32_t));
 
 #if WEIGHTED
     uint32_t *edges_array_weight = NULL;
@@ -850,13 +852,13 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( uint32_t iterations, struct GraphC
 #endif
 #endif
 
-    // #pragma omp parallel for
+    #pragma omp parallel for
     for (w = 0; w < graph->num_edges ; ++w)
     {
 #if WEIGHTED
-        edges_array_weight_fixedPoint[w] = FloatToFixed64(edges_array_weight[w]);
+        edges_array_weight_fixedPoint[w] = FloatToFixed32(edges_array_weight[w]);
 #else
-        edges_array_weight_fixedPoint[w] = FloatToFixed64(0.0001f);
+        edges_array_weight_fixedPoint[w] = FloatToFixed32(0.0001f);
 #endif
     }
 
@@ -907,7 +909,8 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( uint32_t iterations, struct GraphC
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
-        vector_input[v] = FloatToFixed64(stats->vector_input[v]);
+        vector_output[v] = 0;
+        vector_input[v] = FloatToFixed32(stats->vector_input[v]);
     }
 
     Start(timer);
@@ -933,7 +936,7 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( uint32_t iterations, struct GraphC
     #pragma omp parallel for shared(stats)
     for(v = 0; v < graph->num_vertices; v++)
     {
-        stats->vector_output[v] = Fixed64ToFloat(vector_output[v]);
+        stats->vector_output[v] = Fixed32ToFloat(vector_output[v]);
     }
 
 
@@ -1015,6 +1018,7 @@ struct SPMVStats *SPMVPushFixedPointGraphCSR( uint32_t iterations, struct GraphC
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
+        vector_output[v] = 0;
         vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
     }
 
@@ -1326,6 +1330,7 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjArrayList( uint32_t iterations, stru
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
+        vector_output[v] = 0;
         vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
     }
 
@@ -1439,6 +1444,7 @@ struct SPMVStats *SPMVPushFixedPointGraphAdjArrayList( uint32_t iterations, stru
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
+        vector_output[v] = 0;
         vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
     }
 
@@ -1749,6 +1755,7 @@ struct SPMVStats *SPMVPullFixedPointGraphAdjLinkedList( uint32_t iterations, str
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
+        vector_output[v] = 0;
         vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
     }
 
@@ -1857,6 +1864,7 @@ struct SPMVStats *SPMVPushFixedPointGraphAdjLinkedList( uint32_t iterations, str
     #pragma omp parallel for
     for(v = 0; v < graph->num_vertices; v++)
     {
+        vector_output[v] = 0;
         vector_input[v] = DoubleToFixed64(stats->vector_input[v]);
     }
 

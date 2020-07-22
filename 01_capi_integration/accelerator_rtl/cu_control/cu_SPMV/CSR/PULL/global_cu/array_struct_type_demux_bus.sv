@@ -65,7 +65,7 @@ module array_struct_type_demux_bus #(
 			data_out_valid_internal[1] <= 0;
 		end else begin
 			case (sel_in_internal)
-				INV_EDGE_ARRAY_DEST : begin
+				INV_EDGE_ARRAY_DEST, INV_EDGE_ARRAY_WEIGHT : begin
 					data_out_valid_internal[0] <= data_in_valid_internal;
 					data_out_valid_internal[1] <= 0;
 				end
