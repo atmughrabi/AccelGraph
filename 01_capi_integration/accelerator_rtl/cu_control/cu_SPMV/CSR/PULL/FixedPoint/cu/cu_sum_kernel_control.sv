@@ -42,6 +42,8 @@ module cu_sum_kernel_control #(
 
 	logic              rstn                               ;
 	EdgeDataRead       edge_data_latched                  ;
+	EdgeDataRead       edge_data_latched_S1               ;
+	EdgeDataRead       edge_data_latched_S2               ;
 	EdgeDataWrite      edge_data_accumulator              ;
 	EdgeDataWrite      edge_data_accumulator_latch        ;
 	logic              enabled                            ;
@@ -59,6 +61,7 @@ module cu_sum_kernel_control #(
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum            ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal   ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal_S2;
+	logic [  0:(DATA_SIZE_WRITE_BITS-1)] edge_data_multi;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
@@ -141,15 +144,22 @@ module cu_sum_kernel_control #(
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			edge_data_latched.valid <= 0;
+			edge_data_multi <= 0;
 		end else begin
 			if (enabled) begin
-				edge_data_latched.valid <= edge_data.valid;
+				edge_data_latched_S1.valid <= edge_data.valid;
+				edge_data_latched_S2.valid <= edge_data_latched_S1.valid;
+				edge_data_latched.valid <= edge_data_latched_S2.valid;
+				edge_data_multi <= (edge_data_latched_S1.payload.data * edge_data_latched_S1.payload.weight);
 			end
 		end
 	end
 
 	always_ff @(posedge clock) begin
-		edge_data_latched.payload <= edge_data.payload;
+		edge_data_latched_S1.payload <= edge_data.payload;
+		edge_data_latched_S2.payload <= edge_data_latched_S1.payload;
+		edge_data_latched.payload    <= edge_data_latched_S2.payload;		
+		edge_data_latched.payload.data <= (edge_data_multi >> SCALEF);
 	end
 
 
@@ -169,7 +179,7 @@ module cu_sum_kernel_control #(
 					edge_data_accumulator.payload.index   <= vertex_job_latched.payload.id;
 					edge_data_accumulator.payload.cu_id_x <= CU_ID_X;
 					edge_data_accumulator.payload.cu_id_y <= CU_ID_Y;
-					edge_data_accumulator.payload.data    <= edge_data_accumulator.payload.data + ((edge_data_latched.payload.data * edge_data_latched.payload.weight)>>32) ;
+					edge_data_accumulator.payload.data    <= edge_data_accumulator.payload.data + edge_data_latched.payload.data;
 					edge_data_counter_accum_internal      <= edge_data_counter_accum_internal + 1;
 				end
 
