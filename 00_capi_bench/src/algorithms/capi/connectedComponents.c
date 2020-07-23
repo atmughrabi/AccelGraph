@@ -35,6 +35,9 @@
 #include "graphAdjLinkedList.h"
 #include "reorder.h"
 
+#include "libcxl.h"
+#include "capienv.h"
+
 #include "connectedComponents.h"
 
 
@@ -292,7 +295,7 @@ uint32_t sampleFrequentNode(uint32_t num_vertices, uint32_t num_samples, uint32_
     Word_t *PValue;
     Word_t   Index;
     uint32_t i;
-    initializeMersenneState (mt19937var, 27491095); 
+    initializeMersenneState (mt19937var, 27491095);
     for (i = 0; i < num_samples; i++)
     {
         uint32_t n = generateRandInt(mt19937var) % num_vertices;
@@ -360,11 +363,13 @@ struct CCStats *connectedComponentsGraphCSR(uint32_t iterations, uint32_t pushpu
 struct CCStats *connectedComponentsShiloachVishkinGraphCSR( uint32_t iterations, struct GraphCSR *graph)
 {
 
-    uint32_t v;
-    uint32_t degree;
-    uint32_t edge_idx;
+
     uint32_t componentsCount = 0;
     uint32_t change = 0;
+
+    //CAPI variables
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
 
     struct CCStats *stats = newCCStatsGraphCSR(graph);
     struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
@@ -375,6 +380,34 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( uint32_t iterations,
     printf(" -----------------------------------------------------\n");
     printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
     printf(" -----------------------------------------------------\n");
+
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
+
+
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+
+    wedGraphCSR->auxiliary1 = stats->components;
+    wedGraphCSR->auxiliary2 = stats->components;
+
+    // ********************************************************************************************
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config = afu_config;
+    afu_status.afu_config_2 = afu_config_2;
+    afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config = ((cu_config << 32) | (numThreads));
+    afu_status.cu_config_2 = cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_stop = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
 
 
     Start(timer);
@@ -387,36 +420,48 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( uint32_t iterations,
         change = 0;
         stats->iterations++;
 
-        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            uint32_t j;
-            uint32_t src = v;
-            uint32_t dest;
+        // #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
+        // for(v = 0; v < graph->num_vertices; v++)
+        // {
+        //     uint32_t j;
+        //     uint32_t src = v;
+        //     uint32_t dest;
 
-            degree = graph->vertices->out_degree[src];
-            edge_idx = graph->vertices->edges_idx[src];
+        //     degree = graph->vertices->out_degree[src];
+        //     edge_idx = graph->vertices->edges_idx[src];
 
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                dest = graph->sorted_edges_array->edges_array_dest[j];
-                uint32_t comp_src = stats->components[src];
-                uint32_t comp_dest = stats->components[dest];
+        //     for(j = edge_idx ; j < (edge_idx + degree) ; j++)
+        //     {
+        //         dest = graph->sorted_edges_array->edges_array_dest[j];
+        //         uint32_t comp_src = stats->components[src];
+        //         uint32_t comp_dest = stats->components[dest];
 
-                if(comp_src == comp_dest)
-                    continue;
+        //         if(comp_src == comp_dest)
+        //             continue;
 
-                uint32_t comp_high = comp_src > comp_dest ? comp_src : comp_dest;
-                uint32_t comp_low = comp_src + (comp_dest - comp_high);
+        //         uint32_t comp_high = comp_src > comp_dest ? comp_src : comp_dest;
+        //         uint32_t comp_low = comp_src + (comp_dest - comp_high);
 
-                if(comp_high == stats->components[comp_high])
-                {
-                    change = 1;
-                    stats->components[comp_high] = comp_low;
-                }
-            }
-        }
+        //         if(comp_high == stats->components[comp_high])
+        //         {
+        //             change = 1;
+        //             stats->components[comp_high] = comp_low;
+        //         }
+        //     }
+        // }
 
+
+        // ********************************************************************************************
+        // ***************                 START CU                                      **************
+        startCU(&afu, &afu_status);
+        // ********************************************************************************************
+
+        // ********************************************************************************************
+        // ***************                 WAIT AFU                                     **************
+        waitAFU(&afu, &afu_status);
+        // ********************************************************************************************
+
+        change = afu_status.cu_return_done_2;
 
         compressNodes( stats->num_vertices, stats->components);
 
@@ -433,10 +478,15 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( uint32_t iterations,
     printf("| %-15u | %-15u | %-15f | \n", stats->iterations, componentsCount, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
 
     free(timer);
     free(timer_inner);
-
+    free(wedGraphCSR);
     printCCStats(stats);
     return stats;
 
@@ -1637,7 +1687,7 @@ struct CCStats *connectedComponentsShiloachVishkinGraphAdjLinkedList(uint32_t it
 
             for(j = 0 ; j < (degree) ; j++)
             {
-                
+
                 dest = Nodes->dest;
                 Nodes = Nodes->next;
 

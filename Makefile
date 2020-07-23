@@ -113,13 +113,13 @@ export FILE_BIN_TYPE = graph.wbin
 export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
 
 #GRAPH Algorithm Direction
-export PULL_PUSH 		= 2
+export PULL_PUSH 		= 0
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
 export REORDER 		    = 0
 export DATA_STRUCTURES  = 0
-export ALGORITHMS 		= 5
+export ALGORITHMS 		= 6
 
 export ROOT 			= 42
 export TOLERANCE 		= 1e-7
