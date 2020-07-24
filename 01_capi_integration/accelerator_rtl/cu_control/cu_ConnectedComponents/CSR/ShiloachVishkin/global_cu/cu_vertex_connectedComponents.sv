@@ -441,10 +441,10 @@ module cu_vertex_connectedComponents #(
 	// Data SUM control Float/Fixed Point
 	////////////////////////////////////////////////////////////////////////////
 
-	cu_sum_kernel_control #(
+	cu_update_kernel_control #(
 		.CU_ID_X(CU_ID_X),
 		.CU_ID_Y(CU_ID_Y)
-	) cu_sum_kernel_control_instant (
+	) cu_update_kernel_control_instant (
 		.clock                               (clock                              ),
 		.rstn_in                             (rstn                               ),
 		.enabled_in                          (enabled_sum_data                   ),

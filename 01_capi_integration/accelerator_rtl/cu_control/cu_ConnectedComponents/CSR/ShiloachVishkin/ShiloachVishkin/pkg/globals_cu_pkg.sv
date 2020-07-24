@@ -60,7 +60,7 @@ package GLOBALS_CU_PKG;
 	parameter CACHELINE_DATA_READ_NUM_HF   = (CACHELINE_SIZE >> $clog2(DATA_SIZE_READ)) >> 1;
 	parameter CACHELINE_DATA_READ_NUM_BITS = $clog2(CACHELINE_DATA_READ_NUM)                ; // number of edges in one cacheline
 
-	parameter DATA_SIZE_WRITE             = 8                                               ; // edge data size is n bytes Auxiliary2
+	parameter DATA_SIZE_WRITE             = 4                                               ; // edge data size is n bytes Auxiliary2
 	parameter DATA_SIZE_WRITE_BITS        = DATA_SIZE_WRITE * 8                             ; // edge data size is n*8 Bits
 	parameter CACHELINE_DATA_WRITE_NUM    = (CACHELINE_SIZE >> $clog2(DATA_SIZE_WRITE))     ;
 	parameter CACHELINE_DATA_WRITE_NUM_HF = (CACHELINE_SIZE >> $clog2(DATA_SIZE_WRITE)) >> 1; // number of edges in one cacheline
