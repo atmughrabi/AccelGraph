@@ -60,7 +60,7 @@ module cu_update_kernel_control #(
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp            ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum            ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal   ;
-	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_skip   ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_skip       ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal_S2;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -104,20 +104,19 @@ module cu_update_kernel_control #(
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			vertex_job_latched.valid                 <= 0;
-			data_buffer_status_latch                 <= 0;
-			data_buffer_status_latch.empty           <= 1;
-			write_response_in_latched.valid          <= 0;
-			write_buffer_status_latched              <= 0;
-			write_buffer_status_latched.empty        <= 1;
-			edge_data_counter_continue_accum_latched <= 0;
+			vertex_job_latched.valid          <= 0;
+			data_buffer_status_latch          <= 0;
+			data_buffer_status_latch.empty    <= 1;
+			write_response_in_latched.valid   <= 0;
+			write_buffer_status_latched       <= 0;
+			write_buffer_status_latched.empty <= 1;
+
 		end else begin
 			if(enabled) begin
-				vertex_job_latched.valid                 <= vertex_job.valid;
-				data_buffer_status_latch                 <= data_buffer_status;
-				write_buffer_status_latched              <= write_buffer_status;
-				write_response_in_latched.valid          <= write_response_in.valid;
-				edge_data_counter_continue_accum_latched <= edge_data_counter_continue_accum;
+				vertex_job_latched.valid        <= vertex_job.valid;
+				data_buffer_status_latch        <= data_buffer_status;
+				write_buffer_status_latched     <= write_buffer_status;
+				write_response_in_latched.valid <= write_response_in.valid;
 			end
 		end
 	end
@@ -168,11 +167,12 @@ module cu_update_kernel_control #(
 	//             stats->components[comp_high] = comp_low;
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			edge_comp_update                    <= 0;
-			edge_data_counter_accum_internal    <= 0;
-			edge_comp_update_latch.valid        <= 0;
-			edge_data_counter_accum_internal_S2 <= 0;
-			edge_data_counter_accum_skip <= 0;
+			edge_comp_update                         <= 0;
+			edge_data_counter_accum_internal         <= 0;
+			edge_comp_update_latch.valid             <= 0;
+			edge_data_counter_accum_internal_S2      <= 0;
+			edge_data_counter_accum_skip             <= 0;
+			edge_data_counter_continue_accum_latched <= 0;
 		end else begin
 			if (enabled && vertex_job_latched.valid) begin
 				if(edge_data_latched.valid && (edge_data_latched.payload.comp_high == edge_data_latched.payload.comp_comp_high))begin
@@ -187,24 +187,28 @@ module cu_update_kernel_control #(
 					edge_comp_update.valid       <= 0;
 					edge_comp_update_latch.valid <= edge_comp_update.valid;
 					edge_data_counter_accum_skip <= edge_data_counter_accum_skip +1;
-				end else begin 
-					edge_comp_update.valid           	<= 0;
-					edge_comp_update_latch.valid        <= edge_comp_update.valid;
+				end else begin
+					edge_comp_update.valid       <= 0;
+					edge_comp_update_latch.valid <= edge_comp_update.valid;
 				end
 
 				if(write_response_in_latched.valid) begin
 					edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
 				end
 
+
+
 				if(edge_data_counter_accum_internal_S2 == vertex_job_latched.payload.out_degree)begin
-					edge_comp_update                    <= 0;
-					edge_data_counter_accum_internal    <= 0;
-					edge_data_counter_accum_internal_S2 <= 0;
+					edge_comp_update                         <= 0;
+					edge_data_counter_accum_internal         <= 0;
+					edge_data_counter_accum_internal_S2      <= 0;
+					edge_data_counter_continue_accum_latched <= 0;
 				end else begin
-					edge_data_counter_accum_internal_S2 <= edge_data_counter_accum_internal + edge_data_counter_continue_accum_latched + edge_data_counter_accum_skip;
+					edge_data_counter_accum_internal_S2      <= edge_data_counter_accum_internal + edge_data_counter_continue_accum_latched + edge_data_counter_accum_skip;
+					edge_data_counter_continue_accum_latched <= edge_data_counter_continue_accum;
 				end
-			end else begin 
-				edge_comp_update_latch.valid        <= 0;
+			end else begin
+				edge_comp_update_latch.valid <= 0;
 			end
 		end
 	end
