@@ -51,6 +51,7 @@ module cu_vertex_connectedComponents #(
 	logic rstn_internal;
 	logic rstn         ;
 	logic rstn_input   ;
+	logic rstn_data_cmd;
 	logic rstn_output  ;
 
 	logic read_command_bus_grant_latched     ;
@@ -102,13 +103,13 @@ module cu_vertex_connectedComponents #(
 	BufferStatus  data_buffer_status;
 	logic         processing_vertex ;
 
-	EdgeDataRead edge_data        ;
-	logic        enabled          ;
-	logic        enabled_cmd      ;
-	logic        enabled_internal ;
-	logic        enabled_edge_job ;
-	logic        enabled_edge_data;
-	logic        enabled_sum_data ;
+	EdgeComponentUpdate edge_data        ;
+	logic               enabled          ;
+	logic               enabled_cmd      ;
+	logic               enabled_internal ;
+	logic               enabled_edge_job ;
+	logic               enabled_edge_data;
+	logic               enabled_sum_data ;
 
 	CommandBufferLine              command_arbiter_out                               ;
 	logic [      NUM_REQUESTS-1:0] requests                                          ;
@@ -118,6 +119,7 @@ module cu_vertex_connectedComponents #(
 	CommandBufferLine              read_command_edge_job_buffer                      ;
 	CommandBufferLine              read_command_edge_data_buffer                     ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum                           ;
+	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_continue_accum                          ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal                  ;
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp                           ;
 
@@ -150,13 +152,15 @@ module cu_vertex_connectedComponents #(
 
 	always_ff @(posedge clock or negedge rstn_internal) begin
 		if(~rstn_internal) begin
-			rstn        <= 0;
-			rstn_input  <= 0;
-			rstn_output <= 0;
+			rstn          <= 0;
+			rstn_input    <= 0;
+			rstn_output   <= 0;
+			rstn_data_cmd <= 0;
 		end else begin
-			rstn        <= rstn_internal;
-			rstn_input  <= rstn_internal;
-			rstn_output <= rstn_internal;
+			rstn          <= rstn_internal;
+			rstn_input    <= rstn_internal;
+			rstn_output   <= rstn_internal;
+			rstn_data_cmd <= rstn_internal & processing_vertex;
 		end
 	end
 
@@ -314,7 +318,7 @@ module cu_vertex_connectedComponents #(
 			if(vertex_job_burst_out.valid && ~processing_vertex) begin
 				vertex_job_latched.valid <= vertex_job_burst_out.valid;
 			end
-			if ((edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree) && vertex_job_latched.valid) begin
+			if ((edge_data_counter_accum_internal == vertex_job_latched.payload.out_degree) && vertex_job_latched.valid) begin
 				vertex_job_latched.valid <= 0;
 			end
 		end
@@ -324,7 +328,7 @@ module cu_vertex_connectedComponents #(
 		if(vertex_job_burst_out.valid && ~processing_vertex) begin
 			vertex_job_latched.payload <= vertex_job_burst_out.payload;
 		end
-		if ((edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree) && vertex_job_latched.valid) begin
+		if ((edge_data_counter_accum_internal == vertex_job_latched.payload.out_degree) && vertex_job_latched.valid) begin
 			vertex_job_latched.payload <= 0;
 		end
 	end
@@ -365,7 +369,7 @@ module cu_vertex_connectedComponents #(
 				if(~processing_vertex) begin
 					processing_vertex <= 1;
 				end
-				if (edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree) begin
+				if (edge_data_counter_accum_internal == vertex_job_latched.payload.out_degree) begin
 					processing_vertex <= 0;
 				end
 			end
@@ -419,22 +423,23 @@ module cu_vertex_connectedComponents #(
 		.CU_ID_X(CU_ID_X),
 		.CU_ID_Y(CU_ID_Y)
 	) cu_edge_data_read_command_control_instant (
-		.clock                   (clock                        ),
-		.rstn_in                 (rstn                         ),
-		.enabled_in              (enabled_edge_data            ),
-		.cu_configure            (cu_configure_latched         ),
-		.wed_request_in          (wed_request_in_latched       ),
-		.read_response_in        (read_response_in_edge_data   ),
-		.edge_data_read_in       (edge_data_read               ),
-		.read_buffer_status      (read_buffer_status_latched   ),
-		.edge_data_request       (edge_data_request            ),
-		.edge_job                (edge_job                     ),
-		.edge_request            (edge_request                 ),
-		.read_command_bus_grant  (ready[1]                     ),
-		.read_command_bus_request(requests[1]                  ),
-		.read_command_out        (read_command_edge_data_buffer),
-		.data_buffer_status      (data_buffer_status           ),
-		.edge_data               (edge_data                    )
+		.clock                       (clock                        ),
+		.rstn_in                     (rstn_data_cmd                ),
+		.enabled_in                  (enabled_edge_data            ),
+		.cu_configure                (cu_configure_latched         ),
+		.wed_request_in              (wed_request_in_latched       ),
+		.read_response_in            (read_response_in_edge_data   ),
+		.edge_data_read_in           (edge_data_read               ),
+		.read_buffer_status          (read_buffer_status_latched   ),
+		.edge_data_request           (edge_data_request            ),
+		.edge_job                    (edge_job                     ),
+		.edge_request                (edge_request                 ),
+		.read_command_bus_grant      (ready[1]                     ),
+		.read_command_bus_request    (requests[1]                  ),
+		.read_command_out            (read_command_edge_data_buffer),
+		.data_buffer_status          (data_buffer_status           ),
+		.edge_data_continue_accum_out(edge_data_continue_accum     ),
+		.edge_data                   (edge_data                    )
 	);
 
 	////////////////////////////////////////////////////////////////////////////
@@ -457,6 +462,7 @@ module cu_vertex_connectedComponents #(
 		.edge_data_write_bus_request         (edge_data_write_bus_request_latched),
 		.edge_data_write_out                 (edge_data_write_out_internal       ),
 		.vertex_job                          (vertex_job_internal_latched        ),
+		.edge_data_counter_continue_accum    (edge_data_continue_accum           ),
 		.vertex_num_counter_resp_out         (vertex_num_counter_resp            ),
 		.edge_data_counter_accum_out         (edge_data_counter_accum            ),
 		.edge_data_counter_accum_internal_out(edge_data_counter_accum_internal   )

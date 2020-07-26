@@ -65,11 +65,11 @@ module array_struct_type_demux_bus #(
 			data_out_valid_internal[1] <= 0;
 		end else begin
 			case (sel_in_internal)
-				INV_EDGE_ARRAY_DEST : begin
+				EDGE_ARRAY_DEST : begin
 					data_out_valid_internal[0] <= data_in_valid_internal;
 					data_out_valid_internal[1] <= 0;
 				end
-				READ_GRAPH_DATA : begin
+				READ_GRAPH_DATA,READ_GRAPH_DATA_SRC,READ_GRAPH_DATA_DEST,READ_GRAPH_DATA_HIGH : begin
 					data_out_valid_internal[0] <= 0;
 					data_out_valid_internal[1] <= data_in_valid_internal;
 				end

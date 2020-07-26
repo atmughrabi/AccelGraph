@@ -52,6 +52,7 @@ module cu_edge_data_read_extract_control #(
 	logic                                reg_DATA_VARIABLE_0_ready;
 	logic                                reg_DATA_VARIABLE_1_ready;
 	logic                                reg_DATA_VARIABLE_ready  ;
+	array_struct_type                    array_struct             ;
 
 	integer i;
 
@@ -121,6 +122,7 @@ module cu_edge_data_read_extract_control #(
 			address_rd   <= 0;
 			cu_id_x      <= 0;
 			cu_id_y      <= 0;
+			array_struct <= STRUCT_INVALID;
 		end else begin
 			if(enabled) begin
 				if(read_data_0_in_latched.valid && read_data_1_in_latched.valid)begin
@@ -128,12 +130,14 @@ module cu_edge_data_read_extract_control #(
 					read_data_in[CACHELINE_SIZE_BITS_HF:CACHELINE_SIZE_BITS-1] <= read_data_1_in_latched.payload.data;
 					cu_id_x                                                    <= read_data_0_in_latched.payload.cmd.cu_id_x;
 					cu_id_y                                                    <= read_data_0_in_latched.payload.cmd.cu_id_y;
+					array_struct                                               <= read_data_0_in_latched.payload.cmd.array_struct;
 					address_rd                                                 <= offset_data_0;
 				end else begin
 					read_data_in <= 0;
 					address_rd   <= 0;
 					cu_id_x      <= 0;
 					cu_id_y      <= 0;
+					array_struct <= STRUCT_INVALID;
 				end
 			end
 		end
@@ -153,9 +157,10 @@ module cu_edge_data_read_extract_control #(
 	end
 
 	always_ff @(posedge clock) begin
-		edge_data_variable.payload.cu_id_x <= edge_data_variable_reg.payload.cu_id_x;
-		edge_data_variable.payload.cu_id_y <= edge_data_variable_reg.payload.cu_id_y;
-		edge_data_variable.payload.data    <= swap_endianness_data_read(edge_data_variable_reg.payload.data);
+		edge_data_variable.payload.cu_id_x      <= edge_data_variable_reg.payload.cu_id_x;
+		edge_data_variable.payload.cu_id_y      <= edge_data_variable_reg.payload.cu_id_y;
+		edge_data_variable.payload.array_struct <= edge_data_variable_reg.payload.array_struct;
+		edge_data_variable.payload.data         <= swap_endianness_data_read(edge_data_variable_reg.payload.data);
 	end
 
 
@@ -209,8 +214,9 @@ module cu_edge_data_read_extract_control #(
 				edge_data_variable_reg.payload.data <= reg_DATA_VARIABLE_1[DATA_SIZE_READ_BITS*i +: DATA_SIZE_READ_BITS];
 			end
 		end
-		edge_data_variable_reg.payload.cu_id_x <= cu_id_x;
-		edge_data_variable_reg.payload.cu_id_y <= cu_id_y;
+		edge_data_variable_reg.payload.cu_id_x      <= cu_id_x;
+		edge_data_variable_reg.payload.cu_id_y      <= cu_id_y;
+		edge_data_variable_reg.payload.array_struct <= array_struct;
 	end
 
 endmodule

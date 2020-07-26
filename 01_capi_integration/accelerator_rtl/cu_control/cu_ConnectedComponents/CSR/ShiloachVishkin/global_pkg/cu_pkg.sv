@@ -20,9 +20,9 @@ package CU_PKG;
 
 	typedef enum int unsigned{
 		STRUCT_INVALID,
-		INV_OUT_DEGREE,
-		INV_EDGES_IDX,
-		INV_EDGE_ARRAY_DEST,
+		OUT_DEGREE,
+		EDGES_IDX,
+		EDGE_ARRAY_DEST,
 		READ_GRAPH_DATA,
 		READ_GRAPH_DATA_SRC,
 		READ_GRAPH_DATA_DEST,
@@ -37,8 +37,8 @@ package CU_PKG;
 		START_VERTEX_REQ,
 		CALC_VERTEX_REQ_SIZE,
 		SEND_VERTEX_START,
-		SEND_VERTEX_INV_OUT_DEGREE,
-		SEND_VERTEX_INV_EDGES_IDX,
+		SEND_VERTEX_OUT_DEGREE,
+		SEND_VERTEX_EDGES_IDX,
 		WAIT_VERTEX_DATA,
 		SHIFT_VERTEX_DATA_START,
 		SHIFT_VERTEX_DATA_0,
@@ -54,7 +54,7 @@ package CU_PKG;
 		START_EDGE_REQ,
 		CALC_EDGE_REQ_SIZE,
 		SEND_EDGE_START,
-		SEND_EDGE_INV_EDGE_ARRAY_DEST,
+		SEND_EDGE_EDGE_ARRAY_DEST,
 		WAIT_EDGE_DATA,
 		SHIFT_EDGE_DATA_START,
 		SHIFT_EDGE_DATA_0,
@@ -73,16 +73,16 @@ package CU_PKG;
 	// 	SEND_EDGE_SRC,
 	// 	SEND_EDGE_DEST,
 	// 	SEND_EDGE_WEIGHT,
-	// 	SEND_EDGE_INV_SRC,
-	// 	SEND_EDGE_INV_DEST,
-	// 	SEND_EDGE_INV_WEIGHT
+	// 	SEND_EDGE_SRC,
+	// 	SEND_EDGE_DEST,
+	// 	SEND_EDGE_WEIGHT
 	// } edge_struct_state;
 
 // Vertex data to travers neighbors
 	typedef struct packed {
-		logic [0:(VERTEX_SIZE_BITS-1)] id                ;
-		logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree;
-		logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx ;
+		logic [0:(VERTEX_SIZE_BITS-1)] id        ;
+		logic [0:(VERTEX_SIZE_BITS-1)] out_degree;
+		logic [0:(VERTEX_SIZE_BITS-1)] edges_idx ;
 	} VertexInterfacePayload;
 
 	typedef struct packed {
@@ -102,9 +102,10 @@ package CU_PKG;
 	} EdgeInterface;
 
 	typedef struct packed {
-		cu_id_t                           cu_id_x;
-		cu_id_t                           cu_id_y;
-		logic [0:(DATA_SIZE_READ_BITS-1)] data   ;
+		cu_id_t                           cu_id_x     ;
+		cu_id_t                           cu_id_y     ;
+		logic [0:(DATA_SIZE_READ_BITS-1)] data        ;
+		array_struct_type                 array_struct;
 	} EdgeDataReadPayload;
 
 	typedef struct packed {
@@ -124,7 +125,27 @@ package CU_PKG;
 		EdgeDataWritePayload payload;
 	} EdgeDataWrite;
 
+	typedef struct packed {
+		logic [0:(DATA_SIZE_READ_BITS-1)] comp_src ;
+		logic [0:(DATA_SIZE_READ_BITS-1)] comp_dest;
+	} EdgeComponentPayload;
 
+	typedef struct packed {
+		logic                valid  ;
+		EdgeComponentPayload payload;
+	} EdgeComponentRead;
+
+
+	typedef struct packed {
+		logic [0:(DATA_SIZE_READ_BITS-1)] comp_high ;
+		logic [0:(DATA_SIZE_READ_BITS-1)] comp_low;
+		logic [0:(DATA_SIZE_READ_BITS-1)] comp_comp_high;
+	} EdgeComponentUpdatePayload;
+
+	typedef struct packed {
+		logic                valid  ;
+		EdgeComponentUpdatePayload payload;
+	} EdgeComponentUpdate;
 
 
 	function logic [0:DATA_SIZE_WRITE_BITS-1] swap_endianness_data_write(logic [0:DATA_SIZE_WRITE_BITS-1] in);

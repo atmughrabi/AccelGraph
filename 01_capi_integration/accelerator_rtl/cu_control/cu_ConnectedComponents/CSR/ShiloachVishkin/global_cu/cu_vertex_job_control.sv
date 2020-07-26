@@ -37,33 +37,33 @@ module cu_vertex_job_control (
 );
 
 
-	logic        read_command_bus_grant_latched     ;
-	logic        read_command_bus_request_latched   ;
+	logic read_command_bus_grant_latched  ;
+	logic read_command_bus_request_latched;
 	// logic        read_command_bus_grant_latched_S2  ;
 	// logic        read_command_bus_request_latched_S2;
-	BufferStatus vertex_buffer_status               ;
-	BufferStatus read_buffer_status_latched         ;
+	BufferStatus vertex_buffer_status      ;
+	BufferStatus read_buffer_status_latched;
 
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0       ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1       ;
-	logic                                shift_limit_clear   ;
-	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter       ;
-	logic                                start_shift_hf_0    ;
-	logic                                start_shift_hf_1    ;
-	logic                                switch_shift_hf     ;
-	logic                                push_shift          ;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_OUT_DEGREE_0;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGES_IDX_0 ;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_OUT_DEGREE_1;
-	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_INV_EDGES_IDX_1 ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_0    ;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_limit_1    ;
+	logic                                shift_limit_clear;
+	logic [0:CACHELINE_INT_COUNTER_BITS] shift_counter    ;
+	logic                                start_shift_hf_0 ;
+	logic                                start_shift_hf_1 ;
+	logic                                switch_shift_hf  ;
+	logic                                push_shift       ;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_OUT_DEGREE_0 ;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_EDGES_IDX_0  ;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_OUT_DEGREE_1 ;
+	logic [0:(CACHELINE_SIZE_BITS_HF-1)] reg_EDGES_IDX_1  ;
 
 	logic clear_data_ready      ;
 	logic fill_vertex_job_buffer;
 	logic zero_pass             ;
 
 	//output latched
-	VertexInterface   vertex_latched             ;
-	CommandBufferLine read_command_out_latched   ;
+	VertexInterface   vertex_latched          ;
+	CommandBufferLine read_command_out_latched;
 	// CommandBufferLine read_command_out_latched_S2;
 
 	//input lateched
@@ -84,18 +84,18 @@ module cu_vertex_job_control (
 
 	// internal registers to track logic
 	// Read/write commands require the size to be a power of 2 (1, 2, 4, 8, 16, 32,64, 128).
-	logic                          send_request_ready                 ;
-	logic [                  0:63] vertex_next_offset                 ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter                 ;
-	logic [0:(VERTEX_SIZE_BITS-1)] vertex_id_counter                  ;
-	logic                          generate_read_command              ;
-	logic                          setup_read_command                 ;
-	VertexInterface                vertex_variable                    ;
-	logic [0:(VERTEX_SIZE_BITS-1)] inverse_out_degree_data            ;
-	logic [0:(VERTEX_SIZE_BITS-1)] inverse_edges_idx_degree_data      ;
-	logic                          inverse_out_degree_data_ready      ;
-	logic                          inverse_edges_idx_degree_data_ready;
-	logic                          read_command_bus_request_pop       ;
+	logic                          send_request_ready          ;
+	logic [                  0:63] vertex_next_offset          ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter          ;
+	logic [0:(VERTEX_SIZE_BITS-1)] vertex_id_counter           ;
+	logic                          generate_read_command       ;
+	logic                          setup_read_command          ;
+	VertexInterface                vertex_variable             ;
+	logic [0:(VERTEX_SIZE_BITS-1)] out_degree_data             ;
+	logic [0:(VERTEX_SIZE_BITS-1)] edges_idx_degree_data       ;
+	logic                          out_degree_data_ready       ;
+	logic                          edges_idx_degree_data_ready ;
+	logic                          read_command_bus_request_pop;
 
 
 	vertex_struct_state current_state, next_state;
@@ -128,7 +128,7 @@ module cu_vertex_job_control (
 			read_command_out.valid <= 0;
 		end else begin
 			if(enabled) begin
-				vertex.valid                      <= vertex_latched.valid;
+				vertex.valid           <= vertex_latched.valid;
 				read_command_out.valid <= read_command_out_latched.valid;
 				// read_command_out.valid            <= read_command_out_latched_S2.valid;
 			end
@@ -136,7 +136,7 @@ module cu_vertex_job_control (
 	end
 
 	always_ff @(posedge clock) begin
-		vertex.payload                      <= vertex_latched.payload;
+		vertex.payload           <= vertex_latched.payload;
 		read_command_out.payload <= read_command_out_latched.payload;
 		// read_command_out.payload            <= read_command_out_latched_S2.payload;
 	end
@@ -213,12 +213,12 @@ module cu_vertex_job_control (
 				next_state = SEND_VERTEX_START;
 			end
 			SEND_VERTEX_START : begin
-				next_state = SEND_VERTEX_INV_OUT_DEGREE;
+				next_state = SEND_VERTEX_OUT_DEGREE;
 			end
-			SEND_VERTEX_INV_OUT_DEGREE : begin
-				next_state = SEND_VERTEX_INV_EDGES_IDX;
+			SEND_VERTEX_OUT_DEGREE : begin
+				next_state = SEND_VERTEX_EDGES_IDX;
 			end
-			SEND_VERTEX_INV_EDGES_IDX : begin
+			SEND_VERTEX_EDGES_IDX : begin
 				next_state = WAIT_VERTEX_DATA;
 			end
 			WAIT_VERTEX_DATA : begin
@@ -291,14 +291,14 @@ module cu_vertex_job_control (
 			SEND_VERTEX_START : begin
 				read_command_vertex_job_latched.payload <= read_command_vertex_job_latched_S2.payload;
 			end
-			SEND_VERTEX_INV_OUT_DEGREE : begin
+			SEND_VERTEX_OUT_DEGREE : begin
 				read_command_vertex_job_latched.valid                    <= 1'b1;
-				read_command_vertex_job_latched.payload.address          <= wed_request_in_latched.payload.wed.inverse_vertex_out_degree + vertex_next_offset;
-				read_command_vertex_job_latched.payload.cmd.array_struct <= INV_OUT_DEGREE;
+				read_command_vertex_job_latched.payload.address          <= wed_request_in_latched.payload.wed.vertex_out_degree + vertex_next_offset;
+				read_command_vertex_job_latched.payload.cmd.array_struct <= OUT_DEGREE;
 			end
-			SEND_VERTEX_INV_EDGES_IDX : begin
-				read_command_vertex_job_latched.payload.address          <= wed_request_in_latched.payload.wed.inverse_vertex_edges_idx + vertex_next_offset;
-				read_command_vertex_job_latched.payload.cmd.array_struct <= INV_EDGES_IDX;
+			SEND_VERTEX_EDGES_IDX : begin
+				read_command_vertex_job_latched.payload.address          <= wed_request_in_latched.payload.wed.vertex_edges_idx + vertex_next_offset;
+				read_command_vertex_job_latched.payload.cmd.array_struct <= EDGES_IDX;
 				vertex_next_offset                                       <= vertex_next_offset + CACHELINE_SIZE;
 			end
 			WAIT_VERTEX_DATA : begin
@@ -406,58 +406,58 @@ module cu_vertex_job_control (
 	always_ff @(posedge clock) begin
 		if(read_data_0_in_latched.valid) begin
 			case (read_data_0_in_latched.payload.cmd.array_struct)
-				INV_OUT_DEGREE : begin
-					reg_INV_OUT_DEGREE_0 <= read_data_0_in_latched.payload.data;
+				OUT_DEGREE : begin
+					reg_OUT_DEGREE_0 <= read_data_0_in_latched.payload.data;
 				end
-				INV_EDGES_IDX : begin
-					reg_INV_EDGES_IDX_0 <= read_data_0_in_latched.payload.data;
+				EDGES_IDX : begin
+					reg_EDGES_IDX_0 <= read_data_0_in_latched.payload.data;
 				end
 			endcase
 		end
 
 		if(~switch_shift_hf && start_shift_hf_0) begin
-			reg_INV_OUT_DEGREE_0 <= {reg_INV_OUT_DEGREE_0[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
-			reg_INV_EDGES_IDX_0  <= {reg_INV_EDGES_IDX_0[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
+			reg_OUT_DEGREE_0 <= {reg_OUT_DEGREE_0[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
+			reg_EDGES_IDX_0  <= {reg_EDGES_IDX_0[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
 		end
 	end
 
 	always_ff @(posedge clock) begin
 		if(read_data_1_in_latched.valid) begin
 			case (read_data_1_in_latched.payload.cmd.array_struct)
-				INV_OUT_DEGREE : begin
-					reg_INV_OUT_DEGREE_1 <= read_data_1_in_latched.payload.data;
+				OUT_DEGREE : begin
+					reg_OUT_DEGREE_1 <= read_data_1_in_latched.payload.data;
 				end
-				INV_EDGES_IDX : begin
-					reg_INV_EDGES_IDX_1 <= read_data_1_in_latched.payload.data;
+				EDGES_IDX : begin
+					reg_EDGES_IDX_1 <= read_data_1_in_latched.payload.data;
 				end
 			endcase
 		end
 
 		if(switch_shift_hf && start_shift_hf_1) begin
-			reg_INV_OUT_DEGREE_1 <= {reg_INV_OUT_DEGREE_1[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
-			reg_INV_EDGES_IDX_1  <= {reg_INV_EDGES_IDX_1[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
+			reg_OUT_DEGREE_1 <= {reg_OUT_DEGREE_1[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
+			reg_EDGES_IDX_1  <= {reg_EDGES_IDX_1[VERTEX_SIZE_BITS:(CACHELINE_SIZE_BITS_HF-1)],VERTEX_NULL_BITS};
 		end
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
-			inverse_out_degree_data_ready       <= 0;
-			inverse_edges_idx_degree_data_ready <= 0;
+			out_degree_data_ready       <= 0;
+			edges_idx_degree_data_ready <= 0;
 		end else begin
 			if(read_response_in_latched.valid) begin
 				case (read_response_in_latched.payload.cmd.array_struct)
-					INV_OUT_DEGREE : begin
-						inverse_out_degree_data_ready <= 1;
+					OUT_DEGREE : begin
+						out_degree_data_ready <= 1;
 					end
-					INV_EDGES_IDX : begin
-						inverse_edges_idx_degree_data_ready <= 1;
+					EDGES_IDX : begin
+						edges_idx_degree_data_ready <= 1;
 					end
 				endcase
 			end
 
 			if(clear_data_ready) begin
-				inverse_out_degree_data_ready       <= 0;
-				inverse_edges_idx_degree_data_ready <= 0;
+				out_degree_data_ready       <= 0;
+				edges_idx_degree_data_ready <= 0;
 			end
 		end
 	end
@@ -499,7 +499,7 @@ module cu_vertex_job_control (
 ////////////////////////////////////////////////////////////////////////////
 
 	assign send_request_ready     = read_buffer_status_internal.empty && vertex_buffer_burst_status.empty  && (|vertex_num_counter) && wed_request_in_latched.valid;
-	assign fill_vertex_job_buffer = inverse_out_degree_data_ready && inverse_edges_idx_degree_data_ready;
+	assign fill_vertex_job_buffer = out_degree_data_ready && edges_idx_degree_data_ready;
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -517,9 +517,9 @@ module cu_vertex_job_control (
 	end
 
 	always_ff @(posedge clock) begin
-		vertex_variable.payload.id                 <= vertex_id_counter + wed_request_in_latched.payload.wed.auxiliary0;
-		vertex_variable.payload.inverse_out_degree <= swap_endianness_vertex_read(inverse_out_degree_data);
-		vertex_variable.payload.inverse_edges_idx  <= swap_endianness_vertex_read(inverse_edges_idx_degree_data);
+		vertex_variable.payload.id         <= vertex_id_counter + wed_request_in_latched.payload.wed.auxiliary0;
+		vertex_variable.payload.out_degree <= swap_endianness_vertex_read(out_degree_data);
+		vertex_variable.payload.edges_idx  <= swap_endianness_vertex_read(edges_idx_degree_data);
 	end
 
 	always_ff @(posedge clock or negedge rstn) begin
@@ -538,11 +538,11 @@ module cu_vertex_job_control (
 
 	always_ff @(posedge clock) begin
 		if(~switch_shift_hf && start_shift_hf_0) begin
-			inverse_out_degree_data       <= reg_INV_OUT_DEGREE_0[0:VERTEX_SIZE_BITS-1];
-			inverse_edges_idx_degree_data <= reg_INV_EDGES_IDX_0[0:VERTEX_SIZE_BITS-1];
+			out_degree_data       <= reg_OUT_DEGREE_0[0:VERTEX_SIZE_BITS-1];
+			edges_idx_degree_data <= reg_EDGES_IDX_0[0:VERTEX_SIZE_BITS-1];
 		end else if(switch_shift_hf && start_shift_hf_1) begin
-			inverse_out_degree_data       <= reg_INV_OUT_DEGREE_1[0:VERTEX_SIZE_BITS-1];
-			inverse_edges_idx_degree_data <= reg_INV_EDGES_IDX_1[0:VERTEX_SIZE_BITS-1];
+			out_degree_data       <= reg_OUT_DEGREE_1[0:VERTEX_SIZE_BITS-1];
+			edges_idx_degree_data <= reg_EDGES_IDX_1[0:VERTEX_SIZE_BITS-1];
 		end
 	end
 

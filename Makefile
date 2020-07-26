@@ -58,7 +58,7 @@ export MAIN_DIR		  	= main
 # # small test graphs BENCHMARKS_DIR_LOCAL    	= 01_test_graphs
 export GRAPH_NAME = test
 # export GRAPH_NAME = v51_e1021
-export GRAPH_NAME = v300_e2730
+# export GRAPH_NAME = v300_e2730
 
 # GAP https://sparse.tamu.edu/MM/GAP/
 # https://gonglab.pratt.duke.edu/google-dataset
@@ -127,9 +127,9 @@ export DELTA 			= 800
 
 export START_THREADS    = 1
 export INC_THREADS      = 1
-export NUM_THREADS  	= 16
+export NUM_THREADS  	= 1
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 1
+export NUM_ITERATIONS 	= 200
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1
