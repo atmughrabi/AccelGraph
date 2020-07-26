@@ -87,7 +87,7 @@ module cu_update_kernel_control #(
 				edge_data_write_out.valid            <= edge_data_write_buffer.valid;
 				edge_data_request                    <= ~data_buffer_status_latch.empty && ~edge_data_write_buffer_status.alfull;
 				vertex_num_counter_resp_out          <= vertex_num_counter_resp;
-				edge_data_counter_accum_out          <= edge_data_counter_accum + edge_data_counter_accum_skip;
+				edge_data_counter_accum_out          <= edge_data_counter_accum;
 				edge_data_counter_accum_internal_out <= edge_data_counter_accum_internal_S2;
 			end
 		end
@@ -181,21 +181,30 @@ module cu_update_kernel_control #(
 					edge_comp_update.payload.cu_id_x <= CU_ID_X;
 					edge_comp_update.payload.cu_id_y <= CU_ID_Y;
 					edge_comp_update.payload.data    <= edge_data_latched.payload.comp_low;
-					edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
+					// edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
 				end else if (edge_data_latched.valid) begin
-					edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
+					// edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
+					edge_comp_update.valid       <= 0;
+					edge_comp_update_latch.valid <= edge_comp_update.valid;
 					edge_data_counter_accum_skip <= edge_data_counter_accum_skip +1;
+				end else begin 
+					edge_comp_update.valid           	<= 0;
+					edge_comp_update_latch.valid        <= edge_comp_update.valid;
+				end
+
+				if(write_response_in_latched.valid) begin
+					edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
 				end
 
 				if(edge_data_counter_accum_internal_S2 == vertex_job_latched.payload.out_degree)begin
 					edge_comp_update                    <= 0;
 					edge_data_counter_accum_internal    <= 0;
 					edge_data_counter_accum_internal_S2 <= 0;
-					edge_comp_update_latch.valid        <= edge_comp_update.valid;
 				end else begin
-					edge_comp_update_latch.valid        <= 0;
-					edge_data_counter_accum_internal_S2 <= edge_data_counter_accum_internal + edge_data_counter_continue_accum_latched;
+					edge_data_counter_accum_internal_S2 <= edge_data_counter_accum_internal + edge_data_counter_continue_accum_latched + edge_data_counter_accum_skip;
 				end
+			end else begin 
+				edge_comp_update_latch.valid        <= 0;
 			end
 		end
 	end
