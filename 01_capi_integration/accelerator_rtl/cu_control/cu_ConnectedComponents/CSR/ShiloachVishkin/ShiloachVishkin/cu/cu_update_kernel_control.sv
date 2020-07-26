@@ -42,6 +42,8 @@ module cu_update_kernel_control #(
 );
 
 	logic                        rstn                                    ;
+	logic                        rstn_update                             ;
+	logic                        rstn_internal                           ;
 	EdgeComponentUpdate          edge_data_latched                       ;
 	EdgeDataWrite                edge_comp_update                        ;
 	EdgeDataWrite                edge_comp_update_latch                  ;
@@ -69,9 +71,13 @@ module cu_update_kernel_control #(
 
 	always_ff @(posedge clock or negedge rstn_in) begin
 		if(~rstn_in) begin
-			rstn <= 0;
+			rstn        <= 0;
+			rstn_update <= 0;
+
 		end else begin
-			rstn <= rstn_in;
+			rstn        <= rstn_in;
+			rstn_update <= rstn_in & rstn_internal;
+
 		end
 	end
 
@@ -165,14 +171,15 @@ module cu_update_kernel_control #(
 	// if(comp_high == stats->components[comp_high])
 	//             change = 1;
 	//             stats->components[comp_high] = comp_low;
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
+	always_ff @(posedge clock or negedge rstn_update) begin
+		if(~rstn_update) begin
 			edge_comp_update                         <= 0;
 			edge_data_counter_accum_internal         <= 0;
 			edge_comp_update_latch.valid             <= 0;
 			edge_data_counter_accum_internal_S2      <= 0;
 			edge_data_counter_accum_skip             <= 0;
 			edge_data_counter_continue_accum_latched <= 0;
+			rstn_internal                            <= 1;
 		end else begin
 			if (enabled && vertex_job_latched.valid) begin
 				if(edge_data_latched.valid && (edge_data_latched.payload.comp_high == edge_data_latched.payload.comp_comp_high))begin
@@ -203,6 +210,7 @@ module cu_update_kernel_control #(
 					edge_data_counter_accum_internal         <= 0;
 					edge_data_counter_accum_internal_S2      <= 0;
 					edge_data_counter_continue_accum_latched <= 0;
+					rstn_internal                            <= 0;
 				end else begin
 					edge_data_counter_accum_internal_S2      <= edge_data_counter_accum_internal + edge_data_counter_continue_accum_latched + edge_data_counter_accum_skip;
 					edge_data_counter_continue_accum_latched <= edge_data_counter_continue_accum;

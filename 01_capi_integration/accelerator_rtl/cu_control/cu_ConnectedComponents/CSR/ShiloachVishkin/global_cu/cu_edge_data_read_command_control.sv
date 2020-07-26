@@ -298,20 +298,30 @@ module cu_edge_data_read_command_control #(
 			if(enabled_cmd) begin
 				if(edge_job_variable.valid && wed_request_in_latched.valid) begin
 					read_command_out_latched.valid <= 1;
-					read_pending                   <= read_pending + 1;
+					if(read_response_in_latched.valid)
+						read_pending <= read_pending;
+					else
+						read_pending <= read_pending + 1;
+
 				end else if(edge_job_variable_S2.valid) begin
 					read_command_out_latched.valid <= 1;
-					read_pending                   <= read_pending + 1;
+					if(read_response_in_latched.valid)
+						read_pending <= read_pending;
+					else
+						read_pending <= read_pending + 1;
+
 				end else if(edge_components_update_latched.valid) begin
 					read_command_out_latched.valid <= 1;
-					read_pending                   <= read_pending + 1;
+					if(read_response_in_latched.valid)
+						read_pending <= read_pending;
+					else
+						read_pending <= read_pending + 1;
+
 				end else  begin
 					read_command_out_latched.valid <= 0;
+					if(read_response_in_latched.valid)
+						read_pending <= read_pending-1;
 				end
-
-				if(read_response_in_latched.valid)
-					read_pending <= read_pending - 1;
-
 				edge_job_variable_S2.valid <= edge_job_variable.valid;
 			end
 		end

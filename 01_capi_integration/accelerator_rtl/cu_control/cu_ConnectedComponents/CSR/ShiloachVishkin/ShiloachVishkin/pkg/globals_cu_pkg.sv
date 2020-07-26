@@ -28,8 +28,8 @@ package GLOBALS_CU_PKG;
 // TOTAL CUS = NUM_GRAPH_CU_GLOBAL X NUM_VERTEX_CU_GLOBAL
 ////////////////////////////////////////////////////////////////////////////
 
-	parameter NUM_GRAPH_CU_GLOBAL  = 2;
-	parameter NUM_VERTEX_CU_GLOBAL = 2;
+	parameter NUM_GRAPH_CU_GLOBAL  = 4;
+	parameter NUM_VERTEX_CU_GLOBAL = 4;
 
 	parameter CU_VERTEX_JOB_BUFFER_SIZE = 64;
 	parameter CU_EDGE_JOB_BUFFER_SIZE   = 64;
