@@ -57,8 +57,8 @@ export MAIN_DIR		  	= main
 
 # # small test graphs BENCHMARKS_DIR_LOCAL    	= 01_test_graphs
 export GRAPH_NAME = test
-export GRAPH_NAME = v51_e1021
-export GRAPH_NAME = v300_e2730
+# export GRAPH_NAME = v51_e1021
+# export GRAPH_NAME = v300_e2730
 
 # GAP https://sparse.tamu.edu/MM/GAP/
 # https://gonglab.pratt.duke.edu/google-dataset
@@ -113,13 +113,13 @@ export FILE_BIN_TYPE = graph.wbin
 export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
 
 #GRAPH Algorithm Direction
-export PULL_PUSH 		= 0
+export PULL_PUSH 		= 3
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
 export REORDER 		    = 0
 export DATA_STRUCTURES  = 0
-export ALGORITHMS 		= 6
+export ALGORITHMS 		= 7
 
 export ROOT 			= 42
 export TOLERANCE 		= 1e-7
@@ -127,7 +127,7 @@ export DELTA 			= 800
 
 export START_THREADS    = 1
 export INC_THREADS      = 1
-export NUM_THREADS  	= 4
+export NUM_THREADS  	= 16
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
 export NUM_ITERATIONS 	= 200
 export NUM_TRIALS 		= 1

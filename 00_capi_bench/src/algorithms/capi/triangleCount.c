@@ -34,6 +34,8 @@
 
 #include "triangleCount.h"
 
+#include "libcxl.h"
+#include "capienv.h"
 
 
 
@@ -470,45 +472,91 @@ struct TCStats *triangleCountPushGraphCSR(struct GraphCSR *graph)
 struct TCStats *triangleCountBinaryIntersectionGraphCSR(struct GraphCSR *graph)
 {
 
-    uint32_t u;
-    uint64_t counts = 0;
-    uint64_t steps = 0;
+
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Triangle Binary-Intersection");
     printf(" -----------------------------------------------------\n");
     printf("| %-21s | %-27s | \n", "Triangle Counts", "Time (S)");
     printf(" -----------------------------------------------------\n");
 
+    //CAPI variables
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
+
+
     struct TCStats *stats = newTCStatsGraphCSR(graph);
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
 
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
+
+
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+
+
+    // ********************************************************************************************
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config = afu_config;
+    afu_status.afu_config_2 = afu_config_2;
+    afu_status.cu_config = cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config = ((cu_config << 32) | (numThreads));
+    afu_status.cu_config_2 = cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_stop = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
+
     Start(timer);
-    #pragma omp parallel for shared(stats) reduction(+:counts) schedule(dynamic, 128)
-    for(u = 0; u < graph->num_vertices; u++)
-    {
-        uint32_t degree_u = graph->vertices->out_degree[u];
-        uint32_t edge_idx_u = graph->vertices->edges_idx[u];
-        uint32_t v;
 
-        steps++;
-        for(v = edge_idx_u; v < (edge_idx_u + degree_u) ; v++)
-        {
-            uint32_t node_v = graph->sorted_edges_array->edges_array_dest[v];
+    // ********************************************************************************************
+    // ***************                 START CU                                      **************
+    startCU(&afu, &afu_status);
+    // ********************************************************************************************
+   
+    // #pragma omp parallel for shared(stats) reduction(+:counts) schedule(dynamic, 128)
+    // for(u = 0; u < graph->num_vertices; u++)
+    // {
+    //     uint32_t degree_u = graph->vertices->out_degree[u];
+    //     uint32_t edge_idx_u = graph->vertices->edges_idx[u];
+    //     uint32_t v;
 
-            if(node_v > u)
-                break;
-            counts += countIntersectionsBinarySearch(u, node_v, graph);
-        }
-    }
+    //     steps++;
+    //     for(v = edge_idx_u; v < (edge_idx_u + degree_u) ; v++)
+    //     {
+    //         uint32_t node_v = graph->sorted_edges_array->edges_array_dest[v];
+
+    //         if(node_v > u)
+    //             break;
+    //         counts += countIntersectionsBinarySearch(u, node_v, graph);
+    //     }
+    // }
+
+    // ********************************************************************************************
+    // ***************                 WAIT AFU                                     **************
+    waitAFU(&afu, &afu_status);
+    // ********************************************************************************************
 
     Stop(timer);
     stats->time_total = Seconds(timer);
 
-    stats->total_counts = counts;
+    stats->total_counts = afu_status.cu_return_done_2;
 
     printf("| %-21lu | %-27f | \n", stats->total_counts, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
+    free(wedGraphCSR);
     free(timer);
     return stats;
 
@@ -541,7 +589,7 @@ struct TCStats *triangleCountGraphGrid(uint32_t pushpull, struct GraphGrid *grap
 struct TCStats *triangleCountRowGraphGrid(struct GraphGrid *graph)
 {
 
-    
+
     uint64_t counts = 0;
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Triangle Count To Be Implemented");

@@ -7,7 +7,7 @@ direction = int(sys.argv[3])
 cu_count = sys.argv[4]
 
 
-graph_algorithm_arr = ["cu_BFS","cu_PageRank","cu_SSSP_DeltaStepping","cu_SSSP_BellmanFord","cu_DFS","cu_SPMV","cu_ConnectedComponents","cu_TriangleCounting"]
+graph_algorithm_arr = ["cu_BFS","cu_PageRank","cu_SSSP_DeltaStepping","cu_SSSP_BellmanFord","cu_DFS","cu_SPMV","cu_ConnectedComponents","cu_TriangleCount"]
 data_structure_arr = ["CSR","Grid","AdjLinkedList","AdjArrayList"]
  
 direction_arr = [
@@ -21,7 +21,8 @@ direction_arr = [
 				 ["PULL","PUSH"],
 				 ["PULL","PUSH"],
 				 ["PULL","PUSH","PULL","PUSH"],
-				 ["ShiloachVishkin","Afforest","Weakly"]
+				 ["ShiloachVishkin","Afforest","Weakly"],
+				 ["Basic","PULL","PUSH","BinaryIntersection"]
 				 ]
 
 precision_arr = [
@@ -35,7 +36,8 @@ precision_arr = [
 				 ["NONE","NONE"],
 				 ["NONE","NONE"],
 				 ["FloatPoint","FloatPoint","FixedPoint","FixedPoint"],
-				 ["ShiloachVishkin","Afforest","Weakly"]
+				 ["ShiloachVishkin","Afforest","Weakly"],
+				 ["Basic","PULL","PUSH","Binary"]
 				 ]
 
 # workloads_grid = [[],["PageRank_pull_row", "PageRank_push_col",
