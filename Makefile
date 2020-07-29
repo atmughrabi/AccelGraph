@@ -117,11 +117,11 @@ export PULL_PUSH 		= 0
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
-export REORDER 		    = 0
+export REORDER 		    = 4
 export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
-export ROOT 			= 5
+export ROOT 			= 6
 export TOLERANCE 		= 1e-7
 export DELTA 			= 800
 
