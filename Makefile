@@ -117,7 +117,7 @@ export PULL_PUSH 		= 0
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
-export REORDER 		    = 0
+export REORDER 		    = 4
 export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
