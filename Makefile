@@ -66,7 +66,7 @@ export GRAPH_NAME = v300_e2730
 # export GRAPH_NAME = Gong-gplus
 # export GRAPH_NAME = GAP-road
 export GRAPH_NAME = SNAP-web-Google
-export GRAPH_NAME = SNAP-soc-pokec
+# export GRAPH_NAME = SNAP-soc-pokec
 # export GRAPH_NAME = SNAP-cit-Patents
 # export GRAPH_NAME = SNAP-com-orkut
 # export GRAPH_NAME = SNAP-soc-LiveJournal1
@@ -117,7 +117,7 @@ export PULL_PUSH 		= 0
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
-export REORDER 		    = 4
+export REORDER 		    = 0
 export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
