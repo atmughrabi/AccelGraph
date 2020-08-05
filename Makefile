@@ -6,9 +6,10 @@ export APP               = open-graph
 export APP_CAPI          = accel-graph
 # test name needs to match the file name test/test_accel-graph.c
 # export APP_TEST          =  test_accel-graph
+export APP_TEST          =  test_open-graph
 # export APP_TEST          =  pagerRank-accuracy-report
 # export APP_TEST          =  pagerRank-capi-report
-export APP_TEST          =  test_grasp-cache
+# export APP_TEST          =  test_grasp-cache
 
 
 # dirs Root app
@@ -64,7 +65,7 @@ export GRAPH_NAME = v300_e2730
 # GAP https://sparse.tamu.edu/MM/GAP/
 # https://gonglab.pratt.duke.edu/google-dataset
 # = ../../../01_GraphDatasets
-# export GRAPH_NAME = Gong-gplus
+export GRAPH_NAME = Gong-gplus
 # export GRAPH_NAME = GAP-road
 # export GRAPH_NAME = SNAP-web-Google
 # export GRAPH_NAME = GRASP-web-Google
@@ -72,7 +73,7 @@ export GRAPH_NAME = v300_e2730
 # export GRAPH_NAME = SNAP-cit-Patents
 # export GRAPH_NAME = SNAP-com-orkut
 # export GRAPH_NAME = SNAP-soc-LiveJournal1
-export GRAPH_NAME = KONECT-wikipedia_link_en
+# export GRAPH_NAME = KONECT-wikipedia_link_en
 
 # LAW https://sparse.tamu.edu/MM/LAW/
 # export GRAPH_NAME = amazon-2008
@@ -108,8 +109,8 @@ export CU_CONFIG_MODES  =  0x00041000 0x00841000
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
 
 # export FILE_BIN_TYPE = graph
-# export FILE_BIN_TYPE = graph.bin
-export FILE_BIN_TYPE = graph.wbin
+export FILE_BIN_TYPE = graph.bin
+# export FILE_BIN_TYPE = graph.wbin
 
 #WEIGHTED
 export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
@@ -119,7 +120,7 @@ export PULL_PUSH 		= 0
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
-export REORDER 		    = 4
+export REORDER 		    = 11
 export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
@@ -131,7 +132,7 @@ export START_THREADS    = 1
 export INC_THREADS      = 1
 export NUM_THREADS  	= 8
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 1
+export NUM_ITERATIONS 	= 20
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1
@@ -281,6 +282,10 @@ debug-cache:
 .PHONY: convert
 convert:
 	$(MAKE) convert $(MAKE_ARGS_OPENGRAPH)
+
+.PHONY: convert-w
+convert-w:
+	$(MAKE) convert-w $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: stats-openmp
 stats-openmp: graph-openmp
