@@ -695,7 +695,7 @@ struct SPMVStats *SPMVPullGraphCSR( uint32_t iterations, struct GraphCSR *graph)
     #pragma omp parallel for reduction(+:sum)
     for(v = 0; v < graph->num_vertices; v++)
     {
-        ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
+        sum += ((int)(stats->vector_output[v] * 100 + .5) / 100.0);
     }
 
     Stop(timer);

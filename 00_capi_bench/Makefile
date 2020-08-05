@@ -3,7 +3,7 @@
 #       		 GENERAL DIRECTOIRES   	    			#
 #########################################################
 # globals binaary /bin/accel-graph name doesn't need to match main/accel-graph.c
-APP               ?= accel-graph
+APP_CAPI          ?= accel-graph
 
 # test name needs to match the file name test/test_accel-graph.c
 #   APP_TEST          = test_accel-graph
@@ -302,7 +302,7 @@ directories :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)
 
-$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
+$(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP_CAPI).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
 	$(CC) $(CFLAGS) $(CAPI_INC) $(OPENMP_INC) -c -o $@ $<
 
 $(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(UTIL_DIR)/%.c
@@ -329,7 +329,7 @@ clean-pslse:
 	@cd $(PSLSE_DIR)/libcxl && make clean
 
 .PHONY: app-capi
-app-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(APP)-capi
+app-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi
 	@echo "\n ******************************************************************************  "
 	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> AccelGraph: ./$(word 3,$^)"
 	@echo " ******************************************************************************  \n"
@@ -363,7 +363,7 @@ build-libcxl: $(PSLSE_LIBCXL_DIR)/libcxl.a
 .PHONY: build-pslse
 build-pslse: $(PSLSE_DIR)/pslse/pslse
 
-$(APP_DIR)/$(BIN_DIR)/$(APP)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
+$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP_CAPI).o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CAPI_LINKFLAGS)
 
 $(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST)-capi.o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
@@ -417,56 +417,56 @@ run-capi-sim: CAPI_FLAGS = -DSIM
 run-capi-sim: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-sim-verbose
 run-capi-sim-verbose: CAPI_FLAGS = -DSIM -DVERBOSE
 run-capi-sim-verbose: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-sim-verbose2
 run-capi-sim-verbose2: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_2
 run-capi-sim-verbose2: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose2: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose2: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-sim-verbose3
 run-capi-sim-verbose3: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_3
 run-capi-sim-verbose3: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose3: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose3: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga
 run-capi-fpga: CAPI_FLAGS =
 run-capi-fpga: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga-verbose
 run-capi-fpga-verbose: CAPI_FLAGS = -DVERBOSE
 run-capi-fpga-verbose: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga-verbose2
 run-capi-fpga-verbose2: CAPI_FLAGS = -DVERBOSE -DVERBOSE_2
 run-capi-fpga-verbose2: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose2: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose2: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-capi-fpga-verbose3
 run-capi-fpga-verbose3: CAPI_FLAGS = -DVERBOSE -DVERBOSE_3
 run-capi-fpga-verbose3: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose3: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose3: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
 
 .PHONY: run-test-capi
 run-test-capi: CAPI_FLAGS = -DVERBOSE -DALGO_DIRECTION=$(PULL_PUSH)
@@ -499,7 +499,7 @@ law-capi: app-capi
 		for graph in $(LAW); do \
 		    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
 		    	echo $$config $$graph $$num ; \
-		    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
+		    	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
 		    done ; \
 	    done ; \
 	done
@@ -513,7 +513,7 @@ mix-capi: app-capi
 		for graph in $(LAW); do \
 		    for num in `seq $(START_THREADS) $(INC_THREADS) $(NUM_THREADS)`; do \
 		    	echo $$config $$graph $$num ; \
-		    	./$(APP_DIR)/$(BIN_DIR)/$(APP)-capi  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
+		    	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -j $(INOUT_STATS) -f $(BENCHMARKS_DIR)/$$graph/graph.wbin -q $$config -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $$num  -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA) ;\
 		    done ; \
 	    done ; \
 	done

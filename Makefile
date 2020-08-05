@@ -2,13 +2,13 @@
 #       		 GENERAL DIRECTOIRES   	    			#
 #########################################################
 # globals binaary /bin/accel-graph name doesn't need to match main/accel-graph.c
-export APP               = accel-graph
-
+export APP               = open-graph
+export APP_CAPI          = accel-graph
 # test name needs to match the file name test/test_accel-graph.c
 # export APP_TEST          =  test_accel-graph
 # export APP_TEST          =  pagerRank-accuracy-report
 # export APP_TEST          =  pagerRank-capi-report
-export APP_TEST          =  test_cache
+export APP_TEST          =  test_grasp-cache
 
 
 # dirs Root app
@@ -67,7 +67,7 @@ export GRAPH_NAME = v300_e2730
 # export GRAPH_NAME = Gong-gplus
 # export GRAPH_NAME = GAP-road
 export GRAPH_NAME = SNAP-web-Google
-export GRAPH_NAME = GRASP-web-Google
+# export GRAPH_NAME = GRASP-web-Google
 # export GRAPH_NAME = SNAP-soc-pokec
 # export GRAPH_NAME = SNAP-cit-Patents
 # export GRAPH_NAME = SNAP-com-orkut
@@ -109,7 +109,7 @@ export CU_CONFIG_MODES  =  0x00041000 0x00841000
 
 # export FILE_BIN_TYPE = graph
 # export FILE_BIN_TYPE = graph.bin
-export FILE_BIN_TYPE = web-Google
+export FILE_BIN_TYPE = graph.wbin
 
 #WEIGHTED
 export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
@@ -134,7 +134,7 @@ export NUM_THREADS  	= 8
 export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
 
-export FILE_FORMAT 		= 0
+export FILE_FORMAT 		= 1
 export CONVERT_FORMAT 	= 1
 
 #STATS COLLECTION VARIABLES
@@ -249,7 +249,7 @@ MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH)      -j$(MAKE_NUM_T
 #                RUN  ARGUMENTS                         #
 #########################################################
 
-export ARGS = -w -j $(INOUT_STATS) -g $(BIN_SIZE) -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+export ARGS = -j $(INOUT_STATS) -g $(BIN_SIZE) -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################
