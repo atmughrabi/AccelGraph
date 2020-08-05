@@ -66,13 +66,13 @@ export GRAPH_NAME = v300_e2730
 # = ../../../01_GraphDatasets
 # export GRAPH_NAME = Gong-gplus
 # export GRAPH_NAME = GAP-road
-export GRAPH_NAME = SNAP-web-Google
+# export GRAPH_NAME = SNAP-web-Google
 # export GRAPH_NAME = GRASP-web-Google
 # export GRAPH_NAME = SNAP-soc-pokec
 # export GRAPH_NAME = SNAP-cit-Patents
 # export GRAPH_NAME = SNAP-com-orkut
 # export GRAPH_NAME = SNAP-soc-LiveJournal1
-# export GRAPH_NAME = KONECT-wikipedia_link_en
+export GRAPH_NAME = KONECT-wikipedia_link_en
 
 # LAW https://sparse.tamu.edu/MM/LAW/
 # export GRAPH_NAME = amazon-2008
