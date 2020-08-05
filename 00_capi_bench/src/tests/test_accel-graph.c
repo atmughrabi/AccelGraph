@@ -185,8 +185,6 @@ main (int argc, char **argv)
 
                 freeGraphStatsGeneral(ref_data, arguments.algorithm);
                 arguments.trials--;
-
-                printf("%s\n", "whlwehwelkwerljr" );
             }
 
 
