@@ -109,8 +109,8 @@ export CU_CONFIG_MODES  =  0x00041000 0x00841000
 # export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
 
 # export FILE_BIN_TYPE = graph
-export FILE_BIN_TYPE = graph.bin
-# export FILE_BIN_TYPE = graph.wbin
+# export FILE_BIN_TYPE = graph.bin
+export FILE_BIN_TYPE = graph.wbin
 
 #WEIGHTED
 export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
@@ -120,7 +120,7 @@ export PULL_PUSH 		= 0
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
-export REORDER 		    = 11
+export REORDER 		    = 0
 export DATA_STRUCTURES  = 0
 export ALGORITHMS 		= 1
 
@@ -130,9 +130,9 @@ export DELTA 			= 800
 
 export START_THREADS    = 1
 export INC_THREADS      = 1
-export NUM_THREADS  	= 8
+export NUM_THREADS  	= 4
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 20
+export NUM_ITERATIONS 	= 1
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1
@@ -250,7 +250,7 @@ MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH)      -j$(MAKE_NUM_T
 #                RUN  ARGUMENTS                         #
 #########################################################
 
-export ARGS = -j $(INOUT_STATS) -g $(BIN_SIZE) -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+export ARGS = -w -j $(INOUT_STATS) -g $(BIN_SIZE) -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 
 ##################################################
 ##################################################
