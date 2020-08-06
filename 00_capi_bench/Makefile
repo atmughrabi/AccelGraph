@@ -150,7 +150,8 @@ CONVERT_FORMAT 	?= 1
 BIN_SIZE ?= 512
 INOUT_STATS ?= 2
 
-ARGS ?= -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+ARGS ?= -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+ARGS_CAPI ?= -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) $(ARGS_CAPI)
 
 ##############################################
 # CAPI FPGA  GRAPH AFU PERFORMANCE CONFIG    #
@@ -417,56 +418,56 @@ run-capi-sim: CAPI_FLAGS = -DSIM
 run-capi-sim: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-sim-verbose
 run-capi-sim-verbose: CAPI_FLAGS = -DSIM -DVERBOSE
 run-capi-sim-verbose: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-sim-verbose2
 run-capi-sim-verbose2: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_2
 run-capi-sim-verbose2: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose2: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose2: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-sim-verbose3
 run-capi-sim-verbose3: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_3
 run-capi-sim-verbose3: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose3: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose3: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-fpga
 run-capi-fpga: CAPI_FLAGS =
 run-capi-fpga: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-fpga-verbose
 run-capi-fpga-verbose: CAPI_FLAGS = -DVERBOSE
 run-capi-fpga-verbose: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-fpga-verbose2
 run-capi-fpga-verbose2: CAPI_FLAGS = -DVERBOSE -DVERBOSE_2
 run-capi-fpga-verbose2: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose2: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose2: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-fpga-verbose3
 run-capi-fpga-verbose3: CAPI_FLAGS = -DVERBOSE -DVERBOSE_3
 run-capi-fpga-verbose3: PSLSE_LIBCXL_DIR  = $(LIBCXL_DIR)
 run-capi-fpga-verbose3: CAPI_INC = -I$(LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-fpga-verbose3: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS)
+	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-test-capi
 run-test-capi: CAPI_FLAGS = -DVERBOSE -DALGO_DIRECTION=$(PULL_PUSH)

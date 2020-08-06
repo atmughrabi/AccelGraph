@@ -29,15 +29,7 @@
 #include "graphStats.h"
 #include "edgeList.h"
 
-
-// "   mm                        ""#             mmm                       #     \n"
-// "   ##    mmm    mmm    mmm     #           m"   "  m mm   mmm   mmmm   # mm  \n"
-// "  #  #  #"  "  #"  "  #"  #    #           #   mm  #"  " "   #  #" "#  #"  # \n"
-// "  #mm#  #      #      #""""    #     """   #    #  #     m"""#  #   #  #   # \n"
-// " #    # "#mm"  "#mm"  "#mm"    "mm          "mmm"  #     "mm"#  ##m#"  #   # \n"
-// "                                                                #            \n"
-
-//MMIO extern variables
+//MMIO extern variables for Accel graph
 uint64_t afu_config;
 uint64_t afu_config_2;
 uint64_t cu_config;
@@ -45,17 +37,16 @@ uint64_t cu_config_2;
 uint64_t cu_config_3;
 uint64_t cu_config_4;
 
-
 int numThreads;
 mt19937state *mt19937var;
 
 const char *argp_program_version =
-    "AccelGraph_CAPI v3.0";
+    "AccelGraph v2.0";
 const char *argp_program_bug_address =
     "<atmughra@ncsu.edu>|<atmughrabi@gmail.com>";
 /* Program documentation. */
 static char doc[] =
-    "\nAccelGraph is an open source graph processing framework, it is designed to be a benchmarking suite for various graph processing algorithms on FPGAs.\n";
+    "\nAccelGraph is an open source graph processing framework, it is designed to be a benchmarking suite for various graph processing algorithms using SystemVerilog.\n";
 
 /* A description of the arguments we accept. */
 static char args_doc[] = "-f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]";
@@ -73,7 +64,7 @@ static struct argp_option options[] =
     },
     {
         "algorithm",         'a', "[DEFAULT:0]\n",      0,
-        "\n[0]-BFS, [1]-Page-rank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS,[5]-SPMV, [6]-Connected-Components, [7]-Triangle Counting, [8]-IncrementalAggregation.\n"
+        "\n[0]-BFS, [1]-Page-rank, [2]-SSSP-DeltaStepping, [3]-SSSP-BellmanFord, [4]-DFS,[5]-SPMV, [6]-Connected-Components, [7]-Betweenness Centrality, [8]-Triangle Counting, [9-BUGGY]-IncrementalAggregation.\n"
     },
     {
         "data-structure",    'd', "[DEFAULT:0]\n",      0,
@@ -113,7 +104,7 @@ static struct argp_option options[] =
     },
     {
         "light-reorder",     'l', "[ORDER:0]\n",      0,
-        "\nRelabels the graph for better cache performance. [default:0]-no-reordering [1]-page-rank-order [2]-in-degree [3]-out-degree [4]-in/out degree [5]-Rabbit [6]-Epoch-pageRank [7]-Epoch-BFS [8]-LoadFromFile\n"
+        "\nRelabels the graph for better cache performance. [default:0]-no-reordering [1]-out-degree [2]-in-degree [3]-(in+out)-degree [4]-DBG-out [5]-DBG-in [6]-HUBSort-out [7]-HUBSort-in [8]-HUBCluster-out [9]-HUBCluster-in [10]-(random)-degree  [11]-LoadFromFile\n"
     },
     {
         "convert-format",    'c', "[TEXT|BIN|CSR:1]\n",      0,
@@ -121,7 +112,7 @@ static struct argp_option options[] =
     },
     {
         "generate-weights",  'w', 0,      0,
-        "\nGenerate random weights don't load from graph file. Check ->graphConfig.h #define WEIGHTED 1 beforehand then recompile using this option.\n"
+        "\nLoad or Generate weights. Check ->graphConfig.h #define WEIGHTED 1 beforehand then recompile using this option.\n"
     },
     {
         "symmetrize",        's', 0,      0,
@@ -140,20 +131,20 @@ static struct argp_option options[] =
         "\nYou bin vertices's histogram according to this parameter, if you have a large graph you want to illustrate.\n"
     },
     {
-        "verbosity",    'j', "[DEFAULT:0]\n",      0,
+        "verbosity",        'j', "[DEFAULT:0]\n",      0,
         "\nFor now it controls the output of .perf file and PageRank .stats (needs --stats enabled) files\nPageRank .stat [1:top-k results] [2:top-k results and top-k ranked vertices listed.\n"
     },
     {
-        "remove-duplicate", 'k', 0,      0,
+        "remove-duplicate",      'k', 0,      0,
         "\nRemovers duplicate edges and self loops from the graph.\n"
     },
     {
         "afu-config",            'm', "[DEFAULT:0x1]\n",      0,
-        "\nAFU-Control buffers(read/write/prefetcher) arbitration 0x01 round robin 0x10 fixed priority.\n"
+        "\nCAPI FPGA integration: AFU-Control buffers(read/write/prefetcher) arbitration 0x01 round robin 0x10 fixed priority.\n"
     },
     {
         "cu-config",             'q', "[DEFAULT:0x01]\n",      0,
-        "\nCU configurations for requests cached/non cached/prefetcher active or not check README for more explanation.\n"
+        "\nCAPI FPGA integration: CU configurations for requests cached/non cached/prefetcher active or not check README for more explanation.\n"
     },
     { 0 }
 };
@@ -289,7 +280,8 @@ main (int argc, char **argv)
 
     argp_parse (&argp, argc, argv, 0, 0, &arguments);
 
-    numThreads =  omp_get_max_threads();
+    // numThreads =  omp_get_max_threads();
+    numThreads =  arguments.numThreads;
     afu_config =  arguments.afu_config;
     cu_config  =  arguments.cu_config;
     afu_config_2  =  arguments.afu_config_2;

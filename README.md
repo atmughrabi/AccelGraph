@@ -256,9 +256,21 @@ This run outputs different AFU-Control stats based on the responses received fro
 AccelGraph@CAPI:~AccelGraph_CAPI/00_bench$ make run-capi-fpga-verbose
 ```
 
+# AccelGraph Options (with OpenGRAPH)
 
-# Graph Structure Preprocessing:
-AccelGraph-CAPI can handle multiple representations of the graph structure in memory, each has their own theoretical benefits and shortcomings.
+```
+-m, --afu-config=[DEFAULT:0x1]
+                                                          
+                             CAPI FPGA integration: AFU-Control
+                             buffers(read/write/prefetcher) arbitration 0x01
+                             round robin 0x10 fixed priority.
+
+ -q, --cu-config=[DEFAULT:0x01]
+                                                          
+                             CAPI FPGA integration: CU configurations for
+                             requests cached/non cached/prefetcher active or
+                             not check README for more explanation.
+```
 
 
 # Organization
@@ -299,7 +311,7 @@ AccelGraph-CAPI can handle multiple representations of the graph structure in me
   - [x] Adjacency Linked List
   - [x] Adjacency Array List
 - [x] Add Light weight reordering
-- [ ] Finish graph algorithms suite OpenMP
+- [x] Finish graph algorithms suite OpenMP
   - [x] BFS   (Breadth First Search)
   - [x] PR    (Page-Rank)
   - [x] DFS   (Depth First Search)
@@ -309,7 +321,7 @@ AccelGraph-CAPI can handle multiple representations of the graph structure in me
   - [x] SPMV  (Sparse Matrix Vector Multiplication)
   - [x] CC    (Connected Components)
   - [x] TC    (Triangle Counting)
-  - [ ] BC    (Betweenness Centrality)
+  - [x] BC    (Betweenness Centrality)
 - [x] Finish integration with CAPI Simulation
 - [x] Finish integration with CAPI Cache
 - [x] Finish Synthesis with CAPI (Meets time requirements)
