@@ -21,7 +21,7 @@ export CAPI_INTEG_DIR      		= 01_capi_integration
 export SCRIPT_DIR          		= 03_scripts
 
 export BENCHMARKS_DIR_LOCAL    	= 01_test_graphs
-export BENCHMARKS_DIR    		= ../../../01_GraphDatasets
+# export BENCHMARKS_DIR    		= ../../../01_GraphDatasets
 
 #dir root/managed_folders
 export SRC_DIR           	= src
@@ -65,7 +65,7 @@ export GRAPH_NAME = v300_e2730
 # GAP https://sparse.tamu.edu/MM/GAP/
 # https://gonglab.pratt.duke.edu/google-dataset
 # = ../../../01_GraphDatasets
-export GRAPH_NAME = Gong-gplus
+# export GRAPH_NAME = Gong-gplus
 # export GRAPH_NAME = GAP-road
 # export GRAPH_NAME = SNAP-web-Google
 # export GRAPH_NAME = GRASP-web-Google
@@ -130,9 +130,9 @@ export DELTA 			= 800
 
 export START_THREADS    = 1
 export INC_THREADS      = 1
-export NUM_THREADS  	= 4
+export NUM_THREADS  	= 8
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 1
+export NUM_ITERATIONS 	= 10
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1
