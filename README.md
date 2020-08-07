@@ -256,7 +256,7 @@ This run outputs different AFU-Control stats based on the responses received fro
 AccelGraph@CAPI:~AccelGraph_CAPI/00_bench$ make run-capi-fpga-verbose
 ```
 
-# AccelGraph Options (with OpenGRAPH)
+# AccelGraph Options
 
 ```
 -m, --afu-config=[DEFAULT:0x1]
@@ -265,7 +265,7 @@ AccelGraph@CAPI:~AccelGraph_CAPI/00_bench$ make run-capi-fpga-verbose
                              buffers(read/write/prefetcher) arbitration 0x01
                              round robin 0x10 fixed priority.
 
- -q, --cu-config=[DEFAULT:0x01]
+-q, --cu-config=[DEFAULT:0x01]
                                                           
                              CAPI FPGA integration: CU configurations for
                              requests cached/non cached/prefetcher active or

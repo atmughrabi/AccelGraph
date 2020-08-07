@@ -412,7 +412,6 @@ clean:
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #
 ##############################################
 
-
 .PHONY: run-capi-sim
 run-capi-sim: CAPI_FLAGS = -DSIM
 run-capi-sim: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl

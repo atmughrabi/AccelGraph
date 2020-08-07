@@ -734,12 +734,13 @@ struct SPMVStats *SPMVPushGraphCSR( uint32_t iterations, struct GraphCSR *graph)
 
     struct Vertex *vertices = NULL;
     uint32_t *sorted_edges_array = NULL;
-    float *edges_array_weight = NULL;
+
 
 
     vertices = graph->vertices;
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #if WEIGHTED
+    float *edges_array_weight = NULL;
     edges_array_weight = graph->sorted_edges_array->edges_array_weight;
 #endif
 
@@ -990,11 +991,11 @@ struct SPMVStats *SPMVPushFixedPointGraphCSR( uint32_t iterations, struct GraphC
 
     struct Vertex *vertices = NULL;
     uint32_t *sorted_edges_array = NULL;
-    float *edges_array_weight = NULL;
 
     vertices = graph->vertices;
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #if WEIGHTED
+    float *edges_array_weight = NULL;
     edges_array_weight = graph->sorted_edges_array->edges_array_weight;
 #endif
 

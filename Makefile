@@ -122,7 +122,7 @@ export PULL_PUSH 		= 0
 export SORT_TYPE 		= 0
 export REORDER 		    = 0
 export DATA_STRUCTURES  = 0
-export ALGORITHMS 		= 9
+export ALGORITHMS 		= 7
 
 export ROOT 			= 6
 export TOLERANCE 		= 1e-7
