@@ -130,9 +130,9 @@ export DELTA 			= 800
 
 export START_THREADS    = 1
 export INC_THREADS      = 1
-export NUM_THREADS  	= 8
+export NUM_THREADS  	= 7
 # NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 10
+export NUM_ITERATIONS 	= 4
 export NUM_TRIALS 		= 1
 
 export FILE_FORMAT 		= 1
@@ -250,7 +250,7 @@ MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH)      -j$(MAKE_NUM_T
 #                RUN  ARGUMENTS                         #
 #########################################################
 
-export ARGS = -w -j $(INOUT_STATS) -g $(BIN_SIZE)  -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+export ARGS = -k -w -j $(INOUT_STATS) -g $(BIN_SIZE)  -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
 export ARGS_CAPI = -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) $(ARGS)
 ##################################################
 ##################################################
