@@ -289,6 +289,14 @@ CAPI_LINKFLAGS = -lrt -lpthread
 ##################################################
 ##################################################
 
+INC_FILES_ALGO_CAPI	=	$(wildcard $(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/capi/*.h)
+INC_FILES_CAPI_UTIL	=	$(wildcard $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/*.h)
+INC_FILES_UTIL		=	$(wildcard $(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(UTIL_DIR)/*.h)
+INC_FILES_PREPRO	=	$(wildcard $(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(PREPRO_DIR)/*.h)
+INC_FILES_STRUCT	=	$(wildcard $(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(STRUCT_DIR)/*.h)
+
+ALL_HEADER_FILES    =   $(INC_FILES_ALGO_CAPI) $(INC_FILES_CAPI_UTIL) $(INC_FILES_UTIL) $(INC_FILES_PREPRO) $(INC_FILES_STRUCT)
+
 #########################################################
 #       		 OPEN GRAPH LIBRARY     				#
 #########################################################
@@ -306,13 +314,13 @@ directories :
 $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP_CAPI).o : $(APP_DIR)/$(SRC_DIR)/$(MAIN_DIR)/accel-graph.c
 	$(CC) $(CFLAGS) $(CAPI_INC) $(OPENMP_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(UTIL_DIR)/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(UTIL_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(UTIL_DIR)/%.c $(ALL_HEADER_FILES)
 	$(CC) $(CFLAGS) $(CAPI_INC) $(OPENMP_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(PREPRO_DIR)/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(PREPRO_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(PREPRO_DIR)/%.c $(ALL_HEADER_FILES)
 	$(CC) $(CFLAGS) $(CAPI_INC) $(OPENMP_INC) -c -o $@ $<
 
-$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(STRUCT_DIR)/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(STRUCT_DIR)/%.o : $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(STRUCT_DIR)/%.c $(ALL_HEADER_FILES)
 	$(CC) $(CFLAGS) $(CAPI_INC) $(OPENMP_INC) -c -o $@ $<
 
 
@@ -370,13 +378,13 @@ $(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi : $(APP_DIR)/$(OBJ_DIR)/$(MAIN_DIR)/$(APP
 $(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi : $(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST)-capi.o $(OBJ_FILES_UTIL) $(OBJ_FILES_ALGO_CAPI) $(OBJ_FILES_CAPI_UTIL) $(OBJ_FILES_PREPRO) $(OBJ_FILES_STRUCT)
 	@$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS) $(PSLSE_LIBCXL_DIR)/libcxl.a $(CAPI_LINKFLAGS)
 
-$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c build-libcxl
+$(APP_DIR)/$(OBJ_DIR)/$(CAPI_UTIL_DIR)/%.o : $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c build-libcxl $(ALL_HEADER_FILES)
 	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< $(CAPI_FLAGS)
 
-$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c
+$(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi/%.o : $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/%.c $(ALL_HEADER_FILES)
 	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< $(CAPI_FLAGS)
 
-$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST)-capi.o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(APP_TEST).c
+$(APP_DIR)/$(OBJ_DIR)/$(TEST_DIR)/$(APP_TEST)-capi.o : $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/$(APP_TEST).c $(ALL_HEADER_FILES)
 	$(CC) $(CFLAGS) $(OPENMP_INC) $(CAPI_INC) -c -o $@ $< $(CAPI_FLAGS)
 
 .PHONY: clean-sim
