@@ -7,6 +7,13 @@
 
 #include "graphCSR.h"
 
+extern uint64_t afu_config;
+extern uint64_t afu_config_2;
+extern uint64_t cu_config;
+extern uint64_t cu_config_2;
+extern uint64_t cu_config_3;
+extern uint64_t cu_config_4;
+
 // ********************************************************************************************
 // ***************                  MMIO General                                 **************
 // ********************************************************************************************

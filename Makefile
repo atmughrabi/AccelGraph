@@ -9,7 +9,7 @@ export APP_CAPI          = accel-graph
 export APP_TEST          =  test_open-graph
 # export APP_TEST          =  pagerRank-accuracy-report
 # export APP_TEST          =  pagerRank-capi-report
-# export APP_TEST          =  test_grasp-cache
+
 
 
 # dirs Root app
@@ -42,6 +42,7 @@ export PREPRO_DIR		  	= preprocess
 export ALGO_DIR		  		= algorithms
 export UTIL_DIR		  		= utils
 export CAPI_UTIL_DIR		= capi_utils
+
 
 
 #contains the tests use make run-test to compile what in this directory
@@ -120,9 +121,9 @@ export PULL_PUSH 		= 0
 
 #GRAPH RUN
 export SORT_TYPE 		= 0
-export REORDER 		    = 0
+export REORDER 		    = 4
 export DATA_STRUCTURES  = 0
-export ALGORITHMS 		= 7
+export ALGORITHMS 		= 1
 
 export ROOT 			= 6
 export TOLERANCE 		= 1e-7
@@ -270,14 +271,6 @@ run:
 .PHONY: run-openmp
 run-openmp:
 	$(MAKE) run-openmp $(MAKE_ARGS_OPENGRAPH)
-
-.PHONY: run-cache
-run-cache:
-	$(MAKE) run-cache $(MAKE_ARGS_OPENGRAPH)
-
-.PHONY: debug-cache
-debug-cache:
-	$(MAKE) debug-cache $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: convert
 convert:
