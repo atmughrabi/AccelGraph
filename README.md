@@ -301,27 +301,6 @@ AccelGraph@CAPI:~AccelGraph_CAPI/00_bench$ make run-capi-fpga-verbose
 
 # Tasks TODO:
 
-- [x] Finish preprocessing sort
-  - [x] Radix sort
-  - [x] Count sort
-  - [ ] Bitonic sort
-- [x] Finish preprocessing Graph Data-structures
-  - [x] CSR   (Compressed Sparse Row)
-  - [x] Grid
-  - [x] Adjacency Linked List
-  - [x] Adjacency Array List
-- [x] Add Light weight reordering
-- [x] Finish graph algorithms suite OpenMP
-  - [x] BFS   (Breadth First Search)
-  - [x] PR    (Page-Rank)
-  - [x] DFS   (Depth First Search)
-  - [x] IA    (Incremental Aggregation)
-  - [x] SSSP  (BellmanFord)
-  - [x] SSSP  (Delta Stepping)
-  - [x] SPMV  (Sparse Matrix Vector Multiplication)
-  - [x] CC    (Connected Components)
-  - [x] TC    (Triangle Counting)
-  - [x] BC    (Betweenness Centrality)
 - [x] Finish integration with CAPI Simulation
 - [x] Finish integration with CAPI Cache
 - [x] Finish Synthesis with CAPI (Meets time requirements)
