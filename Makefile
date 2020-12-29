@@ -5,11 +5,13 @@
 export APP               = open-graph
 export APP_CAPI          = accel-graph
 # test name needs to match the file name test/test_accel-graph.c
-# export APP_TEST          =  test_accel-graph
-export APP_TEST          =  test_open-graph
-# export APP_TEST          =  pagerRank-accuracy-report
-# export APP_TEST          =  pagerRank-capi-report
+export APP_TEST           ?= test_open-graph-match
 
+# export APP_TEST           ?=  sweep_order-OpenGraph-performance-graph
+# export APP_TEST           ?=  sweep_order-PR-performance-graph
+# export APP_TEST           ?=  sweep_order-BFS-performance-graph
+# export APP_TEST           ?=  pagerRank-accuracy-report
+# export APP_TEST           ?=  pagerRank-capi-report
 
 
 # dirs Root app
@@ -58,90 +60,105 @@ export MAIN_DIR		  	= main
 #       		 ACCEL RUN GRAPH ARGUMENTS    			#
 #########################################################
 
-# # small test graphs BENCHMARKS_DIR_LOCAL    	= 01_test_graphs
-export GRAPH_NAME = test
-export GRAPH_NAME = v51_e1021
-export GRAPH_NAME = v300_e2730
+# export BENCHMARKS_DIR    	?= ../../01_GraphDatasets
+export BENCHMARKS_DIR    	?= ../01_test_graphs
 
-# GAP https://sparse.tamu.edu/MM/GAP/
-# https://gonglab.pratt.duke.edu/google-dataset
-# = ../../../01_GraphDatasets
-# export GRAPH_NAME = Gong-gplus
-# export GRAPH_NAME = GAP-road
-# export GRAPH_NAME = SNAP-web-Google
-# export GRAPH_NAME = GRASP-web-Google
-# export GRAPH_NAME = SNAP-soc-pokec
-# export GRAPH_NAME = SNAP-cit-Patents
-# export GRAPH_NAME = SNAP-com-orkut
-# export GRAPH_NAME = SNAP-soc-LiveJournal1
-# export GRAPH_NAME = KONECT-wikipedia_link_en
+# export GRAPH_SUIT ?= TEST
+export GRAPH_SUIT ?= LAW
+# export GRAPH_SUIT ?= GAP
+# export GRAPH_SUIT ?= SNAP
+# export GRAPH_SUIT ?= KONECT
+# export GRAPH_SUIT ?= GONG
 
-# LAW https://sparse.tamu.edu/MM/LAW/
-# export GRAPH_NAME = amazon-2008
-# export GRAPH_NAME = arabic-2005
-# export GRAPH_NAME = cnr-2000
-# export GRAPH_NAME = dblp-2010
-# export GRAPH_NAME = enron
-# export GRAPH_NAME = eu-2005
-# export GRAPH_NAME = hollywood-2009
-# export GRAPH_NAME = in-2004
-# export GRAPH_NAME = indochina-2004
-# export GRAPH_NAME = it-2004
-# export GRAPH_NAME = ljournal-2008
-# export GRAPH_NAME = sk-2005
-# export GRAPH_NAME = uk-2002
-# export GRAPH_NAME = uk-2005
-# export GRAPH_NAME = webbase-2001
+# TEST # small test graphs
+# export GRAPH_NAME ?= test
+# export GRAPH_NAME ?= v51_e1021
+# export GRAPH_NAME ?= v300_e2730
 
-# export LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001
-# export MIX = Gong-gplus GAP-road SNAP-soc-pokec SNAP-cit-Patents SNAP-com-orkut SNAP-soc-LiveJournal1 KONECT-wikipedia_link_en
-export LAW = amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001 Gong-gplus GAP-road SNAP-soc-pokec SNAP-cit-Patents SNAP-com-orkut SNAP-soc-LiveJournal1 KONECT-wikipedia_link_en gplus USA-Road enwiki-2013 KONECT-wikipedia_link_en twitter
+# GONG # https://gonglab.pratt.duke.edu/google-dataset
+# export GRAPH_NAME ?= GONG-gplus
+# export GRAPH_NAME ?= Gong-gplus
 
-# export GAP = GAP-kron GAP-road GAP-twitter GAP-urand GAP-web
-# export CU_CONFIG_MODES = 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
-# export CU_CONFIG_MODES = 0x10000000 0x00800000 0x00040000 0x00001000
-export CU_CONFIG_MODES  =  0x00041000 0x00841000
-# export PUSHPULL_MODES = 0 2 4 9 10 11 12 13
+# GAP # https://sparse.tamu.edu/MM/GAP/
+# export GRAPH_NAME ?= GAP-twitter
+# export GRAPH_NAME ?= GAP-road
 
-# TEXT formant
-# export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph
+# SNAP # https://snap.stanford.edu/data/
+# export GRAPH_NAME ?= SNAP-cit-Patents
+# export GRAPH_NAME ?= SNAP-com-Orkut
+# export GRAPH_NAME ?= SNAP-soc-LiveJournal1
+# export GRAPH_NAME ?= SNAP-soc-Pokec
+# export GRAPH_NAME ?= SNAP-web-Google
 
-#UNWEIGHTED
-# export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
+# KONECT # http://konect.cc/networks/wikipedia_link_en/
+# export GRAPH_NAME ?= KONECT-wikipedia_link_en
 
-# export FILE_BIN_TYPE = graph
-# export FILE_BIN_TYPE = graph.bin
-export FILE_BIN_TYPE = graph.wbin
+# LAW # https://sparse.tamu.edu/MM/LAW/
+export GRAPH_NAME ?= LAW-amazon-2008
+# export GRAPH_NAME ?= LAW-arabic-2005
+# export GRAPH_NAME ?= LAW-cnr-2000
+# export GRAPH_NAME ?= LAW-dblp-2010
+# export GRAPH_NAME ?= LAW-enron
+# export GRAPH_NAME ?= LAW-eu-2005
+# export GRAPH_NAME ?= LAW-hollywood-2009
+# export GRAPH_NAME ?= LAW-in-2004
+# export GRAPH_NAME ?= LAW-indochina-2004
+# export GRAPH_NAME ?= LAW-it-2004
+# export GRAPH_NAME ?= LAW-ljournal-2008
+# export GRAPH_NAME ?= LAW-uk-2002
+# export GRAPH_NAME ?= LAW-uk-2005
+# export GRAPH_NAME ?= LAW-webbase-2001
 
-#WEIGHTED
-export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
+# export FILE_BIN_TYPE ?= graph
+export FILE_BIN_TYPE ?= graph.bin
+# export FILE_BIN_TYPE ?= graph.wbin
 
-#GRAPH Algorithm Direction
-export PULL_PUSH 		= 0
+# export FILE_LABEL_TYPE ?= graph_Gorder.labels
+export FILE_LABEL_TYPE ?= graph_Rabbit.labels
 
-#GRAPH RUN
-export SORT_TYPE 		= 0
-export REORDER 		    = 4
-export DATA_STRUCTURES  = 0
-export ALGORITHMS 		= 1
+#GRAPH file
+export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_SUIT)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
+export FILE_LABEL = $(BENCHMARKS_DIR)/$(GRAPH_SUIT)/$(GRAPH_NAME)/$(FILE_LABEL_TYPE)
 
-export ROOT 			= 6
-export TOLERANCE 		= 1e-7
-export DELTA 			= 800
+#ALGORITHM
+export PULL_PUSH 		?= 0
+export ALGORITHMS 		?= 0
 
-export START_THREADS    = 1
-export INC_THREADS      = 1
-export NUM_THREADS  	= 7
-# NUM_THREADS  	= $(shell grep -c ^processor /proc/cpuinfo)
-export NUM_ITERATIONS 	= 4
-export NUM_TRIALS 		= 1
+#GRAPH DATA_STRUCTURES
+export SORT_TYPE		?= 1
+export DATA_STRUCTURES  ?= 0
+export REORDER_LAYER1 	?= 0
+export REORDER_LAYER2   ?= 0
+export REORDER_LAYER3   ?= 0
 
-export FILE_FORMAT 		= 1
-export CONVERT_FORMAT 	= 1
+#ALGORITHM SPECIFIC ARGS
+export ROOT 			?= 46050
+export TOLERANCE 		?= 1e-8
+export DELTA			?= 800
+export NUM_ITERATIONS	?= 100
+
+#PERFORMANCE
+# export NUM_THREADS_PRE  ?= $(shell grep -c ^processor /proc/cpuinfo)
+# export NUM_THREADS_ALGO ?= $(shell grep -c ^processor /proc/cpuinfo)
+# export NUM_THREADS_KER  ?= 1
+
+export NUM_THREADS_PRE  ?= 1
+export NUM_THREADS_ALGO ?= 1
+export NUM_THREADS_KER  ?= 1
+
+#EXPERIMENTS
+export NUM_TRIALS 		?= 1
+
+#GRAPH FROMAT EDGELIST
+export FILE_FORMAT		?= 1
+export CONVERT_FORMAT 	?= 1
 
 #STATS COLLECTION VARIABLES
-export BIN_SIZE 		= 1000
-export INOUT_STATS 		= 0
+export BIN_SIZE 		?= 1000
+export INOUT_STATS 		?= 0
+export MASK_MODE 		?= 0
+
+##################################################
 
 ##############################################
 # CAPI FPGA AFU PREFETCH CONFIG              #
@@ -247,11 +264,11 @@ MAKE_ARGS_OPENGRAPH     = -w -C $(APP_DIR)/$(MAKE_DIR_OPENGRAPH)  -j$(MAKE_NUM_T
 MAKE_ARGS_ACCELGRAPH    = -w -C $(APP_DIR)/$(MAKE_DIR_ACCELGRAPH) -j$(MAKE_NUM_THREADS)
 MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH)      -j$(MAKE_NUM_THREADS)
 
+
 #########################################################
 #                RUN  ARGUMENTS                         #
 #########################################################
-
-export ARGS = -k -w -j $(INOUT_STATS) -g $(BIN_SIZE)  -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
+export ARGS ?= -k -M $(MASK_MODE) -j $(INOUT_STATS) -g $(BIN_SIZE) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS_PRE) -N $(NUM_THREADS_ALGO) -K $(NUM_THREADS_KER) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -F $(FILE_LABEL) -l $(REORDER_LAYER1) -L $(REORDER_LAYER2) -O $(REORDER_LAYER3) -b $(DELTA)
 export ARGS_CAPI = -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) $(ARGS)
 ##################################################
 ##################################################
