@@ -41,7 +41,7 @@ int numThreads;
 mt19937state *mt19937var;
 
 const char *argp_program_version =
-    "AccelGraph v2.0";
+    "AccelGraph v3.0";
 const char *argp_program_bug_address =
     "<atmughra@ncsu.edu>|<atmughrabi@gmail.com>";
 /* Program documentation. */
