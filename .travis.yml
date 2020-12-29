@@ -3,14 +3,10 @@ dist: xenial
 
 before_install:
   - sudo apt-get update -qq
-<<<<<<< HEAD
+
   - sudo apt-get install -y libjudy-dev 
   - git submodule update --init --recursive
  
-=======
-  - sudo apt-get install libjudy-dev
->>>>>>> 534ae59913206029ac389334e9182d6ba0d0ead0
-
 env: OMP_NUM_THREADS=4
 
 language: c
@@ -26,10 +22,7 @@ email:
   on_success: never
   on_failure: always
   recipients:
-<<<<<<< HEAD
-=======
     - atmughrabi@gmail.com
->>>>>>> 534ae59913206029ac389334e9182d6ba0d0ead0
     - atmughra@ncsu.edu
 
 branches:

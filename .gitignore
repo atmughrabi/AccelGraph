@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 00_capi_bench/obj
 00_capi_bench/bin
 00_capi_bench/build
@@ -26,14 +26,5 @@ nohup.out
 01_capi_integration/accelerator_sim/sim/gmon.out
 01_capi_integration/accelerator_sim/server/debug.log
 01_capi_integration/accelerator_sim/server/gmon.out
-=======
-00_graph_bench/obj
-00_graph_bench/bin
-00_graph_bench/build
-00_graph_bench/openmp-results
-nohup.out
-00_graph_bench/nohup.out
-.vscode
-opengraph.sublime-project
-opengraph.sublime-workspace
->>>>>>> 534ae59913206029ac389334e9182d6ba0d0ead0
+
+
