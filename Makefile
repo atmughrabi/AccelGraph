@@ -285,6 +285,10 @@ help:
 run:
 	$(MAKE) run $(MAKE_ARGS_OPENGRAPH)
 
+.PHONY: sweep-run
+sweep-run:
+	$(MAKE) run-test $(MAKE_ARGS_OPENGRAPH)
+
 .PHONY: run-openmp
 run-openmp:
 	$(MAKE) run-openmp $(MAKE_ARGS_OPENGRAPH)
@@ -293,12 +297,16 @@ run-openmp:
 convert:
 	$(MAKE) convert $(MAKE_ARGS_OPENGRAPH)
 
+.PHONY: sweep-convert
+sweep-convert:
+	$(MAKE) sweep-convert $(MAKE_ARGS_OPENGRAPH)
+
 .PHONY: convert-w
 convert-w:
 	$(MAKE) convert-w $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: stats-openmp
-stats-openmp: graph-openmp
+stats-openmp: 
 	$(MAKE) stats-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: debug-openmp
@@ -343,7 +351,7 @@ cache-perf-openmp:
 	$(MAKE) cache-perf-openmp $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: clean
-clean: clean-accel
+clean:
 	$(MAKE) clean $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: clean-obj
@@ -351,10 +359,11 @@ clean-obj:
 	$(MAKE) clean-obj $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: clean-all
-clean-all: clean clean-sim
+clean-all: clean
 
 .PHONY: scrub
-scrub: clean clean-sim clean-synth-all clean-nohup clean-stats
+scrub: clean clean-nohup clean-stats clean-sim clean-synth-all
+	$(MAKE) scrub $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: clean-stats
 clean-stats:
@@ -363,38 +372,6 @@ clean-stats:
 .PHONY: clean-nohup
 clean-nohup:
 	@rm -f $(APP_DIR)/nohup.out
-
-.PHONY: law
-law:
-	$(MAKE) law $(MAKE_ARGS_OPENGRAPH)
-
-.PHONY: mix
-mix:
-	$(MAKE) mix $(MAKE_ARGS_OPENGRAPH)
-
-.PHONY: results
-results:
-	$(MAKE) results $(MAKE_ARGS_OPENGRAPH)
-
-.PHONY: results-law
-results-law:
-	$(MAKE) results-law $(MAKE_ARGS_OPENGRAPH)
-
-.PHONY: results-mix
-results-mix:
-	$(MAKE) results-mix $(MAKE_ARGS_OPENGRAPH)
-
-PHONY: stats
-stats:
-	$(MAKE) stats $(MAKE_ARGS_OPENGRAPH)
-
-.PHONY: stats-law
-stats-law:
-	$(MAKE) stats-law $(MAKE_ARGS_OPENGRAPH)
-
-.PHONY: stats-mix
-stats-mix:
-	$(MAKE) stats-mix $(MAKE_ARGS_OPENGRAPH)
 
 ##################################################
 ##################################################
@@ -407,7 +384,7 @@ stats-mix:
 
 export PART=5SGXMA7H2F35C2
 export PROJECT = accel-graph
-export CU_SET_SIM=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH) $(NUM_THREADS))
+export CU_SET_SIM=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH) $(NUM_THREADS_KER))
 export CU_SET_SYNTH=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 
 export CU_GRAPH_ALGORITHM 	= 	$(word 1, $(CU_SET_SYNTH))
@@ -418,7 +395,7 @@ export CU_PRECISION 		= 	$(word 4, $(CU_SET_SYNTH))
 export VERSION_GIT = $(shell python ./$(SCRIPT_DIR)/version.py)
 export TIME_STAMP = $(shell date +%Y_%m_%d_%H_%M_%S)
 
-export SYNTH_DIR = synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_CU$(NUM_THREADS)
+export SYNTH_DIR = synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_CU$(NUM_THREADS_KER)
 
 # export CU = cu_PageRank_pull
 
