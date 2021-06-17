@@ -44,7 +44,7 @@ export PREPRO_DIR		  	= preprocess
 export ALGO_DIR		  		= algorithms
 export UTIL_DIR		  		= utils
 export CAPI_UTIL_DIR		= capi_utils
-
+export CONF_DIR		        = configs
 
 
 #contains the tests use make run-test to compile what in this directory
