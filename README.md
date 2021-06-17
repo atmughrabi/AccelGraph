@@ -200,9 +200,8 @@ AccelGraph@CAPI:~AccelGraph_CAPI$ make run-capi-synth
 ```console
 AccelGraph@CAPI:~AccelGraph_CAPI$ make run-capi-gui
 ```
-<<<<<<< HEAD
 2. Synthesize using Quartus GUI
-=======
+
 Usage: open-graph-openmp [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
@@ -326,7 +325,7 @@ benchmarking suite for various graph processing algorithms using pure C.
                              [9]-HUBCluster-in,
                              [10]-(random)-degree,  
                              [11]-LoadFromFile (used for Rabbit order).
->>>>>>> 8d854748248a6b5739192d13a812ec95666c24c3
+
 
 ##### Another way (using terminal)
 1. From the root directory go to CAPI integration directory -> AccelGraph_CAPI synthesis folder
