@@ -5,9 +5,9 @@
 export APP               = open-graph
 export APP_CAPI          = accel-graph
 # test name needs to match the file name test/test_accel-graph.c
-export APP_TEST           ?= test_open-graph-match
+# export APP_TEST           ?= test_open-graph-match
 
-# export APP_TEST           ?=  sweep_order-OpenGraph-performance-graph
+export APP_TEST           ?=  sweep_order-OpenGraph-performance-graph
 # export APP_TEST           ?=  sweep_order-PR-performance-graph
 # export APP_TEST           ?=  sweep_order-BFS-performance-graph
 # export APP_TEST           ?=  pagerRank-accuracy-report
@@ -33,6 +33,7 @@ export BIN_DIR			  	= bin
 export RES_DIR			  	= results
 
 
+
 #if you want to compile from cmake you need this directory
 #cd build
 #cmake ..
@@ -43,9 +44,13 @@ export STRUCT_DIR		  	= structures
 export PREPRO_DIR		  	= preprocess
 export ALGO_DIR		  		= algorithms
 export UTIL_DIR		  		= utils
+<<<<<<< HEAD
 export CAPI_UTIL_DIR		= capi_utils
 export CONF_DIR		        = configs
 
+=======
+export CONFIG_DIR			= config
+>>>>>>> 8d854748248a6b5739192d13a812ec95666c24c3
 
 #contains the tests use make run-test to compile what in this directory
 export TEST_DIR		  	= tests
@@ -63,6 +68,7 @@ export MAIN_DIR		  	= main
 # export BENCHMARKS_DIR    	?= ../../01_GraphDatasets
 export BENCHMARKS_DIR    	?= ../01_test_graphs
 
+# export GRAPH_SUIT ?=
 # export GRAPH_SUIT ?= TEST
 export GRAPH_SUIT ?= LAW
 # export GRAPH_SUIT ?= GAP
@@ -74,6 +80,7 @@ export GRAPH_SUIT ?= LAW
 # export GRAPH_NAME ?= test
 # export GRAPH_NAME ?= v51_e1021
 # export GRAPH_NAME ?= v300_e2730
+# export GRAPH_NAME ?= graphbrew
 
 # GONG # https://gonglab.pratt.duke.edu/google-dataset
 # export GRAPH_NAME ?= GONG-gplus
@@ -128,8 +135,9 @@ export ALGORITHMS 		?= 0
 export SORT_TYPE		?= 1
 export DATA_STRUCTURES  ?= 0
 export REORDER_LAYER1 	?= 0
-export REORDER_LAYER2   ?= 0
+export REORDER_LAYER2   ?= 4
 export REORDER_LAYER3   ?= 0
+export CACHE_SIZE       ?= 32768 # 32KB
 
 #ALGORITHM SPECIFIC ARGS
 export ROOT 			?= 46050
@@ -138,13 +146,13 @@ export DELTA			?= 800
 export NUM_ITERATIONS	?= 100
 
 #PERFORMANCE
-# export NUM_THREADS_PRE  ?= $(shell grep -c ^processor /proc/cpuinfo)
-# export NUM_THREADS_ALGO ?= $(shell grep -c ^processor /proc/cpuinfo)
-# export NUM_THREADS_KER  ?= 1
+export NUM_THREADS_PRE  ?= $(shell grep -c ^processor /proc/cpuinfo)
+export NUM_THREADS_ALGO ?= $(shell grep -c ^processor /proc/cpuinfo)
+export NUM_THREADS_KER  ?= $(NUM_THREADS_ALGO)
 
-export NUM_THREADS_PRE  ?= 1
-export NUM_THREADS_ALGO ?= 1
-export NUM_THREADS_KER  ?= 1
+# export NUM_THREADS_PRE  ?= 1
+# export NUM_THREADS_ALGO ?= 1
+# export NUM_THREADS_KER  ?= $(NUM_THREADS_ALGO)
 
 #EXPERIMENTS
 export NUM_TRIALS 		?= 1
@@ -268,8 +276,14 @@ MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH)      -j$(MAKE_NUM_T
 #########################################################
 #                RUN  ARGUMENTS                         #
 #########################################################
+<<<<<<< HEAD
 export ARGS ?= -k -M $(MASK_MODE) -j $(INOUT_STATS) -g $(BIN_SIZE) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS_PRE) -N $(NUM_THREADS_ALGO) -K $(NUM_THREADS_KER) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -F $(FILE_LABEL) -l $(REORDER_LAYER1) -L $(REORDER_LAYER2) -O $(REORDER_LAYER3) -b $(DELTA)
 export ARGS_CAPI = -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) $(ARGS)
+=======
+
+export ARGS ?= -k -M $(MASK_MODE) -j $(INOUT_STATS) -g $(BIN_SIZE) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS_PRE) -N $(NUM_THREADS_ALGO) -K $(NUM_THREADS_KER) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -F $(FILE_LABEL) -l $(REORDER_LAYER1) -L $(REORDER_LAYER2) -O $(REORDER_LAYER3) -b $(DELTA) -C $(CACHE_SIZE)
+
+>>>>>>> 8d854748248a6b5739192d13a812ec95666c24c3
 ##################################################
 ##################################################
 

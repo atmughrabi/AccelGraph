@@ -200,7 +200,133 @@ AccelGraph@CAPI:~AccelGraph_CAPI$ make run-capi-synth
 ```console
 AccelGraph@CAPI:~AccelGraph_CAPI$ make run-capi-gui
 ```
+<<<<<<< HEAD
 2. Synthesize using Quartus GUI
+=======
+Usage: open-graph-openmp [OPTION...]
+            -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
+            [num threads] [-h -c -s -w]
+
+OpenGraph is an open source graph processing framework, it is designed to be a
+benchmarking suite for various graph processing algorithms using pure C.
+
+   -a, --algorithm=[DEFAULT:[0]-BFS]
+
+                             [0]-BFS, 
+                             [1]-Page-rank, 
+                             [2]-SSSP-DeltaStepping,
+                             [3]-SSSP-BellmanFord, 
+                             [4]-DFS,
+                             [5]-SPMV,
+                             [6]-Connected-Components,
+                             [7]-Betweenness-Centrality, 
+                             [8]-Triangle Counting,
+                             [9-BUGGY]-IncrementalAggregation.
+
+  -b, --delta=[DEFAULT:1]    
+                             SSSP Delta value [Default:1].
+
+  -c, --convert-format=[DEFAULT:[1]-binary-edgeList]
+
+                             [serialize flag must be on --serialize to write]
+                             Serialize graph text format (edge list format) to
+                             binary graph file on load example:-f <graph file>
+                             -c this is specifically useful if you have Graph
+                             CSR/Grid structure and want to save in a binary
+                             file format to skip the preprocessing step for
+                             future runs. 
+                             [0]-text-edgeList, 
+                             [1]-binary-edgeList,
+                             [2]-graphCSR-binary.
+
+  -C, --cache-size=<LLC>     
+                             LLC cache size for MASK vertex reodering
+
+
+  -d, --data-structure=[DEFAULT:[0]-CSR]
+
+                             [0]-CSR, 
+                             [1]-Grid, 
+                             [2]-Adj LinkedList, 
+                             [3]-Adj ArrayList 
+                             [4-5] same order bitmap frontiers.
+
+  -e, --tolerance=[EPSILON:0.0001]
+
+                             Tolerance value of for page rank
+                             [default:0.0001].
+
+  -f, --graph-file=<FILE>    
+
+                             Edge list represents the graph binary format to
+                             run the algorithm textual format change
+                             graph-file-format.
+
+  -F, --labels-file=<FILE>   
+                             Read and reorder vertex labels from a text file,
+                             Specify the file name for the new graph reorder,
+                             generated from Gorder, Rabbit-order, etc.
+
+  -g, --bin-size=[SIZE:512]  
+                             You bin vertices's histogram according to this
+                             parameter, if you have a large graph you want to
+                             illustrate.
+
+  -i, --num-iterations=[DEFAULT:20]
+
+                             Number of iterations for page rank to converge
+                             [default:20] SSSP-BellmanFord [default:V-1].
+
+  -j, --verbosity=[DEFAULT:[0:no stats output]
+
+                             For now it controls the output of .perf file and
+                             PageRank .stats (needs --stats enabled)
+                             filesPageRank .stat [1:top-k results] [2:top-k
+                             results and top-k ranked vertices listed.
+
+  -k, --remove-duplicate     
+                             Removers duplicate edges and self loops from the
+                             graph.
+
+  -K, --Kernel-num-threads=[DEFAULT:algo-num-threads]
+
+                             Number of threads for graph processing kernel
+                             (critical-path) (graph algorithm)
+
+  -l, --light-reorder-l1=[DEFAULT:[0]-no-reordering]
+
+                             Relabels the graph for better cache performance
+                             (first layer). 
+                             [0]-no-reordering, 
+                             [1]-out-degree,
+                             [2]-in-degree, 
+                             [3]-(in+out)-degree, 
+                             [4]-DBG-out,
+                             [5]-DBG-in, 
+                             [6]-HUBSort-out, 
+                             [7]-HUBSort-in,
+                             [8]-HUBCluster-out, 
+                             [9]-HUBCluster-in,
+                             [10]-(random)-degree,  
+                             [11]-LoadFromFile (used for Rabbit order).
+
+  -L, --light-reorder-l2=[DEFAULT:[0]-no-reordering]
+
+                             Relabels the graph for better cache performance
+                             (second layer). 
+                             [0]-no-reordering, 
+                             [1]-out-degree,
+                             [2]-in-degree, 
+                             [3]-(in+out)-degree, 
+                             [4]-DBG-out,
+                             [5]-DBG-in, 
+                             [6]-HUBSort-out, 
+                             [7]-HUBSort-in,
+                             [8]-HUBCluster-out, 
+                             [9]-HUBCluster-in,
+                             [10]-(random)-degree,  
+                             [11]-LoadFromFile (used for Rabbit order).
+>>>>>>> 8d854748248a6b5739192d13a812ec95666c24c3
 
 ##### Another way (using terminal)
 1. From the root directory go to CAPI integration directory -> AccelGraph_CAPI synthesis folder
