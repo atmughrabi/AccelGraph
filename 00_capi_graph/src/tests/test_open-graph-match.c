@@ -19,19 +19,7 @@
 #include <argp.h>
 #include <stdbool.h>
 #include <omp.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <argp.h>
-#include <stdbool.h>
-#include <omp.h>
-
+#include <assert.h>
 
 #include "graphStats.h"
 #include "edgeList.h"
@@ -56,21 +44,7 @@
 #include "connectedComponents.h"
 #include "triangleCount.h"
 
-#include <assert.h>
 #include "graphTest.h"
-
-uint64_t afu_config;
-uint64_t cu_config;
-int numThreads;
-mt19937state *mt19937var;
-
-// "   mm                        ""#             mmm                       #     \n"
-// "   ##    mmm    mmm    mmm     #           m"   "  m mm   mmm   mmmm   # mm  \n"
-// "  #  #  #"  "  #"  "  #"  #    #           #   mm  #"  " "   #  #" "#  #"  # \n"
-// "  #mm#  #      #      #""""    #     """   #    #  #     m"""#  #   #  #   # \n"
-// " #    # "#mm"  "#mm"  "#mm"    "mm          "mmm"  #     "mm"#  ##m#"  #   # \n"
-// "                                                                #            \n"
-
 
 int
 main (int argc, char **argv)
@@ -82,86 +56,74 @@ main (int argc, char **argv)
     arguments.wflag = 0;
     arguments.xflag = 0;
     arguments.sflag = 0;
+    arguments.dflag = 1;
 
     arguments.iterations = 200;
     arguments.trials = 100;
     arguments.epsilon = 0.0001;
-    arguments.root = 5319;
+    arguments.source = 5319;
     arguments.algorithm = 0;
     arguments.datastructure = 0;
     arguments.pushpull = 0;
-    arguments.sort = 0;
+    arguments.sort = 1;
+
     arguments.lmode = 0;
+    arguments.lmode_l2 = 0;
+    arguments.lmode_l3 = 0;
+    arguments.mmode = 0;
+
     arguments.symmetric = 0;
     arguments.weighted = 0;
     arguments.delta = 1;
-    arguments.numThreads = 4;
-    arguments.fnameb = "../04_test_graphs/Gnutella/graph.wbin";
+    arguments.pre_numThreads = 4;
+    arguments.algo_numThreads = 4;
+    arguments.ker_numThreads = 4;
+    
+    arguments.fnameb = "../01_test_graphs/LAW/LAW-enron/graph.bin";
+    arguments.fnamel = "../01_test_graphs/LAW/LAW-enron/graph_Gorder.labels";
     arguments.fnameb_format = 1;
     arguments.convert_format = 1;
+    initializeMersenneState (&(arguments.mt19937var), 27491095);
 
     void *graph = NULL;
-    
-    numThreads =  arguments.numThreads;
-
-    struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
-
-    mt19937var = (mt19937state *) my_malloc(sizeof(mt19937state));
-    initializeMersenneState (mt19937var, 27491095);
-
-    omp_set_nested(1);
-    omp_set_num_threads(numThreads);
-
-
-
-
-    printf("*-----------------------------------------------------*\n");
-    printf("| %-20s %-30u | \n", "Number of Threads :", numThreads);
-    printf(" -----------------------------------------------------\n");
-
-
     uint32_t missmatch = 0;
     uint32_t total_missmatch = 0;
     void *ref_data;
     void *cmp_data;
 
-  
-    for(arguments.algorithm = 0 ; arguments.algorithm < 8; arguments.algorithm++)
+    for(arguments.algorithm = 0 ; arguments.algorithm < 9; arguments.algorithm++)
     {
         for(arguments.datastructure = 0 ; arguments.datastructure < 4; arguments.datastructure++)
         {
-
-
-
-            if(arguments.algorithm == 7)  // Triangle counting depends on order
-            {
-
-                arguments.sort = 1;
-                arguments.lmode = 3;
-            }
 
             if(arguments.algorithm == 8)  // Triangle counting depends on order
             {
 
                 arguments.sort = 1;
-                arguments.lmode = 8;
+                // arguments.lmode = 2;
+            }
+            if(arguments.algorithm == 9)  // Incremental aggregation order
+            {
+
+                arguments.sort = 1;
+                // arguments.lmode = 2;
             }
 
             graph = generateGraphDataStructure(&arguments);
 
             arguments.iterations = 100;
-            arguments.trials = (generateRandInt(mt19937var) % 50) + 1; // random number of trials
+            arguments.trials = (generateRandInt(&(arguments.mt19937var)) % 50) + 1; // random number of trials
 
 
             while(arguments.trials)
             {
-                arguments.root = generateRandomRootGeneral(graph, &arguments); // random root each trial
-                ref_data = runGraphAlgorithmsTest(graph, &arguments); // ref stats should mach oother algo
+                arguments.source = generateRandomRootGeneral(&arguments, graph); // random root each trial
+                ref_data = runGraphAlgorithmsTest(&arguments, graph); // ref stats should mach oother algo
 
-                for(arguments.pushpull = 0 ; arguments.pushpull < 13; arguments.pushpull++)
+                for(arguments.pushpull = 0 ; arguments.pushpull < 9; arguments.pushpull++)
                 {
 
-                    cmp_data = runGraphAlgorithmsTest(graph, &arguments);
+                    cmp_data = runGraphAlgorithmsTest(&arguments, graph);
 
                     if(ref_data != NULL && cmp_data != NULL)
                     {
@@ -185,13 +147,10 @@ main (int argc, char **argv)
 
                 freeGraphStatsGeneral(ref_data, arguments.algorithm);
                 arguments.trials--;
+
             }
-
-
             freeGraphDataStructure(graph, arguments.datastructure);
-
         }
-
     }
 
     if(total_missmatch != 0)
@@ -203,8 +162,6 @@ main (int argc, char **argv)
         printf("PASS : Trial [%u] Graph [%s] Missmatches [%u]\n", arguments.trials, arguments.fnameb, total_missmatch);
     }
 
-
-    free(timer);
     exit (0);
 }
 
