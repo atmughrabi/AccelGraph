@@ -64,8 +64,8 @@ export MAIN_DIR		  	= main
 export BENCHMARKS_DIR    	?= ../01_test_graphs
 
 # export GRAPH_SUIT ?=
-# export GRAPH_SUIT ?= TEST
-export GRAPH_SUIT ?= LAW
+export GRAPH_SUIT ?= TEST
+# export GRAPH_SUIT ?= LAW
 # export GRAPH_SUIT ?= GAP
 # export GRAPH_SUIT ?= SNAP
 # export GRAPH_SUIT ?= KONECT
@@ -75,7 +75,7 @@ export GRAPH_SUIT ?= LAW
 # export GRAPH_NAME ?= test
 # export GRAPH_NAME ?= v51_e1021
 # export GRAPH_NAME ?= v300_e2730
-# export GRAPH_NAME ?= graphbrew
+export GRAPH_NAME ?= graphbrew
 
 # GONG # https://gonglab.pratt.duke.edu/google-dataset
 # export GRAPH_NAME ?= GONG-gplus
@@ -96,7 +96,7 @@ export GRAPH_SUIT ?= LAW
 # export GRAPH_NAME ?= KONECT-wikipedia_link_en
 
 # LAW # https://sparse.tamu.edu/MM/LAW/
-export GRAPH_NAME ?= LAW-amazon-2008
+# export GRAPH_NAME ?= LAW-amazon-2008
 # export GRAPH_NAME ?= LAW-arabic-2005
 # export GRAPH_NAME ?= LAW-cnr-2000
 # export GRAPH_NAME ?= LAW-dblp-2010
@@ -124,7 +124,7 @@ export FILE_LABEL = $(BENCHMARKS_DIR)/$(GRAPH_SUIT)/$(GRAPH_NAME)/$(FILE_LABEL_T
 
 #ALGORITHM
 export PULL_PUSH 		?= 0
-export ALGORITHMS 		?= 0
+export ALGORITHMS 		?= 5
 
 #GRAPH DATA_STRUCTURES
 export SORT_TYPE		?= 1

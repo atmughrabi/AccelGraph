@@ -41,6 +41,14 @@ struct Arguments
     uint32_t convert_format;
     mt19937state mt19937var;
     uint32_t cache_size;
+
+// CAPI integration
+    uint64_t afu_config;
+    uint64_t afu_config_2;
+    uint64_t cu_config;
+    uint64_t cu_config_2;
+    uint64_t cu_config_3;
+    uint64_t cu_config_4;
 };
 
 #endif

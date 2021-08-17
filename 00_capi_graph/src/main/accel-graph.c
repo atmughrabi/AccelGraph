@@ -30,12 +30,12 @@
 #include "edgeList.h"
 
 const char *argp_program_version =
-    "OpenGraph v5.0";
+    "AccelGraph v4.0";
 const char *argp_program_bug_address =
     "<atmughra@ncsu.edu>|<atmughrabi@gmail.com>";
 /* Program documentation. */
 static char doc[] =
-    "OpenGraph is an open source graph processing framework, it is designed to be a benchmarking suite for various graph processing algorithms using pure C.";
+    "AccelGraph is an open source graph processing framework, it is designed to be a benchmarking suite for various graph processing algorithms using SystemVerilog.";
 
 /* A description of the arguments we accept. */
 static char args_doc[] = "-f <graph file> -d [data structure] -a [algorithm] -r [root] -n [num threads] [-h -c -s -w]";
@@ -155,6 +155,14 @@ static struct argp_option options[] =
         "cache-size",        'C', "<LLC=32768/32KB>",      0,
         "LLC cache size for MASK vertex reodering"
     },
+    {
+        "afu-config",            'm', "[DEFAULT:0x1]\n",      0,
+        "\nCAPI FPGA integration: AFU-Control buffers(read/write/prefetcher) arbitration 0x01 round robin 0x10 fixed priority.\n"
+    },
+    {
+        "cu-config",             'q', "[DEFAULT:0x01]\n",      0,
+        "\nCAPI FPGA integration: CU configurations for requests cached/non cached/prefetcher active or not check README for more explanation.\n"
+    },
     { 0 }
 };
 
@@ -254,6 +262,12 @@ parse_opt (int key, char *arg, struct argp_state *state)
     case 'M':
         arguments->mmode = atoi(arg);
         break;
+    case 'm':
+        arguments->afu_config = strtoll(arg, &eptr, 0);
+        break;
+    case 'q':
+        arguments->cu_config = strtoll(arg, &eptr, 0);
+        break;
 
     default:
         return ARGP_ERR_UNKNOWN;
@@ -308,6 +322,14 @@ main (int argc, char **argv)
 
     void *graph = NULL;
     argp_parse (&argp, argc, argv, 0, 0, arguments);
+
+    // CAPI integration
+    arguments->afu_config   = 0x01;
+    arguments->afu_config_2 = 0x01;
+    arguments->cu_config    = 0x01;
+    arguments->cu_config_2  = 0x01;
+    arguments->cu_config_3  = 0x01;
+    arguments->cu_config_4  = 0x01;
 
     if(arguments->dflag)
         arguments->sort = 1;
