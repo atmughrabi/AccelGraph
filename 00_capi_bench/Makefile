@@ -12,7 +12,7 @@ APP_TEST          ?= test_accel-graph
 
 # dirs Root app
 APP_DIR           		?= .
-APP_DIR_OPEN_GRAPH      ?= ../00_open_graph/00_graph_bench
+APP_DIR_OPEN_GRAPH      ?= ../00_open_graph/00_bench
 APP_DIR_CAPI_PRECIS  	?= ./01_capi_precis
 CAPI_PRECIS_INTEG_DIR   ?= $(APP_DIR_CAPI_PRECIS)/01_capi_integration
 CAPI_INTEG_DIR      	?= 01_capi_integration
@@ -41,6 +41,8 @@ PREPRO_DIR		  	?= preprocess
 ALGO_DIR		  	?= algorithms
 UTIL_DIR		  	?= utils
 CAPI_UTIL_DIR		?= capi_utils
+CONFIG_DIR			?= config
+
 
 # Folders needed when using CAPI
 

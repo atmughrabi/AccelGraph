@@ -16,7 +16,7 @@ export APP_TEST           ?=  sweep_order-OpenGraph-performance-graph
 
 # dirs Root app
 export APP_DIR              	= .
-export APP_DIR_OPEN_GRAPH   	= ../00_open_graph/00_graph_bench
+export APP_DIR_OPEN_GRAPH   	= ../00_open_graph/00_bench
 export APP_DIR_CAPI_PRECIS  	= ./01_capi_precis
 export CAPI_PRECIS_INTEG_DIR   	= $(APP_DIR_CAPI_PRECIS)/01_capi_integration
 export CAPI_INTEG_DIR      		= 01_capi_integration
@@ -258,7 +258,7 @@ export AFU_CONFIG_GENERIC=$(AFU_CONFIG_MODE)
 ##################################################
 
 APP_DIR                 = .
-MAKE_DIR_ACCELGRAPH     = 00_capi_bench
+MAKE_DIR_ACCELGRAPH     = 00_capi_graph
 MAKE_DIR_OPENGRAPH      = 00_open_graph
 MAKE_DIR_SYNTH          = $(CAPI_INTEG_DIR)/$(SYNTH_DIR)
 

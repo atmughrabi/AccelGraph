@@ -316,12 +316,6 @@ main (int argc, char **argv)
     arguments->fnamel = NULL;
     arguments->fnameb_format = 1;
     arguments->convert_format = 1;
-    initializeMersenneState (&(arguments->mt19937var), 27491095);
-    omp_set_nested(1);
-
-
-    void *graph = NULL;
-    argp_parse (&argp, argc, argv, 0, 0, arguments);
 
     // CAPI integration
     arguments->afu_config   = 0x01;
@@ -330,6 +324,13 @@ main (int argc, char **argv)
     arguments->cu_config_2  = 0x01;
     arguments->cu_config_3  = 0x01;
     arguments->cu_config_4  = 0x01;
+
+    initializeMersenneState (&(arguments->mt19937var), 27491095);
+    omp_set_nested(1);
+
+
+    void *graph = NULL;
+    argp_parse (&argp, argc, argv, 0, 0, arguments);
 
     if(arguments->dflag)
         arguments->sort = 1;
