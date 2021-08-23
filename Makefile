@@ -359,10 +359,12 @@ cache-perf-openmp:
 .PHONY: clean
 clean:
 	$(MAKE) clean $(MAKE_ARGS_OPENGRAPH)
+	$(MAKE) clean $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: clean-obj
 clean-obj:
 	$(MAKE) clean-obj $(MAKE_ARGS_OPENGRAPH)
+	$(MAKE) clean-obj $(MAKE_ARGS_ACCELGRAPH)
 
 .PHONY: clean-all
 clean-all: clean
