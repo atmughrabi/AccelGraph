@@ -12,7 +12,7 @@ APP_TEST          ?= test_accel-graph
 
 # dirs Root app
 APP_DIR           		?= .
-APP_DIR_OPEN_GRAPH      ?= ../00_open_graph/00_bench
+APP_DIR_OPEN_GRAPH      ?= ../00_open_graph/00_graph_bench
 APP_DIR_CAPI_PRECIS  	?= ./01_capi_precis
 CAPI_PRECIS_INTEG_DIR   ?= $(APP_DIR_CAPI_PRECIS)/01_capi_integration
 CAPI_INTEG_DIR      	?= 01_capi_integration
@@ -240,9 +240,9 @@ OBJ_FILES_TEST  	= $(patsubst $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/%.c,$(APP_DIR)/$
 CC				  = gcc
 
 OPENMP_INC = 	-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(STRUCT_DIR)    \
-				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/capi 			\
 				-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(PREPRO_DIR)    \
 				-I$(APP_DIR_OPEN_GRAPH)/$(INC_DIR)/$(UTIL_DIR)		\
+				-I$(APP_DIR)/$(INC_DIR)/$(ALGO_DIR)/capi 			\
 				-I$(APP_DIR)/$(INC_DIR)/$(CONFIG_DIR)   
 
 
@@ -412,6 +412,9 @@ clean-sim:
 clean:
 	@rm -fr $(APP_DIR)/$(OBJ_DIR)
 	@rm -fr $(APP_DIR)/$(BIN_DIR)
+
+.PHONY: scrub
+scrub: clean clean-sim
 
 ##################################################
 ##################################################

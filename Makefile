@@ -16,7 +16,7 @@ export APP_TEST           ?=  sweep_order-OpenGraph-performance-graph
 
 # dirs Root app
 export APP_DIR              	= .
-export APP_DIR_OPEN_GRAPH   	= ../00_open_graph/00_bench
+export APP_DIR_OPEN_GRAPH   	= ../00_open_graph/00_graph_bench
 export APP_DIR_CAPI_PRECIS  	= ./01_capi_precis
 export CAPI_PRECIS_INTEG_DIR   	= $(APP_DIR_CAPI_PRECIS)/01_capi_integration
 export CAPI_INTEG_DIR      		= 01_capi_integration
@@ -370,6 +370,8 @@ clean-all: clean
 .PHONY: scrub
 scrub: clean clean-nohup clean-stats clean-sim clean-synth-all
 	$(MAKE) scrub $(MAKE_ARGS_OPENGRAPH)
+	$(MAKE) scrub $(MAKE_ARGS_ACCELGRAPH)
+	
 
 .PHONY: clean-stats
 clean-stats:
