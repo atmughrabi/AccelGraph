@@ -38,6 +38,12 @@
 #include "SPMV.h"
 
 // ********************************************************************************************
+// ***************                  CAPI Library                                 **************
+// ********************************************************************************************
+#include "libcxl.h"
+#include "capienv.h"
+
+// ********************************************************************************************
 // ***************                  Stats DataStructure                          **************
 // ********************************************************************************************
 
@@ -645,6 +651,39 @@ struct SPMVStats *SPMVPullGraphCSR( struct Arguments *arguments, struct GraphCSR
 #endif
 #endif
 
+    // ********************************************************************************************
+    // ***************                  CAPI WED DataStructure                       **************
+    // ********************************************************************************************
+    
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
+
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
+
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+    wedGraphCSR->auxiliary1 = stats->vector_input;
+    wedGraphCSR->auxiliary2 = stats->vector_output;
+
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config       = arguments->afu_config;
+    afu_status.afu_config_2     = arguments->afu_config_2;
+    afu_status.cu_config        = arguments->cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config        = ((arguments->cu_config << 32) | (arguments->ker_numThreads));
+    afu_status.cu_config_2      = arguments->cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_stop          = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
+
+
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting SPMV-PULL");
     printf(" -----------------------------------------------------\n");
@@ -667,25 +706,17 @@ struct SPMVStats *SPMVPullGraphCSR( struct Arguments *arguments, struct GraphCSR
     {
         Start(timer_inner);
 
-        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            uint32_t j;
-            uint32_t src ;
-            uint32_t dest = v;
-            float weight = 0.0001f;
-            degree = vertices->out_degree[dest];
-            edge_idx = vertices->edges_idx[dest];
+        // ********************************************************************************************
+        // ***************                 START CU                                      **************
+        // ********************************************************************************************
+        startCU(&afu, &afu_status);
+        // ********************************************************************************************
 
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                src = EXTRACT_VALUE(sorted_edges_array[j]);
-#if WEIGHTED
-                weight = edges_array_weight[j];
-#endif
-                stats->vector_output[dest] +=  (weight * stats->vector_input[src]);
-            }
-        }
+        // ********************************************************************************************
+        // ***************                 WAIT AFU                                      **************
+        // ********************************************************************************************
+        waitAFU(&afu, &afu_status);
+        // ********************************************************************************************
 
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
@@ -706,6 +737,12 @@ struct SPMVStats *SPMVPullGraphCSR( struct Arguments *arguments, struct GraphCSR
     printf(" -----------------------------------------------------\n");
     printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
     printf(" -----------------------------------------------------\n");
+
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    free(wedGraphCSR);
+    // ********************************************************************************************
 
     free(timer);
     free(timer_inner);
@@ -848,6 +885,38 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( struct Arguments *arguments, struc
 #endif
 #endif
 
+    // ********************************************************************************************
+    // ***************                  CAPI WED DataStructure                       **************
+    // ********************************************************************************************
+    
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
+
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
+
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+    wedGraphCSR->auxiliary1 = stats->vector_input;
+    wedGraphCSR->auxiliary2 = stats->vector_output;
+
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config       = arguments->afu_config;
+    afu_status.afu_config_2     = arguments->afu_config_2;
+    afu_status.cu_config        = arguments->cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config        = ((arguments->cu_config << 32) | (arguments->ker_numThreads));
+    afu_status.cu_config_2      = arguments->cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_stop          = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
+
     #pragma omp parallel for
     for (w = 0; w < graph->num_edges ; ++w)
     {
@@ -890,25 +959,17 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( struct Arguments *arguments, struc
     {
         Start(timer_inner);
 
-        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 1024)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            uint32_t j;
-            uint32_t src;
-            uint32_t dest = v;
-            float weight = FloatToFixed32(0.0001f);
-            degree = vertices->out_degree[dest];
-            edge_idx = vertices->edges_idx[dest];
+         // ********************************************************************************************
+        // ***************                 START CU                                      **************
+        // ********************************************************************************************
+        startCU(&afu, &afu_status);
+        // ********************************************************************************************
 
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                src = EXTRACT_VALUE(sorted_edges_array[j]);
-#if WEIGHTED
-                weight = edges_array_weight_fixedPoint[j];
-#endif
-                vector_output[dest] += MULFixed32V1(weight, vector_input[src]); // stats->pageRanks[v]/graph->vertices[v].out_degree;
-            }
-        }
+        // ********************************************************************************************
+        // ***************                 WAIT AFU                                      **************
+        // ********************************************************************************************
+        waitAFU(&afu, &afu_status);
+        // ********************************************************************************************
 
         Stop(timer_inner);
         printf("| %-21u | %-27f | \n", stats->iterations, Seconds(timer_inner));
@@ -937,6 +998,12 @@ struct SPMVStats *SPMVPullFixedPointGraphCSR( struct Arguments *arguments, struc
     printf(" -----------------------------------------------------\n");
     printf("| %-15u | %-15lf | %-15f | \n", stats->iterations, sum, stats->time_total);
     printf(" -----------------------------------------------------\n");
+
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    free(wedGraphCSR);
+    // ********************************************************************************************
 
     free(timer);
     free(timer_inner);

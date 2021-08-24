@@ -59,72 +59,71 @@ MAIN_DIR		  	?= main
 #       		 ACCEL RUN GRAPH ARGUMENTS    			#
 #########################################################
 
-#small test graphs
-GRAPH_NAME ?= test
-# GRAPH_NAME ?= v51_e1021
-# GRAPH_NAME  ?= v300_e2730
+# export BENCHMARKS_DIR    	?= ../../01_GraphDatasets
+export BENCHMARKS_DIR    	?= ../01_test_graphs
 
-#gem5-Aladdin small dynamic traces
-# GRAPH_NAME ?= Gnutella
-# GRAPH_NAME ?= dblp
-# GRAPH_NAME ?= amazon
-# GRAPH_NAME ?= euall
+# export GRAPH_SUIT ?=
+export GRAPH_SUIT ?= TEST
+# export GRAPH_SUIT ?= LAW
+# export GRAPH_SUIT ?= GAP
+# export GRAPH_SUIT ?= SNAP
+# export GRAPH_SUIT ?= KONECT
+# export GRAPH_SUIT ?= GONG
 
-# generates large dynamic traces for gem5-Aladdin
-# GRAPH_NAME ?= com-youtube
-# GRAPH_NAME ?= web-BerkStan
-# GRAPH_NAME ?= web-Google
-# GRAPH_NAME ?= wiki-Talk
+# TEST # small test graphs
+# export GRAPH_NAME ?= test
+# export GRAPH_NAME ?= v51_e1021
+# export GRAPH_NAME ?= v300_e2730
+export GRAPH_NAME ?= graphbrew
 
-# synthetic graphs
-# GRAPH_NAME ?= RMAT20
-# GRAPH_NAME ?= RMAT22
+# GONG # https://gonglab.pratt.duke.edu/google-dataset
+# export GRAPH_NAME ?= GONG-gplus
+# export GRAPH_NAME ?= Gong-gplus
 
-# real world large graphs binary format
-# GRAPH_NAME ?= orkut
-# GRAPH_NAME ?= gplus
-# GRAPH_NAME ?= sk-2005
-# GRAPH_NAME ?= twitter
-# GRAPH_NAME ?= livejournal
-# GRAPH_NAME ?= USA-Road
-# GRAPH_NAME ?= enwiki-2013
-# GRAPH_NAME ?= arabic-2005
+# GAP # https://sparse.tamu.edu/MM/GAP/
+# export GRAPH_NAME ?= GAP-twitter
+# export GRAPH_NAME ?= GAP-road
 
-# real world large graphs binary LAW
-# GRAPH_NAME ?= amazon-2008
-# GRAPH_NAME ?= arabic-2005
-# GRAPH_NAME ?= cnr-2000
-# GRAPH_NAME ?= dblp-2010
-# GRAPH_NAME ?= enron
-# GRAPH_NAME ?= eu-2005
-# GRAPH_NAME ?= hollywood-2009
-# GRAPH_NAME ?= in-2004
-# GRAPH_NAME ?= indochina-2004
-# GRAPH_NAME ?= it-2004
-# GRAPH_NAME ?= ljournal-2008
-# GRAPH_NAME ?= sk-2005
-# GRAPH_NAME ?= uk-2002
-# GRAPH_NAME ?= uk-2005
-# GRAPH_NAME ?= webbase-2001
+# SNAP # https://snap.stanford.edu/data/
+# export GRAPH_NAME ?= SNAP-cit-Patents
+# export GRAPH_NAME ?= SNAP-com-Orkut
+# export GRAPH_NAME ?= SNAP-soc-LiveJournal1
+# export GRAPH_NAME ?= SNAP-soc-Pokec
+# export GRAPH_NAME ?= SNAP-web-Google
+
+# KONECT # http://konect.cc/networks/wikipedia_link_en/
+# export GRAPH_NAME ?= KONECT-wikipedia_link_en
+
+# LAW # https://sparse.tamu.edu/MM/LAW/
+# export GRAPH_NAME ?= LAW-amazon-2008
+# export GRAPH_NAME ?= LAW-arabic-2005
+# export GRAPH_NAME ?= LAW-cnr-2000
+# export GRAPH_NAME ?= LAW-dblp-2010
+# export GRAPH_NAME ?= LAW-enron
+# export GRAPH_NAME ?= LAW-eu-2005
+# export GRAPH_NAME ?= LAW-hollywood-2009
+# export GRAPH_NAME ?= LAW-in-2004
+# export GRAPH_NAME ?= LAW-indochina-2004
+# export GRAPH_NAME ?= LAW-it-2004
+# export GRAPH_NAME ?= LAW-ljournal-2008
+# export GRAPH_NAME ?= LAW-uk-2002
+# export GRAPH_NAME ?= LAW-uk-2005
+# export GRAPH_NAME ?= LAW-webbase-2001
+
+# export FILE_BIN_TYPE ?= graph
+export FILE_BIN_TYPE ?= graph.bin
+# export FILE_BIN_TYPE ?= graph.wbin
+
+# export FILE_LABEL_TYPE ?= graph_Gorder.labels
+export FILE_LABEL_TYPE ?= graph_Rabbit.labels
+
+#GRAPH file
+export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_SUIT)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
+export FILE_LABEL = $(BENCHMARKS_DIR)/$(GRAPH_SUIT)/$(GRAPH_NAME)/$(FILE_LABEL_TYPE)
 
 LAW ?= amazon-2008 arabic-2005 cnr-2000 dblp-2010 enron eu-2005 hollywood-2009 in-2004 indochina-2004 it-2004 ljournal-2008 sk-2005 uk-2002 uk-2005 webbase-2001
 MIX ?= GAP-kron GAP-road GAP-twitter GAP-urand GAP-web
 CU_CONFIG_MODES ?= 0x00000000 0x00041000 0x00841000 0x10041000 0x10841000
-
-# TEXT formant
-# export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph
-
-#UNWEIGHTED
-# export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/graph.bin
-
-# FILE_BIN_TYPE ?= graph
-# FILE_BIN_TYPE ?= graph.bin
-FILE_BIN_TYPE ?= graph.wbin
-
-#WEIGHTED
-FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
-
-
 
 #GRAPH RUN
 SORT_TYPE 		?= 0
@@ -151,8 +150,9 @@ CONVERT_FORMAT 	?= 1
 BIN_SIZE ?= 512
 INOUT_STATS ?= 2
 
-ARGS ?= -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -l $(REORDER) -b $(DELTA)
-ARGS_CAPI ?= -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) $(ARGS_CAPI)
+export ARGS ?= -k -M $(MASK_MODE) -j $(INOUT_STATS) -g $(BIN_SIZE) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS_PRE) -N $(NUM_THREADS_ALGO) -K $(NUM_THREADS_KER) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -F $(FILE_LABEL) -l $(REORDER_LAYER1) -L $(REORDER_LAYER2) -O $(REORDER_LAYER3) -b $(DELTA) -C $(CACHE_SIZE)
+
+export ARGS_CAPI = -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) $(ARGS)
 
 ##############################################
 # CAPI FPGA  GRAPH AFU PERFORMANCE CONFIG    #
