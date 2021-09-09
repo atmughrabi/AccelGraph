@@ -5,6 +5,12 @@
 00_capi_bench/results
 00_capi_bench/*.report
 
+00_capi_graph/obj
+00_capi_graph/bin
+00_capi_graph/build
+00_capi_graph/results
+00_capi_graph/*.report
+
 03_Reading/
 
 
