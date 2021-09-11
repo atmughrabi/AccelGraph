@@ -396,6 +396,101 @@ benchmarking suite for various graph processing algorithms using pure C.
                              [10]-(random)-degree,  
                              [11]-LoadFromFile (used for Rabbit order).
 
+ -O, --light-reorder-l3=[DEFAULT:[0]-no-reordering]
+
+                             Relabels the graph for better cache performance
+                             (third layer). 
+                             [0]-no-reordering, 
+                             [1]-out-degree,
+                             [2]-in-degree, 
+                             [3]-(in+out)-degree, 
+                             [4]-DBG-out,
+                             [5]-DBG-in, 
+                             [6]-HUBSort-out, 
+                             [7]-HUBSort-in,
+                             [8]-HUBCluster-out, 
+                             [9]-HUBCluster-in,
+                             [10]-(random)-degree,  
+                             [11]-LoadFromFile (used for Rabbit order).
+
+  -M, --mask-mode=[DEFAULT:[0:disabled]]
+
+                             Encodes [0:disabled] the last two bits of
+                             [1:out-degree]-Edgelist-labels
+                             [2:in-degree]-Edgelist-labels or
+                             [3:out-degree]-vertex-property-data
+                             [4:in-degree]-vertex-property-data with hot/cold
+                             hints [11:HOT]|[10:WARM]|[01:LUKEWARM]|[00:COLD]
+                             to specialize caching. The algorithm needs to
+                             support value unmask to work.
+
+  -n, --pre-num-threads=[DEFAULT:MAX]
+
+                             Number of threads for preprocessing (graph
+                             structure) step 
+
+  -N, --algo-num-threads=[DEFAULT:MAX]
+
+                             Number of threads for graph processing (graph
+                             algorithm)
+
+  -o, --sort=[DEFAULT:[0]-radix-src]
+
+                             [0]-radix-src, 
+                             [1]-radix-src-dest, 
+                             [2]-count-src,
+                             [3]-count-src-dst.
+
+
+
+  -p, --direction=[DEFAULT:[0]-PULL]
+
+                             [0]-PULL, 
+                             [1]-PUSH,
+                             [2]-HYBRID. 
+
+                             NOTE: Please consult the function switch table for each
+                             algorithm.
+
+  -r, --root=[DEFAULT:0]     
+                             BFS, DFS, SSSP root
+
+  -s, --symmetrize           
+                             Symmetric graph, create a set of incoming edges.
+
+  -S, --stats                
+                             Write algorithm stats to file. same directory as
+                             the graph.PageRank: Dumps top-k ranks matching
+                             using QPR similarity metrics.
+
+  -t, --num-trials=[DEFAULT:[1 Trial]]
+
+                             Number of trials for whole run (graph algorithm
+                             run) [default:1].
+
+  -w, --generate-weights     
+                             Load or Generate weights. Check ->graphConfig.h
+                             #define WEIGHTED 1 beforehand then recompile using
+                             this option.
+
+  -x, --serialize            
+                             Enable file conversion/serialization use with
+                             --convert-format.
+
+  -z, --graph-file-format=[DEFAULT:[1]-binary-edgeList]
+
+                             Specify file format to be read, is it textual edge
+                             list, or a binary file edge list. This is
+                             specifically useful if you have Graph CSR/Grid
+                             structure already saved in a binary file format to
+                             skip the preprocessing step. 
+                             [0]-text edgeList,
+                             [1]-binary edgeList, 
+                             [2]-graphCSR binary.
+
+  -?, --help                 Give this help list
+      --usage                Give a short usage message
+  -V, --version              Print program version
 ```
 # Organization
 
