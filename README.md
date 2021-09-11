@@ -68,7 +68,7 @@ export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
 2. AFU Communication with PSL
   * please check [(OpenGraph)](https://github.com/atmughrabi/OpenGraph).
   * please check [(CAPIPrecis)](https://github.com/atmughrabi/CAPIPrecis).
-  * please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf).
+  * please check [(CAPI User's Manual)](./02_slides/2015_CAPI.pdf).
 
 ## Setting up the source code
 
@@ -151,7 +151,7 @@ AccelGraph@CAPI:~AccelGraph/00_graph_bench$ make run-capi-sim
 ```console
 AccelGraph@CAPI:~AccelGraph/00_graph_bench$ make run-capi-sim-verbose
 ```
-6. Example output: please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf), for each response explanation. The stats are labeled `RESPONSE_COMMANADTYPE_count`.
+6. Example output: please check [(CAPI User's Manual)](./02_slides/2015_CAPI.pdf), for each response explanation. The stats are labeled `RESPONSE_COMMANADTYPE_count`.
 ```
 *-----------------------------------------------------*
 |                 AFU Stats                          |
