@@ -201,7 +201,76 @@ AccelGraph@CAPI:~AccelGraph$ make run-capi-gui
 ```
 2. Synthesize using Quartus GUI
 
+##### Another way (using terminal)
+1. From the root directory go to CAPI integration directory -> AccelGraph synthesis folder
+```console
+AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_synth/
+```
+2. invoke synthesis from terminal
+```console
+AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_synth$ make
+```
+
+##### Another way (using Quartus GUI)
+1. From the root directory go to CAPI integration directory -> AccelGraph synthesis folder
+```console
+AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_synth/
+```
+2. invoke synthesis from terminal
+```console
+AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_synth$ make gui
+```
+
+#### Flashing image
+
+1. From the root directory go to CAPI integration directory -> AccelGraph binary images:
+```console
+AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_bin/
+```
+2. Flash the image to the corresponding `#define DEVICE` you can modify it according to your Power8 system from `00_bench/include/capi_utils/capienv.h`
+```console
+AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_bin$ sudo capi-flash-script accel-graph_GITCOMMIT#_DATETIME.rbf
+```
+
+#### Running
+
+1. (Optional) From the root directory go to benchmark directory:
+```console
+AccelGraph@CAPI:~AccelGraph$ cd 00_bench/
+```
+
+##### Silent run with no stats output
+
+2. Runs algorithm that communicates with the or PSL (real HW):
+```console
+AccelGraph@CAPI:~AccelGraph/00_bench$ make run-capi-fpga
+```
+
+##### Verbose run with stats output
+
+This run outputs different AFU-Control stats based on the responses received from the PSL
+
+2. Runs algorithm that communicates with the or PSL (real HW):
+```console
+AccelGraph@CAPI:~AccelGraph/00_bench$ make run-capi-fpga-verbose
+```
+
 # AccelGraph Options
+
+```
+-m, --afu-config=[DEFAULT:0x1]
+                                                          
+                             CAPI FPGA integration: AFU-Control
+                             buffers(read/write/prefetcher) arbitration 0x01
+                             round robin 0x10 fixed priority.
+
+-q, --cu-config=[DEFAULT:0x01]
+                                                          
+                             CAPI FPGA integration: CU configurations for
+                             requests cached/non cached/prefetcher active or
+                             not check README for more explanation.
+```
+# OpenGraph Options
 ```
 Usage: open-graph-openmp [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
@@ -327,78 +396,7 @@ benchmarking suite for various graph processing algorithms using pure C.
                              [10]-(random)-degree,  
                              [11]-LoadFromFile (used for Rabbit order).
 
-
-##### Another way (using terminal)
-1. From the root directory go to CAPI integration directory -> AccelGraph synthesis folder
-```console
-AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_synth/
 ```
-2. invoke synthesis from terminal
-```console
-AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_synth$ make
-```
-
-##### Another way (using Quartus GUI)
-1. From the root directory go to CAPI integration directory -> AccelGraph synthesis folder
-```console
-AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_synth/
-```
-2. invoke synthesis from terminal
-```console
-AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_synth$ make gui
-```
-
-#### Flashing image
-
-1. From the root directory go to CAPI integration directory -> AccelGraph binary images:
-```console
-AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_bin/
-```
-2. Flash the image to the corresponding `#define DEVICE` you can modify it according to your Power8 system from `00_bench/include/capi_utils/capienv.h`
-```console
-AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_bin$ sudo capi-flash-script accel-graph_GITCOMMIT#_DATETIME.rbf
-```
-
-#### Running
-
-1. (Optional) From the root directory go to benchmark directory:
-```console
-AccelGraph@CAPI:~AccelGraph$ cd 00_bench/
-```
-
-##### Silent run with no stats output
-
-2. Runs algorithm that communicates with the or PSL (real HW):
-```console
-AccelGraph@CAPI:~AccelGraph/00_bench$ make run-capi-fpga
-```
-
-##### Verbose run with stats output
-
-This run outputs different AFU-Control stats based on the responses received from the PSL
-
-2. Runs algorithm that communicates with the or PSL (real HW):
-```console
-AccelGraph@CAPI:~AccelGraph/00_bench$ make run-capi-fpga-verbose
-```
-
-# AccelGraph Options
-
-```
--m, --afu-config=[DEFAULT:0x1]
-                                                          
-                             CAPI FPGA integration: AFU-Control
-                             buffers(read/write/prefetcher) arbitration 0x01
-                             round robin 0x10 fixed priority.
-
--q, --cu-config=[DEFAULT:0x01]
-                                                          
-                             CAPI FPGA integration: CU configurations for
-                             requests cached/non cached/prefetcher active or
-                             not check README for more explanation.
-```
-
-
 # Organization
 
 * `00_graph_bench`
