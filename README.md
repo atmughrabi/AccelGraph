@@ -201,6 +201,8 @@ AccelGraph@CAPI:~AccelGraph$ make run-capi-gui
 ```
 2. Synthesize using Quartus GUI
 
+# AccelGraph Options
+```
 Usage: open-graph-openmp [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
