@@ -68,7 +68,7 @@ export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
 2. AFU Communication with PSL
   * please check [(OpenGraph)](https://github.com/atmughrabi/OpenGraph).
   * please check [(CAPIPrecis)](https://github.com/atmughrabi/CAPIPrecis).
-  * please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf).
+  * please check [(CAPI User's Manual)](./02_slides/2015_CAPI.pdf).
 
 ## Setting up the source code
 
@@ -151,7 +151,7 @@ AccelGraph@CAPI:~AccelGraph/00_graph_bench$ make run-capi-sim
 ```console
 AccelGraph@CAPI:~AccelGraph/00_graph_bench$ make run-capi-sim-verbose
 ```
-6. Example output: please check [(CAPI User's Manual)](http://www.nallatech.com/wp-content/uploads/IBM_CAPI_Users_Guide_1-2.pdf), for each response explanation. The stats are labeled `RESPONSE_COMMANADTYPE_count`.
+6. Example output: please check [(CAPI User's Manual)](./02_slides/2015_CAPI.pdf), for each response explanation. The stats are labeled `RESPONSE_COMMANADTYPE_count`.
 ```
 *-----------------------------------------------------*
 |                 AFU Stats                          |
@@ -201,6 +201,77 @@ AccelGraph@CAPI:~AccelGraph$ make run-capi-gui
 ```
 2. Synthesize using Quartus GUI
 
+##### Another way (using terminal)
+1. From the root directory go to CAPI integration directory -> AccelGraph synthesis folder
+```console
+AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_synth/
+```
+2. invoke synthesis from terminal
+```console
+AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_synth$ make
+```
+
+##### Another way (using Quartus GUI)
+1. From the root directory go to CAPI integration directory -> AccelGraph synthesis folder
+```console
+AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_synth/
+```
+2. invoke synthesis from terminal
+```console
+AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_synth$ make gui
+```
+
+#### Flashing image
+
+1. From the root directory go to CAPI integration directory -> AccelGraph binary images:
+```console
+AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_bin/
+```
+2. Flash the image to the corresponding `#define DEVICE` you can modify it according to your Power8 system from `00_bench/include/capi_utils/capienv.h`
+```console
+AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_bin$ sudo capi-flash-script accel-graph_GITCOMMIT#_DATETIME.rbf
+```
+
+#### Running
+
+1. (Optional) From the root directory go to benchmark directory:
+```console
+AccelGraph@CAPI:~AccelGraph$ cd 00_bench/
+```
+
+##### Silent run with no stats output
+
+2. Runs algorithm that communicates with the or PSL (real HW):
+```console
+AccelGraph@CAPI:~AccelGraph/00_bench$ make run-capi-fpga
+```
+
+##### Verbose run with stats output
+
+This run outputs different AFU-Control stats based on the responses received from the PSL
+
+2. Runs algorithm that communicates with the or PSL (real HW):
+```console
+AccelGraph@CAPI:~AccelGraph/00_bench$ make run-capi-fpga-verbose
+```
+
+# AccelGraph Options
+
+```
+-m, --afu-config=[DEFAULT:0x1]
+                                                          
+                             CAPI FPGA integration: AFU-Control
+                             buffers(read/write/prefetcher) arbitration 0x01
+                             round robin 0x10 fixed priority.
+
+-q, --cu-config=[DEFAULT:0x01]
+                                                          
+                             CAPI FPGA integration: CU configurations for
+                             requests cached/non cached/prefetcher active or
+                             not check README for more explanation.
+```
+# OpenGraph Options
+```
 Usage: open-graph-openmp [OPTION...]
             -f <graph file> -d [data structure] -a [algorithm] -r [root] -n
             [num threads] [-h -c -s -w]
@@ -325,78 +396,102 @@ benchmarking suite for various graph processing algorithms using pure C.
                              [10]-(random)-degree,  
                              [11]-LoadFromFile (used for Rabbit order).
 
+ -O, --light-reorder-l3=[DEFAULT:[0]-no-reordering]
 
-##### Another way (using terminal)
-1. From the root directory go to CAPI integration directory -> AccelGraph synthesis folder
-```console
-AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_synth/
+                             Relabels the graph for better cache performance
+                             (third layer). 
+                             [0]-no-reordering, 
+                             [1]-out-degree,
+                             [2]-in-degree, 
+                             [3]-(in+out)-degree, 
+                             [4]-DBG-out,
+                             [5]-DBG-in, 
+                             [6]-HUBSort-out, 
+                             [7]-HUBSort-in,
+                             [8]-HUBCluster-out, 
+                             [9]-HUBCluster-in,
+                             [10]-(random)-degree,  
+                             [11]-LoadFromFile (used for Rabbit order).
+
+  -M, --mask-mode=[DEFAULT:[0:disabled]]
+
+                             Encodes [0:disabled] the last two bits of
+                             [1:out-degree]-Edgelist-labels
+                             [2:in-degree]-Edgelist-labels or
+                             [3:out-degree]-vertex-property-data
+                             [4:in-degree]-vertex-property-data with hot/cold
+                             hints [11:HOT]|[10:WARM]|[01:LUKEWARM]|[00:COLD]
+                             to specialize caching. The algorithm needs to
+                             support value unmask to work.
+
+  -n, --pre-num-threads=[DEFAULT:MAX]
+
+                             Number of threads for preprocessing (graph
+                             structure) step 
+
+  -N, --algo-num-threads=[DEFAULT:MAX]
+
+                             Number of threads for graph processing (graph
+                             algorithm)
+
+  -o, --sort=[DEFAULT:[0]-radix-src]
+
+                             [0]-radix-src, 
+                             [1]-radix-src-dest, 
+                             [2]-count-src,
+                             [3]-count-src-dst.
+
+
+
+  -p, --direction=[DEFAULT:[0]-PULL]
+
+                             [0]-PULL, 
+                             [1]-PUSH,
+                             [2]-HYBRID. 
+
+                             NOTE: Please consult the function switch table for each
+                             algorithm.
+
+  -r, --root=[DEFAULT:0]     
+                             BFS, DFS, SSSP root
+
+  -s, --symmetrize           
+                             Symmetric graph, create a set of incoming edges.
+
+  -S, --stats                
+                             Write algorithm stats to file. same directory as
+                             the graph.PageRank: Dumps top-k ranks matching
+                             using QPR similarity metrics.
+
+  -t, --num-trials=[DEFAULT:[1 Trial]]
+
+                             Number of trials for whole run (graph algorithm
+                             run) [default:1].
+
+  -w, --generate-weights     
+                             Load or Generate weights. Check ->graphConfig.h
+                             #define WEIGHTED 1 beforehand then recompile using
+                             this option.
+
+  -x, --serialize            
+                             Enable file conversion/serialization use with
+                             --convert-format.
+
+  -z, --graph-file-format=[DEFAULT:[1]-binary-edgeList]
+
+                             Specify file format to be read, is it textual edge
+                             list, or a binary file edge list. This is
+                             specifically useful if you have Graph CSR/Grid
+                             structure already saved in a binary file format to
+                             skip the preprocessing step. 
+                             [0]-text edgeList,
+                             [1]-binary edgeList, 
+                             [2]-graphCSR binary.
+
+  -?, --help                 Give this help list
+      --usage                Give a short usage message
+  -V, --version              Print program version
 ```
-2. invoke synthesis from terminal
-```console
-AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_synth$ make
-```
-
-##### Another way (using Quartus GUI)
-1. From the root directory go to CAPI integration directory -> AccelGraph synthesis folder
-```console
-AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_synth/
-```
-2. invoke synthesis from terminal
-```console
-AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_synth$ make gui
-```
-
-#### Flashing image
-
-1. From the root directory go to CAPI integration directory -> AccelGraph binary images:
-```console
-AccelGraph@CAPI:~AccelGraph$ cd 01_capi_integration/accelerator_bin/
-```
-2. Flash the image to the corresponding `#define DEVICE` you can modify it according to your Power8 system from `00_bench/include/capi_utils/capienv.h`
-```console
-AccelGraph@CAPI:~AccelGraph/01_capi_integration/accelerator_bin$ sudo capi-flash-script accel-graph_GITCOMMIT#_DATETIME.rbf
-```
-
-#### Running
-
-1. (Optional) From the root directory go to benchmark directory:
-```console
-AccelGraph@CAPI:~AccelGraph$ cd 00_bench/
-```
-
-##### Silent run with no stats output
-
-2. Runs algorithm that communicates with the or PSL (real HW):
-```console
-AccelGraph@CAPI:~AccelGraph/00_bench$ make run-capi-fpga
-```
-
-##### Verbose run with stats output
-
-This run outputs different AFU-Control stats based on the responses received from the PSL
-
-2. Runs algorithm that communicates with the or PSL (real HW):
-```console
-AccelGraph@CAPI:~AccelGraph/00_bench$ make run-capi-fpga-verbose
-```
-
-# AccelGraph Options
-
-```
--m, --afu-config=[DEFAULT:0x1]
-                                                          
-                             CAPI FPGA integration: AFU-Control
-                             buffers(read/write/prefetcher) arbitration 0x01
-                             round robin 0x10 fixed priority.
-
--q, --cu-config=[DEFAULT:0x01]
-                                                          
-                             CAPI FPGA integration: CU configurations for
-                             requests cached/non cached/prefetcher active or
-                             not check README for more explanation.
-```
-
-
 # Organization
 
 * `00_graph_bench`

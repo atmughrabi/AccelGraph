@@ -414,6 +414,8 @@ struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
     wed->edges_array_dest   = graph->sorted_edges_array->edges_array_dest;
 #if WEIGHTED
     wed->edges_array_weight = graph->sorted_edges_array->edges_array_weight;
+#else
+    wed->edges_array_weight = 0;
 #endif
 
 #if DIRECTED
@@ -425,6 +427,8 @@ struct  WEDGraphCSR *mapGraphCSRToWED(struct GraphCSR *graph)
     wed->inverse_edges_array_dest   = graph->inverse_sorted_edges_array->edges_array_dest;
 #if WEIGHTED
     wed->inverse_edges_array_weight = graph->inverse_sorted_edges_array->edges_array_weight;
+#else
+    wed->inverse_edges_array_weight = 0;
 #endif
 #endif
 
@@ -443,9 +447,7 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
     printf("| %-25s | %-24p| \n", "wed",   wed);
     printf("| %-25s | %-24u| \n", "num_edges", wed->num_edges);
     printf("| %-25s | %-24u| \n", "num_vertices", wed->num_vertices);
-#if WEIGHTED
     printf("| %-25s | %-24f| \n", "max_weight", wed->max_weight);
-#endif
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24p| \n", "vertex_in_degree", wed->vertex_in_degree);
     printf("| %-25s | %-24p| \n", "vertex_out_degree", wed->vertex_out_degree);
@@ -453,9 +455,7 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24p| \n", "edges_array_src", wed->edges_array_src);
     printf("| %-25s | %-24p| \n", "edges_array_dest", wed->edges_array_dest);
-#if WEIGHTED
     printf("| %-25s | %-24p| \n", "edges_array_weight", wed->edges_array_weight);
-#endif
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24p| \n", "inverse_vertex_in_degree", wed->inverse_vertex_in_degree);
     printf("| %-25s | %-24p| \n", "inverse_vertex_out_degree", wed->inverse_vertex_out_degree);
@@ -463,9 +463,6 @@ void printWEDGraphCSRPointers(struct  WEDGraphCSR *wed)
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24p| \n", "inverse_edges_array_src", wed->inverse_edges_array_src);
     printf("| %-25s | %-24p| \n", "inverse_edges_array_dest", wed->inverse_edges_array_dest);
-#if WEIGHTED
-    printf("| %-25s| %-24p| \n", "inverse_edges_array_weight", wed->inverse_edges_array_weight);
-#endif
     printf(" -----------------------------------------------------\n");
     printf("| %-25s | %-24u| \n", "auxiliary0", wed->auxiliary0);
     printf("| %-25s | %-24p| \n", "auxiliary1", wed->auxiliary1);
