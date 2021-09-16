@@ -1102,7 +1102,7 @@ struct PageRankStats *pageRankPullGraphCSR(struct Arguments *arguments, struct G
     free(timer_inner);
     free(pageRanksNext);
     free(riDividedOnDiClause);
-    free(wedGraphCSR)
+    free(wedGraphCSR);
 
     stats->error_total = error_total;
     return stats;
@@ -2167,7 +2167,7 @@ struct PageRankStats *pageRankPullQuant32BitGraphCSR(struct Arguments *arguments
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
 
     wedGraphCSR->auxiliary1 = riDividedOnDiClause_quant;
-    wedGraphCSR->auxiliary2 = pageRanksNext_quant;
+    wedGraphCSR->auxiliary2 = pageRanksNext;
 
     // ********************************************************************************************
     // ********************************************************************************************
@@ -2353,7 +2353,7 @@ struct PageRankStats *pageRankPullQuant16BitGraphCSR(struct Arguments *arguments
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
 
     wedGraphCSR->auxiliary1 = riDividedOnDiClause_quant;
-    wedGraphCSR->auxiliary2 = pageRanksNext_quant;
+    wedGraphCSR->auxiliary2 = pageRanksNext;
 
     // ********************************************************************************************
     // ********************************************************************************************
@@ -2538,7 +2538,7 @@ struct PageRankStats *pageRankPullQuant8BitGraphCSR(struct Arguments *arguments,
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
 
     wedGraphCSR->auxiliary1 = riDividedOnDiClause_quant;
-    wedGraphCSR->auxiliary2 = pageRanksNext_quant;
+    wedGraphCSR->auxiliary2 = pageRanksNext;
 
     // ********************************************************************************************
     // ********************************************************************************************
