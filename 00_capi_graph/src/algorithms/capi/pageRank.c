@@ -2144,9 +2144,10 @@ struct PageRankStats *pageRankPullQuant32BitGraphCSR(struct Arguments *arguments
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #endif
 
-    float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
+
     uint32_t *riDividedOnDiClause_quant = (uint32_t *)my_malloc(graph->num_vertices * sizeof(uint32_t));
+    uint64_t *pageRanksNext_quant = (uint64_t *)my_malloc(graph->num_vertices * sizeof(uint64_t));
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "               ---->>> CAPI <<<----");
@@ -2167,7 +2168,7 @@ struct PageRankStats *pageRankPullQuant32BitGraphCSR(struct Arguments *arguments
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
 
     wedGraphCSR->auxiliary1 = riDividedOnDiClause_quant;
-    wedGraphCSR->auxiliary2 = pageRanksNext;
+    wedGraphCSR->auxiliary2 = pageRanksNext_quant;
 
     // ********************************************************************************************
     // ********************************************************************************************
@@ -2187,10 +2188,10 @@ struct PageRankStats *pageRankPullQuant32BitGraphCSR(struct Arguments *arguments
     startAFU(&afu, &afu_status);
     // ********************************************************************************************
 
-    #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext)
+    #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext_quant)
     for(v = 0; v < graph->num_vertices; v++)
     {
-        pageRanksNext[v] = 0;
+        pageRanksNext_quant[v] = 0;
     }
 
 
@@ -2244,13 +2245,13 @@ struct PageRankStats *pageRankPullQuant32BitGraphCSR(struct Arguments *arguments
         // Start(timer_inner);
 
         //uint64_t temp_degree = 0;
-        #pragma omp parallel for private(v) shared(arguments,pageRanksNext,stats) reduction(+ : error_total, activeVertices)
+        #pragma omp parallel for private(v) shared(arguments,pageRanksNext_quant,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
         {
             float prevPageRank =  stats->pageRanks[v];
-            float nextPageRank =  stats->base_pr + stats->damp * pageRanksNext[v];
+            float nextPageRank =  stats->base_pr + stats->damp * (rDivD_params.scale * pageRanksNext_quant[v]);
             stats->pageRanks[v] = nextPageRank;
-            pageRanksNext[v] = 0.0f;
+            pageRanksNext_quant[v] = 0.0f;
             double error = fabs(nextPageRank - prevPageRank);
             error_total += (error / graph->num_vertices);
 
@@ -2292,7 +2293,7 @@ struct PageRankStats *pageRankPullQuant32BitGraphCSR(struct Arguments *arguments
 
     free(timer);
     free(timer_inner);
-    free(pageRanksNext);
+    free(pageRanksNext_quant);
     free(riDividedOnDiClause);
     free(riDividedOnDiClause_quant);
     free(wedGraphCSR);
@@ -2329,9 +2330,10 @@ struct PageRankStats *pageRankPullQuant16BitGraphCSR(struct Arguments *arguments
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #endif
 
-    float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
+
     uint16_t *riDividedOnDiClause_quant = (uint16_t *)my_malloc(graph->num_vertices * sizeof(uint16_t));
+    uint64_t *pageRanksNext_quant = (uint64_t *)my_malloc(graph->num_vertices * sizeof(uint64_t));
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "               ---->>> CAPI <<<----");
@@ -2353,7 +2355,7 @@ struct PageRankStats *pageRankPullQuant16BitGraphCSR(struct Arguments *arguments
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
 
     wedGraphCSR->auxiliary1 = riDividedOnDiClause_quant;
-    wedGraphCSR->auxiliary2 = pageRanksNext;
+    wedGraphCSR->auxiliary2 = pageRanksNext_quant;
 
     // ********************************************************************************************
     // ********************************************************************************************
@@ -2373,10 +2375,10 @@ struct PageRankStats *pageRankPullQuant16BitGraphCSR(struct Arguments *arguments
     startAFU(&afu, &afu_status);
     // ********************************************************************************************
 
-    #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext)
+    #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext_quant)
     for(v = 0; v < graph->num_vertices; v++)
     {
-        pageRanksNext[v] = 0;
+        pageRanksNext_quant[v] = 0;
     }
 
     for(stats->iterations = 0; stats->iterations < arguments->iterations; stats->iterations++)
@@ -2429,13 +2431,13 @@ struct PageRankStats *pageRankPullQuant16BitGraphCSR(struct Arguments *arguments
         // Start(timer_inner);
 
         //uint64_t temp_degree = 0;
-        #pragma omp parallel for private(v) shared(arguments,pageRanksNext,stats) reduction(+ : error_total, activeVertices)
+        #pragma omp parallel for private(v) shared(arguments,pageRanksNext_quant,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
         {
             float prevPageRank =  stats->pageRanks[v];
-            float nextPageRank =  stats->base_pr + stats->damp * pageRanksNext[v];
+            float nextPageRank =  stats->base_pr + stats->damp * (rDivD_params.scale * pageRanksNext_quant[v]);
             stats->pageRanks[v] = nextPageRank;
-            pageRanksNext[v] = 0.0f;
+            pageRanksNext_quant[v] = 0.0f;
             double error = fabs(nextPageRank - prevPageRank);
             error_total += (error / graph->num_vertices);
 
@@ -2477,7 +2479,7 @@ struct PageRankStats *pageRankPullQuant16BitGraphCSR(struct Arguments *arguments
 
     free(timer);
     free(timer_inner);
-    free(pageRanksNext);
+    free(pageRanksNext_quant);
     free(riDividedOnDiClause);
     free(riDividedOnDiClause_quant);
     free(wedGraphCSR);
@@ -2514,9 +2516,10 @@ struct PageRankStats *pageRankPullQuant8BitGraphCSR(struct Arguments *arguments,
     sorted_edges_array = graph->sorted_edges_array->edges_array_dest;
 #endif
 
-    float *pageRanksNext = (float *) my_malloc(graph->num_vertices * sizeof(float));
     float *riDividedOnDiClause = (float *) my_malloc(graph->num_vertices * sizeof(float));
+
     uint8_t *riDividedOnDiClause_quant = (uint8_t *)my_malloc(graph->num_vertices * sizeof(uint8_t));
+    uint64_t *pageRanksNext_quant = (uint64_t *)my_malloc(graph->num_vertices * sizeof(uint64_t));
 
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "               ---->>> CAPI <<<----");
@@ -2538,7 +2541,7 @@ struct PageRankStats *pageRankPullQuant8BitGraphCSR(struct Arguments *arguments,
     wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
 
     wedGraphCSR->auxiliary1 = riDividedOnDiClause_quant;
-    wedGraphCSR->auxiliary2 = pageRanksNext;
+    wedGraphCSR->auxiliary2 = pageRanksNext_quant;
 
     // ********************************************************************************************
     // ********************************************************************************************
@@ -2558,10 +2561,10 @@ struct PageRankStats *pageRankPullQuant8BitGraphCSR(struct Arguments *arguments,
     startAFU(&afu, &afu_status);
     // ********************************************************************************************
 
-    #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext)
+    #pragma omp parallel for default(none) private(v) shared(graph,pageRanksNext_quant)
     for(v = 0; v < graph->num_vertices; v++)
     {
-        pageRanksNext[v] = 0;
+        pageRanksNext_quant[v] = 0;
     }
 
     for(stats->iterations = 0; stats->iterations < arguments->iterations; stats->iterations++)
@@ -2614,13 +2617,13 @@ struct PageRankStats *pageRankPullQuant8BitGraphCSR(struct Arguments *arguments,
         // Start(timer_inner);
 
         //uint64_t temp_degree = 0;
-        #pragma omp parallel for private(v) shared(arguments,pageRanksNext,stats) reduction(+ : error_total, activeVertices)
+        #pragma omp parallel for private(v) shared(arguments,pageRanksNext_quant,stats) reduction(+ : error_total, activeVertices)
         for(v = 0; v < graph->num_vertices; v++)
         {
             float prevPageRank =  stats->pageRanks[v];
-            float nextPageRank =  stats->base_pr + stats->damp * pageRanksNext[v];
+            float nextPageRank =  stats->base_pr + stats->damp * (rDivD_params.scale * pageRanksNext_quant[v]);
             stats->pageRanks[v] = nextPageRank;
-            pageRanksNext[v] = 0.0f;
+            pageRanksNext_quant[v] = 0.0f;
             double error = fabs(nextPageRank - prevPageRank);
             error_total += (error / graph->num_vertices);
 
@@ -2662,7 +2665,7 @@ struct PageRankStats *pageRankPullQuant8BitGraphCSR(struct Arguments *arguments,
 
     free(timer);
     free(timer_inner);
-    free(pageRanksNext);
+    free(pageRanksNext_quant);
     free(riDividedOnDiClause);
     free(riDividedOnDiClause_quant);
     free(wedGraphCSR);

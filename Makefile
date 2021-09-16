@@ -124,7 +124,7 @@ export FILE_LABEL = $(BENCHMARKS_DIR)/$(GRAPH_SUIT)/$(GRAPH_NAME)/$(FILE_LABEL_T
 
 #ALGORITHM
 export ALGORITHMS 		?= 1
-export PULL_PUSH 		?= 0
+export PULL_PUSH 		?= 4
 
 
 #GRAPH DATA_STRUCTURES
@@ -139,7 +139,7 @@ export CACHE_SIZE       ?= 32768 # 32KB
 export ROOT 			?= 46050
 export TOLERANCE 		?= 1e-8
 export DELTA			?= 800
-export NUM_ITERATIONS	?= 10
+export NUM_ITERATIONS	?= 1
 
 #PERFORMANCE
 export NUM_THREADS_PRE  ?= $(shell grep -c ^processor /proc/cpuinfo)
