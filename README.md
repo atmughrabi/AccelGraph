@@ -133,6 +133,10 @@ AccelGraph@CAPI:~AccelGraph/00_graph_bench$ make run-vsim
 ```console
 ModelSim> rc
 ```
+For simulation with floating point IPs (Altera)
+```console
+ModelSim> rcf
+```
 4. On Terminal 2. Run [PSL Simulation Engine](https://github.com/ibm-capi/pslse) (PSLSE) for `simulation` this step is not needed when running on real hardware, this just emulates the PSL that resides on your (CAPI supported) IBM-PowerPC machine  :
 ```console
 AccelGraph@CAPI:~AccelGraph/00_graph_bench$ make run-pslse
