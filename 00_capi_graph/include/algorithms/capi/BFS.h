@@ -12,6 +12,9 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
+#include "capienv.h"
+#include "libcxl.h"
+
 // ********************************************************************************************
 // ***************					Stats DataStructure							 **************
 // ********************************************************************************************
@@ -47,6 +50,7 @@ struct BFSStats *breadthFirstSearchDirectionOptimizedGraphCSR(struct Arguments *
 
 uint32_t topDownStepGraphCSR(struct GraphCSR *graph, struct ArrayQueue *sharedFrontierQueue,  struct ArrayQueue **localFrontierQueues, struct BFSStats *stats);
 uint32_t bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr, struct Bitmap *bitmapNext, struct BFSStats *stats);
+uint32_t bottomUpStepGraphCSRCAPI(struct GraphCSR *graph,  uint8_t *workListCurr, uint8_t *workListNext, struct BFSStats *stats, struct AFUStatus *afu_status, struct cxl_afu_h *afu);
 
 // ********************************************************************************************
 // ***************		CSR DataStructure/Bitmap Frontiers						 **************

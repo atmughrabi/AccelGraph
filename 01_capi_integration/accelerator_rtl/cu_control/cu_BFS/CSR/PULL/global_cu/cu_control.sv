@@ -90,7 +90,7 @@ module cu_control #(
 	ReadWriteDataLine read_data_1_in_graph_algorithm;
 
 	cu_return_type cu_return_latched     ;
-	logic [0:63]   cu_configure_latched  ;
+	logic [0:63]   cu_configure_1_latched;
 	logic [0:63]   cu_configure_2_latched;
 	logic [0:63]   cu_configure_3_latched;
 	logic [0:63]   cu_configure_4_latched;
@@ -206,15 +206,15 @@ module cu_control #(
 			enabled_vertex_job      <= cu_ready;
 			enabled_graph_algorithm <= cu_ready;
 			enabled_cmd             <= cu_ready;
-			// enabled_prefetch_read  <= cu_ready && cu_configure_latched[30];
-			// enabled_prefetch_write <= cu_ready && cu_configure_latched[31];
+			// enabled_prefetch_read  <= cu_ready && cu_configure_1_latched[30];
+			// enabled_prefetch_write <= cu_ready && cu_configure_1_latched[31];
 
 			enabled_prefetch_read  <= 0;
 			enabled_prefetch_write <= 0;
 		end
 	end
 
-	assign cu_ready = (|cu_configure_latched) && (|cu_configure_3_latched) && (|cu_configure_4_latched) && wed_request_in_latched.valid;
+	assign cu_ready = (|cu_configure_1_latched) && (|cu_configure_3_latched) && (|cu_configure_4_latched) && wed_request_in_latched.valid;
 
 ////////////////////////////////////////////////////////////////////////////
 //Done signal
@@ -247,7 +247,7 @@ module cu_control #(
 			if(enabled)begin
 				cu_return                        <= cu_return_latched;
 				cu_done                          <= done_algorithm;
-				cu_status                        <= cu_configure_latched;
+				cu_status                        <= cu_configure_1_latched;
 				vertex_job_counter_done_latched  <= vertex_job_counter_done;
 				edge_job_counter_done_latched    <= edge_job_counter_done;
 				vertex_job_counter_total_latched <= vertex_job_counter_done_latched + vertex_job_counter_filtered;
@@ -338,12 +338,14 @@ module cu_control #(
 
 	always_ff @(posedge clock or negedge rstn_input) begin
 		if(~rstn_input) begin
-			cu_configure_latched   <= 0;
+			cu_configure_1_latched <= 0;
 			cu_configure_2_latched <= 0;
+			cu_configure_3_latched <= 0;
+			cu_configure_4_latched <= 0;
 		end else begin
 			if(enabled)begin
 				if((|cu_configure.var1))
-					cu_configure_latched <= cu_configure.var1;
+					cu_configure_1_latched <= cu_configure.var1;
 
 				if((|cu_configure.var2))
 					cu_configure_2_latched <= cu_configure.var2;
@@ -526,7 +528,7 @@ module cu_control #(
 		.clock                   (clock                            ),
 		.rstn                    (rstn                             ),
 		.enabled_in              (enabled_vertex_job               ),
-		.cu_configure            (cu_configure_latched             ),
+		.cu_configure            (cu_configure_1_latched             ),
 		.wed_request_in          (wed_request_in_latched           ),
 		.read_response_in        (read_response_in_vertex_job      ),
 		.read_data_0_in          (read_data_0_in_vertex_job        ),
@@ -613,7 +615,7 @@ module cu_control #(
 		.rstn_in                        (rstn                             ),
 		.enabled_in                     (enabled_in                       ),
 		.enable_cu_out                  (enable_cu_out                    ),
-		.cu_configure                   (cu_configure_latched             ),
+		.cu_configure                   (cu_configure_1_latched             ),
 		.cu_configure_out               (cu_configure_out                 ),
 		.wed_request_in                 (wed_request_in_latched           ),
 		.cu_wed_request_out             (cu_wed_request_out               ),
@@ -663,7 +665,7 @@ module cu_control #(
 		.edge_data_write_bus_request_in(edge_data_write_bus_request      ),
 		.write_command_bus_grant_in    (write_command_bus_grant          ),
 		.write_command_bus_request_out (write_command_bus_request        ),
-		.cu_configure                  (cu_configure_latched             ),
+		.cu_configure                  (cu_configure_1_latched             ),
 		.wed_request_in                (wed_request_in_latched           ),
 		.edge_data_write               (edge_data_write_out              ),
 		.write_data_0_out              (write_data_0_out_graph_algorithm ),

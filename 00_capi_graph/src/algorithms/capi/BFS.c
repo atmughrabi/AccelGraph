@@ -32,6 +32,9 @@
 #include "graphAdjArrayList.h"
 #include "graphAdjLinkedList.h"
 
+#include "libcxl.h"
+#include "capienv.h"
+
 #include "BFS.h"
 
 
@@ -283,6 +286,10 @@ struct BFSStats *breadthFirstSearchPullGraphCSR(struct Arguments *arguments, str
 
     struct BFSStats *stats = newBFSStatsGraphCSR(graph);
 
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "               ---->>> CAPI <<<----");
+
     if(arguments->source > graph->num_vertices)
     {
         printf(" -----------------------------------------------------\n");
@@ -304,37 +311,71 @@ struct BFSStats *breadthFirstSearchPullGraphCSR(struct Arguments *arguments, str
     struct Timer *timer = (struct Timer *) malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) malloc(sizeof(struct Timer));
 
-    struct ArrayQueue *sharedFrontierQueue = newArrayQueue(graph->num_vertices);
+    uint8_t *workListCurr = NULL;
+    uint8_t *workListNext = NULL;
+    workListCurr  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+    workListNext  = (uint8_t *) my_malloc(graph->num_vertices * sizeof(uint8_t));
+
+    resetWorkList(workListNext, graph->num_vertices);
+    resetWorkList(workListCurr, graph->num_vertices);
+
+    // ********************************************************************************************
+    // ********************************************************************************************
+    // ***************                 Setup CAPI                                    **************
+    // ********************************************************************************************
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
+
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+    wedGraphCSR->auxiliary1 = stats->parents;
+    wedGraphCSR->auxiliary2 = stats->distances;
+
+    // ********************************************************************************************
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config       = arguments->afu_config;
+    afu_status.afu_config_2     = arguments->afu_config_2;
+    afu_status.cu_config        = arguments->cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config        = ((arguments->cu_config << 32) | (arguments->ker_numThreads));
+    afu_status.cu_config_2      = arguments->cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_config_3      = (uint64_t)workListCurr; // non zero CU triggers the AFU to work
+    afu_status.cu_config_4      = (uint64_t)workListNext; // non zero CU triggers the AFU to work
+    afu_status.cu_stop          = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    // ********************************************************************************************
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
 
     uint32_t nf = 0; // number of vertices in sharedFrontierQueue
 
-
     Start(timer_inner);
-    setBit(sharedFrontierQueue->q_bitmap_next, arguments->source);
-    sharedFrontierQueue->q_bitmap_next->numSetBits = 1;
+    workListNext[arguments->source] = 1;
+
+    nf = 1;
     stats->parents[arguments->source] = arguments->source;
 
-    swapBitmaps(&sharedFrontierQueue->q_bitmap, &sharedFrontierQueue->q_bitmap_next);
-    clearBitmap(sharedFrontierQueue->q_bitmap_next);
+    swapWorkLists(&workListCurr, &workListNext);
+    resetWorkList(workListNext, graph->num_vertices);
+
     Stop(timer_inner);
     stats->time_total +=  Seconds(timer_inner);
 
     printf("| BU %-12u | %-15u | %-15f | \n", stats->iteration++, ++stats->processed_nodes, Seconds(timer_inner));
 
     Start(timer);
-
-
-
-    while (sharedFrontierQueue->q_bitmap->numSetBits)
+    while (nf)
     {
-
         Start(timer_inner);
-
-        nf = bottomUpStepGraphCSR(graph, sharedFrontierQueue->q_bitmap, sharedFrontierQueue->q_bitmap_next, stats);
-
-        sharedFrontierQueue->q_bitmap_next->numSetBits = nf;
-        swapBitmaps(&sharedFrontierQueue->q_bitmap, &sharedFrontierQueue->q_bitmap_next);
-        clearBitmap(sharedFrontierQueue->q_bitmap_next);
+        afu_status.cu_config_3 = (uint64_t)workListCurr; // non zero CU triggers the AFU to work
+        afu_status.cu_config_4 = (uint64_t)workListNext; // non zero CU triggers the AFU to work
+        nf = bottomUpStepGraphCSRCAPI(graph, workListCurr, workListNext, stats, &afu_status, afu);
+        swapWorkLists(&workListCurr, &workListNext);
+        resetWorkList(workListNext, graph->num_vertices);
         Stop(timer_inner);
 
         //stats
@@ -354,9 +395,17 @@ struct BFSStats *breadthFirstSearchPullGraphCSR(struct Arguments *arguments, str
     printf(" -----------------------------------------------------\n");
     printf("| %-15s | %-15u | %-15f | \n", "total", stats->processed_nodes, Seconds(timer));
     printf(" -----------------------------------------------------\n");
-    freeArrayQueue(sharedFrontierQueue);
+   
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
+    free(workListCurr);
+    free(workListNext);
     free(timer);
     free(timer_inner);
+    free(wedGraphCSR);
 
     return stats;
 }
@@ -753,6 +802,26 @@ uint32_t bottomUpStepGraphCSR(struct GraphCSR *graph, struct Bitmap *bitmapCurr,
     return nf;
 }
 
+uint32_t bottomUpStepGraphCSRCAPI(struct GraphCSR *graph, uint8_t *workListCurr, uint8_t *workListNext, struct BFSStats *stats, struct AFUStatus *afu_status, struct cxl_afu_h *afu)
+{
+
+
+    uint32_t nf = 0; // number of vertices in sharedFrontierQueue
+
+    // ********************************************************************************************
+    // ***************                 START CU                                      **************
+    startCU(&afu, afu_status);
+    // ********************************************************************************************
+
+    // ********************************************************************************************
+    // ***************                 WAIT AFU                                     **************
+    waitAFU(&afu, afu_status);
+    // ********************************************************************************************
+
+    nf = afu_status->cu_return_done_2;
+
+    return nf;
+}
 
 // ********************************************************************************************
 // ***************      CSR DataStructure/Bitmap Frontiers                       **************

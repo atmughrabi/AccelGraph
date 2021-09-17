@@ -123,8 +123,8 @@ export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_SUIT)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
 export FILE_LABEL = $(BENCHMARKS_DIR)/$(GRAPH_SUIT)/$(GRAPH_NAME)/$(FILE_LABEL_TYPE)
 
 #ALGORITHM
-export ALGORITHMS 		?= 1
-export PULL_PUSH 		?= 13
+export ALGORITHMS 		?= 0
+export PULL_PUSH 		?= 0
 
 
 #GRAPH DATA_STRUCTURES
@@ -136,7 +136,7 @@ export REORDER_LAYER3   ?= 0
 export CACHE_SIZE       ?= 32768 # 32KB
 
 #ALGORITHM SPECIFIC ARGS
-export ROOT 			?= 46050
+export ROOT 			?= 1
 export TOLERANCE 		?= 1e-8
 export DELTA			?= 800
 export NUM_ITERATIONS	?= 1
