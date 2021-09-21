@@ -35,6 +35,9 @@
 #include "graphAdjLinkedList.h"
 #include "reorder.h"
 
+#include "libcxl.h"
+#include "capienv.h"
+
 #include "connectedComponents.h"
 
 
@@ -370,11 +373,45 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( struct Arguments *ar
     struct Timer *timer = (struct Timer *) my_malloc(sizeof(struct Timer));
     struct Timer *timer_inner = (struct Timer *) my_malloc(sizeof(struct Timer));
 
+    //CAPI variables
+    struct cxl_afu_h *afu;
+    struct WEDGraphCSR *wedGraphCSR;
+
+    printf(" -----------------------------------------------------\n");
+    printf("| %-51s | \n", "               ---->>> CAPI <<<----");
     printf(" -----------------------------------------------------\n");
     printf("| %-51s | \n", "Starting Shiloach-Vishkin Connected Components");
     printf(" -----------------------------------------------------\n");
     printf("| %-21s | %-27s | \n", "Iteration", "Time (S)");
     printf(" -----------------------------------------------------\n");
+
+    // ********************************************************************************************
+    // ***************                  MAP CSR DataStructure                        **************
+    // ********************************************************************************************
+
+
+    wedGraphCSR = mapGraphCSRToWED((struct GraphCSR *)graph);
+
+    wedGraphCSR->auxiliary1 = stats->components;
+    wedGraphCSR->auxiliary2 = stats->components;
+
+    // ********************************************************************************************
+    // ********************************************************************************************
+    // ***************                 Setup AFU                                     **************
+    // ********************************************************************************************
+
+    setupAFUGraphCSR(&afu, wedGraphCSR);
+
+    struct AFUStatus afu_status = {0};
+    afu_status.afu_config       = arguments->afu_config;
+    afu_status.afu_config_2     = arguments->afu_config_2;
+    afu_status.cu_config        = arguments->cu_config; // non zero CU triggers the AFU to work
+    afu_status.cu_config        = ((arguments->cu_config << 32) | (arguments->ker_numThreads));
+    afu_status.cu_config_2      = arguments->cu_config_2; // non zero CU triggers the AFU to work
+    afu_status.cu_stop          = wedGraphCSR->num_vertices; // stop condition once all vertices processed
+
+    startAFU(&afu, &afu_status);
+    // ********************************************************************************************
 
     Start(timer);
     stats->iterations = 0;
@@ -387,35 +424,18 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( struct Arguments *ar
         change = 0;
         stats->iterations++;
 
-        #pragma omp parallel for private(v,degree,edge_idx) schedule(dynamic, 512)
-        for(v = 0; v < graph->num_vertices; v++)
-        {
-            uint32_t j;
-            uint32_t src = v;
-            uint32_t dest;
 
-            degree = graph->vertices->out_degree[src];
-            edge_idx = graph->vertices->edges_idx[src];
+        // ********************************************************************************************
+        // ***************                 START CU                                      **************
+        startCU(&afu, &afu_status);
+        // ********************************************************************************************
 
-            for(j = edge_idx ; j < (edge_idx + degree) ; j++)
-            {
-                dest = EXTRACT_VALUE(graph->sorted_edges_array->edges_array_dest[j]);
-                uint32_t comp_src = stats->components[src];
-                uint32_t comp_dest = stats->components[dest];
-                if(comp_src == comp_dest)
-                    continue;
+        // ********************************************************************************************
+        // ***************                 WAIT AFU                                     **************
+        waitAFU(&afu, &afu_status);
+        // ********************************************************************************************
 
-                uint32_t comp_high = comp_src > comp_dest ? comp_src : comp_dest;
-                uint32_t comp_low = comp_src + (comp_dest - comp_high);
-
-                if(comp_high == stats->components[comp_high])
-                {
-                    change = 1;
-                    stats->components[comp_high] = comp_low;
-                }
-            }
-        }
-
+        change = afu_status.cu_return_done_2;
 
         compressNodes( stats->num_vertices, stats->components);
 
@@ -432,9 +452,14 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( struct Arguments *ar
     printf("| %-15u | %-15u | %-15f | \n", stats->iterations, componentsCount, stats->time_total);
     printf(" -----------------------------------------------------\n");
 
+    // ********************************************************************************************
+    // ***************                 Releasing AFU                                 **************
+    releaseAFU(&afu);
+    // ********************************************************************************************
+
     free(timer);
     free(timer_inner);
-
+    free(wedGraphCSR);
     printCCStats(stats);
 
     JSLFA(Bytes, JArray);
