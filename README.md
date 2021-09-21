@@ -47,17 +47,17 @@ export PATH=$PATH:${ALTERAPATH}/nios2eds/bin
 export PATH=$PATH:${ALTERAPATH}/modelsim_ase/bin
 
 #AccelGraph project folder
-export CAPI_PROJECT=00_AccelGraph
+export PSLSE_ROOT="AccelGraph/01_capi_precis"
 
 #CAPI framework env variables
-export PSLSE_INSTALL_DIR="${HOME}/Documents/github_repos/${CAPI_PROJECT}/01_capi_integration/pslse"
+export PSLSE_INSTALL_DIR="${HOME}/Documents/github_repos/${PSLSE_ROOT}/01_capi_integration/pslse"
 export VPI_USER_H_DIR="${ALTERAPATH}/modelsim_ase/include"
 export PSLVER=8
 export BIT32=n
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PSLSE_INSTALL_DIR/libcxl:$PSLSE_INSTALL_DIR/afu_driver/src"
 
 #PSLSE env variables
-export PSLSE_SERVER_DIR="${HOME}/Documents/github_repos/${CAPI_PROJECT}/03_capi_integration/accelerator_sim/server"
+export PSLSE_SERVER_DIR="${HOME}/Documents/github_repos/${PSLSE_ROOT}/01_capi_integration/accelerator_sim/server"
 export PSLSE_SERVER_DAT="${PSLSE_SERVER_DIR}/pslse_server.dat"
 export SHIM_HOST_DAT="${PSLSE_SERVER_DIR}/shim_host.dat"
 export PSLSE_PARMS="${PSLSE_SERVER_DIR}/pslse.parms"
