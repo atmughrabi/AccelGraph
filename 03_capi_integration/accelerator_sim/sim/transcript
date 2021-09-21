@@ -1,0 +1,1239 @@
+# set graph_algorithm cu_TriangleCount 
+# cu_TriangleCount
+# set data_structure CSR 
+# CSR
+# set direction BinaryIntersection 
+# BinaryIntersection
+# set cu_precision Binary 
+# Binary
+# set cu_count 8 
+# 8
+# 
+# source vsim.tcl
+rc
+# Compiling libs
+# Compiling Packages AFU-1
+# Compiling CU Packages
+# Algorithm cu_TriangleCount
+# Datastructure CSR
+# Direction BinaryIntersection
+# Precision Binary
+# CU Count  8
+# Compiling Packages AFU-2
+# Compiling RTL General
+# Compiling RTL AFU Control
+# Compiling RTL JOB
+# Compiling RTL MMIO
+# Compiling RTL WED_control
+# Compiling RTL CU control 
+# Algorithm cu_TriangleCount
+# Datastructure CSR
+# Direction BinaryIntersection
+# Precision Binary
+# Compiling RTL AFU
+# Compiling top level
+# vsim -t ns -novopt -voptargs="+acc=npr" -c -sv_lib ../../../01_capi_precis/01_capi_integration/pslse/afu_driver/src/libdpi "+nowarnTSCALE" work.top 
+# Start time: 00:16:31 on Sep 21,2021
+# Loading sv_std.std
+# Loading work.top
+# Loading work.afu
+# Loading work.GLOBALS_AFU_PKG
+# Loading work.GLOBALS_CU_PKG
+# Loading work.CU_PKG
+# Loading work.CAPI_PKG
+# Loading work.AFU_PKG
+# Loading work.WED_PKG
+# Loading work.cached_afu_sv_unit
+# Loading work.cached_afu
+# Loading work.done_control_sv_unit
+# Loading work.done_control
+# Loading work.error_control_sv_unit
+# Loading work.error_control
+# Loading work.wed_control_sv_unit
+# Loading work.wed_control
+# Loading work.CREDIT_PKG
+# Loading work.afu_control_sv_unit
+# Loading work.afu_control
+# Loading work.response_statistics_control_sv_unit
+# Loading work.response_statistics_control
+# Loading work.round_robin_priority_arbiter_sv_unit
+# Loading work.round_robin_priority_arbiter_N_input_1_ouput
+# Loading work.fixed_priority_arbiter_sv_unit
+# Loading work.fixed_priority_arbiter_N_input_1_ouput
+# Loading work.command_control_sv_unit
+# Loading work.command_control
+# Loading work.parity
+# Loading work.restart_control_sv_unit
+# Loading work.restart_control
+# Loading work.ram
+# Loading work.fifo
+# Loading work.credit_control_sv_unit
+# Loading work.credit_control
+# Loading work.response_control_sv_unit
+# Loading work.response_control
+# Loading work.read_data_control_sv_unit
+# Loading work.read_data_control
+# Loading work.dw_parity
+# Loading work.write_data_control_sv_unit
+# Loading work.write_data_control
+# Loading work.tag_control_sv_unit
+# Loading work.tag_control
+# Loading work.ram_2xrd
+# Loading work.cu_control_sv_unit
+# Loading work.cu_control
+# Loading work.cu_vertex_job_control_sv_unit
+# Loading work.cu_vertex_job_control
+# Loading work.cu_vertex_job_filter_sv_unit
+# Loading work.cu_vertex_job_filter
+# Loading work.cu_vertex_cluster_arbiter_control_sv_unit
+# Loading work.cu_vertex_cluster_arbiter_control
+# Loading work.demux_bus
+# Loading work.round_robin_priority_arbiter_1_input_N_ouput
+# Loading work.sum_reduce
+# Loading work.cu_edge_data_write_command_control_sv_unit
+# Loading work.cu_edge_data_write_command_control
+# Loading work.reset_control
+# Loading work.reset_filter
+# Loading work.mmio_sv_unit
+# Loading work.mmio
+# Loading work.job_sv_unit
+# Loading work.job
+# Loading work.vc_RoundRobinArb
+# Loading work.vc_VariableArbChain
+# Loading work.vc_FixedArb
+# Loading work.vc_FixedArbChain
+# Loading work.cu_vertex_cluster_control_sv_unit
+# Loading work.cu_vertex_cluster_control
+# Loading work.cu_vertex_triangleCount_arbiter_control_sv_unit
+# Loading work.cu_vertex_triangleCount_arbiter_control
+# Loading work.cu_edge_data_read_extract_control_sv_unit
+# Loading work.cu_edge_data_read_extract_control
+# Loading work.array_struct_type_demux_bus_sv_unit
+# Loading work.array_struct_type_demux_bus
+# Loading work.cu_vertex_triangleCount_sv_unit
+# Loading work.cu_vertex_triangleCount
+# Loading work.cu_edge_job_control_sv_unit
+# Loading work.cu_edge_job_control
+# Loading ./../../../01_capi_precis/01_capi_integration/pslse/afu_driver/src/libdpi.so
+# ** Warning: (vsim-3116) Problem reading symbols from linux-gate.so.1 : can not open ELF file.
+# ** Warning: (vsim-3116) Problem reading symbols from /lib/i386-linux-gnu/libpthread.so.0 : module was loaded at an absolute address.
+# ** Warning: (vsim-3116) Problem reading symbols from /lib/i386-linux-gnu/librt.so.1 : module was loaded at an absolute address.
+# ** Warning: (vsim-3116) Problem reading symbols from /lib/i386-linux-gnu/libdl.so.2 : module was loaded at an absolute address.
+# ** Warning: (vsim-3116) Problem reading symbols from /lib/i386-linux-gnu/libm.so.6 : module was loaded at an absolute address.
+# ** Warning: (vsim-3116) Problem reading symbols from /lib/i386-linux-gnu/libc.so.6 : module was loaded at an absolute address.
+# ** Warning: (vsim-3116) Problem reading symbols from /lib/ld-linux.so.2 : module was loaded at an absolute address.
+# ** Warning: (vsim-3116) Problem reading symbols from /lib/i386-linux-gnu/libnss_files.so.2 : module was loaded at an absolute address.
+# ** Warning: (vsim-3116) Problem reading symbols from ./../../../01_capi_precis/01_capi_integration/pslse/afu_driver/src/libdpi.so : module was loaded at an absolute address.
+# AFU Server is waiting for connection on ab-XPS:32768
+# PSL client connection from localhost
+# Using PSL protocol level : 0.9908.1
+# 00000000: ah_brlat_top has either X or Z value =0x0000000f
+# 00000004: ah_brlat_top has either X or Z value =0x0000000f
+# 00001550: Command Valid: ccom=0xa00
+# 00001566: Buffer Write tag=0x00
+# 00001578: Response tag=0x00 code=0x00 credits=1
+# 00001834: Command Valid: ccom=0xe00
+# 00001838: Command Valid: ccom=0xe00
+# 00001846: Buffer Write tag=0x01
+# 00001850: Buffer Write tag=0x02
+# 00001858: Buffer Write tag=0x02
+# 00001866: Buffer Write tag=0x01
+# 00001874: Response tag=0x02 code=0x00 credits=1
+# 00001890: Response tag=0x01 code=0x00 credits=1
+# 00002434: Command Valid: ccom=0xe00
+# 00002438: Command Valid: ccom=0xe00
+# 00002442: Command Valid: ccom=0xe00
+# 00002446: Command Valid: ccom=0xe00
+# 00002450: Command Valid: ccom=0xe00
+# 00002454: Buffer Write tag=0x05
+# 00002454: Command Valid: ccom=0xe00
+# 00002458: Command Valid: ccom=0xe00
+# 00002462: Response tag=0x03 code=0x01 credits=1
+# 00002462: Command Valid: ccom=0xe00
+# 00002466: Response tag=0x07 code=0x06 credits=1
+# 00002466: Command Valid: ccom=0xe00
+# 00002470: Response tag=0x05 code=0x06 credits=1
+# 00002470: Command Valid: ccom=0xe00
+# 00002474: Response tag=0x08 code=0x06 credits=1
+# 00002474: Command Valid: ccom=0xe00
+# 00002478: Response tag=0x0a code=0x06 credits=1
+# 00002478: Command Valid: ccom=0xe00
+# 00002482: Response tag=0x09 code=0x06 credits=1
+# 00002482: Command Valid: ccom=0xe00
+# 00002486: Response tag=0x0c code=0x06 credits=1
+# 00002486: Command Valid: ccom=0xe00
+# 00002490: Response tag=0x0b code=0x06 credits=1
+# 00002490: Command Valid: ccom=0xe00
+# 00002494: Response tag=0x0d code=0x06 credits=1
+# 00002494: Command Valid: ccom=0xe00
+# 00002498: Response tag=0x0f code=0x06 credits=1
+# 00002498: Command Valid: ccom=0xe00
+# 00002502: Response tag=0x10 code=0x06 credits=1
+# 00002502: Command Valid: ccom=0xe00
+# 00002506: Response tag=0x0e code=0x06 credits=1
+# 00002506: Command Valid: ccom=0xe00
+# 00002510: Response tag=0x12 code=0x06 credits=1
+# 00002510: Command Valid: ccom=0xe00
+# 00002514: Response tag=0x06 code=0x06 credits=1
+# 00002514: Command Valid: ccom=0xe00
+# 00002518: Response tag=0x11 code=0x06 credits=1
+# 00002518: Command Valid: ccom=0xe00
+# 00002522: Response tag=0x13 code=0x06 credits=1
+# 00002522: Command Valid: ccom=0xe00
+# 00002526: Response tag=0x16 code=0x06 credits=1
+# 00002530: Response tag=0x17 code=0x06 credits=1
+# 00002534: Response tag=0x18 code=0x06 credits=1
+# 00002538: Response tag=0x19 code=0x06 credits=1
+# 00002542: Response tag=0x14 code=0x06 credits=1
+# 00002546: Response tag=0x15 code=0x06 credits=1
+# 00002546: Command Valid: ccom=0x1
+# 00002554: Response tag=0x04 code=0x01 credits=1
+# 00002570: Response tag=0x1a code=0x00 credits=1
+# 00002638: Command Valid: ccom=0x1
+# 00002654: Response tag=0x1b code=0x00 credits=1
+# 00002802: Command Valid: ccom=0xe00
+# 00002806: Command Valid: ccom=0xe00
+# 00002810: Command Valid: ccom=0xe00
+# 00002814: Command Valid: ccom=0xe00
+# 00002818: Command Valid: ccom=0xe00
+# 00002822: Command Valid: ccom=0xe00
+# 00002826: Response tag=0x03 code=0x01 credits=1
+# 00002826: Command Valid: ccom=0xe00
+# 00002830: Response tag=0x08 code=0x06 credits=1
+# 00002830: Command Valid: ccom=0xe00
+# 00002834: Response tag=0x07 code=0x06 credits=1
+# 00002834: Command Valid: ccom=0xe00
+# 00002838: Response tag=0x0a code=0x06 credits=1
+# 00002838: Command Valid: ccom=0xe00
+# 00002842: Response tag=0x0c code=0x06 credits=1
+# 00002842: Command Valid: ccom=0xe00
+# 00002846: Response tag=0x0b code=0x06 credits=1
+# 00002846: Command Valid: ccom=0xe00
+# 00002850: Response tag=0x0d code=0x06 credits=1
+# 00002850: Command Valid: ccom=0xe00
+# 00002854: Response tag=0x05 code=0x06 credits=1
+# 00002854: Command Valid: ccom=0xe00
+# 00002858: Response tag=0x10 code=0x06 credits=1
+# 00002858: Command Valid: ccom=0xe00
+# 00002862: Response tag=0x0e code=0x06 credits=1
+# 00002862: Command Valid: ccom=0xe00
+# 00002866: Response tag=0x12 code=0x06 credits=1
+# 00002866: Command Valid: ccom=0xe00
+# 00002870: Response tag=0x09 code=0x06 credits=1
+# 00002870: Command Valid: ccom=0xe00
+# 00002874: Response tag=0x11 code=0x06 credits=1
+# 00002874: Command Valid: ccom=0xe00
+# 00002878: Response tag=0x0f code=0x06 credits=1
+# 00002878: Command Valid: ccom=0xe00
+# 00002882: Response tag=0x16 code=0x06 credits=1
+# 00002882: Command Valid: ccom=0xe00
+# 00002886: Response tag=0x13 code=0x06 credits=1
+# 00002886: Command Valid: ccom=0xe00
+# 00002890: Response tag=0x18 code=0x06 credits=1
+# 00002890: Command Valid: ccom=0xe00
+# 00002894: Response tag=0x17 code=0x06 credits=1
+# 00002898: Response tag=0x06 code=0x06 credits=1
+# 00002902: Response tag=0x14 code=0x06 credits=1
+# 00002906: Response tag=0x19 code=0x06 credits=1
+# 00002910: Response tag=0x15 code=0x06 credits=1
+# 00002910: Command Valid: ccom=0x1
+# 00002914: Response tag=0x04 code=0x06 credits=1
+# 00002926: Response tag=0x1c code=0x00 credits=1
+# 00003074: Command Valid: ccom=0xe00
+# 00003078: Command Valid: ccom=0xe00
+# 00003082: Command Valid: ccom=0xe00
+# 00003086: Command Valid: ccom=0xe00
+# 00003090: Command Valid: ccom=0xe00
+# 00003094: Response tag=0x03 code=0x01 credits=1
+# 00003094: Command Valid: ccom=0xe00
+# 00003098: Response tag=0x07 code=0x06 credits=1
+# 00003098: Command Valid: ccom=0xe00
+# 00003102: Response tag=0x08 code=0x06 credits=1
+# 00003102: Command Valid: ccom=0xe00
+# 00003106: Response tag=0x0a code=0x06 credits=1
+# 00003106: Command Valid: ccom=0xe00
+# 00003110: Response tag=0x0c code=0x06 credits=1
+# 00003110: Command Valid: ccom=0xe00
+# 00003114: Response tag=0x0b code=0x06 credits=1
+# 00003114: Command Valid: ccom=0xe00
+# 00003118: Response tag=0x0d code=0x06 credits=1
+# 00003118: Command Valid: ccom=0xe00
+# 00003122: Response tag=0x10 code=0x06 credits=1
+# 00003122: Command Valid: ccom=0xe00
+# 00003126: Response tag=0x05 code=0x06 credits=1
+# 00003126: Command Valid: ccom=0xe00
+# 00003130: Response tag=0x12 code=0x06 credits=1
+# 00003130: Command Valid: ccom=0xe00
+# 00003134: Response tag=0x0e code=0x06 credits=1
+# 00003134: Command Valid: ccom=0xe00
+# 00003138: Response tag=0x09 code=0x06 credits=1
+# 00003138: Command Valid: ccom=0xe00
+# 00003142: Response tag=0x11 code=0x06 credits=1
+# 00003142: Command Valid: ccom=0xe00
+# 00003146: Response tag=0x16 code=0x06 credits=1
+# 00003146: Command Valid: ccom=0xe00
+# 00003150: Response tag=0x0f code=0x06 credits=1
+# 00003150: Command Valid: ccom=0xe00
+# 00003154: Response tag=0x13 code=0x06 credits=1
+# 00003154: Command Valid: ccom=0xe00
+# 00003158: Response tag=0x17 code=0x06 credits=1
+# 00003158: Command Valid: ccom=0xe00
+# 00003162: Response tag=0x18 code=0x06 credits=1
+# 00003162: Command Valid: ccom=0xe00
+# 00003166: Response tag=0x06 code=0x06 credits=1
+# 00003170: Response tag=0x14 code=0x06 credits=1
+# 00003174: Response tag=0x19 code=0x06 credits=1
+# 00003178: Response tag=0x04 code=0x06 credits=1
+# 00003178: Command Valid: ccom=0x1
+# 00003182: Response tag=0x15 code=0x06 credits=1
+# 00003194: Response tag=0x1d code=0x00 credits=1
+# 00003342: Command Valid: ccom=0xe00
+# 00003346: Command Valid: ccom=0xe00
+# 00003350: Command Valid: ccom=0xe00
+# 00003354: Command Valid: ccom=0xe00
+# 00003358: Command Valid: ccom=0xe00
+# 00003362: Response tag=0x03 code=0x01 credits=1
+# 00003362: Command Valid: ccom=0xe00
+# 00003366: Response tag=0x07 code=0x06 credits=1
+# 00003366: Command Valid: ccom=0xe00
+# 00003370: Response tag=0x0a code=0x06 credits=1
+# 00003370: Command Valid: ccom=0xe00
+# 00003374: Response tag=0x08 code=0x06 credits=1
+# 00003374: Command Valid: ccom=0xe00
+# 00003378: Response tag=0x0b code=0x06 credits=1
+# 00003378: Command Valid: ccom=0xe00
+# 00003382: Response tag=0x0d code=0x06 credits=1
+# 00003382: Command Valid: ccom=0xe00
+# 00003386: Response tag=0x10 code=0x06 credits=1
+# 00003386: Command Valid: ccom=0xe00
+# 00003390: Response tag=0x05 code=0x06 credits=1
+# 00003390: Command Valid: ccom=0xe00
+# 00003394: Response tag=0x12 code=0x06 credits=1
+# 00003394: Command Valid: ccom=0xe00
+# 00003398: Response tag=0x0e code=0x06 credits=1
+# 00003398: Command Valid: ccom=0xe00
+# 00003402: Response tag=0x09 code=0x06 credits=1
+# 00003402: Command Valid: ccom=0xe00
+# 00003406: Response tag=0x11 code=0x06 credits=1
+# 00003406: Command Valid: ccom=0xe00
+# 00003410: Response tag=0x16 code=0x06 credits=1
+# 00003410: Command Valid: ccom=0xe00
+# 00003414: Response tag=0x0c code=0x06 credits=1
+# 00003414: Command Valid: ccom=0xe00
+# 00003418: Response tag=0x0f code=0x06 credits=1
+# 00003418: Command Valid: ccom=0xe00
+# 00003422: Response tag=0x13 code=0x06 credits=1
+# 00003422: Command Valid: ccom=0xe00
+# 00003426: Response tag=0x18 code=0x06 credits=1
+# 00003426: Command Valid: ccom=0xe00
+# 00003430: Response tag=0x06 code=0x06 credits=1
+# 00003430: Command Valid: ccom=0xe00
+# 00003434: Response tag=0x17 code=0x06 credits=1
+# 00003438: Response tag=0x19 code=0x06 credits=1
+# 00003442: Response tag=0x14 code=0x06 credits=1
+# 00003446: Response tag=0x15 code=0x06 credits=1
+# 00003446: Command Valid: ccom=0x1
+# 00003450: Response tag=0x04 code=0x06 credits=1
+# 00003462: Response tag=0x1e code=0x00 credits=1
+# 00003610: Command Valid: ccom=0xe00
+# 00003614: Command Valid: ccom=0xe00
+# 00003618: Command Valid: ccom=0xe00
+# 00003622: Command Valid: ccom=0xe00
+# 00003626: Command Valid: ccom=0xe00
+# 00003630: Command Valid: ccom=0xe00
+# 00003634: Command Valid: ccom=0xe00
+# 00003638: Response tag=0x0a code=0x01 credits=1
+# 00003638: Command Valid: ccom=0xe00
+# 00003642: Response tag=0x0b code=0x06 credits=1
+# 00003642: Command Valid: ccom=0xe00
+# 00003646: Response tag=0x0d code=0x06 credits=1
+# 00003646: Command Valid: ccom=0xe00
+# 00003650: Response tag=0x07 code=0x01 credits=1
+# 00003650: Command Valid: ccom=0xe00
+# 00003654: Response tag=0x05 code=0x06 credits=1
+# 00003654: Command Valid: ccom=0xe00
+# 00003658: Response tag=0x12 code=0x06 credits=1
+# 00003658: Command Valid: ccom=0xe00
+# 00003662: Response tag=0x0e code=0x06 credits=1
+# 00003662: Command Valid: ccom=0xe00
+# 00003666: Response tag=0x10 code=0x06 credits=1
+# 00003666: Command Valid: ccom=0xe00
+# 00003670: Response tag=0x03 code=0x01 credits=1
+# 00003670: Command Valid: ccom=0xe00
+# 00003674: Response tag=0x16 code=0x06 credits=1
+# 00003674: Command Valid: ccom=0xe00
+# 00003678: Response tag=0x09 code=0x06 credits=1
+# 00003678: Command Valid: ccom=0xe00
+# 00003682: Response tag=0x0c code=0x06 credits=1
+# 00003682: Command Valid: ccom=0xe00
+# 00003686: Response tag=0x0f code=0x06 credits=1
+# 00003686: Command Valid: ccom=0xe00
+# 00003690: Response tag=0x18 code=0x06 credits=1
+# 00003690: Command Valid: ccom=0xe00
+# 00003694: Response tag=0x06 code=0x06 credits=1
+# 00003694: Command Valid: ccom=0xe00
+# 00003698: Response tag=0x17 code=0x06 credits=1
+# 00003698: Command Valid: ccom=0xe00
+# 00003702: Response tag=0x11 code=0x06 credits=1
+# 00003706: Response tag=0x14 code=0x06 credits=1
+# 00003710: Response tag=0x15 code=0x06 credits=1
+# 00003714: Response tag=0x04 code=0x06 credits=1
+# 00003718: Response tag=0x08 code=0x06 credits=1
+# 00003722: Response tag=0x19 code=0x06 credits=1
+# 00003722: Command Valid: ccom=0x1
+# 00003726: Response tag=0x13 code=0x06 credits=1
+# 00003734: Command Valid: ccom=0x1
+# 00003750: Response tag=0x20 code=0x00 credits=1
+# 00003754: Response tag=0x1f code=0x00 credits=1
+# 00003754: Command Valid: ccom=0x1
+# 00003770: Response tag=0x21 code=0x00 credits=1
+# 00003918: Command Valid: ccom=0xe00
+# 00003922: Command Valid: ccom=0xe00
+# 00003926: Command Valid: ccom=0xe00
+# 00003930: Command Valid: ccom=0xe00
+# 00003934: Command Valid: ccom=0xe00
+# 00003938: Command Valid: ccom=0xe00
+# 00003942: Response tag=0x0a code=0x01 credits=1
+# 00003942: Command Valid: ccom=0xe00
+# 00003946: Response tag=0x0d code=0x06 credits=1
+# 00003946: Command Valid: ccom=0xe00
+# 00003950: Response tag=0x05 code=0x06 credits=1
+# 00003950: Command Valid: ccom=0xe00
+# 00003954: Response tag=0x12 code=0x06 credits=1
+# 00003954: Command Valid: ccom=0xe00
+# 00003958: Response tag=0x07 code=0x06 credits=1
+# 00003958: Command Valid: ccom=0xe00
+# 00003962: Response tag=0x10 code=0x06 credits=1
+# 00003962: Command Valid: ccom=0xe00
+# 00003966: Response tag=0x03 code=0x06 credits=1
+# 00003966: Command Valid: ccom=0xe00
+# 00003970: Response tag=0x16 code=0x06 credits=1
+# 00003970: Command Valid: ccom=0xe00
+# 00003974: Response tag=0x09 code=0x06 credits=1
+# 00003974: Command Valid: ccom=0xe00
+# 00003978: Response tag=0x0e code=0x06 credits=1
+# 00003978: Command Valid: ccom=0xe00
+# 00003982: Response tag=0x0f code=0x06 credits=1
+# 00003982: Command Valid: ccom=0xe00
+# 00003986: Response tag=0x18 code=0x06 credits=1
+# 00003986: Command Valid: ccom=0xe00
+# 00003990: Response tag=0x06 code=0x06 credits=1
+# 00003990: Command Valid: ccom=0xe00
+# 00003994: Response tag=0x0c code=0x06 credits=1
+# 00003994: Command Valid: ccom=0xe00
+# 00003998: Response tag=0x11 code=0x06 credits=1
+# 00003998: Command Valid: ccom=0xe00
+# 00004002: Response tag=0x14 code=0x06 credits=1
+# 00004002: Command Valid: ccom=0xe00
+# 00004006: Response tag=0x0b code=0x01 credits=1
+# 00004006: Command Valid: ccom=0xe00
+# 00004010: Response tag=0x04 code=0x06 credits=1
+# 00004014: Response tag=0x17 code=0x06 credits=1
+# 00004018: Response tag=0x19 code=0x06 credits=1
+# 00004022: Response tag=0x15 code=0x06 credits=1
+# 00004026: Response tag=0x13 code=0x06 credits=1
+# 00004026: Command Valid: ccom=0x1
+# 00004030: Response tag=0x08 code=0x06 credits=1
+# 00004046: Response tag=0x22 code=0x00 credits=1
+# 00004090: Command Valid: ccom=0x1
+# 00004106: Response tag=0x23 code=0x00 credits=1
+# 00004254: Command Valid: ccom=0xe00
+# 00004258: Command Valid: ccom=0xe00
+# 00004262: Command Valid: ccom=0xe00
+# 00004266: Command Valid: ccom=0xe00
+# 00004270: Command Valid: ccom=0xe00
+# 00004274: Command Valid: ccom=0xe00
+# 00004278: Response tag=0x0a code=0x01 credits=1
+# 00004278: Command Valid: ccom=0xe00
+# 00004282: Response tag=0x05 code=0x06 credits=1
+# 00004282: Command Valid: ccom=0xe00
+# 00004286: Response tag=0x12 code=0x06 credits=1
+# 00004286: Command Valid: ccom=0xe00
+# 00004290: Response tag=0x10 code=0x06 credits=1
+# 00004290: Command Valid: ccom=0xe00
+# 00004294: Response tag=0x03 code=0x06 credits=1
+# 00004294: Command Valid: ccom=0xe00
+# 00004298: Response tag=0x16 code=0x06 credits=1
+# 00004298: Command Valid: ccom=0xe00
+# 00004302: Response tag=0x09 code=0x06 credits=1
+# 00004302: Command Valid: ccom=0xe00
+# 00004306: Response tag=0x0d code=0x01 credits=1
+# 00004306: Command Valid: ccom=0xe00
+# 00004310: Response tag=0x0e code=0x06 credits=1
+# 00004310: Command Valid: ccom=0xe00
+# 00004314: Response tag=0x0f code=0x06 credits=1
+# 00004314: Command Valid: ccom=0xe00
+# 00004318: Response tag=0x06 code=0x06 credits=1
+# 00004318: Command Valid: ccom=0xe00
+# 00004322: Response tag=0x0c code=0x06 credits=1
+# 00004322: Command Valid: ccom=0xe00
+# 00004326: Response tag=0x18 code=0x06 credits=1
+# 00004326: Command Valid: ccom=0xe00
+# 00004330: Response tag=0x07 code=0x06 credits=1
+# 00004330: Command Valid: ccom=0xe00
+# 00004334: Response tag=0x14 code=0x06 credits=1
+# 00004334: Command Valid: ccom=0xe00
+# 00004338: Response tag=0x0b code=0x06 credits=1
+# 00004338: Command Valid: ccom=0xe00
+# 00004342: Response tag=0x04 code=0x06 credits=1
+# 00004342: Command Valid: ccom=0xe00
+# 00004346: Response tag=0x19 code=0x06 credits=1
+# 00004350: Response tag=0x17 code=0x06 credits=1
+# 00004354: Response tag=0x13 code=0x06 credits=1
+# 00004358: Response tag=0x15 code=0x06 credits=1
+# 00004362: Response tag=0x08 code=0x06 credits=1
+# 00004362: Command Valid: ccom=0x1
+# 00004366: Response tag=0x11 code=0x06 credits=1
+# 00004382: Response tag=0x24 code=0x00 credits=1
+# 00004390: Command Valid: ccom=0x1
+# 00004410: Response tag=0x25 code=0x00 credits=1
+# 00004558: Command Valid: ccom=0xe00
+# 00004562: Command Valid: ccom=0xe00
+# 00004566: Command Valid: ccom=0xe00
+# 00004570: Buffer Write tag=0x0a
+# 00004570: Command Valid: ccom=0xe00
+# 00004574: Command Valid: ccom=0xe00
+# 00004578: Command Valid: ccom=0xe00
+# 00004582: Command Valid: ccom=0xe00
+# 00004586: Response tag=0x05 code=0x01 credits=1
+# 00004586: Command Valid: ccom=0xe00
+# 00004590: Response tag=0x03 code=0x06 credits=1
+# 00004590: Command Valid: ccom=0xe00
+# 00004594: Response tag=0x10 code=0x06 credits=1
+# 00004594: Command Valid: ccom=0xe00
+# 00004598: Response tag=0x09 code=0x06 credits=1
+# 00004598: Command Valid: ccom=0xe00
+# 00004602: Response tag=0x0d code=0x06 credits=1
+# 00004602: Command Valid: ccom=0xe00
+# 00004606: Response tag=0x0e code=0x06 credits=1
+# 00004606: Command Valid: ccom=0xe00
+# 00004610: Response tag=0x16 code=0x06 credits=1
+# 00004610: Command Valid: ccom=0xe00
+# 00004614: Response tag=0x06 code=0x06 credits=1
+# 00004614: Command Valid: ccom=0xe00
+# 00004618: Response tag=0x0f code=0x06 credits=1
+# 00004618: Command Valid: ccom=0xe00
+# 00004622: Response tag=0x0a code=0x01 credits=1
+# 00004622: Command Valid: ccom=0xe00
+# 00004626: Response tag=0x18 code=0x06 credits=1
+# 00004626: Command Valid: ccom=0xe00
+# 00004630: Response tag=0x07 code=0x06 credits=1
+# 00004630: Command Valid: ccom=0xe00
+# 00004634: Response tag=0x0b code=0x06 credits=1
+# 00004634: Command Valid: ccom=0xe00
+# 00004638: Response tag=0x12 code=0x06 credits=1
+# 00004638: Command Valid: ccom=0xe00
+# 00004642: Response tag=0x04 code=0x06 credits=1
+# 00004642: Command Valid: ccom=0xe00
+# 00004646: Response tag=0x17 code=0x06 credits=1
+# 00004646: Command Valid: ccom=0xe00
+# 00004650: Response tag=0x19 code=0x06 credits=1
+# 00004654: Response tag=0x15 code=0x06 credits=1
+# 00004658: Response tag=0x08 code=0x06 credits=1
+# 00004662: Response tag=0x11 code=0x06 credits=1
+# 00004666: Response tag=0x14 code=0x06 credits=1
+# 00004670: Response tag=0x0c code=0x06 credits=1
+# 00004670: Command Valid: ccom=0x1
+# 00004674: Response tag=0x13 code=0x06 credits=1
+# 00004686: Response tag=0x26 code=0x00 credits=1
+# 00004706: Command Valid: ccom=0x1
+# 00004722: Response tag=0x27 code=0x00 credits=1
+# 00004870: Command Valid: ccom=0xe00
+# 00004874: Command Valid: ccom=0xe00
+# 00004878: Command Valid: ccom=0xe00
+# 00004882: Command Valid: ccom=0xe00
+# 00004886: Command Valid: ccom=0xe00
+# 00004890: Buffer Write tag=0x10
+# 00004890: Command Valid: ccom=0xe00
+# 00004894: Command Valid: ccom=0xe00
+# 00004898: Response tag=0x05 code=0x01 credits=1
+# 00004898: Command Valid: ccom=0xe00
+# 00004902: Response tag=0x0d code=0x06 credits=1
+# 00004902: Command Valid: ccom=0xe00
+# 00004906: Response tag=0x09 code=0x06 credits=1
+# 00004906: Command Valid: ccom=0xe00
+# 00004910: Response tag=0x0e code=0x06 credits=1
+# 00004910: Command Valid: ccom=0xe00
+# 00004914: Response tag=0x06 code=0x06 credits=1
+# 00004914: Command Valid: ccom=0xe00
+# 00004918: Response tag=0x16 code=0x06 credits=1
+# 00004918: Command Valid: ccom=0xe00
+# 00004922: Response tag=0x10 code=0x06 credits=1
+# 00004922: Command Valid: ccom=0xe00
+# 00004926: Response tag=0x18 code=0x06 credits=1
+# 00004926: Command Valid: ccom=0xe00
+# 00004930: Response tag=0x0a code=0x06 credits=1
+# 00004930: Command Valid: ccom=0xe00
+# 00004934: Response tag=0x0b code=0x06 credits=1
+# 00004934: Command Valid: ccom=0xe00
+# 00004938: Response tag=0x12 code=0x06 credits=1
+# 00004938: Command Valid: ccom=0xe00
+# 00004942: Response tag=0x0f code=0x06 credits=1
+# 00004942: Command Valid: ccom=0xe00
+# 00004946: Response tag=0x07 code=0x06 credits=1
+# 00004946: Command Valid: ccom=0xe00
+# 00004950: Response tag=0x04 code=0x06 credits=1
+# 00004950: Command Valid: ccom=0xe00
+# 00004954: Response tag=0x15 code=0x06 credits=1
+# 00004954: Command Valid: ccom=0xe00
+# 00004958: Response tag=0x19 code=0x06 credits=1
+# 00004958: Command Valid: ccom=0xe00
+# 00004962: Response tag=0x17 code=0x06 credits=1
+# 00004966: Response tag=0x08 code=0x06 credits=1
+# 00004970: Response tag=0x0c code=0x06 credits=1
+# 00004974: Response tag=0x13 code=0x06 credits=1
+# 00004978: Response tag=0x14 code=0x06 credits=1
+# 00004982: Response tag=0x11 code=0x06 credits=1
+# 00004982: Command Valid: ccom=0x1
+# 00004994: Response tag=0x03 code=0x01 credits=1
+# 00005006: Response tag=0x28 code=0x00 credits=1
+# 00005078: Command Valid: ccom=0x1
+# 00005106: Response tag=0x29 code=0x00 credits=1
+# 00005254: Command Valid: ccom=0xe00
+# 00005258: Command Valid: ccom=0xe00
+# 00005262: Command Valid: ccom=0xe00
+# 00005266: Command Valid: ccom=0xe00
+# 00005270: Command Valid: ccom=0xe00
+# 00005274: Response tag=0x05 code=0x01 credits=1
+# 00005274: Command Valid: ccom=0xe00
+# 00005278: Response tag=0x0d code=0x06 credits=1
+# 00005278: Command Valid: ccom=0xe00
+# 00005282: Response tag=0x0e code=0x06 credits=1
+# 00005282: Command Valid: ccom=0xe00
+# 00005286: Response tag=0x09 code=0x06 credits=1
+# 00005286: Command Valid: ccom=0xe00
+# 00005290: Response tag=0x16 code=0x06 credits=1
+# 00005290: Command Valid: ccom=0xe00
+# 00005294: Response tag=0x06 code=0x06 credits=1
+# 00005294: Command Valid: ccom=0xe00
+# 00005298: Response tag=0x10 code=0x06 credits=1
+# 00005298: Command Valid: ccom=0xe00
+# 00005302: Response tag=0x18 code=0x06 credits=1
+# 00005302: Command Valid: ccom=0xe00
+# 00005306: Response tag=0x0b code=0x06 credits=1
+# 00005306: Command Valid: ccom=0xe00
+# 00005310: Response tag=0x12 code=0x06 credits=1
+# 00005310: Command Valid: ccom=0xe00
+# 00005314: Response tag=0x0a code=0x06 credits=1
+# 00005314: Command Valid: ccom=0xe00
+# 00005318: Response tag=0x07 code=0x06 credits=1
+# 00005318: Command Valid: ccom=0xe00
+# 00005322: Response tag=0x04 code=0x06 credits=1
+# 00005322: Command Valid: ccom=0xe00
+# 00005326: Response tag=0x0f code=0x06 credits=1
+# 00005326: Command Valid: ccom=0xe00
+# 00005330: Response tag=0x19 code=0x06 credits=1
+# 00005330: Command Valid: ccom=0xe00
+# 00005334: Response tag=0x17 code=0x06 credits=1
+# 00005334: Command Valid: ccom=0xe00
+# 00005338: Response tag=0x08 code=0x06 credits=1
+# 00005338: Command Valid: ccom=0xe00
+# 00005342: Response tag=0x15 code=0x06 credits=1
+# 00005342: Command Valid: ccom=0xe00
+# 00005346: Response tag=0x0c code=0x06 credits=1
+# 00005350: Response tag=0x13 code=0x06 credits=1
+# 00005354: Response tag=0x11 code=0x06 credits=1
+# 00005358: Response tag=0x03 code=0x06 credits=1
+# 00005358: Command Valid: ccom=0x1
+# 00005362: Response tag=0x14 code=0x06 credits=1
+# 00005382: Response tag=0x2a code=0x00 credits=1
+# 00005530: Command Valid: ccom=0xe00
+# 00005534: Command Valid: ccom=0xe00
+# 00005538: Command Valid: ccom=0xe00
+# 00005542: Buffer Write tag=0x05
+# 00005542: Command Valid: ccom=0xe00
+# 00005546: Command Valid: ccom=0xe00
+# 00005550: Command Valid: ccom=0xe00
+# 00005554: Command Valid: ccom=0xe00
+# 00005558: Command Valid: ccom=0xe00
+# 00005562: Response tag=0x0d code=0x01 credits=1
+# 00005562: Command Valid: ccom=0xe00
+# 00005566: Response tag=0x06 code=0x06 credits=1
+# 00005566: Command Valid: ccom=0xe00
+# 00005570: Response tag=0x16 code=0x06 credits=1
+# 00005570: Command Valid: ccom=0xe00
+# 00005574: Response tag=0x18 code=0x06 credits=1
+# 00005574: Command Valid: ccom=0xe00
+# 00005578: Response tag=0x10 code=0x06 credits=1
+# 00005578: Command Valid: ccom=0xe00
+# 00005582: Response tag=0x09 code=0x01 credits=1
+# 00005582: Command Valid: ccom=0xe00
+# 00005586: Response tag=0x12 code=0x06 credits=1
+# 00005586: Command Valid: ccom=0xe00
+# 00005590: Response tag=0x0a code=0x06 credits=1
+# 00005590: Command Valid: ccom=0xe00
+# 00005594: Response tag=0x04 code=0x06 credits=1
+# 00005594: Command Valid: ccom=0xe00
+# 00005598: Response tag=0x07 code=0x06 credits=1
+# 00005598: Command Valid: ccom=0xe00
+# 00005602: Response tag=0x0f code=0x06 credits=1
+# 00005602: Command Valid: ccom=0xe00
+# 00005606: Response tag=0x19 code=0x06 credits=1
+# 00005606: Command Valid: ccom=0xe00
+# 00005610: Response tag=0x08 code=0x06 credits=1
+# 00005610: Command Valid: ccom=0xe00
+# 00005614: Response tag=0x15 code=0x06 credits=1
+# 00005614: Command Valid: ccom=0xe00
+# 00005618: Response tag=0x0e code=0x01 credits=1
+# 00005618: Command Valid: ccom=0xe00
+# 00005622: Response tag=0x0c code=0x06 credits=1
+# 00005626: Response tag=0x13 code=0x06 credits=1
+# 00005630: Response tag=0x0b code=0x06 credits=1
+# 00005634: Response tag=0x14 code=0x06 credits=1
+# 00005638: Response tag=0x17 code=0x06 credits=1
+# 00005642: Response tag=0x05 code=0x06 credits=1
+# 00005646: Response tag=0x11 code=0x06 credits=1
+# 00005646: Command Valid: ccom=0x1
+# 00005650: Response tag=0x03 code=0x06 credits=1
+# 00005662: Response tag=0x2b code=0x00 credits=1
+# 00005666: Command Valid: ccom=0x1
+# 00005686: Response tag=0x2c code=0x00 credits=1
+# 00005702: Command Valid: ccom=0x1
+# 00005726: Response tag=0x2d code=0x00 credits=1
+# 00005874: Command Valid: ccom=0xe00
+# 00005878: Command Valid: ccom=0xe00
+# 00005882: Command Valid: ccom=0xe00
+# 00005886: Command Valid: ccom=0xe00
+# 00005890: Command Valid: ccom=0xe00
+# 00005894: Command Valid: ccom=0xe00
+# 00005898: Response tag=0x0d code=0x01 credits=1
+# 00005898: Command Valid: ccom=0xe00
+# 00005902: Response tag=0x18 code=0x06 credits=1
+# 00005902: Command Valid: ccom=0xe00
+# 00005906: Response tag=0x10 code=0x06 credits=1
+# 00005906: Command Valid: ccom=0xe00
+# 00005910: Response tag=0x16 code=0x06 credits=1
+# 00005910: Command Valid: ccom=0xe00
+# 00005914: Response tag=0x06 code=0x01 credits=1
+# 00005914: Command Valid: ccom=0xe00
+# 00005918: Response tag=0x0a code=0x06 credits=1
+# 00005918: Command Valid: ccom=0xe00
+# 00005922: Response tag=0x09 code=0x06 credits=1
+# 00005922: Command Valid: ccom=0xe00
+# 00005926: Response tag=0x04 code=0x06 credits=1
+# 00005926: Command Valid: ccom=0xe00
+# 00005930: Response tag=0x0f code=0x06 credits=1
+# 00005930: Command Valid: ccom=0xe00
+# 00005934: Response tag=0x19 code=0x06 credits=1
+# 00005934: Command Valid: ccom=0xe00
+# 00005938: Response tag=0x08 code=0x06 credits=1
+# 00005938: Command Valid: ccom=0xe00
+# 00005942: Response tag=0x15 code=0x06 credits=1
+# 00005942: Command Valid: ccom=0xe00
+# 00005946: Response tag=0x07 code=0x06 credits=1
+# 00005946: Command Valid: ccom=0xe00
+# 00005950: Response tag=0x0c code=0x06 credits=1
+# 00005950: Command Valid: ccom=0xe00
+# 00005954: Response tag=0x12 code=0x06 credits=1
+# 00005954: Command Valid: ccom=0xe00
+# 00005958: Response tag=0x0b code=0x06 credits=1
+# 00005958: Command Valid: ccom=0xe00
+# 00005962: Response tag=0x14 code=0x06 credits=1
+# 00005962: Command Valid: ccom=0xe00
+# 00005966: Response tag=0x17 code=0x06 credits=1
+# 00005970: Response tag=0x13 code=0x06 credits=1
+# 00005974: Response tag=0x05 code=0x06 credits=1
+# 00005978: Response tag=0x03 code=0x06 credits=1
+# 00005982: Response tag=0x11 code=0x06 credits=1
+# 00005982: Command Valid: ccom=0x1
+# 00005986: Response tag=0x0e code=0x06 credits=1
+# 00005998: Response tag=0x2e code=0x00 credits=1
+# 00005998: Command Valid: ccom=0x1
+# 00006014: Response tag=0x2f code=0x00 credits=1
+# 00006162: Command Valid: ccom=0xe00
+# 00006166: Command Valid: ccom=0xe00
+# 00006170: Command Valid: ccom=0xe00
+# 00006174: Command Valid: ccom=0xe00
+# 00006178: Buffer Write tag=0x18
+# 00006178: Command Valid: ccom=0xe00
+# 00006182: Command Valid: ccom=0xe00
+# 00006186: Response tag=0x0d code=0x01 credits=1
+# 00006186: Command Valid: ccom=0xe00
+# 00006190: Response tag=0x10 code=0x06 credits=1
+# 00006190: Command Valid: ccom=0xe00
+# 00006194: Response tag=0x16 code=0x06 credits=1
+# 00006194: Command Valid: ccom=0xe00
+# 00006198: Response tag=0x0a code=0x06 credits=1
+# 00006198: Command Valid: ccom=0xe00
+# 00006202: Response tag=0x18 code=0x06 credits=1
+# 00006202: Command Valid: ccom=0xe00
+# 00006206: Response tag=0x06 code=0x06 credits=1
+# 00006206: Command Valid: ccom=0xe00
+# 00006210: Response tag=0x0f code=0x06 credits=1
+# 00006210: Command Valid: ccom=0xe00
+# 00006214: Response tag=0x04 code=0x06 credits=1
+# 00006214: Command Valid: ccom=0xe00
+# 00006218: Response tag=0x09 code=0x06 credits=1
+# 00006218: Command Valid: ccom=0xe00
+# 00006222: Response tag=0x15 code=0x06 credits=1
+# 00006222: Command Valid: ccom=0xe00
+# 00006226: Response tag=0x07 code=0x06 credits=1
+# 00006226: Command Valid: ccom=0xe00
+# 00006230: Response tag=0x08 code=0x06 credits=1
+# 00006230: Command Valid: ccom=0xe00
+# 00006234: Response tag=0x0c code=0x06 credits=1
+# 00006234: Command Valid: ccom=0xe00
+# 00006238: Response tag=0x19 code=0x06 credits=1
+# 00006238: Command Valid: ccom=0xe00
+# 00006242: Response tag=0x14 code=0x06 credits=1
+# 00006242: Command Valid: ccom=0xe00
+# 00006246: Response tag=0x17 code=0x06 credits=1
+# 00006246: Command Valid: ccom=0xe00
+# 00006250: Response tag=0x13 code=0x06 credits=1
+# 00006250: Command Valid: ccom=0xe00
+# 00006254: Response tag=0x05 code=0x06 credits=1
+# 00006258: Response tag=0x03 code=0x06 credits=1
+# 00006262: Response tag=0x11 code=0x06 credits=1
+# 00006266: Response tag=0x12 code=0x06 credits=1
+# 00006270: Response tag=0x0b code=0x06 credits=1
+# 00006270: Command Valid: ccom=0x1
+# 00006274: Response tag=0x0e code=0x06 credits=1
+# 00006294: Response tag=0x30 code=0x00 credits=1
+# 00006442: Command Valid: ccom=0xe00
+# 00006446: Command Valid: ccom=0xe00
+# 00006450: Command Valid: ccom=0xe00
+# 00006454: Buffer Write tag=0x0d
+# 00006454: Command Valid: ccom=0xe00
+# 00006458: Command Valid: ccom=0xe00
+# 00006462: Command Valid: ccom=0xe00
+# 00006466: Command Valid: ccom=0xe00
+# 00006470: Response tag=0x16 code=0x01 credits=1
+# 00006470: Command Valid: ccom=0xe00
+# 00006474: Response tag=0x18 code=0x06 credits=1
+# 00006474: Command Valid: ccom=0xe00
+# 00006478: Response tag=0x10 code=0x01 credits=1
+# 00006478: Command Valid: ccom=0xe00
+# 00006482: Response tag=0x0a code=0x06 credits=1
+# 00006482: Command Valid: ccom=0xe00
+# 00006486: Response tag=0x0d code=0x06 credits=1
+# 00006486: Command Valid: ccom=0xe00
+# 00006490: Response tag=0x09 code=0x06 credits=1
+# 00006490: Command Valid: ccom=0xe00
+# 00006494: Response tag=0x15 code=0x06 credits=1
+# 00006494: Command Valid: ccom=0xe00
+# 00006498: Response tag=0x06 code=0x06 credits=1
+# 00006498: Command Valid: ccom=0xe00
+# 00006502: Response tag=0x08 code=0x06 credits=1
+# 00006502: Command Valid: ccom=0xe00
+# 00006506: Response tag=0x0c code=0x06 credits=1
+# 00006506: Command Valid: ccom=0xe00
+# 00006510: Response tag=0x0f code=0x06 credits=1
+# 00006510: Command Valid: ccom=0xe00
+# 00006514: Response tag=0x04 code=0x06 credits=1
+# 00006514: Command Valid: ccom=0xe00
+# 00006518: Response tag=0x17 code=0x06 credits=1
+# 00006518: Command Valid: ccom=0xe00
+# 00006522: Response tag=0x13 code=0x06 credits=1
+# 00006522: Command Valid: ccom=0xe00
+# 00006526: Response tag=0x05 code=0x06 credits=1
+# 00006526: Command Valid: ccom=0xe00
+# 00006530: Response tag=0x03 code=0x06 credits=1
+# 00006530: Command Valid: ccom=0xe00
+# 00006534: Response tag=0x14 code=0x06 credits=1
+# 00006538: Response tag=0x12 code=0x06 credits=1
+# 00006542: Response tag=0x0b code=0x06 credits=1
+# 00006546: Response tag=0x07 code=0x06 credits=1
+# 00006550: Response tag=0x19 code=0x06 credits=1
+# 00006554: Response tag=0x11 code=0x06 credits=1
+# 00006554: Command Valid: ccom=0x1
+# 00006558: Response tag=0x0e code=0x06 credits=1
+# 00006562: Command Valid: ccom=0x1
+# 00006570: Response tag=0x31 code=0x00 credits=1
+# 00006578: Response tag=0x32 code=0x00 credits=1
+# 00006726: Command Valid: ccom=0xe00
+# 00006730: Command Valid: ccom=0xe00
+# 00006734: Command Valid: ccom=0xe00
+# 00006738: Command Valid: ccom=0xe00
+# 00006742: Command Valid: ccom=0xe00
+# 00006746: Response tag=0x16 code=0x01 credits=1
+# 00006746: Command Valid: ccom=0xe00
+# 00006750: Response tag=0x18 code=0x06 credits=1
+# 00006750: Command Valid: ccom=0xe00
+# 00006754: Response tag=0x0a code=0x06 credits=1
+# 00006754: Command Valid: ccom=0xe00
+# 00006758: Response tag=0x10 code=0x06 credits=1
+# 00006758: Command Valid: ccom=0xe00
+# 00006762: Response tag=0x0d code=0x06 credits=1
+# 00006762: Command Valid: ccom=0xe00
+# 00006766: Response tag=0x09 code=0x06 credits=1
+# 00006766: Command Valid: ccom=0xe00
+# 00006770: Response tag=0x15 code=0x06 credits=1
+# 00006770: Command Valid: ccom=0xe00
+# 00006774: Response tag=0x08 code=0x06 credits=1
+# 00006774: Command Valid: ccom=0xe00
+# 00006778: Response tag=0x06 code=0x06 credits=1
+# 00006778: Command Valid: ccom=0xe00
+# 00006782: Response tag=0x0c code=0x06 credits=1
+# 00006782: Command Valid: ccom=0xe00
+# 00006786: Response tag=0x04 code=0x06 credits=1
+# 00006786: Command Valid: ccom=0xe00
+# 00006790: Response tag=0x17 code=0x06 credits=1
+# 00006790: Command Valid: ccom=0xe00
+# 00006794: Response tag=0x0f code=0x06 credits=1
+# 00006794: Command Valid: ccom=0xe00
+# 00006798: Response tag=0x13 code=0x06 credits=1
+# 00006798: Command Valid: ccom=0xe00
+# 00006802: Response tag=0x03 code=0x06 credits=1
+# 00006802: Command Valid: ccom=0xe00
+# 00006806: Response tag=0x14 code=0x06 credits=1
+# 00006806: Command Valid: ccom=0xe00
+# 00006810: Response tag=0x12 code=0x06 credits=1
+# 00006810: Command Valid: ccom=0xe00
+# 00006814: Response tag=0x0b code=0x06 credits=1
+# 00006814: Command Valid: ccom=0xe00
+# 00006818: Response tag=0x07 code=0x06 credits=1
+# 00006822: Response tag=0x19 code=0x06 credits=1
+# 00006826: Response tag=0x11 code=0x06 credits=1
+# 00006830: Response tag=0x0e code=0x06 credits=1
+# 00006830: Command Valid: ccom=0x1
+# 00006834: Response tag=0x05 code=0x06 credits=1
+# 00006846: Response tag=0x33 code=0x00 credits=1
+# 00006994: Command Valid: ccom=0xe00
+# 00006998: Command Valid: ccom=0xe00
+# 00007002: Command Valid: ccom=0xe00
+# 00007006: Command Valid: ccom=0xe00
+# 00007010: Command Valid: ccom=0xe00
+# 00007014: Response tag=0x16 code=0x01 credits=1
+# 00007014: Command Valid: ccom=0xe00
+# 00007018: Response tag=0x0a code=0x06 credits=1
+# 00007018: Command Valid: ccom=0xe00
+# 00007022: Response tag=0x10 code=0x06 credits=1
+# 00007022: Command Valid: ccom=0xe00
+# 00007026: Response tag=0x18 code=0x06 credits=1
+# 00007026: Command Valid: ccom=0xe00
+# 00007030: Response tag=0x0d code=0x06 credits=1
+# 00007030: Command Valid: ccom=0xe00
+# 00007034: Response tag=0x15 code=0x06 credits=1
+# 00007034: Command Valid: ccom=0xe00
+# 00007038: Response tag=0x08 code=0x06 credits=1
+# 00007038: Command Valid: ccom=0xe00
+# 00007042: Response tag=0x09 code=0x06 credits=1
+# 00007042: Command Valid: ccom=0xe00
+# 00007046: Response tag=0x06 code=0x06 credits=1
+# 00007046: Command Valid: ccom=0xe00
+# 00007050: Response tag=0x0c code=0x06 credits=1
+# 00007050: Command Valid: ccom=0xe00
+# 00007054: Response tag=0x04 code=0x06 credits=1
+# 00007054: Command Valid: ccom=0xe00
+# 00007058: Response tag=0x0f code=0x06 credits=1
+# 00007058: Command Valid: ccom=0xe00
+# 00007062: Response tag=0x13 code=0x06 credits=1
+# 00007062: Command Valid: ccom=0xe00
+# 00007066: Response tag=0x17 code=0x06 credits=1
+# 00007066: Command Valid: ccom=0xe00
+# 00007070: Response tag=0x14 code=0x06 credits=1
+# 00007070: Command Valid: ccom=0xe00
+# 00007074: Response tag=0x12 code=0x06 credits=1
+# 00007074: Command Valid: ccom=0xe00
+# 00007078: Response tag=0x03 code=0x06 credits=1
+# 00007078: Command Valid: ccom=0xe00
+# 00007082: Response tag=0x0b code=0x06 credits=1
+# 00007082: Command Valid: ccom=0xe00
+# 00007086: Response tag=0x19 code=0x06 credits=1
+# 00007090: Response tag=0x11 code=0x06 credits=1
+# 00007094: Response tag=0x07 code=0x06 credits=1
+# 00007098: Response tag=0x0e code=0x06 credits=1
+# 00007098: Command Valid: ccom=0x1
+# 00007102: Response tag=0x05 code=0x06 credits=1
+# 00007122: Response tag=0x34 code=0x00 credits=1
+# 00007270: Command Valid: ccom=0xe00
+# 00007274: Command Valid: ccom=0xe00
+# 00007278: Command Valid: ccom=0xe00
+# 00007282: Buffer Write tag=0x16
+# 00007282: Command Valid: ccom=0xe00
+# 00007286: Command Valid: ccom=0xe00
+# 00007290: Command Valid: ccom=0xe00
+# 00007294: Response tag=0x16 code=0x01 credits=1
+# 00007294: Command Valid: ccom=0xe00
+# 00007298: Response tag=0x18 code=0x06 credits=1
+# 00007298: Command Valid: ccom=0xe00
+# 00007302: Response tag=0x10 code=0x06 credits=1
+# 00007302: Command Valid: ccom=0xe00
+# 00007306: Response tag=0x0a code=0x06 credits=1
+# 00007306: Command Valid: ccom=0xe00
+# 00007310: Response tag=0x15 code=0x06 credits=1
+# 00007310: Command Valid: ccom=0xe00
+# 00007314: Response tag=0x09 code=0x06 credits=1
+# 00007314: Command Valid: ccom=0xe00
+# 00007318: Response tag=0x06 code=0x06 credits=1
+# 00007318: Command Valid: ccom=0xe00
+# 00007322: Response tag=0x0d code=0x06 credits=1
+# 00007322: Command Valid: ccom=0xe00
+# 00007326: Response tag=0x04 code=0x06 credits=1
+# 00007326: Command Valid: ccom=0xe00
+# 00007330: Response tag=0x0f code=0x06 credits=1
+# 00007330: Command Valid: ccom=0xe00
+# 00007334: Response tag=0x13 code=0x06 credits=1
+# 00007334: Command Valid: ccom=0xe00
+# 00007338: Response tag=0x08 code=0x06 credits=1
+# 00007338: Command Valid: ccom=0xe00
+# 00007342: Response tag=0x0c code=0x06 credits=1
+# 00007342: Command Valid: ccom=0xe00
+# 00007346: Response tag=0x12 code=0x06 credits=1
+# 00007346: Command Valid: ccom=0xe00
+# 00007350: Response tag=0x14 code=0x06 credits=1
+# 00007350: Command Valid: ccom=0xe00
+# 00007354: Response tag=0x0b code=0x06 credits=1
+# 00007354: Command Valid: ccom=0xe00
+# 00007358: Response tag=0x17 code=0x06 credits=1
+# 00007358: Command Valid: ccom=0xe00
+# 00007362: Response tag=0x03 code=0x06 credits=1
+# 00007366: Response tag=0x07 code=0x06 credits=1
+# 00007370: Response tag=0x11 code=0x06 credits=1
+# 00007374: Response tag=0x05 code=0x06 credits=1
+# 00007378: Response tag=0x0e code=0x06 credits=1
+# 00007378: Command Valid: ccom=0x1
+# 00007382: Response tag=0x19 code=0x06 credits=1
+# 00007394: Response tag=0x35 code=0x00 credits=1
+# 00007542: Command Valid: ccom=0xe00
+# 00007546: Command Valid: ccom=0xe00
+# 00007550: Command Valid: ccom=0xe00
+# 00007554: Command Valid: ccom=0xe00
+# 00007558: Command Valid: ccom=0xe00
+# 00007562: Response tag=0x16 code=0x01 credits=1
+# 00007562: Command Valid: ccom=0xe00
+# 00007566: Response tag=0x18 code=0x06 credits=1
+# 00007566: Command Valid: ccom=0xe00
+# 00007570: Response tag=0x0a code=0x06 credits=1
+# 00007570: Command Valid: ccom=0xe00
+# 00007574: Response tag=0x15 code=0x06 credits=1
+# 00007574: Command Valid: ccom=0xe00
+# 00007578: Response tag=0x10 code=0x06 credits=1
+# 00007578: Command Valid: ccom=0xe00
+# 00007582: Response tag=0x09 code=0x06 credits=1
+# 00007582: Command Valid: ccom=0xe00
+# 00007586: Response tag=0x0d code=0x06 credits=1
+# 00007586: Command Valid: ccom=0xe00
+# 00007590: Response tag=0x04 code=0x06 credits=1
+# 00007590: Command Valid: ccom=0xe00
+# 00007594: Response tag=0x0f code=0x06 credits=1
+# 00007594: Command Valid: ccom=0xe00
+# 00007598: Response tag=0x06 code=0x06 credits=1
+# 00007598: Command Valid: ccom=0xe00
+# 00007602: Response tag=0x13 code=0x06 credits=1
+# 00007602: Command Valid: ccom=0xe00
+# 00007606: Response tag=0x0c code=0x06 credits=1
+# 00007606: Command Valid: ccom=0xe00
+# 00007610: Response tag=0x08 code=0x06 credits=1
+# 00007610: Command Valid: ccom=0xe00
+# 00007614: Response tag=0x14 code=0x06 credits=1
+# 00007614: Command Valid: ccom=0xe00
+# 00007618: Response tag=0x12 code=0x06 credits=1
+# 00007618: Command Valid: ccom=0xe00
+# 00007622: Response tag=0x0b code=0x06 credits=1
+# 00007622: Command Valid: ccom=0xe00
+# 00007626: Response tag=0x17 code=0x06 credits=1
+# 00007626: Command Valid: ccom=0xe00
+# 00007630: Response tag=0x07 code=0x06 credits=1
+# 00007630: Command Valid: ccom=0xe00
+# 00007634: Response tag=0x11 code=0x06 credits=1
+# 00007638: Response tag=0x05 code=0x06 credits=1
+# 00007642: Response tag=0x03 code=0x06 credits=1
+# 00007646: Response tag=0x0e code=0x06 credits=1
+# 00007646: Command Valid: ccom=0x1
+# 00007650: Response tag=0x19 code=0x06 credits=1
+# 00007662: Response tag=0x36 code=0x00 credits=1
+# 00007810: Command Valid: ccom=0xe00
+# 00007814: Command Valid: ccom=0xe00
+# 00007818: Command Valid: ccom=0xe00
+# 00007822: Command Valid: ccom=0xe00
+# 00007826: Command Valid: ccom=0xe00
+# 00007830: Command Valid: ccom=0xe00
+# 00007834: Command Valid: ccom=0xe00
+# 00007838: Response tag=0x16 code=0x01 credits=1
+# 00007838: Command Valid: ccom=0xe00
+# 00007842: Response tag=0x10 code=0x06 credits=1
+# 00007842: Command Valid: ccom=0xe00
+# 00007846: Response tag=0x09 code=0x06 credits=1
+# 00007846: Command Valid: ccom=0xe00
+# 00007850: Response tag=0x0d code=0x06 credits=1
+# 00007850: Command Valid: ccom=0xe00
+# 00007854: Response tag=0x04 code=0x06 credits=1
+# 00007854: Command Valid: ccom=0xe00
+# 00007858: Response tag=0x0f code=0x06 credits=1
+# 00007858: Command Valid: ccom=0xe00
+# 00007862: Response tag=0x06 code=0x06 credits=1
+# 00007862: Command Valid: ccom=0xe00
+# 00007866: Response tag=0x15 code=0x06 credits=1
+# 00007866: Command Valid: ccom=0xe00
+# 00007870: Response tag=0x13 code=0x06 credits=1
+# 00007870: Command Valid: ccom=0xe00
+# 00007874: Response tag=0x18 code=0x01 credits=1
+# 00007874: Command Valid: ccom=0xe00
+# 00007878: Response tag=0x08 code=0x06 credits=1
+# 00007878: Command Valid: ccom=0xe00
+# 00007882: Response tag=0x14 code=0x06 credits=1
+# 00007882: Command Valid: ccom=0xe00
+# 00007886: Response tag=0x0c code=0x06 credits=1
+# 00007886: Command Valid: ccom=0xe00
+# 00007890: Response tag=0x0a code=0x06 credits=1
+# 00007890: Command Valid: ccom=0xe00
+# 00007894: Response tag=0x17 code=0x06 credits=1
+# 00007894: Command Valid: ccom=0xe00
+# 00007898: Response tag=0x11 code=0x06 credits=1
+# 00007898: Command Valid: ccom=0xe00
+# 00007902: Response tag=0x05 code=0x06 credits=1
+# 00007906: Response tag=0x03 code=0x06 credits=1
+# 00007910: Response tag=0x0e code=0x06 credits=1
+# 00007914: Response tag=0x12 code=0x06 credits=1
+# 00007918: Response tag=0x0b code=0x06 credits=1
+# 00007922: Response tag=0x07 code=0x06 credits=1
+# 00007922: Command Valid: ccom=0x1
+# 00007926: Response tag=0x19 code=0x06 credits=1
+# 00007938: Response tag=0x37 code=0x00 credits=1
+# 00007958: Command Valid: ccom=0x1
+# 00007974: Response tag=0x38 code=0x00 credits=1
+# 00008122: Command Valid: ccom=0xe00
+# 00008126: Command Valid: ccom=0xe00
+# 00008130: Command Valid: ccom=0xe00
+# 00008134: Buffer Write tag=0x16
+# 00008134: Command Valid: ccom=0xe00
+# 00008138: Command Valid: ccom=0xe00
+# 00008142: Command Valid: ccom=0xe00
+# 00008146: Response tag=0x10 code=0x01 credits=1
+# 00008146: Command Valid: ccom=0xe00
+# 00008150: Response tag=0x0d code=0x06 credits=1
+# 00008150: Command Valid: ccom=0xe00
+# 00008154: Response tag=0x09 code=0x06 credits=1
+# 00008154: Command Valid: ccom=0xe00
+# 00008158: Response tag=0x0f code=0x06 credits=1
+# 00008158: Command Valid: ccom=0xe00
+# 00008162: Response tag=0x04 code=0x06 credits=1
+# 00008162: Command Valid: ccom=0xe00
+# 00008166: Response tag=0x06 code=0x06 credits=1
+# 00008166: Command Valid: ccom=0xe00
+# 00008170: Response tag=0x13 code=0x06 credits=1
+# 00008170: Command Valid: ccom=0xe00
+# 00008174: Response tag=0x18 code=0x06 credits=1
+# 00008174: Command Valid: ccom=0xe00
+# 00008178: Response tag=0x16 code=0x06 credits=1
+# 00008178: Command Valid: ccom=0xe00
+# 00008182: Response tag=0x14 code=0x06 credits=1
+# 00008182: Command Valid: ccom=0xe00
+# 00008186: Response tag=0x15 code=0x06 credits=1
+# 00008186: Command Valid: ccom=0xe00
+# 00008190: Response tag=0x0a code=0x06 credits=1
+# 00008190: Command Valid: ccom=0xe00
+# 00008194: Response tag=0x08 code=0x06 credits=1
+# 00008194: Command Valid: ccom=0xe00
+# 00008198: Response tag=0x17 code=0x06 credits=1
+# 00008198: Command Valid: ccom=0xe00
+# 00008202: Response tag=0x11 code=0x06 credits=1
+# 00008202: Command Valid: ccom=0xe00
+# 00008206: Response tag=0x03 code=0x06 credits=1
+# 00008206: Command Valid: ccom=0xe00
+# 00008210: Response tag=0x0e code=0x06 credits=1
+# 00008210: Command Valid: ccom=0xe00
+# 00008214: Response tag=0x0c code=0x06 credits=1
+# 00008218: Response tag=0x0b code=0x06 credits=1
+# 00008222: Response tag=0x07 code=0x06 credits=1
+# 00008226: Response tag=0x19 code=0x06 credits=1
+# 00008230: Response tag=0x05 code=0x06 credits=1
+# 00008230: Command Valid: ccom=0x1
+# 00008234: Response tag=0x12 code=0x06 credits=1
+# 00008246: Response tag=0x39 code=0x00 credits=1
+# 00008394: Command Valid: ccom=0xe00
+# 00008398: Command Valid: ccom=0xe00
+# 00008402: Command Valid: ccom=0xe00
+# 00008406: Command Valid: ccom=0xe00
+# 00008410: Command Valid: ccom=0xe00
+# 00008414: Response tag=0x10 code=0x01 credits=1
+# 00008414: Command Valid: ccom=0xe00
+# 00008418: Response tag=0x09 code=0x06 credits=1
+# 00008418: Command Valid: ccom=0xe00
+# 00008422: Response tag=0x0d code=0x06 credits=1
+# 00008422: Command Valid: ccom=0xe00
+# 00008426: Response tag=0x04 code=0x06 credits=1
+# 00008426: Command Valid: ccom=0xe00
+# 00008430: Response tag=0x06 code=0x06 credits=1
+# 00008430: Command Valid: ccom=0xe00
+# 00008434: Response tag=0x13 code=0x06 credits=1
+# 00008434: Command Valid: ccom=0xe00
+# 00008438: Response tag=0x18 code=0x06 credits=1
+# 00008438: Command Valid: ccom=0xe00
+# 00008442: Response tag=0x0f code=0x06 credits=1
+# 00008442: Command Valid: ccom=0xe00
+# 00008446: Response tag=0x16 code=0x06 credits=1
+# 00008446: Command Valid: ccom=0xe00
+# 00008450: Response tag=0x15 code=0x06 credits=1
+# 00008450: Command Valid: ccom=0xe00
+# 00008454: Response tag=0x14 code=0x06 credits=1
+# 00008454: Command Valid: ccom=0xe00
+# 00008458: Response tag=0x0a code=0x06 credits=1
+# 00008458: Command Valid: ccom=0xe00
+# 00008462: Response tag=0x08 code=0x06 credits=1
+# 00008462: Command Valid: ccom=0xe00
+# 00008466: Response tag=0x11 code=0x06 credits=1
+# 00008466: Command Valid: ccom=0xe00
+# 00008470: Response tag=0x17 code=0x06 credits=1
+# 00008470: Command Valid: ccom=0xe00
+# 00008474: Response tag=0x0e code=0x06 credits=1
+# 00008474: Command Valid: ccom=0xe00
+# 00008478: Response tag=0x03 code=0x06 credits=1
+# 00008478: Command Valid: ccom=0xe00
+# 00008482: Response tag=0x0b code=0x06 credits=1
+# 00008482: Command Valid: ccom=0xe00
+# 00008486: Response tag=0x07 code=0x06 credits=1
+# 00008490: Response tag=0x19 code=0x06 credits=1
+# 00008494: Response tag=0x05 code=0x06 credits=1
+# 00008498: Response tag=0x0c code=0x06 credits=1
+# 00008498: Command Valid: ccom=0x1
+# 00008502: Response tag=0x12 code=0x06 credits=1
+# 00008514: Response tag=0x3a code=0x00 credits=1
+# 00008662: Command Valid: ccom=0xe00
+# 00008666: Command Valid: ccom=0xe00
+# 00008670: Command Valid: ccom=0xe00
+# 00008674: Command Valid: ccom=0xe00
+# 00008678: Command Valid: ccom=0xe00
+# 00008682: Command Valid: ccom=0xe00
+# 00008686: Command Valid: ccom=0xe00
+# 00008690: Response tag=0x10 code=0x01 credits=1
+# 00008690: Command Valid: ccom=0xe00
+# 00008694: Response tag=0x09 code=0x01 credits=1
+# 00008694: Command Valid: ccom=0xe00
+# 00008698: Response tag=0x13 code=0x06 credits=1
+# 00008698: Command Valid: ccom=0xe00
+# 00008702: Response tag=0x04 code=0x06 credits=1
+# 00008702: Command Valid: ccom=0xe00
+# 00008706: Response tag=0x0f code=0x06 credits=1
+# 00008706: Command Valid: ccom=0xe00
+# 00008710: Response tag=0x18 code=0x06 credits=1
+# 00008710: Command Valid: ccom=0xe00
+# 00008714: Response tag=0x0d code=0x06 credits=1
+# 00008714: Command Valid: ccom=0xe00
+# 00008718: Response tag=0x15 code=0x06 credits=1
+# 00008718: Command Valid: ccom=0xe00
+# 00008722: Response tag=0x14 code=0x06 credits=1
+# 00008722: Command Valid: ccom=0xe00
+# 00008726: Response tag=0x08 code=0x06 credits=1
+# 00008726: Command Valid: ccom=0xe00
+# 00008730: Response tag=0x06 code=0x06 credits=1
+# 00008730: Command Valid: ccom=0xe00
+# 00008734: Response tag=0x0a code=0x06 credits=1
+# 00008734: Command Valid: ccom=0xe00
+# 00008738: Response tag=0x16 code=0x06 credits=1
+# 00008738: Command Valid: ccom=0xe00
+# 00008742: Response tag=0x11 code=0x06 credits=1
+# 00008742: Command Valid: ccom=0xe00
+# 00008746: Response tag=0x0b code=0x06 credits=1
+# 00008746: Command Valid: ccom=0xe00
+# 00008750: Response tag=0x07 code=0x06 credits=1
+# 00008750: Command Valid: ccom=0xe00
+# 00008754: Response tag=0x03 code=0x06 credits=1
+# 00008758: Response tag=0x19 code=0x06 credits=1
+# 00008762: Response tag=0x05 code=0x06 credits=1
+# 00008766: Response tag=0x12 code=0x06 credits=1
+# 00008770: Response tag=0x17 code=0x06 credits=1
+# 00008774: Response tag=0x0e code=0x06 credits=1
+# 00008774: Command Valid: ccom=0x1
+# 00008778: Response tag=0x0c code=0x06 credits=1
+# 00008778: Command Valid: ccom=0x1
+# 00008790: Response tag=0x3b code=0x00 credits=1
+# 00008802: Response tag=0x3c code=0x00 credits=1
+# 00008950: Command Valid: ccom=0xe00
+# 00008954: Command Valid: ccom=0xe00
+# 00008958: Command Valid: ccom=0xe00
+# 00009070: Socket closed: Ending Simulation.00009074: Socket closed: Ending Simulation.** Note: $finish    : ../../../01_capi_precis/01_capi_integration/pslse/afu_driver/verilog/top.v(728)
+#    Time: 9074 ns  Iteration: 1  Instance: /top
+# End time: 00:17:01 on Sep 21,2021, Elapsed time: 0:00:30
+# Errors: 0, Warnings: 9

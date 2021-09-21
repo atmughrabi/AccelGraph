@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<simPackage>
- <file path="fp_single_add_sim/fp_single_add.vo" type="VERILOG" />
- <topLevel name="fp_single_add" />
- <deviceFamily name="stratixv" />
-</simPackage>

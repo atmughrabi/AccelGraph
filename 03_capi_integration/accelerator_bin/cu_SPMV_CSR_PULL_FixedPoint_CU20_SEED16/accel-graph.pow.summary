@@ -1,0 +1,12 @@
+Power Analyzer Status : Successful - Mon Sep 13 20:55:50 2021
+Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Standard Edition
+Revision Name : accel-graph
+Top-level Entity Name : psl_fpga
+Family : Stratix V
+Device : 5SGXMA7H2F35C2
+Power Models : Final
+Total Thermal Power Dissipation : 20367.90 mW
+Core Dynamic Thermal Power Dissipation : 15609.05 mW
+Core Static Thermal Power Dissipation : 4712.26 mW
+I/O Thermal Power Dissipation : 46.59 mW
+Power Estimation Confidence : Low: user provided insufficient toggle rate data
