@@ -22,7 +22,7 @@ export CAPI_PRECIS_INTEG_DIR   	= $(APP_DIR_CAPI_PRECIS)/01_capi_integration
 export CAPI_INTEG_DIR      		= 03_capi_integration
 export SCRIPT_DIR          		= 05_scripts
 
-export BENCHMARKS_DIR_LOCAL    	= 04_test_graphs
+export BENCHMARKS_DIR_LOCAL    	= 01_test_graphs
 # export BENCHMARKS_DIR    		= ../../../01_GraphDatasets
 
 #dir root/managed_folders
