@@ -20,8 +20,8 @@ direction_arr = [["PULL","PUSH","PULLPUSH","PUSH","PULLPUSH"],
 				 ["PULL","PUSH"],
 				 ["PULL","PUSH","PULL","PUSH"],
 				 ["ShiloachVishkin","Afforest","Weakly"],
-				 ["Basic","PULL","PUSH","BinaryIntersection"],
 				 ["PULLPUSH"],
+				 ["Basic","PULL","PUSH","BinaryIntersection"],
 				 ["PULLPUSH"]]
 
 precision_arr = [["BottomUp","NONE","NONE","NONE"],
@@ -35,9 +35,9 @@ precision_arr = [["BottomUp","NONE","NONE","NONE"],
 				 ["NONE","NONE"],
 				 ["FloatPoint","FloatPoint","FixedPoint","FixedPoint"],
 				 ["ShiloachVishkin","Afforest","Weakly"],
+				 ["Brandes"],
 				 ["Basic","PULL","PUSH","Binary"],
-				 ["Rabbit"],
-				 ["Brandes"]]
+				 ["Rabbit"]]
 
 # workloads_grid = [[],["PageRank_pull_row", "PageRank_push_col",
 # 				 "PageRank_pull_row_FixedPoint","PageRank_push_col_FixedPoint"]]
