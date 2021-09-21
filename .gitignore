@@ -1,36 +1,27 @@
-
-00_capi_bench/obj
-00_capi_bench/bin
-00_capi_bench/build
-00_capi_bench/results
-00_capi_bench/*.report
-
-00_capi_graph/obj
-00_capi_graph/bin
-00_capi_graph/build
-00_capi_graph/results
-00_capi_graph/*.report
+02_capi_graph/obj
+02_capi_graph/bin
+02_capi_graph/build
+02_capi_graph/results
+02_capi_graph/*.report
 
 03_Reading/
-
 
 accelgraph.sublime-project
 accelgraph.sublime-workspace
 
 nohup.out
 .qsys_edit
-00_bench/nohup.out
 
-01_capi_integration/synthesize_*
-01_capi_integration/accelerator_sim/sim/modelsim.ini
-01_capi_integration/accelerator_sim/sim/transcript
-01_capi_integration/accelerator_sim/sim/vish_stacktrace.vstf
-01_capi_integration/accelerator_sim/sim/vsim.wlf
-01_capi_integration/accelerator_sim/sim/libraries
-01_capi_integration/accelerator_sim/sim/work
-01_capi_integration/accelerator_sim/sim/debug.log
-01_capi_integration/accelerator_sim/sim/gmon.out
-01_capi_integration/accelerator_sim/server/debug.log
-01_capi_integration/accelerator_sim/server/gmon.out
+03_capi_integration/synthesize_*
+03_capi_integration/accelerator_sim/sim/modelsim.ini
+03_capi_integration/accelerator_sim/sim/transcript
+03_capi_integration/accelerator_sim/sim/vish_stacktrace.vstf
+03_capi_integration/accelerator_sim/sim/vsim.wlf
+03_capi_integration/accelerator_sim/sim/libraries
+03_capi_integration/accelerator_sim/sim/work
+03_capi_integration/accelerator_sim/sim/debug.log
+03_capi_integration/accelerator_sim/sim/gmon.out
+03_capi_integration/accelerator_sim/server/debug.log
+03_capi_integration/accelerator_sim/server/gmon.out
 
 

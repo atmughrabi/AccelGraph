@@ -19,10 +19,10 @@ export APP_DIR              	= .
 export APP_DIR_OPEN_GRAPH   	= ../00_open_graph/00_graph_bench
 export APP_DIR_CAPI_PRECIS  	= ./01_capi_precis
 export CAPI_PRECIS_INTEG_DIR   	= $(APP_DIR_CAPI_PRECIS)/01_capi_integration
-export CAPI_INTEG_DIR      		= 01_capi_integration
-export SCRIPT_DIR          		= 03_scripts
+export CAPI_INTEG_DIR      		= 03_capi_integration
+export SCRIPT_DIR          		= 05_scripts
 
-export BENCHMARKS_DIR_LOCAL    	= 01_test_graphs
+export BENCHMARKS_DIR_LOCAL    	= 04_test_graphs
 # export BENCHMARKS_DIR    		= ../../../01_GraphDatasets
 
 #dir root/managed_folders
@@ -259,7 +259,7 @@ export AFU_CONFIG_GENERIC=$(AFU_CONFIG_MODE)
 ##################################################
 
 APP_DIR                 = .
-MAKE_DIR_ACCELGRAPH     = 00_capi_graph
+MAKE_DIR_ACCELGRAPH     = 02_capi_graph
 MAKE_DIR_OPENGRAPH      = 00_open_graph
 MAKE_DIR_SYNTH          = $(CAPI_INTEG_DIR)/$(SYNTH_DIR)
 
