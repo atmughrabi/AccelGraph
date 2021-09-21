@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)
-[<p align="center"><img src="./02_slides/fig/logo3.png" width="650" ></p>](#accel-graph-benchmark-suite)
+[<p align="center"><img src="./06_slides/fig/logo3.png" width="650" ></p>](#accel-graph-benchmark-suite)
 
 # AccelGraph-CAPI Benchmark Suite
 
@@ -7,7 +7,7 @@
 
 ## Overview
 
-![End-to-End Acceleration](./02_slides/fig/theme.png "AccelGraph-CAPI")
+![End-to-End Acceleration](./06_slides/fig/theme.png "AccelGraph-CAPI")
 
 AccelGraph-CAPI is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of AccelGraph-CAPI has been developed on Ubuntu 18.04, with PowerPC/Intel architecture taken into account.
 AccelGraph-CAPI is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore, this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between Shared Memory Accelerators and Parallel Processors.
@@ -68,7 +68,7 @@ export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
 2. AFU Communication with PSL
   * please check [(OpenGraph)](https://github.com/atmughrabi/OpenGraph).
   * please check [(CAPIPrecis)](https://github.com/atmughrabi/CAPIPrecis).
-  * please check [(CAPI User's Manual)](./02_slides/2015_CAPI.pdf).
+  * please check [(CAPI User's Manual)](./06_slides/2015_CAPI.pdf).
 
 ## Setting up the source code
 
@@ -87,7 +87,7 @@ AccelGraph@CAPI:~AccelGraph$ git submodule update --init --recursive
 
 # Running AccelGraph-CAPI
 
-[<img src="./02_slides/fig/openmp_logo.png" height="45" align="right" >](https://www.openmp.org/)
+[<img src="./06_slides/fig/openmp_logo.png" height="45" align="right" >](https://www.openmp.org/)
 
 ## Initial compilation for the Graph framework with OpenMP
 
@@ -104,7 +104,7 @@ AccelGraph@CAPI:~AccelGraph$ make run
 AccelGraph@CAPI:~AccelGraph$ make run-openmp
 ```
 
-[<img src="./02_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
+[<img src="./06_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
 
 ## Initial compilation for the Graph framework with Coherent Accelerator Processor Interface (CAPI)
 
@@ -147,7 +147,7 @@ AccelGraph@CAPI:~AccelGraph$ make run-capi-sim
 ```console
 AccelGraph@CAPI:~AccelGraph$ make run-capi-sim-verbose
 ```
-6. Example output: please check [(CAPI User's Manual)](./02_slides/2015_CAPI.pdf), for each response explanation. The stats are labeled `RESPONSE_COMMANADTYPE_count`.
+6. Example output: please check [(CAPI User's Manual)](./06_slides/2015_CAPI.pdf), for each response explanation. The stats are labeled `RESPONSE_COMMANADTYPE_count`.
 ```
 *-----------------------------------------------------*
 |                 AFU Stats                          |
@@ -528,4 +528,4 @@ benchmarking suite for various graph processing algorithms using pure C.
 - [x] Support testing
 
 Report bugs to <atmughra@ncsu.edu>
-[<p align="right"> <img src="./02_slides/fig/logo1.png" width="200" ></p>](#accel-graph-benchmark-suite)
+[<p align="right"> <img src="./06_slides/fig/logo1.png" width="200" ></p>](#accel-graph-benchmark-suite)
