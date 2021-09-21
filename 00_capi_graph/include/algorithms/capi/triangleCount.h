@@ -40,10 +40,10 @@ uint32_t countIntersectionsBinarySearch(uint32_t u, uint32_t v, struct GraphCSR 
 // ********************************************************************************************
 
 struct TCStats *triangleCountGraphCSR(struct Arguments *arguments, struct GraphCSR *graph);
-struct TCStats *triangleCountBasicGraphCSR(struct GraphCSR *graph);
-struct TCStats *triangleCountPullGraphCSR(struct GraphCSR *graph);
-struct TCStats *triangleCountPushGraphCSR(struct GraphCSR *graph);
-struct TCStats *triangleCountBinaryIntersectionGraphCSR(struct GraphCSR *graph);
+struct TCStats *triangleCountBasicGraphCSR(struct Arguments *arguments, struct GraphCSR *graph);
+struct TCStats *triangleCountPullGraphCSR(struct Arguments *arguments, struct GraphCSR *graph);
+struct TCStats *triangleCountPushGraphCSR(struct Arguments *arguments, struct GraphCSR *graph);
+struct TCStats *triangleCountBinaryIntersectionGraphCSR(struct Arguments *arguments, struct GraphCSR *graph);
 
 // ********************************************************************************************
 // ***************					GRID DataStructure							 **************
