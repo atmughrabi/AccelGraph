@@ -189,9 +189,9 @@ module cu_edge_data_read_command_control #(
 			comp_dest_ready                   <= 0;
 			comp_high_ready                   <= 0;
 			comp_low_ready                    <= 0;
-			edge_components_latched           <= 0;
-			edge_components_update_latched_S2 <= 0;
-			edge_components_update_latched_S3 <= 0;
+			edge_components_latched.valid     <= 0;
+			edge_components_update_latched_S2.valid <= 0;
+			edge_components_update_latched_S3.valid <= 0;
 		end else begin
 			if(edge_data_variable.valid) begin
 				comp_low_ready <= 1;
@@ -328,7 +328,7 @@ module cu_edge_data_read_command_control #(
 	end
 
 	always_ff @(posedge clock) begin
-		edge_job_variable_S2 <= edge_job_variable;
+		edge_job_variable_S2.payload <= edge_job_variable.payload;
 	end
 
 	always_ff @(posedge clock) begin
