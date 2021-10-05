@@ -60,12 +60,12 @@ export MAIN_DIR		  	= main
 #       		 ACCEL RUN GRAPH ARGUMENTS    			#
 #########################################################
 
-# export BENCHMARKS_DIR    	?= ../../01_GraphDatasets
-export BENCHMARKS_DIR    	?= ../01_test_graphs
+export BENCHMARKS_DIR    	?= ../../../01_GraphDatasets
+# export BENCHMARKS_DIR    	?= ../01_test_graphs
 
 # export GRAPH_SUIT ?=
-export GRAPH_SUIT ?= TEST
-# export GRAPH_SUIT ?= LAW
+# export GRAPH_SUIT ?= TEST
+export GRAPH_SUIT ?= LAW
 # export GRAPH_SUIT ?= GAP
 # export GRAPH_SUIT ?= SNAP
 # export GRAPH_SUIT ?= KONECT
@@ -75,7 +75,7 @@ export GRAPH_SUIT ?= TEST
 # export GRAPH_NAME ?= test
 # export GRAPH_NAME ?= v51_e1021
 # export GRAPH_NAME ?= v300_e2730
-export GRAPH_NAME ?= graphbrew
+# export GRAPH_NAME ?= graphbrew
 
 # GONG # https://gonglab.pratt.duke.edu/google-dataset
 # export GRAPH_NAME ?= GONG-gplus
@@ -105,15 +105,18 @@ export GRAPH_NAME ?= graphbrew
 # export GRAPH_NAME ?= LAW-hollywood-2009
 # export GRAPH_NAME ?= LAW-in-2004
 # export GRAPH_NAME ?= LAW-indochina-2004
-# export GRAPH_NAME ?= LAW-it-2004
+export GRAPH_NAME ?= LAW-it-2004
 # export GRAPH_NAME ?= LAW-ljournal-2008
 # export GRAPH_NAME ?= LAW-uk-2002
 # export GRAPH_NAME ?= LAW-uk-2005
 # export GRAPH_NAME ?= LAW-webbase-2001
 
 # export FILE_BIN_TYPE ?= graph
-export FILE_BIN_TYPE ?= graph.bin
+# export FILE_BIN_TYPE ?= graph.bin
+# export FILE_BIN_TYPE ?= graph.rand.bin
 # export FILE_BIN_TYPE ?= graph.wbin
+export FILE_BIN_TYPE ?= graph.bin.txt
+# export FILE_BIN_TYPE ?= graph.rand.bin.txt
 
 # export FILE_LABEL_TYPE ?= graph_Gorder.labels
 export FILE_LABEL_TYPE ?= graph_Rabbit.labels
@@ -123,15 +126,15 @@ export FILE_BIN = $(BENCHMARKS_DIR)/$(GRAPH_SUIT)/$(GRAPH_NAME)/$(FILE_BIN_TYPE)
 export FILE_LABEL = $(BENCHMARKS_DIR)/$(GRAPH_SUIT)/$(GRAPH_NAME)/$(FILE_LABEL_TYPE)
 
 #ALGORITHM
-export ALGORITHMS 		?= 6
+export ALGORITHMS 		?= 1
 export PULL_PUSH 		?= 0
 
 
 #GRAPH DATA_STRUCTURES
-export SORT_TYPE		?= 1
+export SORT_TYPE		?= 0
 export DATA_STRUCTURES  ?= 0
 export REORDER_LAYER1 	?= 0
-export REORDER_LAYER2   ?= 4
+export REORDER_LAYER2   ?= 0
 export REORDER_LAYER3   ?= 0
 export CACHE_SIZE       ?= 32768 # 32KB
 
@@ -142,7 +145,7 @@ export DELTA			?= 800
 export NUM_ITERATIONS	?= 1
 
 #PERFORMANCE
-export NUM_THREADS_PRE  ?= $(shell grep -c ^processor /proc/cpuinfo)
+export NUM_THREADS_PRE  ?= 4
 export NUM_THREADS_ALGO ?= $(shell grep -c ^processor /proc/cpuinfo)
 export NUM_THREADS_KER  ?= $(NUM_THREADS_ALGO)
 
@@ -273,7 +276,7 @@ MAKE_ARGS_SYNTH         = -w -C $(APP_DIR)/$(MAKE_DIR_SYNTH)      -j$(MAKE_NUM_T
 #                RUN  ARGUMENTS                         #
 #########################################################
 
-export ARGS ?= -w -k -M $(MASK_MODE) -j $(INOUT_STATS) -g $(BIN_SIZE) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS_PRE) -N $(NUM_THREADS_ALGO) -K $(NUM_THREADS_KER) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -F $(FILE_LABEL) -l $(REORDER_LAYER1) -L $(REORDER_LAYER2) -O $(REORDER_LAYER3) -b $(DELTA) -C $(CACHE_SIZE)
+export ARGS ?= -w -M $(MASK_MODE) -j $(INOUT_STATS) -g $(BIN_SIZE) -z $(FILE_FORMAT) -d $(DATA_STRUCTURES) -a $(ALGORITHMS) -r $(ROOT) -n $(NUM_THREADS_PRE) -N $(NUM_THREADS_ALGO) -K $(NUM_THREADS_KER) -i $(NUM_ITERATIONS) -o $(SORT_TYPE) -p $(PULL_PUSH) -t $(NUM_TRIALS) -e $(TOLERANCE) -F $(FILE_LABEL) -l $(REORDER_LAYER1) -L $(REORDER_LAYER2) -O $(REORDER_LAYER3) -b $(DELTA) -C $(CACHE_SIZE)
 
 export ARGS_CAPI = -q $(CU_CONFIG_GENERIC) -m $(AFU_CONFIG_GENERIC) $(ARGS)
 
@@ -307,6 +310,10 @@ convert:
 .PHONY: sweep-convert
 sweep-convert:
 	$(MAKE) sweep-convert $(MAKE_ARGS_OPENGRAPH)
+
+.PHONY: sweep-convert-2
+sweep-convert-2:
+	$(MAKE) sweep-convert-2 $(MAKE_ARGS_OPENGRAPH)
 
 .PHONY: convert-w
 convert-w:
