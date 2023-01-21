@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)
-[<p align="center"><img src="./06_slides/fig/logo3.png" width="650" ></p>](#accel-graph-benchmark-suite)
+[<p align="center"><img src="./06_slides/fig/logo3.png" width="450" ></p>](#accel-graph-benchmark-suite)
 
 # AccelGraph-CAPI Benchmark Suite
 
