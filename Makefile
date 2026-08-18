@@ -338,7 +338,39 @@ test-verbose:
 # test files
 .PHONY: test
 test:
-	$(MAKE) test $(MAKE_ARGS_OPENGRAPH)
+	$(MAKE) run-test $(MAKE_ARGS_OPENGRAPH)
+
+.PHONY: accelerator-verification
+accelerator-verification:
+	$(MAKE) accelerator-verification $(MAKE_ARGS_ACCELGRAPH)
+
+.PHONY: accelerator_verification
+accelerator_verification: accelerator-verification
+
+.PHONY: benchmark-verification
+benchmark-verification:
+	$(MAKE) benchmark-verification $(MAKE_ARGS_ACCELGRAPH)
+
+.PHONY: integration-verification
+integration-verification:
+	$(MAKE) integration-verification $(MAKE_ARGS_ACCELGRAPH)
+
+.PHONY: integration-compile
+integration-compile:
+	$(MAKE) integration-compile $(MAKE_ARGS_ACCELGRAPH)
+
+.PHONY: graphbrew-smoke
+graphbrew-smoke:
+	timeout 120 $(MAKE) run-openmp $(MAKE_ARGS_OPENGRAPH) FILE_BIN=../01_test_graphs/TEST/graphbrew/graph.bin ARGS='-w -M 0 -j 0 -g 1000 -z 1 -d 0 -a 0 -r 0 -n 2 -N 2 -K 2 -i 1 -o 0 -p 0 -t 1 -e 1e-8 -l 0 -L 0 -O 0 -b 800 -C 32768'
+
+.PHONY: verify-test
+verify-test:
+	+@status=0; $(MAKE) run-test $(MAKE_ARGS_OPENGRAPH) APP_TEST=test_open-graph-match || status=$$?; \
+		tail -n 80 ./00_open_graph/00_graph_bench/openmp-results/full_results_$(NUM_THREADS_KER).perf 2>/dev/null || true; \
+		exit $$status
+
+.PHONY: verify
+verify: accelerator-verification benchmark-verification integration-verification integration-compile graphbrew-smoke verify-test
 
 .PHONY: run-test
 run-test:
@@ -402,15 +434,15 @@ clean-nohup:
 
 export PART=5SGXMA7H2F35C2
 export PROJECT = accel-graph
-export CU_SET_SIM=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH) $(NUM_THREADS_KER))
-export CU_SET_SYNTH=$(shell python ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
+export CU_SET_SIM=$(shell python3 ./$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH) $(NUM_THREADS_KER))
+export CU_SET_SYNTH=$(shell python3 ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 
 export CU_GRAPH_ALGORITHM 	= 	$(word 1, $(CU_SET_SYNTH))
 export CU_DATA_STRUCTURE 	= 	$(word 2, $(CU_SET_SYNTH))
 export CU_DIRECTION 		=   $(word 3, $(CU_SET_SYNTH))
 export CU_PRECISION 		= 	$(word 4, $(CU_SET_SYNTH))
 
-export VERSION_GIT = $(shell python ./$(SCRIPT_DIR)/version.py)
+export VERSION_GIT = $(shell python3 ./$(SCRIPT_DIR)/version.py)
 export TIME_STAMP = $(shell date +%Y_%m_%d_%H_%M_%S)
 
 export SYNTH_DIR = synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_CU$(NUM_THREADS_KER)

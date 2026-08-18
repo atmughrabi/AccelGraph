@@ -6,6 +6,7 @@
 #include "graphConfig.h"
 #include "arrayQueue.h"
 #include "bitmap.h"
+#include "worklist.h"
 
 #include "graphCSR.h"
 #include "graphGrid.h"

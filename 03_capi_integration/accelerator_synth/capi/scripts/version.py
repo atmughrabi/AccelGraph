@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ########################################################################
 ##
 ## Copyright 2014 PMC-Sierra, Inc.
@@ -57,14 +57,15 @@ def get_git_version(git="git"):
         return get_git_version.cached
 
     p = sp.Popen([git, "describe", "--always"], stdout=sp.PIPE,
-                 stderr=open(os.devnull, "w"))
+                 stderr=open(os.devnull, "w"), universal_newlines=True)
     version = p.communicate()[0].strip()
 
     if p.wait():
         return "exported"
 
     status = sp.Popen([git, "status", "--porcelain", "-uno"],
-                      stdout=sp.PIPE, stderr=open(os.devnull, "w")).communicate()[0]
+                      stdout=sp.PIPE, stderr=open(os.devnull, "w"),
+                      universal_newlines=True).communicate()[0]
 
     max_length = get_git_version.max_length
     if max_length:

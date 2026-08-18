@@ -1,0 +1,19 @@
+name: verification
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    env:
+      OMP_NUM_THREADS: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install host dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y libjudy-dev
+      - name: Repository verification
+        run: make verify

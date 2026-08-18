@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/atmughrabi/AccelGraph.svg?branch=master)](https://travis-ci.com/atmughrabi/AccelGraph)
+[![verification](https://github.com/atmughrabi/AccelGraph/actions/workflows/verification.yml/badge.svg)](https://github.com/atmughrabi/AccelGraph/actions/workflows/verification.yml)
 [<p align="center"><img src="./06_slides/fig/logo3.png" width="450" ></p>](#accel-graph-benchmark-suite)
 
 # AccelGraph-CAPI Benchmark Suite
@@ -11,6 +11,16 @@
 
 AccelGraph-CAPI is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of AccelGraph-CAPI has been developed on Ubuntu 18.04, with PowerPC/Intel architecture taken into account.
 AccelGraph-CAPI is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore, this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between Shared Memory Accelerators and Parallel Processors.
+
+## Deployment stability
+
+<p align="center"><img src="./docs/fig/accelerator-verification-f01-benchmark-liveness.svg" width="760"></p>
+
+AccelGraph bounds AFU/CU configuration, kernel progress, error handling, and
+completion reset while retaining the existing graph-result checks. Run
+`make verify` before simulator or FPGA deployment. The
+[accelerator verification guide](docs/wiki/Accelerator-Verification.md) and
+[documentation index](docs/README.md) are the source of truth.
 
 # Installation
 
@@ -67,7 +77,7 @@ export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
 
 2. AFU Communication with PSL
   * please check [(OpenGraph)](https://github.com/atmughrabi/OpenGraph).
-  * please check [(CAPIPrecis)](https://github.com/atmughrabi/CAPIPrecis).
+  * please check [(CAPI-Precis)](https://github.com/atmughrabi/CAPI-Precis).
   * please check [(CAPI User's Manual)](./06_slides/2015_CAPI.pdf).
 
 ## Setting up the source code
@@ -82,6 +92,7 @@ AccelGraph@CAPI:~$ cd AccelGraph/
 ```
 3. Setup the CAPI submodules.
 ```console
+AccelGraph@CAPI:~AccelGraph$ git submodule sync --recursive
 AccelGraph@CAPI:~AccelGraph$ git submodule update --init --recursive
 ```
 

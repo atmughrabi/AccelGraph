@@ -362,9 +362,6 @@ struct CCStats *connectedComponentsGraphCSR(struct Arguments *arguments, struct 
 struct CCStats *connectedComponentsShiloachVishkinGraphCSR( struct Arguments *arguments, struct GraphCSR *graph)
 {
 
-    uint32_t v;
-    uint32_t degree;
-    uint32_t edge_idx;
     uint32_t componentsCount = 0;
     uint32_t change = 0;
     Word_t    Bytes;
@@ -423,6 +420,16 @@ struct CCStats *connectedComponentsShiloachVishkinGraphCSR( struct Arguments *ar
         Start(timer_inner);
         change = 0;
         stats->iterations++;
+
+        if(stats->iterations > graph->num_vertices)
+        {
+            fprintf(
+                stderr,
+                "Connected components exceeded the maximum rounds: %u\n",
+                graph->num_vertices);
+            releaseAFU(&afu);
+            exit(EXIT_FAILURE);
+        }
 
 
         // ********************************************************************************************

@@ -284,6 +284,9 @@ OBJ_FILES_CAPI_UTIL 		=   $(patsubst $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/%.c,
 
 
 CAPI_LINKFLAGS = -lrt -lpthread
+ACCELERATOR_VERIFICATION_TEST = $(APP_DIR)/$(BIN_DIR)/test_accelerator_verification
+BETWEENNESS_ROOT_TEST = $(APP_DIR)/$(BIN_DIR)/test_betweenness_root
+CAPIENV_VERIFICATION_TEST = $(APP_DIR)/$(BIN_DIR)/test_capienv_verification
 
 # CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 # CAPI_FLAGS = -DSIM -DVERBOSE
@@ -354,6 +357,32 @@ test-capi : directories directories-capi $(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi
 	@echo " * DONE!! NOTHING ELSE TO COMPILE ---> TEST: ./$(word 3,$^)"
 	@echo " ******************************************************************************  \n"
 
+.PHONY: accelerator-verification
+accelerator-verification: $(ACCELERATOR_VERIFICATION_TEST)
+	./$(ACCELERATOR_VERIFICATION_TEST)
+
+$(ACCELERATOR_VERIFICATION_TEST): $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/test_accelerator_verification.c $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/accelerator_verification.c $(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)/accelerator_verification.h | directories
+	$(CC) $(CFLAGS) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR) -o $@ $(word 1,$^) $(word 2,$^) -lrt
+
+.PHONY: benchmark-verification
+benchmark-verification: $(BETWEENNESS_ROOT_TEST)
+	./$(BETWEENNESS_ROOT_TEST)
+
+$(BETWEENNESS_ROOT_TEST): $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/test_betweenness_root.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/betweennessCentrality.c $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(UTIL_DIR)/mt19937.c | directories
+	$(CC) -O0 -Wall -m64 -fopenmp -ffunction-sections -fdata-sections $(OPENMP_INC) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR) -I$(LIBCXL_DIR) -o $@ $^ -Wl,--gc-sections -lm
+
+.PHONY: integration-verification
+integration-verification: $(CAPIENV_VERIFICATION_TEST)
+	./$(CAPIENV_VERIFICATION_TEST)
+
+$(CAPIENV_VERIFICATION_TEST): $(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/test_capienv_verification.c $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/capienv.c $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/accelerator_verification.c $(APP_DIR_OPEN_GRAPH)/$(SRC_DIR)/$(UTIL_DIR)/myMalloc.c | directories
+	$(CC) $(CFLAGS) -ffunction-sections -fdata-sections $(OPENMP_INC) -I$(APP_DIR)/$(SRC_DIR)/$(TEST_DIR)/fake -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR) -o $@ $^ -Wl,--gc-sections -lrt
+
+.PHONY: integration-compile
+integration-compile:
+	$(CC) $(CFLAGS) -fsyntax-only $(OPENMP_INC) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR) -I$(LIBCXL_DIR) $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/accelerator_verification.c $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/capienv.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/BFS.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/connectedComponents.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/betweennessCentrality.c
+	$(CC) $(CFLAGS) -DSIM -fsyntax-only $(OPENMP_INC) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR) -I$(LIBCXL_DIR) $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/accelerator_verification.c $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/capienv.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/BFS.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/connectedComponents.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/betweennessCentrality.c
+
 .PHONY: directories-capi
 directories-capi :
 	@mkdir -p $(APP_DIR)/$(OBJ_DIR)/$(ALGO_DIR)/capi
@@ -422,39 +451,45 @@ scrub: clean clean-sim
 
  PART?=5SGXMA7H2F35C2
  PROJECT?= accel-graph
- CU_SET_SIM?=$(shell python ../$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH) $(NUM_THREADS))
+ CU_SET_SIM?=$(shell python3 ../$(SCRIPT_DIR)/choose_algorithm_sim.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH) $(NUM_THREADS))
 
 ##############################################
 #      ACCEL GRAPH CAPI TOP LEVEL RULES      #
 ##############################################
+
+SIM_ACCELERATOR_START_TIMEOUT_MS ?= 300000
+SIM_ACCELERATOR_STALL_TIMEOUT_MS ?= 900000
+SIM_ACCELERATOR_RUN_TIMEOUT_MS ?= 7200000
+SIM_ACCELERATOR_CALL_TIMEOUT_MS ?= 300000
+SIM_ACCELERATOR_ENV = ACCELERATOR_START_TIMEOUT_MS=$(SIM_ACCELERATOR_START_TIMEOUT_MS) ACCELERATOR_STALL_TIMEOUT_MS=$(SIM_ACCELERATOR_STALL_TIMEOUT_MS) ACCELERATOR_RUN_TIMEOUT_MS=$(SIM_ACCELERATOR_RUN_TIMEOUT_MS) ACCELERATOR_CALL_TIMEOUT_MS=$(SIM_ACCELERATOR_CALL_TIMEOUT_MS)
 
 .PHONY: run-capi-sim
 run-capi-sim: CAPI_FLAGS = -DSIM
 run-capi-sim: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
+	$(SIM_ACCELERATOR_ENV) ./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-sim-verbose
 run-capi-sim-verbose: CAPI_FLAGS = -DSIM -DVERBOSE
 run-capi-sim-verbose: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
+	$(SIM_ACCELERATOR_ENV) ./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-sim-verbose2
 run-capi-sim-verbose2: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_2
 run-capi-sim-verbose2: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose2: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose2: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
+	$(SIM_ACCELERATOR_ENV) ./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-sim-verbose3
 run-capi-sim-verbose3: CAPI_FLAGS = -DSIM -DVERBOSE -DVERBOSE_3
 run-capi-sim-verbose3: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-capi-sim-verbose3: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-capi-sim-verbose3: app-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
+	$(SIM_ACCELERATOR_ENV) ./$(APP_DIR)/$(BIN_DIR)/$(APP_CAPI)-capi  -f $(FILE_BIN) $(ARGS_CAPI)
 
 .PHONY: run-capi-fpga
 run-capi-fpga: CAPI_FLAGS =
@@ -496,7 +531,7 @@ run-test-capi-sim: CAPI_FLAGS = -DSIM -DVERBOSE -DALGO_DIRECTION=$(PULL_PUSH)
 run-test-capi-sim: PSLSE_LIBCXL_DIR  = $(PSLSE_DIR)/libcxl
 run-test-capi-sim: CAPI_INC   = -I$(PSLSE_COMMON_DIR) -I$(PSLSE_LIBCXL_DIR) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR)
 run-test-capi-sim: test-capi
-	./$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi
+	$(SIM_ACCELERATOR_ENV) ./$(APP_DIR)/$(BIN_DIR)/$(APP_TEST)-capi
 
 .PHONY: run-vsim
 run-vsim: build-libdpi

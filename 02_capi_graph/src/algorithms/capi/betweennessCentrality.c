@@ -172,19 +172,30 @@ void freeBetweennessCentralityStats(struct BetweennessCentralityStats *stats)
 uint32_t generateRandomRootBetweennessCentrality(mt19937state *mt19937var, struct GraphCSR *graph)
 {
 
-    uint32_t root = 0;
+    uint32_t offset;
+    uint32_t root;
+    uint32_t start;
 
-    while(1)
+    if(!graph || !(graph->num_vertices))
+        return UINT32_MAX;
+
+    start = generateRandInt(mt19937var) % graph->num_vertices;
+
+    for(offset = 0; offset < graph->num_vertices; offset++)
     {
-        root = generateRandInt(mt19937var);
-        if(root < graph->num_vertices)
-        {
-            if(graph->vertices->out_degree[root] > graph->avg_degree)
-                break;
-        }
+        root = (uint32_t)(((uint64_t)start + offset) % graph->num_vertices);
+        if(graph->vertices->out_degree[root] > graph->avg_degree)
+            return root;
     }
 
-    return root;
+    for(offset = 0; offset < graph->num_vertices; offset++)
+    {
+        root = (uint32_t)(((uint64_t)start + offset) % graph->num_vertices);
+        if(graph->vertices->out_degree[root])
+            return root;
+    }
+
+    return start;
 
 }
 
@@ -367,6 +378,12 @@ struct BetweennessCentralityStats *betweennessCentralityGraphCSR(struct Argument
 
 struct BetweennessCentralityStats *betweennessCentralityBrandesGraphCSR(struct Arguments *arguments, struct GraphCSR *graph)
 {
+
+    if(!graph || !(graph->num_vertices))
+    {
+        fprintf(stderr, "Betweenness centrality requires a non-empty graph\n");
+        exit(EXIT_FAILURE);
+    }
 
     struct BetweennessCentralityStats *stats = newBetweennessCentralityStatsGraphCSR(graph);
 

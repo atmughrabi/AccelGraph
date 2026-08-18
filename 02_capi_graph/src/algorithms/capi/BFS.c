@@ -370,6 +370,16 @@ struct BFSStats *breadthFirstSearchPullGraphCSR(struct Arguments *arguments, str
     Start(timer);
     while (nf)
     {
+        if(stats->iteration > graph->num_vertices)
+        {
+            fprintf(
+                stderr,
+                "BFS exceeded the maximum frontier rounds: %u\n",
+                graph->num_vertices);
+            releaseAFU(&afu);
+            exit(EXIT_FAILURE);
+        }
+
         Start(timer_inner);
         afu_status.cu_config_3 = (uint64_t)workListCurr; // non zero CU triggers the AFU to work
         afu_status.cu_config_4 = (uint64_t)workListNext; // non zero CU triggers the AFU to work

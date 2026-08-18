@@ -31,8 +31,8 @@ DATA_STRUCTURES ?= 0
 ALGORITHMS 		?= 1
 PULL_PUSH 		?= 2
 NUM_THREADS  	?= 25
-SCRIPT_DIR   	?= ../../03_scripts
-CU_SET_SYNTH 	?= $(shell python ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
+SCRIPT_DIR   	?= ../../05_scripts
+CU_SET_SYNTH 	?= $(shell python3 ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 
 CU_GRAPH_ALGORITHM ?= $(word 1, $(CU_SET_SYNTH))
 CU_DATA_STRUCTURE ?=  $(word 2, $(CU_SET_SYNTH))
@@ -41,7 +41,7 @@ CU_PRECISION ?= 	  $(word 4, $(CU_SET_SYNTH))
 
 SYNTH_DIR ?= synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_CU$(NUM_THREADS)
 
-VERSION_GIT ?= $(shell python ./capi/scripts/version.py)
+VERSION_GIT ?= $(shell python3 ./capi/scripts/version.py)
 TIME_STAMP ?= $(shell date +%Y_%m_%d_%H_%M_%S)
 ACCEL_CU_RTL_DIR = accelerator_rtl
 ACCEL_AFU_RTL_DIR = ../../../01_capi_precis/01_capi_integration/accelerator_rtl

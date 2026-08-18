@@ -13,10 +13,15 @@
 // Editor : Abdullah Mughrabi
 // -----------------------------------------------------------------------------
 
+#include <errno.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
+#include "accelerator_verification.h"
 #include "myMalloc.h"
 #include "libcxl.h"
 #include "capienv.h"
@@ -27,24 +32,329 @@
 // ***************                  AFU General                                  **************
 // ********************************************************************************************
 
+static struct AcceleratorVerificationConfig accelerator_runtime_config;
+static int accelerator_runtime_config_loaded;
+
+static int acceleratorLoadRuntimeConfig(
+    struct AcceleratorVerificationConfig *config)
+{
+    if(!accelerator_runtime_config_loaded)
+    {
+        if(acceleratorVerificationLoadConfig(&accelerator_runtime_config))
+            return 1;
+
+        accelerator_runtime_config_loaded = 1;
+    }
+
+    (*config) = accelerator_runtime_config;
+    return 0;
+}
+
+static void acceleratorCallStart(const char *operation)
+{
+    if(acceleratorVerificationWatchdogArm(operation))
+    {
+        fprintf(stderr, "Failed to arm accelerator call watchdog: %s\n", operation);
+        _exit(EXIT_FAILURE);
+    }
+}
+
+static void acceleratorCallStop(void)
+{
+    if(acceleratorVerificationWatchdogDisarm())
+    {
+        fprintf(stderr, "Failed to disarm accelerator call watchdog\n");
+        _exit(EXIT_FAILURE);
+    }
+}
+
+static void acceleratorWatchdogInitialize(void)
+{
+    struct AcceleratorVerificationConfig config;
+
+    if(acceleratorLoadRuntimeConfig(&config) ||
+       acceleratorVerificationWatchdogInitialize(config.call_timeout_ms))
+        exit(EXIT_FAILURE);
+}
+
+static void setupAFUFailure(struct cxl_afu_h **afu, const char *operation, int status)
+{
+    int error_number = status > 0 ? status : errno;
+
+    fprintf(
+        stderr,
+        "AFU setup failed: operation=%s status=%d error=%s\n",
+        operation,
+        status,
+        error_number ? strerror(error_number) : "not available");
+
+    if(afu && (*afu))
+    {
+        acceleratorCallStart("free AFU after setup failure");
+        cxl_afu_free((*afu));
+        acceleratorCallStop();
+        (*afu) = NULL;
+    }
+
+    exit(EXIT_FAILURE);
+}
+
+static void acceleratorVerificationFailure(
+    struct cxl_afu_h **afu,
+    struct AFUStatus *afu_status,
+    struct AcceleratorVerification *verification,
+    enum AcceleratorVerificationState state,
+    uint64_t now_ms,
+    uint64_t target)
+{
+    uint64_t elapsed_ms = now_ms - verification->started_ms;
+    uint64_t idle_ms = now_ms - verification->last_progress_ms;
+
+    fprintf(
+        stderr,
+        "Accelerator verification failed: phase=%s reason=%s elapsed_ms=%" PRIu64
+        " idle_ms=%" PRIu64 " progress=%" PRIu64 ":%" PRIu64
+        " target=%" PRIu64 " afu_status=0x%016" PRIx64
+        " cu_status=0x%016" PRIx64 " error=0x%016" PRIx64 "\n",
+        verification->phase,
+        acceleratorVerificationStateName(state),
+        elapsed_ms,
+        idle_ms,
+        verification->progress_primary,
+        verification->progress_secondary,
+        target,
+        afu_status->afu_status,
+        afu_status->cu_status,
+        afu_status->error);
+
+    releaseAFU(afu);
+    exit(EXIT_FAILURE);
+}
+
+static void acceleratorValidateAFU(
+    struct cxl_afu_h **afu,
+    struct AFUStatus *afu_status,
+    const char *phase)
+{
+    if(afu && (*afu) && afu_status)
+        return;
+
+    fprintf(stderr, "Invalid AFU state before %s\n", phase);
+    releaseAFU(afu);
+    exit(EXIT_FAILURE);
+}
+
+static void acceleratorMMIOFailure(
+    struct cxl_afu_h **afu,
+    const char *operation,
+    uint64_t offset,
+    int status)
+{
+    int error_number = status > 0 ? status : errno;
+
+    fprintf(
+        stderr,
+        "Accelerator MMIO failed: operation=%s offset=0x%08" PRIx64
+        " status=%d error=%s\n",
+        operation,
+        offset,
+        status,
+        error_number ? strerror(error_number) : "not available");
+
+    releaseAFU(afu);
+    exit(EXIT_FAILURE);
+}
+
+static void acceleratorMMIORead(
+    struct cxl_afu_h **afu,
+    uint64_t offset,
+    uint64_t *value,
+    const char *operation)
+{
+    int status;
+
+    acceleratorCallStart(operation);
+    status = cxl_mmio_read64((*afu), offset, value);
+    acceleratorCallStop();
+    if(status)
+        acceleratorMMIOFailure(afu, operation, offset, status);
+}
+
+static void acceleratorMMIOWrite(
+    struct cxl_afu_h **afu,
+    uint64_t offset,
+    uint64_t value,
+    const char *operation)
+{
+    int status;
+
+    acceleratorCallStart(operation);
+    status = cxl_mmio_write64((*afu), offset, value);
+    acceleratorCallStop();
+    if(status)
+        acceleratorMMIOFailure(afu, operation, offset, status);
+}
+
+static void acceleratorVerificationGetConfig(
+    struct cxl_afu_h **afu,
+    struct AcceleratorVerificationConfig *config)
+{
+    if(acceleratorLoadRuntimeConfig(config))
+    {
+        releaseAFU(afu);
+        exit(EXIT_FAILURE);
+    }
+}
+
+static uint64_t acceleratorVerificationGetNow(struct cxl_afu_h **afu)
+{
+    uint64_t now_ms;
+
+    if(acceleratorVerificationNowMs(&now_ms))
+    {
+        releaseAFU(afu);
+        exit(EXIT_FAILURE);
+    }
+
+    return now_ms;
+}
+
+static void acceleratorVerificationWait(
+    struct cxl_afu_h **afu,
+    uint64_t poll_interval_us,
+    uint64_t *poll_count)
+{
+    if((*poll_count)++ < ACCELERATOR_SPIN_POLLS_DEFAULT)
+        return;
+
+    if(acceleratorVerificationPause(poll_interval_us))
+    {
+        releaseAFU(afu);
+        exit(EXIT_FAILURE);
+    }
+}
+
+static void acceleratorPrintFailureStats(struct CmdResponseStats *stats)
+{
+    fprintf(
+        stderr,
+        "Accelerator response stats: done=%" PRIu64 " read=%" PRIu64
+        " write=%" PRIu64 " restart=%" PRIu64 " paged=%" PRIu64
+        " flushed=%" PRIu64 " aerror=%" PRIu64 " derror=%" PRIu64
+        " failed=%" PRIu64 " fault=%" PRIu64 " nres=%" PRIu64
+        " nlock=%" PRIu64 " cycles=%" PRIu64 "\n",
+        stats->DONE_count,
+        stats->DONE_READ_count,
+        stats->DONE_WRITE_count,
+        stats->DONE_RESTART_count,
+        stats->PAGED_count,
+        stats->FLUSHED_count,
+        stats->AERROR_count,
+        stats->DERROR_count,
+        stats->FAILED_count,
+        stats->FAULT_count,
+        stats->NRES_count,
+        stats->NLOCK_count,
+        stats->CYCLE_count);
+}
+
+static void waitAFUCompletionReset(
+    struct cxl_afu_h **afu,
+    struct AFUStatus *afu_status,
+    struct AcceleratorVerificationConfig *config)
+{
+    struct AcceleratorVerification verification;
+    enum AcceleratorVerificationState state;
+    uint64_t reset_done = afu_status->cu_return_done;
+    uint64_t reset_done_2 = afu_status->cu_return_done_2;
+    uint64_t reset_status = afu_status->cu_status;
+    uint64_t poll_count = 0;
+    uint64_t now_ms = acceleratorVerificationGetNow(afu);
+
+    acceleratorVerificationStart(
+        &verification,
+        "CU completion reset",
+        now_ms,
+        config->start_timeout_ms,
+        config->start_timeout_ms,
+        reset_done,
+        reset_done_2);
+
+    do
+    {
+        acceleratorMMIORead(
+            afu,
+            CU_RETURN_DONE,
+            &reset_done,
+            "read CU completion reset");
+        acceleratorMMIORead(
+            afu,
+            CU_RETURN_DONE_2,
+            &reset_done_2,
+            "read CU completion reset data");
+        acceleratorMMIORead(
+            afu,
+            CU_STATUS,
+            &reset_status,
+            "read CU reset status");
+
+        afu_status->cu_status = reset_status;
+        now_ms = acceleratorVerificationGetNow(afu);
+        state = acceleratorVerificationObserve(
+            &verification,
+            now_ms,
+            reset_done,
+            reset_done_2,
+            !reset_done && !reset_done_2 && !reset_status,
+            0);
+
+        if(state == ACCELERATOR_VERIFICATION_COMPLETE)
+            break;
+
+        if(state != ACCELERATOR_VERIFICATION_PENDING)
+            acceleratorVerificationFailure(afu, afu_status, &verification, state, now_ms, 0);
+
+        acceleratorVerificationWait(afu, config->poll_interval_us, &poll_count);
+    }
+    while(1);
+}
+
 int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR)
 {
+    int status;
 
-    (*afu) = cxl_afu_open_dev(DEVICE_1);
     if(!afu)
-    {
-        printf("Failed to open AFU: %m\n");
-        return 1;
-    }
+        setupAFUFailure(NULL, "validate AFU handle", EINVAL);
 
-    cxl_afu_attach((*afu), (uint64_t)wedGraphCSR);
-    int base_address = cxl_mmio_map ((*afu), CXL_MMIO_BIG_ENDIAN);
+    (*afu) = NULL;
 
-    if (base_address < 0)
-    {
-        printf("fail cxl_mmio_map %d", base_address);
-        return 1;
-    }
+    if(!wedGraphCSR)
+        setupAFUFailure(afu, "validate graph WED", EINVAL);
+
+    acceleratorWatchdogInitialize();
+    acceleratorCallStart("install MMIO fault handler");
+    status = cxl_mmio_install_sigbus_handler();
+    acceleratorCallStop();
+    if(status)
+        setupAFUFailure(afu, "install MMIO fault handler", status);
+
+    acceleratorCallStart("open AFU device");
+    (*afu) = cxl_afu_open_dev(DEVICE_1);
+    acceleratorCallStop();
+    if(!(*afu))
+        setupAFUFailure(afu, "open device", errno);
+
+    acceleratorCallStart("attach graph WED");
+    status = cxl_afu_attach((*afu), (uint64_t)wedGraphCSR);
+    acceleratorCallStop();
+    if(status)
+        setupAFUFailure(afu, "attach graph WED", status);
+
+    acceleratorCallStart("map AFU MMIO");
+    status = cxl_mmio_map((*afu), CXL_MMIO_BIG_ENDIAN);
+    acceleratorCallStop();
+    if(status < 0)
+        setupAFUFailure(afu, "map MMIO", status);
 
 #ifdef  VERBOSE
     printWEDGraphCSRPointers(wedGraphCSR);
@@ -57,6 +367,25 @@ int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR)
 
 void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 {
+    struct AcceleratorVerificationConfig config;
+    struct AcceleratorVerification verification;
+    enum AcceleratorVerificationState state;
+    uint64_t now_ms;
+    uint64_t poll_count = 0;
+
+    acceleratorValidateAFU(afu, afu_status, "AFU configuration");
+    acceleratorVerificationGetConfig(afu, &config);
+
+    if(!(afu_status->afu_config))
+    {
+        fprintf(stderr, "AFU configuration must be non-zero\n");
+        releaseAFU(afu);
+        exit(EXIT_FAILURE);
+    }
+
+    afu_status->afu_status = 0;
+    afu_status->error = 0;
+
 #ifdef  VERBOSE
     // printf("AFU configuration start status(0x%08lx) \n", (afu_status->afu_status) );
     printf("*-----------------------------------------------------*\n");
@@ -64,13 +393,46 @@ void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     printf(" -----------------------------------------------------\n");
     printf("| %-22s | %-27lx| \n", "status", (afu_status->afu_status));
 #endif
+    now_ms = acceleratorVerificationGetNow(afu);
+    acceleratorVerificationStart(
+        &verification,
+        "AFU configuration",
+        now_ms,
+        config.start_timeout_ms,
+        config.start_timeout_ms,
+        0,
+        0);
+
     do
     {
-        cxl_mmio_write64((*afu), AFU_CONFIGURE, afu_status->afu_config);
-        cxl_mmio_write64((*afu), AFU_CONFIGURE_2, afu_status->afu_config_2);
-        cxl_mmio_read64((*afu), AFU_STATUS, (uint64_t *) & (afu_status->afu_status));
+        acceleratorMMIOWrite(afu, AFU_CONFIGURE, afu_status->afu_config, "write AFU configuration");
+        acceleratorMMIOWrite(afu, AFU_CONFIGURE_2, afu_status->afu_config_2, "write AFU configuration data");
+        acceleratorMMIORead(afu, AFU_STATUS, &(afu_status->afu_status), "read AFU status");
+        acceleratorMMIORead(afu, ERROR_REG, &(afu_status->error), "read AFU configuration error");
+        now_ms = acceleratorVerificationGetNow(afu);
+        state = acceleratorVerificationObserve(
+            &verification,
+            now_ms,
+            afu_status->afu_status,
+            0,
+            afu_status->afu_status == afu_status->afu_config,
+            afu_status->error != 0);
+
+        if(state == ACCELERATOR_VERIFICATION_COMPLETE)
+            break;
+
+        if(state != ACCELERATOR_VERIFICATION_PENDING)
+            acceleratorVerificationFailure(
+                afu,
+                afu_status,
+                &verification,
+                state,
+                now_ms,
+                afu_status->afu_config);
+
+        acceleratorVerificationWait(afu, config.poll_interval_us, &poll_count);
     }
-    while(!(afu_status->afu_status));
+    while(1);
 #ifdef  VERBOSE
     // printf("AFU configuration done status(0x%08lx) \n", (afu_status->afu_status) );
     printf("*-----------------------------------------------------*\n");
@@ -84,21 +446,67 @@ void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 
 void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 {
+    struct AcceleratorVerificationConfig config;
+    struct AcceleratorVerification verification;
+    enum AcceleratorVerificationState state;
+    uint64_t now_ms;
+    uint64_t poll_count = 0;
+
+    acceleratorValidateAFU(afu, afu_status, "CU configuration");
+    acceleratorVerificationGetConfig(afu, &config);
+
+    if(!(afu_status->cu_config))
+    {
+        fprintf(stderr, "CU configuration must be non-zero\n");
+        releaseAFU(afu);
+        exit(EXIT_FAILURE);
+    }
+
+    afu_status->cu_status = 0;
+    afu_status->error = 0;
+
 #ifdef  VERBOSE
     printf("*-----------------------------------------------------*\n");
     printf("| %-13s %-23s %-13s | \n", " ", "CU configuration START", " ");
     printf(" -----------------------------------------------------\n");
     printf("| %-22s | %-27lx| \n", "status", (afu_status->cu_status));
 #endif
+    now_ms = acceleratorVerificationGetNow(afu);
+    acceleratorVerificationStart(
+        &verification,
+        "CU configuration",
+        now_ms,
+        config.start_timeout_ms,
+        config.start_timeout_ms,
+        0,
+        0);
+
     do
     {
-        cxl_mmio_write64((*afu), CU_CONFIGURE, (uint64_t)afu_status->cu_config);
-        cxl_mmio_write64((*afu), CU_CONFIGURE_2, (uint64_t)afu_status->cu_config_2);
-        cxl_mmio_write64((*afu), CU_CONFIGURE_3, (uint64_t)afu_status->cu_config_3);
-        cxl_mmio_write64((*afu), CU_CONFIGURE_4, (uint64_t)afu_status->cu_config_4);
-        cxl_mmio_read64((*afu), CU_STATUS, (uint64_t *) & (afu_status->cu_status));
+        acceleratorMMIOWrite(afu, CU_CONFIGURE, afu_status->cu_config, "write CU configuration");
+        acceleratorMMIOWrite(afu, CU_CONFIGURE_2, afu_status->cu_config_2, "write CU configuration data 2");
+        acceleratorMMIOWrite(afu, CU_CONFIGURE_3, afu_status->cu_config_3, "write CU configuration data 3");
+        acceleratorMMIOWrite(afu, CU_CONFIGURE_4, afu_status->cu_config_4, "write CU configuration data 4");
+        acceleratorMMIORead(afu, CU_STATUS, &(afu_status->cu_status), "read CU status");
+        acceleratorMMIORead(afu, ERROR_REG, &(afu_status->error), "read CU configuration error");
+        now_ms = acceleratorVerificationGetNow(afu);
+        state = acceleratorVerificationObserve(
+            &verification,
+            now_ms,
+            afu_status->cu_status,
+            0,
+            afu_status->cu_status != 0,
+            afu_status->error != 0);
+
+        if(state == ACCELERATOR_VERIFICATION_COMPLETE)
+            break;
+
+        if(state != ACCELERATOR_VERIFICATION_PENDING)
+            acceleratorVerificationFailure(afu, afu_status, &verification, state, now_ms, 1);
+
+        acceleratorVerificationWait(afu, config.poll_interval_us, &poll_count);
     }
-    while(!((afu_status->cu_status)));
+    while(1);
 #ifdef  VERBOSE
     printf("*-----------------------------------------------------*\n");
     printf("| %-13s %-23s %-13s | \n", " ", "CU configuration DONE", " ");
@@ -111,7 +519,31 @@ void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
 {
 
+    struct AcceleratorVerificationConfig config;
+    struct AcceleratorVerification verification;
+    enum AcceleratorVerificationState state;
     struct CmdResponseStats cmdResponseStats = {0};
+    uint64_t now_ms;
+    uint64_t poll_count = 0;
+
+    acceleratorValidateAFU(afu, afu_status, "CU execution");
+    acceleratorVerificationGetConfig(afu, &config);
+    afu_status->cu_return = 0;
+    afu_status->cu_return_2 = 0;
+    afu_status->cu_return_done = 0;
+    afu_status->cu_return_done_2 = 0;
+    afu_status->error = 0;
+
+    now_ms = acceleratorVerificationGetNow(afu);
+    acceleratorVerificationStart(
+        &verification,
+        "CU execution",
+        now_ms,
+        config.run_timeout_ms,
+        config.stall_timeout_ms,
+        0,
+        0);
+
 #ifdef  VERBOSE_2
     printf("*-----------------------------------------------------*\n");
     printf("| (#) Data: %-14lu | %-24s |\n", afu_status->cu_stop, "(#) Data Processed");
@@ -120,38 +552,65 @@ void waitAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status)
     do
     {
         // Poll for errors always
-        cxl_mmio_read64((*afu), ERROR_REG, (uint64_t *) & (afu_status->error));
-        cxl_mmio_write64((*afu), ERROR_REG_ACK, (uint64_t)afu_status->error);
+        acceleratorMMIORead(afu, ERROR_REG, &(afu_status->error), "read CU execution error");
 
         // read final return result
-        cxl_mmio_read64((*afu), CU_RETURN_DONE, (uint64_t *) & (afu_status->cu_return_done));
-        cxl_mmio_read64((*afu), CU_RETURN_DONE_2, (uint64_t *) & (afu_status->cu_return_done_2));
+        acceleratorMMIORead(afu, CU_RETURN_DONE, &(afu_status->cu_return_done), "read CU completion");
+        acceleratorMMIORead(afu, CU_RETURN_DONE_2, &(afu_status->cu_return_done_2), "read CU completion data");
+        acceleratorMMIORead(afu, CU_RETURN, &(afu_status->cu_return), "read CU progress");
+        acceleratorMMIORead(afu, CU_RETURN_2, &(afu_status->cu_return_2), "read CU progress data");
 
 #ifdef  VERBOSE_2
-        cxl_mmio_read64((*afu), CU_RETURN, (uint64_t *) & (afu_status->cu_return));
-        cxl_mmio_read64((*afu), CU_RETURN_2, (uint64_t *) & (afu_status->cu_return_2));
         if(afu_status->cu_return && afu_status->cu_return_2)
             printf("\r| R: %-21lu | W: %-22lu|", afu_status->cu_return, afu_status->cu_return_2);
         fflush(stdout);
 #endif
-        // if((((afu_status->cu_return_done) << 32) >> 32) >= (afu_status->cu_stop))
-        //     break;
 
-        if((afu_status->cu_return_done) >= (afu_status->cu_stop))
+        now_ms = acceleratorVerificationGetNow(afu);
+        state = acceleratorVerificationObserve(
+            &verification,
+            now_ms,
+            afu_status->cu_return,
+            afu_status->cu_return_2,
+            afu_status->cu_return_done >= afu_status->cu_stop,
+            afu_status->error != 0);
+
+        if(state == ACCELERATOR_VERIFICATION_COMPLETE)
         {
             readCmdResponseStats(afu, &cmdResponseStats);
-            cxl_mmio_write64((*afu), CU_RETURN_DONE_ACK, (uint64_t)afu_status->cu_return_done);
+            acceleratorMMIOWrite(
+                afu,
+                CU_RETURN_DONE_ACK,
+                afu_status->cu_return_done ?
+                    afu_status->cu_return_done :
+                    (afu_status->cu_return_done_2 ?
+                        afu_status->cu_return_done_2 : 1),
+                "acknowledge CU completion");
+            waitAFUCompletionReset(afu, afu_status, &config);
             break;
         }
 
-        if(afu_status->error)
+        if(state == ACCELERATOR_VERIFICATION_DEVICE_ERROR)
         {
             printMMIO_error(afu_status->error);
             readCmdResponseStats(afu, &cmdResponseStats);
-            cxl_mmio_write64((*afu), ERROR_REG_ACK, (uint64_t)afu_status->error);
-            break;
+            acceleratorPrintFailureStats(&cmdResponseStats);
+            acceleratorMMIOWrite(
+                afu,
+                ERROR_REG_ACK,
+                afu_status->error,
+                "acknowledge CU execution error");
+            acceleratorVerificationFailure(afu, afu_status, &verification, state, now_ms, afu_status->cu_stop);
         }
 
+        if(state != ACCELERATOR_VERIFICATION_PENDING)
+        {
+            readCmdResponseStats(afu, &cmdResponseStats);
+            acceleratorPrintFailureStats(&cmdResponseStats);
+            acceleratorVerificationFailure(afu, afu_status, &verification, state, now_ms, afu_status->cu_stop);
+        }
+
+        acceleratorVerificationWait(afu, config.poll_interval_us, &poll_count);
     }
     while(1);
 
@@ -175,28 +634,28 @@ void readCmdResponseStats(struct cxl_afu_h **afu, struct CmdResponseStats *cmdRe
 {
 
 
-    cxl_mmio_read64((*afu), DONE_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_count));
-    cxl_mmio_read64((*afu), DONE_RESTART_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_RESTART_count));
+    acceleratorMMIORead(afu, DONE_COUNT_REG, &(cmdResponseStats->DONE_count), "read DONE count");
+    acceleratorMMIORead(afu, DONE_RESTART_COUNT_REG, &(cmdResponseStats->DONE_RESTART_count), "read restart count");
 
-    cxl_mmio_read64((*afu), DONE_PREFETCH_READ_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_PREFETCH_READ_count));
-    cxl_mmio_read64((*afu), DONE_PREFETCH_WRITE_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_PREFETCH_WRITE_count));
+    acceleratorMMIORead(afu, DONE_PREFETCH_READ_COUNT_REG, &(cmdResponseStats->DONE_PREFETCH_READ_count), "read prefetch read count");
+    acceleratorMMIORead(afu, DONE_PREFETCH_WRITE_COUNT_REG, &(cmdResponseStats->DONE_PREFETCH_WRITE_count), "read prefetch write count");
 
-    cxl_mmio_read64((*afu), PAGED_COUNT_REG, (uint64_t *) & (cmdResponseStats->PAGED_count));
-    cxl_mmio_read64((*afu), FLUSHED_COUNT_REG, (uint64_t *) & (cmdResponseStats->FLUSHED_count));
-    cxl_mmio_read64((*afu), AERROR_COUNT_REG, (uint64_t *) & (cmdResponseStats->AERROR_count));
-    cxl_mmio_read64((*afu), DERROR_COUNT_REG, (uint64_t *) & (cmdResponseStats->DERROR_count));
-    cxl_mmio_read64((*afu), FAILED_COUNT_REG, (uint64_t *) & (cmdResponseStats->FAILED_count));
-    cxl_mmio_read64((*afu), FAULT_COUNT_REG, (uint64_t *) & (cmdResponseStats->FAULT_count));
-    cxl_mmio_read64((*afu), NRES_COUNT_REG, (uint64_t *) & (cmdResponseStats->NRES_count));
-    cxl_mmio_read64((*afu), NLOCK_COUNT_REG, (uint64_t *) & (cmdResponseStats->NLOCK_count));
-    cxl_mmio_read64((*afu), CYCLE_COUNT_REG, (uint64_t *) & (cmdResponseStats->CYCLE_count));
-    cxl_mmio_read64((*afu), DONE_READ_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_READ_count));
-    cxl_mmio_read64((*afu), DONE_WRITE_COUNT_REG, (uint64_t *) & (cmdResponseStats->DONE_WRITE_count));
+    acceleratorMMIORead(afu, PAGED_COUNT_REG, &(cmdResponseStats->PAGED_count), "read paged count");
+    acceleratorMMIORead(afu, FLUSHED_COUNT_REG, &(cmdResponseStats->FLUSHED_count), "read flushed count");
+    acceleratorMMIORead(afu, AERROR_COUNT_REG, &(cmdResponseStats->AERROR_count), "read address error count");
+    acceleratorMMIORead(afu, DERROR_COUNT_REG, &(cmdResponseStats->DERROR_count), "read data error count");
+    acceleratorMMIORead(afu, FAILED_COUNT_REG, &(cmdResponseStats->FAILED_count), "read failed count");
+    acceleratorMMIORead(afu, FAULT_COUNT_REG, &(cmdResponseStats->FAULT_count), "read fault count");
+    acceleratorMMIORead(afu, NRES_COUNT_REG, &(cmdResponseStats->NRES_count), "read no-resource count");
+    acceleratorMMIORead(afu, NLOCK_COUNT_REG, &(cmdResponseStats->NLOCK_count), "read lock count");
+    acceleratorMMIORead(afu, CYCLE_COUNT_REG, &(cmdResponseStats->CYCLE_count), "read cycle count");
+    acceleratorMMIORead(afu, DONE_READ_COUNT_REG, &(cmdResponseStats->DONE_READ_count), "read completed read count");
+    acceleratorMMIORead(afu, DONE_WRITE_COUNT_REG, &(cmdResponseStats->DONE_WRITE_count), "read completed write count");
 
-    cxl_mmio_read64((*afu), READ_BYTE_COUNT_REG, (uint64_t *) & (cmdResponseStats->READ_BYTE_count));
-    cxl_mmio_read64((*afu), WRITE_BYTE_COUNT_REG, (uint64_t *) & (cmdResponseStats->WRITE_BYTE_count));
-    cxl_mmio_read64((*afu), PREFETCH_READ_BYTE_COUNT_REG, (uint64_t *) & (cmdResponseStats->PREFETCH_READ_BYTE_count));
-    cxl_mmio_read64((*afu), PREFETCH_WRITE_BYTE_COUNT_REG, (uint64_t *) & (cmdResponseStats->PREFETCH_WRITE_BYTE_count));
+    acceleratorMMIORead(afu, READ_BYTE_COUNT_REG, &(cmdResponseStats->READ_BYTE_count), "read byte count");
+    acceleratorMMIORead(afu, WRITE_BYTE_COUNT_REG, &(cmdResponseStats->WRITE_BYTE_count), "read written byte count");
+    acceleratorMMIORead(afu, PREFETCH_READ_BYTE_COUNT_REG, &(cmdResponseStats->PREFETCH_READ_BYTE_count), "read prefetched byte count");
+    acceleratorMMIORead(afu, PREFETCH_WRITE_BYTE_COUNT_REG, &(cmdResponseStats->PREFETCH_WRITE_BYTE_count), "read prefetched write byte count");
 
 }
 
@@ -298,8 +757,21 @@ void printCmdResponseStats(struct CmdResponseStats *cmdResponseStats)
 
 void releaseAFU(struct cxl_afu_h **afu)
 {
-    cxl_mmio_unmap ((*afu));
+    int status;
+
+    if(!afu || !(*afu))
+        return;
+
+    acceleratorCallStart("unmap AFU MMIO");
+    status = cxl_mmio_unmap((*afu));
+    acceleratorCallStop();
+    if(status)
+        fprintf(stderr, "Failed to unmap AFU MMIO: status=%d error=%s\n", status, strerror(errno));
+
+    acceleratorCallStart("free AFU");
     cxl_afu_free((*afu));
+    acceleratorCallStop();
+    (*afu) = NULL;
 }
 
 // ********************************************************************************************
@@ -308,79 +780,36 @@ void releaseAFU(struct cxl_afu_h **afu)
 
 void printMMIO_error( uint64_t error )
 {
-    if(error >> 14)
-    {
-        printf("(BIT-14) Credit Overflow AFU Error\n");
-    }
-    else if(error >> 12)
-    {
-        switch(error >> 12)
-        {
-        case 1:
-            printf("(BIT-12) Job Address Error\n");
-            break;
-        case 2:
-            printf("(BIT-13) Job Command Error\n");
-            break;
-        }
-    }
-    else if(error >> 10)
-    {
-        switch(error >> 10)
-        {
-        case 1:
-            printf("(BIT-10) MMIO Address Parity-Error\n");
-            break;
-        case 2:
-            printf("(BIT-11) MMIO Data Parity-Error\n");
-            break;
-        }
-
-    }
-    else if(error >> 9)
-    {
-        printf("(BIT-9) Write Tag Parity-Error\n");
-    }
-    else if(error >> 7)
-    {
-        switch(error >> 7)
-        {
-        case 1:
-            printf("(BIT-7) Read Data Parity-Error\n");
-            break;
-        case 2:
-            printf("(BIT-8) Read Tag Parity-Error\n");
-            break;
-        }
-
-    }
-    else if(error >> 0)
-    {
-        switch(error >> 0)
-        {
-        case 1:
-            printf("(BIT-0) Response AERROR\n");
-            break;
-        case 2:
-            printf("(BIT-1) Response DERROR\n");
-            break;
-        case 4:
-            printf("(BIT-2) Response FAILD\n");
-            break;
-        case 8:
-            printf("(BIT-3) Response FAULT\n");
-            break;
-        case 16:
-            printf("(BIT-4) Response NRES\n");
-            break;
-        case 32:
-            printf("(BIT-5) Response NLOCK\n");
-            break;
-        case 64:
-            printf("(BIT-6) Response tag Parity-Error\n");
-            break;
-        }
-    }
+    if(error & (1ULL << 14))
+        fprintf(stderr, "(BIT-14) Credit Overflow AFU Error\n");
+    if(error & (1ULL << 13))
+        fprintf(stderr, "(BIT-13) Job Command Error\n");
+    if(error & (1ULL << 12))
+        fprintf(stderr, "(BIT-12) Job Address Error\n");
+    if(error & (1ULL << 11))
+        fprintf(stderr, "(BIT-11) MMIO Data Parity-Error\n");
+    if(error & (1ULL << 10))
+        fprintf(stderr, "(BIT-10) MMIO Address Parity-Error\n");
+    if(error & (1ULL << 9))
+        fprintf(stderr, "(BIT-9) Write Tag Parity-Error\n");
+    if(error & (1ULL << 8))
+        fprintf(stderr, "(BIT-8) Read Tag Parity-Error\n");
+    if(error & (1ULL << 7))
+        fprintf(stderr, "(BIT-7) Read Data Parity-Error\n");
+    if(error & (1ULL << 6))
+        fprintf(stderr, "(BIT-6) Response Tag Parity-Error\n");
+    if(error & (1ULL << 5))
+        fprintf(stderr, "(BIT-5) Response NLOCK\n");
+    if(error & (1ULL << 4))
+        fprintf(stderr, "(BIT-4) Response NRES\n");
+    if(error & (1ULL << 3))
+        fprintf(stderr, "(BIT-3) Response FAULT\n");
+    if(error & (1ULL << 2))
+        fprintf(stderr, "(BIT-2) Response FAILED\n");
+    if(error & (1ULL << 1))
+        fprintf(stderr, "(BIT-1) Response DERROR\n");
+    if(error & (1ULL << 0))
+        fprintf(stderr, "(BIT-0) Response AERROR\n");
 
 }
 

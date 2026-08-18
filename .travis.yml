@@ -14,8 +14,7 @@ compiler:
   - gcc
 
 script:
-  - make -j
-  - make test
+  - make verify
 
 notifications:
 email:

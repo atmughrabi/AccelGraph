@@ -1,0 +1,13 @@
+# AccelGraph wiki
+
+AccelGraph combines graph loading and preprocessing, OpenMP reference
+implementations, CAPI kernels, benchmark orchestration, and result reporting.
+
+- [Benchmark guide](Benchmark-Guide.md) maps repository ownership, execution
+  stages, algorithms, and evidence.
+- [Accelerator verification](Accelerator-Verification.md) defines bounded CAPI
+  execution inside graph algorithms.
+- [Deployment runbook](Deployment-Runbook.md) covers benchmark launch and hang
+  triage.
+- [Stabilization plan](https://github.com/atmughrabi/AccelGraph/blob/master/docs/stabilization-plan.md)
+  records the benchmark acceptance matrix and rollout.

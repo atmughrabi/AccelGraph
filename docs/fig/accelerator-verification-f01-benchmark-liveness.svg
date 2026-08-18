@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="760" viewBox="30 20 1540 760" role="img" aria-labelledby="title desc" fill="#3A414A">
+  <title id="title">AccelGraph accelerator verification</title>
+  <desc id="desc">AccelGraph prepares a graph, configures a matching compute unit, observes bounded kernel progress, drains completion reset, and verifies algorithm output.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 13 11" markerWidth="13" markerHeight="11" refX="13" refY="5.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0 0 L13 5.5 L0 11 Z" fill="#3A414A"/>
+    </marker>
+    <style>
+      :root { color-scheme: light dark; }
+      @media (prefers-color-scheme: dark) {
+        [fill="#3A414A"]{fill:#E7E2D9}[stroke="#3A414A"]{stroke:#E7E2D9}
+        [fill="#F7F4E4"]{fill:#24282B}[fill="#C1E4F7"]{fill:#29363B}
+        [fill="#D7FAF5"]{fill:#28392C}[fill="#FFDDA6"]{fill:#3D3526}
+        [fill="#A7A6FF"]{fill:#332F39}[fill="#FFBBB1"]{fill:#402B2D}
+        [stroke="#000000"]{stroke:#E7E2D9}
+      }
+      .sans{font-family:Inter,Helvetica,Arial,sans-serif}.mono{font-family:"SFMono-Regular",Consolas,monospace}
+      .title{font-size:44px;font-weight:700}.pane{font-size:28px;font-weight:700}
+      .block{font-size:21px;font-weight:700}.body{font-size:20px}.small{font-size:18px}
+    </style>
+  </defs>
+  <text x="70" y="76" class="sans title">AccelGraph accelerator verification</text>
+  <text x="70" y="112" class="sans body">Liveness evidence is combined with the existing graph-result oracle</text>
+  <line x1="70" y1="138" x2="1530" y2="138" stroke="#3A414A" stroke-width="2"/>
+
+  <g class="sans">
+    <rect x="60" y="210" width="225" height="170" rx="8" fill="#F7F4E4" stroke="#000000" stroke-width="2"/>
+    <text x="172" y="250" text-anchor="middle" class="block">Graph input</text>
+    <text x="85" y="292" class="body">load / preprocess</text>
+    <text x="85" y="320" class="body">CSR and labels</text>
+    <text x="85" y="348" class="small">workload identity</text>
+
+    <rect x="340" y="210" width="225" height="170" rx="8" fill="#FFDDA6" stroke="#000000" stroke-width="2"/>
+    <text x="452" y="250" text-anchor="middle" class="block">Kernel setup</text>
+    <text x="365" y="292" class="body">algorithm / direction</text>
+    <text x="365" y="320" class="body">watchdog + status</text>
+    <text x="365" y="348" class="small">bounded start</text>
+
+    <rect x="620" y="210" width="225" height="170" rx="8" fill="#C1E4F7" stroke="#000000" stroke-width="2"/>
+    <text x="732" y="250" text-anchor="middle" class="block">Kernel progress</text>
+    <text x="645" y="292" class="body">return counters</text>
+    <text x="645" y="320" class="body">error register</text>
+    <text x="645" y="348" class="small">stall + run deadline</text>
+
+    <rect x="900" y="210" width="225" height="170" rx="8" fill="#A7A6FF" stroke="#000000" stroke-width="2"/>
+    <text x="1012" y="250" text-anchor="middle" class="block">Round drain</text>
+    <text x="925" y="292" class="body">ACK completion</text>
+    <text x="925" y="320" class="body">done/status clear</text>
+    <text x="925" y="348" class="small">safe next iteration</text>
+
+    <rect x="1180" y="210" width="300" height="170" rx="8" fill="#D7FAF5" stroke="#000000" stroke-width="3"/>
+    <text x="1330" y="250" text-anchor="middle" class="pane">Benchmark proof</text>
+    <text x="1205" y="292" class="body">algorithm terminates</text>
+    <text x="1205" y="320" class="body">reference result matches</text>
+    <text x="1205" y="348" class="small">metrics are reportable</text>
+  </g>
+
+  <g fill="none" stroke="#3A414A" stroke-width="3" marker-end="url(#arrow)">
+    <path d="M285 295 H340"/>
+    <path d="M565 295 H620"/>
+    <path d="M845 295 H900"/>
+    <path d="M1125 295 H1180"/>
+  </g>
+
+  <rect x="300" y="500" width="940" height="150" rx="8" fill="#FFBBB1" stroke="#000000" stroke-width="2"/>
+  <text x="770" y="540" text-anchor="middle" class="sans pane">Failed benchmark evidence</text>
+  <text x="350" y="585" class="sans body">setup / MMIO</text>
+  <text x="555" y="585" class="sans body">device error</text>
+  <text x="755" y="585" class="sans body">stalled round</text>
+  <text x="965" y="585" class="sans body">run timeout</text>
+  <text x="770" y="625" text-anchor="middle" class="mono small">algorithm + graph + phase + progress + target + status + error</text>
+
+  <g fill="none" stroke="#3A414A" stroke-width="2" stroke-dasharray="6 8" marker-end="url(#arrow)">
+    <path d="M452 380 V450 H500 V500"/>
+    <path d="M732 380 V500"/>
+    <path d="M1012 380 V450 H940 V500"/>
+  </g>
+
+  <text x="70" y="720" class="sans body">Completion proves liveness for the workload; the reference comparison proves graph-result correctness.</text>
+  <text x="1530" y="720" text-anchor="end" class="mono small">bounded round - reset custody - result oracle</text>
+</svg>
