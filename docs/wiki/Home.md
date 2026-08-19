@@ -1,5 +1,9 @@
 # AccelGraph wiki
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/atmughrabi/AccelGraph/master/06_slides/fig/logo.svg" width="220" alt="AccelGraph logo">
+</p>
+
 AccelGraph combines graph loading and preprocessing, OpenMP reference
 implementations, CAPI kernels, benchmark orchestration, and result reporting.
 

@@ -1,13 +1,13 @@
 [![verification](https://github.com/atmughrabi/AccelGraph/actions/workflows/verification.yml/badge.svg)](https://github.com/atmughrabi/AccelGraph/actions/workflows/verification.yml)
-[<p align="center"><img src="./06_slides/fig/logo3.png" width="450" ></p>](#accel-graph-benchmark-suite)
+<p align="center">
+  <img src="./06_slides/fig/logo.svg" width="280" alt="AccelGraph logo">
+</p>
 
 # AccelGraph-CAPI Benchmark Suite
 
-## Graph Processing Framework that supports | OpenMP || CAPI
+## Graph Processing Framework for OpenMP and CAPI
 
 ## Overview
-
-![End-to-End Acceleration](./06_slides/fig/theme.png "AccelGraph-CAPI")
 
 AccelGraph-CAPI is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of AccelGraph-CAPI has been developed on Ubuntu 18.04, with PowerPC/Intel architecture taken into account.
 AccelGraph-CAPI is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore, this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between Shared Memory Accelerators and Parallel Processors.
@@ -84,7 +84,7 @@ export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
 
 1. Clone AccelGraph-CAPI.
 ```console
-AccelGraph@CAPI:~$ git https://github.com/atmughrabi/AccelGraph.git
+AccelGraph@CAPI:~$ git clone https://github.com/atmughrabi/AccelGraph.git
 ```
 2. From the home directory go to the AccelGraph directory:
 ```console
@@ -97,8 +97,6 @@ AccelGraph@CAPI:~AccelGraph$ git submodule update --init --recursive
 ```
 
 # Running AccelGraph-CAPI
-
-[<img src="./06_slides/fig/openmp_logo.png" height="45" align="right" >](https://www.openmp.org/)
 
 ## Initial compilation for the Graph framework with OpenMP
 
@@ -114,8 +112,6 @@ AccelGraph@CAPI:~AccelGraph$ make run
 ```console
 AccelGraph@CAPI:~AccelGraph$ make run-openmp
 ```
-
-[<img src="./06_slides/fig/capi_logo.png" height="45" align="right" >](https://openpowerfoundation.org/capi-drives-business-performance/)
 
 ## Initial compilation for the Graph framework with Coherent Accelerator Processor Interface (CAPI)
 
@@ -537,6 +533,5 @@ benchmarking suite for various graph processing algorithms using pure C.
   - [x] SPMV  (Sparse Matrix-vector Multiplication)
   - [x] BC    (Betweenness Centrality) `(work in progress)`
 - [x] Support testing
-
 Report bugs to <atmughra@ncsu.edu>
-[<p align="right"> <img src="./06_slides/fig/logo1.png" width="200" ></p>](#accel-graph-benchmark-suite)
+Report bugs to <atmughra@ncsu.edu>

@@ -10,7 +10,7 @@
 | `03_capi_integration` | Graph compute-unit RTL, simulator design, synthesis, images |
 | `04_test_graphs` | Small and suite-specific benchmark inputs |
 | `05_scripts` | CU selection and version helpers |
-| `06_slides` | Original papers, diagrams, and logos |
+| `06_slides` | Original papers, diagrams, and current brand assets |
 
 ## Execution stages
 
