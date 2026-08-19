@@ -1,7 +1,7 @@
 # Architecture
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/atmughrabi/AccelGraph/master/docs/fig/accelgraph-architecture.png" width="960" alt="AccelGraph accelerator architecture">
+  <img src="https://raw.githubusercontent.com/atmughrabi/AccelGraph/master/docs/fig/accelgraph-architecture.svg" width="960" alt="AccelGraph accelerator architecture">
 </p>
 
 AccelGraph combines the CAPI-Precis AFU-control layer with graph-specific CU

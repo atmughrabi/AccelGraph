@@ -24,4 +24,5 @@ mirror it to the wiki repository; do not maintain independent page content.
 
 ## Architecture asset
 
-- [AccelGraph architecture](fig/accelgraph-architecture.png)
+- [AccelGraph architecture SVG](fig/accelgraph-architecture.svg)
+- [Original architecture PNG](fig/accelgraph-architecture.png)

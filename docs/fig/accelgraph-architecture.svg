@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="930" viewBox="0 0 1640 930" role="img" aria-labelledby="title desc" fill="#3A414A">
+  <title id="title">AccelGraph accelerator architecture</title>
+  <desc id="desc">AccelGraph extends CAPI-Precis AFU control with graph compute-unit clusters. Vertex job, edge job, edge data, and graph kernels cooperate across multiple vertex compute units.</desc>
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 13 11" markerWidth="13" markerHeight="11" refX="13" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L13 5.5 L0 11 Z" fill="#1071E5"/></marker>
+    <marker id="arrow-green" viewBox="0 0 13 11" markerWidth="13" markerHeight="11" refX="13" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L13 5.5 L0 11 Z" fill="#008A0E"/></marker>
+    <style>
+      :root{color-scheme:light dark}
+      @media(prefers-color-scheme:dark){
+        [fill="#3A414A"]{fill:#E7E2D9}[stroke="#3A414A"]{stroke:#E7E2D9}[stroke="#000000"]{stroke:#E7E2D9}
+        [fill="#F7F4E4"]{fill:#24282B}[fill="#EDF5FF"],[fill="#C1E4F7"]{fill:#29363B}
+        [fill="#D7FAF5"],[fill="#E3FAE3"]{fill:#28392C}[fill="#FFDDA6"],[fill="#FFF3D9"]{fill:#3D3526}
+        [fill="#FFBBB1"],[fill="#FFD9D9"]{fill:#402B2D}[fill="#A7A6FF"],[fill="#DEDEFF"]{fill:#332F39}
+        [fill="#1071E5"]{fill:#9CB8E8}[stroke="#1071E5"]{stroke:#9CB8E8}
+        [fill="#008A0E"]{fill:#92C89A}[stroke="#008A0E"]{stroke:#92C89A}
+      }
+      .sans{font-family:Inter,Helvetica,Arial,sans-serif}.mono{font-family:"SFMono-Regular",Consolas,monospace}
+      .title{font-size:44px;font-weight:700}.subtitle{font-size:21px}.pane{font-size:27px;font-weight:700}
+      .block{font-size:19px;font-weight:700}.label{font-size:16px;font-weight:700}
+      .body{font-size:18px}.small{font-size:16px}.tiny{font-size:14px}
+    </style>
+  </defs>
+
+  <text x="50" y="65" class="sans title">AccelGraph accelerator architecture</text>
+  <text x="50" y="100" class="sans subtitle">CAPI-Precis protocol services plus graph-specific CU clusters and vertex engines</text>
+  <line x1="50" y1="126" x2="1590" y2="126" stroke="#3A414A" stroke-width="2"/>
+
+  <rect x="50" y="175" width="210" height="500" rx="8" fill="#EDF5FF" stroke="#000000" stroke-width="3"/>
+  <text x="155" y="220" text-anchor="middle" class="sans pane">Host/reference</text>
+  <rect x="78" y="255" width="154" height="65" rx="8" fill="#C1E4F7" stroke="#000000" stroke-width="2"/>
+  <text x="155" y="293" text-anchor="middle" class="sans block">OpenGraph CPU</text>
+  <rect x="78" y="345" width="154" height="65" rx="8" fill="#D7FAF5" stroke="#000000" stroke-width="2"/>
+  <text x="155" y="383" text-anchor="middle" class="sans block">CSR + inverse CSR</text>
+  <rect x="78" y="435" width="154" height="65" rx="8" fill="#DEDEFF" stroke="#000000" stroke-width="2"/>
+  <text x="155" y="473" text-anchor="middle" class="sans block">Graph WED</text>
+  <rect x="78" y="525" width="154" height="65" rx="8" fill="#F7F4E4" stroke="#000000" stroke-width="2"/>
+  <text x="155" y="563" text-anchor="middle" class="sans block">libcxl</text>
+  <text x="155" y="630" text-anchor="middle" class="mono small">00_open_graph</text>
+  <text x="155" y="652" text-anchor="middle" class="mono small">02_capi_graph</text>
+
+  <rect x="315" y="175" width="220" height="500" rx="8" fill="#E3FAE3" stroke="#000000" stroke-width="4"/>
+  <text x="425" y="220" text-anchor="middle" class="sans pane">CAPI-Precis</text>
+  <text x="425" y="251" text-anchor="middle" class="sans block">PSL + AFU control</text>
+  <g class="sans small">
+    <rect x="345" y="285" width="160" height="50" rx="8" fill="#DEDEFF" stroke="#000000" stroke-width="2"/><text x="425" y="316" text-anchor="middle">WED + MMIO</text>
+    <rect x="345" y="355" width="160" height="50" rx="8" fill="#D7FAF5" stroke="#000000" stroke-width="2"/><text x="425" y="386" text-anchor="middle">credit + tags</text>
+    <rect x="345" y="425" width="160" height="50" rx="8" fill="#FFDDA6" stroke="#000000" stroke-width="2"/><text x="425" y="456" text-anchor="middle">command + restart</text>
+    <rect x="345" y="495" width="160" height="50" rx="8" fill="#C1E4F7" stroke="#000000" stroke-width="2"/><text x="425" y="526" text-anchor="middle">data + response</text>
+    <rect x="345" y="565" width="160" height="50" rx="8" fill="#A7A6FF" stroke="#000000" stroke-width="2"/><text x="425" y="596" text-anchor="middle">done + reset</text>
+  </g>
+
+  <rect x="590" y="155" width="610" height="540" rx="8" fill="#FFF3D9" stroke="#000000" stroke-width="4"/>
+  <text x="895" y="202" text-anchor="middle" class="sans pane">Graph compute-unit clusters</text>
+  <rect x="620" y="235" width="190" height="105" rx="8" fill="#FFBBB1" stroke="#000000" stroke-width="2"/>
+  <text x="715" y="272" text-anchor="middle" class="sans block">Vertex job engine</text>
+  <text x="715" y="302" text-anchor="middle" class="sans small">cache-line requests</text>
+  <text x="715" y="325" text-anchor="middle" class="sans small">vertex job queue</text>
+
+  <rect x="620" y="380" width="190" height="200" rx="8" fill="#C1E4F7" stroke="#000000" stroke-width="2"/>
+  <text x="715" y="425" text-anchor="middle" class="sans block">Cluster arbitration</text>
+  <text x="715" y="460" text-anchor="middle" class="sans body">request routing</text>
+  <text x="715" y="490" text-anchor="middle" class="sans body">read/write buffers</text>
+  <text x="715" y="520" text-anchor="middle" class="sans body">workflow state</text>
+  <text x="715" y="550" text-anchor="middle" class="sans body">counter reduction</text>
+
+  <g class="sans">
+    <g transform="translate(855 235)">
+      <rect width="315" height="150" rx="8" fill="#FFBBB1" stroke="#000000" stroke-width="2"/>
+      <text x="157" y="32" text-anchor="middle" class="block">Vertex-CU cluster 0</text>
+      <g class="small">
+        <rect x="20" y="55" width="78" height="62" rx="8" fill="#E3FAE3" stroke="#000000"/><text x="59" y="92" text-anchor="middle">CU 0</text>
+        <rect x="118" y="55" width="78" height="62" rx="8" fill="#E3FAE3" stroke="#000000"/><text x="157" y="92" text-anchor="middle">CU 1</text>
+        <rect x="216" y="55" width="78" height="62" rx="8" fill="#E3FAE3" stroke="#000000"/><text x="255" y="92" text-anchor="middle">CU 2</text>
+      </g>
+    </g>
+    <g transform="translate(855 415)">
+      <rect width="315" height="150" rx="8" fill="#FFBBB1" stroke="#000000" stroke-width="2"/>
+      <text x="157" y="32" text-anchor="middle" class="block">Vertex-CU cluster N-1</text>
+      <g class="small">
+        <rect x="20" y="55" width="78" height="62" rx="8" fill="#E3FAE3" stroke="#000000"/><text x="59" y="92" text-anchor="middle">CU 0</text>
+        <rect x="118" y="55" width="78" height="62" rx="8" fill="#E3FAE3" stroke="#000000"/><text x="157" y="92" text-anchor="middle">CU 1</text>
+        <rect x="216" y="55" width="78" height="62" rx="8" fill="#E3FAE3" stroke="#000000"/><text x="255" y="92" text-anchor="middle">CU 2</text>
+      </g>
+    </g>
+  </g>
+  <text x="1012" y="615" text-anchor="middle" class="sans small">BFS / PageRank / SPMV / CC / TriangleCount</text>
+
+  <rect x="1255" y="155" width="335" height="540" rx="8" fill="#F7F4E4" stroke="#000000" stroke-width="4"/>
+  <text x="1422" y="202" text-anchor="middle" class="sans pane">Vertex CU detail</text>
+  <rect x="1275" y="240" width="105" height="325" rx="8" fill="#A7A6FF" stroke="#000000" stroke-width="2"/>
+  <text x="1327" y="320" text-anchor="middle" class="sans block">Engine bus</text>
+  <text x="1327" y="350" text-anchor="middle" class="sans small">arbitration</text>
+  <text x="1327" y="375" text-anchor="middle" class="sans small">read/write</text>
+  <text x="1327" y="400" text-anchor="middle" class="sans small">buffers</text>
+  <text x="1327" y="425" text-anchor="middle" class="sans small">workflow</text>
+
+  <rect x="1400" y="235" width="165" height="62" rx="8" fill="#FFBBB1" stroke="#000000" stroke-width="2"/>
+  <text x="1482" y="272" text-anchor="middle" class="sans block">Vertex job</text>
+  <rect x="1400" y="325" width="165" height="78" rx="8" fill="#FFDDA6" stroke="#000000" stroke-width="2"/>
+  <text x="1482" y="356" text-anchor="middle" class="sans block">Edge job engine</text>
+  <text x="1482" y="383" text-anchor="middle" class="sans small">request + queue</text>
+  <rect x="1400" y="430" width="165" height="78" rx="8" fill="#C1E4F7" stroke="#000000" stroke-width="2"/>
+  <text x="1482" y="461" text-anchor="middle" class="sans block">Edge data engine</text>
+  <text x="1482" y="488" text-anchor="middle" class="sans small">read + extract queue</text>
+  <rect x="1400" y="535" width="165" height="105" rx="8" fill="#E3FAE3" stroke="#000000" stroke-width="2"/>
+  <text x="1482" y="562" text-anchor="middle" class="sans label">Vertex data engine</text>
+  <text x="1482" y="587" text-anchor="middle" class="sans small">property read/write</text>
+  <text x="1482" y="612" text-anchor="middle" class="sans tiny">graph kernel</text>
+  <text x="1482" y="632" text-anchor="middle" class="sans tiny">(PR / BFS / etc.)</text>
+  <rect x="1275" y="585" width="105" height="65" rx="8" fill="#DEDEFF" stroke="#000000" stroke-width="2"/>
+  <text x="1327" y="612" text-anchor="middle" class="sans block">Write</text>
+  <text x="1327" y="637" text-anchor="middle" class="sans block">buffer</text>
+
+  <g fill="none" stroke="#1071E5" stroke-width="3" marker-end="url(#arrow-blue)">
+    <path d="M260 520 H315"/>
+    <path d="M535 480 H620"/>
+    <path d="M810 287 H855"/>
+    <path d="M810 480 H855"/>
+    <path d="M715 340 V380"/>
+    <path d="M1380 255 H1400"/>
+    <path d="M1380 345 H1400"/>
+    <path d="M1380 450 H1400"/>
+    <path d="M1380 545 H1400"/>
+    <path d="M1482 297 V325"/>
+    <path d="M1482 403 V430"/>
+    <path d="M1482 508 V535"/>
+  </g>
+  <g fill="none" stroke="#008A0E" stroke-width="3" marker-end="url(#arrow-green)">
+    <path d="M315 560 H260"/>
+    <path d="M620 520 H535"/>
+    <path d="M1400 278 H1380"/>
+    <path d="M1400 368 H1380"/>
+    <path d="M1400 473 H1380"/>
+    <path d="M1400 562 H1380"/>
+    <path d="M1400 617 H1380"/>
+    <path d="M1275 617 H1225 V550 H1200"/>
+  </g>
+  <g fill="none" stroke="#979EA8" stroke-width="2" stroke-dasharray="8 7">
+    <path d="M1170 260 L1255 225"/>
+    <path d="M1170 385 L1255 660"/>
+  </g>
+  <rect x="50" y="745" width="1540" height="105" rx="8" fill="#F7F4E4" stroke="#000000" stroke-width="2"/>
+  <text x="75" y="783" class="sans block">Graph round</text>
+  <text x="75" y="817" class="sans body">WED target -&gt; vertex jobs -&gt; edge ranges -&gt; edge/property data -&gt; graph kernel -&gt; property writes -&gt; reduced progress/done -&gt; host ACK/reset</text>
+  <line x1="50" y1="885" x2="1590" y2="885" stroke="#979EA8"/>
+  <circle cx="68" cy="910" r="8" fill="#1071E5"/><text x="86" y="917" class="sans small">request / control</text>
+  <circle cx="270" cy="910" r="8" fill="#008A0E"/><text x="288" y="917" class="sans small">response / writeback</text>
+  <line x1="500" y1="910" x2="540" y2="910" stroke="#979EA8" stroke-width="2" stroke-dasharray="8 7"/>
+  <text x="552" y="917" class="sans small">detail callout</text>
+  <text x="1590" y="917" text-anchor="end" class="mono small">shared AFU protocol: CAPI-Precis SSOT</text>
+</svg>

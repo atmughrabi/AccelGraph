@@ -20,12 +20,25 @@ thread counts, and timeout overrides.
 
 ## Launch
 
-Use the existing simulator or FPGA target:
+The root wrapper supplies AccelGraph's graph-simulation directory and pinned
+CAPI-Precis checkout to the canonical environment harness:
 
 ```console
-make run-capi-sim-verbose2
-make run-capi-fpga-verbose2
+./tools/capi-env --mode host check
+./tools/capi-env --mode sim check
+./tools/capi-env --mode sim -- make run-vsim
+./tools/capi-env --mode sim -- make run-pslse
+./tools/capi-env --mode sim -- make run-capi-sim-verbose2
+./tools/capi-env --mode fpga -- make run-capi-fpga-verbose2
 ```
+
+Use `./tools/capi-env --mode sim shell` for a temporary configured shell. Exit
+the shell to discard the environment. The wrapper never edits or relies on
+`.bashrc`; mode behavior, custom Intel FPGA paths, and printed exports are
+defined by the
+[CAPI-Precis environment harness](https://github.com/atmughrabi/CAPI-Precis/wiki/Environment-Harness).
+In simulation mode, `CAPI_DEVICE` must select the AFU configured in
+`03_capi_integration/accelerator_sim/server/shim_host.dat`.
 
 Simulation targets default to 5-minute start/call, 15-minute stall, and 2-hour
 run limits. Override the `SIM_ACCELERATOR_*` make variables when measured

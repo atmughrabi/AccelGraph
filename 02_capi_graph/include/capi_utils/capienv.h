@@ -156,6 +156,7 @@ void printMMIO_error( uint64_t error );
 // ***************                  AFU General                                  **************
 // ********************************************************************************************
 
+char *capiDevicePath(void);
 int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR);
 void startAFU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);
 void startCU(struct cxl_afu_h **afu, struct AFUStatus *afu_status);

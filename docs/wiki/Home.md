@@ -16,7 +16,7 @@ Shared AFU-control documentation lives in the complementary
 - [Accelerator verification](https://github.com/atmughrabi/AccelGraph/wiki/Accelerator-Verification) defines bounded CAPI
   execution inside graph algorithms.
 - [Deployment runbook](https://github.com/atmughrabi/AccelGraph/wiki/Deployment-Runbook) covers benchmark launch and hang
-  triage.
+  triage, including the scoped CAPI environment wrapper.
 - [Verification infrastructure](https://github.com/atmughrabi/AccelGraph/wiki/Verification-Infrastructure)
   defines graph-module, backpressure, scoreboard, golden-model, and coverage work.
 - [Stabilization plan](https://github.com/atmughrabi/AccelGraph/wiki/Stabilization-Plan)

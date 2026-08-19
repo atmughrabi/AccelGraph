@@ -15,7 +15,7 @@ compiler:
 
 script:
   # GitHub Actions owns the Verilator 5.x RTL gate.
-  - make accelerator-verification benchmark-verification integration-verification integration-compile graphbrew-smoke verify-test
+  - make env-harness-test accelerator-verification benchmark-verification integration-verification integration-compile graphbrew-smoke verify-test
 
 notifications:
 email:

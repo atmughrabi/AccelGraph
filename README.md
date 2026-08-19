@@ -10,7 +10,7 @@
 ## Overview
 
 <p align="center">
-  <img src="./docs/fig/accelgraph-architecture.png" width="960" alt="AccelGraph accelerator architecture">
+  <img src="./docs/fig/accelgraph-architecture.svg" width="960" alt="AccelGraph accelerator architecture">
 </p>
 
 AccelGraph-CAPI is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of AccelGraph-CAPI has been developed on Ubuntu 18.04, with PowerPC/Intel architecture taken into account.
@@ -57,38 +57,32 @@ AccelGraph@CAPI:~$ sudo apt-get install verilator
   * ModelSim is used for simulation and installed along side Quartus II 18.1.
   * Synthesis requires ALTERA Quartus, starting from release 15.0 of Quartus II should be fine.
   * Nallatech P385-A7 card with the Altera Stratix-V-GX-A7 FPGA is supported.
-  * Environment Variable setup, `HOME` and `ALTERAPATH` depend on where you clone the repository and install ModelSim.
+  * `tools/capi-env` delegates to the pinned CAPI-Precis harness and supplies
+    AccelGraph's project, CAPI, and simulation roots. No `.bashrc` changes are
+    required.
+  * Initialize the recursive submodules in
+    [Setting up the source code](#setting-up-the-source-code) before running
+    host or simulation checks.
 
 ```bash
-#quartus 18.1 env-variables
-export ALTERAPATH="${HOME}/intelFPGA/18.1"
-export QUARTUS_INSTALL_DIR="${ALTERAPATH}/quartus"
-export LM_LICENSE_FILE="${ALTERAPATH}/licenses/psl_A000_license.dat:${ALTERAPATH}/licenses/common_license.dat"
-export QSYS_ROOTDIR="${ALTERAPATH}/quartus/sopc_builder/bin"
-export PATH=$PATH:${ALTERAPATH}/quartus/bin
-export PATH=$PATH:${ALTERAPATH}/nios2eds/bin
+# Host and checkout validation
+./tools/capi-env --mode host check
 
-#modelsim env-variables
-export PATH=$PATH:${ALTERAPATH}/modelsim_ase/bin
+# Validate a ModelSim/PSLSE installation
+./tools/capi-env --mode sim --intel-fpga "$HOME/intelFPGA/18.1" check
 
-#AccelGraph project folder
-export PSLSE_ROOT="AccelGraph/01_capi_precis"
+# Run with a scoped environment
+./tools/capi-env --mode sim -- make run-vsim
+./tools/capi-env --mode sim -- make run-pslse
+./tools/capi-env --mode sim -- make run-capi-sim-verbose2
 
-#CAPI framework env variables
-export PSLSE_INSTALL_DIR="${HOME}/Documents/github_repos/${PSLSE_ROOT}/01_capi_integration/pslse"
-export VPI_USER_H_DIR="${ALTERAPATH}/modelsim_ase/include"
-export PSLVER=8
-export BIT32=n
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PSLSE_INSTALL_DIR/libcxl:$PSLSE_INSTALL_DIR/afu_driver/src"
-
-#PSLSE env variables
-export PSLSE_SERVER_DIR="${HOME}/Documents/github_repos/${PSLSE_ROOT}/01_capi_integration/accelerator_sim/server"
-export PSLSE_SERVER_DAT="${PSLSE_SERVER_DIR}/pslse_server.dat"
-export SHIM_HOST_DAT="${PSLSE_SERVER_DIR}/shim_host.dat"
-export PSLSE_PARMS="${PSLSE_SERVER_DIR}/pslse.parms"
-export DEBUG_LOG_PATH="${PSLSE_SERVER_DIR}/debug.log"
-
+# Open a temporary configured shell; exit discards the environment
+./tools/capi-env --mode synth shell
 ```
+
+The [AccelGraph deployment runbook](https://github.com/atmughrabi/AccelGraph/wiki/Deployment-Runbook)
+documents graph-specific launch paths. CAPI-Precis owns the canonical
+[environment harness reference](https://github.com/atmughrabi/CAPI-Precis/wiki/Environment-Harness).
 
 2. AFU Communication with PSL
   * please check [(OpenGraph)](https://github.com/atmughrabi/OpenGraph).

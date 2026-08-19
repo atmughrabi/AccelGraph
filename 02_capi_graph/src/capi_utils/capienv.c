@@ -319,6 +319,13 @@ static void waitAFUCompletionReset(
     while(1);
 }
 
+char *capiDevicePath(void)
+{
+    char *device = getenv("CAPI_DEVICE");
+
+    return (device && device[0]) ? device : DEVICE_1;
+}
+
 int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR)
 {
     int status;
@@ -339,7 +346,7 @@ int setupAFUGraphCSR(struct cxl_afu_h **afu, struct WEDGraphCSR *wedGraphCSR)
         setupAFUFailure(afu, "install MMIO fault handler", status);
 
     acceleratorCallStart("open AFU device");
-    (*afu) = cxl_afu_open_dev(DEVICE_1);
+    (*afu) = cxl_afu_open_dev(capiDevicePath());
     acceleratorCallStop();
     if(!(*afu))
         setupAFUFailure(afu, "open device", errno);
