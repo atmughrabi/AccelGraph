@@ -13,28 +13,27 @@ from pathlib import Path
 
 
 SCRIPT = Path(__file__).resolve()
-REPO_ROOT = SCRIPT.parents[3]
+REPO_ROOT = SCRIPT.parents[4]
 GRAPH_RTL_ROOT = REPO_ROOT / "03_capi_integration/accelerator_rtl"
+GRAPH_VERIFICATION_RTL_ROOT = (
+    REPO_ROOT / "03_capi_integration/accelerator_verification/rtl"
+)
 CAPI_ROOT = REPO_ROOT / "01_capi_precis"
-MANIFEST_ROOT = REPO_ROOT / "verification/rtl/manifests"
+MANIFEST_ROOT = GRAPH_VERIFICATION_RTL_ROOT / "manifests"
 LAYOUTS_PATH = MANIFEST_ROOT / "layouts.json"
 INVENTORY_PATH = MANIFEST_ROOT / "rtl-inventory.json"
 EXTRACT_SCRIPT = SCRIPT.with_name("extract_vsim_sources.tcl")
 SIM_ROOT = REPO_ROOT / "03_capi_integration/accelerator_sim/sim"
 SYNTH_ROOT = REPO_ROOT / "03_capi_integration/accelerator_synth"
 GRAPH_BIND = (
-    "03_capi_integration/accelerator_rtl/verification/"
+    "03_capi_integration/accelerator_verification/rtl/"
     "accelerator_verification_bind.sv"
 )
 GRAPH_TB = (
-    "03_capi_integration/accelerator_rtl/verification/"
+    "03_capi_integration/accelerator_verification/rtl/"
     "accelerator_verification_tb.sv"
 )
-GRAPH_STUB = (
-    "03_capi_integration/accelerator_rtl/verification/"
-    "cached_afu_bind_cu_stub.sv"
-)
-FP_BLACKBOX = REPO_ROOT / "verification/rtl/models/fp_vendor_blackboxes.sv"
+FP_BLACKBOX = GRAPH_VERIFICATION_RTL_ROOT / "models/fp_vendor_blackboxes.sv"
 CAPI_TOP = (
     "01_capi_precis/01_capi_integration/pslse/afu_driver/verilog/top.v"
 )
@@ -90,13 +89,13 @@ def read_source_file(path, allow_missing=False):
 
 
 def write_source_file(path, title, sources):
-    contents = [f"# AccelGraph RTL manifest v1: {title}", *sources]
+    contents = [f"# AccelGraph RTL manifest v2: {title}", *sources]
     path.write_text("\n".join(contents) + "\n")
 
 
 def load_layouts():
     payload = json.loads(LAYOUTS_PATH.read_text())
-    if payload.get("schema_version") != 1:
+    if payload.get("schema_version") != 2:
         fail("unsupported layouts schema")
     layouts = payload.get("layouts", [])
     if len(layouts) != 11:
@@ -166,7 +165,11 @@ def validate_capi_pin(expected_commit):
     if any(not line.startswith(" ") for line in nested):
         fail("CAPI-Precis nested submodules are not at their recorded pins")
 
-    validator = CAPI_ROOT / "verification/rtl/scripts/verify_manifests.py"
+    validator = (
+        CAPI_ROOT /
+        "01_capi_integration/accelerator_verification/rtl/"
+        "scripts/verify_manifests.py"
+    )
     if not validator.is_file():
         fail("pinned CAPI-Precis does not publish the Phase 0 manifest API")
     try:
@@ -215,7 +218,8 @@ def validate_vendor_boundaries(payload):
 
 def capi_monitor_sources():
     manifest = (
-        CAPI_ROOT / "verification/rtl/manifests/monitor.f"
+        CAPI_ROOT /
+        "01_capi_integration/accelerator_verification/rtl/manifests/monitor.f"
     )
     sources = []
     for raw_line in manifest.read_text().splitlines():
@@ -391,13 +395,16 @@ def sha256(path):
 
 
 def verification_unit(source):
-    if "/verification/" in source:
+    if "/accelerator_verification/" in source:
         return "graph-rtl-lifecycle"
     if "/cu_control/" not in source:
         fail(f"graph RTL is outside cu_control/ or verification/: {source}")
     relative_source = source.split("/cu_control/", 1)[1]
     parts = relative_source.split("/")
-    return "-".join(parts[:3] + [Path(source).stem])
+    unit_parts = parts[:3]
+    if len(parts) >= 6 and parts[4] in {"cu", "pkg"}:
+        unit_parts.append(parts[3])
+    return "-".join(unit_parts + [Path(source).stem])
 
 
 def build_inventory(layouts, source_sets, vendor_boundaries):
@@ -424,16 +431,16 @@ def build_inventory(layouts, source_sets, vendor_boundaries):
         "layout": "graph-monitor-testbench",
         "order": 0,
     })
-    quarantined_membership[GRAPH_STUB].append({
-        "layout": "compatibility-stub",
+    active_membership[relative(FP_BLACKBOX)].append({
+        "layout": "portable-vendor-boundaries",
         "order": 0,
     })
-
-    discovered = sorted(
+    discovered = sorted({
         relative(path)
-        for path in GRAPH_RTL_ROOT.rglob("*")
+        for root in (GRAPH_RTL_ROOT, GRAPH_VERIFICATION_RTL_ROOT)
+        for path in root.rglob("*")
         if path.is_file() and path.suffix.lower() in RTL_SUFFIXES
-    )
+    })
     for source in discovered:
         if (
             "/cu_PageRank/CSR/PUSH/" in source and
@@ -444,7 +451,11 @@ def build_inventory(layouts, source_sets, vendor_boundaries):
                 "order": -1,
             })
     design_sources = [
-        source for source in discovered if "/verification/" not in source
+        source
+        for source in discovered
+        if source.startswith(
+            "03_capi_integration/accelerator_rtl/cu_control/"
+        )
     ]
     design_declarations = [
         declaration
@@ -488,8 +499,6 @@ def build_inventory(layouts, source_sets, vendor_boundaries):
             membership = quarantined_membership[source]
             evidence = (
                 "PageRank PUSH expected failure"
-                if "/cu_PageRank/CSR/PUSH/" in source
-                else "compatibility stub; forbidden as real-CU evidence"
             )
         else:
             fail(f"unclassified graph RTL: {source}")
@@ -517,8 +526,11 @@ def build_inventory(layouts, source_sets, vendor_boundaries):
     for item in files:
         status_counts[item["status"]] += 1
     return {
-        "schema_version": 1,
-        "rtl_root": relative(GRAPH_RTL_ROOT),
+        "schema_version": 2,
+        "rtl_roots": [
+            relative(GRAPH_RTL_ROOT),
+            relative(GRAPH_VERIFICATION_RTL_ROOT),
+        ],
         "generated_by": relative(SCRIPT),
         "capi_precis_commit": subprocess.run(
             ["git", "-C", str(CAPI_ROOT), "rev-parse", "HEAD"],
@@ -679,7 +691,8 @@ def main():
     elif INVENTORY_PATH.read_text() != serialized:
         fail(
             "graph RTL inventory is stale; review changes and run "
-            "verification/rtl/scripts/verify_manifests.py --write"
+            "03_capi_integration/accelerator_verification/rtl/"
+            "scripts/verify_manifests.py --write"
         )
 
     summary = inventory["summary"]

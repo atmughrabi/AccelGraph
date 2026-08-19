@@ -1,4 +1,4 @@
-# AccelGraph RTL manifest v1: cu_PageRank_CSR_PUSH_Quantized
+# AccelGraph RTL manifest v2: cu_PageRank_CSR_PUSH_Quantized
 01_capi_precis/01_capi_integration/accelerator_rtl/afu_pkgs/globals_afu_pkg.sv
 01_capi_precis/01_capi_integration/accelerator_rtl/afu_pkgs/capi_pkg.sv
 01_capi_precis/01_capi_integration/accelerator_rtl/afu_pkgs/credit_pkg.sv

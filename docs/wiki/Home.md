@@ -17,6 +17,8 @@ Shared AFU-control documentation lives in the complementary
   execution inside graph algorithms.
 - [Deployment runbook](https://github.com/atmughrabi/AccelGraph/wiki/Deployment-Runbook) covers benchmark launch and hang
   triage, including the scoped CAPI environment wrapper.
+- [Repository structure](https://github.com/atmughrabi/AccelGraph/wiki/Repository-Structure)
+  defines complementary ownership, migration order, and compatibility gates.
 - [Verification infrastructure](https://github.com/atmughrabi/AccelGraph/wiki/Verification-Infrastructure)
   defines graph-module, backpressure, scoreboard, golden-model, and coverage work.
 - [Stabilization plan](https://github.com/atmughrabi/AccelGraph/wiki/Stabilization-Plan)

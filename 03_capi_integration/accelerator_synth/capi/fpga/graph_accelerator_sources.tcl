@@ -4,7 +4,7 @@ proc graph_layout_id {algorithm data_structure direction precision} {
 
 proc add_graph_accelerator_manifest {repo_root algorithm data_structure direction precision} {
     set layout [graph_layout_id $algorithm $data_structure $direction $precision]
-    set manifest [file join $repo_root verification rtl manifests "$layout.f"]
+    set manifest [file join $repo_root 03_capi_integration accelerator_verification rtl manifests "$layout.f"]
     if {![file isfile $manifest]} {
         error "Missing active graph RTL manifest: $manifest"
     }

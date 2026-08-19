@@ -1,9 +1,9 @@
-# AccelGraph RTL manifest v1: cu_PageRank_CSR_PULL_FloatPoint
+# AccelGraph RTL manifest v2: cu_PageRank_CSR_PULL_Quantized
 01_capi_precis/01_capi_integration/accelerator_rtl/afu_pkgs/globals_afu_pkg.sv
 01_capi_precis/01_capi_integration/accelerator_rtl/afu_pkgs/capi_pkg.sv
 01_capi_precis/01_capi_integration/accelerator_rtl/afu_pkgs/credit_pkg.sv
 03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_pkg/wed_pkg.sv
-03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FloatPoint/pkg/globals_cu_pkg.sv
+03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/Quantized/pkg/globals_cu_pkg.sv
 03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_pkg/cu_pkg.sv
 01_capi_precis/01_capi_integration/accelerator_rtl/afu_pkgs/afu_pkg.sv
 01_capi_precis/01_capi_integration/accelerator_rtl/afu_control/parity.sv
@@ -31,7 +31,7 @@
 03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/sum_reduce.sv
 03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/demux_bus.sv
 03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/array_struct_type_demux_bus.sv
-03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FloatPoint/cu/cu_sum_kernel_control.sv
+03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/Quantized/cu/cu_sum_kernel_control.sv
 03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_edge_data_write_command_control.sv
 03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv
 03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_edge_data_read_command_control.sv

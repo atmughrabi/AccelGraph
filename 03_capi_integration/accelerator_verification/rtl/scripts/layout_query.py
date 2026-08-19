@@ -5,8 +5,11 @@ import json
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-LAYOUTS_PATH = REPO_ROOT / "verification/rtl/manifests/layouts.json"
+REPO_ROOT = Path(__file__).resolve().parents[4]
+LAYOUTS_PATH = (
+    REPO_ROOT /
+    "03_capi_integration/accelerator_verification/rtl/manifests/layouts.json"
+)
 
 
 def main():

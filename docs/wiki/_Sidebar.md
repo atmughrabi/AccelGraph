@@ -3,5 +3,6 @@
 - [Benchmark guide](https://github.com/atmughrabi/AccelGraph/wiki/Benchmark-Guide)
 - [Accelerator verification](https://github.com/atmughrabi/AccelGraph/wiki/Accelerator-Verification)
 - [Deployment runbook](https://github.com/atmughrabi/AccelGraph/wiki/Deployment-Runbook)
+- [Repository structure](https://github.com/atmughrabi/AccelGraph/wiki/Repository-Structure)
 - [Verification infrastructure](https://github.com/atmughrabi/AccelGraph/wiki/Verification-Infrastructure)
 - [Stabilization plan](https://github.com/atmughrabi/AccelGraph/wiki/Stabilization-Plan)

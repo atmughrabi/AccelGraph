@@ -365,15 +365,17 @@ rtl-verification:
 
 .PHONY: rtl-manifest-verification
 rtl-manifest-verification:
-	./verification/rtl/scripts/verify_manifests.py
+	./03_capi_integration/accelerator_verification/rtl/scripts/verify_manifests.py
+	./01_capi_precis/01_capi_integration/accelerator_verification/rtl/scripts/verify_module_plan.py --repo-root . --inventory 03_capi_integration/accelerator_verification/rtl/manifests/rtl-inventory.json --plan 03_capi_integration/accelerator_verification/rtl/manifests/coverage-plan.json --output 03_capi_integration/accelerator_verification/rtl/manifests/module-test-matrix.json
 
 .PHONY: rtl-manifest-update
 rtl-manifest-update:
-	./verification/rtl/scripts/verify_manifests.py --write
+	./03_capi_integration/accelerator_verification/rtl/scripts/verify_manifests.py --write
+	./01_capi_precis/01_capi_integration/accelerator_verification/rtl/scripts/verify_module_plan.py --repo-root . --inventory 03_capi_integration/accelerator_verification/rtl/manifests/rtl-inventory.json --plan 03_capi_integration/accelerator_verification/rtl/manifests/coverage-plan.json --output 03_capi_integration/accelerator_verification/rtl/manifests/module-test-matrix.json --write
 
 .PHONY: rtl-real-elaboration
 rtl-real-elaboration: rtl-manifest-verification
-	./03_capi_integration/accelerator_rtl/verification/lint_cached_afu_bind.sh
+	./03_capi_integration/accelerator_verification/rtl/scripts/lint_cached_afu_bind.sh
 
 .PHONY: graphbrew-smoke
 graphbrew-smoke:
@@ -461,7 +463,7 @@ export CU_GRAPH_ALGORITHM 	= 	$(word 1, $(CU_SET_SYNTH))
 export CU_DATA_STRUCTURE 	= 	$(word 2, $(CU_SET_SYNTH))
 export CU_DIRECTION 		=   $(word 3, $(CU_SET_SYNTH))
 export CU_PRECISION 		= 	$(word 4, $(CU_SET_SYNTH))
-export CU_TOPOLOGY_COUNT := $(shell python3 ./verification/rtl/scripts/layout_query.py --field total_vertex_cus $(CU_GRAPH_ALGORITHM) $(CU_DATA_STRUCTURE) $(CU_DIRECTION) $(CU_PRECISION))
+export CU_TOPOLOGY_COUNT := $(shell python3 ./03_capi_integration/accelerator_verification/rtl/scripts/layout_query.py --field total_vertex_cus $(CU_GRAPH_ALGORITHM) $(CU_DATA_STRUCTURE) $(CU_DIRECTION) $(CU_PRECISION))
 
 ifeq ($(strip $(CU_TOPOLOGY_COUNT)),)
 $(error Unknown or inactive RTL layout $(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION))

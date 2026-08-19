@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "plan_id": "accelgraph-rtl-coverage-v1",
+  "inventory_schema_version": 2,
+  "module_scope": {
+    "active_path_prefixes": [
+      "03_capi_integration/accelerator_rtl/cu_control/"
+    ],
+    "expected_inventory_roots": [
+      "03_capi_integration/accelerator_rtl",
+      "03_capi_integration/accelerator_verification/rtl"
+    ],
+    "expected_inventory_generator": "03_capi_integration/accelerator_verification/rtl/scripts/verify_manifests.py",
+    "expected_module_declarations": 78,
+    "expected_distinct_source_hashes": 54,
+    "expected_package_declarations": 18,
+    "expected_family_plans": 16,
+    "expected_non_module_suites": 1,
+    "expected_context_executions": 120
+  },
+  "coverage_policy": {
+    "execution_granularity": "distinct_source_hash_with_all_contexts",
+    "closure_targets": {
+      "module_mapping_percent": 100,
+      "reachable_statement_percent": 100,
+      "reachable_branch_percent": 100,
+      "fsm_state_percent": 100,
+      "fsm_transition_percent": 100,
+      "functional_bin_percent": 100,
+      "assertion_goal_percent": 100,
+      "reachable_control_toggle_percent": 100,
+      "context_execution_percent": 100
+    },
+    "waiver_required_fields": [
+      "reason",
+      "owner",
+      "issue",
+      "affected_metric",
+      "affected_items",
+      "expiry",
+      "approval"
+    ],
+    "closure_rule": "Every active module path is mapped; every distinct source hash runs its family suite in every materially different package/layout context before closure."
+  },
+  "waivers": [],
+  "cross_family_hash_exceptions": [
+    {
+      "sha256": "2b7d50c6fbbb391d5f8af6a34e4fa4dce474277cae2bc0642ef2c43aa16a575a",
+      "families": [
+        "spmv-kernel",
+        "triangle-kernel"
+      ],
+      "reason": "TriangleCount currently reuses the SPMV FixedPoint accumulator verbatim; triangle ownership is blocked until RTL triage.",
+      "issue": "docs/wiki/Verification-Infrastructure.md#phase-4---algorithm-units"
+    }
+  ],
+  "strategy_profiles": {
+    "routing": {
+      "stimulus": ["reset/disabled idle", "one-hot and multi-hot inputs", "all selector values", "invalid selector", "held payload"],
+      "oracle": ["independent route and reduction model"],
+      "assertions": ["one destination", "payload preservation", "no output without input"],
+      "backpressure": ["each output stalled independently", "alternating grants"],
+      "coverage": ["every input-output route", "selector boundaries", "stall-route crosses"],
+      "failure_artifacts": ["route journal", "selector", "expected/actual payload"]
+    },
+    "queue_controller": {
+      "stimulus": ["reset/disabled idle", "zero/single/burst jobs", "cache-line boundaries", "last partial range"],
+      "oracle": ["independent CSR range and queue model"],
+      "assertions": ["no loss/duplication", "address/size legality", "counter conservation"],
+      "backpressure": ["source/consumer stalls", "almost-full oscillation", "response reorder"],
+      "coverage": ["empty/single/full ranges", "queue occupancy", "boundary/stall crosses"],
+      "failure_artifacts": ["job/data journal", "CSR slice", "queue state", "counter diff"]
+    },
+    "scheduler": {
+      "stimulus": ["reset/disabled idle", "none/single/all requests", "held requester", "uneven completion", "repeat rounds"],
+      "oracle": ["independent ownership, grant, and reduction model"],
+      "assertions": ["one-hot grant", "fair/bounded service", "exact completion reduction"],
+      "backpressure": ["per-CU stalls", "cluster stalls", "write/read contention"],
+      "coverage": ["every CU wins", "all topology coordinates", "grant/completion crosses"],
+      "failure_artifacts": ["request/grant history", "ownership map", "completion ledger"]
+    },
+    "algorithm_kernel": {
+      "stimulus": ["hand-authored tiny motifs", "boundary values", "duplicate/self edges", "repeat rounds"],
+      "oracle": ["independent algorithm and precision golden"],
+      "assertions": ["legal update", "exact progress", "no out-of-range access", "clean reset"],
+      "backpressure": ["edge input stalls", "property write stalls", "kernel consumer stalls"],
+      "coverage": ["algorithm cases", "precision boundaries", "update/conflict policy", "termination"],
+      "failure_artifacts": ["fixture hash", "golden diff", "precision policy", "transaction journal"]
+    },
+    "reduction": {
+      "stimulus": ["reset/disabled idle", "zero/single/all contributors", "boundary and overflow values", "parameter sweep"],
+      "oracle": ["independent arbitrary-precision sum with explicit wrap policy"],
+      "assertions": ["exact sum", "latency bound", "reset value", "hold while disabled"],
+      "backpressure": ["not applicable; prove fixed-latency behavior"],
+      "coverage": ["BUS_WIDTH", "input/output widths", "zero/max/overflow", "latency"],
+      "failure_artifacts": ["parameters", "input vector", "expected/actual sum", "cycle"]
+    },
+    "integration_top": {
+      "stimulus": ["complete graph rounds", "all enabled topologies", "repeat launch", "error/reset"],
+      "oracle": ["composed vertex/edge/write scoreboards plus algorithm golden"],
+      "assertions": ["target conservation", "no leaked state", "bounded progress", "stable completion"],
+      "backpressure": ["all 32 graph masks", "CAPI risk pairs", "ACK/reset timing"],
+      "coverage": ["all engines active", "topology/layout crosses", "round lifecycle"],
+      "failure_artifacts": ["replay bundle", "graph/WED hash", "journal", "memory/counter diff"]
+    }
+  },
+  "families": [
+    {
+      "id": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "oracle_id": "graph-route-payload-model-v1",
+      "priority": "P0",
+      "profile": "routing",
+      "implementation_status": "planned",
+      "match": {"module_names": ["array_struct_type_demux_bus", "demux_bus"]},
+      "required_scenarios": ["every input-output route", "invalid selector", "stalled destination"]
+    },
+    {
+      "id": "sum-reduction",
+      "test_id": "graph-unit-sum-reduction",
+      "oracle_id": "graph-arbitrary-precision-sum-v1",
+      "priority": "P0",
+      "profile": "reduction",
+      "implementation_status": "planned",
+      "match": {"module_names": ["sum_reduce"]},
+      "required_scenarios": ["zero/single/all contributors", "overflow policy", "tree parameter sweep"]
+    },
+    {
+      "id": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "priority": "P0",
+      "profile": "queue_controller",
+      "implementation_status": "planned",
+      "match": {"module_names": ["cu_vertex_job_control", "cu_vertex_job_filter"]},
+      "required_scenarios": ["isolated/active vertex", "filter accept/reject", "cache-line boundary", "queue full"]
+    },
+    {
+      "id": "edge-job",
+      "test_id": "graph-unit-edge-job",
+      "oracle_id": "csr-edge-range-v1",
+      "priority": "P0",
+      "profile": "queue_controller",
+      "implementation_status": "planned",
+      "match": {"module_names": ["cu_edge_job_control"]},
+      "required_scenarios": ["zero/single/high degree", "CSR offset boundary", "last partial range"]
+    },
+    {
+      "id": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "priority": "P0",
+      "profile": "queue_controller",
+      "implementation_status": "planned",
+      "match": {"module_names": ["cu_edge_data_read_command_control", "cu_edge_data_read_extract_control"]},
+      "required_scenarios": ["lower/upper cache-line elements", "tag reorder", "edge/property selection"]
+    },
+    {
+      "id": "edge-write",
+      "test_id": "graph-unit-edge-write",
+      "oracle_id": "graph-property-write-v1",
+      "priority": "P0",
+      "profile": "queue_controller",
+      "implementation_status": "planned",
+      "match": {"module_names": ["cu_edge_data_write_command_control"]},
+      "required_scenarios": ["address/mask/data coupling", "write-buffer stall", "conflicting updates"]
+    },
+    {
+      "id": "cluster-scheduler",
+      "test_id": "graph-unit-cluster-scheduler",
+      "oracle_id": "graph-cluster-ownership-v1",
+      "priority": "P0",
+      "profile": "scheduler",
+      "implementation_status": "planned",
+      "match": {"module_names": ["cu_vertex_cluster_arbiter_control", "cu_vertex_cluster_control"]},
+      "required_scenarios": ["all graph/vertex coordinates", "held requester", "uneven completion"]
+    },
+    {
+      "id": "graph-algorithm-scheduler",
+      "test_id": "graph-unit-algorithm-scheduler",
+      "oracle_id": "graph-algorithm-grant-reduction-v1",
+      "priority": "P0",
+      "profile": "scheduler",
+      "implementation_status": "planned",
+      "match": {"module_names": ["cu_graph_algorithm_arbiter_control", "cu_graph_algorithm_control"]},
+      "required_scenarios": ["all CU requests", "read/write contention", "counter reduction"]
+    },
+    {
+      "id": "algorithm-arbiters",
+      "test_id": "graph-unit-algorithm-arbiters",
+      "oracle_id": "graph-algorithm-arbiter-v1",
+      "priority": "P0",
+      "profile": "scheduler",
+      "implementation_status": "planned",
+      "match": {
+        "module_names": [
+          "cu_vertex_bfs_arbiter_control",
+          "cu_vertex_pagerank_arbiter_control",
+          "cu_vertex_spmv_arbiter_control",
+          "cu_vertex_connectedComponents_arbiter_control",
+          "cu_vertex_triangleCount_arbiter_control"
+        ]
+      },
+      "required_scenarios": ["each algorithm CU wins", "held request", "completion ownership"]
+    },
+    {
+      "id": "algorithm-shells",
+      "test_id": "graph-unit-algorithm-shells",
+      "oracle_id": "graph-engine-transaction-scoreboard-v1",
+      "priority": "P0",
+      "profile": "integration_top",
+      "implementation_status": "planned",
+      "match": {
+        "module_names": [
+          "cu_vertex_bfs",
+          "cu_vertex_pagerank",
+          "cu_vertex_spmv",
+          "cu_vertex_connectedComponents",
+          "cu_vertex_triangleCount"
+        ]
+      },
+      "required_scenarios": ["zero/single/burst vertex jobs", "edge pipeline", "writeback", "repeat/reset"]
+    },
+    {
+      "id": "bfs-kernel",
+      "test_id": "graph-unit-bfs-kernel",
+      "oracle_id": "independent-bfs-v1",
+      "priority": "P0",
+      "profile": "algorithm_kernel",
+      "implementation_status": "planned",
+      "match": {
+        "module_names": ["cu_update_kernel_control"],
+        "path_regex": ["/cu_BFS/"]
+      },
+      "required_scenarios": ["unreachable", "new frontier", "already visited", "maximum depth"]
+    },
+    {
+      "id": "pagerank-kernel",
+      "test_id": "graph-unit-pagerank-kernel",
+      "oracle_id": "independent-pagerank-precision-v1",
+      "priority": "P0",
+      "profile": "algorithm_kernel",
+      "implementation_status": "planned",
+      "match": {
+        "module_names": ["cu_sum_kernel_control"],
+        "path_regex": ["/cu_PageRank/CSR/PULL/"]
+      },
+      "required_scenarios": ["float/fixed/quantized", "sink contribution", "rounding/saturation", "iteration"]
+    },
+    {
+      "id": "spmv-kernel",
+      "test_id": "graph-unit-spmv-kernel",
+      "oracle_id": "independent-spmv-precision-v1",
+      "priority": "P0",
+      "profile": "algorithm_kernel",
+      "implementation_status": "planned",
+      "match": {
+        "module_names": ["cu_sum_kernel_control"],
+        "path_regex": ["/cu_SPMV/"]
+      },
+      "required_scenarios": ["float/fixed", "zero row", "weighted row", "overflow/rounding"]
+    },
+    {
+      "id": "connected-components-kernel",
+      "test_id": "graph-unit-connected-components-kernel",
+      "oracle_id": "independent-component-partition-v1",
+      "priority": "P0",
+      "profile": "algorithm_kernel",
+      "implementation_status": "planned",
+      "match": {
+        "module_names": ["cu_update_kernel_control"],
+        "path_regex": ["/cu_ConnectedComponents/"]
+      },
+      "required_scenarios": ["same/different labels", "hook/update", "stable component", "repeat round"]
+    },
+    {
+      "id": "triangle-kernel",
+      "test_id": "graph-unit-triangle-kernel",
+      "oracle_id": "independent-triangle-count-v1",
+      "priority": "P0",
+      "profile": "algorithm_kernel",
+      "implementation_status": "blocked",
+      "match": {
+        "module_names": ["cu_sum_kernel_control"],
+        "path_regex": ["/cu_TriangleCount/"]
+      },
+      "required_scenarios": ["blocked: current RTL is byte-identical to the SPMV FixedPoint accumulator", "resolve module naming and binary-intersection ownership", "then run no triangle, single triangle, shared edge, and K4 normalization"]
+    },
+    {
+      "id": "graph-top",
+      "test_id": "graph-integration-cu-control",
+      "oracle_id": "graph-round-composed-scoreboard-v1",
+      "priority": "P0",
+      "profile": "integration_top",
+      "implementation_status": "planned",
+      "match": {"module_names": ["cu_control"]},
+      "required_scenarios": ["all 8 active layouts", "topology coordinates", "all 32 graph stall masks", "repeat/reset"]
+    }
+  ],
+  "non_module_suites": [
+    {
+      "id": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "declaration_kind": "package",
+      "priority": "P0",
+      "profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned",
+      "required_scenarios": ["WED width and pointer offsets", "CSR/inverse-CSR field maps", "package functions", "precision constants", "C/SystemVerilog ABI"]
+    }
+  ]
+}

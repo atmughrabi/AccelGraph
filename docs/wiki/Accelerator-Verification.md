@@ -20,8 +20,9 @@ The RTL monitor checks:
 
 ModelSim compiles and binds the monitor automatically through
 `03_capi_integration/accelerator_sim/sim/vsim.tcl`. The verification wave group
-is defined in `watch_accelerator_verification.do`; a violated RTL contract
-terminates simulation with `$fatal`.
+is defined in
+`03_capi_integration/accelerator_verification/sim/watch_accelerator_verification.do`;
+a violated RTL contract terminates simulation with `$fatal`.
 
 For first-platform bring-up, add `+VERIF_FATAL=0` to the `vsim` command to
 retain failure counters and wave evidence without stopping at the first
@@ -55,7 +56,7 @@ make verify
 
 `make rtl-verification` validates the Phase 0 pin/layout manifests and
 elaborates the real `cached_afu`, AFU-control, and graph `cu_control` RTL for
-all eight active layouts without the compatibility CU stub. Implicit nets and
+all eight active layouts without a CU stub. Implicit nets and
 pin mismatches fail the gate; portable lint blackboxes only the two generated
 Quartus floating-point IP boundaries. It then runs positive and negative
 protocol tests with Verilator. `make verify` includes that RTL evidence

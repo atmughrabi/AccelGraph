@@ -33,7 +33,7 @@ accessed by FPGA commands through CAPI.
 | `01_capi_precis` | Pinned AFU-control, PSLSE, and libcxl integration |
 | `02_capi_graph` | Host benchmark, CAPI algorithms, verification, and tests |
 | `03_capi_integration/accelerator_rtl/cu_control` | Graph CU clusters and algorithm engines |
-| `03_capi_integration/accelerator_rtl/verification` | Graph-specific bind, WED target regressions, and real-bind lint |
+| `03_capi_integration/accelerator_verification` | Host contract tests, graph bind/testbench, manifests, models, scripts, and simulation wave evidence |
 | `03_capi_integration/accelerator_sim` | ModelSim graph-CU selection and PSLSE simulation |
 | `03_capi_integration/accelerator_synth` | Quartus generation and implementation |
 

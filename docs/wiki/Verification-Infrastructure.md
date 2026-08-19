@@ -29,7 +29,7 @@ then updates its submodule pin and adds graph adapters in the same commit.
 
 | AccelGraph phase | Required CAPI-Precis evidence |
 | --- | --- |
-| Phase 0 baseline/manifests | Published manifest API pin `803a17a...` and passing CAPI G0/G1 portable gates |
+| Phase 0 baseline/manifests | Published manifest/coverage API v2 pin `71dd673...` and passing CAPI G0/G1 planning gates |
 | Phase 1 oracle/ABI | Published CAPI package/WED contract tests |
 | Phase 2 shared infrastructure | Published verification API/schema v1, locked runner/BFMs/scheduler/artifact schemas, passing downstream compatibility job |
 | Phase 3/4 unit work | CAPI utility/protocol P0 units and portable assertion/scoreboard API |
@@ -49,9 +49,10 @@ then updates its submodule pin and adds graph adapters in the same commit.
 
 ### Phase 0 manifest gate
 
-The executable baseline in `verification/rtl` now provides:
+The executable baseline in
+`03_capi_integration/accelerator_verification/rtl` now provides:
 
-- the exact CAPI-Precis manifest API pin `803a17a...`;
+- the exact CAPI-Precis manifest/coverage API v2 pin `71dd673...`;
 - 8 active ordered ModelSim/Quartus manifests with package-derived topology;
 - 3 PageRank PUSH expected-failure manifests, each locked to the same 7
   missing paths and source-resolution signature;
@@ -71,6 +72,29 @@ make rtl-real-elaboration
 G0 and portable G1 are active merge gates. Licensed ModelSim/Quartus
 analysis/elaboration remains required release evidence.
 
+### Exact module coverage plan
+
+The graph `coverage-plan.json` defines family-specific scenarios, independent
+goldens, scoreboards, assertions, backpressure, artifacts, and closure rules.
+The generated `module-test-matrix.json` must map every active graph module
+exactly once.
+
+| Measure | Value |
+| --- | ---: |
+| Active production module declarations | 78 |
+| Distinct active source hashes | 54 |
+| Active package declarations | 18 |
+| Layout/module context executions | 120 |
+| Graph test families | 16 |
+| Modules mapped to one family | 78/78 |
+| Executable family suites complete | 0/16 |
+
+Coverage closure requires 100% of reachable statements, branches, FSM
+states/transitions, functional bins, assertion goals, and reachable control
+toggles. Identical source hashes can share compilation only when the suite runs
+in every materially different package/layout context. Every exclusion is
+versioned with an owner, issue, approval, affected items, and expiry.
+
 ### Inventory
 
 - 93 graph RTL implementations.
@@ -89,13 +113,13 @@ analysis/elaboration remains required release evidence.
 Common-looking files are mostly copies with variant drift. Only deduplicate
 after module tests and equivalence checks prove identical behavior.
 
-G0 uses an exhaustive path-level inventory. The current denominator is 93
-implementations containing 68 distinct source hashes. Every graph RTL file receives
-status `active`, `quarantined`, `generated/external`, or `removed`, plus build
-membership, source hash, verification family, and evidence. Every distinct
-source hash among the 93 implementations must execute the applicable family
-suite or be mapped to a tested implementation by approved equivalence evidence.
-Unclassified RTL fails G0.
+G0 uses an exhaustive path-level inventory. The production denominator is 93
+module implementations: 78 active modules in the coverage plan and 15
+PageRank PUSH modules held by exact expected-failure manifests. Three
+verification/vendor-boundary modules are tracked separately. Active production
+RTL contains 54 distinct source hashes; every hash must execute its family
+suite in every materially different layout/package context. Unclassified RTL
+fails G0.
 
 Allowed equivalence evidence is limited to:
 
@@ -252,98 +276,23 @@ Algorithm suites enter shadow mode first, compare golden versus compatibility
 results, then become merge-gating individually after intentional wrong-result
 tests prove sensitivity.
 
-## Common module test matrix
+## Exact module test matrix
 
-### Job/data plumbing
+The normative family strategies and ownership are:
 
-| Verification unit | Module families | Priority | Required scenarios |
-| --- | --- | --- | --- |
-| Struct demux | `array_struct_type_demux_bus` | P0 | Every destination, invalid ID, simultaneous traffic, hold under stall |
-| Scalar demux | `demux_bus` | P0 | Every destination, width 1/non-power-of-two/default |
-| Reduction | `sum_reduce` | P0 | Zero/all inputs, changing inputs, configured widths, pipeline latency, monotonic aggregate |
-| Vertex job | `cu_vertex_job_control` | P0 | Zero/one/high degree, final partial cache line, forward/inverse CSR, address/size/ABT |
-| Vertex filter | `cu_vertex_job_filter` | P0 | Active/inactive vertices, filtered count, all/none/alternating filters |
-| Edge job | `cu_edge_job_control` | P0 | Zero/one/large degree, cache-line crossings, exact edge ranges |
-| Edge read command | `cu_edge_data_read_command_control` | P0 | Offsets, alignment, command sizes, CU IDs, backpressure |
-| Edge read extract | `cu_edge_data_read_extract_control` | P0 | Both cache-line halves, boundary elements, tag/CU routing, reordered halves |
-| Edge write command | `cu_edge_data_write_command_control` | P0 | Masks, same-line updates, address/data coupling, write stalls |
+- `03_capi_integration/accelerator_verification/rtl/manifests/coverage-plan.json`
+- `03_capi_integration/accelerator_verification/rtl/manifests/module-test-matrix.json`
 
-### Cluster and top-level control
+The validator maps 78 active production modules and 18 active packages exactly
+once, records 120 layout/module context executions, and rejects stale plan or
+inventory hashes. PageRank PUSH remains outside active coverage until its exact
+seven-file source gap closes.
 
-| Verification unit | Module families | Priority | Required scenarios |
-| --- | --- | --- | --- |
-| Vertex-cluster arbiter | `cu_vertex_cluster_arbiter_control` | P0 | One-hot grants, fairness, simultaneous requests, disabled CUs |
-| Vertex-cluster control | `cu_vertex_cluster_control` | P0/P1 | Routing, reset, per-CU counters, completion reduction |
-| Algorithm arbiter | `cu_graph_algorithm_arbiter_control` and algorithm-specific arbiter controls | P0 | Work ownership, no duplicate/drop, completion aggregation |
-| CU top | every `cu_control` | P0 | WED/config latching, engine enable, counter monotonicity, done once, reset, repeated launch |
-
-## Algorithm test matrix
-
-### BFS
-
-| DUT | Tests |
-| --- | --- |
-| `cu_vertex_bfs` | Parent/distance update, inactive vertex, already visited, frontier transition |
-| `cu_vertex_bfs_arbiter_control` | Work distribution, no duplicate vertex ownership, counter reduction |
-| BottomUp `cu_update_kernel_control` | Neighbor scan, early match, no match, work-list read/write |
-| Integration | Chain, star, disconnected graph, self-loop/duplicate policy; exact distances and legal parents |
-
-### PageRank PULL
-
-| DUT | Tests |
-| --- | --- |
-| `cu_vertex_pagerank` | Degree normalization, sink handling, property read/write |
-| `cu_vertex_pagerank_arbiter_control` | Distribution and reduction |
-| `cu_graph_algorithm_control` | Edge accumulation and vertex update ordering |
-| `cu_sum_kernel_control` | Float, fixed, and quantized accumulation/rounding |
-| Integration | One-step and multi-step cycle, sink, isolated vertex, weighted/unweighted modes |
-
-### PageRank PUSH
-
-| DUT | Tests |
-| --- | --- |
-| `cu_cacheline_stream` | Cache-line sequencing and backpressure |
-| `cu_edge_data_read_control` | Forward CSR property reads |
-| `cu_edge_data_control` | Edge traversal and routing |
-| `cu_edge_data_write_control` | Update write ordering and conflicts |
-| PUSH vertex/arbiter/control/sum kernels | Flat-interface and two-config-word behavior, all precisions |
-
-PageRank PUSH is a P0 flow-closure item: the current simulation script expects a
-missing PUSH `wed_pkg.sv` and compiles PULL-oriented module lists. Do not claim
-PUSH coverage until its manifest, WED type, module list, and real CU elaboration
-are corrected.
-
-### SPMV
-
-| DUT | Tests |
-| --- | --- |
-| `cu_vertex_spmv` | Row accumulation and result write |
-| `cu_vertex_spmv_arbiter_control` | Row ownership and completion |
-| Float/Fixed sum kernels | Rounding, sign, zero row, overflow boundary |
-| Integration | Zero matrix, identity-like matrix, weighted toy matrix |
-
-### Connected components
-
-| DUT | Tests |
-| --- | --- |
-| `cu_vertex_connectedComponents` | Hook/update behavior and stable component |
-| Arbiter/control | Work distribution and convergence counters |
-| ShiloachVishkin `cu_update_kernel_control` | Parent update and compression |
-| Integration | Isolated vertices, chain, cycle, multiple components; canonical partition comparison |
-
-### Triangle count
-
-| DUT | Tests |
-| --- | --- |
-| `cu_vertex_triangleCount` | Neighbor-list intersection and per-vertex count |
-| Arbiter/control | Work distribution and count reduction |
-| Binary kernel | Sorted-list binary/intersection edge cases |
-| Integration | No triangle, one triangle, shared-edge triangles, K4; exact normalized total |
-
-The file
-`cu_TriangleCount/CSR/BinaryIntersection/Binary/cu/cu_update_kernel_control.sv`
-currently declares `cu_sum_kernel_control`. Resolve the filename/module-name
-contract in the P0 manifest phase.
+TriangleCount's `cu_update_kernel_control.sv` currently declares
+`cu_sum_kernel_control` and is byte-identical to the SPMV FixedPoint
+accumulator. Its family is explicitly blocked until RTL ownership and binary
+intersection behavior are corrected; triangle golden coverage cannot be
+claimed from that accumulator.
 
 ## Architecture elaboration matrix
 
@@ -417,19 +366,17 @@ Initial budget model:
 
 ### Coverage policy
 
-- 100% of version-controlled mandatory functional bins.
-- 100% of mandatory cross bins for graph fixture, algorithm, precision, degree
-  class, cache-line boundary, engine stall profile, CAPI response class, and
-  reset phase.
-- Zero unexpected assertions and scoreboard mismatches.
-- P0 unit floors on a coverage-capable backend: statement >= 90%, branch >=
-  85%, toggle >= 80%. FSM state/transition coverage is 100% for legal states
-  and mandatory transitions.
-- A nondecreasing ratchet raises each floor when the measured baseline is
-  higher.
-- Waivers are version-controlled with owner, issue, reason, affected evidence,
-  approval, and expiry.
-- Missing required coverage data fails the tier.
+`accelerator_verification/rtl/manifests/coverage-plan.json` is normative:
+
+- 100% of reachable statements, branches, FSM states/transitions, functional
+  bins, assertion goals, and reachable control toggles;
+- 100% execution of every mapped layout/module context;
+- zero unexpected assertions and scoreboard mismatches;
+- only versioned, approved, expiring waivers with an owner and issue;
+- missing required coverage data fails the tier.
+
+Partial percentages may be reported while suites are under construction, but
+they are progress measurements, not release floors.
 
 | Metric | Backend | Earliest required tier |
 | --- | --- | --- |
@@ -461,49 +408,54 @@ different build.
 
 ## Target folder structure
 
-Keep production RTL and public entry points in place while verification is
-introduced:
+Production RTL stays separate from verification:
 
 ```text
-docs/
-  assets/
-  archive/slides/
-  verification/
-  wiki/
-
-02_capi_graph/
-  verification/
-    host/
-      common/
-      unit/
-      integration/
-      e2e/
-
 03_capi_integration/
-  accelerator_rtl/
-    verification/
-      graph/
+  accelerator_rtl/              synthesizable graph design only
+  accelerator_sim/              simulator execution flow
+  accelerator_synth/            Quartus execution flow
+  accelerator_verification/
+    host/                        libcxl/watchdog contract tests
+    sim/                         verification wave configuration
+    rtl/
+      manifests/
+      models/
+      scripts/
+      unit/
         common/
+        algorithms/
+      integration/
+      common/
+        pkg/
+        interfaces/
+        bfm/
         assertions/
-        unit/common/
-        unit/algorithms/
-        integration/
-        manifests/
-        regress/
+        scoreboards/
+        coverage/
 
 04_test_graphs/
   verification/
     fixtures/
     golden/
     manifests/
+
+docs/
+  assets/
+  archive/slides/
+  wiki/
 ```
+
+Planned subdirectories are created with their first executable test; no empty
+scaffolding is committed.
 
 ### Compatibility rules
 
 - Consume generic BFMs/models/assertions from the pinned CAPI-Precis submodule.
 - Never copy the generic monitor or shared BFM sources.
 - Consume the CAPI monitor through its versioned
-  `verification/manifests/monitor.f`, not a literal private source path.
+  `01_capi_integration/accelerator_verification/rtl/manifests/monitor.f`, not a
+  literal private source path.
 - Keep `make verify`, `make rtl-verification`, `make run-vsim`, `make run-pslse`,
   and Quartus targets.
 - Convert current scripts into thin wrappers only after new manifests pass from
@@ -539,7 +491,7 @@ docs/
 implemented; licensed ModelSim/Quartus closure remains pending.
 
 - Require clean recursive checkout with CAPI-Precis
-  `803a17a8b5896673526f28b0c32183e0628b59a2` as the baseline pin.
+  `71dd673da3011b67c8f75fad392682f5259f83fd` as the baseline pin.
 - Record exact package/module/topology manifests for all 11 builds.
 - Add source-set comparison for ModelSim and Quartus.
 - Add real graph-CU elaboration; remove stub-only confidence.
@@ -633,7 +585,7 @@ failure reverts the wrapper/migration commit before further cleanup.
 | G2 oracle/ABI | Strict goldens and C/SV WED contract pass |
 | G3 unit | Every P0 common and algorithm module test passes |
 | G4 integration | Tiny graph suites pass all deterministic backpressure masks |
-| G5 coverage | Required bins complete; exclusions reviewed |
+| G5 coverage | All reachable closure targets and layout contexts are 100%; every waiver is valid and unexpired |
 | G6 reproducibility | Seed/profile/manifest reproduces journal and failure bundle |
 | G7 compatibility | Existing Make, ModelSim, PSLSE, and Quartus entry points remain valid |
 | G8 migration | Links validate, artifacts are ignored, worktree stays clean |
@@ -650,3 +602,5 @@ failure reverts the wrapper/migration commit before further cleanup.
 - Do not let requested CU count differ from hardcoded topology or image naming.
 - Treat synthesis binaries/reports as implementation evidence, not correctness
   goldens.
+- Resolve the TriangleCount kernel's byte identity with the SPMV FixedPoint
+  accumulator before implementing or claiming triangle-kernel coverage.

@@ -3,10 +3,10 @@ set -euo pipefail
 
 VERILATOR=${VERILATOR:-verilator}
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-REPO_ROOT=$(cd "$SCRIPT_DIR/../../.." && pwd)
-MANIFEST_ROOT="$REPO_ROOT/verification/rtl/manifests"
+REPO_ROOT=$(cd "$SCRIPT_DIR/../../../.." && pwd)
+MANIFEST_ROOT="$SCRIPT_DIR/../manifests"
 CAPI_ROOT="$REPO_ROOT/01_capi_precis"
-LAYOUT_QUERY="$REPO_ROOT/verification/rtl/scripts/layout_query.py"
+LAYOUT_QUERY="$SCRIPT_DIR/layout_query.py"
 
 WARNINGS=(
   -Wall
@@ -49,9 +49,9 @@ lint_layout() {
   while IFS= read -r source || [[ -n "$source" ]]; do
     [[ -z "$source" || "$source" == \#* ]] && continue
     sources+=("$CAPI_ROOT/$source")
-  done <"$CAPI_ROOT/verification/rtl/manifests/monitor.f"
-  sources+=("$REPO_ROOT/verification/rtl/models/fp_vendor_blackboxes.sv")
-  sources+=("$SCRIPT_DIR/accelerator_verification_bind.sv")
+  done <"$CAPI_ROOT/01_capi_integration/accelerator_verification/rtl/manifests/monitor.f"
+  sources+=("$SCRIPT_DIR/../models/fp_vendor_blackboxes.sv")
+  sources+=("$SCRIPT_DIR/../accelerator_verification_bind.sv")
 
   "$VERILATOR" --lint-only --timing "${WARNINGS[@]}" \
     --top-module cached_afu \

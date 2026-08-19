@@ -37,9 +37,9 @@ CU_GRAPH_ALGORITHM ?= $(word 1, $(CU_SET_SYNTH))
 CU_DATA_STRUCTURE ?=  $(word 2, $(CU_SET_SYNTH))
 CU_DIRECTION ?=       $(word 3, $(CU_SET_SYNTH))
 CU_PRECISION ?= 	  $(word 4, $(CU_SET_SYNTH))
-LAYOUT_QUERY ?= ../../verification/rtl/scripts/layout_query.py
+LAYOUT_QUERY ?= ../accelerator_verification/rtl/scripts/layout_query.py
 LAYOUT_ID = $(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)
-ACCEL_MANIFEST = ../../verification/rtl/manifests/$(LAYOUT_ID).f
+ACCEL_MANIFEST = ../accelerator_verification/rtl/manifests/$(LAYOUT_ID).f
 EXPECTED_CU_COUNT := $(shell python3 $(LAYOUT_QUERY) --field total_vertex_cus $(CU_GRAPH_ALGORITHM) $(CU_DATA_STRUCTURE) $(CU_DIRECTION) $(CU_PRECISION))
 
 ifeq ($(strip $(EXPECTED_CU_COUNT)),)

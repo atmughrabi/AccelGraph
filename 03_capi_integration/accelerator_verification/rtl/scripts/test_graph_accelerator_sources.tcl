@@ -17,7 +17,7 @@ proc set_global_assignment {args} {
     lappend collected_sources [file normalize [lindex $args 2]]
 }
 
-set layout_query [file join $repo_root verification rtl scripts layout_query.py]
+set layout_query [file join $repo_root 03_capi_integration accelerator_verification rtl scripts layout_query.py]
 set active_layouts [split [exec python3 $layout_query --active-layouts] "\n"]
 
 foreach fields $active_layouts {
@@ -26,7 +26,7 @@ foreach fields $active_layouts {
     set collected_sources {}
     add_graph_accelerator_manifest $repo_root $algorithm $data_structure $direction $precision
 
-    set manifest [file join $repo_root verification rtl manifests "$layout.f"]
+    set manifest [file join $repo_root 03_capi_integration accelerator_verification rtl manifests "$layout.f"]
     set handle [open $manifest r]
     set contents [read $handle]
     close $handle

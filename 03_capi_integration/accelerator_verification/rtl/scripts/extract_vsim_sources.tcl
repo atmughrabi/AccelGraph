@@ -4,7 +4,7 @@ if {$argc != 5} {
 }
 
 set script_dir [file dirname [file normalize [info script]]]
-set repo_root [file normalize [file join $script_dir ../../..]]
+set repo_root [file normalize [file join $script_dir ../../../..]]
 set sim_dir [file join $repo_root 03_capi_integration accelerator_sim sim]
 
 set graph_algorithm [lindex $argv 0]

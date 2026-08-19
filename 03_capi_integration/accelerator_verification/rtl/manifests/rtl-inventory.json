@@ -1,8 +1,11 @@
 {
-  "schema_version": 1,
-  "rtl_root": "03_capi_integration/accelerator_rtl",
-  "generated_by": "verification/rtl/scripts/verify_manifests.py",
-  "capi_precis_commit": "803a17a8b5896673526f28b0c32183e0628b59a2",
+  "schema_version": 2,
+  "rtl_roots": [
+    "03_capi_integration/accelerator_rtl",
+    "03_capi_integration/accelerator_verification/rtl"
+  ],
+  "generated_by": "03_capi_integration/accelerator_verification/rtl/scripts/verify_manifests.py",
+  "capi_precis_commit": "71dd673da3011b67c8f75fad392682f5259f83fd",
   "portable_vendor_ip_boundaries": [
     {
       "module": "fp_single_add_acc",
@@ -21,8 +24,8 @@
     "design_packages": 22,
     "distinct_module_hashes": 68,
     "status_counts": {
-      "active": 98,
-      "quarantined": 20
+      "active": 99,
+      "quarantined": 19
     }
   },
   "files": [
@@ -40,7 +43,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/BottomUp/cu/cu_update_kernel_control.sv"
       ],
-      "verification_unit": "cu_BFS-CSR-PULL-cu_update_kernel_control",
+      "verification_unit": "cu_BFS-CSR-PULL-BottomUp-cu_update_kernel_control",
       "build_membership": [
         {
           "layout": "cu_BFS_CSR_PULL_BottomUp",
@@ -63,7 +66,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/BottomUp/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_BFS-CSR-PULL-globals_cu_pkg",
+      "verification_unit": "cu_BFS-CSR-PULL-BottomUp-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_BFS_CSR_PULL_BottomUp",
@@ -463,7 +466,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/ShiloachVishkin/cu/cu_update_kernel_control.sv"
       ],
-      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_update_kernel_control",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-ShiloachVishkin-cu_update_kernel_control",
       "build_membership": [
         {
           "layout": "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin",
@@ -486,7 +489,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/ShiloachVishkin/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-globals_cu_pkg",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-ShiloachVishkin-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin",
@@ -894,7 +897,7 @@
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FixedPoint/cu/cu_sum_kernel_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/Quantized/cu/cu_sum_kernel_control.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PULL-cu_sum_kernel_control",
+      "verification_unit": "cu_PageRank-CSR-PULL-FixedPoint-cu_sum_kernel_control",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PULL_FixedPoint",
@@ -917,7 +920,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FixedPoint/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PULL-globals_cu_pkg",
+      "verification_unit": "cu_PageRank-CSR-PULL-FixedPoint-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PULL_FixedPoint",
@@ -940,7 +943,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FloatPoint/cu/cu_sum_kernel_control.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PULL-cu_sum_kernel_control",
+      "verification_unit": "cu_PageRank-CSR-PULL-FloatPoint-cu_sum_kernel_control",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PULL_FloatPoint",
@@ -963,7 +966,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FloatPoint/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PULL-globals_cu_pkg",
+      "verification_unit": "cu_PageRank-CSR-PULL-FloatPoint-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PULL_FloatPoint",
@@ -987,7 +990,7 @@
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FixedPoint/cu/cu_sum_kernel_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/Quantized/cu/cu_sum_kernel_control.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PULL-cu_sum_kernel_control",
+      "verification_unit": "cu_PageRank-CSR-PULL-Quantized-cu_sum_kernel_control",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PULL_Quantized",
@@ -1010,7 +1013,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/Quantized/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PULL-globals_cu_pkg",
+      "verification_unit": "cu_PageRank-CSR-PULL-Quantized-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PULL_Quantized",
@@ -1549,7 +1552,7 @@
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/FixedPoint/cu/cu_sum_kernel_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/Quantized/cu/cu_sum_kernel_control.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PUSH-cu_sum_kernel_control",
+      "verification_unit": "cu_PageRank-CSR-PUSH-FixedPoint-cu_sum_kernel_control",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PUSH_FixedPoint",
@@ -1574,7 +1577,7 @@
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/FloatPoint/pkg/globals_cu_pkg.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/Quantized/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PUSH-globals_cu_pkg",
+      "verification_unit": "cu_PageRank-CSR-PUSH-FixedPoint-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PUSH_FixedPoint",
@@ -1597,7 +1600,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/FloatPoint/cu/cu_sum_kernel_control.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PUSH-cu_sum_kernel_control",
+      "verification_unit": "cu_PageRank-CSR-PUSH-FloatPoint-cu_sum_kernel_control",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PUSH_FloatPoint",
@@ -1622,7 +1625,7 @@
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/FloatPoint/pkg/globals_cu_pkg.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/Quantized/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PUSH-globals_cu_pkg",
+      "verification_unit": "cu_PageRank-CSR-PUSH-FloatPoint-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PUSH_FloatPoint",
@@ -1646,7 +1649,7 @@
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/FixedPoint/cu/cu_sum_kernel_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/Quantized/cu/cu_sum_kernel_control.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PUSH-cu_sum_kernel_control",
+      "verification_unit": "cu_PageRank-CSR-PUSH-Quantized-cu_sum_kernel_control",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PUSH_Quantized",
@@ -1671,7 +1674,7 @@
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/FloatPoint/pkg/globals_cu_pkg.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/Quantized/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_PageRank-CSR-PUSH-globals_cu_pkg",
+      "verification_unit": "cu_PageRank-CSR-PUSH-Quantized-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_PageRank_CSR_PUSH_Quantized",
@@ -2066,7 +2069,7 @@
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FixedPoint/cu/cu_sum_kernel_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/Binary/cu/cu_update_kernel_control.sv"
       ],
-      "verification_unit": "cu_SPMV-CSR-PULL-cu_sum_kernel_control",
+      "verification_unit": "cu_SPMV-CSR-PULL-FixedPoint-cu_sum_kernel_control",
       "build_membership": [
         {
           "layout": "cu_SPMV_CSR_PULL_FixedPoint",
@@ -2089,7 +2092,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FixedPoint/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_SPMV-CSR-PULL-globals_cu_pkg",
+      "verification_unit": "cu_SPMV-CSR-PULL-FixedPoint-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_SPMV_CSR_PULL_FixedPoint",
@@ -2112,7 +2115,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FloatPoint/cu/cu_sum_kernel_control.sv"
       ],
-      "verification_unit": "cu_SPMV-CSR-PULL-cu_sum_kernel_control",
+      "verification_unit": "cu_SPMV-CSR-PULL-FloatPoint-cu_sum_kernel_control",
       "build_membership": [
         {
           "layout": "cu_SPMV_CSR_PULL_FloatPoint",
@@ -2135,7 +2138,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FloatPoint/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_SPMV-CSR-PULL-globals_cu_pkg",
+      "verification_unit": "cu_SPMV-CSR-PULL-FloatPoint-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_SPMV_CSR_PULL_FloatPoint",
@@ -2616,7 +2619,7 @@
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FixedPoint/cu/cu_sum_kernel_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/Binary/cu/cu_update_kernel_control.sv"
       ],
-      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_update_kernel_control",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-Binary-cu_update_kernel_control",
       "build_membership": [
         {
           "layout": "cu_TriangleCount_CSR_BinaryIntersection_Binary",
@@ -2639,7 +2642,7 @@
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/Binary/pkg/globals_cu_pkg.sv"
       ],
-      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-globals_cu_pkg",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-Binary-globals_cu_pkg",
       "build_membership": [
         {
           "layout": "cu_TriangleCount_CSR_BinaryIntersection_Binary",
@@ -3042,13 +3045,13 @@
       "evidence": "active layout or graph monitor evidence"
     },
     {
-      "path": "03_capi_integration/accelerator_rtl/verification/accelerator_verification_bind.sv",
+      "path": "03_capi_integration/accelerator_verification/rtl/accelerator_verification_bind.sv",
       "status": "active",
       "kind": "bind",
       "declarations": [],
       "sha256": "4c61db60d216b79021c8196861ceb1e4e0481fafff7c245792b1a3fb89d81b32",
       "equivalent_paths": [
-        "03_capi_integration/accelerator_rtl/verification/accelerator_verification_bind.sv"
+        "03_capi_integration/accelerator_verification/rtl/accelerator_verification_bind.sv"
       ],
       "verification_unit": "graph-rtl-lifecycle",
       "build_membership": [
@@ -3060,7 +3063,7 @@
       "evidence": "active layout or graph monitor evidence"
     },
     {
-      "path": "03_capi_integration/accelerator_rtl/verification/accelerator_verification_tb.sv",
+      "path": "03_capi_integration/accelerator_verification/rtl/accelerator_verification_tb.sv",
       "status": "active",
       "kind": "module",
       "declarations": [
@@ -3071,7 +3074,7 @@
       ],
       "sha256": "3e5c28832fe36b3fff54c12843935747596877a30f6f070c774e5918d8af56ff",
       "equivalent_paths": [
-        "03_capi_integration/accelerator_rtl/verification/accelerator_verification_tb.sv"
+        "03_capi_integration/accelerator_verification/rtl/accelerator_verification_tb.sv"
       ],
       "verification_unit": "graph-rtl-lifecycle",
       "build_membership": [
@@ -3083,27 +3086,31 @@
       "evidence": "active layout or graph monitor evidence"
     },
     {
-      "path": "03_capi_integration/accelerator_rtl/verification/cached_afu_bind_cu_stub.sv",
-      "status": "quarantined",
+      "path": "03_capi_integration/accelerator_verification/rtl/models/fp_vendor_blackboxes.sv",
+      "status": "active",
       "kind": "module",
       "declarations": [
         {
           "kind": "module",
-          "name": "cu_control"
+          "name": "fp_single_add_acc"
+        },
+        {
+          "kind": "module",
+          "name": "fp_single_mul"
         }
       ],
-      "sha256": "a51173bdebd547fff6111adaed92906555ceed0908efbea4cf29d143cc614fce",
+      "sha256": "870a8546a017bb22f9b85ef405153af6a2aafea5862c9dcedfc98bd306146745",
       "equivalent_paths": [
-        "03_capi_integration/accelerator_rtl/verification/cached_afu_bind_cu_stub.sv"
+        "03_capi_integration/accelerator_verification/rtl/models/fp_vendor_blackboxes.sv"
       ],
       "verification_unit": "graph-rtl-lifecycle",
       "build_membership": [
         {
-          "layout": "compatibility-stub",
+          "layout": "portable-vendor-boundaries",
           "order": 0
         }
       ],
-      "evidence": "compatibility stub; forbidden as real-CU evidence"
+      "evidence": "active layout or graph monitor evidence"
     }
   ]
 }

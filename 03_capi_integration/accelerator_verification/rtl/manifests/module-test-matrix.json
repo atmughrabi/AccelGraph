@@ -1,0 +1,1533 @@
+{
+  "schema_version": 1,
+  "plan_id": "accelgraph-rtl-coverage-v1",
+  "coverage_plan_sha256": "308e2e2596151bbc6ca17155d251c65ccf4c0168e3aed3a8c234a075e391a9e4",
+  "rtl_inventory_sha256": "c334841fbcd67aa2313fad8c8782c6c4093f3767a68a8f25d060ee070a60cfa7",
+  "inventory_schema_version": 2,
+  "summary": {
+    "module_declarations": 78,
+    "distinct_source_hashes": 54,
+    "families": 16,
+    "package_declarations": 18,
+    "non_module_suites": 1,
+    "context_executions": 120,
+    "status_counts": {
+      "blocked": 1,
+      "planned": 77
+    },
+    "family_status_counts": {
+      "blocked": 1,
+      "planned": 15
+    },
+    "family_module_counts": {
+      "algorithm-arbiters": 5,
+      "algorithm-shells": 5,
+      "bfs-kernel": 1,
+      "cluster-scheduler": 8,
+      "connected-components-kernel": 1,
+      "edge-job": 5,
+      "edge-read": 10,
+      "edge-write": 5,
+      "graph-algorithm-scheduler": 2,
+      "graph-top": 5,
+      "pagerank-kernel": 3,
+      "routing-demux": 10,
+      "spmv-kernel": 2,
+      "sum-reduction": 5,
+      "triangle-kernel": 1,
+      "vertex-job": 10
+    }
+  },
+  "modules": [
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/BottomUp/cu/cu_update_kernel_control.sv",
+      "module": "cu_update_kernel_control",
+      "sha256": "600125c486ba396e8a45592ca3cab1ad0007cfd8df08a4a2168de64d61050f23",
+      "verification_unit": "cu_BFS-CSR-PULL-BottomUp-cu_update_kernel_control",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "bfs-kernel",
+      "test_id": "graph-unit-bfs-kernel",
+      "priority": "P0",
+      "strategy_profile": "algorithm_kernel",
+      "oracle_id": "independent-bfs-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/array_struct_type_demux_bus.sv",
+      "module": "array_struct_type_demux_bus",
+      "sha256": "3058b8f8b0595afaaad937faf86c094f646217fcc4ba2825fa5fd40674d7efe5",
+      "verification_unit": "cu_BFS-CSR-PULL-array_struct_type_demux_bus",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-route-payload-model-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_control.sv",
+      "module": "cu_control",
+      "sha256": "c3ceb9aef21b1c2ac82cbf6d1d8cfc0d0f22d0f9707f6e5df9ae7e0f035cb041",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_control",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "graph-top",
+      "test_id": "graph-integration-cu-control",
+      "priority": "P0",
+      "strategy_profile": "integration_top",
+      "oracle_id": "graph-round-composed-scoreboard-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_edge_data_read_command_control.sv",
+      "module": "cu_edge_data_read_command_control",
+      "sha256": "b9a22d30edfc755d4f529f5a06e62528c8f9fef3b9fdc4da0365038f7826cc1e",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_edge_data_read_command_control",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv",
+      "module": "cu_edge_data_read_extract_control",
+      "sha256": "046b33e82121e09035b80c4cada79a10b454c6b9e7ea9f1f225c9fdf2845d850",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_edge_data_read_extract_control",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_edge_data_write_command_control.sv",
+      "module": "cu_edge_data_write_command_control",
+      "sha256": "fded4f1077ab770b93d5923e2fa36a6ce7d46ff725a9551a23177ed2f79e5408",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_edge_data_write_command_control",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "edge-write",
+      "test_id": "graph-unit-edge-write",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-property-write-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_edge_job_control.sv",
+      "module": "cu_edge_job_control",
+      "sha256": "25a8b140141f54a5fe427ae6d27883e6cb4d26da8eb37f81f6466168bebcc059",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_edge_job_control",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "edge-job",
+      "test_id": "graph-unit-edge-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "csr-edge-range-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_vertex_bfs.sv",
+      "module": "cu_vertex_bfs",
+      "sha256": "85eb29bb4cb2f2bc0215421231fa8bf4d0ecf832096409dfde69d59a4d4e0a70",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_vertex_bfs",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "algorithm-shells",
+      "test_id": "graph-unit-algorithm-shells",
+      "priority": "P0",
+      "strategy_profile": "integration_top",
+      "oracle_id": "graph-engine-transaction-scoreboard-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_vertex_bfs_arbiter_control.sv",
+      "module": "cu_vertex_bfs_arbiter_control",
+      "sha256": "26144fcaa05a08bce5920ca3b2fd22ebb8c87058b9d9ba0c8dc379cde6928b20",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_vertex_bfs_arbiter_control",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "algorithm-arbiters",
+      "test_id": "graph-unit-algorithm-arbiters",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-algorithm-arbiter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_vertex_cluster_arbiter_control.sv",
+      "module": "cu_vertex_cluster_arbiter_control",
+      "sha256": "f6f26037abfde56f2ae6d45ff05a5f1463bc2660bafd50cde47f81e9eccd27f7",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_vertex_cluster_arbiter_control",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "cluster-scheduler",
+      "test_id": "graph-unit-cluster-scheduler",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-cluster-ownership-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_vertex_cluster_control.sv",
+      "module": "cu_vertex_cluster_control",
+      "sha256": "44515bb3bd5c2638675600b849df1c82be7d0c28a9c16dce312cafeb8e5e63fa",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_vertex_cluster_control",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "cluster-scheduler",
+      "test_id": "graph-unit-cluster-scheduler",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-cluster-ownership-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_vertex_job_control.sv",
+      "module": "cu_vertex_job_control",
+      "sha256": "2f7b6bec32de4c23009be75e31529146d3b61aa61b5901ab307a4edcd95ed47d",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_vertex_job_control",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_vertex_job_filter.sv",
+      "module": "cu_vertex_job_filter",
+      "sha256": "a2b81985100c4147fb27cb176ef07c679387f7d0d056a88506837a96b1f0ff2e",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_vertex_job_filter",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/demux_bus.sv",
+      "module": "demux_bus",
+      "sha256": "8a97ac6232ebc932623d197c5ac06bc1739396ad891e6cb7f3d9d9dab4257fd0",
+      "verification_unit": "cu_BFS-CSR-PULL-demux_bus",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-route-payload-model-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/sum_reduce.sv",
+      "module": "sum_reduce",
+      "sha256": "3e335da1e0dd7b0eeebfcbbf7eacff49641676476db3e045530a0b2a334f184d",
+      "verification_unit": "cu_BFS-CSR-PULL-sum_reduce",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "family": "sum-reduction",
+      "test_id": "graph-unit-sum-reduction",
+      "priority": "P0",
+      "strategy_profile": "reduction",
+      "oracle_id": "graph-arbitrary-precision-sum-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/ShiloachVishkin/cu/cu_update_kernel_control.sv",
+      "module": "cu_update_kernel_control",
+      "sha256": "fa151a2b9654777e736bdc4fda941fcb46b60f09d501cdc56c04d5d393150414",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-ShiloachVishkin-cu_update_kernel_control",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "connected-components-kernel",
+      "test_id": "graph-unit-connected-components-kernel",
+      "priority": "P0",
+      "strategy_profile": "algorithm_kernel",
+      "oracle_id": "independent-component-partition-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/array_struct_type_demux_bus.sv",
+      "module": "array_struct_type_demux_bus",
+      "sha256": "70e4678b7625f038074bb54015604d4d94390e406bf60ef0349d8c416d07b5c6",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-array_struct_type_demux_bus",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-route-payload-model-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_control.sv",
+      "module": "cu_control",
+      "sha256": "835cea350399209f20ad1abc033d8b4732225dde29c3faeb36bbd5839e200b17",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_control",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "graph-top",
+      "test_id": "graph-integration-cu-control",
+      "priority": "P0",
+      "strategy_profile": "integration_top",
+      "oracle_id": "graph-round-composed-scoreboard-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_edge_data_read_command_control.sv",
+      "module": "cu_edge_data_read_command_control",
+      "sha256": "b22816162b2717189efeae304f2678293545191a47b772ca2e969baa5ae9c523",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_edge_data_read_command_control",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_edge_data_read_extract_control.sv",
+      "module": "cu_edge_data_read_extract_control",
+      "sha256": "7d2cc90f8c43039e97c009a3b1c6fede9896cc52b7fbce57deb049eae5baf4e3",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_edge_data_read_extract_control",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_edge_data_write_command_control.sv",
+      "module": "cu_edge_data_write_command_control",
+      "sha256": "0780b9fb89c6e83042d416b3c92130ebd6a4061410419b1cbef2c150bc061854",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_edge_data_write_command_control",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "edge-write",
+      "test_id": "graph-unit-edge-write",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-property-write-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_edge_job_control.sv",
+      "module": "cu_edge_job_control",
+      "sha256": "45a1cf1dd023cf64f5f49114b405571c1c182151836c30503a998f600af164fb",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_edge_job_control",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "edge-job",
+      "test_id": "graph-unit-edge-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "csr-edge-range-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_cluster_arbiter_control.sv",
+      "module": "cu_vertex_cluster_arbiter_control",
+      "sha256": "eb18288450215dec11e14fa287bc9e5ba23d6f0b1dc19b931d0b30a584542d43",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_vertex_cluster_arbiter_control",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "cluster-scheduler",
+      "test_id": "graph-unit-cluster-scheduler",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-cluster-ownership-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_cluster_control.sv",
+      "module": "cu_vertex_cluster_control",
+      "sha256": "a33474e0bcb83c3e7f94dca32bab1f03808ebe1e37b7d99812c9f9cab8623f3a",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_vertex_cluster_control",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "cluster-scheduler",
+      "test_id": "graph-unit-cluster-scheduler",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-cluster-ownership-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_connectedComponents.sv",
+      "module": "cu_vertex_connectedComponents",
+      "sha256": "c70a7c88115363df0206f9767740eaf67301b398f2a393e95fbafa9dd1484047",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_vertex_connectedComponents",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "algorithm-shells",
+      "test_id": "graph-unit-algorithm-shells",
+      "priority": "P0",
+      "strategy_profile": "integration_top",
+      "oracle_id": "graph-engine-transaction-scoreboard-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_connectedComponents_arbiter_control.sv",
+      "module": "cu_vertex_connectedComponents_arbiter_control",
+      "sha256": "55974b21d1d223b884ccaddf7a7c36f499d0e3fb6f2a1a38e776e96055dff7e0",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_vertex_connectedComponents_arbiter_control",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "algorithm-arbiters",
+      "test_id": "graph-unit-algorithm-arbiters",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-algorithm-arbiter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_job_control.sv",
+      "module": "cu_vertex_job_control",
+      "sha256": "d60abebeee05acbd6f152dc83b66f88ec669dc2e05819d9646ecee4a3e08df1b",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_vertex_job_control",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_job_filter.sv",
+      "module": "cu_vertex_job_filter",
+      "sha256": "b95f8e72ec6e8df0e9b05533f1ba9ec487517f35ae99dde6a0997c5b196c760b",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_vertex_job_filter",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/demux_bus.sv",
+      "module": "demux_bus",
+      "sha256": "8a97ac6232ebc932623d197c5ac06bc1739396ad891e6cb7f3d9d9dab4257fd0",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-demux_bus",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-route-payload-model-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/sum_reduce.sv",
+      "module": "sum_reduce",
+      "sha256": "3e335da1e0dd7b0eeebfcbbf7eacff49641676476db3e045530a0b2a334f184d",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-sum_reduce",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "family": "sum-reduction",
+      "test_id": "graph-unit-sum-reduction",
+      "priority": "P0",
+      "strategy_profile": "reduction",
+      "oracle_id": "graph-arbitrary-precision-sum-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FixedPoint/cu/cu_sum_kernel_control.sv",
+      "module": "cu_sum_kernel_control",
+      "sha256": "8751d3e2cad1fcaa716f59006bca069876e596bf6f7b78379497caddd7eee5aa",
+      "verification_unit": "cu_PageRank-CSR-PULL-FixedPoint-cu_sum_kernel_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint"
+      ],
+      "family": "pagerank-kernel",
+      "test_id": "graph-unit-pagerank-kernel",
+      "priority": "P0",
+      "strategy_profile": "algorithm_kernel",
+      "oracle_id": "independent-pagerank-precision-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FloatPoint/cu/cu_sum_kernel_control.sv",
+      "module": "cu_sum_kernel_control",
+      "sha256": "51b5840527fff957a210f5caec345cffb915bdf01d3eaaf7e241834d3a8581bb",
+      "verification_unit": "cu_PageRank-CSR-PULL-FloatPoint-cu_sum_kernel_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FloatPoint"
+      ],
+      "family": "pagerank-kernel",
+      "test_id": "graph-unit-pagerank-kernel",
+      "priority": "P0",
+      "strategy_profile": "algorithm_kernel",
+      "oracle_id": "independent-pagerank-precision-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/Quantized/cu/cu_sum_kernel_control.sv",
+      "module": "cu_sum_kernel_control",
+      "sha256": "8751d3e2cad1fcaa716f59006bca069876e596bf6f7b78379497caddd7eee5aa",
+      "verification_unit": "cu_PageRank-CSR-PULL-Quantized-cu_sum_kernel_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "pagerank-kernel",
+      "test_id": "graph-unit-pagerank-kernel",
+      "priority": "P0",
+      "strategy_profile": "algorithm_kernel",
+      "oracle_id": "independent-pagerank-precision-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/array_struct_type_demux_bus.sv",
+      "module": "array_struct_type_demux_bus",
+      "sha256": "3058b8f8b0595afaaad937faf86c094f646217fcc4ba2825fa5fd40674d7efe5",
+      "verification_unit": "cu_PageRank-CSR-PULL-array_struct_type_demux_bus",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-route-payload-model-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_control.sv",
+      "module": "cu_control",
+      "sha256": "14b161e09741913704e523ac8e0275fabeac71af2be89780d3bc4684d3a0fd9a",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "graph-top",
+      "test_id": "graph-integration-cu-control",
+      "priority": "P0",
+      "strategy_profile": "integration_top",
+      "oracle_id": "graph-round-composed-scoreboard-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_edge_data_read_command_control.sv",
+      "module": "cu_edge_data_read_command_control",
+      "sha256": "450c97af89da186f6ff5c2be2f3ef091d12816005ca37d883545d6ab0d3b5856",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_edge_data_read_command_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv",
+      "module": "cu_edge_data_read_extract_control",
+      "sha256": "210b5101c16a5feef06c0877ab13655ae69ebe21302d2aec62aa803fbd21cdd8",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_edge_data_read_extract_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_edge_data_write_command_control.sv",
+      "module": "cu_edge_data_write_command_control",
+      "sha256": "0780b9fb89c6e83042d416b3c92130ebd6a4061410419b1cbef2c150bc061854",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_edge_data_write_command_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "edge-write",
+      "test_id": "graph-unit-edge-write",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-property-write-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_edge_job_control.sv",
+      "module": "cu_edge_job_control",
+      "sha256": "e3f7797bb79524153951a30d187b0b409b45105faf8afabee42a7278d330810b",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_edge_job_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "edge-job",
+      "test_id": "graph-unit-edge-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "csr-edge-range-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_graph_algorithm_arbiter_control.sv",
+      "module": "cu_graph_algorithm_arbiter_control",
+      "sha256": "1940ec412701d5bc51901f10e934a8111036a5abbd4ef8b269b2e039bea38e3b",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_graph_algorithm_arbiter_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "graph-algorithm-scheduler",
+      "test_id": "graph-unit-algorithm-scheduler",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-algorithm-grant-reduction-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_graph_algorithm_control.sv",
+      "module": "cu_graph_algorithm_control",
+      "sha256": "a1be1ec7b21a647fda99dca195430f07b4f738db663588cbd23b304ce3659bb8",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_graph_algorithm_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "graph-algorithm-scheduler",
+      "test_id": "graph-unit-algorithm-scheduler",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-algorithm-grant-reduction-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_vertex_job_control.sv",
+      "module": "cu_vertex_job_control",
+      "sha256": "b905aec015e7685b49ebe0cb729901f19fcd4cf51d7c9df171fdcef4218fb930",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_vertex_job_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_vertex_job_filter.sv",
+      "module": "cu_vertex_job_filter",
+      "sha256": "075b8143a345d74eb99a3507e09823af3f22696a6ede401e9fc9d5fa2b5bcd6f",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_vertex_job_filter",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_vertex_pagerank.sv",
+      "module": "cu_vertex_pagerank",
+      "sha256": "2d8eeafa6b165a72dfaf09baf5aa5432ea5fa6a762bbf7d3b93e7f26e58ab17b",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_vertex_pagerank",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "algorithm-shells",
+      "test_id": "graph-unit-algorithm-shells",
+      "priority": "P0",
+      "strategy_profile": "integration_top",
+      "oracle_id": "graph-engine-transaction-scoreboard-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_vertex_pagerank_arbiter_control.sv",
+      "module": "cu_vertex_pagerank_arbiter_control",
+      "sha256": "370880623553273d329f9588ff20ab370fcaf271a2432eeec1a276b302cb6125",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_vertex_pagerank_arbiter_control",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "algorithm-arbiters",
+      "test_id": "graph-unit-algorithm-arbiters",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-algorithm-arbiter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/demux_bus.sv",
+      "module": "demux_bus",
+      "sha256": "8a97ac6232ebc932623d197c5ac06bc1739396ad891e6cb7f3d9d9dab4257fd0",
+      "verification_unit": "cu_PageRank-CSR-PULL-demux_bus",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-route-payload-model-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/sum_reduce.sv",
+      "module": "sum_reduce",
+      "sha256": "3e335da1e0dd7b0eeebfcbbf7eacff49641676476db3e045530a0b2a334f184d",
+      "verification_unit": "cu_PageRank-CSR-PULL-sum_reduce",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "family": "sum-reduction",
+      "test_id": "graph-unit-sum-reduction",
+      "priority": "P0",
+      "strategy_profile": "reduction",
+      "oracle_id": "graph-arbitrary-precision-sum-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FixedPoint/cu/cu_sum_kernel_control.sv",
+      "module": "cu_sum_kernel_control",
+      "sha256": "2b7d50c6fbbb391d5f8af6a34e4fa4dce474277cae2bc0642ef2c43aa16a575a",
+      "verification_unit": "cu_SPMV-CSR-PULL-FixedPoint-cu_sum_kernel_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint"
+      ],
+      "family": "spmv-kernel",
+      "test_id": "graph-unit-spmv-kernel",
+      "priority": "P0",
+      "strategy_profile": "algorithm_kernel",
+      "oracle_id": "independent-spmv-precision-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FloatPoint/cu/cu_sum_kernel_control.sv",
+      "module": "cu_sum_kernel_control",
+      "sha256": "06db28e01e2136a55951eea8f4512bf4e921ef0bac90b164118de039ef6f4492",
+      "verification_unit": "cu_SPMV-CSR-PULL-FloatPoint-cu_sum_kernel_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "spmv-kernel",
+      "test_id": "graph-unit-spmv-kernel",
+      "priority": "P0",
+      "strategy_profile": "algorithm_kernel",
+      "oracle_id": "independent-spmv-precision-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/array_struct_type_demux_bus.sv",
+      "module": "array_struct_type_demux_bus",
+      "sha256": "ed0b2e6c5f20e3caac0977299ff2c6e8f2fe121bbe6f7b064b5e6cd1255431fc",
+      "verification_unit": "cu_SPMV-CSR-PULL-array_struct_type_demux_bus",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-route-payload-model-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_control.sv",
+      "module": "cu_control",
+      "sha256": "5ad4b7c80bb2feb2c89d49e0f169442209e362021710f19fd991327d2974d176",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "graph-top",
+      "test_id": "graph-integration-cu-control",
+      "priority": "P0",
+      "strategy_profile": "integration_top",
+      "oracle_id": "graph-round-composed-scoreboard-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_edge_data_read_command_control.sv",
+      "module": "cu_edge_data_read_command_control",
+      "sha256": "9590224630c30e3919abf356ac49c47b7549b1d8cc4d530eb7c740e7d13148fb",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_edge_data_read_command_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv",
+      "module": "cu_edge_data_read_extract_control",
+      "sha256": "325a7e4b7b4fb5ed0f1fe9670470361b0e2221c249b41a4be6708da18cf9224a",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_edge_data_read_extract_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_edge_data_write_command_control.sv",
+      "module": "cu_edge_data_write_command_control",
+      "sha256": "0780b9fb89c6e83042d416b3c92130ebd6a4061410419b1cbef2c150bc061854",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_edge_data_write_command_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "edge-write",
+      "test_id": "graph-unit-edge-write",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-property-write-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_edge_job_control.sv",
+      "module": "cu_edge_job_control",
+      "sha256": "706c37eac49582756b291a5a1eb754645c70af2c2ed11ae8487a27f59bbe141f",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_edge_job_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "edge-job",
+      "test_id": "graph-unit-edge-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "csr-edge-range-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_vertex_cluster_arbiter_control.sv",
+      "module": "cu_vertex_cluster_arbiter_control",
+      "sha256": "eb18288450215dec11e14fa287bc9e5ba23d6f0b1dc19b931d0b30a584542d43",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_vertex_cluster_arbiter_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "cluster-scheduler",
+      "test_id": "graph-unit-cluster-scheduler",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-cluster-ownership-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_vertex_cluster_control.sv",
+      "module": "cu_vertex_cluster_control",
+      "sha256": "897a31bd3ab863565c564cb3baae35d496bf79d278e2f7602a11bd41a583a4c2",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_vertex_cluster_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "cluster-scheduler",
+      "test_id": "graph-unit-cluster-scheduler",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-cluster-ownership-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_vertex_job_control.sv",
+      "module": "cu_vertex_job_control",
+      "sha256": "b905aec015e7685b49ebe0cb729901f19fcd4cf51d7c9df171fdcef4218fb930",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_vertex_job_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_vertex_job_filter.sv",
+      "module": "cu_vertex_job_filter",
+      "sha256": "075b8143a345d74eb99a3507e09823af3f22696a6ede401e9fc9d5fa2b5bcd6f",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_vertex_job_filter",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_vertex_spmv.sv",
+      "module": "cu_vertex_spmv",
+      "sha256": "e8f48234539359b0266eedbc96fc57bf68e13acde9d8b5eb181158e151f9ccad",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_vertex_spmv",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "algorithm-shells",
+      "test_id": "graph-unit-algorithm-shells",
+      "priority": "P0",
+      "strategy_profile": "integration_top",
+      "oracle_id": "graph-engine-transaction-scoreboard-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_vertex_spmv_arbiter_control.sv",
+      "module": "cu_vertex_spmv_arbiter_control",
+      "sha256": "dcfa3e04c46b848c089b4034095fd1268c288dab75b51194790d7d68932d9681",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_vertex_spmv_arbiter_control",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "algorithm-arbiters",
+      "test_id": "graph-unit-algorithm-arbiters",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-algorithm-arbiter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/demux_bus.sv",
+      "module": "demux_bus",
+      "sha256": "8a97ac6232ebc932623d197c5ac06bc1739396ad891e6cb7f3d9d9dab4257fd0",
+      "verification_unit": "cu_SPMV-CSR-PULL-demux_bus",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-route-payload-model-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/sum_reduce.sv",
+      "module": "sum_reduce",
+      "sha256": "3e335da1e0dd7b0eeebfcbbf7eacff49641676476db3e045530a0b2a334f184d",
+      "verification_unit": "cu_SPMV-CSR-PULL-sum_reduce",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "family": "sum-reduction",
+      "test_id": "graph-unit-sum-reduction",
+      "priority": "P0",
+      "strategy_profile": "reduction",
+      "oracle_id": "graph-arbitrary-precision-sum-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/Binary/cu/cu_update_kernel_control.sv",
+      "module": "cu_sum_kernel_control",
+      "sha256": "2b7d50c6fbbb391d5f8af6a34e4fa4dce474277cae2bc0642ef2c43aa16a575a",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-Binary-cu_update_kernel_control",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "triangle-kernel",
+      "test_id": "graph-unit-triangle-kernel",
+      "priority": "P0",
+      "strategy_profile": "algorithm_kernel",
+      "oracle_id": "independent-triangle-count-v1",
+      "implementation_status": "blocked"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/array_struct_type_demux_bus.sv",
+      "module": "array_struct_type_demux_bus",
+      "sha256": "ed0b2e6c5f20e3caac0977299ff2c6e8f2fe121bbe6f7b064b5e6cd1255431fc",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-array_struct_type_demux_bus",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-route-payload-model-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_control.sv",
+      "module": "cu_control",
+      "sha256": "18007bb667909ad3b56410296a60a32ab51fc92b6c84ee43a19fdd9030bd9e64",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_control",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "graph-top",
+      "test_id": "graph-integration-cu-control",
+      "priority": "P0",
+      "strategy_profile": "integration_top",
+      "oracle_id": "graph-round-composed-scoreboard-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_edge_data_read_command_control.sv",
+      "module": "cu_edge_data_read_command_control",
+      "sha256": "9590224630c30e3919abf356ac49c47b7549b1d8cc4d530eb7c740e7d13148fb",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_edge_data_read_command_control",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_edge_data_read_extract_control.sv",
+      "module": "cu_edge_data_read_extract_control",
+      "sha256": "325a7e4b7b4fb5ed0f1fe9670470361b0e2221c249b41a4be6708da18cf9224a",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_edge_data_read_extract_control",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "edge-read",
+      "test_id": "graph-unit-edge-read",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-edge-cacheline-extract-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_edge_data_write_command_control.sv",
+      "module": "cu_edge_data_write_command_control",
+      "sha256": "0780b9fb89c6e83042d416b3c92130ebd6a4061410419b1cbef2c150bc061854",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_edge_data_write_command_control",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "edge-write",
+      "test_id": "graph-unit-edge-write",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-property-write-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_edge_job_control.sv",
+      "module": "cu_edge_job_control",
+      "sha256": "706c37eac49582756b291a5a1eb754645c70af2c2ed11ae8487a27f59bbe141f",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_edge_job_control",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "edge-job",
+      "test_id": "graph-unit-edge-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "csr-edge-range-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_vertex_cluster_arbiter_control.sv",
+      "module": "cu_vertex_cluster_arbiter_control",
+      "sha256": "eb18288450215dec11e14fa287bc9e5ba23d6f0b1dc19b931d0b30a584542d43",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_vertex_cluster_arbiter_control",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "cluster-scheduler",
+      "test_id": "graph-unit-cluster-scheduler",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-cluster-ownership-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_vertex_cluster_control.sv",
+      "module": "cu_vertex_cluster_control",
+      "sha256": "7be19117bf6a73b4f613987ed5ff3deca259c78e3279448f79ffc7d0cd1d5545",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_vertex_cluster_control",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "cluster-scheduler",
+      "test_id": "graph-unit-cluster-scheduler",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-cluster-ownership-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_vertex_job_control.sv",
+      "module": "cu_vertex_job_control",
+      "sha256": "b905aec015e7685b49ebe0cb729901f19fcd4cf51d7c9df171fdcef4218fb930",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_vertex_job_control",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_vertex_job_filter.sv",
+      "module": "cu_vertex_job_filter",
+      "sha256": "075b8143a345d74eb99a3507e09823af3f22696a6ede401e9fc9d5fa2b5bcd6f",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_vertex_job_filter",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "vertex-job",
+      "test_id": "graph-unit-vertex-job",
+      "priority": "P0",
+      "strategy_profile": "queue_controller",
+      "oracle_id": "graph-vertex-job-filter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_vertex_triangleCount.sv",
+      "module": "cu_vertex_triangleCount",
+      "sha256": "89b15198a53200801e6641314f7d6b365ff5633be65bd112a8b6c3314c2a7620",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_vertex_triangleCount",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "algorithm-shells",
+      "test_id": "graph-unit-algorithm-shells",
+      "priority": "P0",
+      "strategy_profile": "integration_top",
+      "oracle_id": "graph-engine-transaction-scoreboard-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_vertex_triangleCount_arbiter_control.sv",
+      "module": "cu_vertex_triangleCount_arbiter_control",
+      "sha256": "dfabb35796a4e8d9a643d4a28bc4d2a4180f6f111a9cf2565eb44aaa366d75e4",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_vertex_triangleCount_arbiter_control",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "algorithm-arbiters",
+      "test_id": "graph-unit-algorithm-arbiters",
+      "priority": "P0",
+      "strategy_profile": "scheduler",
+      "oracle_id": "graph-algorithm-arbiter-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/demux_bus.sv",
+      "module": "demux_bus",
+      "sha256": "8a97ac6232ebc932623d197c5ac06bc1739396ad891e6cb7f3d9d9dab4257fd0",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-demux_bus",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-route-payload-model-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/sum_reduce.sv",
+      "module": "sum_reduce",
+      "sha256": "3e335da1e0dd7b0eeebfcbbf7eacff49641676476db3e045530a0b2a334f184d",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-sum_reduce",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "family": "sum-reduction",
+      "test_id": "graph-unit-sum-reduction",
+      "priority": "P0",
+      "strategy_profile": "reduction",
+      "oracle_id": "graph-arbitrary-precision-sum-v1",
+      "implementation_status": "planned"
+    }
+  ],
+  "non_module_declarations": [
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/BottomUp/pkg/globals_cu_pkg.sv",
+      "package": "GLOBALS_CU_PKG",
+      "sha256": "d6b73617af78858df52b7a70ab2b949d1766e32a4a8510cf5b920e448207e835",
+      "verification_unit": "cu_BFS-CSR-PULL-BottomUp-globals_cu_pkg",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_pkg/cu_pkg.sv",
+      "package": "CU_PKG",
+      "sha256": "bfe8d0e8ca88ba2699e69d558e4b790eb0377a2cf820d9d82e816498349afd80",
+      "verification_unit": "cu_BFS-CSR-PULL-cu_pkg",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_pkg/wed_pkg.sv",
+      "package": "WED_PKG",
+      "sha256": "627c3b96086095ac2b0c9566519dfd8389ff27cbdd9f0d0cf7c13189a4836541",
+      "verification_unit": "cu_BFS-CSR-PULL-wed_pkg",
+      "contexts": [
+        "cu_BFS_CSR_PULL_BottomUp"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/ShiloachVishkin/pkg/globals_cu_pkg.sv",
+      "package": "GLOBALS_CU_PKG",
+      "sha256": "c35e3bacdce52085d1d647df6a9b0b1d97738eb5c47551fb0c46a91206f24e7a",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-ShiloachVishkin-globals_cu_pkg",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_pkg/cu_pkg.sv",
+      "package": "CU_PKG",
+      "sha256": "9e32eff7acbfd6f45b6b93a57cd69f12623e9f29a04bca1ff1a5e30f4aba5fa5",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-cu_pkg",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_pkg/wed_pkg.sv",
+      "package": "WED_PKG",
+      "sha256": "0d7837c46c10ff50a705fd08001d13ab280f30d107875ff2e301ee14f3680dc8",
+      "verification_unit": "cu_ConnectedComponents-CSR-ShiloachVishkin-wed_pkg",
+      "contexts": [
+        "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FixedPoint/pkg/globals_cu_pkg.sv",
+      "package": "GLOBALS_CU_PKG",
+      "sha256": "32cf4b839f8901d10f90ce9a081b7ed4624330d8909b9a7870a628053f1745be",
+      "verification_unit": "cu_PageRank-CSR-PULL-FixedPoint-globals_cu_pkg",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FloatPoint/pkg/globals_cu_pkg.sv",
+      "package": "GLOBALS_CU_PKG",
+      "sha256": "f74137c07adfa9a4171124af833ce4a0f6489a6a2b3e489e3af1b1e8b062fdba",
+      "verification_unit": "cu_PageRank-CSR-PULL-FloatPoint-globals_cu_pkg",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FloatPoint"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/Quantized/pkg/globals_cu_pkg.sv",
+      "package": "GLOBALS_CU_PKG",
+      "sha256": "8d8b728e34b4eeb0b162817378c660bcfecb493d0d08e4d45bfddf104f1ec9e1",
+      "verification_unit": "cu_PageRank-CSR-PULL-Quantized-globals_cu_pkg",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_pkg/cu_pkg.sv",
+      "package": "CU_PKG",
+      "sha256": "983791e0fcfea2407beded30d5d1853848fc081898a6870fd3694e0395721455",
+      "verification_unit": "cu_PageRank-CSR-PULL-cu_pkg",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_pkg/wed_pkg.sv",
+      "package": "WED_PKG",
+      "sha256": "0d7837c46c10ff50a705fd08001d13ab280f30d107875ff2e301ee14f3680dc8",
+      "verification_unit": "cu_PageRank-CSR-PULL-wed_pkg",
+      "contexts": [
+        "cu_PageRank_CSR_PULL_FixedPoint",
+        "cu_PageRank_CSR_PULL_FloatPoint",
+        "cu_PageRank_CSR_PULL_Quantized"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FixedPoint/pkg/globals_cu_pkg.sv",
+      "package": "GLOBALS_CU_PKG",
+      "sha256": "83d0ca8cad0b1baef6c4e4573dd4b3f8130ae67d0ffc8d37efdaa7a619a89f80",
+      "verification_unit": "cu_SPMV-CSR-PULL-FixedPoint-globals_cu_pkg",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FloatPoint/pkg/globals_cu_pkg.sv",
+      "package": "GLOBALS_CU_PKG",
+      "sha256": "1049780f835fdf7d5f42b41aedf7b9d1a8fa84b7f061005d6c7300a3b8696268",
+      "verification_unit": "cu_SPMV-CSR-PULL-FloatPoint-globals_cu_pkg",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_pkg/cu_pkg.sv",
+      "package": "CU_PKG",
+      "sha256": "9817d53de63f2fe984ebe156bdb4af0a91d40f3f744de2832269256b9e77ae3e",
+      "verification_unit": "cu_SPMV-CSR-PULL-cu_pkg",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_pkg/wed_pkg.sv",
+      "package": "WED_PKG",
+      "sha256": "0d7837c46c10ff50a705fd08001d13ab280f30d107875ff2e301ee14f3680dc8",
+      "verification_unit": "cu_SPMV-CSR-PULL-wed_pkg",
+      "contexts": [
+        "cu_SPMV_CSR_PULL_FixedPoint",
+        "cu_SPMV_CSR_PULL_FloatPoint"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/Binary/pkg/globals_cu_pkg.sv",
+      "package": "GLOBALS_CU_PKG",
+      "sha256": "3f9b1fcbf36cd7f068d4bc61c0995fa7979da1b22211b81880eb87e01a4bdfc4",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-Binary-globals_cu_pkg",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_pkg/cu_pkg.sv",
+      "package": "CU_PKG",
+      "sha256": "9817d53de63f2fe984ebe156bdb4af0a91d40f3f744de2832269256b9e77ae3e",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-cu_pkg",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    },
+    {
+      "path": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_pkg/wed_pkg.sv",
+      "package": "WED_PKG",
+      "sha256": "0d7837c46c10ff50a705fd08001d13ab280f30d107875ff2e301ee14f3680dc8",
+      "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-wed_pkg",
+      "contexts": [
+        "cu_TriangleCount_CSR_BinaryIntersection_Binary"
+      ],
+      "suite": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "priority": "P0",
+      "strategy_profile": "routing",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "implementation_status": "planned"
+    }
+  ]
+}
