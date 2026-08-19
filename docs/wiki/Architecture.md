@@ -39,7 +39,7 @@ This page documents only the graph extension.
    host before the next graph round.
 
 The host and RTL evidence layers are described in
-[Accelerator verification](Accelerator-Verification.md).
+[Accelerator verification](https://github.com/atmughrabi/AccelGraph/wiki/Accelerator-Verification).
 
 ## Graph diagram blocks
 

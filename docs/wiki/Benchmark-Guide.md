@@ -43,5 +43,7 @@ A reportable CAPI result needs all of the following:
 - result match or algorithm-specific correctness evidence;
 - elapsed time and trial count.
 
-See [Accelerator verification](Accelerator-Verification.md) for liveness and
-[Deployment runbook](Deployment-Runbook.md) for operational evidence.
+See [accelerator verification](https://github.com/atmughrabi/AccelGraph/wiki/Accelerator-Verification)
+for liveness and the
+[deployment runbook](https://github.com/atmughrabi/AccelGraph/wiki/Deployment-Runbook)
+for operational evidence.

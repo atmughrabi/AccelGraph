@@ -9,13 +9,15 @@ implementations, CAPI kernels, benchmark orchestration, and result reporting.
 Shared AFU-control documentation lives in the complementary
 [CAPI-Precis wiki](https://github.com/atmughrabi/CAPI-Precis/wiki).
 
-- [Benchmark guide](Benchmark-Guide.md) maps repository ownership, execution
+- [Benchmark guide](https://github.com/atmughrabi/AccelGraph/wiki/Benchmark-Guide) maps repository ownership, execution
   stages, algorithms, and evidence.
-- [Architecture](Architecture.md) maps the host, AFU-control, CU-cluster, and
+- [Architecture](https://github.com/atmughrabi/AccelGraph/wiki/Architecture) maps the host, AFU-control, CU-cluster, and
   graph-engine boundaries.
-- [Accelerator verification](Accelerator-Verification.md) defines bounded CAPI
+- [Accelerator verification](https://github.com/atmughrabi/AccelGraph/wiki/Accelerator-Verification) defines bounded CAPI
   execution inside graph algorithms.
-- [Deployment runbook](Deployment-Runbook.md) covers benchmark launch and hang
+- [Deployment runbook](https://github.com/atmughrabi/AccelGraph/wiki/Deployment-Runbook) covers benchmark launch and hang
   triage.
-- [Stabilization plan](https://github.com/atmughrabi/AccelGraph/blob/master/docs/stabilization-plan.md)
+- [Verification infrastructure](https://github.com/atmughrabi/AccelGraph/wiki/Verification-Infrastructure)
+  defines graph-module, backpressure, scoreboard, golden-model, and coverage work.
+- [Stabilization plan](https://github.com/atmughrabi/AccelGraph/wiki/Stabilization-Plan)
   records the benchmark acceptance matrix and rollout.

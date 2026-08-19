@@ -9,6 +9,10 @@
 
 ## Overview
 
+<p align="center">
+  <img src="./docs/fig/accelgraph-architecture.png" width="960" alt="AccelGraph accelerator architecture">
+</p>
+
 AccelGraph-CAPI is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of AccelGraph-CAPI has been developed on Ubuntu 18.04, with PowerPC/Intel architecture taken into account.
 AccelGraph-CAPI is coded using C giving the researcher full flexibility with modifying data structures and other algorithmic optimizations. Furthermore, this benchmarking suite has been fully integrated with IBM Coherent Accelerator Processor Interface (CAPI), demonstrating the contrast in performance between Shared Memory Accelerators and Parallel Processors.
 
@@ -19,10 +23,15 @@ AccelGraph-CAPI is coded using C giving the researcher full flexibility with mod
 AccelGraph bounds AFU/CU configuration, kernel progress, error handling, and
 completion reset while retaining the existing graph-result checks. Run
 `make verify` before simulator or FPGA deployment. The
-[accelerator verification guide](docs/wiki/Accelerator-Verification.md) and
-[architecture guide](docs/wiki/Architecture.md) describe the host and RTL
-evidence paths; the [documentation index](docs/README.md) is the source of
-truth.
+[accelerator verification guide](https://github.com/atmughrabi/AccelGraph/wiki/Accelerator-Verification),
+[architecture guide](https://github.com/atmughrabi/AccelGraph/wiki/Architecture),
+and [verification roadmap](https://github.com/atmughrabi/AccelGraph/wiki/Verification-Infrastructure)
+describe the graph-specific evidence path. The
+[CAPI-Precis wiki](https://github.com/atmughrabi/CAPI-Precis/wiki) owns the
+shared AFU-control contract.
+
+The editable documentation source is the
+[`docs` index](docs/README.md); the GitHub wiki is its published mirror.
 
 # Installation
 

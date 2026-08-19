@@ -4,13 +4,15 @@
   <img src="../06_slides/fig/logo.svg" width="220" alt="AccelGraph logo">
 </p>
 
-This directory is the documentation source of truth.
+`docs/wiki/*.md` is the editable documentation source of truth. The GitHub wiki
+is a published mirror; wiki-side edits are overwritten by the publisher.
 
 - [Accelerator verification](wiki/Accelerator-Verification.md)
 - [Architecture](wiki/Architecture.md)
 - [Benchmark guide](wiki/Benchmark-Guide.md)
 - [Deployment runbook](wiki/Deployment-Runbook.md)
-- [Stabilization plan](stabilization-plan.md)
+- [Verification infrastructure roadmap](wiki/Verification-Infrastructure.md)
+- [Stabilization plan](wiki/Stabilization-Plan.md)
 
 The enabled GitHub Wiki is published from `docs/wiki`. Edit this source and
 mirror it to the wiki repository; do not maintain independent page content.
