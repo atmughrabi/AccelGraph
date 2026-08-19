@@ -1,6 +1,6 @@
 [![verification](https://github.com/atmughrabi/AccelGraph/actions/workflows/verification.yml/badge.svg)](https://github.com/atmughrabi/AccelGraph/actions/workflows/verification.yml)
 <p align="center">
-  <img src="./06_slides/fig/logo.svg" width="280" alt="AccelGraph logo">
+  <img src="./06_slides/fig/logo.svg" width="180" alt="AccelGraph logo">
 </p>
 
 # AccelGraph-CAPI Benchmark Suite
