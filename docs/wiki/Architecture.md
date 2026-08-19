@@ -1,7 +1,7 @@
 # Architecture
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/atmughrabi/AccelGraph/master/docs/fig/accelgraph-architecture.svg" width="960" alt="AccelGraph accelerator architecture">
+  <img src="https://raw.githubusercontent.com/atmughrabi/AccelGraph/master/docs/fig/accelgraph-architecture.svg" width="960" alt="AccelGraph host and FPGA accelerator architecture">
 </p>
 
 AccelGraph combines the CAPI-Precis AFU-control layer with graph-specific CU
@@ -13,6 +13,17 @@ The shared PSL, MMIO, buffering, credit, tag, response, error, done, and reset
 blocks are defined by
 [CAPI-Precis architecture](https://github.com/atmughrabi/CAPI-Precis/wiki/Architecture).
 This page documents only the graph extension.
+
+## Execution domains
+
+| Domain | Ownership |
+| --- | --- |
+| Host | OpenGraph reference execution, graph loading/preprocessing, forward and inverse CSR, WED construction, libcxl launch, and result comparison |
+| FPGA | CAPI-Precis PSL/AFU-control services, graph CU-cluster arbitration, vertex/edge engines, graph kernels, writeback, progress, completion, and reset |
+
+The dashed boundary in the figure is the software/hardware ownership boundary,
+not a memory-copy boundary: coherent graph arrays remain host allocated and are
+accessed by FPGA commands through CAPI.
 
 ## Repository boundaries
 

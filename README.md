@@ -10,7 +10,7 @@
 ## Overview
 
 <p align="center">
-  <img src="./docs/fig/accelgraph-architecture.svg" width="960" alt="AccelGraph accelerator architecture">
+  <img src="./docs/fig/accelgraph-architecture.svg" width="960" alt="AccelGraph host and FPGA accelerator architecture">
 </p>
 
 AccelGraph-CAPI is an open source graph processing framework. It is designed as a modular benchmarking suite for graph processing algorithms. It provides an end to end evaluation infrastructure which includes the preprocessing stage of forming the graph structure and the graph algorithm. The OpenMP part of AccelGraph-CAPI has been developed on Ubuntu 18.04, with PowerPC/Intel architecture taken into account.
