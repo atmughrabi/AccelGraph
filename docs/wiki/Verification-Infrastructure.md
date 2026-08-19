@@ -29,7 +29,7 @@ then updates its submodule pin and adds graph adapters in the same commit.
 
 | AccelGraph phase | Required CAPI-Precis evidence |
 | --- | --- |
-| Phase 0 baseline/manifests | Published manifest/coverage API v2 pin `71dd673...` and passing CAPI G0/G1 planning gates |
+| Phase 0 baseline/manifests | Published manifest/coverage API v2 pin `000f7ce...` with the first measured P0 unit family |
 | Phase 1 oracle/ABI | Published CAPI package/WED contract tests |
 | Phase 2 shared infrastructure | Published verification API/schema v1, locked runner/BFMs/scheduler/artifact schemas, passing downstream compatibility job |
 | Phase 3/4 unit work | CAPI utility/protocol P0 units and portable assertion/scoreboard API |
@@ -52,7 +52,7 @@ then updates its submodule pin and adds graph adapters in the same commit.
 The executable baseline in
 `03_capi_integration/accelerator_verification/rtl` now provides:
 
-- the exact CAPI-Precis manifest/coverage API v2 pin `71dd673...`;
+- the exact CAPI-Precis manifest/coverage API v2 pin `000f7ce...`;
 - 8 active ordered ModelSim/Quartus manifests with package-derived topology;
 - 3 PageRank PUSH expected-failure manifests, each locked to the same 7
   missing paths and source-resolution signature;
@@ -491,7 +491,7 @@ scaffolding is committed.
 implemented; licensed ModelSim/Quartus closure remains pending.
 
 - Require clean recursive checkout with CAPI-Precis
-  `71dd673da3011b67c8f75fad392682f5259f83fd` as the baseline pin.
+  `000f7ce24cb7dcda4a5121806fd63f63cb820119` as the baseline pin.
 - Record exact package/module/topology manifests for all 11 builds.
 - Add source-set comparison for ModelSim and Quartus.
 - Add real graph-CU elaboration; remove stub-only confidence.

@@ -5,7 +5,7 @@
     "03_capi_integration/accelerator_verification/rtl"
   ],
   "generated_by": "03_capi_integration/accelerator_verification/rtl/scripts/verify_manifests.py",
-  "capi_precis_commit": "71dd673da3011b67c8f75fad392682f5259f83fd",
+  "capi_precis_commit": "000f7ce24cb7dcda4a5121806fd63f63cb820119",
   "portable_vendor_ip_boundaries": [
     {
       "module": "fp_single_add_acc",
