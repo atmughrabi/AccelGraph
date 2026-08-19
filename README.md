@@ -20,7 +20,9 @@ AccelGraph bounds AFU/CU configuration, kernel progress, error handling, and
 completion reset while retaining the existing graph-result checks. Run
 `make verify` before simulator or FPGA deployment. The
 [accelerator verification guide](docs/wiki/Accelerator-Verification.md) and
-[documentation index](docs/README.md) are the source of truth.
+[architecture guide](docs/wiki/Architecture.md) describe the host and RTL
+evidence paths; the [documentation index](docs/README.md) is the source of
+truth.
 
 # Installation
 
@@ -34,6 +36,10 @@ AccelGraph@CAPI:~$ sudo apt-get install libjudy-dev
 2. OpenMP is already a feature of the compiler, so this step is not necessary.
 ```console
 AccelGraph@CAPI:~$ sudo apt-get install libomp-dev
+```
+3. Verilator 5 or newer is required for the standalone RTL verification target.
+```console
+AccelGraph@CAPI:~$ sudo apt-get install verilator
 ```
 
 ### CAPI

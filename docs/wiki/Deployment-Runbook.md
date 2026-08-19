@@ -1,10 +1,17 @@
 # Deployment runbook
 
+Shared CAPI/PSLSE environment setup, timeout controls, and generic
+host/RTL failure meanings are maintained in the
+[CAPI-Precis deployment runbook](https://github.com/atmughrabi/CAPI-Precis/wiki/Deployment-Runbook).
+This page contains only AccelGraph-specific deployment evidence.
+
 ## Before launch
 
 ```console
 git submodule sync --recursive
 git submodule update --init --recursive
+sudo apt-get install libjudy-dev verilator
+verilator --version  # must report version 5 or newer
 make verify
 ```
 

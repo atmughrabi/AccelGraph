@@ -279,6 +279,10 @@ proc r  {} {
     vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/afu.sv
     vlog -quiet $afu_control_dir/accelerator_rtl/afu_control/cached_afu.sv
 
+    echo "Compiling RTL Verification"
+    vlog -quiet $afu_control_dir/accelerator_rtl/verification/accelerator_verification.sv
+    vlog -quiet $cu_control_dir/accelerator_rtl/verification/accelerator_verification_bind.sv
+
 
   # compile top level
   echo "Compiling top level"
@@ -307,6 +311,7 @@ proc c {} {
   # do watch_command_interface.do
   # do watch_buffer_interface.do
   # do watch_response_interface.do
+  do watch_accelerator_verification.do
   # vcd file ${graph_algorithm}_${data_structure}_${direction}_${cu_precision}.vcd
 
   # vcd add * -r
@@ -332,6 +337,7 @@ proc c_fp {} {
   # do watch_command_interface.do
   # do watch_buffer_interface.do
   # do watch_response_interface.do
+  do watch_accelerator_verification.do
 
   # view structure
   # view signals
@@ -408,4 +414,3 @@ proc rcd {} {
   r
   c_fp
 }
-

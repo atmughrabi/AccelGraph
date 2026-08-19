@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1540" height="760" viewBox="30 20 1540 760" role="img" aria-labelledby="title desc" fill="#3A414A">
   <title id="title">AccelGraph accelerator verification</title>
-  <desc id="desc">AccelGraph prepares a graph, configures a matching compute unit, observes bounded kernel progress, drains completion reset, and verifies algorithm output.</desc>
+  <desc id="desc">AccelGraph combines host watchdogs, graph-target-aware RTL checks, completion reset evidence, and the existing algorithm result oracle.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 13 11" markerWidth="13" markerHeight="11" refX="13" refY="5.5" orient="auto" markerUnits="userSpaceOnUse">
       <path d="M0 0 L13 5.5 L0 11 Z" fill="#3A414A"/>
@@ -20,7 +20,7 @@
     </style>
   </defs>
   <text x="70" y="76" class="sans title">AccelGraph accelerator verification</text>
-  <text x="70" y="112" class="sans body">Liveness evidence is combined with the existing graph-result oracle</text>
+  <text x="70" y="112" class="sans body">Host liveness, graph-target-aware RTL checks, and the result oracle form one proof</text>
   <line x1="70" y1="138" x2="1530" y2="138" stroke="#3A414A" stroke-width="2"/>
 
   <g class="sans">
@@ -33,19 +33,19 @@
     <rect x="340" y="210" width="225" height="170" rx="8" fill="#FFDDA6" stroke="#000000" stroke-width="2"/>
     <text x="452" y="250" text-anchor="middle" class="block">Kernel setup</text>
     <text x="365" y="292" class="body">algorithm / direction</text>
-    <text x="365" y="320" class="body">watchdog + status</text>
+    <text x="365" y="320" class="body">host + RTL accept</text>
     <text x="365" y="348" class="small">bounded start</text>
 
     <rect x="620" y="210" width="225" height="170" rx="8" fill="#C1E4F7" stroke="#000000" stroke-width="2"/>
     <text x="732" y="250" text-anchor="middle" class="block">Kernel progress</text>
-    <text x="645" y="292" class="body">return counters</text>
-    <text x="645" y="320" class="body">error register</text>
-    <text x="645" y="348" class="small">stall + run deadline</text>
+    <text x="645" y="292" class="body">monotonic counters</text>
+    <text x="645" y="320" class="body">RTL vertex target</text>
+    <text x="645" y="348" class="small">stall + host deadline</text>
 
     <rect x="900" y="210" width="225" height="170" rx="8" fill="#A7A6FF" stroke="#000000" stroke-width="2"/>
     <text x="1012" y="250" text-anchor="middle" class="block">Round drain</text>
-    <text x="925" y="292" class="body">ACK completion</text>
-    <text x="925" y="320" class="body">done/status clear</text>
+    <text x="925" y="292" class="body">stable RTL result</text>
+    <text x="925" y="320" class="body">host ACK + reset</text>
     <text x="925" y="348" class="small">safe next iteration</text>
 
     <rect x="1180" y="210" width="300" height="170" rx="8" fill="#D7FAF5" stroke="#000000" stroke-width="3"/>
@@ -65,7 +65,7 @@
   <rect x="300" y="500" width="940" height="150" rx="8" fill="#FFBBB1" stroke="#000000" stroke-width="2"/>
   <text x="770" y="540" text-anchor="middle" class="sans pane">Failed benchmark evidence</text>
   <text x="350" y="585" class="sans body">setup / MMIO</text>
-  <text x="555" y="585" class="sans body">device error</text>
+  <text x="555" y="585" class="sans body">RTL assertion</text>
   <text x="755" y="585" class="sans body">stalled round</text>
   <text x="965" y="585" class="sans body">run timeout</text>
   <text x="770" y="625" text-anchor="middle" class="mono small">algorithm + graph + phase + progress + target + status + error</text>

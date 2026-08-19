@@ -1,10 +1,10 @@
 sudo: required
-dist: xenial
+dist: jammy
 
 before_install:
   - sudo apt-get update -qq
 
-  - sudo apt-get install -y libjudy-dev 
+  - sudo apt-get install -y libjudy-dev
   - git submodule update --init --recursive
  
 env: OMP_NUM_THREADS=4
@@ -14,7 +14,8 @@ compiler:
   - gcc
 
 script:
-  - make verify
+  # GitHub Actions owns the Verilator 5.x RTL gate.
+  - make accelerator-verification benchmark-verification integration-verification integration-compile graphbrew-smoke verify-test
 
 notifications:
 email:

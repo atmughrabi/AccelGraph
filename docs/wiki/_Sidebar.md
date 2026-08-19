@@ -1,4 +1,5 @@
 - [Home](Home.md)
+- [Architecture](Architecture.md)
 - [Benchmark guide](Benchmark-Guide.md)
 - [Accelerator verification](Accelerator-Verification.md)
 - [Deployment runbook](Deployment-Runbook.md)

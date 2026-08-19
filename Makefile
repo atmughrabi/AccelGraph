@@ -359,6 +359,10 @@ integration-verification:
 integration-compile:
 	$(MAKE) integration-compile $(MAKE_ARGS_ACCELGRAPH)
 
+.PHONY: rtl-verification
+rtl-verification:
+	$(MAKE) rtl-verification $(MAKE_ARGS_ACCELGRAPH)
+
 .PHONY: graphbrew-smoke
 graphbrew-smoke:
 	timeout 120 $(MAKE) run-openmp $(MAKE_ARGS_OPENGRAPH) FILE_BIN=../01_test_graphs/TEST/graphbrew/graph.bin ARGS='-w -M 0 -j 0 -g 1000 -z 1 -d 0 -a 0 -r 0 -n 2 -N 2 -K 2 -i 1 -o 0 -p 0 -t 1 -e 1e-8 -l 0 -L 0 -O 0 -b 800 -C 32768'
@@ -370,7 +374,7 @@ verify-test:
 		exit $$status
 
 .PHONY: verify
-verify: accelerator-verification benchmark-verification integration-verification integration-compile graphbrew-smoke verify-test
+verify: accelerator-verification benchmark-verification integration-verification integration-compile rtl-verification graphbrew-smoke verify-test
 
 .PHONY: run-test
 run-test:

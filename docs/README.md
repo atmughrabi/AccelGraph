@@ -7,14 +7,19 @@
 This directory is the documentation source of truth.
 
 - [Accelerator verification](wiki/Accelerator-Verification.md)
+- [Architecture](wiki/Architecture.md)
 - [Benchmark guide](wiki/Benchmark-Guide.md)
 - [Deployment runbook](wiki/Deployment-Runbook.md)
 - [Stabilization plan](stabilization-plan.md)
 
-GitHub Wiki pages should be published from `docs/wiki` without maintaining a
-second copy.
+The enabled GitHub Wiki is published from `docs/wiki`. Edit this source and
+mirror it to the wiki repository; do not maintain independent page content.
 
 ## Brand assets
 
 - [SVG logo](../06_slides/fig/logo.svg) - preferred for documentation
 - [PNG logo](../06_slides/fig/logo.png) - raster fallback
+
+## Architecture asset
+
+- [AccelGraph architecture](fig/accelgraph-architecture.png)

@@ -22,6 +22,7 @@ workload.
 | BC root selection | AccelGraph CAPI copy looped when no vertex exceeded average degree | Bounded scan with non-isolated fallback | Regular and edgeless CAPI cases terminate |
 | CI fixture | OpenGraph reference test hardcodes a LAW graph | Add bounded `TEST/graphbrew` smoke execution | Small fixture runs on every verification job |
 | Correctness | Completion treated as success | Existing result/reference comparison retained | Algorithm-specific match |
+| RTL protocol | Host evidence could not detect internal graph-CU publication or target violations | Bind graph-target-aware monitor to `cached_afu` | Verilator pass/negative tests and ModelSim bind |
 
 ## Delivery stages
 
@@ -46,6 +47,7 @@ workload.
 | Host unit | Defaults, overrides, invalid values, progress, stall, timeout, completion, device error |
 | OpenMP/reference | Existing graph tests and algorithm result checks |
 | Simulator | AFU/CU status, progress, error, completion ACK/reset |
+| RTL monitor | Configuration acceptance, monotonic progress, WED vertex target, stable completion, ACK/reset |
 | FPGA | Same protocol evidence plus image and platform identity |
 | Algorithms | BFS, PageRank, SPMV, connected components, triangle count where supported |
 | Repetition | Multi-iteration and multi-frontier launches |
