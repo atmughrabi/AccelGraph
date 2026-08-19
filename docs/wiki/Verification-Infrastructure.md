@@ -29,7 +29,7 @@ then updates its submodule pin and adds graph adapters in the same commit.
 
 | AccelGraph phase | Required CAPI-Precis evidence |
 | --- | --- |
-| Phase 0 baseline/manifests | Published baseline pin `8de7a4f...` and current host/RTL self-tests |
+| Phase 0 baseline/manifests | Published manifest API pin `803a17a...` and passing CAPI G0/G1 portable gates |
 | Phase 1 oracle/ABI | Published CAPI package/WED contract tests |
 | Phase 2 shared infrastructure | Published verification API/schema v1, locked runner/BFMs/scheduler/artifact schemas, passing downstream compatibility job |
 | Phase 3/4 unit work | CAPI utility/protocol P0 units and portable assertion/scoreboard API |
@@ -42,10 +42,34 @@ then updates its submodule pin and adds graph adapters in the same commit.
 | --- | --- | --- |
 | Host runtime | CAPI watchdog/fake-libcxl tests, convergence guards, bounded BC root selection | Independent graph-result oracle and strict mismatch policy |
 | RTL lifecycle | Canonical CAPI monitor plus graph WED target bind | Unit assertions and scoreboards for graph engines |
-| Real bind | `cached_afu`/AFU-control elaboration across BFS, PageRank PULL, SPMV, connected-components, and triangle-count WED variants | Real graph-CU elaboration and PageRank PUSH closure |
+| Real bind | Real `cached_afu + AFU control + graph cu_control` elaboration for all 8 active layouts; implicit nets/pin mismatches rejected | PageRank PUSH closure and licensed floating-point IP elaboration |
 | Benchmark smoke | Bounded BFS `graphbrew` run and broad OpenGraph comparison | Deterministic expected outputs for every supported algorithm |
 | Simulation | PSLSE/ModelSim graph selection and verification wave group | Reusable graph stimulus, memory model, backpressure, coverage, and replay |
-| CI | Host, bind, monitor, graphbrew, and reference checks | Per-module tests, 11-layout elaboration matrix, coverage gates, failure artifacts |
+| CI | Host, monitor, exact pin/layout/inventory gate, 8-layout real-CU elaboration, graphbrew, and reference checks | Per-module tests, coverage gates, failure artifacts |
+
+### Phase 0 manifest gate
+
+The executable baseline in `verification/rtl` now provides:
+
+- the exact CAPI-Precis manifest API pin `803a17a...`;
+- 8 active ordered ModelSim/Quartus manifests with package-derived topology;
+- 3 PageRank PUSH expected-failure manifests, each locked to the same 7
+  missing paths and source-resolution signature;
+- an inventory of all 118 graph RTL files: 93 module files, 22 package files,
+  68 distinct module hashes, and 3 verification files;
+- exact ModelSim Tcl, Quartus Tcl, and synthesis Make source-set comparison;
+- synthesis-directory naming derived from the hardcoded CU topology rather
+  than host thread count;
+- real portable elaboration of every active graph CU, with only generated
+  Quartus floating-point IP boundaries blackboxed.
+
+```console
+make rtl-manifest-verification
+make rtl-real-elaboration
+```
+
+G0 and portable G1 are active merge gates. Licensed ModelSim/Quartus
+analysis/elaboration remains required release evidence.
 
 ### Inventory
 
@@ -511,8 +535,11 @@ docs/
 
 ### Phase 0 - baseline, pins, manifests
 
+**Status:** 8 active layouts and 3 exact PageRank PUSH expected failures are
+implemented; licensed ModelSim/Quartus closure remains pending.
+
 - Require clean recursive checkout with CAPI-Precis
-  `8de7a4faf0f83153308b1241ef0d761886b4e6a6` as the baseline pin.
+  `803a17a8b5896673526f28b0c32183e0628b59a2` as the baseline pin.
 - Record exact package/module/topology manifests for all 11 builds.
 - Add source-set comparison for ModelSim and Quartus.
 - Add real graph-CU elaboration; remove stub-only confidence.

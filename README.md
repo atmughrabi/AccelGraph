@@ -30,6 +30,14 @@ describe the graph-specific evidence path. The
 [CAPI-Precis wiki](https://github.com/atmughrabi/CAPI-Precis/wiki) owns the
 shared AFU-control contract.
 
+Phase 0 now gates the exact CAPI pin, all 118 graph RTL paths, eight active
+layout/topology manifests, and three PageRank PUSH expected failures:
+
+```console
+make rtl-manifest-verification
+make rtl-real-elaboration
+```
+
 The editable documentation source is the
 [`docs` index](docs/README.md); the GitHub wiki is its published mirror.
 
@@ -48,7 +56,7 @@ AccelGraph@CAPI:~$ sudo apt-get install libomp-dev
 ```
 3. Verilator 5 or newer is required for the standalone RTL verification target.
 ```console
-AccelGraph@CAPI:~$ sudo apt-get install verilator
+AccelGraph@CAPI:~$ sudo apt-get install tcl verilator
 ```
 
 ### CAPI

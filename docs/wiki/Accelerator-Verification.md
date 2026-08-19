@@ -53,10 +53,12 @@ make rtl-verification
 make verify
 ```
 
-`make rtl-verification` elaborates the real `cached_afu` and AFU-control RTL
-across the BFS, PageRank, SPMV, connected-components, and triangle-count WED
-variants, substituting only the pinned legacy CU boundary, then runs positive
-and negative protocol tests with Verilator. `make verify` includes that RTL
-evidence alongside host watchdog, graphbrew smoke, and OpenGraph checks. Local
+`make rtl-verification` validates the Phase 0 pin/layout manifests and
+elaborates the real `cached_afu`, AFU-control, and graph `cu_control` RTL for
+all eight active layouts without the compatibility CU stub. Implicit nets and
+pin mismatches fail the gate; portable lint blackboxes only the two generated
+Quartus floating-point IP boundaries. It then runs positive and negative
+protocol tests with Verilator. `make verify` includes that RTL evidence
+alongside host watchdog, graphbrew smoke, and OpenGraph checks. Local
 verification skips the RTL stage when Verilator 5 is unavailable; GitHub
 Actions sets `RTL_VERIFICATION_REQUIRED=1`.

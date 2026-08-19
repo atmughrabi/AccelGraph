@@ -15,6 +15,6 @@ jobs:
         with:
           submodules: recursive
       - name: Install host dependencies
-        run: sudo apt-get update -qq && sudo apt-get install -y libjudy-dev verilator
+        run: sudo apt-get update -qq && sudo apt-get install -y libjudy-dev tcl verilator
       - name: Repository verification
         run: make verify

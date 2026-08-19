@@ -363,6 +363,18 @@ integration-compile:
 rtl-verification:
 	$(MAKE) rtl-verification $(MAKE_ARGS_ACCELGRAPH)
 
+.PHONY: rtl-manifest-verification
+rtl-manifest-verification:
+	./verification/rtl/scripts/verify_manifests.py
+
+.PHONY: rtl-manifest-update
+rtl-manifest-update:
+	./verification/rtl/scripts/verify_manifests.py --write
+
+.PHONY: rtl-real-elaboration
+rtl-real-elaboration: rtl-manifest-verification
+	./03_capi_integration/accelerator_rtl/verification/lint_cached_afu_bind.sh
+
 .PHONY: graphbrew-smoke
 graphbrew-smoke:
 	timeout 120 $(MAKE) run-openmp $(MAKE_ARGS_OPENGRAPH) FILE_BIN=../01_test_graphs/TEST/graphbrew/graph.bin ARGS='-w -M 0 -j 0 -g 1000 -z 1 -d 0 -a 0 -r 0 -n 2 -N 2 -K 2 -i 1 -o 0 -p 0 -t 1 -e 1e-8 -l 0 -L 0 -O 0 -b 800 -C 32768'
@@ -449,11 +461,16 @@ export CU_GRAPH_ALGORITHM 	= 	$(word 1, $(CU_SET_SYNTH))
 export CU_DATA_STRUCTURE 	= 	$(word 2, $(CU_SET_SYNTH))
 export CU_DIRECTION 		=   $(word 3, $(CU_SET_SYNTH))
 export CU_PRECISION 		= 	$(word 4, $(CU_SET_SYNTH))
+export CU_TOPOLOGY_COUNT := $(shell python3 ./verification/rtl/scripts/layout_query.py --field total_vertex_cus $(CU_GRAPH_ALGORITHM) $(CU_DATA_STRUCTURE) $(CU_DIRECTION) $(CU_PRECISION))
+
+ifeq ($(strip $(CU_TOPOLOGY_COUNT)),)
+$(error Unknown or inactive RTL layout $(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION))
+endif
 
 export VERSION_GIT = $(shell python3 ./$(SCRIPT_DIR)/version.py)
 export TIME_STAMP = $(shell date +%Y_%m_%d_%H_%M_%S)
 
-export SYNTH_DIR = synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_CU$(NUM_THREADS_KER)
+export SYNTH_DIR = synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_CU$(CU_TOPOLOGY_COUNT)
 
 # export CU = cu_PageRank_pull
 

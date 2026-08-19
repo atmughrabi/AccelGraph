@@ -12,12 +12,14 @@ RTL. A violation terminates simulation with `$fatal`;
 
 `accelerator_verification_tb.sv` provides positive and negative protocol
 regression cases. `lint_cached_afu_bind.sh` elaborates the real `cached_afu`,
-AFU-control RTL, and the BFS, PageRank, SPMV, connected-components, and
-triangle-count WED variants. It substitutes only the CU module boundary because
-the pinned legacy CU ports are not directly accepted by Verilator.
+AFU-control RTL, and all eight active graph `cu_control` layouts from the
+ordered Phase 0 manifests. The CU compatibility stub is excluded; implicit
+nets and pin mismatches fail the gate. Portable lint blackboxes only the two
+generated Quartus floating-point IP boundaries.
 
 Run from the repository root:
 
 ```console
 make rtl-verification
+make rtl-real-elaboration
 ```

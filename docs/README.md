@@ -12,6 +12,7 @@ is a published mirror; wiki-side edits are overwritten by the publisher.
 - [Benchmark guide](wiki/Benchmark-Guide.md)
 - [Deployment runbook](wiki/Deployment-Runbook.md)
 - [Verification infrastructure roadmap](wiki/Verification-Infrastructure.md)
+- [RTL Phase 0 manifests](../verification/rtl/README.md)
 - [Stabilization plan](wiki/Stabilization-Plan.md)
 
 The enabled GitHub Wiki is published from `docs/wiki`. Edit this source and

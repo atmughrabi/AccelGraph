@@ -25,3 +25,5 @@ nohup.out
 03_capi_integration/accelerator_sim/server/gmon.out
 
 
+__pycache__/
+*.pyc

@@ -30,7 +30,6 @@ PROJECT ?= accel-graph
 DATA_STRUCTURES ?= 0
 ALGORITHMS 		?= 1
 PULL_PUSH 		?= 2
-NUM_THREADS  	?= 25
 SCRIPT_DIR   	?= ../../05_scripts
 CU_SET_SYNTH 	?= $(shell python3 ./$(SCRIPT_DIR)/choose_algorithm_synth.py $(DATA_STRUCTURES) $(ALGORITHMS) $(PULL_PUSH))
 
@@ -38,20 +37,35 @@ CU_GRAPH_ALGORITHM ?= $(word 1, $(CU_SET_SYNTH))
 CU_DATA_STRUCTURE ?=  $(word 2, $(CU_SET_SYNTH))
 CU_DIRECTION ?=       $(word 3, $(CU_SET_SYNTH))
 CU_PRECISION ?= 	  $(word 4, $(CU_SET_SYNTH))
+LAYOUT_QUERY ?= ../../verification/rtl/scripts/layout_query.py
+LAYOUT_ID = $(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)
+ACCEL_MANIFEST = ../../verification/rtl/manifests/$(LAYOUT_ID).f
+EXPECTED_CU_COUNT := $(shell python3 $(LAYOUT_QUERY) --field total_vertex_cus $(CU_GRAPH_ALGORITHM) $(CU_DATA_STRUCTURE) $(CU_DIRECTION) $(CU_PRECISION))
+
+ifeq ($(strip $(EXPECTED_CU_COUNT)),)
+$(error Unknown or inactive RTL layout $(LAYOUT_ID))
+endif
+
+ifeq ($(wildcard $(ACCEL_MANIFEST)),)
+$(error Missing active RTL manifest $(ACCEL_MANIFEST))
+endif
+
+NUM_THREADS ?= $(EXPECTED_CU_COUNT)
+
+ifneq ($(strip $(NUM_THREADS)),$(strip $(EXPECTED_CU_COUNT)))
+$(error NUM_THREADS=$(NUM_THREADS) does not match $(LAYOUT_ID) topology $(EXPECTED_CU_COUNT))
+endif
 
 SYNTH_DIR ?= synthesize_$(CU_GRAPH_ALGORITHM)_$(CU_DATA_STRUCTURE)_$(CU_DIRECTION)_$(CU_PRECISION)_CU$(NUM_THREADS)
 
 VERSION_GIT ?= $(shell python3 ./capi/scripts/version.py)
 TIME_STAMP ?= $(shell date +%Y_%m_%d_%H_%M_%S)
-ACCEL_CU_RTL_DIR = accelerator_rtl
-ACCEL_AFU_RTL_DIR = ../../../01_capi_precis/01_capi_integration/accelerator_rtl
 ACCEL_BIN_DIR = accelerator_bin
-SOURCE_FILES =  $(wildcard ../$(ACCEL_AFU_RTL_DIR)/afu_control/*.vhdl) $(wildcard ../$(ACCEL_AFU_RTL_DIR)/afu_control/*.vhd) $(wildcard ../$(ACCEL_AFU_RTL_DIR)/afu_control/*.v) $(wildcard ../$(ACCEL_AFU_RTL_DIR)/afu_control/*.sv)   \
-				$(wildcard ../$(ACCEL_AFU_RTL_DIR)/afu_pkgs/*.vhdl) $(wildcard ../$(ACCEL_AFU_RTL_DIR)/afu_pkgs/*.vhd) $(wildcard ../$(ACCEL_AFU_RTL_DIR)/afu_pkgs/*.v) $(wildcard ../$(ACCEL_AFU_RTL_DIR)/afu_pkgs/*.sv)   \
-				$(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/global_cu/*.vhdl) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/global_cu/*.vhd) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/global_cu/*.v) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/global_cu/*.sv)\
-				$(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/global_pkg/*.vhdl) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/global_pkg/*.vhd) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/global_pkg/*.v) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/global_pkg/*.sv)\
-				$(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/$(CU_PRECISION)/cu/*.vhdl) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/$(CU_PRECISION)/cu/*.vhd) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/$(CU_PRECISION)/cu/*.v) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/$(CU_PRECISION)/cu/*.sv)\
-				$(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/$(CU_PRECISION)/pkg/*.vhdl) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/$(CU_PRECISION)/pkg/*.vhd) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/$(CU_PRECISION)/pkg/*.v) $(wildcard ../$(ACCEL_CU_RTL_DIR)/cu_control/$(CU_GRAPH_ALGORITHM)/$(CU_DATA_STRUCTURE)/$(CU_DIRECTION)/$(CU_PRECISION)/pkg/*.sv)
+SOURCE_FILES = $(addprefix ../../,$(shell sed -e '/^[[:space:]]*\#/d' -e '/^[[:space:]]*$$/d' $(ACCEL_MANIFEST)))
+
+.PHONY: print-accelerator-sources
+print-accelerator-sources:
+	@printf '%s\n' $(SOURCE_FILES)
 
 
 export LM_LICENSE_FILE := $(LM_LICENSE_FILE):$(shell pwd)/psl_fpga/psl/psl_A000_license.dat
@@ -140,8 +154,8 @@ $(PROJECT).qxp: $(PROJECT).map.rpt
 # Project initialization
 ###################################################################
 
-$(ASSIGNMENT_FILES): $(PROJECT).tcl ./capi/fpga/*.tcl
-	quartus_sh -t  $(PROJECT).tcl $(CU_SET_SYNTH) $(NUM_THREADS)
+$(ASSIGNMENT_FILES): $(PROJECT).tcl ./capi/fpga/*.tcl $(ACCEL_MANIFEST)
+	quartus_sh -t $(PROJECT).tcl $(CU_GRAPH_ALGORITHM) $(CU_DATA_STRUCTURE) $(CU_DIRECTION) $(CU_PRECISION) $(NUM_THREADS)
 	quartus_sh --prepare $(PROJECT)
 	#quartus_stp $(PROJECT) --enable --logic_analyzer_interface --lai_file=probes.lai
 
@@ -179,4 +193,4 @@ gui: $(ASSIGNMENT_FILES)
 
 .PHONY:sweep
 sweep: sweep.chg $(PROJECT).merge.rpt
-	quartus_sh --64bit -t sweep.tcl $(CU_SET_SYNTH) $(NUM_THREADS)
+	quartus_sh --64bit -t sweep.tcl $(CU_GRAPH_ALGORITHM) $(CU_DATA_STRUCTURE) $(CU_DIRECTION) $(CU_PRECISION) $(NUM_THREADS)

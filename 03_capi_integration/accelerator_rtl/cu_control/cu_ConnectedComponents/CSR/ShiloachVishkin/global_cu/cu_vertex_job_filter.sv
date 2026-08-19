@@ -31,6 +31,8 @@ module cu_vertex_job_filter (
 );
 
 	logic        filter_vertex                    ;
+	logic        push_vertex                      ;
+	logic        vertex_job_filtered_pop          ;
 	BufferStatus vertex_job_filtered_buffer_status;
 
 	VertexInterface                vertex_in_latched                  ;

@@ -4,12 +4,12 @@ set -euo pipefail
 VERILATOR=${VERILATOR:-verilator}
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 REPO_ROOT=$(cd "$SCRIPT_DIR/../../.." && pwd)
-AFU_RTL="$REPO_ROOT/01_capi_precis/01_capi_integration/accelerator_rtl"
-CU_RTL="$REPO_ROOT/03_capi_integration/accelerator_rtl"
+MANIFEST_ROOT="$REPO_ROOT/verification/rtl/manifests"
+CAPI_ROOT="$REPO_ROOT/01_capi_precis"
+LAYOUT_QUERY="$REPO_ROOT/verification/rtl/scripts/layout_query.py"
 
 WARNINGS=(
   -Wall
-  -Wno-fatal
   -Wno-ASCRANGE
   -Wno-BLKANDNBLK
   -Wno-BLKSEQ
@@ -29,87 +29,44 @@ WARNINGS=(
   -Wno-UNUSEDPARAM
   -Wno-WIDTHEXPAND
   -Wno-WIDTHTRUNC
+  -Werror-IMPLICIT
+  -Werror-MODDUP
+  -Werror-PINMISSING
+  -Werror-PINNOTFOUND
+  -Werror-PKGNODECL
 )
 
-PREFIX_SOURCES=(
-  "$AFU_RTL/afu_pkgs/globals_afu_pkg.sv"
-  "$AFU_RTL/afu_pkgs/capi_pkg.sv"
-)
+lint_layout() {
+  local layout=$1
+  local source
+  local -a sources=()
 
-SUFFIX_SOURCES=(
-  "$AFU_RTL/afu_pkgs/credit_pkg.sv"
-  "$AFU_RTL/afu_pkgs/afu_pkg.sv"
-  "$AFU_RTL/afu_control/parity.sv"
-  "$AFU_RTL/afu_control/reset_filter.sv"
-  "$AFU_RTL/afu_control/reset_control.sv"
-  "$AFU_RTL/afu_control/error_control.sv"
-  "$AFU_RTL/afu_control/done_control.sv"
-  "$AFU_RTL/afu_control/ram.sv"
-  "$AFU_RTL/afu_control/fifo.sv"
-  "$AFU_RTL/afu_control/priority_arbiters.sv"
-  "$AFU_RTL/afu_control/round_robin_priority_arbiter.sv"
-  "$AFU_RTL/afu_control/fixed_priority_arbiter.sv"
-  "$AFU_RTL/afu_control/credit_control.sv"
-  "$AFU_RTL/afu_control/response_statistics_control.sv"
-  "$AFU_RTL/afu_control/response_control.sv"
-  "$AFU_RTL/afu_control/restart_control.sv"
-  "$AFU_RTL/afu_control/command_control.sv"
-  "$AFU_RTL/afu_control/tag_control.sv"
-  "$AFU_RTL/afu_control/read_data_control.sv"
-  "$AFU_RTL/afu_control/write_data_control.sv"
-  "$AFU_RTL/afu_control/afu_control.sv"
-  "$AFU_RTL/afu_control/job.sv"
-  "$AFU_RTL/afu_control/mmio.sv"
-  "$AFU_RTL/afu_control/wed_control.sv"
-  "$SCRIPT_DIR/cached_afu_bind_cu_stub.sv"
-  "$AFU_RTL/afu_control/cached_afu.sv"
-  "$AFU_RTL/verification/accelerator_verification.sv"
-  "$SCRIPT_DIR/accelerator_verification_bind.sv"
-)
+  while IFS= read -r source || [[ -n "$source" ]]; do
+    [[ -z "$source" || "$source" == \#* ]] && continue
+    sources+=("$REPO_ROOT/$source")
+  done <"$MANIFEST_ROOT/$layout.f"
 
-lint_variant() {
-  local name=$1
-  local globals_cu=$2
-  local wed_pkg=$3
-  local cu_pkg=$4
+  while IFS= read -r source || [[ -n "$source" ]]; do
+    [[ -z "$source" || "$source" == \#* ]] && continue
+    sources+=("$CAPI_ROOT/$source")
+  done <"$CAPI_ROOT/verification/rtl/manifests/monitor.f"
+  sources+=("$REPO_ROOT/verification/rtl/models/fp_vendor_blackboxes.sv")
+  sources+=("$SCRIPT_DIR/accelerator_verification_bind.sv")
 
   "$VERILATOR" --lint-only --timing "${WARNINGS[@]}" \
     --top-module cached_afu \
-    "${PREFIX_SOURCES[@]}" \
-    "$CU_RTL/$globals_cu" \
-    "$CU_RTL/$wed_pkg" \
-    "$CU_RTL/$cu_pkg" \
-    "${SUFFIX_SOURCES[@]}"
+    "${sources[@]}"
 
-  printf 'PASS cached_afu bind %s\n' "$name"
+  printf 'PASS cached_afu real graph bind %s\n' "$layout"
 }
 
-lint_variant \
-  BFS \
-  cu_control/cu_BFS/CSR/PULL/BottomUp/pkg/globals_cu_pkg.sv \
-  cu_control/cu_BFS/CSR/PULL/global_pkg/wed_pkg.sv \
-  cu_control/cu_BFS/CSR/PULL/global_pkg/cu_pkg.sv
-
-lint_variant \
-  PageRank \
-  cu_control/cu_PageRank/CSR/PULL/FloatPoint/pkg/globals_cu_pkg.sv \
-  cu_control/cu_PageRank/CSR/PULL/global_pkg/wed_pkg.sv \
-  cu_control/cu_PageRank/CSR/PULL/global_pkg/cu_pkg.sv
-
-lint_variant \
-  SPMV \
-  cu_control/cu_SPMV/CSR/PULL/FloatPoint/pkg/globals_cu_pkg.sv \
-  cu_control/cu_SPMV/CSR/PULL/global_pkg/wed_pkg.sv \
-  cu_control/cu_SPMV/CSR/PULL/global_pkg/cu_pkg.sv
-
-lint_variant \
-  ConnectedComponents \
-  cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/ShiloachVishkin/pkg/globals_cu_pkg.sv \
-  cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_pkg/wed_pkg.sv \
-  cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_pkg/cu_pkg.sv
-
-lint_variant \
-  TriangleCount \
-  cu_control/cu_TriangleCount/CSR/BinaryIntersection/Binary/pkg/globals_cu_pkg.sv \
-  cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_pkg/wed_pkg.sv \
-  cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_pkg/cu_pkg.sv
+layouts_output=$("$LAYOUT_QUERY" --active-ids)
+mapfile -t layouts <<<"$layouts_output"
+if ((${#layouts[@]} != 8)); then
+  echo "Expected 8 active layouts, found ${#layouts[@]}" >&2
+  exit 1
+fi
+for layout in "${layouts[@]}"; do
+  lint_layout "$layout"
+done
+printf 'PASS cached_afu real graph bind layouts=%d\n' "${#layouts[@]}"

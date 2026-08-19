@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "capi_precis_commit": "803a17a8b5896673526f28b0c32183e0628b59a2",
+  "portable_blackbox_sha256": "870a8546a017bb22f9b85ef405153af6a2aafea5862c9dcedfc98bd306146745",
+  "portable_vendor_ip_boundaries": [
+    {
+      "module": "fp_single_add_acc",
+      "path": "03_capi_integration/accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_acc/fp_single_add_acc.v",
+      "sha256": "e8f8804642082a5607e6a387b078a1d11eb6542cbea9cd9e05924c560edb15e8"
+    },
+    {
+      "module": "fp_single_mul",
+      "path": "03_capi_integration/accelerator_synth/psl_fpga/quartus_ip/fp/fp_single_precision_mul/fp_single_mul.v",
+      "sha256": "dba888750dfd5c434d2c57b37f7d035e8e499a349ac85040872a0913de8779ab"
+    }
+  ],
+  "layouts": [
+    {
+      "id": "cu_BFS_CSR_PULL_BottomUp",
+      "status": "active",
+      "algorithm": "cu_BFS",
+      "data_structure": "CSR",
+      "direction": "PULL",
+      "precision": "BottomUp",
+      "graph_cus": 4,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 16
+    },
+    {
+      "id": "cu_PageRank_CSR_PULL_FloatPoint",
+      "status": "active",
+      "algorithm": "cu_PageRank",
+      "data_structure": "CSR",
+      "direction": "PULL",
+      "precision": "FloatPoint",
+      "graph_cus": 5,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 20
+    },
+    {
+      "id": "cu_PageRank_CSR_PULL_FixedPoint",
+      "status": "active",
+      "algorithm": "cu_PageRank",
+      "data_structure": "CSR",
+      "direction": "PULL",
+      "precision": "FixedPoint",
+      "graph_cus": 5,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 20
+    },
+    {
+      "id": "cu_PageRank_CSR_PULL_Quantized",
+      "status": "active",
+      "algorithm": "cu_PageRank",
+      "data_structure": "CSR",
+      "direction": "PULL",
+      "precision": "Quantized",
+      "graph_cus": 5,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 20
+    },
+    {
+      "id": "cu_PageRank_CSR_PUSH_FloatPoint",
+      "status": "quarantined",
+      "algorithm": "cu_PageRank",
+      "data_structure": "CSR",
+      "direction": "PUSH",
+      "precision": "FloatPoint",
+      "graph_cus": 1,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 4,
+      "expected_failure": {
+        "defect": "docs/wiki/Verification-Infrastructure.md#phase-5---pagerank-push-closure",
+        "tool": "accelgraph-manifest-validator",
+        "tool_version": 1,
+        "phase": "source-resolution",
+        "normalized_error": "missing-source",
+        "missing_files": [
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_pkg/wed_pkg.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/sum_reduce.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/demux_bus.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_edge_data_write_command_control.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_edge_data_read_extract_control.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_edge_data_read_command_control.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_graph_algorithm_arbiter_control.sv"
+        ]
+      }
+    },
+    {
+      "id": "cu_PageRank_CSR_PUSH_FixedPoint",
+      "status": "quarantined",
+      "algorithm": "cu_PageRank",
+      "data_structure": "CSR",
+      "direction": "PUSH",
+      "precision": "FixedPoint",
+      "graph_cus": 1,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 4,
+      "expected_failure": {
+        "defect": "docs/wiki/Verification-Infrastructure.md#phase-5---pagerank-push-closure",
+        "tool": "accelgraph-manifest-validator",
+        "tool_version": 1,
+        "phase": "source-resolution",
+        "normalized_error": "missing-source",
+        "missing_files": [
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_pkg/wed_pkg.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/sum_reduce.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/demux_bus.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_edge_data_write_command_control.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_edge_data_read_extract_control.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_edge_data_read_command_control.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_graph_algorithm_arbiter_control.sv"
+        ]
+      }
+    },
+    {
+      "id": "cu_PageRank_CSR_PUSH_Quantized",
+      "status": "quarantined",
+      "algorithm": "cu_PageRank",
+      "data_structure": "CSR",
+      "direction": "PUSH",
+      "precision": "Quantized",
+      "graph_cus": 1,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 4,
+      "expected_failure": {
+        "defect": "docs/wiki/Verification-Infrastructure.md#phase-5---pagerank-push-closure",
+        "tool": "accelgraph-manifest-validator",
+        "tool_version": 1,
+        "phase": "source-resolution",
+        "normalized_error": "missing-source",
+        "missing_files": [
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_pkg/wed_pkg.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/sum_reduce.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/demux_bus.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_edge_data_write_command_control.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_edge_data_read_extract_control.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_edge_data_read_command_control.sv",
+          "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PUSH/global_cu/cu_graph_algorithm_arbiter_control.sv"
+        ]
+      }
+    },
+    {
+      "id": "cu_SPMV_CSR_PULL_FloatPoint",
+      "status": "active",
+      "algorithm": "cu_SPMV",
+      "data_structure": "CSR",
+      "direction": "PULL",
+      "precision": "FloatPoint",
+      "graph_cus": 5,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 20
+    },
+    {
+      "id": "cu_SPMV_CSR_PULL_FixedPoint",
+      "status": "active",
+      "algorithm": "cu_SPMV",
+      "data_structure": "CSR",
+      "direction": "PULL",
+      "precision": "FixedPoint",
+      "graph_cus": 5,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 20
+    },
+    {
+      "id": "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin",
+      "status": "active",
+      "algorithm": "cu_ConnectedComponents",
+      "data_structure": "CSR",
+      "direction": "ShiloachVishkin",
+      "precision": "ShiloachVishkin",
+      "graph_cus": 4,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 16
+    },
+    {
+      "id": "cu_TriangleCount_CSR_BinaryIntersection_Binary",
+      "status": "active",
+      "algorithm": "cu_TriangleCount",
+      "data_structure": "CSR",
+      "direction": "BinaryIntersection",
+      "precision": "Binary",
+      "graph_cus": 4,
+      "vertex_cus_per_graph_cu": 4,
+      "total_vertex_cus": 16
+    }
+  ]
+}

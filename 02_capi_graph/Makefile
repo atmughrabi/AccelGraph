@@ -390,7 +390,7 @@ integration-compile:
 	$(CC) $(CFLAGS) -DSIM -fsyntax-only $(OPENMP_INC) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR) -I$(LIBCXL_DIR) $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/accelerator_verification.c $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/capienv.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/BFS.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/connectedComponents.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/betweennessCentrality.c
 
 .PHONY: rtl-verification
-rtl-verification:
+rtl-verification: rtl-manifest-verification
 	@if command -v $(VERILATOR) >/dev/null 2>&1; then \
 		major=`$(VERILATOR) --version | sed -E 's/[^0-9]*([0-9]+).*/\1/'`; \
 	else \
@@ -404,6 +404,10 @@ rtl-verification:
 	else \
 		echo "SKIP rtl-verification: install Verilator 5 or set RTL_VERIFICATION_REQUIRED=1 to enforce"; \
 	fi
+
+.PHONY: rtl-manifest-verification
+rtl-manifest-verification:
+	../verification/rtl/scripts/verify_manifests.py
 
 .PHONY: rtl-verification-run
 rtl-verification-run: directories

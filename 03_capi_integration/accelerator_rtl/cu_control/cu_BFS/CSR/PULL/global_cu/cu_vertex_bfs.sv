@@ -101,6 +101,7 @@ module cu_vertex_bfs #(
 	ReadWriteDataLine  read_data_1_in_edge_data  ;
 
 	logic         edge_request      ;
+	logic         edge_data_request ;
 	EdgeInterface edge_job          ;
 	BufferStatus  data_buffer_status;
 	logic         processing_vertex ;
