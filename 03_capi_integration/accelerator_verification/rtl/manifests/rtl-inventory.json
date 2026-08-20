@@ -19,12 +19,12 @@
     }
   ],
   "summary": {
-    "files": 154,
+    "files": 153,
     "design_modules": 93,
     "design_packages": 22,
     "distinct_module_hashes": 69,
     "status_counts": {
-      "active": 135,
+      "active": 134,
       "quarantined": 19
     }
   },
@@ -3444,29 +3444,6 @@
       "sha256": "00e664addf8b655951ab7ec97afd95aae21fedc3deb194021f1647da7ac8b1e6",
       "equivalent_paths": [
         "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/spmv_kernel_tb.sv"
-      ],
-      "verification_unit": "unit-algorithms",
-      "build_membership": [
-        {
-          "layout": "unit-algorithms",
-          "order": 0
-        }
-      ],
-      "evidence": "executable unit testbench: algorithms"
-    },
-    {
-      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/triangle_kernel_blocker_tb.sv",
-      "status": "active",
-      "kind": "module",
-      "declarations": [
-        {
-          "kind": "module",
-          "name": "triangle_kernel_blocker_tb"
-        }
-      ],
-      "sha256": "3e9ff253dd42e9ad4fefe36305ec1be7a850af03af5cb64709733bf3468aa1f6",
-      "equivalent_paths": [
-        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/triangle_kernel_blocker_tb.sv"
       ],
       "verification_unit": "unit-algorithms",
       "build_membership": [

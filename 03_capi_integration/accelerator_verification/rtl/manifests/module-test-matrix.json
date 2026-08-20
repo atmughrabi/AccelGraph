@@ -2,7 +2,7 @@
   "schema_version": 1,
   "plan_id": "accelgraph-rtl-coverage-v1",
   "coverage_plan_sha256": "02061f14077fc262159ce0214708c1283e4a9e5023f5e3035c9bcd234598de03",
-  "rtl_inventory_sha256": "24ef758de369c24756e2d936a242a8c5fe21b7b37dc3f502fad18e012f3ca9d1",
+  "rtl_inventory_sha256": "3b39bedcce85f528b2b015db5cde04933278b7ab003acbf6c7b0b0bb792916f2",
   "inventory_schema_version": 2,
   "summary": {
     "module_declarations": 78,
