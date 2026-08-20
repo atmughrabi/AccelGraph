@@ -395,6 +395,12 @@ def sha256(path):
 
 
 def verification_unit(source):
+    if "/accelerator_verification/rtl/unit/" in source:
+        return "unit-" + source.split("/rtl/unit/", 1)[1].split("/", 1)[0]
+    if "/accelerator_verification/rtl/integration/" in source:
+        return "integration-" + source.split(
+            "/rtl/integration/", 1
+        )[1].split("/", 1)[0]
     if "/accelerator_verification/" in source:
         return "graph-rtl-lifecycle"
     if "/cu_control/" not in source:
@@ -479,7 +485,7 @@ def build_inventory(layouts, source_sets, vendor_boundaries):
     module_hashes = {
         sha256(REPO_ROOT / source) for source in module_sources
     }
-    if len(module_hashes) != 68:
+    if len(module_hashes) != 69:
         fail(f"distinct graph module hash count changed: {len(module_hashes)}")
 
     hash_groups = defaultdict(list)
@@ -494,6 +500,33 @@ def build_inventory(layouts, source_sets, vendor_boundaries):
             status = "active"
             membership = active_membership[source]
             evidence = "active layout or graph monitor evidence"
+        elif source.startswith((
+            "03_capi_integration/accelerator_verification/rtl/unit/",
+            "03_capi_integration/accelerator_verification/rtl/integration/",
+        )):
+            status = "active"
+            if "/rtl/unit/" in source:
+                kind = "unit"
+                suite = source.split("/rtl/unit/", 1)[1].split("/", 1)[0]
+                suite_root = GRAPH_VERIFICATION_RTL_ROOT / kind / suite
+            else:
+                kind = "integration"
+                suite = "graph"
+                suite_root = GRAPH_VERIFICATION_RTL_ROOT / kind
+            runners = list(suite_root.glob("run_*.py"))
+            scenarios = list(suite_root.glob("*scenarios*.json"))
+            coverage = list(suite_root.glob("*coverage*.json"))
+            if not runners or not scenarios or not coverage:
+                fail(
+                    f"{kind} testbench lacks executable evidence: "
+                    f"{relative(suite_root)}"
+                )
+            membership = [{
+                "layout": f"{kind}-{suite}",
+                "order": 0,
+            }]
+            active_membership[source].extend(membership)
+            evidence = f"executable {kind} testbench: {suite}"
         elif source in quarantined_membership:
             status = "quarantined"
             membership = quarantined_membership[source]
@@ -543,7 +576,7 @@ def build_inventory(layouts, source_sets, vendor_boundaries):
             "files": len(files),
             "design_modules": 93,
             "design_packages": 22,
-            "distinct_module_hashes": 68,
+            "distinct_module_hashes": 69,
             "status_counts": dict(sorted(status_counts.items())),
         },
         "files": files,

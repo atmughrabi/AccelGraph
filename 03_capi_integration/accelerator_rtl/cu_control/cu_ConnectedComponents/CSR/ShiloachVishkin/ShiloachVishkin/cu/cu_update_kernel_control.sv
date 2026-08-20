@@ -42,8 +42,6 @@ module cu_update_kernel_control #(
 );
 
 	logic                        rstn                                    ;
-	logic                        rstn_update                             ;
-	logic                        rstn_internal                           ;
 	EdgeComponentUpdate          edge_data_latched                       ;
 	EdgeDataWrite                edge_comp_update                        ;
 	EdgeDataWrite                edge_comp_update_latch                  ;
@@ -64,6 +62,8 @@ module cu_update_kernel_control #(
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal   ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_skip       ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal_S2;
+	logic                          vertex_job_retired                 ;
+	logic                          edge_data_continue_accum_armed     ;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
@@ -71,13 +71,9 @@ module cu_update_kernel_control #(
 
 	always_ff @(posedge clock or negedge rstn_in) begin
 		if(~rstn_in) begin
-			rstn        <= 0;
-			rstn_update <= 0;
-
+			rstn <= 0;
 		end else begin
-			rstn        <= rstn_in;
-			rstn_update <= rstn_in & rstn_internal;
-
+			rstn <= rstn_in;
 		end
 	end
 
@@ -171,16 +167,22 @@ module cu_update_kernel_control #(
 	// if(comp_high == stats->components[comp_high])
 	//             change = 1;
 	//             stats->components[comp_high] = comp_low;
-	always_ff @(posedge clock or negedge rstn_update) begin
-		if(~rstn_update) begin
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
 			edge_comp_update                         <= 0;
 			edge_data_counter_accum_internal         <= 0;
 			edge_comp_update_latch.valid             <= 0;
 			edge_data_counter_accum_internal_S2      <= 0;
 			edge_data_counter_accum_skip             <= 0;
 			edge_data_counter_continue_accum_latched <= 0;
-			rstn_internal                            <= 1;
 		end else begin
+			// Every generated hook is forwarded exactly once, independently of
+			// what the surrounding cycle does.  The previous version only
+			// forwarded a hook on a cycle that carried no hook and destroyed a
+			// pending hook when the vertex completed in the same cycle, which
+			// lost component updates under write backpressure.
+			edge_comp_update_latch.valid <= edge_comp_update.valid;
+
 			if (enabled && vertex_job_latched.valid) begin
 				if(edge_data_latched.valid && (edge_data_latched.payload.comp_high == edge_data_latched.payload.comp_comp_high))begin
 					edge_comp_update.valid           <= 1;
@@ -188,35 +190,55 @@ module cu_update_kernel_control #(
 					edge_comp_update.payload.cu_id_x <= CU_ID_X;
 					edge_comp_update.payload.cu_id_y <= CU_ID_Y;
 					edge_comp_update.payload.data    <= edge_data_latched.payload.comp_low;
-					// edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
-				end else if (edge_data_latched.valid) begin
-					// edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
-					edge_comp_update.valid       <= 0;
-					edge_comp_update_latch.valid <= edge_comp_update.valid;
-					edge_data_counter_accum_skip <= edge_data_counter_accum_skip +1;
 				end else begin
-					edge_comp_update.valid       <= 0;
-					edge_comp_update_latch.valid <= edge_comp_update.valid;
+					edge_comp_update.valid <= 0;
+					if (edge_data_latched.valid) begin
+						edge_data_counter_accum_skip <= edge_data_counter_accum_skip + 1;
+					end
 				end
 
 				if(write_response_in_latched.valid) begin
 					edge_data_counter_accum_internal <= edge_data_counter_accum_internal + 1;
 				end
 
-
-
 				if(edge_data_counter_accum_internal_S2 == vertex_job_latched.payload.out_degree)begin
-					edge_comp_update                         <= 0;
+					// the vertex round is complete: re-arm the accounting for the
+					// next job without touching the hook currently in flight
 					edge_data_counter_accum_internal         <= 0;
 					edge_data_counter_accum_internal_S2      <= 0;
+					edge_data_counter_accum_skip             <= 0;
 					edge_data_counter_continue_accum_latched <= 0;
-					rstn_internal                            <= 0;
 				end else begin
 					edge_data_counter_accum_internal_S2      <= edge_data_counter_accum_internal + edge_data_counter_continue_accum_latched + edge_data_counter_accum_skip;
-					edge_data_counter_continue_accum_latched <= edge_data_counter_continue_accum;
+					// the continue count of the round that just finished still
+					// stands on the read path until its own round reset clears
+					// it, so it is only taken while it belongs to the resident
+					// job; re-taking it after the re-arm rebuilt the completion
+					// value of the finished round out of stale state
+					edge_data_counter_continue_accum_latched <= edge_data_continue_accum_armed ?
+						edge_data_counter_continue_accum : 0;
 				end
 			end else begin
-				edge_comp_update_latch.valid <= 0;
+				edge_comp_update.valid <= 0;
+			end
+		end
+	end
+
+	// The edge data read path counts the elements the algorithm skips for the
+	// resident vertex and is cleared by the round reset the shell pulses when a
+	// vertex finishes.  That reset lands after this kernel re-arms, so the
+	// continue count is ignored from the completion of a round until the read
+	// path publishes zero again, which is the point where every element it
+	// reports belongs to the next job.
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_continue_accum_armed <= 1;
+		end else begin
+			if(enabled && vertex_job_latched.valid &&
+				(edge_data_counter_accum_internal_S2 == vertex_job_latched.payload.out_degree)) begin
+				edge_data_continue_accum_armed <= 0;
+			end else if(edge_data_counter_continue_accum == 0) begin
+				edge_data_continue_accum_armed <= 1;
 			end
 		end
 	end
@@ -238,11 +260,25 @@ module cu_update_kernel_control #(
 		end
 	end
 
+	// Exactly one retirement per accepted vertex job.  The completion condition
+	// is a level that holds for several cycles of one job: the release travels
+	// back through the algorithm shell, and a zero out degree job is complete
+	// for its whole residency.  The retirement flag is therefore held until the
+	// job is released, so a job is counted once however long it stays resident
+	// after it completed.
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			vertex_num_counter_resp <= 0;
+			vertex_job_retired      <= 0;
 		end else begin
-			if(vertex_job_latched.valid && edge_data_counter_accum_internal_S2 == vertex_job_latched.payload.out_degree)begin
+			// The retirement uses the same completion signal the algorithm shell
+			// uses to release the vertex job, so the shell and the published
+			// progress can never disagree.
+			if(~vertex_job_latched.valid) begin
+				vertex_job_retired <= 0;
+			end else if(~vertex_job_retired &&
+				(edge_data_counter_accum_internal_S2 == vertex_job_latched.payload.out_degree)) begin
+				vertex_job_retired      <= 1;
 				vertex_num_counter_resp <= vertex_num_counter_resp + 1;
 			end
 		end

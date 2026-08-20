@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "capi_precis_commit": "000f7ce24cb7dcda4a5121806fd63f63cb820119",
+  "capi_precis_commit": "d66d5ed0a26e1321130242000889123f3e779cad",
   "portable_blackbox_sha256": "870a8546a017bb22f9b85ef405153af6a2aafea5862c9dcedfc98bd306146745",
   "portable_vendor_ip_boundaries": [
     {

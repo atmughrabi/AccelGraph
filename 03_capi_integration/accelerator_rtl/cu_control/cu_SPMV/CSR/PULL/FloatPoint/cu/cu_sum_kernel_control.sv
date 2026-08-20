@@ -60,6 +60,7 @@ module cu_sum_kernel_control #(
 	BufferStatus                 data_buffer_status_latch           ;
 	logic [0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_latched    ;
 	logic [                 0:3] accum_delay                        ;
+	logic                        vertex_job_active_S1               ;
 
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp         ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum         ;
@@ -223,13 +224,27 @@ module cu_sum_kernel_control #(
 			edge_data_counter_accum_latched   <= 0;
 			valid_stream                      <= 0;
 			accum_delay                       <= 0;
+			vertex_job_active_S1              <= 0;
 		end else begin
+			vertex_job_active_S1 <= vertex_job_latched.valid;
+
 			if (enabled && vertex_job_latched.valid) begin
+				// Every vertex job owns its own accumulator drain window.  The
+				// element counter, the accumulator restart flag and the drain
+				// counter are re-armed when the job arrives, so a preceding job
+				// (including one with a zero inverse out degree, which never
+				// flushes) can no longer shorten the drain of the next job and
+				// publish a stale accumulator value.
+				if(~vertex_job_active_S1) begin
+					accum_delay                      <= 0;
+					edge_data_counter_accum_internal <= 0;
+				end
+
 				if(edge_data_latched.valid)begin
-					edge_data_counter_accum_latched <= edge_data_counter_accum_latched + 1;
+					edge_data_counter_accum_latched <= (~vertex_job_active_S1) ? 1 : (edge_data_counter_accum_latched + 1);
 					input_value                     <= edge_data_latched.payload.data;
 
-					if(~valid_stream)begin
+					if(~valid_stream || ~vertex_job_active_S1)begin
 						valid_value  <= 1;
 						valid_stream <= 1;
 					end else begin
@@ -239,9 +254,17 @@ module cu_sum_kernel_control #(
 				end else begin
 					valid_value <= 0;
 					input_value <= 0;
+					if(~vertex_job_active_S1) begin
+						edge_data_counter_accum_latched <= 0;
+						valid_stream                    <= 0;
+					end
 				end
 
-				if((edge_data_counter_accum_latched == vertex_job_latched.payload.inverse_out_degree) && (accum_delay == 4'h F)) begin
+				if(~((|vertex_job_latched.payload.inverse_out_degree) && vertex_job_active_S1)) begin
+					// a job without contributions, and the arrival cycle of any
+					// job, never open a drain window and never publish
+					edge_data_accumulator_latch.valid <= 0;
+				end else if((edge_data_counter_accum_latched == vertex_job_latched.payload.inverse_out_degree) && (accum_delay == 4'h F)) begin
 					accum_delay                           <= 0;
 					edge_data_counter_accum_internal      <= edge_data_counter_accum_latched;
 					edge_data_counter_accum_latched       <= 0;
@@ -254,7 +277,8 @@ module cu_sum_kernel_control #(
 					accum_delay <= accum_delay + 1;
 				end
 
-				if(edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree )begin
+				if((|vertex_job_latched.payload.inverse_out_degree) && vertex_job_active_S1 &&
+				   (edge_data_counter_accum_internal == vertex_job_latched.payload.inverse_out_degree))begin
 					edge_data_accumulator            <= 0;
 					edge_data_counter_accum_internal <= 0;
 					edge_data_accumulator_latch      <= edge_data_accumulator;

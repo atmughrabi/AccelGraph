@@ -14,6 +14,17 @@
 7. A move must preserve Make, ModelSim, Quartus, CI, documentation, and
    submodule-pin behavior.
 
+## Naming convention
+
+- Numbered repository roots use two digits and snake case.
+- Integration roles use `accelerator_<role>`:
+  `accelerator_rtl`, `accelerator_sim`, `accelerator_synth`,
+  `accelerator_bin`, and `accelerator_verification`.
+- Pinned dependencies retain their repository names in prose and their exact
+  snake-case submodule paths (`00_open_graph`, `01_capi_precis`) in commands.
+- Verification suite folders are functional nouns: `common`, `engines`,
+  `algorithms`, and `integration`.
+
 ## Owned roots
 
 | Path | Responsibility |
@@ -44,16 +55,10 @@
       scripts/                   pin/source/topology/real-CU validators
       models/                    vendor-IP verification boundaries only
       unit/
-        common/                  routing, reduction, vertex/edge engines
+        common/                  packages, routing, and reduction
+        engines/                 vertex, edge, cluster, and scheduler engines
         algorithms/              BFS, PageRank, SPMV, CC, triangle kernels
-      integration/               graph-CU and full cached-AFU suites
-      common/                    graph adapters, scoreboards, assertions
-
-04_test_graphs/
-  verification/
-    fixtures/                    canonical tiny graph inputs
-    golden/                      independent expected results
-    manifests/                   hashes, policies, legal roots/configuration
+      integration/               real graph `cu_control` layout suites
 ```
 
 Planned directories are added with their first executable test; empty

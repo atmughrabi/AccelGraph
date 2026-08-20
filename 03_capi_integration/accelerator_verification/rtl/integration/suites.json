@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "suite_id": "graph-integration",
+  "plan_id": "accelgraph-rtl-coverage-v1",
+  "build_root": "02_capi_graph/obj/rtl_graph_integration",
+  "excluded_manifest_files": [
+    "afu.sv",
+    "cached_afu.sv"
+  ],
+  "families": [
+    {
+      "family": "graph-top",
+      "test_id": "graph-integration-cu-control",
+      "oracle_id": "graph-round-composed-scoreboard-v1",
+      "status": "active",
+      "top": "graph_integration_tb",
+      "evidence_regex": "PASS graph_integration scenarios=(\\d+) completions=(\\d+) reads=(\\d+) writes=(\\d+) bins=(\\d+) masks=(\\d+)",
+      "tb": [
+        "../unit/algorithms/tb/fp32_dpi.sv",
+        "../unit/algorithms/tb/graph_fixture_pkg.sv",
+        "tb/graph_integration_tb.sv"
+      ],
+      "include_dirs": [
+        "models"
+      ],
+      "contexts": [
+        {
+          "layout": "cu_BFS_CSR_PULL_BottomUp",
+          "dut": "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_control.sv",
+          "defines": [
+            "INTEG_PARENT_UNVISITED"
+          ],
+          "mutations": [
+            {
+              "id": "graph-top-progress-total",
+              "from": "cu_return_latched.var1 <= vertex_job_counter_total_latched;",
+              "to": "cu_return_latched.var1 <= vertex_job_counter_done_latched;",
+              "diagnostic": "WED progress"
+            }
+          ]
+        },
+        {
+          "layout": "cu_PageRank_CSR_PULL_FixedPoint",
+          "dut": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_control.sv",
+          "defines": [
+            "INTEG_MAX_KERNEL_CUS=1"
+          ],
+          "kernel_cus_limit": {
+            "kernel_cus": 1,
+            "reason": "the graph algorithm path of this layout does not complete a round with more than one kernel CU: a 24 vertex ring with the full topology count stalls after one retirement (reads issued 206, served 21, done_cu=0,1,0,0,0), so the rounds that need every cluster declare the largest count this layout completes with"
+          }
+        },
+        {
+          "layout": "cu_PageRank_CSR_PULL_Quantized",
+          "dut": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_control.sv",
+          "defines": [
+            "INTEG_MAX_KERNEL_CUS=1"
+          ],
+          "kernel_cus_limit": {
+            "kernel_cus": 1,
+            "reason": "the graph algorithm path of this layout does not complete a round with more than one kernel CU: a 24 vertex ring with the full topology count stalls after one retirement (reads issued 206, served 21, done_cu=0,1,0,0,0), so the rounds that need every cluster declare the largest count this layout completes with"
+          }
+        },
+        {
+          "layout": "cu_PageRank_CSR_PULL_FloatPoint",
+          "dut": "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_control.sv",
+          "fp_models": true,
+          "defines": [
+            "INTEG_MAX_KERNEL_CUS=1"
+          ],
+          "kernel_cus_limit": {
+            "kernel_cus": 1,
+            "reason": "the graph algorithm path of this layout does not complete a round with more than one kernel CU: a 24 vertex ring with the full topology count stalls after one retirement (reads issued 206, served 21, done_cu=0,1,0,0,0), so the rounds that need every cluster declare the largest count this layout completes with"
+          }
+        },
+        {
+          "layout": "cu_SPMV_CSR_PULL_FixedPoint",
+          "dut": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_control.sv",
+          "defines": [
+            "INTEG_MAX_KERNEL_CUS=1"
+          ],
+          "kernel_cus_limit": {
+            "kernel_cus": 1,
+            "reason": "this layout does not retire every vertex of a round that runs on more than one kernel CU: a 24 vertex ring published progress 20 of 24 with sixteen kernel CUs and stalled before cu_done, so the rounds that need every cluster declare the largest count this layout completes with"
+          }
+        },
+        {
+          "layout": "cu_SPMV_CSR_PULL_FloatPoint",
+          "dut": "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_control.sv",
+          "fp_models": true,
+          "defines": [
+            "INTEG_MAX_KERNEL_CUS=1"
+          ],
+          "kernel_cus_limit": {
+            "kernel_cus": 1,
+            "reason": "this layout does not retire every vertex of a round that runs on more than one kernel CU: a 24 vertex ring published progress 20 of 24 with sixteen kernel CUs and stalled before cu_done, so the rounds that need every cluster declare the largest count this layout completes with"
+          }
+        },
+        {
+          "layout": "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin",
+          "dut": "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_control.sv",
+          "defines": [
+            "INTEG_TRACE_CC"
+          ],
+          "mutations": [
+            {
+              "id": "graph-top-progress-total",
+              "from": "cu_return_latched.var1 <= vertex_job_counter_total_latched;",
+              "to": "cu_return_latched.var1 <= vertex_job_counter_done_latched;",
+              "diagnostic": "WED progress"
+            }
+          ]
+        },
+        {
+          "layout": "cu_TriangleCount_CSR_BinaryIntersection_Binary",
+          "dut": "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_control.sv",
+          "mutations": [
+            {
+              "id": "graph-top-progress-total",
+              "from": "cu_return_latched.var1 <= vertex_job_counter_total_latched;",
+              "to": "cu_return_latched.var1 <= vertex_job_counter_done_latched;",
+              "diagnostic": "WED progress"
+            }
+          ],
+          "defines": [
+            "INTEG_MAX_KERNEL_CUS=1"
+          ],
+          "kernel_cus_limit": {
+            "kernel_cus": 1,
+            "reason": "this layout does not retire every vertex of a round that runs on more than one kernel CU: a 24 vertex ring with the full topology count stalled before cu_done, so the rounds that need every cluster declare the largest count this layout completes with"
+          }
+        }
+      ]
+    }
+  ],
+  "rtl_patches_reference": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/suites.json"
+}

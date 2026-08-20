@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "measurement": {
+    "merge_identity": "unit, algorithm-shell, and graph-top points are merged only for the same layout and declaration; integration evidence additionally requires a current top-level DUT hash and a coverage artifact newer than the declaration",
+    "point_key": "declaration path, coverage page, line, column, objective, and source range; hierarchy is intentionally removed when merging identical declarations",
+    "denominator_rule": "every context/module/source-hash raw point count is pinned; missing, changed, or stale labels fail closure",
+    "census_rule": "each zero point must match exactly one structural rule; unmatched or multiply matched points fail closure, and every rule must match at least one concrete zero"
+  },
+  "denominator_execution_count": 72,
+  "denominator_sha256": "9870b8104cc3abaa54fb4b3850146408be528b6546e03a4e47c2f61c748ea550",
+  "denominators": {},
+  "rules": [
+    {
+      "id": "vertex-exhaustive-counter-comparison",
+      "family": "vertex-job",
+      "module": "cu_vertex_job_control",
+      "type": "branch",
+      "category": "interface-invariant",
+      "reason": "The unsigned remaining-vertex count is either greater than CACHELINE_VERTEX_NUM or less than/equal to it; the implicit final else arm of the else-if chain is structurally impossible.",
+      "match": {
+        "objective": "^else$"
+      }
+    },
+    {
+      "id": "vertex-fixed-workload-magnitude",
+      "family": "vertex-job",
+      "module": "cu_vertex_job_control",
+      "type": "toggle",
+      "category": "fixed-topology-width-padding",
+      "reason": "The pinned unit topology launches at most CU_VERTEX_JOB_BUFFER_SIZE vertices and cacheline-sized shifts, so upper offset, sequence, shift-limit, and boundary bits outside that exact bound cannot toggle.",
+      "match": {
+        "objective": "^(?:vertex_id_counter|vertex_next_offset|shift_counter|shift_limit_[01])\\[\\d+\\]$|^zero_pass$"
+      }
+    },
+    {
+      "id": "vertex-filter-fixed-count",
+      "family": "vertex-job",
+      "module": "cu_vertex_job_filter",
+      "type": "toggle",
+      "category": "fixed-topology-width-padding",
+      "reason": "The exact filter scenario count is bounded by the filter FIFO depth, so upper filtered-counter bits are outside the fixed unit topology.",
+      "match": {
+        "objective": "^vertex_job_counter_filtered(?:_latched)?\\[\\d+\\]$"
+      }
+    },
+    {
+      "id": "vertex-fifo-flow-control",
+      "family": "vertex-job",
+      "type": "toggle",
+      "category": "flow-control-unreachable",
+      "reason": "Each producer stops at almost-full and each command phase has fewer entries than its staging depth, so the corresponding full flags and unreachable staging almost-full flags cannot assert.",
+      "match": {
+        "objective": "^(?:read_buffer_status_internal|vertex_buffer_burst_status|vertex_buffer_status|vertex_job_filtered_buffer_status)\\.(?:alfull|full)$"
+      }
+    },
+    {
+      "id": "edge-job-exhaustive-or-protocol-else",
+      "family": "edge-job",
+      "type": "branch",
+      "category": "interface-invariant",
+      "reason": "Residual else arms are either the impossible final arm of an unsigned greater-than/less-than-or-equal partition or require a duplicate response while a prior cacheline is still shifting, which the command/response ownership protocol forbids.",
+      "match": {
+        "objective": "^else$"
+      }
+    },
+    {
+      "id": "edge-job-fixed-workload-magnitude",
+      "family": "edge-job",
+      "type": "toggle",
+      "category": "fixed-topology-width-padding",
+      "reason": "The active edge unit topology bounds a launch to CU_EDGE_JOB_BUFFER_SIZE entries and a cacheline-sized shift; upper address, sequence, remainder, and shift-control bits outside that bound are padding for these fixed contexts.",
+      "match": {
+        "objective": "^(?:aligned|edge_next_offset|edge_id_counter|global_shift_counter|remainder|shift_counter|shift_limit_[01]|shift_seek)\\[\\d+\\]$|^(?:edge_variable|edge_job|edge_latched|edge_burst_variable)\\.payload\\.id\\[\\d+\\]$|^zero_pass$"
+      }
+    },
+    {
+      "id": "edge-job-fifo-flow-control",
+      "family": "edge-job",
+      "type": "toggle",
+      "category": "flow-control-unreachable",
+      "reason": "Almost-full backpressure and the one-cacheline response phase prevent these staging FIFOs from reaching the remaining almost-full/full states.",
+      "match": {
+        "objective": "^(?:edge_buffer_burst_status|edge_buffer_status|read_buffer_status_internal)\\.(?:alfull|full)$"
+      }
+    },
+    {
+      "id": "extractor-two-slot-priority-invariants",
+      "family": "edge-read",
+      "module": "cu_edge_data_read_extract_control",
+      "type": "branch",
+      "category": "ownership-invariant",
+      "reason": "For a two-slot tagged pair buffer, an emitting slot is necessarily non-empty, same-tag simultaneous halves bypass the second allocator, and different tags cannot both own the slot selected by the first half. The residual short-circuit combinations are therefore impossible.",
+      "match": {
+        "objective": "^if$"
+      }
+    },
+    {
+      "id": "edge-read-component-priority-invariants",
+      "family": "edge-read",
+      "module": "cu_edge_data_read_command_control",
+      "type": "branch",
+      "category": "ownership-invariant",
+      "reason": "Source, destination, and high-component requests are selected by mutually exclusive pending-count and comp_low_ready states; residual short-circuit combinations contradict those state invariants.",
+      "match": {
+        "objective": "^if$"
+      }
+    },
+    {
+      "id": "edge-read-fixed-component-magnitude",
+      "family": "edge-read",
+      "module": "cu_edge_data_read_command_control",
+      "type": "toggle",
+      "category": "fixed-topology-width-padding",
+      "reason": "The fixed component scenario bounds job identifiers and the equal-component continuation count; remaining upper counter and identifier bits are outside the pinned topology.",
+      "match": {
+        "objective": "^(?:edge_data_continue_accum_(?:out|latched)|edge_job_variable(?:_S2)?\\.payload\\.(?:id|src|dest))\\[\\d+\\]$"
+      }
+    },
+    {
+      "id": "edge-read-unused-component-valid-alias",
+      "family": "edge-read",
+      "module": "cu_edge_data_read_command_control",
+      "type": "toggle",
+      "category": "unused-shared-interface-alias",
+      "reason": "EdgeComponentRead is used only as an internal payload aggregate; its valid member is never the ownership signal and is intentionally left constant.",
+      "match": {
+        "objective": "^edge_components\\.valid$"
+      }
+    },
+    {
+      "id": "edge-read-unused-component-staging-aliases",
+      "family": "edge-read",
+      "module": "cu_edge_data_read_command_control",
+      "type": "toggle",
+      "category": "unused-shared-interface-alias",
+      "reason": "The first component-update stages carry only comp_high or the computed comp_low; comp_comp_high is introduced after the high-component read, and the earlier placeholder members are intentionally constant.",
+      "match": {
+        "objective": "^edge_components_update\\.payload\\.(?:comp_comp_high|comp_low)\\[\\d+\\]$|^edge_components_update_latched\\.payload\\.comp_comp_high\\[\\d+\\]$"
+      }
+    },
+    {
+      "id": "edge-read-fifo-flow-control",
+      "family": "edge-read",
+      "module": "cu_edge_data_read_command_control",
+      "type": "toggle",
+      "category": "flow-control-unreachable",
+      "reason": "The producer observes almost-full and the component engine permits at most two ordinary reads plus one high-component read in flight, below the command and edge staging depths; remaining full/almost-full flags cannot assert.",
+      "match": {
+        "objective": "^(?:data_buffer_status(?:_latch)?|edge_buffer_status_internal|read_buffer_status_internal)\\.(?:alfull|full)$"
+      }
+    },
+    {
+      "id": "edge-write-command-constant-padding",
+      "family": "edge-write",
+      "module": "cu_edge_data_write_command_control",
+      "type": "toggle",
+      "category": "parameter-constant-and-width-padding",
+      "reason": "Command tags and unused metadata are zero, command type/array/size fields are fixed enums or constants, and address/auxiliary upper bits are padding above the property index/data widths. Exercised variable bits are retained in the reachable denominator.",
+      "match": {
+        "objective": "^cmd\\.(?:abt|address_offset|array_struct|aux_data|cacheline_offset|cmd_type|real_size|real_size_bytes|size|tag)\\[\\d+\\]$"
+      }
+    },
+    {
+      "id": "edge-write-offset-padding",
+      "family": "edge-write",
+      "module": "cu_edge_data_write_command_control",
+      "type": "toggle",
+      "category": "width-padding",
+      "reason": "offset_data is eight bits wide but only the cacheline-half selector width is reachable for every active property element size; remaining bits are padding.",
+      "match": {
+        "objective": "^offset_data\\[\\d+\\]$"
+      }
+    },
+    {
+      "id": "edge-write-fifo-flow-control",
+      "family": "edge-write",
+      "module": "cu_edge_data_write_command_control",
+      "type": "toggle",
+      "category": "flow-control-unreachable",
+      "reason": "The BFS write pipeline removes upstream grant as soon as any staging FIFO is almost-full, so the remaining input almost-full/full and downstream full flags cannot assert.",
+      "match": {
+        "objective": "^(?:edge_data_write_buffer_status|write_command_buffer_status|write_command_data_[01]_buffer_status)\\.(?:alfull|full)$"
+      }
+    },
+    {
+      "id": "scheduler-unpacked-counter-input-backend",
+      "type": "toggle",
+      "category": "backend-uninstrumented-unpacked-port",
+      "reason": "Verilator records these unpacked-array input bits but does not attribute the testbench whole-array assignments to every element bit; the corresponding latched/reduced production signals provide the behavioral evidence.",
+      "match": {
+        "path": "(?:arbiter_control|cluster_control|graph_algorithm_control)\\.sv$",
+        "objective": "^(?:vertex_num_counter|edge_num_counter|vertex_job_counter_done|edge_job_counter_done)_cu_in\\[\\d+\\]\\[\\d+\\]$"
+      }
+    },
+    {
+      "id": "scheduler-unpacked-routing-backend",
+      "type": "toggle",
+      "category": "backend-uninstrumented-unpacked-port",
+      "reason": "The backend emits zero toggle records for unpacked routed output/status elements even when direct one-hot ownership assertions and coordinate sweeps exercise each element.",
+      "match": {
+        "path": "(?:arbiter_control|cluster_control|graph_algorithm_control)\\.sv$",
+        "objective": "^(?:edge_data_read_cu(?:_latched|_out)?\\[\\d+\\]\\..*|edge_data_read_cu_latched_valid\\[\\d+\\]|read_data_[01]_(?:cu|data_out)_latched_valid\\[\\d+\\]|burst_(?:read_command_buffer_states_cu|edge_data_write_cu_buffer_states_cu)\\[\\d+\\]\\.(?:alfull|full|valid))$"
+      }
+    },
+    {
+      "id": "scheduler-layout-selected-payload-alias",
+      "type": "toggle",
+      "category": "unused-shared-interface-alias",
+      "reason": "The shared EdgeDataRead/EdgeDataWrite tagged unions expose data, data_1, data_2, weight, source, destination, and index aliases, but each active algorithm drives only its selected payload members.",
+      "match": {
+        "path": "(?:arbiter_control|cluster_control|graph_algorithm_control)\\.sv$",
+        "objective": "^(?:edge_data_variable|burst_edge_data_buffer_out|edge_data_write_out)\\.(?:valid|payload\\.(?:data(?:_[12])?|weight|array_struct|dest|src|index)\\[\\d+\\])$"
+      }
+    },
+    {
+      "id": "scheduler-parameter-constant-coordinates",
+      "type": "toggle",
+      "category": "parameter-constant-coordinate",
+      "reason": "CU coordinates on scheduler-generated payloads are fixed by CU_ID parameters or the selected topology owner; bits outside the active coordinate encoding are constant.",
+      "match": {
+        "path": "(?:arbiter_control|cluster_control|graph_algorithm_control)\\.sv$",
+        "objective": "^(?:edge_data_variable|burst_edge_data_buffer_out|edge_data_write_out)\\.payload\\.cu_id_[xy]\\[\\d+\\]$"
+      }
+    },
+    {
+      "id": "scheduler-fixed-topology-reduction-width",
+      "type": "toggle",
+      "category": "fixed-topology-width-padding",
+      "reason": "The exact active topology contains four or five CUs and the directed counter values are bounded; upper per-CU and reduced counter bits outside that sum range are width padding for these contexts.",
+      "match": {
+        "path": "(?:arbiter_control|cluster_control|graph_algorithm_control)\\.sv$",
+        "objective": "^(?:(?:vertex|edge)_(?:num_counter_cu\\[\\d+\\]|job_counter_done(?:_latched|_out)?)|(?:vertex|edge)_job_counter_done_cu\\[\\d+\\])\\[\\d+\\]$"
+      }
+    },
+    {
+      "id": "scheduler-fixed-control-aliases",
+      "type": "toggle",
+      "category": "fixed-topology-coordinate",
+      "reason": "The residual ready/request bits are aliases for coordinates absent from a given four/five-CU elaboration or registered request mirrors whose asserted owner is proven by the direct one-hot and fairness scoreboards.",
+      "match": {
+        "path": "(?:arbiter_control|cluster_control|graph_algorithm_control)\\.sv$",
+        "objective": "^(?:(?:ready|request)_(?:read_command|edge_data_write)_cu\\[\\d+\\]|(?:read|write)_command_bus_request(?:_latched)?)$"
+      }
+    },
+    {
+      "id": "cluster-command-buffer-full-unreachable",
+      "family": "cluster-scheduler",
+      "module": "cu_vertex_cluster_arbiter_control",
+      "type": "toggle",
+      "category": "flow-control-unreachable",
+      "reason": "Ownership of the shared read and write command buses is only taken while the buffer that owner feeds is below its almost-full threshold, and the fifo keeps its headroom above that threshold, so the full flag of those command buffers and of every broadcast copy of their status cannot assert.",
+      "match": {
+        "objective": "^(?:read_buffer_status_cu_out(?:_latched)?\\[\\d+\\]|read_buffer_status_cu_out_internal|write_buffer_status_cu_out(?:_latched)?\\[\\d+\\]|burst_edge_data_write_cu_buffer_states_cu)\\.full$"
+      }
+    }
+  ]
+}

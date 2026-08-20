@@ -5,7 +5,7 @@
     "03_capi_integration/accelerator_verification/rtl"
   ],
   "generated_by": "03_capi_integration/accelerator_verification/rtl/scripts/verify_manifests.py",
-  "capi_precis_commit": "000f7ce24cb7dcda4a5121806fd63f63cb820119",
+  "capi_precis_commit": "d66d5ed0a26e1321130242000889123f3e779cad",
   "portable_vendor_ip_boundaries": [
     {
       "module": "fp_single_add_acc",
@@ -19,12 +19,12 @@
     }
   ],
   "summary": {
-    "files": 118,
+    "files": 154,
     "design_modules": 93,
     "design_packages": 22,
-    "distinct_module_hashes": 68,
+    "distinct_module_hashes": 69,
     "status_counts": {
-      "active": 99,
+      "active": 135,
       "quarantined": 19
     }
   },
@@ -155,7 +155,7 @@
           "name": "cu_edge_data_read_extract_control"
         }
       ],
-      "sha256": "046b33e82121e09035b80c4cada79a10b454c6b9e7ea9f1f225c9fdf2845d850",
+      "sha256": "dd99fd45f9478ba660b58f4d41a59ffa0207f1ec79b273f50ce6f7a4cba7e286",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv"
       ],
@@ -270,7 +270,7 @@
           "name": "cu_vertex_cluster_arbiter_control"
         }
       ],
-      "sha256": "f6f26037abfde56f2ae6d45ff05a5f1463bc2660bafd50cde47f81e9eccd27f7",
+      "sha256": "61e6755d1811df7ac4bbd39971621d0a0a4b035df815886a862982fd2c20f205",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_vertex_cluster_arbiter_control.sv"
       ],
@@ -462,7 +462,7 @@
           "name": "cu_update_kernel_control"
         }
       ],
-      "sha256": "fa151a2b9654777e736bdc4fda941fcb46b60f09d501cdc56c04d5d393150414",
+      "sha256": "a6e659d82d3d8290e0c5eff89eb792b4d7805b04a75faa7539c950c26b2814cc",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/ShiloachVishkin/cu/cu_update_kernel_control.sv"
       ],
@@ -577,7 +577,7 @@
           "name": "cu_edge_data_read_extract_control"
         }
       ],
-      "sha256": "7d2cc90f8c43039e97c009a3b1c6fede9896cc52b7fbce57deb049eae5baf4e3",
+      "sha256": "c5f4260bc577f5cd34c8c800519b5e48de9be9143376497db7f3cd5148365c65",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_edge_data_read_extract_control.sv"
       ],
@@ -649,7 +649,7 @@
           "name": "cu_vertex_cluster_arbiter_control"
         }
       ],
-      "sha256": "eb18288450215dec11e14fa287bc9e5ba23d6f0b1dc19b931d0b30a584542d43",
+      "sha256": "255568bc7a90e916cc37fbcda84d9890080d1937f399cb81b46b519e2b387013",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_cluster_arbiter_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_vertex_cluster_arbiter_control.sv",
@@ -697,7 +697,7 @@
           "name": "cu_vertex_connectedComponents"
         }
       ],
-      "sha256": "c70a7c88115363df0206f9767740eaf67301b398f2a393e95fbafa9dd1484047",
+      "sha256": "5850404bdf64db90ea97599f8c57b555d200f88981443f26e836d932608af282",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_connectedComponents.sv"
       ],
@@ -939,7 +939,7 @@
           "name": "cu_sum_kernel_control"
         }
       ],
-      "sha256": "51b5840527fff957a210f5caec345cffb915bdf01d3eaaf7e241834d3a8581bb",
+      "sha256": "97f5fccb0f098b2aebc68df171012117e49c0d652c1e732695ad1d48ad197873",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/FloatPoint/cu/cu_sum_kernel_control.sv"
       ],
@@ -1126,7 +1126,7 @@
           "name": "cu_edge_data_read_extract_control"
         }
       ],
-      "sha256": "210b5101c16a5feef06c0877ab13655ae69ebe21302d2aec62aa803fbd21cdd8",
+      "sha256": "818e74f655c4b551aae4cebefcdbbc3f8b966e05db4455493303b2b1c5118d9e",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv"
       ],
@@ -2066,8 +2066,7 @@
       ],
       "sha256": "2b7d50c6fbbb391d5f8af6a34e4fa4dce474277cae2bc0642ef2c43aa16a575a",
       "equivalent_paths": [
-        "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FixedPoint/cu/cu_sum_kernel_control.sv",
-        "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/Binary/cu/cu_update_kernel_control.sv"
+        "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FixedPoint/cu/cu_sum_kernel_control.sv"
       ],
       "verification_unit": "cu_SPMV-CSR-PULL-FixedPoint-cu_sum_kernel_control",
       "build_membership": [
@@ -2111,7 +2110,7 @@
           "name": "cu_sum_kernel_control"
         }
       ],
-      "sha256": "06db28e01e2136a55951eea8f4512bf4e921ef0bac90b164118de039ef6f4492",
+      "sha256": "8364c7f881e8c78e685c16e1dd3c31311875d04d0cd24cd84f7852c35dbed8a3",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FloatPoint/cu/cu_sum_kernel_control.sv"
       ],
@@ -2240,7 +2239,7 @@
           "name": "cu_edge_data_read_extract_control"
         }
       ],
-      "sha256": "325a7e4b7b4fb5ed0f1fe9670470361b0e2221c249b41a4be6708da18cf9224a",
+      "sha256": "bf6f73d43e5564bc5dc99c2d4c66d3d96b8a951342c6e468aa4b91917261d84d",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_edge_data_read_extract_control.sv"
@@ -2326,7 +2325,7 @@
           "name": "cu_vertex_cluster_arbiter_control"
         }
       ],
-      "sha256": "eb18288450215dec11e14fa287bc9e5ba23d6f0b1dc19b931d0b30a584542d43",
+      "sha256": "255568bc7a90e916cc37fbcda84d9890080d1937f399cb81b46b519e2b387013",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_cluster_arbiter_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_vertex_cluster_arbiter_control.sv",
@@ -2611,12 +2610,11 @@
       "declarations": [
         {
           "kind": "module",
-          "name": "cu_sum_kernel_control"
+          "name": "cu_update_kernel_control"
         }
       ],
-      "sha256": "2b7d50c6fbbb391d5f8af6a34e4fa4dce474277cae2bc0642ef2c43aa16a575a",
+      "sha256": "1efd274d9b4bff8dd4779b3f02171b99534c468d8eccfa9774907014c478a667",
       "equivalent_paths": [
-        "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/FixedPoint/cu/cu_sum_kernel_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/Binary/cu/cu_update_kernel_control.sv"
       ],
       "verification_unit": "cu_TriangleCount-CSR-BinaryIntersection-Binary-cu_update_kernel_control",
@@ -2732,7 +2730,7 @@
           "name": "cu_edge_data_read_extract_control"
         }
       ],
-      "sha256": "325a7e4b7b4fb5ed0f1fe9670470361b0e2221c249b41a4be6708da18cf9224a",
+      "sha256": "bf6f73d43e5564bc5dc99c2d4c66d3d96b8a951342c6e468aa4b91917261d84d",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_edge_data_read_extract_control.sv"
@@ -2806,7 +2804,7 @@
           "name": "cu_vertex_cluster_arbiter_control"
         }
       ],
-      "sha256": "eb18288450215dec11e14fa287bc9e5ba23d6f0b1dc19b931d0b30a584542d43",
+      "sha256": "255568bc7a90e916cc37fbcda84d9890080d1937f399cb81b46b519e2b387013",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_cluster_arbiter_control.sv",
         "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_vertex_cluster_arbiter_control.sv",
@@ -2904,7 +2902,7 @@
           "name": "cu_vertex_triangleCount"
         }
       ],
-      "sha256": "89b15198a53200801e6641314f7d6b365ff5633be65bd112a8b6c3314c2a7620",
+      "sha256": "144c6fded765241dd302113ab2711a1ebf405bb160fe77080de58ba3365ab26e",
       "equivalent_paths": [
         "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_vertex_triangleCount.sv"
       ],
@@ -3086,6 +3084,29 @@
       "evidence": "active layout or graph monitor evidence"
     },
     {
+      "path": "03_capi_integration/accelerator_verification/rtl/integration/tb/graph_integration_tb.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "graph_integration_tb"
+        }
+      ],
+      "sha256": "d9300f7573ba155a92372341bdf0fae80003f4df0f75fc822dd64ad1c6d6c132",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/integration/tb/graph_integration_tb.sv"
+      ],
+      "verification_unit": "integration-tb",
+      "build_membership": [
+        {
+          "layout": "integration-graph",
+          "order": 0
+        }
+      ],
+      "evidence": "executable integration testbench: graph"
+    },
+    {
       "path": "03_capi_integration/accelerator_verification/rtl/models/fp_vendor_blackboxes.sv",
       "status": "active",
       "kind": "module",
@@ -3111,6 +3132,834 @@
         }
       ],
       "evidence": "active layout or graph monitor evidence"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/models/fp_stream_models.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "fp_single_add_acc"
+        },
+        {
+          "kind": "module",
+          "name": "fp_single_mul"
+        }
+      ],
+      "sha256": "a0d6e3ac268d8e00400789dde6684b258db8ef7a61075a4cec57a1aee9a80179",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/models/fp_stream_models.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/shims/cu_vertex_shell_bfs.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "cu_vertex_shell_dut"
+        }
+      ],
+      "sha256": "b664f1588eafdd45d655b3ee610208fac6e5bfb876400318b8425bdae4153a54",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/shims/cu_vertex_shell_bfs.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/shims/cu_vertex_shell_connectedComponents.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "cu_vertex_shell_dut"
+        }
+      ],
+      "sha256": "7c9ba2ec4001a3e1917398a150c2d73f77835528237fd169ff0631cdda37b8b5",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/shims/cu_vertex_shell_connectedComponents.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/shims/cu_vertex_shell_pagerank.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "cu_vertex_shell_dut"
+        }
+      ],
+      "sha256": "7207a6bb6151efc98487d14de28b81e73a65a40a2aa8df9d2cd29801d0f0e38f",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/shims/cu_vertex_shell_pagerank.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/shims/cu_vertex_shell_spmv.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "cu_vertex_shell_dut"
+        }
+      ],
+      "sha256": "a89e8f213e3a91878ae27762f19092102eabe2d2293f871aabdbece5b656acaf",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/shims/cu_vertex_shell_spmv.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/shims/cu_vertex_shell_triangleCount.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "cu_vertex_shell_dut"
+        }
+      ],
+      "sha256": "26685a903ba63f7da9742c23ebe5b8de4146080efb0969450476408ee4872736",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/shims/cu_vertex_shell_triangleCount.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/algo_check_pkg.sv",
+      "status": "active",
+      "kind": "package",
+      "declarations": [
+        {
+          "kind": "package",
+          "name": "ALGO_CHECK_PKG"
+        }
+      ],
+      "sha256": "fff3c12af203693a9dc44906438c69630d7126c8c11a8ccf432a593b479088a8",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/algo_check_pkg.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/algorithm_shell_tb.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "algorithm_shell_tb"
+        }
+      ],
+      "sha256": "5dafd48b6db4608c24dc1fe9b704a1b8ab2db69702b3f9e660c206531791be91",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/algorithm_shell_tb.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/bfs_kernel_tb.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "bfs_kernel_tb"
+        }
+      ],
+      "sha256": "514543b1f6ad3b979977c71cb55a8ed62d81057c064953951b8f50cbf93fe0bd",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/bfs_kernel_tb.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/cc_kernel_tb.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "cc_kernel_tb"
+        }
+      ],
+      "sha256": "994595d88c6ef6c10f3e2c259f785bf2817b60fe95600b82378264fd827e38ef",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/cc_kernel_tb.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/fp32_dpi.sv",
+      "status": "active",
+      "kind": "rtl",
+      "declarations": [],
+      "sha256": "e82d42fd9b74679a941ea95e6d2e24975d1483935174e3523d84291e38a6756d",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/fp32_dpi.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/graph_fixture_pkg.sv",
+      "status": "active",
+      "kind": "package",
+      "declarations": [
+        {
+          "kind": "package",
+          "name": "GRAPH_FIXTURE_PKG"
+        }
+      ],
+      "sha256": "2627277031929b1f0dae8cd6af2074f4a8df8d0a8daa790a6b1d0e5d53355828",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/graph_fixture_pkg.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/pagerank_kernel_tb.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "pagerank_kernel_tb"
+        }
+      ],
+      "sha256": "c3461a598a8a25d971b0f582cbcd8a5747a25ed5fbae0a3657580fa06b866fe1",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/pagerank_kernel_tb.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/spmv_kernel_tb.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "spmv_kernel_tb"
+        }
+      ],
+      "sha256": "00e664addf8b655951ab7ec97afd95aae21fedc3deb194021f1647da7ac8b1e6",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/spmv_kernel_tb.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/triangle_kernel_blocker_tb.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "triangle_kernel_blocker_tb"
+        }
+      ],
+      "sha256": "3e9ff253dd42e9ad4fefe36305ec1be7a850af03af5cb64709733bf3468aa1f6",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/triangle_kernel_blocker_tb.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/triangle_kernel_tb.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "triangle_kernel_tb"
+        }
+      ],
+      "sha256": "f1d25a65419395636492a6acb11fb50d9930bb82c7f11aed284990418d3c8a49",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/algorithms/tb/triangle_kernel_tb.sv"
+      ],
+      "verification_unit": "unit-algorithms",
+      "build_membership": [
+        {
+          "layout": "unit-algorithms",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: algorithms"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/common/graph_package_contract_tb.sv",
+      "status": "active",
+      "kind": "multi-declaration",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "graph_package_contract_tb"
+        },
+        {
+          "kind": "interface",
+          "name": "wrapper"
+        },
+        {
+          "kind": "package",
+          "name": "bin"
+        }
+      ],
+      "sha256": "b0a35f6ef9f12d3b33c55dd68ffc24e56cf5b6508be1e50154d31c7e9e670974",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/common/graph_package_contract_tb.sv"
+      ],
+      "verification_unit": "unit-common",
+      "build_membership": [
+        {
+          "layout": "unit-common",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: common"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/common/graph_routing_demux_tb.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "demux_bus_probe"
+        },
+        {
+          "kind": "module",
+          "name": "default"
+        },
+        {
+          "kind": "module",
+          "name": "array_struct_demux_probe"
+        },
+        {
+          "kind": "module",
+          "name": "graph_routing_demux_tb"
+        }
+      ],
+      "sha256": "a5a88e4d31ebfcfb4ea45b229749ec2787002079ab6d32123bc72b8eccc30167",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/common/graph_routing_demux_tb.sv"
+      ],
+      "verification_unit": "unit-common",
+      "build_membership": [
+        {
+          "layout": "unit-common",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: common"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/common/graph_sum_reduce_tb.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "sum_reduce_probe"
+        },
+        {
+          "kind": "module",
+          "name": "graph_sum_reduce_tb"
+        }
+      ],
+      "sha256": "2a1858ba7e91dc6025424b6c3f821b75098ca459b487a3a25072f11249b84c7e",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/common/graph_sum_reduce_tb.sv"
+      ],
+      "verification_unit": "unit-common",
+      "build_membership": [
+        {
+          "layout": "unit-common",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: common"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_algorithm_arbiter_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_algorithm_arbiter_dut"
+        }
+      ],
+      "sha256": "82fa5e3d579a8b4e1939b2e193382799e6115e7dbd4d29c62249a220ad4c3682",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_algorithm_arbiter_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_arbiter_primitive_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_arbiter_primitive_dut"
+        }
+      ],
+      "sha256": "b78699cde44942392d82c1b5c4b55974c971da00ff1cf15dd1e1d6447563c6ed",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_arbiter_primitive_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_cc_cu_control_midflight_reset_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "cc_cu_control_midflight_reset_monitor"
+        }
+      ],
+      "sha256": "c86a3ddc542c6598d93eaf5edd5490790108bd1a2c98be4741b862b7d73c98c5",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_cc_cu_control_midflight_reset_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_cluster_arbiter_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_cluster_arbiter_dut"
+        }
+      ],
+      "sha256": "55776e574707e6941585a6a3aef5b5874c8247fabefa56af416a7bc97f9f4996",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_cluster_arbiter_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_cluster_midflight_reset_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_cluster_midflight_reset_dut"
+        }
+      ],
+      "sha256": "ac40352aacaa64cd2ecd9431cbdf59a3caa76904b27048b3470aa8d9de1f13af",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_cluster_midflight_reset_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_edge_extract_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_edge_extract_dut"
+        }
+      ],
+      "sha256": "164125653c46773460f3cbda088328ed3532792d44608ed45818c4f6b3f58e65",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_edge_extract_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_edge_job_control_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_edge_job_control_dut"
+        }
+      ],
+      "sha256": "bfebb7ab78de6ad970b3483e4037dcbf814df8cbe984d18dcb4f5a0bc20c2f1f",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_edge_job_control_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_edge_read_command_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_edge_read_command_dut"
+        }
+      ],
+      "sha256": "cd058df2fc1e2aac77a074eb8c2a086f9907aca95851ef31e5d0733d390c7167",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_edge_read_command_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_edge_write_bfs_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_edge_write_bfs_dut"
+        }
+      ],
+      "sha256": "68d5ea7f8e20ed50284e8cd5db9df38ea288dee763cefa9ca253f38e958e503a",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_edge_write_bfs_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_edge_write_common_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_edge_write_common_dut"
+        }
+      ],
+      "sha256": "9305ff8c91938e33f3e809ad295a940185f25b7216261fdf3f28de0eb5fe7016",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_edge_write_common_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_plumbing_models.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_plumbing_models"
+        }
+      ],
+      "sha256": "d0fd8c41d900f35b3e49c596f464d0554721cfda3bc53cd16e10c1b556c4e07a",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_plumbing_models.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_scheduler_control_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_scheduler_control_dut"
+        }
+      ],
+      "sha256": "98dc9c78fefac64c250bba06f941757f3b024fd08c882d36049196a8874e798f",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_scheduler_control_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_scheduler_models.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_scheduler_models"
+        }
+      ],
+      "sha256": "faef164e0be2d77b815611f6ef861f6cf40d6df02cc00dc9a873db83b02e980a",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_scheduler_models.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_sum_reduce_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_sum_reduce_dut"
+        }
+      ],
+      "sha256": "7d678a4e455b8a8c1283c55f351c2ddd010d41ff738d34e1b2c5d2aeeeed8e62",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_sum_reduce_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_vertex_filter_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_vertex_filter_dut"
+        }
+      ],
+      "sha256": "76c6d05a71de2fd5d99380eb1da05b943fad35f53d8f39fe32dba8bab2f4aca3",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_vertex_filter_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
+    },
+    {
+      "path": "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_vertex_job_control_dut.sv",
+      "status": "active",
+      "kind": "module",
+      "declarations": [
+        {
+          "kind": "module",
+          "name": "tb_vertex_job_control_dut"
+        }
+      ],
+      "sha256": "3fe4aa1bf811566624aa145d76935382e514f0862ca45884b3f6b3a9c7d2ad90",
+      "equivalent_paths": [
+        "03_capi_integration/accelerator_verification/rtl/unit/engines/tb_vertex_job_control_dut.sv"
+      ],
+      "verification_unit": "unit-engines",
+      "build_membership": [
+        {
+          "layout": "unit-engines",
+          "order": 0
+        }
+      ],
+      "evidence": "executable unit testbench: engines"
     }
   ]
 }

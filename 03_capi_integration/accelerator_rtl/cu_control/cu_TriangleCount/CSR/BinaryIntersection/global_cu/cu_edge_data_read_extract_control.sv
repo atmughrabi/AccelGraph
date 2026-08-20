@@ -35,25 +35,21 @@ module cu_edge_data_read_extract_control #(
 	//output latched
 	EdgeDataRead edge_data_variable    ;
 	EdgeDataRead edge_data_variable_reg;
-	//input lateched
-	ReadWriteDataLine read_data_0_in_latched   ;
-	ReadWriteDataLine read_data_0_in_latched_S2;
-	ReadWriteDataLine read_data_1_in_latched   ;
-	logic [0:7]       offset_data_0            ;
-	cu_id_t           cu_id_x                  ;
-	cu_id_t           cu_id_y                  ;
-	logic             enabled                  ;
+	logic        enabled;
 
-	logic [           0:CACHELINE_SIZE_BITS-1] read_data_in;
-	logic [0:(CACHELINE_DATA_READ_NUM_BITS-1)] address_rd  ;
+	// Hold the current pair and the next tag during the one-cycle half skew.
+	localparam PAIR_BUFFER_SIZE = 2;
 
-	logic   [0:(CACHELINE_SIZE_BITS_HF-1)] reg_DATA_VARIABLE_0      ;
-	logic   [0:(CACHELINE_SIZE_BITS_HF-1)] reg_DATA_VARIABLE_1      ;
-	logic                                  reg_DATA_VARIABLE_0_ready;
-	logic                                  reg_DATA_VARIABLE_1_ready;
-	logic                                  reg_DATA_VARIABLE_ready  ;
-	logic   [                        0:63] aux_data                 ;
-	integer                                i                        ;
+	ReadWriteDataLinePayload read_data_0_buffer[0:PAIR_BUFFER_SIZE-1];
+	ReadWriteDataLinePayload read_data_1_buffer[0:PAIR_BUFFER_SIZE-1];
+	logic [             0:7] read_data_buffer_tag[0:PAIR_BUFFER_SIZE-1];
+	logic                   read_data_0_ready [0:PAIR_BUFFER_SIZE-1];
+	logic                   read_data_1_ready [0:PAIR_BUFFER_SIZE-1];
+
+	integer pair_emit_index;
+	integer read_data_0_buffer_index;
+	integer read_data_1_buffer_index;
+	integer i;
 
 ///////////////////////////////////////////////////////////////////////////
 //enable logic
@@ -65,30 +61,6 @@ module cu_edge_data_read_extract_control #(
 		end else begin
 			enabled <= enabled_in;
 		end
-	end
-
-////////////////////////////////////////////////////////////////////////////
-//drive inputs
-////////////////////////////////////////////////////////////////////////////
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_data_0_in_latched.valid    <= 0;
-			read_data_0_in_latched_S2.valid <= 0;
-			read_data_1_in_latched.valid    <= 0;
-		end else begin
-			if(enabled) begin
-				read_data_0_in_latched_S2.valid <= read_data_0_in.valid;
-				read_data_0_in_latched.valid    <= read_data_0_in_latched_S2.valid;
-				read_data_1_in_latched.valid    <= read_data_1_in.valid;
-			end
-		end
-	end
-
-	always_ff @(posedge clock) begin
-		read_data_0_in_latched_S2.payload <= read_data_0_in.payload;
-		read_data_0_in_latched.payload    <= read_data_0_in_latched_S2.payload;
-		read_data_1_in_latched.payload    <= read_data_1_in.payload;
 	end
 
 ////////////////////////////////////////////////////////////////////////////
@@ -108,40 +80,6 @@ module cu_edge_data_read_extract_control #(
 	always_ff @(posedge clock) begin
 		edge_data.payload <= edge_data_variable.payload;
 	end
-
-////////////////////////////////////////////////////////////////////////////
-//data request read logic
-////////////////////////////////////////////////////////////////////////////
-
-	assign offset_data_0 = read_data_0_in_latched.payload.cmd.cacheline_offset;
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			read_data_in <= 0;
-			address_rd   <= 0;
-			cu_id_x      <= 0;
-			cu_id_y      <= 0;
-			aux_data     <= 0;
-		end else begin
-			if(enabled) begin
-				if(read_data_0_in_latched.valid && read_data_1_in_latched.valid)begin
-					read_data_in[0:CACHELINE_SIZE_BITS_HF-1]                   <= read_data_0_in_latched.payload.data;
-					read_data_in[CACHELINE_SIZE_BITS_HF:CACHELINE_SIZE_BITS-1] <= read_data_1_in_latched.payload.data;
-					cu_id_x                                                    <= read_data_0_in_latched.payload.cmd.cu_id_x;
-					cu_id_y                                                    <= read_data_0_in_latched.payload.cmd.cu_id_y;
-					address_rd                                                 <= offset_data_0;
-					aux_data                                                   <= read_data_0_in_latched.payload.cmd.aux_data;
-				end else begin
-					read_data_in <= 0;
-					address_rd   <= 0;
-					cu_id_x      <= 0;
-					cu_id_y      <= 0;
-					aux_data     <= 0;
-				end
-			end
-		end
-	end
-
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -167,55 +105,98 @@ module cu_edge_data_read_extract_control #(
 //data extracton logic
 ////////////////////////////////////////////////////////////////////////////
 
-	assign reg_DATA_VARIABLE_ready = reg_DATA_VARIABLE_0_ready && reg_DATA_VARIABLE_1_ready;
+	always_comb begin
+		pair_emit_index = -1;
+		for (i = PAIR_BUFFER_SIZE-1; i >= 0; i--) begin
+			if(read_data_0_ready[i] && read_data_1_ready[i])
+				pair_emit_index = i;
+		end
 
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn) begin
-			reg_DATA_VARIABLE_0          <= 0;
-			reg_DATA_VARIABLE_0_ready    <= 0;
-			reg_DATA_VARIABLE_1          <= 0;
-			reg_DATA_VARIABLE_1_ready    <= 0;
-			edge_data_variable_reg.valid <= 0;
-		end else begin
-			if(read_data_0_in_latched.valid) begin
-				reg_DATA_VARIABLE_0       <= read_data_0_in_latched.payload.data;
-				reg_DATA_VARIABLE_0_ready <= 1;
+		read_data_0_buffer_index = -1;
+		if(read_data_0_in.valid) begin
+			for (i = PAIR_BUFFER_SIZE-1; i >= 0; i--) begin
+				if((read_data_0_ready[i] || read_data_1_ready[i]) &&
+					(read_data_buffer_tag[i] == read_data_0_in.payload.cmd.tag))
+					read_data_0_buffer_index = i;
 			end
-
-			if(read_data_1_in_latched.valid) begin
-				reg_DATA_VARIABLE_1       <= read_data_1_in_latched.payload.data;
-				reg_DATA_VARIABLE_1_ready <= 1;
+			if(read_data_0_buffer_index < 0) begin
+				if((~read_data_0_ready[1] && ~read_data_1_ready[1]) ||
+					(pair_emit_index == 1))
+					read_data_0_buffer_index = 1;
+				if((~read_data_0_ready[0] && ~read_data_1_ready[0]) ||
+					(pair_emit_index == 0))
+					read_data_0_buffer_index = 0;
 			end
+		end
 
-			if(reg_DATA_VARIABLE_ready)begin
-				edge_data_variable_reg.valid <= reg_DATA_VARIABLE_ready;
-
-				if(~read_data_0_in_latched.valid)
-					reg_DATA_VARIABLE_0_ready <= 0;
-
-				if(~read_data_1_in_latched.valid)
-					reg_DATA_VARIABLE_1_ready <= 0;
-
+		read_data_1_buffer_index = -1;
+		if(read_data_1_in.valid) begin
+			if(read_data_0_in.valid &&
+				(read_data_0_in.payload.cmd.tag == read_data_1_in.payload.cmd.tag)) begin
+				read_data_1_buffer_index = read_data_0_buffer_index;
 			end else begin
-				edge_data_variable_reg.valid <= 0;
+				for (i = PAIR_BUFFER_SIZE-1; i >= 0; i--) begin
+					if((read_data_0_ready[i] || read_data_1_ready[i]) &&
+						(read_data_buffer_tag[i] == read_data_1_in.payload.cmd.tag) &&
+						~(read_data_0_in.valid && (i == read_data_0_buffer_index)))
+						read_data_1_buffer_index = i;
+				end
+				if(read_data_1_buffer_index < 0) begin
+					if(((~read_data_0_ready[1] && ~read_data_1_ready[1]) ||
+						(pair_emit_index == 1)) &&
+						~(read_data_0_in.valid && (read_data_0_buffer_index == 1)))
+						read_data_1_buffer_index = 1;
+					if(((~read_data_0_ready[0] && ~read_data_1_ready[0]) ||
+						(pair_emit_index == 0)) &&
+						~(read_data_0_in.valid && (read_data_0_buffer_index == 0)))
+						read_data_1_buffer_index = 0;
+				end
 			end
 		end
 	end
 
-	always_ff @(posedge clock) begin
-		for (i = 0; i < CACHELINE_DATA_READ_NUM_HF; i++) begin
-			if(address_rd == i)begin
-				edge_data_variable_reg.payload.data <= reg_DATA_VARIABLE_0[DATA_SIZE_READ_BITS*i +: DATA_SIZE_READ_BITS];
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_variable_reg.valid <= 0;
+			for (i = 0; i < PAIR_BUFFER_SIZE; i++) begin
+				read_data_0_buffer[i] <= 0;
+				read_data_1_buffer[i] <= 0;
+				read_data_buffer_tag[i] <= 0;
+				read_data_0_ready[i] <= 0;
+				read_data_1_ready[i] <= 0;
+			end
+		end else begin
+			edge_data_variable_reg.valid <= 0;
+
+			if(enabled && (pair_emit_index >= 0)) begin
+				edge_data_variable_reg.valid <= 1;
+				for (i = 0; i < CACHELINE_DATA_READ_NUM_HF; i++) begin
+					if(read_data_0_buffer[pair_emit_index].cmd.cacheline_offset == i)
+						edge_data_variable_reg.payload.data <= read_data_0_buffer[pair_emit_index].data[DATA_SIZE_READ_BITS*i +: DATA_SIZE_READ_BITS];
+				end
+				for (i = 0; i < CACHELINE_DATA_READ_NUM_HF; i++) begin
+					if(read_data_0_buffer[pair_emit_index].cmd.cacheline_offset == (i+CACHELINE_DATA_READ_NUM_HF))
+						edge_data_variable_reg.payload.data <= read_data_1_buffer[pair_emit_index].data[DATA_SIZE_READ_BITS*i +: DATA_SIZE_READ_BITS];
+				end
+				edge_data_variable_reg.payload.cu_id_x <= read_data_0_buffer[pair_emit_index].cmd.cu_id_x;
+				edge_data_variable_reg.payload.cu_id_y <= read_data_0_buffer[pair_emit_index].cmd.cu_id_y;
+				edge_data_variable_reg.payload.weight <= read_data_0_buffer[pair_emit_index].cmd.aux_data;
+				read_data_0_ready[pair_emit_index] <= 0;
+				read_data_1_ready[pair_emit_index] <= 0;
+			end
+
+			if(enabled && read_data_0_in.valid && (read_data_0_buffer_index >= 0)) begin
+				read_data_0_buffer[read_data_0_buffer_index] <= read_data_0_in.payload;
+				read_data_buffer_tag[read_data_0_buffer_index] <= read_data_0_in.payload.cmd.tag;
+				read_data_0_ready[read_data_0_buffer_index] <= 1;
+			end
+
+			if(enabled && read_data_1_in.valid && (read_data_1_buffer_index >= 0)) begin
+				read_data_1_buffer[read_data_1_buffer_index] <= read_data_1_in.payload;
+				read_data_buffer_tag[read_data_1_buffer_index] <= read_data_1_in.payload.cmd.tag;
+				read_data_1_ready[read_data_1_buffer_index] <= 1;
 			end
 		end
-		for (i = 0; i < CACHELINE_DATA_READ_NUM_HF; i++) begin
-			if(address_rd == (i+CACHELINE_DATA_READ_NUM_HF))begin
-				edge_data_variable_reg.payload.data <= reg_DATA_VARIABLE_1[DATA_SIZE_READ_BITS*i +: DATA_SIZE_READ_BITS];
-			end
-		end
-		edge_data_variable_reg.payload.cu_id_x <= cu_id_x;
-		edge_data_variable_reg.payload.cu_id_y <= cu_id_y;
-		edge_data_variable_reg.payload.weight  <= aux_data;
 	end
 
 endmodule

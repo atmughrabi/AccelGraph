@@ -5,9 +5,8 @@
 The current benchmark is stable when host-only checks pass, every CAPI wait is
 bounded, back-to-back CU launches observe reset completion, compatibility
 comparisons pass, and failures identify the algorithm phase and workload.
-Compatibility comparisons are not the future merge oracle; algorithms move
-individually from shadow comparison to strict independent goldens according to
-the verification infrastructure roadmap.
+Compatibility comparisons are not the merge oracle; active algorithms use the
+independent goldens and closure rules in the verification infrastructure.
 
 ## Failure model
 

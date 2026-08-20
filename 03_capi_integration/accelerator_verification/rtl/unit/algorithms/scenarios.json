@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "suite_id": "graph-algorithm-units",
+  "fixture_registry": {
+    "source": "tb/graph_fixture_pkg.sv",
+    "independence": "hand authored source edge lists; CSR / inverse CSR and every expected result are derived inside the fixture package, never by OpenGraph, AccelGraph host code, or DUT functions",
+    "fixtures": [
+      "empty",
+      "single-vertex",
+      "directed-chain",
+      "star",
+      "directed-cycle",
+      "disconnected",
+      "self-loop",
+      "duplicate-edge",
+      "one-triangle",
+      "shared-edge-triangles",
+      "k4",
+      "weighted-toy-matrix",
+      "dangling-sink"
+    ]
+  },
+  "backpressure": {
+    "domains": [
+      "graph.vertex_job",
+      "graph.edge_read",
+      "graph.write",
+      "graph.kernel"
+    ],
+    "masks": 16,
+    "policy": "every stalled domain releases within its bounded period; no permanent stalls"
+  },
+  "families": {
+    "bfs-kernel": {
+      "oracle_id": "independent-bfs-v1",
+      "required_scenarios": [
+        "unreachable vertex",
+        "new frontier at first, middle and last in-neighbour",
+        "isolated vertex with zero inverse degree",
+        "maximum depth chain level sweep",
+        "self loop and duplicate in-edge policy",
+        "in-flight edge suppressed by BREAK_HOLD",
+        "all 16 local backpressure masks",
+        "reset during edge stream and with a buffered write",
+        "repeat round after reset",
+        "wide identifier and parent toggle sweep"
+      ],
+      "required_bins": {
+        "degree_classes": 3,
+        "hit_position_classes": 4,
+        "edge_policy_classes": 2,
+        "backpressure_classes": 4,
+        "reset_repeat_classes": 3,
+        "hold_and_mask_classes": 3,
+        "total": 19
+      },
+      "precision_policy": "exact integer frontier byte and parent identity; the parent must be the first frontier in-neighbour in inverse CSR order"
+    },
+    "pagerank-kernel": {
+      "oracle_id": "independent-pagerank-precision-v1",
+      "required_scenarios": [
+        "zero, single and multi in-degree vertices",
+        "sink and isolated vertex contribution",
+        "wrap and saturation boundary",
+        "mixed contribution rounding",
+        "second iteration over the same fixture",
+        "all 16 local backpressure masks",
+        "reset during accumulation and repeat round"
+      ],
+      "required_bins": {
+        "degree_classes": 3,
+        "contribution_classes": 5,
+        "backpressure_classes": 4,
+        "empty_iteration_reset_classes": 4,
+        "counter_and_stream_classes": 4,
+        "total": 20
+      },
+      "precision_policy": "FixedPoint and Quantized accumulate exactly and wrap modulo 2^DATA_SIZE_WRITE_BITS with no rounding and no saturation; FloatPoint accumulates IEEE-754 binary32 in stream order with one accumulator restart per vertex and a 16 cycle drain"
+    },
+    "spmv-kernel": {
+      "oracle_id": "independent-spmv-precision-v1",
+      "required_scenarios": [
+        "zero row",
+        "weighted row",
+        "product truncation boundary",
+        "accumulator wrap boundary",
+        "all 16 local backpressure masks",
+        "reset during accumulation and repeat round"
+      ],
+      "required_bins": {
+        "degree_classes": 3,
+        "value_classes": 4,
+        "backpressure_classes": 4,
+        "reset_repeat_classes": 3,
+        "counter_classes": 4,
+        "total": 18
+      },
+      "precision_policy": "FixedPoint computes (data * weight) >> SCALEF truncated to DATA_SIZE_READ_BITS then accumulates modulo 2^DATA_SIZE_WRITE_BITS: truncation toward zero, no rounding, no saturation; FloatPoint multiplies and accumulates in IEEE-754 binary32 with the documented 5 cycle multiplier alignment"
+    },
+    "connected-components-kernel": {
+      "oracle_id": "independent-component-partition-v1",
+      "required_scenarios": [
+        "same and different component labels",
+        "hook and update",
+        "stable component with no update",
+        "repeat round",
+        "all 16 local backpressure masks",
+        "reset during a round",
+        "round boundary with a standing continue count"
+      ],
+      "required_bins": {
+        "label_classes": 4,
+        "degree_classes": 3,
+        "backpressure_classes": 4,
+        "reset_repeat_classes": 3,
+        "partition_classes": 4,
+        "round_boundary_classes": 1,
+        "total": 19
+      },
+      "precision_policy": "labels are canonicalised to partitions before comparison; raw representative identifiers are never compared"
+    },
+    "triangle-kernel": {
+      "oracle_id": "independent-triangle-count-v1",
+      "required_scenarios": [
+        "empty neighbour pair slice",
+        "single comparison slice",
+        "no triangle, single triangle, shared edge and K4 normalisation",
+        "hit and definite miss comparisons",
+        "wide identifier boundary",
+        "all 16 local backpressure masks",
+        "reset during a slice and repeat round"
+      ],
+      "required_bins": {
+        "slice_classes": 3,
+        "comparison_classes": 2,
+        "identifier_classes": 2,
+        "triangle_presence": 1,
+        "backpressure_classes": 4,
+        "empty_iteration_reset_classes": 4,
+        "counter_classes": 1,
+        "mask_closure": 1,
+        "total": 18
+      },
+      "precision_policy": "exact per-vertex triangle counts; the host applies the documented normalisation of the summed per-vertex counts"
+    },
+    "algorithm-shells": {
+      "oracle_id": "graph-engine-transaction-scoreboard-v1",
+      "required_scenarios": [
+        "zero, single and burst vertex jobs",
+        "edge pipeline read command generation",
+        "writeback arbitration",
+        "repeat and reset",
+        "all 16 local backpressure masks"
+      ],
+      "required_bins": {
+        "vertex_job_classes": 3,
+        "command_classes": 3,
+        "writeback_classes": 2,
+        "backpressure_classes": 4,
+        "reset_repeat_classes": 2,
+        "total": 14
+      },
+      "precision_policy": "transaction level: vertex job acceptance, read command legality, writeback routing and completion counters"
+    }
+  },
+  "sensitivity": {
+    "policy": "every active context runs its declared source mutations; a mutation that still passes fails the suite",
+    "expected_result": "mutated simulation exits nonzero with the declared diagnostic"
+  }
+}

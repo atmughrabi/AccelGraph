@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "suite_id": "graph-integration",
+  "backpressure": {
+    "domains": [
+      "graph.vertex_job",
+      "graph.edge_job",
+      "graph.edge_read",
+      "graph.write",
+      "graph.kernel"
+    ],
+    "masks": 32,
+    "policy": "every stalled domain releases within its bounded period; permanent stalls are not used"
+  },
+  "families": {
+    "graph-top": {
+      "oracle_id": "graph-round-composed-scoreboard-v1",
+      "required_scenarios": [
+        "all ready baseline reaches cu_done",
+        "exact WED target and progress publication",
+        "command legality for every issued read and write",
+        "topology sweep over tiny fixtures",
+        "all 32 graph stall masks",
+        "repeat rounds back to back",
+        "reset in flight followed by a clean rerun",
+        "every configuration word bit driven with the CU idle",
+        "a round with the AFU read buffer almost full",
+        "a ring graph with more vertices than the top has graph CUs"
+      ],
+      "required_bins": {
+        "completion_classes": 4,
+        "topology_classes": 2,
+        "backpressure_classes": 2,
+        "repeat_reset_classes": 3,
+        "mask_closure": 1,
+        "configuration_classes": 1,
+        "read_buffer_classes": 1,
+        "total": 15,
+        "wide_dispatch_classes": 1
+      },
+      "precision_policy": "transaction level: completion, WED progress, command legality and no dropped or duplicated commands"
+    }
+  },
+  "sensitivity": {
+    "policy": "mutations are declared per context in suites.json",
+    "expected_result": "mutated simulation exits nonzero"
+  }
+}

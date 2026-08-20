@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "family_group": "graph-common",
+  "runner": "03_capi_integration/accelerator_verification/rtl/unit/common/run_common.py",
+  "build_root": "02_capi_graph/obj/rtl_unit_common",
+  "suites": [
+    {
+      "id": "routing-demux",
+      "test_id": "graph-unit-routing-demux",
+      "oracle_id": "graph-route-payload-model-v1",
+      "profile": "routing",
+      "top": "graph_routing_demux_tb",
+      "modules": ["array_struct_type_demux_bus", "demux_bus"],
+      "required_scenarios": [
+        "every input-output route",
+        "every selector encoding including the unassigned ones",
+        "invalid selector",
+        "held payload",
+        "reset and disabled idle",
+        "payload width one and non power of two",
+        "BUS_WIDTH and DATA_WIDTH sweep"
+      ]
+    },
+    {
+      "id": "sum-reduction",
+      "test_id": "graph-unit-sum-reduction",
+      "oracle_id": "graph-arbitrary-precision-sum-v1",
+      "profile": "reduction",
+      "top": "graph_sum_reduce_tb",
+      "modules": ["sum_reduce"],
+      "required_scenarios": [
+        "zero, single and all contributors",
+        "overflow boundaries with an explicit wrap policy",
+        "reset value and hold while disabled",
+        "contributor width one and non power of two",
+        "BUS_WIDTH, DATA_WIDTH_IN and DATA_WIDTH_OUT sweep"
+      ]
+    },
+    {
+      "id": "graph-package-contracts",
+      "test_id": "graph-unit-package-contracts",
+      "oracle_id": "graph-wed-csr-byte-layout-v1",
+      "profile": "routing",
+      "top": "graph_package_contract_tb",
+      "packages": ["WED_PKG", "GLOBALS_CU_PKG", "CU_PKG"],
+      "required_scenarios": [
+        "WED width and pointer offsets",
+        "CSR field maps",
+        "package functions",
+        "precision constants",
+        "C/SystemVerilog ABI"
+      ]
+    }
+  ],
+  "context_denominator": {
+    "rule": "every distinct source hash runs its suite in every active layout context",
+    "source_manifests": [
+      "03_capi_integration/accelerator_verification/rtl/manifests/rtl-inventory.json",
+      "03_capi_integration/accelerator_verification/rtl/manifests/module-test-matrix.json",
+      "03_capi_integration/accelerator_verification/rtl/manifests/layouts.json"
+    ],
+    "active_contexts": 8,
+    "distinct_source_hashes": 19,
+    "declaration_context_executions": 48,
+    "per_declaration": {
+      "array_struct_type_demux_bus": {"hashes": 3, "context_executions": 8},
+      "demux_bus": {"hashes": 1, "context_executions": 8},
+      "sum_reduce": {"hashes": 1, "context_executions": 8},
+      "WED_PKG": {"hashes": 2, "context_executions": 8},
+      "GLOBALS_CU_PKG": {"hashes": 8, "context_executions": 8},
+      "CU_PKG": {"hashes": 4, "context_executions": 8}
+    },
+    "simulator_builds": 24,
+    "build_note": "each layout context elaborates its own WED_PKG, GLOBALS_CU_PKG and CU_PKG, so the three suites are compiled once per context and the routing build covers two module declarations while the package build covers three package declarations"
+  },
+  "instances": {
+    "demux_bus": [
+      {"index": 0, "data_width": 32, "bus_width": 8, "note": "module default parameters"},
+      {"index": 1, "data_width": 1, "bus_width": 1, "note": "single destination and single bit payload; SEL_WIDTH is overridden to 1 because the $clog2(1) default is a null range"},
+      {"index": 2, "data_width": 33, "bus_width": 3, "note": "non power of two payload width and destination count"},
+      {"index": 3, "data_width": 7, "bus_width": 5, "note": "non power of two payload width with three unassigned selector encodings"},
+      {"index": 4, "data_width": 64, "bus_width": 2, "note": "wide payload on the smallest multi destination bus"},
+      {"index": 5, "data_width": "VERTEX_SIZE_BITS", "bus_width": "NUM_GRAPH_CU_GLOBAL", "note": "graph cluster fan out of the layout under test"},
+      {"index": 6, "data_width": "EDGE_SIZE_BITS", "bus_width": "NUM_VERTEX_CU_GLOBAL", "note": "vertex cluster fan out of the layout under test"}
+    ],
+    "array_struct_type_demux_bus": [
+      {"index": 0, "data_width": 32, "bus_width": 2, "note": "module default payload width"},
+      {"index": 1, "data_width": 1, "bus_width": 2, "note": "single bit payload"},
+      {"index": 2, "data_width": 33, "bus_width": 2, "note": "non power of two payload width"}
+    ],
+    "sum_reduce": [
+      {"index": 0, "data_width_in": 32, "data_width_out": 32, "bus_width": 8, "note": "module default parameters"},
+      {"index": 1, "data_width_in": 1, "data_width_out": 1, "bus_width": 1, "note": "single contributor of a single bit"},
+      {"index": 2, "data_width_in": 1, "data_width_out": 1, "bus_width": 3, "note": "single bit contributors on a non power of two bus"},
+      {"index": 3, "data_width_in": 5, "data_width_out": 6, "bus_width": 3, "note": "non power of two widths with a widening output"},
+      {"index": 4, "data_width_in": 8, "data_width_out": 4, "bus_width": 5, "note": "narrowing output that wraps on every full contribution"},
+      {"index": 5, "data_width_in": 4, "data_width_out": 9, "bus_width": 5, "note": "widening output that can never overflow"},
+      {"index": 6, "data_width_in": 32, "data_width_out": 32, "bus_width": 16, "note": "widest reduction tree"},
+      {"index": 7, "data_width_in": "VERTEX_SIZE_BITS", "data_width_out": "VERTEX_SIZE_BITS", "bus_width": "NUM_GRAPH_CU_GLOBAL", "note": "vertex job counter reduction of the layout under test"},
+      {"index": 8, "data_width_in": "EDGE_SIZE_BITS", "data_width_out": "EDGE_SIZE_BITS", "bus_width": "NUM_VERTEX_CU_GLOBAL", "note": "edge job counter reduction of the layout under test"}
+    ]
+  },
+  "bin_rules": {
+    "demux_bus": "2 bins per selector encoding (qualified and idle), plus reset_flush, payload_zero, payload_ones and payload_held, plus invalid_sel_no_destination when the selector space is wider than the destination count",
+    "array_struct_type_demux_bus": "2 bins per enum literal (qualified and idle), plus the same 2 bins for the first unassigned encoding and for the all ones encoding, plus reset_flush, payload_zero, payload_ones and payload_held",
+    "sum_reduce": "all_zero, single_first, all_contributors_max, disabled_hold, enable_pulse and reset_clear always apply; single_last applies when the bus has more than one contributor; exact_output_maximum, wrap_once and wrap_multiple apply only when BUS_WIDTH*(2**DATA_WIDTH_IN-1) can reach 2**DATA_WIDTH_OUT-1, 2**DATA_WIDTH_OUT and 2**(DATA_WIDTH_OUT+1)",
+    "graph-package-contracts": "23 fixed contract bins, one request size bin per reachable rounding step (zero plus every power of two between VERTEX_SIZE and 128), one bin per exported endianness function, plus the descriptor extension and precision profile bins that the layout declares"
+  },
+  "route_tables": {
+    "3058b8f8b0595afaaad937faf86c094f646217fcc4ba2825fa5fd40674d7efe5": {
+      "layouts": ["cu_BFS_CSR_PULL_BottomUp", "cu_PageRank_CSR_PULL_FixedPoint", "cu_PageRank_CSR_PULL_FloatPoint", "cu_PageRank_CSR_PULL_Quantized"],
+      "destination_0": ["INV_EDGE_ARRAY_DEST"],
+      "destination_1": ["READ_GRAPH_DATA"]
+    },
+    "70e4678b7625f038074bb54015604d4d94390e406bf60ef0349d8c416d07b5c6": {
+      "layouts": ["cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"],
+      "destination_0": ["EDGE_ARRAY_DEST"],
+      "destination_1": ["READ_GRAPH_DATA", "READ_GRAPH_DATA_SRC", "READ_GRAPH_DATA_DEST", "READ_GRAPH_DATA_HIGH"]
+    },
+    "ed0b2e6c5f20e3caac0977299ff2c6e8f2fe121bbe6f7b064b5e6cd1255431fc": {
+      "layouts": ["cu_SPMV_CSR_PULL_FixedPoint", "cu_SPMV_CSR_PULL_FloatPoint", "cu_TriangleCount_CSR_BinaryIntersection_Binary"],
+      "destination_0": ["INV_EDGE_ARRAY_DEST", "INV_EDGE_ARRAY_WEIGHT"],
+      "destination_1": ["READ_GRAPH_DATA"]
+    }
+  },
+  "cu_pkg_contracts": {
+    "bfe8d0e8ca88ba2699e69d558e4b790eb0377a2cf820d9d82e816498349afd80": {
+      "layouts": ["cu_BFS_CSR_PULL_BottomUp"],
+      "array_struct_type": ["STRUCT_INVALID", "INV_OUT_DEGREE", "INV_EDGES_IDX", "VERTEX_PARENTS_READ", "VERTEX_PARENTS_WRITE", "INV_EDGE_ARRAY_DEST", "READ_GRAPH_DATA", "WRITE_GRAPH_DATA", "WRITE_GRAPH_DATA_PARENT"],
+      "functions": ["swap_endianness_data_write", "swap_endianness_parent_data_write", "swap_endianness_data_read", "swap_endianness_parent_data_read", "swap_endianness_vertex_read", "swap_endianness_edge_read", "cmd_size_calculate"],
+      "endianness_functions": {
+        "swap_endianness_data_write": "DATA_SIZE_WRITE",
+        "swap_endianness_parent_data_write": "DATA_SIZE_WRITE_PARENT",
+        "swap_endianness_data_read": "DATA_SIZE_READ",
+        "swap_endianness_parent_data_read": "DATA_SIZE_READ_PARENT",
+        "swap_endianness_vertex_read": "VERTEX_SIZE",
+        "swap_endianness_edge_read": "EDGE_SIZE"
+      },
+      "types": {
+        "VertexInterfacePayload": [["id", "VERTEX_SIZE_BITS"], ["inverse_out_degree", "VERTEX_SIZE_BITS"], ["inverse_edges_idx", "VERTEX_SIZE_BITS"], ["parent", "DATA_SIZE_READ_PARENT_BITS"]],
+        "EdgeInterfacePayload": [["id", "EDGE_SIZE_BITS"], ["src", "EDGE_SIZE_BITS"], ["dest", "EDGE_SIZE_BITS"]],
+        "EdgeDataReadPayload": [["cu_id_x", "CU_ID_RANGE"], ["cu_id_y", "CU_ID_RANGE"], ["data", "DATA_SIZE_READ_BITS"], ["src", "EDGE_SIZE_BITS"], ["dest", "EDGE_SIZE_BITS"]],
+        "EdgeDataWritePayload": [["cu_id_x", "CU_ID_RANGE"], ["cu_id_y", "CU_ID_RANGE"], ["index", "EDGE_SIZE_BITS"], ["data_1", "DATA_SIZE_WRITE_BITS"], ["data_2", "DATA_SIZE_WRITE_PARENT_BITS"]]
+      },
+      "wrappers": {
+        "VertexInterface": "VertexInterfacePayload",
+        "EdgeInterface": "EdgeInterfacePayload",
+        "EdgeDataRead": "EdgeDataReadPayload",
+        "EdgeDataWrite": "EdgeDataWritePayload"
+      }
+    },
+    "9e32eff7acbfd6f45b6b93a57cd69f12623e9f29a04bca1ff1a5e30f4aba5fa5": {
+      "layouts": ["cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin"],
+      "array_struct_type": ["STRUCT_INVALID", "OUT_DEGREE", "EDGES_IDX", "EDGE_ARRAY_DEST", "READ_GRAPH_DATA", "READ_GRAPH_DATA_SRC", "READ_GRAPH_DATA_DEST", "READ_GRAPH_DATA_HIGH", "WRITE_GRAPH_DATA"],
+      "functions": ["swap_endianness_data_write", "swap_endianness_data_read", "swap_endianness_vertex_read", "swap_endianness_edge_read", "cmd_size_calculate"],
+      "endianness_functions": {
+        "swap_endianness_data_write": "DATA_SIZE_WRITE",
+        "swap_endianness_data_read": "DATA_SIZE_READ",
+        "swap_endianness_vertex_read": "VERTEX_SIZE",
+        "swap_endianness_edge_read": "EDGE_SIZE"
+      },
+      "types": {
+        "VertexInterfacePayload": [["id", "VERTEX_SIZE_BITS"], ["out_degree", "VERTEX_SIZE_BITS"], ["edges_idx", "VERTEX_SIZE_BITS"]],
+        "EdgeInterfacePayload": [["id", "EDGE_SIZE_BITS"], ["src", "EDGE_SIZE_BITS"], ["dest", "EDGE_SIZE_BITS"]],
+        "EdgeDataReadPayload": [["cu_id_x", "CU_ID_RANGE"], ["cu_id_y", "CU_ID_RANGE"], ["data", "DATA_SIZE_READ_BITS"], ["array_struct", "ARRAY_STRUCT_TYPE_BITS"]],
+        "EdgeDataWritePayload": [["cu_id_x", "CU_ID_RANGE"], ["cu_id_y", "CU_ID_RANGE"], ["index", "EDGE_SIZE_BITS"], ["data", "DATA_SIZE_WRITE_BITS"]],
+        "EdgeComponentPayload": [["comp_src", "DATA_SIZE_READ_BITS"], ["comp_dest", "DATA_SIZE_READ_BITS"]],
+        "EdgeComponentUpdatePayload": [["comp_high", "DATA_SIZE_READ_BITS"], ["comp_low", "DATA_SIZE_READ_BITS"], ["comp_comp_high", "DATA_SIZE_READ_BITS"]]
+      },
+      "wrappers": {
+        "VertexInterface": "VertexInterfacePayload",
+        "EdgeInterface": "EdgeInterfacePayload",
+        "EdgeDataRead": "EdgeDataReadPayload",
+        "EdgeDataWrite": "EdgeDataWritePayload",
+        "EdgeComponentRead": "EdgeComponentPayload",
+        "EdgeComponentUpdate": "EdgeComponentUpdatePayload"
+      }
+    },
+    "983791e0fcfea2407beded30d5d1853848fc081898a6870fd3694e0395721455": {
+      "layouts": ["cu_PageRank_CSR_PULL_FixedPoint", "cu_PageRank_CSR_PULL_FloatPoint", "cu_PageRank_CSR_PULL_Quantized"],
+      "array_struct_type": ["STRUCT_INVALID", "INV_OUT_DEGREE", "INV_EDGES_IDX", "INV_EDGE_ARRAY_DEST", "READ_GRAPH_DATA", "WRITE_GRAPH_DATA"],
+      "functions": ["swap_endianness_data_write", "swap_endianness_data_read", "swap_endianness_vertex_read", "swap_endianness_edge_read", "cmd_size_calculate"],
+      "endianness_functions": {
+        "swap_endianness_data_write": "DATA_SIZE_WRITE",
+        "swap_endianness_data_read": "DATA_SIZE_READ",
+        "swap_endianness_vertex_read": "VERTEX_SIZE",
+        "swap_endianness_edge_read": "EDGE_SIZE"
+      },
+      "types": {
+        "VertexInterfacePayload": [["id", "VERTEX_SIZE_BITS"], ["inverse_out_degree", "VERTEX_SIZE_BITS"], ["inverse_edges_idx", "VERTEX_SIZE_BITS"]],
+        "EdgeInterfacePayload": [["id", "EDGE_SIZE_BITS"], ["src", "EDGE_SIZE_BITS"], ["dest", "EDGE_SIZE_BITS"]],
+        "EdgeDataReadPayload": [["cu_id_x", "CU_ID_RANGE"], ["cu_id_y", "CU_ID_RANGE"], ["data", "DATA_SIZE_READ_BITS"]],
+        "EdgeDataWritePayload": [["cu_id_x", "CU_ID_RANGE"], ["cu_id_y", "CU_ID_RANGE"], ["index", "EDGE_SIZE_BITS"], ["data", "DATA_SIZE_WRITE_BITS"]]
+      },
+      "wrappers": {
+        "VertexInterface": "VertexInterfacePayload",
+        "EdgeInterface": "EdgeInterfacePayload",
+        "EdgeDataRead": "EdgeDataReadPayload",
+        "EdgeDataWrite": "EdgeDataWritePayload"
+      }
+    },
+    "9817d53de63f2fe984ebe156bdb4af0a91d40f3f744de2832269256b9e77ae3e": {
+      "layouts": ["cu_SPMV_CSR_PULL_FixedPoint", "cu_SPMV_CSR_PULL_FloatPoint", "cu_TriangleCount_CSR_BinaryIntersection_Binary"],
+      "array_struct_type": ["STRUCT_INVALID", "INV_OUT_DEGREE", "INV_EDGES_IDX", "INV_EDGE_ARRAY_WEIGHT", "INV_EDGE_ARRAY_DEST", "READ_GRAPH_DATA", "WRITE_GRAPH_DATA"],
+      "functions": ["swap_endianness_data_write", "swap_endianness_data_read", "swap_endianness_vertex_read", "swap_endianness_edge_read", "swap_endianness_edge_weight_read", "cmd_size_calculate"],
+      "endianness_functions": {
+        "swap_endianness_data_write": "DATA_SIZE_WRITE",
+        "swap_endianness_data_read": "DATA_SIZE_READ",
+        "swap_endianness_vertex_read": "VERTEX_SIZE",
+        "swap_endianness_edge_read": "EDGE_SIZE",
+        "swap_endianness_edge_weight_read": "EDGE_WEIGHT_SIZE"
+      },
+      "types": {
+        "VertexInterfacePayload": [["id", "VERTEX_SIZE_BITS"], ["inverse_out_degree", "VERTEX_SIZE_BITS"], ["inverse_edges_idx", "VERTEX_SIZE_BITS"]],
+        "EdgeInterfacePayload": [["id", "EDGE_SIZE_BITS"], ["src", "EDGE_SIZE_BITS"], ["dest", "EDGE_SIZE_BITS"], ["weight", "EDGE_WEIGHT_SIZE_BITS"]],
+        "EdgeDataReadPayload": [["cu_id_x", "CU_ID_RANGE"], ["cu_id_y", "CU_ID_RANGE"], ["data", "DATA_SIZE_READ_BITS"], ["weight", "EDGE_WEIGHT_SIZE_BITS"]],
+        "EdgeDataWritePayload": [["cu_id_x", "CU_ID_RANGE"], ["cu_id_y", "CU_ID_RANGE"], ["index", "EDGE_SIZE_BITS"], ["data", "DATA_SIZE_WRITE_BITS"]]
+      },
+      "wrappers": {
+        "VertexInterface": "VertexInterfacePayload",
+        "EdgeInterface": "EdgeInterfacePayload",
+        "EdgeDataRead": "EdgeDataReadPayload",
+        "EdgeDataWrite": "EdgeDataWritePayload"
+      }
+    }
+  },
+  "wed_pkg_contracts": {
+    "627c3b96086095ac2b0c9566519dfd8389ff27cbdd9f0d0cf7c13189a4836541": {
+      "layouts": ["cu_BFS_CSR_PULL_BottomUp"],
+      "request_bits": 1152,
+      "auxiliary_extension": ["auxiliary3", "auxiliary4"],
+      "note": "BFS carries 16 descriptor bytes that the 128 byte cacheline cannot deliver, so the mapping function forces them to zero"
+    },
+    "0d7837c46c10ff50a705fd08001d13ab280f30d107875ff2e301ee14f3680dc8": {
+      "layouts": ["cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin", "cu_PageRank_CSR_PULL_FixedPoint", "cu_PageRank_CSR_PULL_FloatPoint", "cu_PageRank_CSR_PULL_Quantized", "cu_SPMV_CSR_PULL_FixedPoint", "cu_SPMV_CSR_PULL_FloatPoint", "cu_TriangleCount_CSR_BinaryIntersection_Binary"],
+      "request_bits": 1024,
+      "auxiliary_extension": [],
+      "note": "descriptor is exactly the 128 mapped bytes"
+    }
+  },
+  "wed_c_abi": {
+    "header": "02_capi_graph/include/capi_utils/capienv.h",
+    "structure": "WEDGraphCSR",
+    "attribute": "packed",
+    "total_bytes": 128,
+    "type_bytes": {"uint32_t": 4, "float": 4, "void *": 8, "uint64_t": 8},
+    "fields": [
+      ["num_edges", "uint32_t"],
+      ["num_vertices", "uint32_t"],
+      ["max_weight", "float"],
+      ["auxiliary0", "uint32_t"],
+      ["vertex_out_degree", "void *"],
+      ["vertex_in_degree", "void *"],
+      ["vertex_edges_idx", "void *"],
+      ["edges_array_weight", "void *"],
+      ["edges_array_src", "void *"],
+      ["edges_array_dest", "void *"],
+      ["inverse_vertex_out_degree", "void *"],
+      ["inverse_vertex_in_degree", "void *"],
+      ["inverse_vertex_edges_idx", "void *"],
+      ["inverse_edges_array_weight", "void *"],
+      ["inverse_edges_array_src", "void *"],
+      ["inverse_edges_array_dest", "void *"],
+      ["auxiliary1", "void *"],
+      ["auxiliary2", "void *"]
+    ]
+  },
+  "globals_cu_pkg_contracts": {
+    "cu_BFS_CSR_PULL_BottomUp": {
+      "profile": "bfs_parent",
+      "constants": {"VERTEX_SIZE": 4, "EDGE_SIZE": 4, "DATA_SIZE_READ": 1, "DATA_SIZE_WRITE": 1, "DATA_SIZE_READ_PARENT": 4, "DATA_SIZE_WRITE_PARENT": 4}
+    },
+    "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin": {
+      "profile": "base",
+      "constants": {"VERTEX_SIZE": 4, "EDGE_SIZE": 4, "DATA_SIZE_READ": 4, "DATA_SIZE_WRITE": 4}
+    },
+    "cu_PageRank_CSR_PULL_FixedPoint": {
+      "profile": "base",
+      "constants": {"VERTEX_SIZE": 4, "EDGE_SIZE": 4, "DATA_SIZE_READ": 8, "DATA_SIZE_WRITE": 8}
+    },
+    "cu_PageRank_CSR_PULL_FloatPoint": {
+      "profile": "base",
+      "constants": {"VERTEX_SIZE": 4, "EDGE_SIZE": 4, "DATA_SIZE_READ": 4, "DATA_SIZE_WRITE": 4}
+    },
+    "cu_PageRank_CSR_PULL_Quantized": {
+      "profile": "base",
+      "constants": {"VERTEX_SIZE": 4, "EDGE_SIZE": 4, "DATA_SIZE_READ": 4, "DATA_SIZE_WRITE": 8}
+    },
+    "cu_SPMV_CSR_PULL_FixedPoint": {
+      "profile": "weighted",
+      "constants": {"VERTEX_SIZE": 4, "EDGE_SIZE": 4, "DATA_SIZE_READ": 4, "DATA_SIZE_WRITE": 8, "EDGE_WEIGHT_SIZE": 4, "SCALEF": 16}
+    },
+    "cu_SPMV_CSR_PULL_FloatPoint": {
+      "profile": "weighted",
+      "constants": {"VERTEX_SIZE": 4, "EDGE_SIZE": 4, "DATA_SIZE_READ": 4, "DATA_SIZE_WRITE": 4, "EDGE_WEIGHT_SIZE": 4, "SCALEF": 16}
+    },
+    "cu_TriangleCount_CSR_BinaryIntersection_Binary": {
+      "profile": "weighted",
+      "constants": {"VERTEX_SIZE": 4, "EDGE_SIZE": 4, "DATA_SIZE_READ": 4, "DATA_SIZE_WRITE": 8, "EDGE_WEIGHT_SIZE": 4, "SCALEF": 16}
+    }
+  },
+  "globals_cu_pkg_profiles": {
+    "base": ["ADDRESS_ARRAY_ALIGN_MASK", "ADDRESS_ARRAY_MOD_MASK", "ADDRESS_DATA_READ_ALIGN_MASK", "ADDRESS_DATA_READ_MOD_MASK", "ADDRESS_DATA_WRITE_ALIGN_MASK", "ADDRESS_DATA_WRITE_MOD_MASK", "ADDRESS_EDGE_ALIGN_MASK", "ADDRESS_EDGE_MOD_MASK", "CACHELINE_DATA_READ_NUM", "CACHELINE_DATA_READ_NUM_BITS", "CACHELINE_DATA_READ_NUM_HF", "CACHELINE_DATA_WRITE_NUM", "CACHELINE_DATA_WRITE_NUM_HF", "CACHELINE_EDGE_NUM", "CACHELINE_EDGE_NUM_HF", "CACHELINE_INT_COUNTER_BITS", "CACHELINE_VERTEX_NUM", "CACHELINE_VERTEX_NUM_HF", "CU_EDGE_JOB_BUFFER_SIZE", "CU_VERTEX_JOB_BUFFER_SIZE", "DATA_SIZE_READ", "DATA_SIZE_READ_BITS", "DATA_SIZE_WRITE", "DATA_SIZE_WRITE_BITS", "EDGE_DATA_READ_CONTROL_ID", "EDGE_DATA_WRITE_CONTROL_ID", "EDGE_NULL_BITS", "EDGE_SIZE", "EDGE_SIZE_BITS", "NUM_GRAPH_CU_GLOBAL", "NUM_VERTEX_CU_GLOBAL", "PREFETCH_CONTROL_ID", "VERTEX_CONTROL_ID", "VERTEX_NULL_BITS", "VERTEX_SIZE", "VERTEX_SIZE_BITS"],
+    "bfs_parent": ["CACHELINE_DATA_READ_PARENT_NUM", "CACHELINE_DATA_READ_PARENT_NUM_HF", "CACHELINE_DATA_WRITE_PARENT_NUM", "CACHELINE_DATA_WRITE_PARENT_NUM_HF", "DATA_SIZE_READ_PARENT", "DATA_SIZE_READ_PARENT_BITS", "DATA_SIZE_READ_PARENT_NULL_BITS", "DATA_SIZE_WRITE_PARENT", "DATA_SIZE_WRITE_PARENT_BITS"],
+    "weighted": ["CACHELINE_EDGE_WEIGHT_NUM", "CACHELINE_EDGE_WEIGHT_NUM_HF", "EDGE_WEIGHT_NULL_BITS", "EDGE_WEIGHT_SIZE", "EDGE_WEIGHT_SIZE_BITS", "SCALEF"]
+  },
+  "symbolic_widths": {
+    "CU_ID_RANGE": "GLOBALS_AFU_PKG::CU_ID_RANGE",
+    "ARRAY_STRUCT_TYPE_BITS": 32,
+    "note": "array_struct_type is an int unsigned enumeration, so every literal is 32 bits wide"
+  },
+  "stimulus": {
+    "routing": {
+      "selector_sweep": 256,
+      "payload_patterns": ["all zero", "all ones", "alternating exclusive or of the selector", "additive pseudo random"],
+      "phases": ["reset and disabled idle", "selector sweep with and without a qualifier", "unassigned struct encodings", "held payload across the selector space", "reset with traffic in flight"]
+    },
+    "reduction": {
+      "phases": ["reset and disabled idle", "zero contributors", "one hot contributor per lane at one and at the lane maximum", "all contributors at maximum", "per instance overflow boundaries", "hold while disabled", "single cycle enable pulse", "reset with a non zero accumulation"],
+      "overflow_targets": ["2**OUT-1", "2**OUT", "2**OUT+1", "2**(OUT+1)", "2**(OUT+1)+3"]
+    },
+    "package": {
+      "descriptor_patterns": ["all zero", "all ones", "byte index ramp", "multiplicative mixed"],
+      "request_size_sweep": 320,
+      "request_size_wrap": "vertex counter that overflows the byte counter",
+      "cabt_encodings": 8
+    }
+  },
+  "sensitivity": {
+    "policy": "every distinct source hash in scope is mutated in one representative context and the mutant must fail with the expected diagnostic",
+    "mutations": {
+      "demux_bus": [
+        {"id": "route-selector-inverted", "pattern": "if\\(sel_in_internal == i\\)begin", "replacement": "if(sel_in_internal != i)begin", "diagnostic": "route qualifier mismatch"},
+        {"id": "route-payload-inverted", "pattern": "data_out_internal\\[i\\] <= data_in_internal;", "replacement": "data_out_internal[i] <= ~data_in_internal;", "diagnostic": "route payload mismatch"},
+        {"id": "route-qualifier-forced", "pattern": "data_out_valid_internal\\[i\\] <= data_in_valid_internal;", "replacement": "data_out_valid_internal[i] <= 1'b1;", "diagnostic": "route qualifier mismatch"}
+      ],
+      "array_struct_type_demux_bus": [
+        {"id": "struct-destination-0-dropped", "pattern": "data_out_valid_internal\\[0\\] <= data_in_valid_internal;", "replacement": "data_out_valid_internal[0] <= 1'b0;", "diagnostic": "route qualifier mismatch"},
+        {"id": "struct-payload-inverted", "pattern": "data_out_internal\\[0\\] <= data_in_internal;", "replacement": "data_out_internal[0] <= ~data_in_internal;", "diagnostic": "route payload mismatch"},
+        {"id": "struct-unassigned-selector-routed", "pattern": "default : begin\\s*\\n\\s*data_out_valid_internal\\[0\\] <= 0;", "replacement": "default : begin\n\t\t\t\t\tdata_out_valid_internal[0] <= data_in_valid_internal;", "diagnostic": "route qualifier mismatch"}
+      ],
+      "sum_reduce": [
+        {"id": "reduction-term-dropped", "pattern": "total_sum_out_latched = total_sum_out_latched \\+ partial_sums_in_latched\\[j\\];", "replacement": "total_sum_out_latched = total_sum_out_latched;", "diagnostic": "reduction mismatch"},
+        {"id": "reduction-enable-ignored", "pattern": "if\\(enabled\\[i\\]\\) begin", "replacement": "if(1'b1) begin", "diagnostic": "reduction mismatch"},
+        {"id": "reduction-reset-value", "pattern": "total_sum_out <= 0;", "replacement": "total_sum_out <= 1;", "diagnostic": "reduction mismatch"}
+      ],
+      "WED_PKG": [
+        {"id": "descriptor-field-offset-shifted", "pattern": "swap_endianness_word\\(in\\[0:31\\]\\)", "replacement": "swap_endianness_word(in[32:63])", "diagnostic": "map.num_edges"},
+        {"id": "descriptor-cabt-decode-swapped", "pattern": "cabt = PAGE;", "replacement": "cabt = ABORT;", "diagnostic": "map_CABT"}
+      ],
+      "CU_PKG": [
+        {"id": "endianness-swap-disabled", "pattern": "out\\[i\\*8 \\+: 8\\] = in\\[\\(\\(VERTEX_SIZE_BITS-1\\)-\\(i\\*8\\)\\) -:8\\];", "replacement": "out[i*8 +: 8] = in[(i*8) +: 8];", "diagnostic": "swap_endianness_vertex_read"},
+        {"id": "request-size-threshold-shifted", "pattern": "if \\(vertex_num_size > 64\\)", "replacement": "if (vertex_num_size > 63)", "diagnostic": "cmd_size_calculate"}
+      ],
+      "GLOBALS_CU_PKG": [
+        {"id": "layout-graph-cu-count", "pattern": "parameter NUM_GRAPH_CU_GLOBAL(\\s+)= (\\d+);", "replacement": "parameter NUM_GRAPH_CU_GLOBAL\\1= 7;", "diagnostic": "NUM_GRAPH_CU_GLOBAL"},
+        {"id": "vertex-width-derivation", "pattern": "parameter VERTEX_SIZE_BITS(\\s+)= VERTEX_SIZE \\* 8", "replacement": "parameter VERTEX_SIZE_BITS\\1= VERTEX_SIZE * 4", "diagnostic": "VERTEX_SIZE_BITS"}
+      ]
+    }
+  }
+}

@@ -25,11 +25,55 @@
 
 ## CAPI coverage
 
-The repository contains CAPI paths for BFS, PageRank, SPMV, connected
-components, and triangle counting. Some source files also contain incomplete or
-research-stage paths; the README task matrix remains authoritative for support
-status. CU selection is determined by data structure, algorithm, direction, and
-precision in `05_scripts/choose_algorithm_*.py`.
+The active layout manifest is authoritative:
+
+| Algorithm | Active layout |
+| --- | --- |
+| BFS | CSR PULL BottomUp |
+| PageRank | CSR PULL FloatPoint, FixedPoint, Quantized |
+| SPMV | CSR PULL FloatPoint, FixedPoint |
+| Connected components | CSR ShiloachVishkin |
+| Triangle counting | CSR BinaryIntersection |
+
+PageRank PUSH FloatPoint, FixedPoint, and Quantized remain exact expected
+failures until their missing RTL source sets are restored. Other
+research-stage source paths are not active accelerator support. CU selection
+is determined by data structure, algorithm, direction, and precision in
+`05_scripts/choose_algorithm_*.py`.
+
+Current portable real-top evidence limits PageRank PULL, SPMV PULL, and
+TriangleCount to `-K1`. ConnectedComponents passes its full topology; the
+multi-CU ring blocker for the other layouts is recorded in
+[Verification infrastructure](https://github.com/atmughrabi/AccelGraph/wiki/Verification-Infrastructure).
+
+## Common options
+
+| Option | Purpose |
+| --- | --- |
+| `-f` | Input graph |
+| `-z` | Input format: text edge list, binary edge list, or binary CSR |
+| `-d` | Graph data structure |
+| `-a` | Algorithm |
+| `-p` | Pull, push, or hybrid direction |
+| `-r` | Root vertex for traversal algorithms |
+| `-i` | Iteration count |
+| `-n`, `-N`, `-K` | Preprocessing, algorithm, and accelerator-kernel thread/CU counts |
+| `-l`, `-L`, `-O` | First, second, and third reorder stages |
+| `-C` | Cache-size model |
+| `-M` | Cache-mask mode |
+| `-t` | Trial count |
+| `-e` | Numeric tolerance |
+| `-b` | Delta for delta-stepping workloads |
+| `-s` | Symmetrize the graph |
+| `-w` | Load or generate weights |
+
+Pass custom arguments through the existing Make targets, for example:
+
+```console
+make run-openmp ARGS='-f <graph> -z 1 -d 0 -a 0 -p 0 -r 0 -N 8 -t 1'
+```
+
+The selected binary's `--help` output is the exact parser reference.
 
 ## Evidence for a benchmark result
 

@@ -11,6 +11,7 @@ accelgraph.sublime-workspace
 
 nohup.out
 .qsys_edit
+/report.*.json
 
 03_capi_integration/synthesize_*
 03_capi_integration/accelerator_sim/sim/modelsim.ini

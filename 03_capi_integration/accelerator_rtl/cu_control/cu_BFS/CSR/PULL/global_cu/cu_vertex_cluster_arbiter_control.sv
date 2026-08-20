@@ -109,6 +109,12 @@ module cu_vertex_cluster_arbiter_control #(
 	CommandBufferLine        read_command_out_internal                               ;
 	CommandBufferLine        read_command_out_cu_in_latched        [0:NUM_GRAPH_CU-1];
 	logic [NUM_GRAPH_CU-1:0] read_command_out_cu_in_latched_submit                   ;
+	logic [NUM_GRAPH_CU-1:0] read_command_owner                                      ;
+	logic [NUM_GRAPH_CU-1:0] read_command_select                                     ;
+	integer                  read_command_priority                                   ;
+	integer                  read_command_candidate                                  ;
+	integer                  read_command_comb_loop                                  ;
+	integer                  read_command_seq_loop                                   ;
 
 
 	BufferStatus             write_buffer_status_latched                              ;
@@ -125,18 +131,28 @@ module cu_vertex_cluster_arbiter_control #(
 	EdgeDataWrite            edge_data_write_arbiter_out_latched                        ;
 	EdgeDataWrite            edge_data_write_cu_in_latched            [0:NUM_GRAPH_CU-1];
 	logic [NUM_GRAPH_CU-1:0] edge_data_write_arbiter_cu_submit                          ;
+	logic [NUM_GRAPH_CU-1:0] edge_data_write_owner                                      ;
+	logic [NUM_GRAPH_CU-1:0] edge_data_write_select                                     ;
+	integer                  edge_data_write_priority                                   ;
+	integer                  edge_data_write_candidate                                  ;
+	integer                  edge_data_write_comb_loop                                  ;
+	integer                  edge_data_write_seq_loop                                   ;
 
 
 	BufferStatus             vertex_buffer_status_internal                     ;
 	VertexInterface          vertex_job_buffer_out                             ;
-	VertexInterface          vertex_job_arbiter_in                             ;
-	logic [NUM_GRAPH_CU-1:0] ready_vertex_job_cu                               ;
 	logic                    vertex_request_internal                           ;
 	logic [NUM_GRAPH_CU-1:0] request_vertex_job_cu_internal                    ;
+	logic                    vertex_dispatch_armed                             ;
+	logic [NUM_GRAPH_CU-1:0] vertex_dispatch_grant                             ;
 	VertexInterface          vertex_job_latched                                ;
 	VertexInterface          vertex_job_cu_out_latched       [0:NUM_GRAPH_CU-1];
 	logic                    vertex_job_request_latched                        ;
 	logic [NUM_GRAPH_CU-1:0] vertex_job_request_cu_in_latched                  ;
+	integer                  vertex_dispatch_priority                          ;
+	integer                  vertex_dispatch_candidate                         ;
+	integer                  vertex_dispatch_comb_loop                         ;
+	integer                  vertex_dispatch_seq_loop                          ;
 
 
 	logic read_command_bus_request_pop ;
@@ -510,19 +526,57 @@ module cu_vertex_cluster_arbiter_control #(
 	// Read Command Arbitration
 	////////////////////////////////////////////////////////////////////////////
 
-	round_robin_priority_arbiter_N_input_1_ouput #(
-		.NUM_REQUESTS(NUM_GRAPH_CU            ),
-		.WIDTH       ($bits(CommandBufferLine))
-	) round_robin_priority_arbiter_N_input_1_ouput_read_command_cu (
-		.clock      (clock                                 ),
-		.rstn       (rstn                                  ),
-		.enabled    (enabled                               ),
-		.buffer_in  (read_command_out_cu_in_latched        ),
-		.submit     (read_command_out_cu_in_latched_submit ),
-		.requests   (read_command_bus_request_cu_in_latched),
-		.arbiter_out(read_command_out_internal             ),
-		.ready      (read_command_bus_grant_cu_out_latched )
-	);
+	always_comb begin
+		read_command_select = 0;
+		read_command_candidate = 0;
+		for (read_command_comb_loop = 0; read_command_comb_loop < NUM_GRAPH_CU; read_command_comb_loop++) begin
+			read_command_candidate = (read_command_priority + read_command_comb_loop) % NUM_GRAPH_CU;
+			if((~(|read_command_select)) &&
+				read_command_bus_request_cu_in_latched[read_command_candidate] &&
+				enable_cu_out_latched[read_command_candidate])
+				read_command_select[read_command_candidate] = 1;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			read_command_owner <= 0;
+			read_command_bus_grant_cu_out_latched <= 0;
+			read_command_out_internal <= 0;
+			read_command_priority <= 0;
+		end else begin
+			read_command_out_internal.valid <= 0;
+			read_command_bus_grant_cu_out_latched <= 0;
+			if(enabled) begin
+				if(|read_command_owner) begin
+					if(|(read_command_owner & read_command_out_cu_in_latched_submit)) begin
+						for (read_command_seq_loop = 0; read_command_seq_loop < NUM_GRAPH_CU; read_command_seq_loop++) begin
+							if(read_command_owner[read_command_seq_loop] &&
+								read_command_out_cu_in_latched_submit[read_command_seq_loop]) begin
+								read_command_out_internal <= read_command_out_cu_in_latched[read_command_seq_loop];
+								read_command_priority <= (read_command_seq_loop + 1) % NUM_GRAPH_CU;
+							end
+						end
+						read_command_owner <= 0;
+					end
+				end else if((|read_command_select) &&
+					~read_buffer_status_cu_out_internal.alfull) begin
+					// The grant of a new owner is masked one stage later by the
+					// almost full flag of this command buffer, and that flag
+					// travels to the cluster through the same register stages as
+					// the grant, so ownership is only taken while the buffer has
+					// room.  Taking it while the buffer is almost full hands out
+					// a grant the cluster never observes and leaves the bus
+					// waiting for a submit that can never arrive.
+					read_command_owner <= read_command_select;
+					read_command_bus_grant_cu_out_latched <= read_command_select;
+				end
+			end else begin
+				read_command_owner <= 0;
+				read_command_bus_grant_cu_out_latched <= 0;
+			end
+		end
+	end
 
 	////////////////////////////////////////////////////////////////////////////
 	// read command CU Buffers
@@ -591,19 +645,53 @@ module cu_vertex_cluster_arbiter_control #(
 	// Vertex CU Write Command/Data Arbitration
 	////////////////////////////////////////////////////////////////////////////
 
-	round_robin_priority_arbiter_N_input_1_ouput #(
-		.NUM_REQUESTS(NUM_GRAPH_CU       ),
-		.WIDTH       ($bits(EdgeDataWrite))
-	) round_robin_priority_arbiter_N_input_1_ouput_edge_data_write_cu (
-		.clock      (clock                            ),
-		.rstn       (rstn                             ),
-		.enabled    (enabled                          ),
-		.buffer_in  (edge_data_write_cu_in_latched    ),
-		.submit     (edge_data_write_arbiter_cu_submit),
-		.requests   (write_command_bus_request_cu_in_latched       ),
-		.arbiter_out(edge_data_write_arbiter_out      ),
-		.ready      (write_command_bus_grant_cu_out_latched         )
-	);
+	always_comb begin
+		edge_data_write_select = 0;
+		edge_data_write_candidate = 0;
+		for (edge_data_write_comb_loop = 0; edge_data_write_comb_loop < NUM_GRAPH_CU; edge_data_write_comb_loop++) begin
+			edge_data_write_candidate = (edge_data_write_priority + edge_data_write_comb_loop) % NUM_GRAPH_CU;
+			if((~(|edge_data_write_select)) &&
+				write_command_bus_request_cu_in_latched[edge_data_write_candidate] &&
+				enable_cu_out_latched[edge_data_write_candidate])
+				edge_data_write_select[edge_data_write_candidate] = 1;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			edge_data_write_owner <= 0;
+			write_command_bus_grant_cu_out_latched <= 0;
+			edge_data_write_arbiter_out <= 0;
+			edge_data_write_priority <= 0;
+		end else begin
+			edge_data_write_arbiter_out.valid <= 0;
+			write_command_bus_grant_cu_out_latched <= 0;
+			if(enabled) begin
+				if(|edge_data_write_owner) begin
+					if(|(edge_data_write_owner & edge_data_write_arbiter_cu_submit)) begin
+						for (edge_data_write_seq_loop = 0; edge_data_write_seq_loop < NUM_GRAPH_CU; edge_data_write_seq_loop++) begin
+							if(edge_data_write_owner[edge_data_write_seq_loop] &&
+								edge_data_write_arbiter_cu_submit[edge_data_write_seq_loop]) begin
+								edge_data_write_arbiter_out <= edge_data_write_cu_in_latched[edge_data_write_seq_loop];
+								edge_data_write_priority <= (edge_data_write_seq_loop + 1) % NUM_GRAPH_CU;
+							end
+						end
+						edge_data_write_owner <= 0;
+					end
+				end else if((|edge_data_write_select) &&
+					~burst_edge_data_write_cu_buffer_states_cu.alfull) begin
+					// same ownership contract as the read bus: the grant is
+					// masked by the almost full flag of this buffer one stage
+					// later, so ownership is only taken while it has room
+					edge_data_write_owner <= edge_data_write_select;
+					write_command_bus_grant_cu_out_latched <= edge_data_write_select;
+				end
+			end else begin
+				edge_data_write_owner <= 0;
+				write_command_bus_grant_cu_out_latched <= 0;
+			end
+		end
+	end
 
 	////////////////////////////////////////////////////////////////////////////
 	// write command CU Buffers
@@ -692,23 +780,20 @@ module cu_vertex_cluster_arbiter_control #(
 		if(~rstn) begin
 			vertex_job_request_latched     <= 0;
 			vertex_request_internal        <= 0;
-			vertex_job_arbiter_in.valid    <= 0;
 			request_vertex_job_cu_internal <= 0;
+			vertex_dispatch_armed          <= 0;
 		end else begin
 			if(enabled) begin
 				vertex_job_request_latched     <= (~vertex_buffer_status_internal.alfull);
-				vertex_request_internal        <= (|vertex_job_request_cu_in_latched);
-				vertex_job_arbiter_in.valid    <= vertex_job_buffer_out.valid;
-				request_vertex_job_cu_internal <= vertex_job_request_cu_in_latched;
+				vertex_request_internal        <= vertex_dispatch_armed && ~vertex_buffer_status_internal.empty && (|vertex_job_request_cu_in_latched);
+				request_vertex_job_cu_internal <= (vertex_dispatch_armed && ~vertex_buffer_status_internal.empty) ? vertex_job_request_cu_in_latched : 0;
+				if((|enable_cu_out_latched) &&
+					((vertex_job_request_cu_in_latched & enable_cu_out_latched) == enable_cu_out_latched))
+					vertex_dispatch_armed <= 1;
+			end else begin
+				vertex_dispatch_armed <= 0;
 			end
 		end
-	end
-
-	always_ff @(posedge clock or negedge rstn) begin
-		if(~rstn)
-			vertex_job_arbiter_in.payload <= 0;
-		else
-			vertex_job_arbiter_in.payload <= vertex_job_buffer_out.payload;
 	end
 
 	fifo #(
@@ -735,18 +820,36 @@ module cu_vertex_cluster_arbiter_control #(
 	////////////////////////////////////////////////////////////////////////////
 
 
-	round_robin_priority_arbiter_1_input_N_ouput #(
-		.NUM_REQUESTS(NUM_GRAPH_CU          ),
-		.WIDTH       ($bits(VertexInterface))
-	) round_robin_priority_arbiter_1_input_N_ouput_vertex_job (
-		.clock      (clock                         ),
-		.rstn       (rstn                          ),
-		.enabled    (enabled                       ),
-		.buffer_in  (vertex_job_arbiter_in         ),
-		.requests   (request_vertex_job_cu_internal),
-		.arbiter_out(vertex_job_cu_out_latched     ),
-		.ready      (ready_vertex_job_cu           )
-	);
+	always_comb begin
+		vertex_dispatch_grant = 0;
+		vertex_dispatch_candidate = 0;
+		for (vertex_dispatch_comb_loop = 0; vertex_dispatch_comb_loop < NUM_GRAPH_CU; vertex_dispatch_comb_loop++) begin
+			vertex_dispatch_candidate = (vertex_dispatch_priority + vertex_dispatch_comb_loop) % NUM_GRAPH_CU;
+			if((~(|vertex_dispatch_grant)) &&
+				request_vertex_job_cu_internal[vertex_dispatch_candidate] &&
+				enable_cu_out_latched[vertex_dispatch_candidate])
+				vertex_dispatch_grant[vertex_dispatch_candidate] = 1;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn) begin
+		if(~rstn) begin
+			vertex_dispatch_priority <= 0;
+			for (vertex_dispatch_seq_loop = 0; vertex_dispatch_seq_loop < NUM_GRAPH_CU; vertex_dispatch_seq_loop++)
+				vertex_job_cu_out_latched[vertex_dispatch_seq_loop] <= 0;
+		end else begin
+			for (vertex_dispatch_seq_loop = 0; vertex_dispatch_seq_loop < NUM_GRAPH_CU; vertex_dispatch_seq_loop++)
+				vertex_job_cu_out_latched[vertex_dispatch_seq_loop].valid <= 0;
+			if(enabled && vertex_job_buffer_out.valid && (|vertex_dispatch_grant)) begin
+				for (vertex_dispatch_seq_loop = 0; vertex_dispatch_seq_loop < NUM_GRAPH_CU; vertex_dispatch_seq_loop++) begin
+					if(vertex_dispatch_grant[vertex_dispatch_seq_loop]) begin
+						vertex_job_cu_out_latched[vertex_dispatch_seq_loop] <= vertex_job_buffer_out;
+						vertex_dispatch_priority <= (vertex_dispatch_seq_loop + 1) % NUM_GRAPH_CU;
+					end
+				end
+			end
+		end
+	end
 
 	////////////////////////////////////////////////////////////////////////////
 	// Once processed all verticess edges send done signal
@@ -784,4 +887,3 @@ module cu_vertex_cluster_arbiter_control #(
 
 
 endmodule
-

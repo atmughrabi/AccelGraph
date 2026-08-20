@@ -20,6 +20,7 @@ Shared AFU-control documentation lives in the complementary
 - [Repository structure](https://github.com/atmughrabi/AccelGraph/wiki/Repository-Structure)
   defines complementary ownership, migration order, and compatibility gates.
 - [Verification infrastructure](https://github.com/atmughrabi/AccelGraph/wiki/Verification-Infrastructure)
-  defines graph-module, backpressure, scoreboard, golden-model, and coverage work.
+  records graph-module, backpressure, scoreboard, golden-model, and coverage
+  evidence.
 - [Stabilization plan](https://github.com/atmughrabi/AccelGraph/wiki/Stabilization-Plan)
   records the benchmark acceptance matrix and rollout.

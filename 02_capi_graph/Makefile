@@ -392,7 +392,7 @@ integration-compile:
 	$(CC) $(CFLAGS) -DSIM -fsyntax-only $(OPENMP_INC) -I$(APP_DIR)/$(INC_DIR)/$(CAPI_UTIL_DIR) -I$(LIBCXL_DIR) $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/accelerator_verification.c $(APP_DIR)/$(SRC_DIR)/$(CAPI_UTIL_DIR)/capienv.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/BFS.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/connectedComponents.c $(APP_DIR)/$(SRC_DIR)/$(ALGO_DIR)/capi/betweennessCentrality.c
 
 .PHONY: rtl-verification
-rtl-verification: rtl-manifest-verification
+rtl-verification: rtl-manifest-verification rtl-unit-verification
 	@if command -v $(VERILATOR) >/dev/null 2>&1; then \
 		major=`$(VERILATOR) --version | sed -E 's/[^0-9]*([0-9]+).*/\1/'`; \
 	else \
@@ -411,6 +411,26 @@ rtl-verification: rtl-manifest-verification
 rtl-manifest-verification:
 	$(GRAPH_VERIFICATION_DIR)/rtl/scripts/verify_manifests.py
 	../$(CAPI_PRECIS_INTEG_DIR)/accelerator_verification/rtl/scripts/verify_module_plan.py --repo-root .. --inventory 03_capi_integration/accelerator_verification/rtl/manifests/rtl-inventory.json --plan 03_capi_integration/accelerator_verification/rtl/manifests/coverage-plan.json --output 03_capi_integration/accelerator_verification/rtl/manifests/module-test-matrix.json
+
+.PHONY: rtl-unit-common
+rtl-unit-common:
+	$(GRAPH_VERIFICATION_DIR)/rtl/unit/common/run_common.py
+
+.PHONY: rtl-unit-engines
+rtl-unit-engines:
+	$(GRAPH_VERIFICATION_DIR)/rtl/unit/engines/run_engines.py
+
+.PHONY: rtl-unit-algorithms
+rtl-unit-algorithms:
+	$(GRAPH_VERIFICATION_DIR)/rtl/unit/algorithms/run_algorithms.py
+
+.PHONY: rtl-integration-graph
+rtl-integration-graph:
+	$(GRAPH_VERIFICATION_DIR)/rtl/integration/run_graph_integration.py
+
+.PHONY: rtl-unit-verification
+rtl-unit-verification:
+	../$(CAPI_PRECIS_INTEG_DIR)/accelerator_verification/rtl/scripts/run_implemented_suites.py --repo-root .. --plan 03_capi_integration/accelerator_verification/rtl/manifests/coverage-plan.json
 
 .PHONY: rtl-verification-run
 rtl-verification-run: directories

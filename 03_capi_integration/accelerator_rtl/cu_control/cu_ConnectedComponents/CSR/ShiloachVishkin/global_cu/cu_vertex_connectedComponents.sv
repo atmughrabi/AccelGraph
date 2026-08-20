@@ -51,7 +51,8 @@ module cu_vertex_connectedComponents #(
 	logic rstn_internal;
 	logic rstn         ;
 	logic rstn_input   ;
-	logic rstn_data_cmd;
+	logic rstn_data_cmd    ;
+	logic vertex_round_done;
 	logic rstn_output  ;
 
 	logic read_command_bus_grant_latched     ;
@@ -161,7 +162,22 @@ module cu_vertex_connectedComponents #(
 			rstn          <= rstn_internal;
 			rstn_input    <= rstn_internal;
 			rstn_output   <= rstn_internal;
-			rstn_data_cmd <= rstn_internal & processing_vertex;
+			// The edge data path is cleared by a one cycle pulse when a vertex
+			// round finishes, exactly like the BFS shell clears its edge path on
+			// break_S_out.  Holding the path in reset for the whole idle window
+			// (the previous processing_vertex gating) dropped the first edge job
+			// of a vertex whenever a job arrived before the path left reset,
+			// which stranded part of the vertex set after a mid flight reset.
+			rstn_data_cmd <= rstn_internal & ~vertex_round_done;
+		end
+	end
+
+	always_ff @(posedge clock or negedge rstn_internal) begin
+		if(~rstn_internal) begin
+			vertex_round_done <= 0;
+		end else begin
+			vertex_round_done <= vertex_job_latched.valid && ~vertex_round_done &&
+				(edge_data_counter_accum_internal == vertex_job_latched.payload.out_degree);
 		end
 	end
 

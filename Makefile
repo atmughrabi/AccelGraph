@@ -377,6 +377,26 @@ rtl-manifest-update:
 rtl-real-elaboration: rtl-manifest-verification
 	./03_capi_integration/accelerator_verification/rtl/scripts/lint_cached_afu_bind.sh
 
+.PHONY: rtl-unit-common
+rtl-unit-common:
+	$(MAKE) rtl-unit-common $(MAKE_ARGS_ACCELGRAPH)
+
+.PHONY: rtl-unit-engines
+rtl-unit-engines:
+	./03_capi_integration/accelerator_verification/rtl/unit/engines/run_engines.py
+
+.PHONY: rtl-unit-algorithms
+rtl-unit-algorithms:
+	./03_capi_integration/accelerator_verification/rtl/unit/algorithms/run_algorithms.py
+
+.PHONY: rtl-integration-graph
+rtl-integration-graph:
+	./03_capi_integration/accelerator_verification/rtl/integration/run_graph_integration.py
+
+.PHONY: rtl-unit-verification
+rtl-unit-verification:
+	./01_capi_precis/01_capi_integration/accelerator_verification/rtl/scripts/run_implemented_suites.py --repo-root . --plan 03_capi_integration/accelerator_verification/rtl/manifests/coverage-plan.json
+
 .PHONY: graphbrew-smoke
 graphbrew-smoke:
 	timeout 120 $(MAKE) run-openmp $(MAKE_ARGS_OPENGRAPH) FILE_BIN=../01_test_graphs/TEST/graphbrew/graph.bin ARGS='-w -M 0 -j 0 -g 1000 -z 1 -d 0 -a 0 -r 0 -n 2 -N 2 -K 2 -i 1 -o 0 -p 0 -t 1 -e 1e-8 -l 0 -L 0 -O 0 -b 800 -C 32768'

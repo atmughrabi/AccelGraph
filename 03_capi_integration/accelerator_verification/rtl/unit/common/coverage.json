@@ -1,0 +1,747 @@
+{
+  "schema_version": 1,
+  "family_group": "graph-common",
+  "targets": {
+    "reachable_statement_percent": 100,
+    "reachable_branch_percent": 100,
+    "reachable_toggle_percent": 100,
+    "functional_bin_percent": 100,
+    "assertion_goal_percent": 100,
+    "context_execution_percent": 100
+  },
+  "measurement": {
+    "tool": "verilator --coverage-line --coverage-toggle",
+    "scope": "only the declarations under test are measured; testbench and package chain files outside the suite are ignored",
+    "pages": {
+      "v_line": "statement coverage, including one point per case item",
+      "v_branch": "branch coverage of procedural if and else arms",
+      "v_toggle": "one point per instrumented signal bit, hit when the bit changes at least once"
+    },
+    "denominator_rule": "the observed point count of every measured file must equal the pinned value below, so a suite can never close by measuring fewer points"
+  },
+  "not_applicable": {
+    "fsm_state": "none of the graph common declarations contains a state machine; the demux and reduction pipelines are unconditional shift stages and the packages are declarative",
+    "fsm_transition": "see fsm_state",
+    "v_branch/globals_cu_pkg.sv": "GLOBALS_CU_PKG contains only parameter declarations, so Verilator emits no statement or branch point for it",
+    "v_toggle/packages": "packages declare no signals, so the package suite has no toggle point",
+    "array_struct_type_demux_bus.BUS_WIDTH": "the RTL hardcodes two destinations, so BUS_WIDTH is not a sweep axis and only DATA_WIDTH is swept",
+    "demux_bus.SEL_WIDTH default at BUS_WIDTH=1": "$clog2(1) is zero, which is a null selector range, so the single destination instance overrides SEL_WIDTH to 1",
+    "sum_reduce.backpressure": "the reduction has no flow control; the fixed two cycle latency is proven instead"
+  },
+  "unreachable": {
+    "cu_BFS_CSR_PULL_BottomUp/graph-package-contracts": [
+      {
+        "point": "cu_pkg.sv:214 v_line elsif scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      },
+      {
+        "point": "cu_pkg.sv:216 v_line if scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      }
+    ],
+    "cu_BFS_CSR_PULL_BottomUp/routing-demux": [],
+    "cu_BFS_CSR_PULL_BottomUp/sum-reduction": [
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      }
+    ],
+    "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin/graph-package-contracts": [
+      {
+        "point": "cu_pkg.sv:222 v_line elsif scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      },
+      {
+        "point": "cu_pkg.sv:224 v_line if scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      }
+    ],
+    "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin/routing-demux": [],
+    "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin/sum-reduction": [
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      }
+    ],
+    "cu_PageRank_CSR_PULL_FixedPoint/graph-package-contracts": [
+      {
+        "point": "cu_pkg.sv:198 v_line elsif scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      },
+      {
+        "point": "cu_pkg.sv:200 v_line if scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      }
+    ],
+    "cu_PageRank_CSR_PULL_FixedPoint/routing-demux": [],
+    "cu_PageRank_CSR_PULL_FixedPoint/sum-reduction": [
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      }
+    ],
+    "cu_PageRank_CSR_PULL_FloatPoint/graph-package-contracts": [
+      {
+        "point": "cu_pkg.sv:198 v_line elsif scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      },
+      {
+        "point": "cu_pkg.sv:200 v_line if scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      }
+    ],
+    "cu_PageRank_CSR_PULL_FloatPoint/routing-demux": [],
+    "cu_PageRank_CSR_PULL_FloatPoint/sum-reduction": [
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      }
+    ],
+    "cu_PageRank_CSR_PULL_Quantized/graph-package-contracts": [
+      {
+        "point": "cu_pkg.sv:198 v_line elsif scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      },
+      {
+        "point": "cu_pkg.sv:200 v_line if scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      }
+    ],
+    "cu_PageRank_CSR_PULL_Quantized/routing-demux": [],
+    "cu_PageRank_CSR_PULL_Quantized/sum-reduction": [
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      }
+    ],
+    "cu_SPMV_CSR_PULL_FixedPoint/graph-package-contracts": [
+      {
+        "point": "cu_pkg.sv:214 v_line elsif scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      },
+      {
+        "point": "cu_pkg.sv:216 v_line if scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      }
+    ],
+    "cu_SPMV_CSR_PULL_FixedPoint/routing-demux": [],
+    "cu_SPMV_CSR_PULL_FixedPoint/sum-reduction": [
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      }
+    ],
+    "cu_SPMV_CSR_PULL_FloatPoint/graph-package-contracts": [
+      {
+        "point": "cu_pkg.sv:214 v_line elsif scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      },
+      {
+        "point": "cu_pkg.sv:216 v_line if scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      }
+    ],
+    "cu_SPMV_CSR_PULL_FloatPoint/routing-demux": [],
+    "cu_SPMV_CSR_PULL_FloatPoint/sum-reduction": [
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      }
+    ],
+    "cu_TriangleCount_CSR_BinaryIntersection_Binary/graph-package-contracts": [
+      {
+        "point": "cu_pkg.sv:214 v_line elsif scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      },
+      {
+        "point": "cu_pkg.sv:216 v_line if scope=TOP.CU_PKG",
+        "reason": "cmd_size_calculate rounds a byte count that is always a multiple of VERTEX_SIZE, which is four bytes in every active layout, so the two byte and the one byte request arms cannot be selected"
+      }
+    ],
+    "cu_TriangleCount_CSR_BinaryIntersection_Binary/routing-demux": [],
+    "cu_TriangleCount_CSR_BinaryIntersection_Binary/sum-reduction": [
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:25 v_toggle total_sum_out[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[7] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      },
+      {
+        "point": "sum_reduce.sv:29 v_toggle total_sum_out_latched[8] scope=TOP.graph_sum_reduce_tb.generate_sum_probe[5].probe.dut",
+        "reason": "sum_reduce instance 5 is the widening configuration DATA_WIDTH_IN=4, DATA_WIDTH_OUT=9, BUS_WIDTH=5; the largest exact sum is 75, so the output bits of weight 128 and 256 can never be driven high"
+      }
+    ]
+  },
+  "denominators": {
+    "cu_BFS_CSR_PULL_BottomUp/graph-package-contracts": {
+      "cu_pkg.sv": {
+        "v_line": {
+          "found": 22,
+          "hit": 20
+        }
+      },
+      "wed_pkg.sv": {
+        "v_line": {
+          "found": 8,
+          "hit": 8
+        }
+      }
+    },
+    "cu_BFS_CSR_PULL_BottomUp/routing-demux": {
+      "array_struct_type_demux_bus.sv": {
+        "v_branch": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_line": {
+          "found": 24,
+          "hit": 24
+        },
+        "v_toggle": {
+          "found": 516,
+          "hit": 516
+        }
+      },
+      "demux_bus.sv": {
+        "v_branch": {
+          "found": 72,
+          "hit": 72
+        },
+        "v_line": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_toggle": {
+          "found": 1726,
+          "hit": 1726
+        }
+      }
+    },
+    "cu_BFS_CSR_PULL_BottomUp/sum-reduction": {
+      "sum_reduce.sv": {
+        "v_branch": {
+          "found": 64,
+          "hit": 64
+        },
+        "v_line": {
+          "found": 40,
+          "hit": 40
+        },
+        "v_toggle": {
+          "found": 1229,
+          "hit": 1225
+        }
+      }
+    },
+    "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin/graph-package-contracts": {
+      "cu_pkg.sv": {
+        "v_line": {
+          "found": 18,
+          "hit": 16
+        }
+      },
+      "wed_pkg.sv": {
+        "v_line": {
+          "found": 8,
+          "hit": 8
+        }
+      }
+    },
+    "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin/routing-demux": {
+      "array_struct_type_demux_bus.sv": {
+        "v_branch": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_line": {
+          "found": 24,
+          "hit": 24
+        },
+        "v_toggle": {
+          "found": 516,
+          "hit": 516
+        }
+      },
+      "demux_bus.sv": {
+        "v_branch": {
+          "found": 72,
+          "hit": 72
+        },
+        "v_line": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_toggle": {
+          "found": 1726,
+          "hit": 1726
+        }
+      }
+    },
+    "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin/sum-reduction": {
+      "sum_reduce.sv": {
+        "v_branch": {
+          "found": 64,
+          "hit": 64
+        },
+        "v_line": {
+          "found": 40,
+          "hit": 40
+        },
+        "v_toggle": {
+          "found": 1229,
+          "hit": 1225
+        }
+      }
+    },
+    "cu_PageRank_CSR_PULL_FixedPoint/graph-package-contracts": {
+      "cu_pkg.sv": {
+        "v_line": {
+          "found": 18,
+          "hit": 16
+        }
+      },
+      "wed_pkg.sv": {
+        "v_line": {
+          "found": 8,
+          "hit": 8
+        }
+      }
+    },
+    "cu_PageRank_CSR_PULL_FixedPoint/routing-demux": {
+      "array_struct_type_demux_bus.sv": {
+        "v_branch": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_line": {
+          "found": 24,
+          "hit": 24
+        },
+        "v_toggle": {
+          "found": 516,
+          "hit": 516
+        }
+      },
+      "demux_bus.sv": {
+        "v_branch": {
+          "found": 84,
+          "hit": 84
+        },
+        "v_line": {
+          "found": 35,
+          "hit": 35
+        },
+        "v_toggle": {
+          "found": 2130,
+          "hit": 2130
+        }
+      }
+    },
+    "cu_PageRank_CSR_PULL_FixedPoint/sum-reduction": {
+      "sum_reduce.sv": {
+        "v_branch": {
+          "found": 72,
+          "hit": 72
+        },
+        "v_line": {
+          "found": 45,
+          "hit": 45
+        },
+        "v_toggle": {
+          "found": 1621,
+          "hit": 1617
+        }
+      }
+    },
+    "cu_PageRank_CSR_PULL_FloatPoint/graph-package-contracts": {
+      "cu_pkg.sv": {
+        "v_line": {
+          "found": 18,
+          "hit": 16
+        }
+      },
+      "wed_pkg.sv": {
+        "v_line": {
+          "found": 8,
+          "hit": 8
+        }
+      }
+    },
+    "cu_PageRank_CSR_PULL_FloatPoint/routing-demux": {
+      "array_struct_type_demux_bus.sv": {
+        "v_branch": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_line": {
+          "found": 24,
+          "hit": 24
+        },
+        "v_toggle": {
+          "found": 516,
+          "hit": 516
+        }
+      },
+      "demux_bus.sv": {
+        "v_branch": {
+          "found": 84,
+          "hit": 84
+        },
+        "v_line": {
+          "found": 35,
+          "hit": 35
+        },
+        "v_toggle": {
+          "found": 2130,
+          "hit": 2130
+        }
+      }
+    },
+    "cu_PageRank_CSR_PULL_FloatPoint/sum-reduction": {
+      "sum_reduce.sv": {
+        "v_branch": {
+          "found": 72,
+          "hit": 72
+        },
+        "v_line": {
+          "found": 45,
+          "hit": 45
+        },
+        "v_toggle": {
+          "found": 1621,
+          "hit": 1617
+        }
+      }
+    },
+    "cu_PageRank_CSR_PULL_Quantized/graph-package-contracts": {
+      "cu_pkg.sv": {
+        "v_line": {
+          "found": 18,
+          "hit": 16
+        }
+      },
+      "wed_pkg.sv": {
+        "v_line": {
+          "found": 8,
+          "hit": 8
+        }
+      }
+    },
+    "cu_PageRank_CSR_PULL_Quantized/routing-demux": {
+      "array_struct_type_demux_bus.sv": {
+        "v_branch": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_line": {
+          "found": 24,
+          "hit": 24
+        },
+        "v_toggle": {
+          "found": 516,
+          "hit": 516
+        }
+      },
+      "demux_bus.sv": {
+        "v_branch": {
+          "found": 84,
+          "hit": 84
+        },
+        "v_line": {
+          "found": 35,
+          "hit": 35
+        },
+        "v_toggle": {
+          "found": 2130,
+          "hit": 2130
+        }
+      }
+    },
+    "cu_PageRank_CSR_PULL_Quantized/sum-reduction": {
+      "sum_reduce.sv": {
+        "v_branch": {
+          "found": 72,
+          "hit": 72
+        },
+        "v_line": {
+          "found": 45,
+          "hit": 45
+        },
+        "v_toggle": {
+          "found": 1621,
+          "hit": 1617
+        }
+      }
+    },
+    "cu_SPMV_CSR_PULL_FixedPoint/graph-package-contracts": {
+      "cu_pkg.sv": {
+        "v_line": {
+          "found": 20,
+          "hit": 18
+        }
+      },
+      "wed_pkg.sv": {
+        "v_line": {
+          "found": 8,
+          "hit": 8
+        }
+      }
+    },
+    "cu_SPMV_CSR_PULL_FixedPoint/routing-demux": {
+      "array_struct_type_demux_bus.sv": {
+        "v_branch": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_line": {
+          "found": 24,
+          "hit": 24
+        },
+        "v_toggle": {
+          "found": 516,
+          "hit": 516
+        }
+      },
+      "demux_bus.sv": {
+        "v_branch": {
+          "found": 84,
+          "hit": 84
+        },
+        "v_line": {
+          "found": 35,
+          "hit": 35
+        },
+        "v_toggle": {
+          "found": 2130,
+          "hit": 2130
+        }
+      }
+    },
+    "cu_SPMV_CSR_PULL_FixedPoint/sum-reduction": {
+      "sum_reduce.sv": {
+        "v_branch": {
+          "found": 72,
+          "hit": 72
+        },
+        "v_line": {
+          "found": 45,
+          "hit": 45
+        },
+        "v_toggle": {
+          "found": 1621,
+          "hit": 1617
+        }
+      }
+    },
+    "cu_SPMV_CSR_PULL_FloatPoint/graph-package-contracts": {
+      "cu_pkg.sv": {
+        "v_line": {
+          "found": 20,
+          "hit": 18
+        }
+      },
+      "wed_pkg.sv": {
+        "v_line": {
+          "found": 8,
+          "hit": 8
+        }
+      }
+    },
+    "cu_SPMV_CSR_PULL_FloatPoint/routing-demux": {
+      "array_struct_type_demux_bus.sv": {
+        "v_branch": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_line": {
+          "found": 24,
+          "hit": 24
+        },
+        "v_toggle": {
+          "found": 516,
+          "hit": 516
+        }
+      },
+      "demux_bus.sv": {
+        "v_branch": {
+          "found": 84,
+          "hit": 84
+        },
+        "v_line": {
+          "found": 35,
+          "hit": 35
+        },
+        "v_toggle": {
+          "found": 2130,
+          "hit": 2130
+        }
+      }
+    },
+    "cu_SPMV_CSR_PULL_FloatPoint/sum-reduction": {
+      "sum_reduce.sv": {
+        "v_branch": {
+          "found": 72,
+          "hit": 72
+        },
+        "v_line": {
+          "found": 45,
+          "hit": 45
+        },
+        "v_toggle": {
+          "found": 1621,
+          "hit": 1617
+        }
+      }
+    },
+    "cu_TriangleCount_CSR_BinaryIntersection_Binary/graph-package-contracts": {
+      "cu_pkg.sv": {
+        "v_line": {
+          "found": 20,
+          "hit": 18
+        }
+      },
+      "wed_pkg.sv": {
+        "v_line": {
+          "found": 8,
+          "hit": 8
+        }
+      }
+    },
+    "cu_TriangleCount_CSR_BinaryIntersection_Binary/routing-demux": {
+      "array_struct_type_demux_bus.sv": {
+        "v_branch": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_line": {
+          "found": 24,
+          "hit": 24
+        },
+        "v_toggle": {
+          "found": 516,
+          "hit": 516
+        }
+      },
+      "demux_bus.sv": {
+        "v_branch": {
+          "found": 72,
+          "hit": 72
+        },
+        "v_line": {
+          "found": 30,
+          "hit": 30
+        },
+        "v_toggle": {
+          "found": 1726,
+          "hit": 1726
+        }
+      }
+    },
+    "cu_TriangleCount_CSR_BinaryIntersection_Binary/sum-reduction": {
+      "sum_reduce.sv": {
+        "v_branch": {
+          "found": 64,
+          "hit": 64
+        },
+        "v_line": {
+          "found": 40,
+          "hit": 40
+        },
+        "v_toggle": {
+          "found": 1229,
+          "hit": 1225
+        }
+      }
+    }
+  }
+}

@@ -12,7 +12,7 @@
     ],
     "expected_inventory_generator": "03_capi_integration/accelerator_verification/rtl/scripts/verify_manifests.py",
     "expected_module_declarations": 78,
-    "expected_distinct_source_hashes": 54,
+    "expected_distinct_source_hashes": 55,
     "expected_package_declarations": 18,
     "expected_family_plans": 16,
     "expected_non_module_suites": 1,
@@ -43,17 +43,28 @@
     "closure_rule": "Every active module path is mapped; every distinct source hash runs its family suite in every materially different package/layout context before closure."
   },
   "waivers": [],
-  "cross_family_hash_exceptions": [
-    {
-      "sha256": "2b7d50c6fbbb391d5f8af6a34e4fa4dce474277cae2bc0642ef2c43aa16a575a",
-      "families": [
-        "spmv-kernel",
-        "triangle-kernel"
+  "cross_family_hash_exceptions": [],
+  "evidence_sets": {
+    "graph-common": {
+      "test_target": "rtl-unit-common",
+      "runner": "03_capi_integration/accelerator_verification/rtl/unit/common/run_common.py",
+      "suite_registry": "01_capi_precis/01_capi_integration/accelerator_verification/rtl/scripts/run_implemented_suites.py",
+      "test_sources": [
+        "Makefile",
+        "02_capi_graph/Makefile",
+        "01_capi_precis/01_capi_integration/accelerator_verification/rtl/scripts/run_implemented_suites.py",
+        "03_capi_integration/accelerator_verification/rtl/unit/common/README.md",
+        "03_capi_integration/accelerator_verification/rtl/unit/common/graph_common_harness.svh",
+        "03_capi_integration/accelerator_verification/rtl/unit/common/graph_common_main.cpp",
+        "03_capi_integration/accelerator_verification/rtl/unit/common/graph_package_contract_tb.sv",
+        "03_capi_integration/accelerator_verification/rtl/unit/common/graph_routing_demux_tb.sv",
+        "03_capi_integration/accelerator_verification/rtl/unit/common/graph_sum_reduce_tb.sv",
+        "03_capi_integration/accelerator_verification/rtl/unit/common/run_common.py"
       ],
-      "reason": "TriangleCount currently reuses the SPMV FixedPoint accumulator verbatim; triangle ownership is blocked until RTL triage.",
-      "issue": "docs/wiki/Verification-Infrastructure.md#phase-4---algorithm-units"
+      "scenario_manifest": "03_capi_integration/accelerator_verification/rtl/unit/common/scenarios.json",
+      "coverage_manifest": "03_capi_integration/accelerator_verification/rtl/unit/common/coverage.json"
     }
-  ],
+  },
   "strategy_profiles": {
     "routing": {
       "stimulus": ["reset/disabled idle", "one-hot and multi-hot inputs", "all selector values", "invalid selector", "held payload"],
@@ -111,7 +122,8 @@
       "oracle_id": "graph-route-payload-model-v1",
       "priority": "P0",
       "profile": "routing",
-      "implementation_status": "planned",
+      "implementation_status": "implemented",
+      "evidence_ref": "graph-common",
       "match": {"module_names": ["array_struct_type_demux_bus", "demux_bus"]},
       "required_scenarios": ["every input-output route", "invalid selector", "stalled destination"]
     },
@@ -121,7 +133,8 @@
       "oracle_id": "graph-arbitrary-precision-sum-v1",
       "priority": "P0",
       "profile": "reduction",
-      "implementation_status": "planned",
+      "implementation_status": "implemented",
+      "evidence_ref": "graph-common",
       "match": {"module_names": ["sum_reduce"]},
       "required_scenarios": ["zero/single/all contributors", "overflow policy", "tree parameter sweep"]
     },
@@ -279,12 +292,12 @@
       "oracle_id": "independent-triangle-count-v1",
       "priority": "P0",
       "profile": "algorithm_kernel",
-      "implementation_status": "blocked",
+      "implementation_status": "planned",
       "match": {
-        "module_names": ["cu_sum_kernel_control"],
+        "module_names": ["cu_update_kernel_control"],
         "path_regex": ["/cu_TriangleCount/"]
       },
-      "required_scenarios": ["blocked: current RTL is byte-identical to the SPMV FixedPoint accumulator", "resolve module naming and binary-intersection ownership", "then run no triangle, single triangle, shared edge, and K4 normalization"]
+      "required_scenarios": ["no triangle", "single triangle", "shared edge", "K4 normalization"]
     },
     {
       "id": "graph-top",
@@ -305,8 +318,9 @@
       "priority": "P0",
       "profile": "routing",
       "oracle_id": "graph-wed-csr-byte-layout-v1",
-      "implementation_status": "planned",
-      "required_scenarios": ["WED width and pointer offsets", "CSR/inverse-CSR field maps", "package functions", "precision constants", "C/SystemVerilog ABI"]
+      "implementation_status": "implemented",
+      "required_scenarios": ["WED width and pointer offsets", "CSR/inverse-CSR field maps", "package functions", "precision constants", "C/SystemVerilog ABI"],
+      "evidence_ref": "graph-common"
     }
   ]
 }

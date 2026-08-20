@@ -1,0 +1,34 @@
+// Verilator harness template for the AccelGraph graph verification suites.
+// The runner substitutes @TOP@ with the testbench module name and writes the
+// expanded file into the build directory under 02_capi_graph/obj.
+
+#include <memory>
+
+#include "V@TOP@.h"
+#include "verilated.h"
+#if VM_COVERAGE
+#include "verilated_cov.h"
+#endif
+
+int main(int argc, char **argv, char **)
+{
+    const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
+    contextp->commandArgs(argc, argv);
+
+    const std::unique_ptr<V@TOP@> topp{new V@TOP@{contextp.get()}};
+
+    while(!contextp->gotFinish())
+    {
+        topp->eval();
+        if(!topp->eventsPending())
+            break;
+        contextp->time(topp->nextTimeSlot());
+    }
+
+    topp->final();
+#if VM_COVERAGE
+    contextp->coveragep()->write("coverage.dat");
+#endif
+
+    return 0;
+}

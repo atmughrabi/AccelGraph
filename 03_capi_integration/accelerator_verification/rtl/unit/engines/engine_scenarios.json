@@ -1,0 +1,412 @@
+{
+  "schema_version": 1,
+  "capi_precis_commit": "d66d5ed0a26e1321130242000889123f3e779cad",
+  "families": [
+    "vertex-job",
+    "edge-job",
+    "edge-read",
+    "edge-write",
+    "cluster-scheduler",
+    "graph-algorithm-scheduler",
+    "algorithm-arbiters"
+  ],
+  "active_layouts": [
+    {
+      "id": "cu_BFS_CSR_PULL_BottomUp",
+      "algorithm": "cu_BFS",
+      "graph_cus": 4,
+      "vertex_cus_per_graph_cu": 4,
+      "read_bytes": 1,
+      "write_bytes": 1,
+      "filter_mode": "bfs"
+    },
+    {
+      "id": "cu_PageRank_CSR_PULL_FloatPoint",
+      "algorithm": "cu_PageRank",
+      "graph_cus": 5,
+      "vertex_cus_per_graph_cu": 4,
+      "read_bytes": 8,
+      "write_bytes": 8,
+      "filter_mode": "inverse_degree"
+    },
+    {
+      "id": "cu_PageRank_CSR_PULL_FixedPoint",
+      "algorithm": "cu_PageRank",
+      "graph_cus": 5,
+      "vertex_cus_per_graph_cu": 4,
+      "read_bytes": 8,
+      "write_bytes": 8,
+      "filter_mode": "inverse_degree"
+    },
+    {
+      "id": "cu_PageRank_CSR_PULL_Quantized",
+      "algorithm": "cu_PageRank",
+      "graph_cus": 5,
+      "vertex_cus_per_graph_cu": 4,
+      "read_bytes": 8,
+      "write_bytes": 8,
+      "filter_mode": "inverse_degree"
+    },
+    {
+      "id": "cu_SPMV_CSR_PULL_FloatPoint",
+      "algorithm": "cu_SPMV",
+      "graph_cus": 5,
+      "vertex_cus_per_graph_cu": 4,
+      "read_bytes": 4,
+      "write_bytes": 4,
+      "filter_mode": "inverse_degree"
+    },
+    {
+      "id": "cu_SPMV_CSR_PULL_FixedPoint",
+      "algorithm": "cu_SPMV",
+      "graph_cus": 5,
+      "vertex_cus_per_graph_cu": 4,
+      "read_bytes": 4,
+      "write_bytes": 4,
+      "filter_mode": "inverse_degree"
+    },
+    {
+      "id": "cu_ConnectedComponents_CSR_ShiloachVishkin_ShiloachVishkin",
+      "algorithm": "cu_ConnectedComponents",
+      "graph_cus": 4,
+      "vertex_cus_per_graph_cu": 4,
+      "read_bytes": 4,
+      "write_bytes": 4,
+      "filter_mode": "out_degree"
+    },
+    {
+      "id": "cu_TriangleCount_CSR_BinaryIntersection_Binary",
+      "algorithm": "cu_TriangleCount",
+      "graph_cus": 4,
+      "vertex_cus_per_graph_cu": 4,
+      "read_bytes": 4,
+      "write_bytes": 4,
+      "filter_mode": "inverse_degree"
+    }
+  ],
+  "expected_distinct_hashes": {
+    "algorithm-arbiters": [
+      "26144fcaa05a08bce5920ca3b2fd22ebb8c87058b9d9ba0c8dc379cde6928b20",
+      "370880623553273d329f9588ff20ab370fcaf271a2432eeec1a276b302cb6125",
+      "55974b21d1d223b884ccaddf7a7c36f499d0e3fb6f2a1a38e776e96055dff7e0",
+      "dcfa3e04c46b848c089b4034095fd1268c288dab75b51194790d7d68932d9681",
+      "dfabb35796a4e8d9a643d4a28bc4d2a4180f6f111a9cf2565eb44aaa366d75e4"
+    ],
+    "cluster-scheduler": [
+      "255568bc7a90e916cc37fbcda84d9890080d1937f399cb81b46b519e2b387013",
+      "44515bb3bd5c2638675600b849df1c82be7d0c28a9c16dce312cafeb8e5e63fa",
+      "61e6755d1811df7ac4bbd39971621d0a0a4b035df815886a862982fd2c20f205",
+      "7be19117bf6a73b4f613987ed5ff3deca259c78e3279448f79ffc7d0cd1d5545",
+      "897a31bd3ab863565c564cb3baae35d496bf79d278e2f7602a11bd41a583a4c2",
+      "a33474e0bcb83c3e7f94dca32bab1f03808ebe1e37b7d99812c9f9cab8623f3a"
+    ],
+    "edge-job": [
+      "25a8b140141f54a5fe427ae6d27883e6cb4d26da8eb37f81f6466168bebcc059",
+      "45a1cf1dd023cf64f5f49114b405571c1c182151836c30503a998f600af164fb",
+      "706c37eac49582756b291a5a1eb754645c70af2c2ed11ae8487a27f59bbe141f",
+      "e3f7797bb79524153951a30d187b0b409b45105faf8afabee42a7278d330810b"
+    ],
+    "edge-read": [
+      "450c97af89da186f6ff5c2be2f3ef091d12816005ca37d883545d6ab0d3b5856",
+      "818e74f655c4b551aae4cebefcdbbc3f8b966e05db4455493303b2b1c5118d9e",
+      "9590224630c30e3919abf356ac49c47b7549b1d8cc4d530eb7c740e7d13148fb",
+      "b22816162b2717189efeae304f2678293545191a47b772ca2e969baa5ae9c523",
+      "b9a22d30edfc755d4f529f5a06e62528c8f9fef3b9fdc4da0365038f7826cc1e",
+      "bf6f73d43e5564bc5dc99c2d4c66d3d96b8a951342c6e468aa4b91917261d84d",
+      "c5f4260bc577f5cd34c8c800519b5e48de9be9143376497db7f3cd5148365c65",
+      "dd99fd45f9478ba660b58f4d41a59ffa0207f1ec79b273f50ce6f7a4cba7e286"
+    ],
+    "edge-write": [
+      "0780b9fb89c6e83042d416b3c92130ebd6a4061410419b1cbef2c150bc061854",
+      "fded4f1077ab770b93d5923e2fa36a6ce7d46ff725a9551a23177ed2f79e5408"
+    ],
+    "graph-algorithm-scheduler": [
+      "1940ec412701d5bc51901f10e934a8111036a5abbd4ef8b269b2e039bea38e3b",
+      "a1be1ec7b21a647fda99dca195430f07b4f738db663588cbd23b304ce3659bb8"
+    ],
+    "vertex-job": [
+      "075b8143a345d74eb99a3507e09823af3f22696a6ede401e9fc9d5fa2b5bcd6f",
+      "2f7b6bec32de4c23009be75e31529146d3b61aa61b5901ab307a4edcd95ed47d",
+      "a2b81985100c4147fb27cb176ef07c679387f7d0d056a88506837a96b1f0ff2e",
+      "b905aec015e7685b49ebe0cb729901f19fcd4cf51d7c9df171fdcef4218fb930",
+      "b95f8e72ec6e8df0e9b05533f1ba9ec487517f35ae99dde6a0997c5b196c760b",
+      "d60abebeee05acbd6f152dc83b66f88ec669dc2e05819d9646ecee4a3e08df1b"
+    ]
+  },
+  "production_hash_overrides": {
+    "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv": "dd99fd45f9478ba660b58f4d41a59ffa0207f1ec79b273f50ce6f7a4cba7e286",
+    "03_capi_integration/accelerator_rtl/cu_control/cu_BFS/CSR/PULL/global_cu/cu_vertex_cluster_arbiter_control.sv": "61e6755d1811df7ac4bbd39971621d0a0a4b035df815886a862982fd2c20f205",
+    "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_edge_data_read_extract_control.sv": "c5f4260bc577f5cd34c8c800519b5e48de9be9143376497db7f3cd5148365c65",
+    "03_capi_integration/accelerator_rtl/cu_control/cu_ConnectedComponents/CSR/ShiloachVishkin/global_cu/cu_vertex_cluster_arbiter_control.sv": "255568bc7a90e916cc37fbcda84d9890080d1937f399cb81b46b519e2b387013",
+    "03_capi_integration/accelerator_rtl/cu_control/cu_PageRank/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv": "818e74f655c4b551aae4cebefcdbbc3f8b966e05db4455493303b2b1c5118d9e",
+    "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_edge_data_read_extract_control.sv": "bf6f73d43e5564bc5dc99c2d4c66d3d96b8a951342c6e468aa4b91917261d84d",
+    "03_capi_integration/accelerator_rtl/cu_control/cu_SPMV/CSR/PULL/global_cu/cu_vertex_cluster_arbiter_control.sv": "255568bc7a90e916cc37fbcda84d9890080d1937f399cb81b46b519e2b387013",
+    "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_edge_data_read_extract_control.sv": "bf6f73d43e5564bc5dc99c2d4c66d3d96b8a951342c6e468aa4b91917261d84d",
+    "03_capi_integration/accelerator_rtl/cu_control/cu_TriangleCount/CSR/BinaryIntersection/global_cu/cu_vertex_cluster_arbiter_control.sv": "255568bc7a90e916cc37fbcda84d9890080d1937f399cb81b46b519e2b387013"
+  },
+  "expected_context_executions": 72,
+  "functional_bins": {
+    "plumbing": [
+      "reset_disabled_idle",
+      "vertex_isolated",
+      "vertex_active",
+      "filter_accept",
+      "filter_reject",
+      "csr_zero_degree",
+      "csr_single_degree",
+      "csr_high_degree",
+      "csr_cacheline_boundary",
+      "csr_tail_boundary",
+      "queue_near_full",
+      "queue_deterministic_stall",
+      "extract_lower_half",
+      "extract_upper_half",
+      "extract_tag_reorder",
+      "write_lower_half",
+      "write_upper_half",
+      "write_mask",
+      "write_conflict_latest_wins"
+    ],
+    "scheduler": [
+      "reset_disabled_idle",
+      "no_requests",
+      "single_request",
+      "all_requests",
+      "held_request",
+      "bounded_fairness",
+      "every_topology_coordinate",
+      "uneven_completion",
+      "read_write_contention",
+      "near_full_stall",
+      "exact_reduction",
+      "ownership_release_recovery"
+    ]
+  },
+  "dut_bins": {
+    "vertex_job": [
+      "vertex_job_reset_disabled_idle",
+      "vertex_job_zero",
+      "vertex_job_single_tail",
+      "vertex_job_high_degree",
+      "vertex_job_coherent_commands",
+      "vertex_job_queue_near_full",
+      "vertex_job_response_shift_drain",
+      "vertex_job_toggle_sweep"
+    ],
+    "edge_job": [
+      "edge_job_zero_degree",
+      "edge_job_single_degree",
+      "edge_job_cacheline_tail",
+      "edge_job_back_to_back_vertices",
+      "edge_job_high_degree",
+      "edge_job_coherent_commands",
+      "edge_job_queue_near_full",
+      "edge_job_response_shift_drain",
+      "edge_job_toggle_sweep"
+    ],
+    "edge_read_command": [
+      "edge_read_reset_disabled_idle",
+      "edge_read_upper_offset",
+      "edge_read_toggle_sweep"
+    ],
+    "edge_read_data_queue": [
+      "edge_read_data_queue",
+      "edge_read_data_queue_near_full"
+    ],
+    "edge_read_components": [
+      "edge_read_component_equal",
+      "edge_read_component_queue_near_full",
+      "edge_read_component_unequal"
+    ],
+    "edge_write_common": [
+      "edge_write_lower_half",
+      "edge_write_upper_half",
+      "edge_write_toggle_sweep"
+    ],
+    "edge_write_bfs": [
+      "edge_write_bfs_coherent",
+      "edge_write_bfs_dual_property",
+      "edge_write_queue_near_full",
+      "edge_write_toggle_sweep"
+    ],
+    "algorithm_arbiter": [
+      "algorithm_arbiter_reduction",
+      "algorithm_arbiter_all_held_fair",
+      "algorithm_arbiter_read_write_contention",
+      "algorithm_arbiter_near_full_stall",
+      "algorithm_arbiter_payload_toggle"
+    ],
+    "cluster_arbiter": [
+      "cluster_arbiter_all_held_fair",
+      "cluster_arbiter_backpressure_release_recovery",
+      "cluster_arbiter_delayed_submit",
+      "cluster_arbiter_kernel_cu_count",
+      "cluster_arbiter_near_full_stall",
+      "cluster_arbiter_payload_toggle",
+      "cluster_arbiter_read_write_contention",
+      "cluster_arbiter_reduction"
+    ],
+    "cluster_midflight_reset": [
+      "cluster_midflight_reset_relaunch_all",
+      "cluster_kernel_cu_count_contract"
+    ],
+    "cc_cu_control_midflight_reset": [
+      "cc_cu_control_midflight_reset_relaunch_all"
+    ],
+    "scheduler_control": [
+      "scheduler_control_activation"
+    ],
+    "edge_extract": {
+      "baseline": [
+        "extract_reset_disabled_idle",
+        "extract_lower_half",
+        "extract_upper_half",
+        "extract_toggle_sweep",
+        "extract_allocator_decisions",
+        "extract_allocator_full"
+      ],
+      "pulse_upper": [
+        "extract_one_cycle_upper"
+      ],
+      "tag_reorder": [
+        "extract_tag_reorder",
+        "extract_two_tag_reorder"
+      ]
+    }
+  },
+  "source_contracts": {
+    "cu_vertex_job_filter": [
+      "assign\\s+filter_vertex\\s*=",
+      "assign\\s+push_vertex\\s*=",
+      "vertex_job_counter_filtered_latched\\s*<=\\s*vertex_job_counter_filtered_latched\\s*\\+\\s*1",
+      "\\.DEPTH\\(CU_VERTEX_JOB_BUFFER_SIZE\\)"
+    ],
+    "cu_vertex_job_control": [
+      "fill_vertex_job_buffer",
+      "read_command_bus_request_pop",
+      "CACHELINE_VERTEX_NUM",
+      "\\.DEPTH\\(CU_VERTEX_JOB_BUFFER_SIZE\\)"
+    ],
+    "cu_edge_job_control": [
+      "edge_num_counter",
+      "send_request_ready",
+      "read_command_bus_request_pop",
+      "CACHELINE_EDGE_NUM"
+    ],
+    "cu_edge_data_read_command_control": [
+      "edge_data_request_latched",
+      "read_command_bus_request_pop",
+      "read_buffer_status_internal",
+      "cacheline_offset"
+    ],
+    "cu_edge_data_read_extract_control": [
+      "localparam\\s+PAIR_BUFFER_SIZE\\s*=\\s*2",
+      "read_data_buffer_tag",
+      "read_data_0_in\\.payload\\.cmd\\.tag\\s*==\\s*read_data_1_in\\.payload\\.cmd\\.tag",
+      "read_data_0_ready\\[pair_emit_index\\]\\s*<=\\s*0",
+      "read_data_1_ready\\[pair_emit_index\\]\\s*<=\\s*0"
+    ],
+    "cu_edge_data_write_command_control": [
+      "cmd\\.cacheline_offset",
+      "cmd\\.address_offset",
+      "write_command.*payload\\.address",
+      "swap_endianness.*data_write"
+    ],
+    "cu_vertex_cluster_arbiter_control": [
+      "read_command_owner",
+      "edge_data_write_owner",
+      "vertex_dispatch_armed",
+      "vertex_dispatch_grant",
+      "vertex_job_counter_sum_reduce_instant",
+      "edge_job_counter_sum_reduce_instant"
+    ],
+    "cu_vertex_cluster_control": [
+      "vertex_job_counter_done_latched",
+      "edge_job_counter_done_latched",
+      "cu_vertex.*_arbiter_control"
+    ],
+    "cu_graph_algorithm_arbiter_control": [
+      "round_robin_priority_arbiter_N_input_1_ouput",
+      "round_robin_priority_arbiter_1_input_N_ouput",
+      "vertex_job_counter_sum_reduce_instant",
+      "edge_job_counter_sum_reduce_instant"
+    ],
+    "cu_graph_algorithm_control": [
+      "vertex_job_counter_done_latched",
+      "edge_job_counter_done_latched",
+      "cu_vertex_pagerank_arbiter_control"
+    ],
+    "*_arbiter_control": [
+      "round_robin_priority_arbiter_N_input_1_ouput",
+      "round_robin_priority_arbiter_1_input_N_ouput",
+      "vertex_job_counter_sum_reduce_instant",
+      "edge_job_counter_sum_reduce_instant"
+    ]
+  },
+  "mutations": [
+    {
+      "id": "csr_tail_floor_division",
+      "testbench": "plumbing",
+      "define": "MUTATE_CSR_TAIL"
+    },
+    {
+      "id": "filter_accept_polarity",
+      "testbench": "plumbing",
+      "define": "MUTATE_FILTER_POLARITY"
+    },
+    {
+      "id": "extract_half_select",
+      "testbench": "plumbing",
+      "define": "MUTATE_EXTRACT_HALF"
+    },
+    {
+      "id": "property_write_mask",
+      "testbench": "plumbing",
+      "define": "MUTATE_WRITE_MASK"
+    },
+    {
+      "id": "queue_drop_on_stall",
+      "testbench": "plumbing",
+      "define": "MUTATE_QUEUE_DROP"
+    },
+    {
+      "id": "arbiter_fixed_priority",
+      "testbench": "scheduler",
+      "define": "MUTATE_ARBITER_FIXED"
+    },
+    {
+      "id": "completion_drop_last",
+      "testbench": "scheduler",
+      "define": "MUTATE_REDUCTION_DROP_LAST"
+    },
+    {
+      "id": "ownership_multigrant",
+      "testbench": "scheduler",
+      "define": "MUTATE_OWNERSHIP_MULTIGRANT"
+    },
+    {
+      "id": "ownership_stall_hold",
+      "testbench": "scheduler",
+      "define": "MUTATE_OWNERSHIP_STALL_HOLD"
+    }
+  ],
+  "known_production_blockers": [
+    {
+      "id": "arbiter_payload_grant_coupling",
+      "root_cause_file": "01_capi_precis/01_capi_integration/accelerator_rtl/afu_control/round_robin_priority_arbiter.sv",
+      "root_cause_module": "round_robin_priority_arbiter_N_input_1_ouput",
+      "families": [
+        "cluster-scheduler",
+        "graph-algorithm-scheduler",
+        "algorithm-arbiters"
+      ],
+      "modules": [
+        "cu_vertex_cluster_arbiter_control",
+        "cu_graph_algorithm_arbiter_control",
+        "*_arbiter_control"
+      ],
+      "reason": "round_robin_priority_arbiter_N_input_1_ouput assigns arbiter_out for every asserted submit bit instead of the granted bit. With held/all requests, ready identifies one owner while the payload comes from the highest loop index.",
+      "recommended_patch": "In the registered arbitration loop, change `if (submit[i]) arbiter_out <= buffer_in[i];` to `if (submit[i] && grant[i]) arbiter_out <= buffer_in[i];`. Keep ready[i] driven by grant[i] and retain the existing no-submit clear."
+    }
+  ]
+}

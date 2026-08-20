@@ -6,10 +6,30 @@
 // Copyright (c) 2014-2019 All rights reserved
 // -----------------------------------------------------------------------------
 // Author : Abdullah Mughrabi atmughrabi@gmail.com/atmughra@ncsu.edu
-// File   : cu_sum_kernel_control.sv
+// File   : cu_update_kernel_control.sv
 // Create : 2019-09-26 15:19:17
-// Revise : 2019-11-03 12:38:39
+// Revise : 2026-08-19
 // Editor : sublime text3, tab size (4)
+// -----------------------------------------------------------------------------
+//
+// TriangleCount binary intersection update kernel.
+//
+// The host counting policy (triangleCountBinaryIntersectionGraphCSR) walks the
+// sorted neighbour list of the iterating vertex and binary searches every
+// neighbour in the compared vertex list, counting one triangle per equality and
+// stopping the iterating walk at the first neighbour greater than the vertex
+// identifier so that every triangle is counted exactly once.
+//
+// The engine streams one comparison per element on the edge data bus:
+//   payload.data   : the neighbour taken from the iterating sorted list
+//   payload.weight : the candidate reached by the binary search in the compared
+//                    sorted list
+// This kernel is the counting half of that policy.  It counts one triangle for
+// every element whose two identifiers are equal, accumulates the count for the
+// whole vertex element slice, and publishes the per-vertex triangle count once
+// inverse_out_degree elements have been consumed.  A vertex whose slice is
+// empty publishes nothing.  The count is exact and wraps modulo
+// 2^DATA_SIZE_WRITE_BITS; the host applies the final normalisation.
 // -----------------------------------------------------------------------------
 
 import GLOBALS_AFU_PKG::*;
@@ -19,7 +39,7 @@ import WED_PKG::*;
 import AFU_PKG::*;
 import CU_PKG::*;
 
-module cu_sum_kernel_control #(
+module cu_update_kernel_control #(
 	parameter CU_ID_X = 1,
 	parameter CU_ID_Y = 1
 ) (
@@ -42,8 +62,6 @@ module cu_sum_kernel_control #(
 
 	logic              rstn                               ;
 	EdgeDataRead       edge_data_latched                  ;
-	EdgeDataRead       edge_data_latched_S1               ;
-	EdgeDataRead       edge_data_latched_S2               ;
 	EdgeDataWrite      edge_data_accumulator              ;
 	EdgeDataWrite      edge_data_accumulator_latch        ;
 	logic              enabled                            ;
@@ -56,12 +74,12 @@ module cu_sum_kernel_control #(
 	logic              edge_data_write_bus_request_pop    ;
 	ResponseBufferLine write_response_in_latched          ;
 	BufferStatus       write_buffer_status_latched        ;
+	logic              intersection_hit                   ;
 
 	logic [0:(VERTEX_SIZE_BITS-1)] vertex_num_counter_resp            ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum            ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal   ;
 	logic [  0:(EDGE_SIZE_BITS-1)] edge_data_counter_accum_internal_S2;
-	logic [  0:(DATA_SIZE_WRITE_BITS-1)] edge_data_multi;
 
 ////////////////////////////////////////////////////////////////////////////
 //drive outputs
@@ -100,7 +118,6 @@ module cu_sum_kernel_control #(
 ////////////////////////////////////////////////////////////////////////////
 //drive inputs
 ////////////////////////////////////////////////////////////////////////////
-
 
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
@@ -144,30 +161,30 @@ module cu_sum_kernel_control #(
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			edge_data_latched.valid <= 0;
-			edge_data_multi <= 0;
-			edge_data_latched_S1.valid <= 0;
-			edge_data_latched_S2.valid <= 0;
 		end else begin
 			if (enabled) begin
-				edge_data_latched_S1.valid <= edge_data.valid;
-				edge_data_latched_S2.valid <= edge_data_latched_S1.valid;
-				edge_data_latched.valid <= edge_data_latched_S2.valid;
-				edge_data_multi <= (edge_data_latched_S1.payload.data * edge_data_latched_S1.payload.weight);
+				edge_data_latched.valid <= edge_data.valid;
 			end
 		end
 	end
 
 	always_ff @(posedge clock) begin
-		edge_data_latched_S1.payload <= edge_data.payload;
-		edge_data_latched_S2.payload <= edge_data_latched_S1.payload;
-		edge_data_latched.payload    <= edge_data_latched_S2.payload;		
-		edge_data_latched.payload.data <= (edge_data_multi >> SCALEF);
+		edge_data_latched.payload <= edge_data.payload;
 	end
 
+////////////////////////////////////////////////////////////////////////////
+//binary intersection test
+////////////////////////////////////////////////////////////////////////////
+
+	// one comparison of the sorted neighbour walk: the neighbour taken from the
+	// iterating list equals the candidate reached in the compared list
+	assign intersection_hit = edge_data_latched.valid &&
+		(edge_data_latched.payload.data == edge_data_latched.payload.weight);
 
 ////////////////////////////////////////////////////////////////////////////
-//edge_data_accumulate
+//triangle accumulate
 ////////////////////////////////////////////////////////////////////////////
+
 	always_ff @(posedge clock or negedge rstn) begin
 		if(~rstn) begin
 			edge_data_accumulator               <= 0;
@@ -181,7 +198,7 @@ module cu_sum_kernel_control #(
 					edge_data_accumulator.payload.index   <= vertex_job_latched.payload.id;
 					edge_data_accumulator.payload.cu_id_x <= CU_ID_X;
 					edge_data_accumulator.payload.cu_id_y <= CU_ID_Y;
-					edge_data_accumulator.payload.data    <= edge_data_accumulator.payload.data + edge_data_latched.payload.data;
+					edge_data_accumulator.payload.data    <= edge_data_accumulator.payload.data + {{(DATA_SIZE_WRITE_BITS-1){1'b0}}, intersection_hit};
 					edge_data_counter_accum_internal      <= edge_data_counter_accum_internal + 1;
 				end
 
@@ -201,6 +218,7 @@ module cu_sum_kernel_control #(
 	always_ff @(posedge clock) begin
 		edge_data_accumulator_latch.payload <= edge_data_accumulator.payload;
 	end
+
 ////////////////////////////////////////////////////////////////////////////
 //counter trackings
 ////////////////////////////////////////////////////////////////////////////
@@ -250,12 +268,12 @@ module cu_sum_kernel_control #(
 	) edge_data_write_buffer_fifo_instant (
 		.clock   (clock                               ),
 		.rstn    (rstn                                ),
-		
+
 		.push    (edge_data_accumulator_latch.valid   ),
 		.data_in (edge_data_accumulator_latch         ),
 		.full    (edge_data_write_buffer_status.full  ),
 		.alFull  (edge_data_write_buffer_status.alfull),
-		
+
 		.pop     (edge_data_write_bus_request_pop     ),
 		.valid   (edge_data_write_buffer_status.valid ),
 		.data_out(edge_data_write_buffer              ),
